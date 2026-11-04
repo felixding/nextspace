@@ -137,7 +137,7 @@
       41877259688
     ],
     "hosted_native_suite_passed": false,
-    "latest_native_failure": "Installed launcher exits before shell readiness; original logs do not establish the cause.",
+    "latest_native_failure": "Shell probe exits3 before readiness is observed; compositor broker EOF follows. Cause remains unestablished.",
     "installed_launcher_local_passed": true,
     "supervisor_failure_capture_control_passed": true,
     "native_font_configuration": {
@@ -152,7 +152,11 @@
       "local_modes_passed": 6,
       "compositor_and_bus_loss_diagnostics_verified": true,
       "current_runtime_source_postdates_qualified_package": true,
-      "hosted_startup_cause_established": false
+      "hosted_startup_cause_established": false,
+      "compositor_nonreaped_signal_status_verified": true,
+      "failure_observation_maximum_ms": 50,
+      "installed_launcher_client_protocol_trace_verified": true,
+      "compositor_broker_receive_error_reporting": true
     }
   },
   "evidence_locations": {
@@ -250,5 +254,32 @@
     "hangul_terminal_cases": 5,
     "duplicate_test_bytes_removed": 1412707210,
     "compiled_runtime_retained": true
+  },
+  "installed_virtual_vt": {
+    "passed": true,
+    "installed_version": "0.1.0~native106",
+    "fixture_modules_verified": 193,
+    "private_runtime_files_matched": 11,
+    "unlocked_and_locked_vt_roundtrips": true,
+    "kernel_ctrl_alt_fn_verified": true,
+    "same_compositor_and_viewer": true,
+    "lock_epoch_preserved": true,
+    "authenticated_unlock": true,
+    "logout_cancel_and_regreet": true,
+    "original_vt_and_services_restored": true,
+    "temporary_users_and_pam_services_removed": true,
+    "installed_package_files_unchanged": true,
+    "guest_archive_bytes": 1830724,
+    "guest_archive_sha256": "fcf4e638042e39754f476035003148e8c7c8865fa6d245731232ed23ff12d6d1",
+    "kernel": "Linux lima-nextspace-gui 6.12.113+deb13-arm64 #1 SMP Debian 6.12.113-1 (2026-10-15) aarch64 GNU/Linux\n",
+    "virtual_drm": true,
+    "software_renderer": true,
+    "physical_hardware_qualified": false,
+    "latest_session_diagnostics_installed": false,
+    "full_plan_complete": false,
+    "archive": ".build/evidence/components/arm64-installed-vt-roundtrip-v1-evidence.tar.gz",
+    "bytes": 2195638,
+    "sha256": "f246e517005f3a28bf8922eefcd982eeb7d0311738058f90e37a00413f2849ed",
+    "return_method": "VT_ACTIVATE ioctl; keyboard Ctrl-Alt-F1 activates the original console"
   }
 }

@@ -18,9 +18,9 @@ source inputs, 79 literal links, 321 external libraries and 510 result reports.
 Both package phases complete 446 Review requests without timeout, seventy
 archive extractions, three positive decoder cases and six CRC rejection controls.
 The previous Review and directory failure points pass in this run; their
-historical causes remain unestablished. Rendering, framework and application
-inputs match the frozen cohort. Supervisor startup-error reporting now postdates
-that freeze and awaits fresh package qualification. Backend/protocol/test
+historical causes remain unestablished. Supervisor and compositor channel-error
+reporting now postdates that freeze and awaits fresh package qualification.
+Framework and application inputs retain their qualified versions. Backend/protocol/test
 documentation and validation/development tools are recorded separately in the
 current source audit.
 
@@ -47,6 +47,21 @@ Recovery evidence is `arm64-lima-native106-recovery-v1-evidence.tar.gz`
 The current machine-readable checkpoint is
 `.build/wayland-validation/arm64-current-qualification.json`.
 These results qualify the virtual guest, not physical GPUs.
+
+The installed native106 guest also passes unlocked and locked VT round trips
+through the native Login/PAM/Workspace fixture. Kernel Ctrl-Alt-F1 leaves the
+test session on VT8; the fixture reactivates VT8 with `VT_ACTIVATE`. Logind
+deactivates/reactivates the same user session, compositor and viewer. The locker
+retains its epoch and hides the desktop until PAM authentication. Logout
+cancellation, ordinary logout and fresh regreet pass. The original VT1,
+inactive/disabled display manager, temporary users and PAM services are restored.
+All 193 fixture module hashes and eleven observed private runtime files match
+their source/package receipts; package verification remains clean. This uses
+virtual DRM/Pixman and the installed native106 supervisor, rather than the newer
+startup diagnostics. The 2,195,638-byte capsule is
+`arm64-installed-vt-roundtrip-v1-evidence.tar.gz`, SHA-256
+`f246e517005f3a28bf8922eefcd982eeb7d0311738058f90e37a00413f2849ed`.
+Physical VT and suspend/resume qualification remains open.
 
 The installed native106 backend also passes an independent Weston 14.0.2
 headless/Pixman check on Debian 13/aarch64. Without NEXTSPACE extensions or
@@ -314,6 +329,16 @@ exit codes. Six local lifecycle modes, including the installed launcher, retain
 their original recovery and cleanup assertions. Compositor-loss and bus-loss
 controls verify the new diagnostics. The hosted startup cause remains open;
 this reporting change does not establish a fix.
+
+The next hosted diagnostic run observes the shell probe exit with status 3
+before readiness, followed by compositor broker EOF. Channel failures now retain
+the compositor's non-reaped terminal status and report server-side broker receive
+errors. A failure-only 50ms observation window lets the kernel publish an exit
+status after closing the child's files. Controlled compositor-loss cases record
+SIGKILL while the original ownership/cleanup assertions pass. The installed
+launcher fixture also retains client protocol messages for its handshake;
+its unchanged lifecycle checks pass locally. The hosted cause remains under
+investigation.
 
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
