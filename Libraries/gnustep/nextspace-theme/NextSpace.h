@@ -3,6 +3,7 @@
 
 @interface NextSpace : GSTheme
 {
+  NSImage *knobSlotPattern;
 }
 @property (readonly) NSImage *knobSlotPattern;
 @end

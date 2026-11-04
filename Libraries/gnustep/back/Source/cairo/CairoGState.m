@@ -28,6 +28,7 @@
    Boston, MA 02110-1301, USA.
 */
 
+#include "config.h"
 #include <AppKit/NSAffineTransform.h>
 #include <AppKit/NSBezierPath.h>
 #include <AppKit/NSColor.h>
@@ -154,7 +155,11 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
  
       // FIXME: Need some way to do a copy
       // but there isnt anything like copy->_ct = cairo_copy(_ct);
+#if BUILD_SERVER == SERVER_wayland
+      copy->_ct = cairo_create(cairo_get_group_target(_ct));
+#else
       copy->_ct = cairo_create(cairo_get_target(_ct));
+#endif
       status = cairo_status(copy->_ct);
       if (status != CAIRO_STATUS_SUCCESS)
         {
@@ -178,24 +183,6 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
               NSLog(@"Cairo status '%s' in set matrix", cairo_status_to_string(status));
             }
 
-          cpath = cairo_copy_path(_ct);
-          status = cpath->status;
-          if (status != CAIRO_STATUS_SUCCESS)
-            {
-              /*
-                Due to an interesting programming concept in cairo this does not
-                mean that an error has occured. It may as well just be that the 
-                old path had no elements. 
-                At least in cairo 1.4.10 (See file cairo-path.c, line 379).
-              */
-              // NSLog(@"Cairo status '%s' in copy path", cairo_status_to_string(status));
-            }
-          else
-            {
-              cairo_append_path(copy->_ct, cpath);
-            }
-          cairo_path_destroy(cpath);
-          
           cairo_set_operator(copy->_ct, cairo_get_operator(_ct));
           cairo_set_source(copy->_ct, cairo_get_source(_ct));
           cairo_set_tolerance(copy->_ct, cairo_get_tolerance(_ct));
@@ -219,6 +206,7 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
             }
 
           // In cairo 1.4 there also is a way to get the current clipping path
+          cairo_new_path(copy->_ct);
           clip_rects = cairo_copy_clip_rectangle_list(_ct);
           status = clip_rects->status;
           if (status == CAIRO_STATUS_SUCCESS)
@@ -233,7 +221,6 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
 
                       cairo_rectangle(copy->_ct, rect.x, rect.y, 
                                       rect.width, rect.height);
-                      cairo_clip(copy->_ct);
                     }
                 }
               else
@@ -249,9 +236,10 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
                                          clip rects in cairo < 1.6.0.  */
                                       rect.y + 2*(offset.y - size.height), 
                                       rect.width, rect.height);
-                      cairo_clip(copy->_ct);
                     }
                 }
+              /* Rectangles describe a union, including an empty clip. */
+              cairo_clip(copy->_ct);
             }
           else if (status == CAIRO_STATUS_CLIP_NOT_REPRESENTABLE)
             {
@@ -272,6 +260,24 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
 
           cairo_rectangle_list_destroy(clip_rects);
 #endif
+          cpath = cairo_copy_path(_ct);
+          status = cpath->status;
+          if (status != CAIRO_STATUS_SUCCESS)
+            {
+              /*
+                Due to an interesting programming concept in cairo this does not
+                mean that an error has occured. It may as well just be that the
+                old path had no elements.
+                At least in cairo 1.4.10 (See file cairo-path.c, line 379).
+              */
+              // NSLog(@"Cairo status '%s' in copy path", cairo_status_to_string(status));
+            }
+          else
+            {
+              cairo_append_path(copy->_ct, cpath);
+            }
+          cairo_path_destroy(cpath);
+
         }
     }
 
@@ -303,8 +309,10 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
     {
       NSSize size = [_surface size];
 
-      cairo_surface_set_device_offset([_surface surface], -theOffset.x, 
-                                      theOffset.y - size.height);
+      double sx, sy;
+      cairo_surface_get_device_scale([_surface surface], &sx, &sy);
+      cairo_surface_set_device_offset([_surface surface], -theOffset.x * sx,
+                                      (theOffset.y - size.height) * sy);
     }
   [super setOffset: theOffset];
 }
@@ -322,42 +330,81 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
  */
 - (void)GSSetPatterColor:(NSImage *)image
 {
+  NSSize size = [image size];
+  NSImageRep *rep = [image bestRepresentationForDevice:nil];
+  if (!image || !rep || !isfinite(size.width) || !isfinite(size.height) ||
+      size.width <= 0 || size.height <= 0)
+    [NSException raise:NSInvalidArgumentException format:@"A pattern needs a valid image and positive logical size."];
   [super GSSetPatterColor:image];
+  if (!_ct) return;
 
-  cairo_surface_t *pattern_surface;
-  NSImageRep *bestRep = [image bestRepresentationForDevice:nil];
-  NSBitmapImageRep *bitmapRep;
-  NSSize imageSize;
-
-  if (image == nil) {
-    [NSException raise:@"CairoGState: no image speecified."
-                format:@"%s: invalid argument - no image specified.", __func__];
+  double dx, dy;
+  cairo_surface_get_device_scale(cairo_get_target(_ct), &dx, &dy);
+  NSAffineTransformStruct view = [ctm transformStruct];
+  NSInteger width = [rep pixelsWide], height = [rep pixelsHigh];
+  if (width <= 0) width = ceil(size.width * hypot(view.m11 * dx, view.m12 * dy));
+  if (height <= 0) height = ceil(size.height * hypot(view.m21 * dx, view.m22 * dy));
+  cairo_surface_t *tile = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+  if (cairo_surface_status(tile) != CAIRO_STATUS_SUCCESS) {
+    cairo_surface_destroy(tile);
+    [NSException raise:NSMallocException format:@"Could not allocate pattern image surface."];
   }
-  bestRep = [image bestRepresentationForDevice:nil];
-  if (bestRep == nil) {
-    [NSException raise:@"CairoGState: failed to use image representation."
-                format:@"%s: No useful image representation found for this device.", __func__];
+  @try {
+    /* Reuse ordinary image drawing for pixel formats, premultiplication and
+       channel order. Cairo owns the resulting pixels for the pattern lifetime. */
+    [drawcontext DPSgsave];
+    @try {
+      CairoGState *state = (CairoGState *)[(GSContext *)drawcontext currentGState];
+      cairo_destroy(state->_ct);
+      state->_ct = cairo_create(tile);
+      cairo_scale(state->_ct, width / size.width, -height / size.height);
+      cairo_translate(state->_ct, 0, -size.height);
+      [drawcontext GSSetCTM:[NSAffineTransform transform]];
+      [rep drawInRect:NSMakeRect(0, 0, size.width, size.height)];
+    } @finally {
+      [drawcontext DPSgrestore];
+    }
+    NSAffineTransform *inverse = [[ctm copy] autorelease];
+    [inverse invert];
+    NSAffineTransformStruct t = [inverse transformStruct];
+    NSPoint phase = [self patternPhase];
+    double sx = width / size.width, sy = height / size.height;
+    cairo_matrix_t matrix;
+    cairo_matrix_init(&matrix, sx * t.m11, -sy * t.m12, sx * t.m21, -sy * t.m22,
+      sx * (t.tX - phase.x), height - sy * (t.tY - phase.y));
+    cairo_pattern_t *source = cairo_pattern_create_for_surface(tile);
+    cairo_pattern_set_matrix(source, &matrix);
+    cairo_pattern_set_extend(source, CAIRO_EXTEND_REPEAT);
+    cairo_pattern_set_filter(source, cairoFilterFromNSImageInterpolation([drawcontext imageInterpolation]));
+    cairo_set_source(_ct, source);
+    cairo_pattern_destroy(source);
+  } @finally {
+    cairo_surface_destroy(tile);
   }
+}
 
-  if ([bestRep isKindOfClass:[NSBitmapImageRep class]]) {
-    bitmapRep = (NSBitmapImageRep *)bestRep;
-  } else {
-    [NSException raise:@"CairoGState: failed to set provided image for pattern."
-                format:@"%s: Provided image doesn't contain "
-                       @"representations of NSBitmapImageRep class.",
-                       __func__];
-  }
-
-  imageSize = [image size];
-  pattern_surface =
-      cairo_image_surface_create_for_data([bitmapRep bitmapData], CAIRO_FORMAT_ARGB32,
-                                          imageSize.width, imageSize.height, bitmapRep.bytesPerRow);
-  cairo_pattern_t *c_pattern = cairo_pattern_create_for_surface(pattern_surface);
-  cairo_pattern_set_extend(c_pattern, CAIRO_EXTEND_REPEAT);
-  cairo_set_source(_ct, c_pattern);
-
-  cairo_pattern_destroy(c_pattern);
-  cairo_surface_destroy(pattern_surface);
+- (void)setPatternPhase:(NSPoint)phase
+{
+  NSPoint previous = [self patternPhase];
+  [super setPatternPhase:phase];
+  if (!_ct || !pattern) return;
+  cairo_pattern_t *source = cairo_get_source(_ct);
+  cairo_surface_t *tile;
+  if (cairo_pattern_get_surface(source, &tile) != CAIRO_STATUS_SUCCESS ||
+      cairo_surface_get_type(tile) != CAIRO_SURFACE_TYPE_IMAGE) return;
+  NSSize size = [pattern size];
+  cairo_matrix_t matrix;
+  cairo_pattern_get_matrix(source, &matrix);
+  matrix.x0 -= (phase.x - previous.x) * cairo_image_surface_get_width(tile) / size.width;
+  matrix.y0 += (phase.y - previous.y) * cairo_image_surface_get_height(tile) / size.height;
+  /* Sources are shared by saved graphics states. Give this state its own
+     phase matrix while retaining the same immutable tile pixels. */
+  cairo_pattern_t *shifted = cairo_pattern_create_for_surface(tile);
+  cairo_pattern_set_matrix(shifted, &matrix);
+  cairo_pattern_set_extend(shifted, cairo_pattern_get_extend(source));
+  cairo_pattern_set_filter(shifted, cairo_pattern_get_filter(source));
+  cairo_set_source(_ct, shifted);
+  cairo_pattern_destroy(shifted);
 }
 
 /*
@@ -486,8 +533,7 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
 
 - (void) GSShowGlyphsWithAdvances: (const NSGlyph *)glyphs : (const NSSize *)advances : (size_t) length
 {
-  // FIXME: this method should just be a call to cairo_show_glyphs
-  // FIXME: Currently advances is ignored
+  // The legacy path retains its existing glyph layout.
   if (_ct)
     {
       cairo_matrix_t local_matrix;
@@ -510,7 +556,12 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
       cairo_matrix_translate(&local_matrix, 0,  -[_surface size].height);
       cairo_transform(_ct, &local_matrix);
 
-      [(CairoFontInfo *)font drawGlyphs: glyphs
+#if BUILD_SERVER == SERVER_wayland
+      if ([_surface isDrawingToScreen])
+        [(CairoFontInfo *)font drawGlyphs:glyphs advances:advances length:length on:_ct];
+      else
+#endif
+        [(CairoFontInfo *)font drawGlyphs: glyphs
 				 length: length
 				     on: _ct];
 
@@ -763,6 +814,75 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
   cairo_set_antialias(_ct, [self shouldAntialias] ? CAIRO_ANTIALIAS_DEFAULT : CAIRO_ANTIALIAS_NONE);
 }
 
+/* Keep opaque UI fills and centered images on the backing pixel grid.
+   Other drawing geometry and print rendering retain their original bounds. */
+- (BOOL) _backingPixelRect: (NSRect)rect image: (BOOL)image result: (NSRect *)result
+{
+  if (!_ct || ![_surface isKindOfClass:NSClassFromString(@"WaylandCairoShmSurface")]) return NO;
+  if (!image && (rect.origin.x != floor(rect.origin.x) || rect.origin.y != floor(rect.origin.y) ||
+      rect.size.width != floor(rect.size.width) || rect.size.height != floor(rect.size.height))) return NO;
+  double sx, sy, dx, dy;
+  cairo_surface_t *target = cairo_get_target(_ct);
+  cairo_surface_get_device_scale(target, &sx, &sy);
+  if (image ? (sx == 1 && sy == 1) : (sx == floor(sx) && sy == floor(sy))) return NO;
+  cairo_surface_get_device_offset(target, &dx, &dy);
+  NSAffineTransformStruct t = [ctm transformStruct];
+  cairo_matrix_t view, device, combined, inverse;
+  cairo_matrix_init(&view, t.m11, t.m12, t.m21, t.m22, t.tX, t.tY);
+  cairo_get_matrix(_ct, &device);
+  cairo_matrix_multiply(&combined, &view, &device);
+  if (!((fabs(combined.xx) == 1 && fabs(combined.yy) == 1 && combined.xy == 0 && combined.yx == 0) ||
+        (fabs(combined.xy) == 1 && fabs(combined.yx) == 1 && combined.xx == 0 && combined.yy == 0)) ||
+      (!image && (combined.x0 != floor(combined.x0) || combined.y0 != floor(combined.y0)))) return NO;
+  inverse = combined;
+  if (cairo_matrix_invert(&inverse) != CAIRO_STATUS_SUCCESS) return NO;
+  double x1 = rect.origin.x, y1 = rect.origin.y;
+  double x2 = x1 + rect.size.width, y2 = y1 + rect.size.height;
+  cairo_matrix_transform_point(&combined, &x1, &y1);
+  cairo_matrix_transform_point(&combined, &x2, &y2);
+  if (image) {
+    double left = floor(fmin(x1, x2) * sx + dx + 0.5);
+    double top = floor(fmin(y1, y2) * sy + dy + 0.5);
+    double width = floor(fabs(x2 - x1) * sx + 0.5);
+    double height = floor(fabs(y2 - y1) * sy + 0.5);
+    x1 = (left - dx) / sx; x2 = (left + width - dx) / sx;
+    y1 = (top - dy) / sy; y2 = (top + height - dy) / sy;
+  } else {
+    x1 = (floor(x1 * sx + dx + 0.5) - dx) / sx;
+    x2 = (floor(x2 * sx + dx + 0.5) - dx) / sx;
+    y1 = (floor(y1 * sy + dy + 0.5) - dy) / sy;
+    y2 = (floor(y2 * sy + dy + 0.5) - dy) / sy;
+  }
+  cairo_matrix_transform_point(&inverse, &x1, &y1);
+  cairo_matrix_transform_point(&inverse, &x2, &y2);
+  *result = image ? NSMakeRect(fmin(x1, x2), fmin(y1, y2), fabs(x2 - x1), fabs(y2 - y1)) :
+    NSMakeRect(x1, y1, x2 - x1, y2 - y1);
+  return YES;
+}
+
+- (NSRect) _nativePixelRect: (NSRect)rect
+{
+  NSRect aligned;
+  return [self _backingPixelRect:rect image:NO result:&aligned] ? aligned : rect;
+}
+
+- (BOOL) GSBackingAlignedRect: (NSRect)rect result: (NSRect *)result
+{
+  return [self _backingPixelRect:rect image:YES result:result];
+}
+
+- (void) DPSrectclip: (CGFloat)x : (CGFloat)y : (CGFloat)w : (CGFloat)h
+{
+  NSRect rect = [self _nativePixelRect:NSMakeRect(x, y, w, h)];
+  [super DPSrectclip:rect.origin.x :rect.origin.y :rect.size.width :rect.size.height];
+}
+
+- (void) DPSrectfill: (CGFloat)x : (CGFloat)y : (CGFloat)w : (CGFloat)h
+{
+  NSRect rect = [self _nativePixelRect:NSMakeRect(x, y, w, h)];
+  [super DPSrectfill:rect.origin.x :rect.origin.y :rect.size.width :rect.size.height];
+}
+
 - (void) DPSclip
 {
   if (_ct)
@@ -785,52 +905,24 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
 
 - (void) DPSeofill
 {
-  if (_ct)
-    {
-      device_color_t c;
-
-      if (pattern != nil) {
-        //   [self eofillPath: path withPattern: pattern];
-        NSRect rect = [path bounds];
-        cairo_rectangle(_ct, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-        cairo_fill(_ct);
-        return;
-      }
-
-      c = fillColor;
-      gsColorToRGB(&c);
-      // The underlying concept does not allow to determine if alpha is set or not.
-      cairo_set_source_rgba(_ct, c.field[0], c.field[1], c.field[2], c.field[AINDEX]);
-      [self _setPath];
-      cairo_set_fill_rule(_ct, CAIRO_FILL_RULE_EVEN_ODD);
-      cairo_fill(_ct);
-      cairo_set_fill_rule(_ct, CAIRO_FILL_RULE_WINDING);
-    }
-  [self DPSnewpath];
+  if (!_ct) { [self DPSnewpath]; return; }
+  cairo_fill_rule_t previous = cairo_get_fill_rule(_ct);
+  cairo_set_fill_rule(_ct, CAIRO_FILL_RULE_EVEN_ODD);
+  @try { [self DPSfill]; }
+  @finally { cairo_set_fill_rule(_ct, previous); }
 }
 
 - (void) DPSfill
 {
-  if (_ct)
-    {
-      device_color_t c;
-
-      if (pattern != nil)
-        {
-        //   [self fillPath: path withPattern: pattern];
-        NSRect rect = [path bounds];
-        cairo_rectangle(_ct, rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-        cairo_fill(_ct);
-        return;
-      } else {
-        c = fillColor;
-        gsColorToRGB(&c);
-        // The underlying concept does not allow to determine if alpha is set or not.
-        cairo_set_source_rgba(_ct, c.field[0], c.field[1], c.field[2], c.field[AINDEX]);
-        [self _setPath];
-        cairo_fill(_ct);
-      }
+  if (_ct) {
+    if (pattern == nil) {
+      device_color_t color = fillColor;
+      gsColorToRGB(&color);
+      cairo_set_source_rgba(_ct, color.field[0], color.field[1], color.field[2], color.field[AINDEX]);
     }
+    [self _setPath];
+    cairo_fill(_ct);
+  }
   [self DPSnewpath];
 }
 
@@ -1045,6 +1137,64 @@ _set_op(cairo_t *ct, NSCompositingOperation op)
     default:
       cairo_set_operator(ct, CAIRO_OPERATOR_SOURCE);
     }
+}
+
+- (BOOL) GSdrawImageRep: (NSImageRep *)rep fromRect: (NSRect)source
+                toRect: (NSRect)destination operation: (NSCompositingOperation)operation
+              fraction: (CGFloat)fraction
+{
+#if BUILD_SERVER == SERVER_wayland
+  double sx, sy;
+  if (!_ct || ![_surface isDrawingToScreen]) return NO;
+  cairo_surface_get_device_scale(cairo_get_target(_ct), &sx, &sy);
+  if (sx == 1.0 && sy == 1.0) return NO;
+  NSAffineTransformStruct logical = [ctm transformStruct];
+  cairo_pattern_t *image = NULL;
+  [drawcontext DPSgsave];
+  @try {
+    CairoGState *state = (CairoGState *)[(GSContext *)drawcontext currentGState];
+    cairo_t *ct = state->_ct;
+    NSRectClip(destination);
+    double x1, y1, x2, y2;
+    cairo_clip_extents(ct, &x1, &y1, &x2, &y2);
+    /* Rasterize without applying fractional clip coverage twice. The original
+       context retains its actual clip, including curves and even-odd holes. */
+    cairo_reset_clip(ct);
+    cairo_rectangle(ct, x1 - 2 / sx, y1 - 2 / sy, x2 - x1 + 4 / sx, y2 - y1 + 4 / sy);
+    cairo_clip(ct);
+    cairo_push_group(ct);
+    NSAffineTransform *transform = [NSAffineTransform transform];
+    [transform translateXBy:destination.origin.x yBy:destination.origin.y];
+    [transform scaleXBy:destination.size.width / source.size.width yBy:destination.size.height / source.size.height];
+    [transform translateXBy:-source.origin.x yBy:-source.origin.y];
+    [transform concat];
+    [rep draw];
+    image = cairo_pop_group(ct);
+  } @finally {
+    [drawcontext DPSgrestore];
+  }
+  cairo_matrix_t base, placement;
+  cairo_get_matrix(_ct, &base);
+  cairo_matrix_init(&placement, logical.m11, logical.m12, logical.m21, logical.m22, logical.tX, logical.tY);
+  cairo_path_t *previousPath = cairo_copy_path(_ct);
+  cairo_save(_ct);
+  cairo_transform(_ct, &placement);
+  cairo_new_path(_ct);
+  cairo_rectangle(_ct, destination.origin.x, destination.origin.y, destination.size.width, destination.size.height);
+  cairo_clip(_ct);
+  cairo_set_matrix(_ct, &base);
+  cairo_set_source(_ct, image);
+  cairo_pattern_destroy(image);
+  _set_op(_ct, operation);
+  cairo_paint_with_alpha(_ct, MAX(0, MIN(1, fraction)));
+  cairo_restore(_ct);
+  cairo_new_path(_ct);
+  cairo_append_path(_ct, previousPath);
+  cairo_path_destroy(previousPath);
+  return YES;
+#else
+  return NO;
+#endif
 }
 
 /* For debugging */
@@ -1277,6 +1427,7 @@ _set_op(cairo_t *ct, NSCompositingOperation op)
         }
 
       // This is almost a rectclip::::, but the path stays unchanged.
+      aRect = [self _nativePixelRect:aRect];
       path = [NSBezierPath bezierPathWithRect: aRect];
       [path transformUsingAffineTransform: ctm];
       [self _setPath];

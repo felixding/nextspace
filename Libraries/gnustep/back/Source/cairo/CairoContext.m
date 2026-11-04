@@ -105,6 +105,20 @@
   return YES;
 }
 
+#if BUILD_SERVER == SERVER_wayland
+- (BOOL) GSBackingAlignedRect: (NSRect)rect result: (NSRect *)result
+{
+  return [CGSTATE GSBackingAlignedRect:rect result:result];
+}
+
+- (BOOL) GSdrawImageRep: (NSImageRep *)rep fromRect: (NSRect)source
+                toRect: (NSRect)destination operation: (NSCompositingOperation)operation
+              fraction: (CGFloat)fraction
+{
+  return [CGSTATE GSdrawImageRep:rep fromRect:source toRect:destination operation:operation fraction:fraction];
+}
+#endif
+
 - (id) initWithContextInfo: (NSDictionary *)info
 {
   self = [super initWithContextInfo: info];
@@ -141,6 +155,10 @@
   
 #if BUILD_SERVER == SERVER_x11
   XFlush([(XGServer *)server xDisplay]);
+#elif BUILD_SERVER == SERVER_wayland
+  CairoSurface *surface = nil;
+  [CGSTATE GSCurrentSurface: &surface : NULL : NULL];
+  [surface handleExposeRect: NSMakeRect(0, 0, [surface size].width, [surface size].height)];
 #elif BUILD_SERVER == SERVER_win32
   CairoSurface *surface = nil;
 
@@ -266,10 +284,14 @@
 
   NSPrintOperation *printOp = [NSPrintOperation currentOperation];
   NSPrintInfo *printInfo = [printOp printInfo];
+  contextType = [context_info objectForKey:
+                         NSGraphicsContextRepresentationFormatAttributeName];
 
   if (printInfo != nil)
     {
-      size = [printInfo paperSize];
+      BOOL exporting = [printOp isEPSOperation] ||
+        [contextType isEqual: NSGraphicsContextPDFFormat];
+      size = exporting ? boundingBox.size : [printInfo paperSize];
 
       // FIXME: This is confusing..
       // When an 8.5x11 page is set to landscape,
@@ -277,7 +299,7 @@
       // but gui also adds a 90 degree rotation as if it will
       // be drawing on a 8.5x11 page. So, swap 11x8.5 back to
       // 8.5x11 here.
-      if ([printInfo orientation] == NSLandscapeOrientation)
+      if (!exporting && [printInfo orientation] == NSLandscapeOrientation)
 	{
 	  size = NSMakeSize(size.height, size.width);
 	}
@@ -289,9 +311,6 @@
 		   NSStringFromSelector(_cmd)];
       return;
     }
-
-  contextType = [context_info objectForKey:
-			 NSGraphicsContextRepresentationFormatAttributeName];
 
   if (contextType)
     {

@@ -1,0 +1,42 @@
+diff --git a/Headers/Additions/GNUstepGUI/GSDisplayServer.h b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+--- a/Headers/Additions/GNUstepGUI/GSDisplayServer.h
++++ b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+@@ -107,6 +107,8 @@
+ 
+ /* Screen information */
+ - (NSSize) resolutionForScreen: (int)screen;
++/* NSZeroRect means the backend has no authoritative work area. */
++- (NSRect) workAreaForScreen: (int)screen;
+ - (NSRect) boundsForScreen: (int)screen;
+ - (NSWindowDepth) windowDepthForScreen: (int)screen;
+ - (const NSWindowDepth *) availableDepthsForScreen: (int)screen;
+diff --git a/Source/GSDisplayServer.m b/Source/GSDisplayServer.m
+--- a/Source/GSDisplayServer.m
++++ b/Source/GSDisplayServer.m
+@@ -444,6 +444,11 @@
+ 
+ /** Returns the bounds, in pixels, for the indicated screen of the
+     display. */
++- (NSRect) workAreaForScreen: (int)screen
++{
++  return NSZeroRect;
++}
++
+ - (NSRect) boundsForScreen: (int)screen
+ {
+   [self subclassResponsibility: _cmd];
+diff --git a/Source/NSScreen.m b/Source/NSScreen.m
+--- a/Source/NSScreen.m
++++ b/Source/NSScreen.m
+@@ -348,6 +348,11 @@
+  */
+ - (NSRect) visibleFrame
+ {
++  NSRect workArea = [GSCurrentServer() workAreaForScreen: _screenNumber];
++  if (!NSIsEmptyRect(workArea))
++    {
++      return NSIntersectionRect(_frame, workArea);
++    }
+   NSRect visFrame = _frame;
+   float menuHeight;
+ 

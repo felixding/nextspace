@@ -1,0 +1,53 @@
+--- a/ColorPickers/GSWheelColorPicker.m
++++ b/ColorPickers/GSWheelColorPicker.m
+@@ -71,6 +71,7 @@
+ 
+   GSColorWheelMarker *marker;
+   NSImage *image;
++  CGFloat imageScale;
+ }
+ 
+ -(float) hue;
+@@ -190,6 +191,10 @@
+   NSSize size = [self convertSizeToBase: [self bounds].size];
+   CGFloat cx, cy, cr;
+ 
++  imageScale = MAX(1.0, [[self window] backingScaleFactor]);
++  size.width *= imageScale;
++  size.height *= imageScale;
++
+   [image release];
+   image = nil;
+ 
+@@ -200,11 +205,11 @@
+   if (cr > size.height)
+     cr = size.height;
+ 
+-  cr = cr / 2 - 2;
++  cr = cr / 2 - 2 * imageScale;
+ 
+   {
+-    NSUInteger width = size.width;
+-    NSUInteger height = size.height;
++    NSUInteger width = ceil(size.width);
++    NSUInteger height = ceil(size.height);
+     NSUInteger bytesPerRow;
+     NSBitmapImageRep *bmp;
+     unsigned char *data;
+@@ -304,6 +309,7 @@
+       }
+ 
+     image = [[NSImage alloc] initWithSize: [self bounds].size];
++    [bmp setSize: [self bounds].size];
+     [image addRepresentation: bmp];
+     [bmp release];
+   }
+@@ -311,7 +317,7 @@
+ 
+ -(void) drawRect: (NSRect)rect
+ {
+-  if (nil == image)
++  if (nil == image || imageScale != MAX(1.0, [[self window] backingScaleFactor]))
+     {
+       [self regenerateImage];
+     }

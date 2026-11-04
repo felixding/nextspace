@@ -15,33 +15,29 @@
   [super dealloc];
 }
 
++ (BOOL)drawKnobSlotPattern:(NSCustomImageRep *)representation
+{
+  [[NSColor colorWithDeviceWhite:2.0/3.0 alpha:1.0] set];
+  NSRectFill(NSMakeRect(0,0,12,12));
+  NSBezierPath *checks=[NSBezierPath bezierPath];
+  for (NSInteger y=0;y<12;y++)
+    for (NSInteger x=1-y%2;x<12;x+=2)
+      [checks appendBezierPathWithRect:NSMakeRect(x,y,1,1)];
+  [[NSColor colorWithDeviceWhite:1.0/3.0 alpha:1.0] set];
+  [checks fill];
+  return YES;
+}
+
 - (NSImage *)knobSlotPattern
 {
   if (knobSlotPattern == nil) {
-    // NSLog(@"%s: Setting knob slot pattern image...", __func__);
-    NSString *path = [[self bundle] pathForResource:@"SharedGrayAlpha"
-                                             ofType:@"tiff"
-                                        inDirectory:@"Resources"];
-    // NSLog(@"SharedGrayAlpha path %@", path);
-    NSImage *sharedGrayBits = [[NSImage alloc] initWithContentsOfFile:path];
-    NSImage *pattern = [[NSImage alloc] initWithSize:NSMakeSize(12, 12)];
-    NSData *tiffRep;
-
-    [pattern lockFocusOnRepresentation:nil];
-    [sharedGrayBits drawAtPoint:NSZeroPoint
-                       fromRect:NSMakeRect(49, 88, 12, 12)
-                      operation:NSCompositeSourceOver
-                       fraction:1.0];
-    [pattern unlockFocus];
-
-    tiffRep = [pattern TIFFRepresentation];
-    [pattern release];
-    [sharedGrayBits release];
-    knobSlotPattern = [[NSImage alloc] initWithData:tiffRep];
-
-    // NSLog(@"%s: Setting knob slot pattern image - DONE!", __func__);
+    knobSlotPattern=[[NSImage alloc] initWithSize:NSMakeSize(12,12)];
+    NSCustomImageRep *representation=[[NSCustomImageRep alloc]
+      initWithDrawSelector:@selector(drawKnobSlotPattern:) delegate:[self class]];
+    [representation setSize:NSMakeSize(12,12)];
+    [knobSlotPattern addRepresentation:representation];
+    [representation release];
   }
-
   return knobSlotPattern;
 }
 

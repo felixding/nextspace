@@ -1,0 +1,266 @@
+diff --git a/Headers/Additions/GNUstepGUI/GSPasteboardServer.h b/Headers/Additions/GNUstepGUI/GSPasteboardServer.h
+index ba4e1e0..604a5db 100644
+--- a/Headers/Additions/GNUstepGUI/GSPasteboardServer.h
++++ b/Headers/Additions/GNUstepGUI/GSPasteboardServer.h
+@@ -41,6 +41,12 @@
+  */
+ #define	PBSNAME	@"GNUstepGSPasteboardServer"
+ 
++/* The session launcher supplies NEXTSPACE_SESSION_ID for native sessions. */
++APPKIT_EXPORT NSString *GSPasteboardServerName(void);
++APPKIT_EXPORT NSString *GSSessionServiceName(NSString *name);
++APPKIT_EXPORT BOOL GSPasteboardOperationInProgress(void);
++APPKIT_EXPORT NSString * const GSPasteboardDidChangeNotification;
++
+ /*
+  *	This protocol for use in asking GSPasteboardObj on the server to
+  *	perform tasks for the local NSPasteboard objects.
+diff --git a/Source/GSServicesManager.m b/Source/GSServicesManager.m
+index f723861..f6220f9 100644
+--- a/Source/GSServicesManager.m
++++ b/Source/GSServicesManager.m
+@@ -59,6 +59,7 @@
+ #import "AppKit/NSDocumentController.h"
+ 
+ #import "GNUstepGUI/GSServicesManager.h"
++#import "GNUstepGUI/GSPasteboardServer.h"
+ #import "GSGuiPrivate.h"
+ 
+ static GSServicesManager	*manager = nil;
+@@ -103,7 +104,7 @@ - (id) self;
+        *        Ensure there is no previous listener and nothing else using
+        *        the given port name.
+        */
+-      [[NSPortNameServer systemDefaultPortNameServer] removePortForName: name];
++      [[NSPortNameServer systemDefaultPortNameServer] removePortForName: GSSessionServiceName(name)];
+       [[NSNotificationCenter defaultCenter]
+ 	removeObserver: [GSListener class]
+ 		  name: NSConnectionDidDieNotification
+@@ -142,10 +143,10 @@ - (id) self;
+     }
+ 
+   ns = [NSPortNameServer systemDefaultPortNameServer];
+-  namedPort = [ns portForName: name];
++  namedPort = [ns portForName: GSSessionServiceName(name)];
+   if (namedPort && [listenerConnection receivePort] == namedPort)
+     {
+-      [ns removePortForName: name];
++      [ns removePortForName: GSSessionServiceName(name)];
+       namedPort = nil;
+     }
+   if (namedPort != nil)
+@@ -167,7 +168,7 @@ - (id) self;
+   listenerConnection = [[NSConnection alloc]
+     initWithReceivePort: [NSPort port] sendPort: nil];
+   [listenerConnection setRootObject: [GSListener listener]];
+-  if ([listenerConnection registerName: name] == NO)
++  if ([listenerConnection registerName: GSSessionServiceName(name)] == NO)
+     {
+       DESTROY(listenerConnection);
+     }
+@@ -1185,7 +1186,7 @@ - (void) registerAsServiceProvider
+ 	  /*
+ 	   * Try to activate the other app and terminate self.
+ 	   */
+-	  app = [NSConnection rootProxyForConnectionWithRegisteredName: appName
++	  app = [NSConnection rootProxyForConnectionWithRegisteredName: GSSessionServiceName(appName)
+ 								  host: @""];
+ 	  NS_DURING
+ 	    {
+@@ -1559,7 +1560,7 @@ - (void) updateServicesMenu
+     {
+       NS_DURING
+ 	{
+-	  app = [NSConnection rootProxyForConnectionWithRegisteredName: port  
++	  app = [NSConnection rootProxyForConnectionWithRegisteredName: GSSessionServiceName(port)  
+ 								  host: @""];
+ 	}
+       NS_HANDLER
+@@ -1583,7 +1584,7 @@ - (void) updateServicesMenu
+       NS_DURING
+ 	{
+ 	  app = [NSConnection
+-			rootProxyForConnectionWithRegisteredName: port  
++			rootProxyForConnectionWithRegisteredName: GSSessionServiceName(port)  
+ 							    host: @""];
+ 	  while (app == nil && [expire timeIntervalSinceNow] > 0.1)
+ 	    {
+@@ -1596,7 +1597,7 @@ - (void) updateServicesMenu
+ 	      next = [NSDate dateWithTimeIntervalSinceNow: 0.2];
+ 	      [loop runUntilDate: next];
+ 	      app = [NSConnection
+-			    rootProxyForConnectionWithRegisteredName: port  
++			    rootProxyForConnectionWithRegisteredName: GSSessionServiceName(port)  
+ 								host: @""];
+ 	    }
+ 	}
+diff --git a/Source/NSApplication.m b/Source/NSApplication.m
+index 63152ae..fe7bc41 100644
+--- a/Source/NSApplication.m
++++ b/Source/NSApplication.m
+@@ -287,10 +287,9 @@ + (void) initializeBackend;
+       {      
+ 	NSBundle *theBundle;
+ 	NSString *path, *bundleName;
+-	NSUserDefaults	*defs = [NSUserDefaults standardUserDefaults];
+ 
+ 	/* What backend ? */
+-	bundleName = [defs stringForKey: @"GSBackend"];
++	bundleName = GSDisplayBackendName();
+ 	path = gnustep_backend_framework (bundleName);
+ 	if (path == nil)
+ 	  {
+diff --git a/Source/NSPasteboard.m b/Source/NSPasteboard.m
+index e2ce173..e939444 100644
+--- a/Source/NSPasteboard.m
++++ b/Source/NSPasteboard.m
+@@ -1086,6 +1086,29 @@ @implementation NSPasteboard
+ 
+ static	NSRecursiveLock		*dictionary_lock = nil;
+ static	NSMapTable		*pasteboards = 0;
++/* Avoid reentering a mutating DO request from a nested GUI run loop. */
++static __thread unsigned pasteboardOperationDepth;
++BOOL GSPasteboardOperationInProgress(void) { return pasteboardOperationDepth != 0; }
++
++NSString * const GSPasteboardDidChangeNotification = @"GSPasteboardDidChangeNotification";
++
++NSString *GSPasteboardServerName(void)
++{
++  NSString *session = [[[NSProcessInfo processInfo] environment] objectForKey:@"NEXTSPACE_SESSION_ID"];
++  if ([session length] == 0) return PBSNAME;
++  NSCharacterSet *allowed = [NSCharacterSet characterSetWithCharactersInString:
++    @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"];
++  if ([session length] > 64 || [session rangeOfCharacterFromSet:[allowed invertedSet]].location != NSNotFound)
++    [NSException raise:NSInvalidArgumentException format:@"Invalid NEXTSPACE_SESSION_ID"];
++  return [PBSNAME stringByAppendingFormat:@"-%@", session];
++}
++
++NSString *GSSessionServiceName(NSString *name)
++{
++  NSString *storage = GSPasteboardServerName();
++  return [storage isEqual:PBSNAME] ? name : [storage stringByAppendingFormat:@"-service-%@", name];
++}
++
+ static	id<GSPasteboardSvr>	the_server = nil;
+ static  NSMapTable              *mimeMap = NULL;
+ 
+@@ -1418,6 +1441,8 @@ - (int) addTypes: (NSArray*)newTypes
+ - (int) declareTypes: (NSArray*)newTypes
+ 	       owner: (id)newOwner
+ {
++  pasteboardOperationDepth++;
++  @try {
+   NS_DURING
+     {
+       changeCount = [target declareTypes: newTypes
+@@ -1430,7 +1455,9 @@ - (int) declareTypes: (NSArray*)newTypes
+ 		  format: @"%@", [localException reason]];
+     }
+   NS_ENDHANDLER
++  [[NSNotificationCenter defaultCenter] postNotificationName:GSPasteboardDidChangeNotification object:self];
+   return changeCount;
++  } @finally { pasteboardOperationDepth--; }
+ }
+ 
+ - (void) dealloc
+@@ -1541,6 +1568,8 @@ - (id) replacementObjectForPortCoder: (NSPortCoder*)aCoder
+ - (BOOL) setData: (NSData*)data
+ 	 forType: (NSString*)dataType
+ {
++  pasteboardOperationDepth++;
++  @try {
+   BOOL	ok = NO;
+ 
+   NS_DURING
+@@ -1557,7 +1586,9 @@ - (BOOL) setData: (NSData*)data
+ 		  format: @"%@", [localException reason]];
+     }
+   NS_ENDHANDLER
++  if (ok) [[NSNotificationCenter defaultCenter] postNotificationName:GSPasteboardDidChangeNotification object:self];
+   return ok;
++  } @finally { pasteboardOperationDepth--; }
+ }
+ 
+ - (BOOL) writeObjects: (NSArray*)objects
+@@ -1983,12 +2014,12 @@ + (id) _lostServer: (NSNotification*)notification
+ 	}
+ 
+       the_server = (id<GSPasteboardSvr>)[NSConnection
+-	rootProxyForConnectionWithRegisteredName: PBSNAME host: host];
++	rootProxyForConnectionWithRegisteredName: GSPasteboardServerName() host: host];
+       if (the_server == nil && [host length] > 0)
+ 	{
+ 	  NSString	*service;
+ 
+-	  service = [PBSNAME stringByAppendingFormat: @"-%@", host];
++	  service = [GSPasteboardServerName() stringByAppendingFormat: @"-%@", host];
+ 	  the_server = (id<GSPasteboardSvr>)[NSConnection
+ 	    rootProxyForConnectionWithRegisteredName: service host: @"*"];
+ 	}
+@@ -2014,7 +2045,8 @@ + (id) _lostServer: (NSNotification*)notification
+ 
+ 	  if (cmd == nil && recursion ==NO)
+ 	    {
+-	      cmd = RETAIN([NSTask launchPathForTool: @"gpbs"]);
++	      NSString *tool = [GSPasteboardServerName() isEqual:PBSNAME] ? @"gpbs" : @"gpbs-wayland";
++	      cmd = RETAIN([NSTask launchPathForTool: tool]);
+ 	    }
+ 	  if (recursion == YES || cmd == nil)
+ 	    {
+diff --git a/Source/NSWorkspace.m b/Source/NSWorkspace.m
+index 6bc7f71..5ec03ec 100644
+--- a/Source/NSWorkspace.m
++++ b/Source/NSWorkspace.m
+@@ -106,6 +106,7 @@
+ #import "AppKit/NSWindow.h"
+ #import "AppKit/NSScreen.h"
+ #import "GNUstepGUI/GSServicesManager.h"
++#import "GNUstepGUI/GSPasteboardServer.h"
+ #import "GNUstepGUI/GSDisplayServer.h"
+ #import "GSGuiPrivate.h"
+ 
+@@ -161,7 +162,7 @@ static id GSLaunched(NSNotification *notification, BOOL active)
+   if (path == nil)
+     {
+       path = [NSTemporaryDirectory()
+-	stringByAppendingPathComponent: @"GSLaunchedApplications"];
++	stringByAppendingPathComponent: GSSessionServiceName(@"GSLaunchedApplications")];
+       RETAIN(path);
+       lock = [[NSDistributedLock alloc] initWithPath:
+ 	[path stringByAppendingPathExtension: @"lock"]];
+@@ -340,7 +341,7 @@ @implementation	_GSWorkspaceCenter
+ 
+ - (void) dealloc
+ {
+-  [remote removeObserver: self name: nil object: GSWorkspaceNotification];
++  [remote removeObserver: self name: nil object: GSSessionServiceName(GSWorkspaceNotification)];
+   RELEASE(remote);
+   [super dealloc];
+ }
+@@ -356,7 +357,7 @@ - (id) init
+ 	  [remote addObserver: self
+ 		     selector: @selector(_handleRemoteNotification:)
+ 			 name: nil
+-		       object: GSWorkspaceNotification];
++		       object: GSSessionServiceName(GSWorkspaceNotification)];
+ 	}
+       NS_HANDLER
+ 	{
+@@ -397,7 +398,7 @@ - (void) postNotification: (NSNotification*)aNotification
+     }
+ 
+   rem = [NSNotification notificationWithName: name
+-				      object: GSWorkspaceNotification
++				      object: GSSessionServiceName(GSWorkspaceNotification)
+ 				    userInfo: info];
+   NS_DURING
+     {
+@@ -3493,7 +3494,7 @@ - (id) _connectApplication: (NSString*)appName
+        */
+       NS_DURING
+ 	{
+-          conn = [NSConnection connectionWithRegisteredName: port host: host];
++          conn = [NSConnection connectionWithRegisteredName: GSSessionServiceName(port) host: host];
+           requestTimeout = [conn requestTimeout];
+           [conn setRequestTimeout: 5.0];
+           replyTimeout = [conn replyTimeout];

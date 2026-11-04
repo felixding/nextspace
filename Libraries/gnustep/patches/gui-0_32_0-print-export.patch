@@ -1,0 +1,175 @@
+--- a/Source/NSPrintOperation.m
++++ b/Source/NSPrintOperation.m
+@@ -61,6 +61,7 @@
+ #import "GNUstepGUI/GSPDFPrintOperation.h"
+ #import "GNUstepGUI/GSPrintOperation.h"
+ #import "GSGuiPrivate.h"
++#include <float.h>
+ 
+ #define NSNUMBER(a) [NSNumber numberWithInt: (a)]
+ #define NSFNUMBER(a) [NSNumber numberWithDouble: (a)]
+@@ -136,6 +137,40 @@
+ 
+ static NSString *NSPrintOperationThreadKey = @"NSPrintOperationThreadKey";
+ 
++/* Page fitting multiplies and divides coordinates. Ignore only roundoff at the
++ * final edge, or a fractional remainder can generate blank pages forever. */
++static BOOL GSPrintHasMore (CGFloat printed, CGFloat end)
++{
++  CGFloat epsilon = sizeof(CGFloat) == sizeof(float) ? FLT_EPSILON : DBL_EPSILON;
++  return end - printed > 4 * epsilon * MAX(1.0, MAX(fabs(printed), fabs(end)));
++}
++
++void GSPrintView (NSPrintOperation *operation, NSView *view, NSRect rect)
++{
++  NSGraphicsContext *context = [operation context];
++
++  NSRect sheet = NSMakeRect(0, 0, NSWidth(rect), NSHeight(rect));
++  [[[operation printInfo] dictionary] setObject: [NSValue valueWithRect: sheet]
++                                        forKey: @"NSPrintSheetBounds"];
++  [view beginDocument];
++  [view beginPageInRect: rect atPlacement: NSZeroPoint];
++
++  /* Printing the root view discards its window transform. Restore its flipped
++   * coordinates here, once for both export formats, without a screen scale.
++   * The exported rectangle starts at the origin of its own page. */
++  if ([view isFlipped])
++    {
++      DPStranslate(context, -NSMinX(rect), NSMaxY(rect));
++      DPSscale(context, 1, -1);
++    }
++  else
++    DPStranslate(context, -NSMinX(rect), -NSMinY(rect));
++  [view displayRectIgnoringOpacity: rect inContext: context];
++  [view endPage];
++  [view endDocument];
++}
++
++
+ /**
+   <unit>
+   <heading>Class Description</heading>
+@@ -1071,12 +1106,12 @@
+         {
+           /* Check if adjust pages forced part of the bounds onto 
+              another page */
+-          if (NSMaxX(pageRect) < NSMaxX(_rect) 
++          if (GSPrintHasMore(NSMaxX(pageRect), NSMaxX(_rect)) 
+               && [_print_info horizontalPagination] != NSClipPagination)
+             {
+               info.xpages++;
+             }
+-          if (NSMaxY(pageRect) < NSMaxY(_rect)
++          if (GSPrintHasMore(NSMaxY(pageRect), NSMaxY(_rect))
+               && [_print_info verticalPagination] != NSClipPagination)
+             {
+               info.ypages++;
+--- a/Source/GSEPSPrintOperation.m
++++ b/Source/GSEPSPrintOperation.m
+@@ -43,6 +43,7 @@
+ #import "AppKit/NSPrintInfo.h"
+ #import "AppKit/NSPrintOperation.h"
+ #import "GNUstepGUI/GSEPSPrintOperation.h"
++#import "GSGuiPrivate.h"
+ 
+ 
+ /**
+@@ -96,19 +97,7 @@
+ 
+ - (void) _print
+ {
+-  /* Save this for the view to look at. Seems like there should
+-     be a better way to pass it to beginDocument */
+-  [[[self printInfo] dictionary] setObject: [NSValue valueWithRect: _rect]
+-				 forKey: @"NSPrintSheetBounds"];
+-                              
+-  [_view beginDocument];
+-  [_view beginPageInRect: _rect 
+-             atPlacement: NSMakePoint(0,0)];
+-             
+-  [_view displayRectIgnoringOpacity: _rect inContext: [self context]];
+-
+-  [_view endPage];
+-  [_view endDocument];
++  GSPrintView(self, _view, _rect);
+ }
+ 
+ - (BOOL)isEPSOperation
+--- a/Source/GSPDFPrintOperation.m
++++ b/Source/GSPDFPrintOperation.m
+@@ -42,6 +42,7 @@
+ #import "AppKit/NSPrintInfo.h"
+ #import "AppKit/NSView.h"
+ #import "GNUstepGUI/GSPDFPrintOperation.h"
++#import "GSGuiPrivate.h"
+ 
+ 
+ /**
+@@ -117,23 +118,7 @@
+ 
+ - (void) _print
+ {
+-  // TODO: Copied-and-pasted from GSEPSPrintOperation. Factor out.
+-
+-  /* Save this for the view to look at. Seems like there should
+-     be a better way to pass it to beginDocument */
+-  [[[self printInfo] dictionary] setObject: [NSValue valueWithRect: _rect]
+-                                 forKey: @"NSPrintSheetBounds"];
+-
+-  [_view beginDocument];
+-  [_view beginPageInRect: _rect
+-             atPlacement: NSMakePoint(0,0)];
+-
+-  [_view displayRectIgnoringOpacity: _rect inContext: [self context]];
+-
+-  [_view endPage];
+-  [_view endDocument];
+-
+-  // FIXME: Output comes out up-side-down
++  GSPrintView(self, _view, _rect);
+ }
+ 
+ - (BOOL)deliverResult
+--- a/Source/GSGuiPrivate.h
++++ b/Source/GSGuiPrivate.h
+@@ -32,6 +32,7 @@
+ 
+ #import <Foundation/NSBundle.h>
+ #import <Foundation/NSCoder.h>
++#import <Foundation/NSGeometry.h>
+ #import "AppKit/AppKitDefines.h"
+ #include "GNUstepBase/GSConfig.h"
+ #include <math.h>
+@@ -42,6 +43,13 @@
+  * in Source/NSApplication.m
+  */
+ APPKIT_EXPORT NSBundle *GSGuiBundle (void);
++
++@class NSPrintOperation, NSView;
++/* Shared single-view PDF/EPS drawing. Paginated printer jobs have their own
++ * placement and orientation handling. */
++APPKIT_EXPORT void GSPrintView (NSPrintOperation *operation, NSView *view,
++                                NSRect rect);
++
+ 
+ /*
+  * Localize a message of the gnustep-gui library.  
+--- a/Source/NSView.m
++++ b/Source/NSView.m
+@@ -2161,10 +2161,14 @@
+     {
+       if (viewIsPrinting == self)
+         {
+-          /* Make sure coordinates are valid, then fake that we don't have
+-             a superview so we get printed correctly */
++          /* Printing establishes a new coordinate root. Keep both directions
++             and descendant caches consistent until endDocument restores them. */
+           [self _matrixToWindow];
+           [_matrixToWindow makeIdentityMatrix];
++          [_matrixFromWindow makeIdentityMatrix];
++          _visibleRect = _bounds;
++          for (NSView *subview in _sub_views)
++            [subview _invalidateCoordinates];
+         }
+       else
+         {

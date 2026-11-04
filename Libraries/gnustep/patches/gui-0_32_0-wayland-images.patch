@@ -1,0 +1,126 @@
+diff --git a/Source/NSImage.m b/Source/NSImage.m
+--- a/Source/NSImage.m
++++ b/Source/NSImage.m
+@@ -394,6 +394,25 @@
+ 
+ static NSArray *iterate_reps_for_types(NSArray *imageReps, SEL method);
+ 
++#include <float.h>
++
++/* Backing density is separate from a window's logical device resolution. */
++static CGFloat GSImageBackingScale(NSGraphicsContext *context)
++{
++  id destination = [[context attributes] objectForKey:NSGraphicsContextDestinationAttributeName];
++  if ([context isDrawingToScreen] && [destination isKindOfClass:[NSWindow class]])
++    return [(NSWindow *)destination backingScaleFactor];
++  return 1.0;
++}
++
++/* TIFF resolutions pass through float precision before becoming point sizes. */
++static CGFloat GSImageRoundedPixels(CGFloat points, CGFloat resolution)
++{
++  CGFloat pixels = points * resolution / 72.0;
++  return floor(pixels + 0.5 + fabs(pixels) * FLT_EPSILON);
++}
++
++
+ /* Find the GSRepData object holding a representation */
+ static GSRepData*
+ repd_for_rep(NSArray *_reps, NSImageRep *rep)
+@@ -1169,9 +1179,11 @@
+   /** 
+    * We only use caching on backends that can efficiently draw a rect from the cache
+    * onto the current graphics context respecting the CTM, which is currently cairo.
++   * Fixed-resolution caches cannot preserve fractional pixel boundaries. Draw
++   * original representations directly on higher-density screen contexts.
+    */
+   if (_cacheMode != NSImageCacheNever &&
+-      [ctxt supportsDrawGState])
++      [ctxt supportsDrawGState] && GSImageBackingScale(ctxt) == 1.0)
+     {
+       NSCachedImageRep *cache = [self _doImageCache: rep];
+       if (cache != nil)
+@@ -1445,7 +1457,23 @@
+   if (nil != resolution)
+     {
+       const NSSize dres = [resolution sizeValue];
+-      
++      NSImageRep *candidate;
++      NSEnumerator *candidates = [reps objectEnumerator];
++
++      /* Fractional densities round each backing dimension independently.
++       * Match the rounded pixel size; ties must not select the smaller rep. */
++      while ((candidate = [candidates nextObject]) != nil)
++        {
++          const NSSize logical = [candidate size];
++          if ([candidate pixelsWide] > 0 && [candidate pixelsHigh] > 0 &&
++              logical.width > 0 && logical.height > 0 &&
++              [candidate pixelsWide] == GSImageRoundedPixels(logical.width, dres.width) &&
++              [candidate pixelsHigh] == GSImageRoundedPixels(logical.height, dres.height))
++            [breps addObject: candidate];
++        }
++      if ([breps count] > 0)
++        return breps;
++
+       if (![self matchesOnMultipleResolution])
+ 	{
+ 	  NSImageRep *rep;
+@@ -1674,6 +1702,17 @@
+           deviceDescription = [[[GSCurrentContext() attributes] objectForKey: 
+                 NSGraphicsContextDestinationAttributeName] 
+                                   deviceDescription];
++          CGFloat scale = GSImageBackingScale(GSCurrentContext());
++          if (scale != 1.0)
++            {
++              NSMutableDictionary *description = [NSMutableDictionary dictionaryWithDictionary:
++                deviceDescription ? deviceDescription : [NSDictionary dictionary]];
++              NSValue *value = [description objectForKey:NSDeviceResolution];
++              NSSize resolution = value ? [value sizeValue] : NSMakeSize(72, 72);
++              [description setObject:[NSValue valueWithSize:NSMakeSize(
++                resolution.width * scale, resolution.height * scale)] forKey:NSDeviceResolution];
++              deviceDescription = description;
++            }
+         }
+       else if ([NSPrintOperation currentOperation])
+         {
+diff --git a/Source/NSImageRep.m b/Source/NSImageRep.m
+index 31dae43..0635526 100644
+--- a/Source/NSImageRep.m
++++ b/Source/NSImageRep.m
+@@ -57,6 +57,13 @@
+ static NSMutableArray *imageReps = nil;
+ static Class NSImageRep_class = NULL;
+ 
++/* Optional backend path for vector compositing at screen backing density. */
++@interface NSGraphicsContext (GSDirectImageDrawing)
++- (BOOL) GSdrawImageRep: (NSImageRep *)rep fromRect: (NSRect)source
++                toRect: (NSRect)destination operation: (NSCompositingOperation)operation
++              fraction: (CGFloat)fraction;
++@end
++
+ @implementation NSImageRep
+ 
+ + (void) initialize
+@@ -564,6 +571,9 @@ - (void) nativeDrawInRect: (NSRect)dstRect
+                  fraction: (CGFloat)delta
+ {
+   NSGraphicsContext *ctxt = GSCurrentContext();
++  if ([ctxt respondsToSelector:@selector(GSdrawImageRep:fromRect:toRect:operation:fraction:)] &&
++      [ctxt GSdrawImageRep:self fromRect:srcRect toRect:dstRect operation:op fraction:delta])
++    return;
+   /* An intermediate image used to scale the image to be drawn as needed */
+   NSCachedImageRep *cache;
+   /* The scaled image graphics state we used as the source from which we 
+diff --git a/Source/NSBitmapImageRep.m b/Source/NSBitmapImageRep.m
+--- a/Source/NSBitmapImageRep.m
++++ b/Source/NSBitmapImageRep.m
+@@ -2046,7 +2046,7 @@
+   [_properties setObject: [NSNumber numberWithFloat: _comp_factor]
+                   forKey: NSImageCompressionFactor];
+ 
+-  if (info->xdpi > 0 && info->xdpi != 72 &&
+-      info->ydpi > 0 && info->ydpi != 72)
++  if (info->xdpi > 0 && info->ydpi > 0 &&
++      (info->xdpi != 72 || info->ydpi != 72))
+     {
+       NSSize pointSize = NSMakeSize((double)info->width * (72.0 / (double)info->xdpi),

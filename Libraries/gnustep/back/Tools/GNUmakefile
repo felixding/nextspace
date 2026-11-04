@@ -32,9 +32,13 @@ include ../config.make
 
 # The applications to be compiled
 TOOL_NAME = gpbs
+ifeq ($(BUILD_SERVER),wayland)
+TOOL_NAME = gpbs-wayland
+endif
 
 # The source files to be compiled
 gpbs_OBJC_FILES = gpbs.m
+gpbs-wayland_OBJC_FILES = gpbs.m
 
 MAN1_PAGES = gpbs.1
 

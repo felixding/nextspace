@@ -1,0 +1,16 @@
+diff --git a/Stream.subproj/CFStream.c b/Stream.subproj/CFStream.c
+index ce1b460..3905e4f 100644
+--- a/Stream.subproj/CFStream.c
++++ b/Stream.subproj/CFStream.c
+@@ -1684,7 +1684,11 @@ static void _perform(void* info)
+ 
+ static void* _legacyStreamRunLoop_workThread(void* arg)
+ {
++#if TARGET_OS_LINUX && !DEPLOYMENT_RUNTIME_SWIFT
++    pthread_setname_np(pthread_self(), "CFStream.Legacy");
++#else
+     _CFThreadSetName(pthread_self(), "com.apple.CFStream.LegacyThread");
++#endif
+     sLegacyRL = CFRunLoopGetCurrent();
+ 
+ #if defined(LOG_STREAM)

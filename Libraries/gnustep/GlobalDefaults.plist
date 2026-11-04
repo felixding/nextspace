@@ -3,7 +3,7 @@
 <plist version="0.9">
 <dict>
     <key>GSBackend</key>
-    <string>cairo</string>
+    <string>wayland</string>
     <key>GSTheme</key>
     <string>NextSpace</string>
     <key>GSWorkspaceApplication</key>

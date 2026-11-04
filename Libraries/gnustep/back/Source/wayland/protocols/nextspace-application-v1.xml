@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="nextspace_application_v1">
+  <copyright>
+    Copyright (c) 2026 NEXTSPACE contributors
+    SPDX-License-Identifier: MIT
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+  </copyright>
+  <interface name="nextspace_application_v1" version="8">
+    <description summary="application-owned window placement">
+      This interface controls only a client's own xdg toplevels. It grants no
+      authority over other clients, the desktop shell, activation or output settings.
+      Standard xdg-shell remains sufficient when this extension is unavailable;
+      absolute positioning then degrades to compositor-chosen placement.
+    </description>
+    <enum name="error">
+      <entry name="invalid_surface" value="0" summary="surface is not an owned xdg toplevel"/>
+      <entry name="duplicate_window" value="1" summary="surface already has a window object"/>
+    </enum>
+    <request name="destroy" type="destructor"/>
+    <request name="get_window">
+      <arg name="id" type="new_id" interface="nextspace_window_v1"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
+    <event name="work_areas_reset" since="6">
+      <description summary="begin a complete read-only work-area snapshot">
+        Sent on binding and whenever output geometry or shell reservations
+        change. Applications cannot set reservations. Coordinates are logical
+        desktop units with a top-left origin; names match xdg-output.name.
+        Replace the preceding snapshot only at work_areas_done. This does not
+        change ordinary window placement or grant authority over other clients.
+      </description>
+    </event>
+    <event name="work_area" since="6">
+      <arg name="name" type="string"/><arg name="x" type="int"/><arg name="y" type="int"/>
+      <arg name="width" type="int"/><arg name="height" type="int"/>
+    </event>
+    <event name="work_areas_done" since="6"/>
+  </interface>
+  <interface name="nextspace_window_v1" version="8">
+    <description summary="asynchronous logical window position">
+      Positions use the top-left of the complete logical window frame in desktop
+      units. With client-side decorations this is xdg window geometry; with
+      negotiated server decorations it includes the compositor's frame insets.
+      Requests are suggestions. The compositor keeps a usable part of the window
+      on an available output and sends the authoritative position after mapping,
+      moving or resizing. Clients must not assume synchronous placement.
+      A window object must be destroyed before its xdg toplevel or wl_surface.
+    </description>
+    <request name="destroy" type="destructor"/>
+    <request name="set_position">
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </request>
+    <event name="position">
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </event>
+    <event name="preferred_output">
+      <description summary="authoritative preferred output identity">
+        The name matches xdg-output.name. An empty name means no preferred
+        output is currently visible. Fractional-scale still owns backing density.
+      </description>
+      <arg name="name" type="string"/>
+    </event>
+    <event name="closed"/>
+    <request name="set_accepts_focus" since="2">
+      <description summary="decline keyboard focus for auxiliary windows">
+        A zero value prevents this window from taking keyboard focus. This is
+        suitable for application menus and icons that receive pointer events
+        while their document keeps keyboard focus. The default is one.
+        A nonzero value permits ordinary compositor focus policy; it does not
+        activate a window or grant authority to choose the focused application.
+      </description>
+      <arg name="accepts_focus" type="uint"/>
+    </request>
+    <request name="set_level" since="3">
+      <description summary="application-owned stacking level">
+        Set the AppKit logical window level. Values are constrained to -1000
+        through 1000. Focus and ordering stay within that level. This metadata
+        grants neither shell authority nor a secure screen-lock role.
+      </description>
+      <arg name="level" type="int"/>
+    </request>
+    <request name="order" since="3">
+      <description summary="order among owned peers in the same level">
+        A positive value orders above the reference, a negative value below.
+        A null reference orders at the top or bottom of the level. References
+        in another level and zero direction are ignored. Ordering does not
+        change keyboard focus or activate an application.
+      </description>
+      <arg name="direction" type="int"/>
+      <arg name="reference" type="object" interface="nextspace_window_v1" allow-null="true"/>
+    </request>
+    <request name="set_minimized" since="3">
+      <description summary="restore or minimize this owned window">
+        This changes visibility without destroying the surface or its retained
+        contents. The compositor sends the resulting state asynchronously.
+      </description>
+      <arg name="minimized" type="uint"/>
+    </request>
+    <event name="minimized" since="3"><arg name="minimized" type="uint"/></event>
+    <request name="set_metadata" since="3">
+      <description summary="owned AppKit identity and client frame geometry">
+        client_id is meaningful only inside this client's process. style is the
+        AppKit style mask. title_height is the client-drawn title strip in logical
+        surface units, or zero for a borderless window. These are presentation
+        hints and grant no authority over other clients or session security.
+      </description>
+      <arg name="client_id" type="uint"/><arg name="style" type="uint"/>
+      <arg name="title_height" type="uint"/>
+    </request>
+    <enum name="drag_phase" since="4">
+      <entry name="begin" value="0"/><entry name="motion" value="1"/>
+      <entry name="drop" value="2"/><entry name="cancel" value="3"/>
+      <entry name="enter" value="4"/>
+    </enum>
+    <request name="prepare_drag" since="4">
+      <description summary="action masks for the next owned pointer drag">
+        Set the local and external data-device action masks for the next
+        serial-authorized drag originating from this window or its popups.
+        Local means the destination shares this Wayland connection. The masks
+        may contain only copy and move; they are intersected with the source's
+        advertised actions. The compositor chooses the appropriate mask before
+        offering data to each destination. This changes neither input authority
+        nor another client's source. A new request replaces the pending values.
+      </description>
+      <arg name="local_actions" type="uint"/><arg name="external_actions" type="uint"/>
+    </request>
+    <event name="drag_context" since="4">
+      <description summary="validated pointer-drag context for an owned surface">
+        Sent only for a serial-authorized pointer drag. begin, motion, drop and
+        cancel describe the producer's gesture. enter describes the destination
+        after wl_data_device.enter. surface belongs to the receiving client and
+        may be a popup of this window. id identifies the gesture, including while
+        a completed drop waits for a receiver's decision. local is one only when
+        producer and destination use the same Wayland connection. x and y are
+        logical desktop pointer coordinates with a top-left origin. These events
+        grant no authority and do not replace data-device action negotiation or
+        completion. Applications must use wl_data_source.dnd_finished to decide
+        whether their data was successfully transferred.
+      </description>
+      <arg name="surface" type="object" interface="wl_surface"/>
+      <arg name="id" type="uint"/><arg name="phase" type="uint" enum="drag_phase"/>
+      <arg name="local" type="uint"/><arg name="x" type="fixed"/><arg name="y" type="fixed"/>
+    </event>
+    <request name="set_presented" since="5">
+      <description summary="order an owned window in or out without losing its state">
+        A zero value hides the surface and its popups without destroying the
+        toplevel. A nonzero value restores presentation. Shade, desktop, stacking
+        level, geometry and minimization remain unchanged. This does not grant
+        activation or authority over another client's windows.
+      </description>
+      <arg name="presented" type="uint"/>
+    </request>
+    <request name="set_frame_extents" since="7">
+      <description summary="retain native logical frame metrics with server decorations">
+        These logical insets preserve the application's frame/content geometry
+        when xdg-decoration selects a server frame. They do not decorate a
+        client-side window or grant placement, focus or shell authority. Each
+        inset must be in 0..128; an invalid request is ignored in its entirety.
+        The latest valid request applies at the next wl_surface.commit. The
+        default frame remains in effect when this request is not used. A zero
+        top inset omits the title, and zero side/bottom insets omit those edges.
+        Controls follow the owned AppKit style metadata. Fullscreen omits the
+        frame while retaining these metrics for restoration.
+      </description>
+      <arg name="left" type="uint"/><arg name="top" type="uint"/>
+      <arg name="right" type="uint"/><arg name="bottom" type="uint"/>
+    </request>
+    <request name="set_document_edited" since="7">
+      <description summary="owned document's edited indicator">
+        A nonzero value selects the edited close-button artwork; zero restores
+        the clean artwork. The default is zero. This presentation hint applies
+        immediately and survives hiding or minimization. It changes no close,
+        activation, placement or shell policy.
+      </description>
+      <arg name="edited" type="uint"/>
+    </request>
+    <enum name="title_state" since="7">
+      <entry name="key" value="0"/><entry name="normal" value="1"/><entry name="main" value="2"/>
+    </enum>
+    <request name="set_title_state" since="7">
+      <description summary="owned application's title presentation hint">
+        The default is normal. This hint applies immediately without a surface
+        commit; invalid values are ignored. Actual keyboard focus always selects
+        the key appearance. The main appearance is allowed only while another
+        window on this same Wayland connection has keyboard focus. A key hint
+        on an unfocused window does not select key appearance or change focus.
+        This grants no activation, placement or shell authority.
+      </description>
+      <arg name="state" type="uint" enum="title_state"/>
+    </request>
+    <enum name="color_pick_phase" since="8">
+      <entry name="preview" value="0"/>
+      <entry name="selected" value="1"/>
+      <entry name="cancelled" value="2"/>
+      <entry name="unavailable" value="3"/>
+    </enum>
+    <request name="begin_color_pick" since="8">
+      <description summary="Interactively pick a displayed color">
+        Begin a compositor-controlled magnifier interaction after a left-button
+        release or Space/Enter key press delivered to this window. The serial
+        must identify that recent, unconsumed gesture. Forged, expired, replayed, hidden-window and busy
+        requests finish with unavailable. Only one pick may run at a time.
+        The compositor provides a visible magnifier, previews pointer changes,
+        selects on the next left-button release, and cancels on Escape or a
+        right-button click. Other applications receive no selection click.
+        This grants no general screen-capture access. Colors are opaque displayed
+        sRGB channel values, excluding the cursor. Each request receives exactly
+        one terminal event while its window object remains alive.
+      </description>
+      <arg name="request_id" type="uint"/>
+      <arg name="serial" type="uint"/>
+    </request>
+    <request name="cancel_color_pick" since="8">
+      <description summary="Cancel this window's matching active pick">
+        An inactive or mismatched request is ignored. Destroying or unmapping
+        the owner, locking the session, or changing the output layout also ends
+        an active pick. A client must use a fresh request ID for every attempt.
+      </description>
+      <arg name="request_id" type="uint"/>
+    </request>
+    <event name="color_pick" since="8">
+      <arg name="request_id" type="uint"/>
+      <arg name="phase" type="uint" enum="color_pick_phase"/>
+      <arg name="red" type="uint" summary="0..255; valid for preview and selected"/>
+      <arg name="green" type="uint"/>
+      <arg name="blue" type="uint"/>
+    </event>
+  </interface>
+</protocol>

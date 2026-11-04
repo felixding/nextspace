@@ -29,10 +29,14 @@
 #include <Foundation/NSException.h>
 #include <Foundation/NSUserDefaults.h>
 
+#if BUILD_SERVER == SERVER_wayland
+#include "wayland/WaylandServer.h"
+#else
 #include <x11/XGServer.h>
 @interface XGServer (Initialize)
 + (void) initializeBackend;
 @end
+#endif
 
 @interface GSBackend : NSObject
 {
@@ -54,6 +58,8 @@
   /* Load in only one server */
 #if BUILD_SERVER == SERVER_x11
   [XGServer initializeBackend];
+#elif BUILD_SERVER == SERVER_wayland
+  [WaylandServer initializeBackend];
 #else
   [NSException raise: NSInternalInconsistencyException
 	       format: @"No Window Server configured in backend"];

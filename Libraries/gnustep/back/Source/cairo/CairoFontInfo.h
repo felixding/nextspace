@@ -39,6 +39,8 @@
 }
 
 - (void)drawGlyphs:(const NSGlyph *)glyphs length:(int)length on:(cairo_t *)ct;
+- (void)drawGlyphs:(const NSGlyph *)glyphs advances:(const NSSize *)advances
+           length:(int)length on:(cairo_t *)ct;
 @end
 
 #endif

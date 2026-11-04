@@ -576,7 +576,7 @@ case $target_os in
 esac
 
 AC_ARG_ENABLE(server, 
-  [  --enable-server=SRV     Build server type: x11, win32],,
+  [  --enable-server=SRV     Build server type: x11, win32, wayland],,
   enable_server=$BUILD_SERVER)
 AC_ARG_ENABLE(graphics, 
   [  --enable-graphics=GPH   Build graphics: xlib, xdps, winlib, art, cairo, opal],,
@@ -584,6 +584,22 @@ AC_ARG_ENABLE(graphics,
 
 BUILD_SERVER=$enable_server
 BUILD_GRAPHICS="$enable_graphics"
+case "$BUILD_SERVER" in
+  x11|win32) ;;
+  wayland)
+    if test "$BUILD_GRAPHICS" != cairo; then
+      AC_MSG_ERROR([Wayland requires --enable-graphics=cairo])
+    fi
+    PKG_CHECK_MODULES([WAYLAND], [wayland-client >= 1.21 wayland-cursor xkbcommon])
+    AC_PATH_PROG([WAYLAND_SCANNER], [wayland-scanner])
+    if test -z "$WAYLAND_SCANNER"; then
+      AC_MSG_ERROR([Wayland requires wayland-scanner])
+    fi
+    LIBS="$WAYLAND_LIBS $LIBS"
+    CPPFLAGS="$WAYLAND_CFLAGS $CPPFLAGS"
+    ;;
+  *) AC_MSG_ERROR([Unsupported window server $BUILD_SERVER]) ;;
+esac
 AC_MSG_CHECKING(Backend Server)
 AC_MSG_RESULT($BUILD_SERVER)
 
@@ -649,6 +665,11 @@ if test x"$BUILD_GRAPHICS" = "xcairo"; then
       AC_MSG_RESULT(winlib)
       #AC_MSG_WARN([**** Cairo backend on win32 is experimental and is not supported.])
       #AC_MSG_WARN([**** Are you a backend developer ?])
+    elif test $BUILD_SERVER = wayland; then
+      PKG_CHECK_MODULES([CAPTURE_PNG], [libpng])
+      CAIRO_LIBS="$CAIRO_LIBS $FONTCONFIG_LIBS $CAPTURE_PNG_LIBS"
+      CAIRO_CFLAGS="$CAIRO_CFLAGS $FONTCONFIG_CFLAGS $CAPTURE_PNG_CFLAGS"
+      AC_MSG_RESULT([Wayland shared memory])
     elif test $BUILD_SERVER = x11 -a "x$have_cairo_xlib" = "xyes"; then
       CAIRO_LIBS="$CAIRO_LIBS $CAIRO_XLIB_LIBS $XFT_LIBS"
       CAIRO_CFLAGS="$CAIRO_CFLAGS $CAIRO_XLIB_CFLAGS"
@@ -754,6 +775,7 @@ fi
 AH_TOP([
 #define SERVER_x11      1
 #define SERVER_win32    2
+#define SERVER_wayland  3
 #define GRAPHICS_xdps   0
 #define GRAPHICS_art    1
 #define GRAPHICS_xlib   2
@@ -803,6 +825,11 @@ AC_MSG_RESULT($BACKEND_NAME)
 AC_SUBST(BACKEND_NAME)
 
 AC_CONFIG_FILES([back.make config.make])
+AC_CONFIG_COMMANDS_POST([
+  if test "$BUILD_SERVER" = wayland; then
+    WAYLAND_SCANNER="$WAYLAND_SCANNER" sh "$srcdir/wayland-regenerate.sh" || exit 1
+  fi
+])
 AC_OUTPUT
 
 AS_IF([test $BUILD_GRAPHICS = xlib || test $BUILD_GRAPHICS = xdps], [
