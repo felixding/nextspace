@@ -10,6 +10,9 @@ compatibility results in this evidence history are outside the current scope.
 Automatic pull-request and master CI runs the `Wayland ARM64` workflow on
 Debian 13/aarch64, including native backend and desktop package lifecycle checks.
 The former X11 source and RPM workflows are removed.
+Each uploaded artifact contains a tar archive that preserves Linux filename case,
+private fixture permissions and literal symlinks. The native archive retains logs
+and test results; the desktop archive also includes its package build inputs.
 
 ## Reproduce on Linux or Docker
 

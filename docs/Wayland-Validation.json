@@ -113,8 +113,19 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41852858665",
-    "latest_completed_result": "failure: Xvfb reference and color-picker tab-order fixture"
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
+    "latest_completed_result": "desktop package lifecycle passed; native font fixture failure subsequently fixed and confirmed",
+    "hosted_title_references_confirmed": true,
+    "hosted_package_lifecycle_passed": true,
+    "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
+    "hosted_package_source_inputs": 4448,
+    "hosted_package_replay_inputs_identical": true,
+    "hosted_package_replay_downloads_blocked": true,
+    "hosted_package_artifact_sha256": "6523296752bbc1ee3eb563a9b39cbdb8e4d2a08c0cbd8faee33438cbf90e663b",
+    "hosted_artifact_case_collision_observed": true,
+    "archive_transport_linux_fixture_passed": true,
+    "archive_transport_hosted_confirmation_pending": true,
+    "monochrome_decoration_local_fixture_passed": true
   },
   "evidence_locations": {
     "compact_capsules": ".build/evidence/",
@@ -171,7 +182,7 @@
       "installed_desktopkit_fonts_required": false,
       "system_font_selection_unchanged": true,
       "xvfb_present": false,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false
     }
   },
   "color_picker_identity_fixture": {

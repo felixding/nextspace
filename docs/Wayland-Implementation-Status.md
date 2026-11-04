@@ -260,12 +260,24 @@ and pixel tolerances. The 1,972,295-byte capsule is
 These changes affect test tooling and reference data; compiled product inputs
 still match the qualified cohort. Full hosted-suite confirmation remains pending.
 
-The next hosted native run reaches the fixed title references but selects Nimbus
-Sans before DesktopKit installs its bundled Helvetica. Both title fixtures now
-load the repository fonts through a private Fontconfig environment shared with
-their children. In the fresh ARM64 image without installed DesktopKit fonts or
-Xvfb, both 460-case suites and nine exact original font raster/metric comparisons
-pass. System font selection stays unchanged. Full hosted confirmation is pending.
+The title fixtures load the repository fonts through a private Fontconfig
+environment before DesktopKit installs Helvetica. Both 460-case suites and 147
+live snapshots now pass in hosted ARM64 CI. Nine exact original font raster/metric
+comparisons also pass locally without installed DesktopKit fonts or Xvfb, and
+system font selection stays unchanged. The next decoration fixture incorrectly
+requires more than the valid four-color monochrome palette. It now checks title
+ink, both controls and the bevels directly; its full local density/input/lifecycle
+fixture and missing-component controls pass. The native runner also explicitly
+builds the Printing and name-server probes that its later tests require.
+
+Hosted run `41863138262` passes the ARM64 package job: cold build, network-disabled
+replay with 4,448 identical inputs, clean installation, live upgrade, application
+workflows and removal. All three containers exit successfully, preferences remain
+intact and no X server is installed. Its original upload reports case collisions
+between ZIP and zip captures. CI now wraps results in tar archives; Linux checks
+preserve both names, private modes/owners and literal links without changing the
+source permissions. Full hosted native-suite and archive-transport confirmation
+remain pending.
 
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
