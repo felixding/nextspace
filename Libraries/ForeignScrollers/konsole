@@ -1,0 +1,7 @@
+#!/bin/sh
+# Konsole owns a custom terminal layout outside QAbstractScrollArea. Select its
+# existing placement option; the shared adapter still uses the real NSScroller.
+if [ "${NEXTSPACE_SCROLLBARS:-native}" = off ]; then
+  exec /usr/bin/konsole "$@"
+fi
+exec /usr/bin/konsole -p ScrollBarPosition=0 "$@"

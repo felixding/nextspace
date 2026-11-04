@@ -4,6 +4,9 @@ set -eu
 bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 export PATH="$bindir:${PATH:-/usr/local/bin:/usr/bin:/bin}" XDG_SESSION_CLASS=user
 unset GREETD_SOCK
+if [ -r "$bindir/../lib/nextspace-scrollbars/session.sh" ]; then
+  . "$bindir/../lib/nextspace-scrollbars/session.sh"
+fi
 
 if [ "$#" -eq 0 ]; then
   set -- --locker "$bindir/nextspace-wayland-locker" --capture-backend "$bindir/nextspace-wayland-capture" \

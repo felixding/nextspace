@@ -1,0 +1,8 @@
+#!/bin/sh
+# Enable native controls for a command, or an existing NEXTSPACE user session.
+set -eu
+bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export PATH="$bindir:${PATH:-/usr/local/bin:/usr/bin:/bin}"
+. "$bindir/../lib/nextspace-scrollbars/session.sh"
+if [ "$#" -eq 0 ]; then set -- "$bindir/nextspace-wayland-session"; fi
+exec "$@"
