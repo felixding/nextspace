@@ -329,6 +329,26 @@ static bool read_ready(int descriptor, bool *wayland)
   return true;
 }
 
+static void report_compositor_exit(pid_t pid)
+{
+  /* A dying child can close its files before its exit status is waitable. */
+  int64_t deadline = milliseconds() + 50;
+  for (;;) {
+    siginfo_t status = {0};
+    if (waitid(P_PID, pid, &status, WEXITED | WNOHANG | WNOWAIT) < 0) {
+      fprintf(stderr, "[session] Cannot inspect compositor exit: %s\n", strerror(errno)); return;
+    }
+    if (status.si_pid) {
+      fprintf(stderr, "[session] Compositor terminal status: code=%d, status=%d.\n", status.si_code, status.si_status);
+      return;
+    }
+    if (milliseconds() >= deadline) {
+      fprintf(stderr, "[session] No compositor exit status available before cleanup.\n"); return;
+    }
+    poll(NULL, 0, 1);
+  }
+}
+
 /* The supervisor owns a process group and remains its live leader until cleanup
    finishes. A subreaper also collects helpers orphaned by a Workspace crash. */
 static int owned_children(int signal)
@@ -597,6 +617,7 @@ int main(int argc, char **argv)
     }
     if (descriptors[1].revents & (POLLHUP | POLLERR | POLLNVAL)) {
       fprintf(stderr, "[session] Compositor output closed (poll events %#x).\n", descriptors[1].revents);
+      report_compositor_exit(server);
       result = 1; break;
     }
     if ((descriptors[1].revents & POLLIN) && !read_ready(output[0], &wayland)) {
@@ -608,6 +629,7 @@ int main(int argc, char **argv)
       if (count != 1) {
         fprintf(stderr, "[session] Compositor broker receive failed (%zd bytes): %s\n",
           count, count < 0 ? strerror(errno) : "closed or malformed message");
+        report_compositor_exit(server);
         result = 1; break;
       }
       if (event == 'R') {

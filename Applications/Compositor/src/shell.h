@@ -356,6 +356,7 @@ static int shell_broker_ready(int fd, uint32_t mask, void *data)
   ssize_t count = recvmsg(fd, &message, MSG_DONTWAIT | MSG_CMSG_CLOEXEC);
   if (count < 0 && (errno == EAGAIN || errno == EINTR)) return 0;
   if (count <= 0) {
+    if (count < 0) wlr_log(WLR_ERROR, "Session broker receive failed: %s", strerror(errno));
     shell_revoke(server);
     if (server->input_method_client) wl_client_destroy(server->input_method_client);
     if (server->lock_client) wl_client_destroy(server->lock_client);
