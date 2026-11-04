@@ -11,7 +11,15 @@ cleanup()
 {
   status=$?
   if [ "$status" = 0 ]; then docker rm "$name" >/dev/null
-  else echo "Retained disposable consumer $name for diagnosis." >&2; fi
+  else
+    echo "Retained disposable consumer $name for diagnosis." >&2
+    for log in lifecycle.log consumer-source.log consumer-tools.log; do
+      if [ -r "$output/$log" ]; then
+        tail -80 "$output/$log" >&2 || :
+        break
+      fi
+    done
+  fi
 }
 trap cleanup EXIT
 docker create --init --name "$name" -v "$repo:/src:ro" -v "$output:/results" \
