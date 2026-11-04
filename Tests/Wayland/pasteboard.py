@@ -100,8 +100,18 @@ def run(server, probe, artifacts):
         # Storage outlives the writing client and remains independent per session.
         subprocess.run([probe, "--read"], env=a, check=True)
         subprocess.run([probe, "--read"], env=b, check=True)
+        # A newer writer must win; only this ownership conflict is retryable.
+        assert subprocess.run([probe, "--clear-race"], env=a).returncode == 75
+        subprocess.run([probe, "--read"], env=a, check=True)
+        subprocess.run([probe, "--clear"], env=a, check=True)
+        assert subprocess.check_output([probe, "--export-text"], env=a) == b"pending"
+        subprocess.run([probe, "--read"], env=b, check=True)
         with tempfile.TemporaryFile() as errors:
             assert subprocess.run([server, "--no-fork"], env=env, stderr=errors).returncode != 0
+        (artifacts / "result.json").write_text(json.dumps(dict(passed=True,
+            sessions_isolated=True, unicode_and_opaque_types=True,
+            competing_writer_preserved=True, stale_reset_retryable=True,
+            fresh_reset_succeeds=True), indent=2) + "\n")
         (artifacts / "result.txt").write_text("PASS: per-session persistence, Unicode and opaque GNUstep data; DISPLAY unset\n")
         print("Native pasteboard storage: persistence, Unicode, opaque types and session isolation PASS")
     finally:

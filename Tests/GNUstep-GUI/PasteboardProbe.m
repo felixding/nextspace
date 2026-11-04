@@ -3,6 +3,7 @@
 #import <AppKit/NSPasteboard.h>
 #import <AppKit/NSApplication.h>
 #import <GNUstepGUI/GSPasteboardServer.h>
+#include <sysexits.h>
 
 int main(int argc, char **argv)
 {
@@ -23,12 +24,23 @@ int main(int argc, char **argv)
     if (text) fwrite([text bytes], 1, [text length], stdout);
     else result = 1;
     [text release];
-  } else if ([mode isEqual:@"--clear"]) {
+  } else if ([mode isEqual:@"--clear"] || [mode isEqual:@"--clear-race"]) {
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     NSInteger declared = [pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
+    if ([mode isEqual:@"--clear-race"]) {
+      NSTask *writer = [NSTask launchedTaskWithLaunchPath:
+        [[[NSProcessInfo processInfo] arguments] objectAtIndex:0]
+        arguments:[NSArray arrayWithObject:@"--write"]];
+      [writer waitUntilExit];
+      if ([writer terminationStatus]) { [pool drain]; return 2; }
+    }
     result = ![pasteboard setString:@"pending" forType:NSStringPboardType];
-    if (result) fprintf(stderr, "Pasteboard clear rejected: declared=%ld current=%ld\n",
-      (long)declared, (long)[pasteboard changeCount]);
+    if (result) {
+      NSInteger current = [pasteboard changeCount];
+      if (current != declared) result = EX_TEMPFAIL;
+      fprintf(stderr, "Pasteboard clear rejected: declared=%ld current=%ld\n",
+        (long)declared, (long)current);
+    }
   } else if (([mode isEqual:@"--text-file"] || [mode isEqual:@"--primary-text-file"]) && argc == 3) {
     NSString *expected = [NSString stringWithContentsOfFile:[NSString stringWithUTF8String:argv[2]]
       encoding:NSUTF8StringEncoding error:NULL];

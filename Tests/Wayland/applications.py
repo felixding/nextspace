@@ -33,7 +33,12 @@ def run(command, env, artifacts, programs, until):
         return result.stdout.decode("utf-8") if result.returncode == 0 else None
 
     def copy_selection():
-        subprocess.run([programs["pasteboard"], "--clear"], env=env, check=True)
+        def cleared():
+            result = subprocess.run([programs["pasteboard"], "--clear"], env=env)
+            if result.returncode == 75: return False  # EX_TEMPFAIL: another owner won.
+            result.check_returncode()
+            return True
+        until(cleared, "pasteboard sentinel ownership")
         shortcut(46)
 
     for name in ("Terminal", "TextEdit", "Review", "TimeMon"):

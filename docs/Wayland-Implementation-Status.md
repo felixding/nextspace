@@ -363,6 +363,20 @@ The 273,806-byte capsule is `arm64-text-input-records-v1-evidence.tar.gz`, SHA-2
 Its 60 payload files verify. Six hosted ARM64 package jobs now complete the
 full lifecycle; fresh full native-suite confirmation remains pending.
 
+A later package run stops because the clipboard reset fixture loses ownership
+between declaration and writing its sentinel. The helper now distinguishes that
+temporary conflict from other failures; application fixtures retry only the
+ownership conflict. A real competing writer deterministically proves that stale
+writes stay rejected, newer data survives and a fresh reset succeeds without
+changing another session. Terminal's original copy/scrollback checks pass at all
+five densities with a forced conflict. Package failures also print their failing
+phase's log directly in CI. Four controls preserve exit status and keep successful
+runs quiet. The 2,382,758-byte capsule is
+`arm64-pasteboard-ownership-v1-evidence.tar.gz`, SHA-256
+`20d10b20989daddf7cd87b6a57887e01ea8e38cdef551a1877e14313c99a9d35`;
+all 134 payload files verify. These fixture changes retain the existing
+pasteboard storage and stale-write protection; hosted confirmation is pending.
+
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
 upgraded directory artwork: after nine successful native canvases, the second

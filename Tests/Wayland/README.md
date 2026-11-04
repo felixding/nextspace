@@ -1550,6 +1550,12 @@ standalone build and installed/upgraded package lifecycles compile and run this
 regression; it needs no display or compositor. The delay library is a test
 fixture and is not part of the installed runtime.
 
+Its standalone storage checks use `PasteboardProbe --clear-race` to insert a real
+competing writer between declaration and reset. Stale data must stay rejected,
+the newer writer must survive, and a fresh reset must succeed. `--clear` reports
+EX_TEMPFAIL (75) only when ownership changes; application copy fixtures retry
+that case with bounded polling and fail other errors immediately.
+
 `file_operation_conflicts.py` checks Copy, Link and Move with Stop, controller
 disconnect, Skip All and Overwrite All against owned existing files. It verifies
 bytes and file identity, observes the conflict prompt and requires the worker to
