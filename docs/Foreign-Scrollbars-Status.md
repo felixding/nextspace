@@ -32,3 +32,5 @@ See [build and activation instructions](../Libraries/ForeignScrollers/README.md)
 Chromium/Blink, Qt Quick and other custom renderers remain outside this adapter's
 coverage. Qt5 and sandboxed runtimes are unqualified. Menu and shortcut
 integration are separate from this scrollbar change.
+The [Chromium source and binary audit](Chromium-Native-Scrollbar-Boundary.md)
+records why the shared adapters cannot replace its web-content control.
