@@ -1,0 +1,503 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="carton-original-top" gradientUnits="userSpaceOnUse" x1="8" y1="15" x2="41" y2="22">
+      <stop offset="0" stop-color="#d5af88" />
+      <stop offset="0.25" stop-color="#b18b5f" />
+      <stop offset="0.55" stop-color="#a47743" />
+      <stop offset="1" stop-color="#4d391f" />
+    </linearGradient>
+    <linearGradient id="carton-original-left" gradientUnits="userSpaceOnUse" x1="7" y1="20" x2="22" y2="20">
+      <stop offset="0" stop-color="#503f26" />
+      <stop offset="0.25" stop-color="#6d4e32" />
+      <stop offset="0.42" stop-color="#563926" />
+      <stop offset="0.6" stop-color="#91643c" />
+      <stop offset="0.85" stop-color="#9f7346" />
+      <stop offset="1" stop-color="#966c43" />
+    </linearGradient>
+    <linearGradient id="carton-original-right" gradientUnits="userSpaceOnUse" x1="21" y1="26" x2="41" y2="26">
+      <stop offset="0" stop-color="#785d37" />
+      <stop offset="0.15" stop-color="#4f3a25" />
+      <stop offset="0.55" stop-color="#2b1e16" />
+      <stop offset="1" stop-color="#19130f" />
+    </linearGradient>
+    <linearGradient id="carton-original-bottom" gradientUnits="userSpaceOnUse" x1="22" y1="24" x2="22" y2="43">
+      <stop offset="0" stop-color="#000" stop-opacity="0" />
+      <stop offset="0.4" stop-color="#000" stop-opacity="0" />
+      <stop offset="1" stop-color="#000" stop-opacity=".28" />
+    </linearGradient>
+    <linearGradient id="unpack-original-yellow" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="10" y2="12">
+      <stop offset="0" stop-color="#f1cc1c" />
+      <stop offset="0.5" stop-color="#edc91d" />
+      <stop offset="1" stop-color="#e9d71b" />
+    </linearGradient>
+    <linearGradient id="unpack-original-red" gradientUnits="userSpaceOnUse" x1="1" y1="3" x2="10" y2="12">
+      <stop offset="0" stop-color="#b82113" />
+      <stop offset="0.55" stop-color="#ab170f" />
+      <stop offset="1" stop-color="#d7a6a9" />
+    </linearGradient>
+    <linearGradient id="unpack-document-red" gradientUnits="userSpaceOnUse" x1="1" y1="3" x2="10" y2="12">
+      <stop offset="0" stop-color="#e22408" />
+      <stop offset="0.55" stop-color="#d9230c" />
+      <stop offset="1" stop-color="#cf6868" />
+    </linearGradient>
+    <g id="unpack-original-arrow" mask="url(#unpack-tail-mask)" clip-path="url(#unpack-original-clip)">
+      <path d="M0 2L10 2L7.75 5.1875L11.625 8.4375L6.4375 13.4375L3.125 9.75L0 12Z" fill="url(#unpack-original-yellow)" />
+      <path d="M1.175 2.925H9.8L6.5 5.875L10.5 8.85L7.225 12.5L3.5 8.75L1.05 11.5Z" fill="inherit" />
+      <path d="M0 0H14V15H0Z" fill="url(#unpack-tail-bleach)" clip-path="url(#unpack-original-clip)" />
+    </g>
+    <clipPath id="carton-original-clip">
+      <path d="M7.5 15.5L24 9.5L41.8 18.5V32.2L21.5 42.3L7.5 28.5Z" />
+    </clipPath>
+    <g id="carton-original">
+      <path d="M7.5 15.5L24 9.5L41.8 18.5L21.5 23.5Z" fill="url(#carton-original-top)" />
+      <path d="M7.5 15.5L21.5 23.5V42.3L7.5 28.5Z" fill="url(#carton-original-left)" />
+      <path d="M21.5 23.5L41.8 18.5V32.2L21.5 42.3Z" fill="url(#carton-original-right)" />
+      <path d="M7.5 15.5L21.5 23.5L41.8 18.5M21.5 23.5V42.3" fill="none" stroke="#4d3d29" opacity=".45" stroke-width=".5" />
+      <path d="M14.3 13L33 21.3M14.5 20L31.8 13.6" fill="none" stroke="#503d25" opacity=".62" stroke-width=".7" />
+      <path d="M14.3 12.6L33 20.9M14.5 19.6L31.8 13.2" fill="none" stroke="#c4a171" opacity=".6" stroke-width=".35" />
+      <path d="M7.5 15.5L24 9.5L41.8 18.5V32.2L21.5 42.3L7.5 28.5Z" fill="url(#carton-original-bottom)" />
+      <path d="M7 9H42V43H7Z" filter="url(#carton-paper-fiber)" opacity=".08" clip-path="url(#carton-original-clip)" />
+      <path d="M7.5 15.5V28.5L21.5 42.3" fill="none" stroke="#000" opacity=".85" stroke-width=".9" stroke-linejoin="round" />
+    </g>
+    <filter id="carton-paper-fiber" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="5" numOctaves="2" seed="7" stitchTiles="stitch" />
+      <feColorMatrix type="saturate" values="0" />
+    </filter>
+    <symbol id="application" viewBox="0 0 48 48" data-file="Images/application.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <use href="#carton-original" />
+      <use href="#unpack-original-arrow" transform="" fill="url(#unpack-original-red)" />
+      <use href="#unpack-original-arrow" transform="translate(48 0) scale(-1 1)" fill="url(#unpack-original-red)" />
+      <use href="#unpack-original-arrow" transform="translate(0 48) scale(1 -1)" fill="url(#unpack-original-red)" />
+      <use href="#unpack-original-arrow" transform="translate(48 48) scale(-1 -1)" fill="url(#unpack-original-red)" />
+    </symbol>
+    <symbol id="documents" viewBox="0 0 48 48" data-file="Images/documents.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <path d="M13 11H34V37H13Z" fill="#555" />
+      <g clip-path="url(#archive-paper-face)">
+        <path d="M14 12H33V36H14Z" fill="url(#archive-original-paper)" />
+        <path d="M14 12H33V36H14Z" fill="url(#archive-paper-top)" />
+        <path d="M14 12H33V36H14Z" fill="url(#archive-paper-bottom)" />
+      </g>
+      <path d="M33 12H34V37H14V36H33Z" fill="#000" />
+      <use href="#unpack-document-arrow" transform="translate(12 16) scale(-1 -1)" fill="url(#unpack-document-red)" />
+      <use href="#unpack-document-arrow" transform="translate(36 16) scale(1 -1)" fill="url(#unpack-document-red)" />
+      <use href="#unpack-document-arrow" transform="translate(12 32) scale(-1 1)" fill="url(#unpack-document-red)" />
+      <use href="#unpack-document-arrow" transform="translate(37 32)" fill="url(#unpack-document-red)" />
+      <g id="archive-original-paragraph" fill="#555" stroke="#555" stroke-width="4" stroke-linejoin="round">
+        <g clip-path="url(#archive-original-word-0-0)">
+          <g transform="translate(16 15) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-0-1)">
+          <g transform="translate(18 15) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-0-2)">
+          <g transform="translate(20 15) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-0-3)">
+          <g transform="translate(24 15) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-0-4)">
+          <g transform="translate(28 15) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-1-0)">
+          <g transform="translate(17 17) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-1-1)">
+          <g transform="translate(19 17) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-1-2)">
+          <g transform="translate(21 17) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-1-3)">
+          <g transform="translate(23 17) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-1-4)">
+          <g transform="translate(26 17) scale(0.14563106796116504 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-F" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-2-0)">
+          <g transform="translate(16 19) scale(0.14563106796116504 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-F" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-2-1)">
+          <g transform="translate(22 19) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-2-2)">
+          <g transform="translate(25 19) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-3-0)">
+          <g transform="translate(16 21) scale(0.14563106796116504 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-F" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-3-1)">
+          <g transform="translate(20 21) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-3-2)">
+          <g transform="translate(22 21) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-3-3)">
+          <g transform="translate(25 21) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-3-4)">
+          <g transform="translate(27 21) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-4-0)">
+          <g transform="translate(16 23) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-4-1)">
+          <g transform="translate(19 23) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-4-2)">
+          <g transform="translate(22 23) scale(0.18656716417910446 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+            <use href="../Artwork/Microtype.svg#edit-micro-S" x="20.8" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-5-0)">
+          <g transform="translate(18 25) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-5-1)">
+          <g transform="translate(20 25) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-5-2)">
+          <g transform="translate(22 25) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-5-3)">
+          <g transform="translate(25 25) scale(0.14925373134328357 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+            <use href="../Artwork/Microtype.svg#edit-micro-S" x="20.8" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-6-0)">
+          <g transform="translate(16 27) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-6-1)">
+          <g transform="translate(20 27) scale(0.14925373134328357 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+            <use href="../Artwork/Microtype.svg#edit-micro-S" x="20.8" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-6-2)">
+          <g transform="translate(25 27) scale(0.14925373134328357 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+            <use href="../Artwork/Microtype.svg#edit-micro-S" x="20.8" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-7-0)">
+          <g transform="translate(16 29) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-7-1)">
+          <g transform="translate(19 29) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-7-2)">
+          <g transform="translate(22 29) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-7-3)">
+          <g transform="translate(25 29) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-7-4)">
+          <g transform="translate(28 29) scale(0.14563106796116504 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-F" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-8-0)">
+          <g transform="translate(16 31) scale(0.14563106796116504 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-F" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="6.2" />
+            <use href="../Artwork/Microtype.svg#edit-micro-L" x="8.4" />
+            <use href="../Artwork/Microtype.svg#edit-micro-E" x="14.600000000000001" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-8-1)">
+          <g transform="translate(21 31) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-8-2)">
+          <g transform="translate(24 31) scale(0.5 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+          </g>
+        </g>
+        <g clip-path="url(#archive-original-word-8-3)">
+          <g transform="translate(26 31) scale(0.2439024390243902 .1)">
+            <use href="../Artwork/Microtype.svg#edit-micro-I" x="0" />
+            <use href="../Artwork/Microtype.svg#edit-micro-N" x="2.2" />
+          </g>
+        </g>
+      </g>
+    </symbol>
+    <clipPath id="archive-original-word-0-0">
+      <path d="M16 15H17V16H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-0-1">
+      <path d="M18 15H19V16H18Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-0-2">
+      <path d="M20 15H21V16H20Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-0-3">
+      <path d="M24 15H26V16H24Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-0-4">
+      <path d="M28 15H29V16H28Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-1-0">
+      <path d="M17 17H18V18H17Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-1-1">
+      <path d="M19 17H20V18H19Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-1-2">
+      <path d="M21 17H22V18H21Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-1-3">
+      <path d="M23 17H25V18H23Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-1-4">
+      <path d="M26 17H29V18H26Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-2-0">
+      <path d="M16 19H19V20H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-2-1">
+      <path d="M22 19H23V20H22Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-2-2">
+      <path d="M25 19H26V20H25Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-3-0">
+      <path d="M16 21H19V22H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-3-1">
+      <path d="M20 21H21V22H20Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-3-2">
+      <path d="M22 21H24V22H22Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-3-3">
+      <path d="M25 21H26V22H25Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-3-4">
+      <path d="M27 21H29V22H27Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-4-0">
+      <path d="M16 23H18V24H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-4-1">
+      <path d="M19 23H21V24H19Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-4-2">
+      <path d="M22 23H27V24H22Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-5-0">
+      <path d="M18 25H19V26H18Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-5-1">
+      <path d="M20 25H21V26H20Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-5-2">
+      <path d="M22 25H24V26H22Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-5-3">
+      <path d="M25 25H29V26H25Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-6-0">
+      <path d="M16 27H18V28H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-6-1">
+      <path d="M20 27H24V28H20Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-6-2">
+      <path d="M25 27H29V28H25Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-7-0">
+      <path d="M16 29H18V30H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-7-1">
+      <path d="M19 29H21V30H19Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-7-2">
+      <path d="M22 29H23V30H22Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-7-3">
+      <path d="M25 29H27V30H25Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-7-4">
+      <path d="M28 29H31V30H28Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-8-0">
+      <path d="M16 31H19V32H16Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-8-1">
+      <path d="M21 31H23V32H21Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-8-2">
+      <path d="M24 31H25V32H24Z" />
+    </clipPath>
+    <clipPath id="archive-original-word-8-3">
+      <path d="M26 31H28V32H26Z" />
+    </clipPath>
+    <radialGradient id="unpack-tail-bleach" gradientUnits="userSpaceOnUse" cx="9.3" cy="10.2" r="2">
+      <stop offset="0" stop-color="#fff" stop-opacity="1" />
+      <stop offset="0.45" stop-color="#fff" stop-opacity="0.68" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id="unpack-original-clip">
+      <path d="M0 2L10 2L7.75 5.1875L11.625 8.4375L6.4375 13.4375L3.125 9.75L0 12Z" />
+    </clipPath>
+    <radialGradient id="unpack-tail-alpha" gradientUnits="userSpaceOnUse" cx="8.2" cy="10" r="1.5">
+      <stop offset="0" stop-color="#b3b3b3" />
+      <stop offset="0.5" stop-color="#ededed" />
+      <stop offset="1" stop-color="#fff" />
+    </radialGradient>
+    <mask id="unpack-tail-mask" maskUnits="userSpaceOnUse" x="-1" y="1" width="14" height="13">
+      <path d="M-1 1H13V14H-1Z" fill="url(#unpack-tail-alpha)" />
+    </mask>
+    <g id="unpack-document-arrow" mask="url(#unpack-tail-mask)" clip-path="url(#unpack-document-clip)">
+      <path d="M0 2L10 2L7.75 5.3125L10.5625 7.3125L6.625 13.375L3.75 10.75L0 12Z" fill="url(#unpack-original-yellow)" />
+      <path d="M0.8 2.925H9.8L6.5 4.9875L9.8 8.2375L6.5625 12.625L3.25 8.975L0.5 11.175Z" fill="inherit" />
+      <path d="M0 0H14V15H0Z" fill="url(#unpack-tail-bleach)" clip-path="url(#unpack-document-clip)" />
+    </g>
+    <clipPath id="unpack-document-clip">
+      <path d="M0 2L10 2L7.75 5.3125L10.5625 7.3125L6.625 13.375L3.75 10.75L0 12Z" />
+    </clipPath>
+    <linearGradient id="archive-original-paper" gradientUnits="userSpaceOnUse" x1="14" y1="36" x2="38" y2="17">
+      <stop offset="0.041666666666666664" stop-color="#dae3e0" />
+      <stop offset="0.125" stop-color="#d9e0e3" />
+      <stop offset="0.20833333333333334" stop-color="#d6dce1" />
+      <stop offset="0.2916666666666667" stop-color="#dbe0e2" />
+      <stop offset="0.375" stop-color="#dfe5e5" />
+      <stop offset="0.4583333333333333" stop-color="#e4eaec" />
+      <stop offset="0.5416666666666666" stop-color="#e3e9ea" />
+      <stop offset="0.625" stop-color="#dbe2e5" />
+      <stop offset="0.7083333333333334" stop-color="#d6dce0" />
+      <stop offset="0.7916666666666666" stop-color="#ced7dc" />
+      <stop offset="0.875" stop-color="#c5d2d4" />
+      <stop offset="0.9583333333333334" stop-color="#b5c6c6" />
+    </linearGradient>
+    <clipPath id="archive-paper-face">
+      <path d="M14 12H33V36H14Z" />
+    </clipPath>
+    <radialGradient id="archive-paper-top" gradientUnits="userSpaceOnUse" cx="15" cy="12.5" r="5.5">
+      <stop offset="0" stop-color="#fff" stop-opacity="1" />
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0.95" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="archive-paper-bottom" gradientUnits="userSpaceOnUse" cx="32" cy="34.5" r="6">
+      <stop offset="0" stop-color="#fff" stop-opacity="1" />
+      <stop offset="0.35" stop-color="#fff" stop-opacity="0.95" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+    <path id="openup-brand-P" d="M.3333333333 1.6666666667H78.3333333333C81.7 1.6666666667 83.6666666667 3.5 83.6666666667 6.6666666667C83.6666666667 9.8 81.8 12 78.3333333333 12H66.6666666667V19H62.3333333333V8H78.3333333333C79.5 8 79.6666666667 7.8 79.6666666667 6.6666666667C79.6666666667 6 79.5 6 78.3333333333 6H.3333333333Z" fill="#620d13" />
+    <path id="openup-brand-L" d="M98 2H102.3333333333V15H183.3333333333V19H98Z" fill="#620d13" />
+    <g id="openup-brand-amp" fill="#620d13" stroke="#620d13" stroke-linejoin="round" transform="matrix(0.975 0 0 0.95 2.5875 0.45)" stroke-width="0.3">
+      <path d="M92.333 2.8C91.1 1.8 88 1.7 87 3.1C86.3 4.6 87.1 6.2 88.6 7.5L92 11.7H95.667V10.5H94.3L90 6C88.5 4.8 88.2 4.3 88.6 3.6C89.1 3 90.8 3.1 91.1 3.7H92.333Z" />
+      <path d="M89.5 6C87.1 6.1 85.3 7.5 85.3 9.4C85.3 11.2 86.6 12.3 88.4 12.3C90.1 12.3 92.4 10.8 93.3 9.2L92 8.1C91.3 10 90 10.8 88.3 10.5C86.9 10.4 86.8 8.7 88.2 8L90.4 7Z" />
+      <path d="M90.333 6.333H94V7H94.667V8H92.6L90.5 10.8L89 9.7L91 7.7H90.333Z" />
+    </g>
+    <g id="openup-brand-caption" fill="none" stroke="#000" stroke-width=".333333333333" stroke-linejoin="round" stroke-linecap="butt">
+      <path id="openup-caption-S" d="M72.9 14.3C73.3 12.8 69.6 12.8 69.5 14.2C69.3 15.8 73 15 72.6 17.1C72.2 19 68.4 18.7 69 16.9" stroke-width="0.666666666667" transform="matrix(0.975 0 0 1 1.625 0.175)" />
+      <path id="openup-caption-y" d="M74.333333 14.666667L75.333333 16.666667L76.333333 14.666667M75.333333 16.666667V18.666667" stroke-width="0.3333333333333333" transform="matrix(0.975 0 0 1 2.0375 0.1)" />
+      <path id="openup-caption-s" d="M80.333333 15.333333C80.333333 14.333333 78.333333 14.333333 78.333333 15.333333C78.333333 16.333333 80.333333 15.666667 80.333333 17.333333C80.333333 18.666667 78.333333 18.666667 78 17.666667" stroke-width="0.358333" transform="matrix(1.1 0 0 0.925 -8.075 1.4)" />
+      <path id="openup-caption-t" d="M81.333333 14.5H84.333333M82.5 14.5V18.666667" stroke-width="0.3333333333333333" transform="matrix(0.95 0 0 1 4.15 0.1)" />
+      <path id="openup-caption-E" d="M87.6666667 14.6666667H85.5V18.6666667H87.6666667M85.5 16.6666667H87" stroke-width="0.3333333333333333" transform="matrix(1.0625 0 0 1.05 -5.48125 -0.9)" />
+      <path id="openup-caption-M" d="M88.5 18.6666667V14.6666667L90.1666667 18.6666667L91.5 14.6666667V18.6666667" stroke-width=".3" transform="matrix(1 0 0 1.05 0.225 -1.025)" />
+      <path id="openup-caption-S2" d="M95.6666667 15.3333333C95.6666667 14.3333333 93.6666667 14.3333333 93.6666667 15.3333333C93.6666667 16.3333333 95.6666667 15.6666667 95.6666667 17.3333333C95.6666667 18.6666667 93.6666667 18.6666667 93.3333333 17.6666667" stroke-width="0.358333" transform="matrix(1.075 0 0 0.95 -7.1625 0.9625)" />
+    </g>
+    <symbol id="narrow" viewBox="0 0 184 19" data-file="Images/narrow.tiff" data-logical-size="184 19" data-reconstructed="true">
+      <use href="#openup-brand-P" />
+      <use href="#openup-brand-L" />
+      <use href="#openup-brand-amp" />
+      <use href="#openup-brand-caption" />
+    </symbol>
+  </defs>
+  <use id="preview" href="#application" width="48" height="48" />
+</svg>

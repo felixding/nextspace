@@ -1,0 +1,673 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Original designs: GNUstep GUI color-picker resources, LGPL-2.0-or-later.
+     Reconstructed as continuous geometry; the pinned originals are retained
+     under Tests/Wayland/artwork-originals/color-panel with COPYING.LIB. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 24">
+  <defs>
+    <linearGradient id="rgb-0" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(0,0,0)" />
+      <stop offset="1" stop-color="rgb(225.2069,10.06207,53.73103)" />
+    </linearGradient>
+    <linearGradient id="rgb-1" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(0,0,0)" />
+      <stop offset="1" stop-color="rgb(32.2069,225.2069,10.06207)" />
+    </linearGradient>
+    <linearGradient id="rgb-2" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(0,0,0)" />
+      <stop offset="1" stop-color="rgb(10.06207,28,225.2069)" />
+    </linearGradient>
+    <linearGradient id="cmyk-0" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(254.5448,254.5379,254.6897)" />
+      <stop offset="1" stop-color="rgb(15.04138,246.7724,208)" />
+    </linearGradient>
+    <linearGradient id="cmyk-1" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(254.2069,246.1724,253.8345)" />
+      <stop offset="1" stop-color="rgb(246.8276,14.7931,235.0621)" />
+    </linearGradient>
+    <linearGradient id="cmyk-2" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(254.5379,254.5379,254.5448)" />
+      <stop offset="1" stop-color="rgb(246.7724,246.7724,15.04138)" />
+    </linearGradient>
+    <linearGradient id="picker-hue" gradientUnits="userSpaceOnUse" x1="3.5" x2="32.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(255,0,0)" />
+      <stop offset="0.16666667" stop-color="rgb(255,255,0)" />
+      <stop offset="0.33333333" stop-color="rgb(0,255,0)" />
+      <stop offset="0.5" stop-color="rgb(0,255,255)" />
+      <stop offset="0.66666667" stop-color="rgb(0,0,255)" />
+      <stop offset="0.83333333" stop-color="rgb(255,0,255)" />
+      <stop offset="1" stop-color="rgb(255,0,0)" />
+    </linearGradient>
+    <linearGradient id="picker-saturation" gradientUnits="userSpaceOnUse" x1="3.5" x2="31.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(254.5448,254.6897,254.6897)" />
+      <stop offset="1" stop-color="rgb(239.0414,33.24138,33.24138)" />
+    </linearGradient>
+    <linearGradient id="picker-gray" gradientUnits="userSpaceOnUse" x1="3.5" x2="32.5" y1="0" y2="0">
+      <stop offset="0" stop-color="rgb(0,0,0)" />
+      <stop offset="1" stop-color="rgb(255,255,255)" />
+    </linearGradient>
+    <rect id="picker-bar" x="3" width="29" height="5" />
+    <rect id="picker-knob" width="2" height="4" fill="#fff" />
+    <rect id="picker-swatch" width="5" height="5" />
+    <symbol id="GSRGBColorPicker" viewBox="0 0 36 24" data-file="ColorPickers/GSRGBColorPicker.tiff" data-reconstructed="true">
+      <use href="#picker-bar" y="4" fill="url(#rgb-0)" />
+      <use href="#picker-knob" x="22" y="4" />
+      <use href="#picker-bar" y="10" fill="url(#rgb-1)" />
+      <use href="#picker-knob" x="10" y="10" />
+      <use href="#picker-bar" y="16" fill="url(#rgb-2)" />
+      <use href="#picker-knob" x="16" y="16" />
+    </symbol>
+    <symbol id="GSHSBColorPicker" viewBox="0 0 36 24" data-file="ColorPickers/GSHSBColorPicker.tiff" data-reconstructed="true">
+      <use href="#picker-bar" y="4" fill="url(#picker-hue)" />
+      <use href="#picker-knob" x="23" y="4" />
+      <use href="#picker-bar" y="10" fill="url(#picker-saturation)" />
+      <use href="#picker-knob" x="10" y="10" />
+      <use href="#picker-bar" y="16" fill="url(#picker-gray)" />
+      <use href="#picker-knob" x="15" y="16" />
+    </symbol>
+    <symbol id="GSCMYKColorPicker" viewBox="0 0 36 24" data-file="ColorPickers/GSCMYKColorPicker.tiff" data-reconstructed="true">
+      <use href="#picker-bar" y="4" fill="url(#cmyk-0)" />
+      <use href="#picker-knob" x="24" y="4" />
+      <use href="#picker-bar" y="10" fill="url(#cmyk-1)" />
+      <use href="#picker-knob" x="8" y="10" />
+      <use href="#picker-bar" y="16" fill="url(#cmyk-2)" />
+      <use href="#picker-knob" x="13" y="16" />
+    </symbol>
+    <symbol id="GSGrayColorPicker" viewBox="0 0 36 24" data-file="ColorPickers/GSGrayColorPicker.tiff" data-reconstructed="true">
+      <rect x="3" y="4" width="30" height="5" fill="url(#picker-gray)" />
+      <use href="#picker-swatch" x="3" y="10" fill="#262626" />
+      <use href="#picker-swatch" x="10" y="10" fill="#494949" />
+      <use href="#picker-swatch" x="17" y="10" fill="#6a6a6a" />
+      <use href="#picker-swatch" x="24" y="10" fill="#7e7e7e" />
+      <use href="#picker-swatch" x="3" y="16" fill="#9f9f9f" />
+      <use href="#picker-swatch" x="10" y="16" fill="#b2b2b2" />
+      <use href="#picker-swatch" x="17" y="16" fill="#c9c9c9" />
+      <use href="#picker-swatch" x="24" y="16" fill="#e4e4e4" />
+    </symbol>
+    <linearGradient id="magnifier-handle" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="-1.4849999999999999" y2="1.4849999999999999">
+      <stop offset="0" stop-color="rgb(47.68,42.38752,14.11328)" />
+      <stop offset=".45" stop-color="rgb(149,132.461,44.104)" />
+      <stop offset=".68" stop-color="rgb(149,132.461,44.104)" />
+      <stop offset="1" stop-color="rgb(64.07,56.95823,18.96472)" />
+    </linearGradient>
+    <clipPath id="magnifier-handle-clip">
+      <rect x="-7.5" y="-1.4849999999999999" width="15.0" height="2.9699999999999998" rx="0.7" />
+    </clipPath>
+    <linearGradient id="magnifier-cap-shadow" gradientUnits="userSpaceOnUse" x1="6.5" x2="7.5" y1="0" y2="0">
+      <stop offset="0" stop-color="#000" stop-opacity="0" />
+      <stop offset="1" stop-color="#000" stop-opacity=".7" />
+    </linearGradient>
+    <symbol id="MagnifyGlass" viewBox="0 0 32 32" data-file="Images/MagnifyGlass.tiff" data-reconstructed="true">
+      <g transform="translate(24.715 23.15) rotate(44.150000000000006)" id="magnifier-shaft">
+        <rect x="-7.5" y="-1.4849999999999999" width="15.0" height="2.9699999999999998" rx="0.7" fill="url(#magnifier-handle)" stroke="#000" stroke-width="0.5599999999999998" />
+        <rect x="4.455000000000001" y="-1.4849999999999999" width="1.6299999999999994" height="2.9699999999999998" fill="#383211" opacity="0.9900000000000001" clip-path="url(#magnifier-handle-clip)" />
+        <rect x="-7.5" y="-1.4849999999999999" width="15.0" height="2.9699999999999998" rx="0.7" fill="url(#magnifier-cap-shadow)" clip-path="url(#magnifier-handle-clip)" />
+      </g>
+      <g fill="none" id="magnifier-rim">
+        <circle cx="12.549999999999999" cy="12.12" r="9.165000000000001" stroke="rgb(55,55,55)" stroke-width="2.07" opacity="0.32" />
+        <circle cx="12.549999999999999" cy="12.12" r="9.165000000000001" stroke="rgb(6,6,6)" stroke-width="1.0500000000000003" />
+      </g>
+      <g fill="none" stroke="#000" stroke-width="1.25" opacity="0.5010392156862745" stroke-linecap="round" id="magnifier-crosshair">
+        <path d="M3 12.344999999999999 H11.13 M14.219999999999999 12.344999999999999 H22" />
+        <path d="M12.708 3.5 V10.73 M12.708 13.719999999999999 V21.5" />
+      </g>
+    </symbol>
+
+    <!-- NAMED uses fitted TeX Gyre Heros regular outlines; see Applications/Artwork/Fonts/TeXGyreHeros. -->
+    <rect id="named-bar" y="14" width="1" height="5" />
+    <symbol id="GSNamedColorPicker" viewBox="0 0 36 24" data-file="ColorPickers/GSNamedColorPicker.tiff" data-reconstructed="true">
+      <path id="named-N" d="M646 0V729H558V133L177 729H76V0H164V591L541 0Z" transform="translate(2.85829043 8.504336) scale(0.00814111 -0.00756973)" opacity="0.9311328" />
+      <path id="named-A" d="M653 0 397 729H277L17 0H116L193 219H474L549 0ZM448 297H216L336 629Z" transform="translate(8.89572056 8.83713536) scale(0.0070666 -0.00757769)" opacity="0.9201728" />
+      <path id="named-M" d="M761 0V729H632L420 94L204 729H75V0H163V611L370 0H468L673 611V0Z" transform="translate(13.55229668 8.57036096) scale(0.0084878 -0.00750392)" opacity="0.9091552" />
+      <path id="named-E" d="M613 0V82H183V332H580V414H183V647H595V729H90V0Z" transform="translate(20.95659809 8.46296000) scale(0.0071489101 -0.0070589849)" opacity="1" />
+      <path id="named-D" d="M667 365C667 591 555 729 370 729H89V0H370C554 0 667 138 667 365ZM574 364C574 180 498 82 354 82H182V647H354C498 647 574 550 574 364Z" transform="translate(25.41957533 8.61566656) scale(0.00748551 -0.00703027)" opacity="0.89664" />
+      <rect x="5" y="14" width="4" height="5" fill="#a725db" />
+      <use href="#named-bar" x="11" />
+      <use href="#named-bar" x="13" />
+      <use href="#named-bar" x="15" />
+      <use href="#named-bar" x="17" />
+      <use href="#named-bar" x="19" />
+      <use href="#named-bar" x="23" />
+      <use href="#named-bar" x="25" />
+      <use href="#named-bar" x="27" />
+      <use href="#named-bar" x="29" />
+    </symbol>
+    <radialGradient id="wheel-white" gradientUnits="userSpaceOnUse" cx="12.39704" cy="12.2593344" r="10.658">
+      <stop stop-color="#fff" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="wheel-dot" gradientUnits="userSpaceOnUse" cx="12.392224" cy="12.31" r="1.772">
+      <stop stop-color="#aab1b6" stop-opacity="0.85" />
+      <stop offset="1" stop-color="#aab1b6" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="rim" gradientUnits="userSpaceOnUse" cx="12.333333" cy="12.333333" r="11.2">
+      <stop offset="0.8804" stop-color="white" stop-opacity="0" />
+      <stop offset="1" stop-color="white" />
+    </radialGradient>
+
+    <radialGradient id="rim-left" gradientUnits="userSpaceOnUse" cx="1" cy="12.333333" r="8">
+      <stop stop-color="white" stop-opacity="0.95408" />
+      <stop offset="1" stop-color="white" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="rim-top" gradientUnits="userSpaceOnUse" cx="12.333333" cy="1" r="8">
+      <stop stop-color="black" stop-opacity="0.09744" />
+      <stop offset="1" stop-color="black" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="rim-shadow" gradientUnits="userSpaceOnUse" x1="4" y1="4" x2="14" y2="14">
+      <stop stop-color="black" stop-opacity="0.29" />
+      <stop offset="1" stop-color="black" stop-opacity="0" />
+    </linearGradient>
+
+    <mask id="rim-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="url(#rim)" />
+    </mask>
+
+    <mask id="rim-white-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect width="24" height="24" fill="rgb(151,151,151)" />
+      <rect width="24" height="24" fill="url(#rim-left)" />
+      <rect width="24" height="24" fill="url(#rim-top)" />
+    </mask>
+
+    <mask id="pupil-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <circle cx="12.403333" cy="12.2461202" r="11.0308" fill="white" />
+      <circle id="picker-wheel-center-hole" cx="12.5" cy="12.5" r="0.5747712" fill="black" opacity="0.5078" />
+    </mask>
+    <path id="wheel-wedge" d="M0 0 L.020943949 -29.99999269 A30 30 0 0 0 -0.544513 -29.995058 Z" />
+    <symbol id="GSWheelColorPicker" viewBox="0 0 24 24" data-file="ColorPickers/GSWheelColorPicker.tiff" data-reconstructed="true">
+      <g id="picker-wheel-face" mask="url(#pupil-mask)">
+        <g id="picker-wheel-hue" transform="translate(12.355 12.189)" shape-rendering="crispEdges">
+          <use href="#wheel-wedge" transform="rotate(0)" fill="rgb(255,2,0)" />
+          <use href="#wheel-wedge" transform="rotate(-1)" fill="rgb(255,6,0)" />
+          <use href="#wheel-wedge" transform="rotate(-2)" fill="rgb(255,11,0)" />
+          <use href="#wheel-wedge" transform="rotate(-3)" fill="rgb(255,15,0)" />
+          <use href="#wheel-wedge" transform="rotate(-4)" fill="rgb(255,19,0)" />
+          <use href="#wheel-wedge" transform="rotate(-5)" fill="rgb(255,23,0)" />
+          <use href="#wheel-wedge" transform="rotate(-6)" fill="rgb(255,28,0)" />
+          <use href="#wheel-wedge" transform="rotate(-7)" fill="rgb(255,32,0)" />
+          <use href="#wheel-wedge" transform="rotate(-8)" fill="rgb(255,36,0)" />
+          <use href="#wheel-wedge" transform="rotate(-9)" fill="rgb(255,40,0)" />
+          <use href="#wheel-wedge" transform="rotate(-10)" fill="rgb(255,45,0)" />
+          <use href="#wheel-wedge" transform="rotate(-11)" fill="rgb(255,49,0)" />
+          <use href="#wheel-wedge" transform="rotate(-12)" fill="rgb(255,53,0)" />
+          <use href="#wheel-wedge" transform="rotate(-13)" fill="rgb(255,57,0)" />
+          <use href="#wheel-wedge" transform="rotate(-14)" fill="rgb(255,62,0)" />
+          <use href="#wheel-wedge" transform="rotate(-15)" fill="rgb(255,66,0)" />
+          <use href="#wheel-wedge" transform="rotate(-16)" fill="rgb(255,70,0)" />
+          <use href="#wheel-wedge" transform="rotate(-17)" fill="rgb(255,74,0)" />
+          <use href="#wheel-wedge" transform="rotate(-18)" fill="rgb(255,79,0)" />
+          <use href="#wheel-wedge" transform="rotate(-19)" fill="rgb(255,83,0)" />
+          <use href="#wheel-wedge" transform="rotate(-20)" fill="rgb(255,87,0)" />
+          <use href="#wheel-wedge" transform="rotate(-21)" fill="rgb(255,91,0)" />
+          <use href="#wheel-wedge" transform="rotate(-22)" fill="rgb(255,96,0)" />
+          <use href="#wheel-wedge" transform="rotate(-23)" fill="rgb(255,100,0)" />
+          <use href="#wheel-wedge" transform="rotate(-24)" fill="rgb(255,104,0)" />
+          <use href="#wheel-wedge" transform="rotate(-25)" fill="rgb(255,108,0)" />
+          <use href="#wheel-wedge" transform="rotate(-26)" fill="rgb(255,113,0)" />
+          <use href="#wheel-wedge" transform="rotate(-27)" fill="rgb(255,117,0)" />
+          <use href="#wheel-wedge" transform="rotate(-28)" fill="rgb(255,121,0)" />
+          <use href="#wheel-wedge" transform="rotate(-29)" fill="rgb(255,125,0)" />
+          <use href="#wheel-wedge" transform="rotate(-30)" fill="rgb(255,130,0)" />
+          <use href="#wheel-wedge" transform="rotate(-31)" fill="rgb(255,134,0)" />
+          <use href="#wheel-wedge" transform="rotate(-32)" fill="rgb(255,138,0)" />
+          <use href="#wheel-wedge" transform="rotate(-33)" fill="rgb(255,142,0)" />
+          <use href="#wheel-wedge" transform="rotate(-34)" fill="rgb(255,147,0)" />
+          <use href="#wheel-wedge" transform="rotate(-35)" fill="rgb(255,151,0)" />
+          <use href="#wheel-wedge" transform="rotate(-36)" fill="rgb(255,155,0)" />
+          <use href="#wheel-wedge" transform="rotate(-37)" fill="rgb(255,159,0)" />
+          <use href="#wheel-wedge" transform="rotate(-38)" fill="rgb(255,164,0)" />
+          <use href="#wheel-wedge" transform="rotate(-39)" fill="rgb(255,168,0)" />
+          <use href="#wheel-wedge" transform="rotate(-40)" fill="rgb(255,172,0)" />
+          <use href="#wheel-wedge" transform="rotate(-41)" fill="rgb(255,176,0)" />
+          <use href="#wheel-wedge" transform="rotate(-42)" fill="rgb(255,181,0)" />
+          <use href="#wheel-wedge" transform="rotate(-43)" fill="rgb(255,185,0)" />
+          <use href="#wheel-wedge" transform="rotate(-44)" fill="rgb(255,189,0)" />
+          <use href="#wheel-wedge" transform="rotate(-45)" fill="rgb(255,193,0)" />
+          <use href="#wheel-wedge" transform="rotate(-46)" fill="rgb(255,198,0)" />
+          <use href="#wheel-wedge" transform="rotate(-47)" fill="rgb(255,202,0)" />
+          <use href="#wheel-wedge" transform="rotate(-48)" fill="rgb(255,206,0)" />
+          <use href="#wheel-wedge" transform="rotate(-49)" fill="rgb(255,210,0)" />
+          <use href="#wheel-wedge" transform="rotate(-50)" fill="rgb(255,215,0)" />
+          <use href="#wheel-wedge" transform="rotate(-51)" fill="rgb(255,219,0)" />
+          <use href="#wheel-wedge" transform="rotate(-52)" fill="rgb(255,223,0)" />
+          <use href="#wheel-wedge" transform="rotate(-53)" fill="rgb(255,227,0)" />
+          <use href="#wheel-wedge" transform="rotate(-54)" fill="rgb(255,232,0)" />
+          <use href="#wheel-wedge" transform="rotate(-55)" fill="rgb(255,236,0)" />
+          <use href="#wheel-wedge" transform="rotate(-56)" fill="rgb(255,240,0)" />
+          <use href="#wheel-wedge" transform="rotate(-57)" fill="rgb(255,244,0)" />
+          <use href="#wheel-wedge" transform="rotate(-58)" fill="rgb(255,249,0)" />
+          <use href="#wheel-wedge" transform="rotate(-59)" fill="rgb(255,253,0)" />
+          <use href="#wheel-wedge" transform="rotate(-60)" fill="rgb(253,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-61)" fill="rgb(249,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-62)" fill="rgb(244,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-63)" fill="rgb(240,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-64)" fill="rgb(236,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-65)" fill="rgb(232,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-66)" fill="rgb(227,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-67)" fill="rgb(223,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-68)" fill="rgb(219,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-69)" fill="rgb(215,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-70)" fill="rgb(210,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-71)" fill="rgb(206,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-72)" fill="rgb(202,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-73)" fill="rgb(198,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-74)" fill="rgb(193,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-75)" fill="rgb(189,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-76)" fill="rgb(185,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-77)" fill="rgb(181,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-78)" fill="rgb(176,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-79)" fill="rgb(172,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-80)" fill="rgb(168,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-81)" fill="rgb(164,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-82)" fill="rgb(159,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-83)" fill="rgb(155,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-84)" fill="rgb(151,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-85)" fill="rgb(147,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-86)" fill="rgb(142,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-87)" fill="rgb(138,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-88)" fill="rgb(134,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-89)" fill="rgb(130,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-90)" fill="rgb(125,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-91)" fill="rgb(121,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-92)" fill="rgb(117,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-93)" fill="rgb(113,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-94)" fill="rgb(108,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-95)" fill="rgb(104,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-96)" fill="rgb(100,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-97)" fill="rgb(96,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-98)" fill="rgb(91,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-99)" fill="rgb(87,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-100)" fill="rgb(83,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-101)" fill="rgb(79,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-102)" fill="rgb(74,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-103)" fill="rgb(70,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-104)" fill="rgb(66,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-105)" fill="rgb(62,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-106)" fill="rgb(57,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-107)" fill="rgb(53,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-108)" fill="rgb(49,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-109)" fill="rgb(45,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-110)" fill="rgb(40,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-111)" fill="rgb(36,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-112)" fill="rgb(32,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-113)" fill="rgb(28,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-114)" fill="rgb(23,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-115)" fill="rgb(19,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-116)" fill="rgb(15,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-117)" fill="rgb(11,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-118)" fill="rgb(6,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-119)" fill="rgb(2,255,0)" />
+          <use href="#wheel-wedge" transform="rotate(-120)" fill="rgb(0,255,2)" />
+          <use href="#wheel-wedge" transform="rotate(-121)" fill="rgb(0,255,6)" />
+          <use href="#wheel-wedge" transform="rotate(-122)" fill="rgb(0,255,11)" />
+          <use href="#wheel-wedge" transform="rotate(-123)" fill="rgb(0,255,15)" />
+          <use href="#wheel-wedge" transform="rotate(-124)" fill="rgb(0,255,19)" />
+          <use href="#wheel-wedge" transform="rotate(-125)" fill="rgb(0,255,23)" />
+          <use href="#wheel-wedge" transform="rotate(-126)" fill="rgb(0,255,28)" />
+          <use href="#wheel-wedge" transform="rotate(-127)" fill="rgb(0,255,32)" />
+          <use href="#wheel-wedge" transform="rotate(-128)" fill="rgb(0,255,36)" />
+          <use href="#wheel-wedge" transform="rotate(-129)" fill="rgb(0,255,40)" />
+          <use href="#wheel-wedge" transform="rotate(-130)" fill="rgb(0,255,45)" />
+          <use href="#wheel-wedge" transform="rotate(-131)" fill="rgb(0,255,49)" />
+          <use href="#wheel-wedge" transform="rotate(-132)" fill="rgb(0,255,53)" />
+          <use href="#wheel-wedge" transform="rotate(-133)" fill="rgb(0,255,57)" />
+          <use href="#wheel-wedge" transform="rotate(-134)" fill="rgb(0,255,62)" />
+          <use href="#wheel-wedge" transform="rotate(-135)" fill="rgb(0,255,66)" />
+          <use href="#wheel-wedge" transform="rotate(-136)" fill="rgb(0,255,70)" />
+          <use href="#wheel-wedge" transform="rotate(-137)" fill="rgb(0,255,74)" />
+          <use href="#wheel-wedge" transform="rotate(-138)" fill="rgb(0,255,79)" />
+          <use href="#wheel-wedge" transform="rotate(-139)" fill="rgb(0,255,83)" />
+          <use href="#wheel-wedge" transform="rotate(-140)" fill="rgb(0,255,87)" />
+          <use href="#wheel-wedge" transform="rotate(-141)" fill="rgb(0,255,91)" />
+          <use href="#wheel-wedge" transform="rotate(-142)" fill="rgb(0,255,96)" />
+          <use href="#wheel-wedge" transform="rotate(-143)" fill="rgb(0,255,100)" />
+          <use href="#wheel-wedge" transform="rotate(-144)" fill="rgb(0,255,104)" />
+          <use href="#wheel-wedge" transform="rotate(-145)" fill="rgb(0,255,108)" />
+          <use href="#wheel-wedge" transform="rotate(-146)" fill="rgb(0,255,113)" />
+          <use href="#wheel-wedge" transform="rotate(-147)" fill="rgb(0,255,117)" />
+          <use href="#wheel-wedge" transform="rotate(-148)" fill="rgb(0,255,121)" />
+          <use href="#wheel-wedge" transform="rotate(-149)" fill="rgb(0,255,125)" />
+          <use href="#wheel-wedge" transform="rotate(-150)" fill="rgb(0,255,130)" />
+          <use href="#wheel-wedge" transform="rotate(-151)" fill="rgb(0,255,134)" />
+          <use href="#wheel-wedge" transform="rotate(-152)" fill="rgb(0,255,138)" />
+          <use href="#wheel-wedge" transform="rotate(-153)" fill="rgb(0,255,142)" />
+          <use href="#wheel-wedge" transform="rotate(-154)" fill="rgb(0,255,147)" />
+          <use href="#wheel-wedge" transform="rotate(-155)" fill="rgb(0,255,151)" />
+          <use href="#wheel-wedge" transform="rotate(-156)" fill="rgb(0,255,155)" />
+          <use href="#wheel-wedge" transform="rotate(-157)" fill="rgb(0,255,159)" />
+          <use href="#wheel-wedge" transform="rotate(-158)" fill="rgb(0,255,164)" />
+          <use href="#wheel-wedge" transform="rotate(-159)" fill="rgb(0,255,168)" />
+          <use href="#wheel-wedge" transform="rotate(-160)" fill="rgb(0,255,172)" />
+          <use href="#wheel-wedge" transform="rotate(-161)" fill="rgb(0,255,176)" />
+          <use href="#wheel-wedge" transform="rotate(-162)" fill="rgb(0,255,181)" />
+          <use href="#wheel-wedge" transform="rotate(-163)" fill="rgb(0,255,185)" />
+          <use href="#wheel-wedge" transform="rotate(-164)" fill="rgb(0,255,189)" />
+          <use href="#wheel-wedge" transform="rotate(-165)" fill="rgb(0,255,193)" />
+          <use href="#wheel-wedge" transform="rotate(-166)" fill="rgb(0,255,198)" />
+          <use href="#wheel-wedge" transform="rotate(-167)" fill="rgb(0,255,202)" />
+          <use href="#wheel-wedge" transform="rotate(-168)" fill="rgb(0,255,206)" />
+          <use href="#wheel-wedge" transform="rotate(-169)" fill="rgb(0,255,210)" />
+          <use href="#wheel-wedge" transform="rotate(-170)" fill="rgb(0,255,215)" />
+          <use href="#wheel-wedge" transform="rotate(-171)" fill="rgb(0,255,219)" />
+          <use href="#wheel-wedge" transform="rotate(-172)" fill="rgb(0,255,223)" />
+          <use href="#wheel-wedge" transform="rotate(-173)" fill="rgb(0,255,227)" />
+          <use href="#wheel-wedge" transform="rotate(-174)" fill="rgb(0,255,232)" />
+          <use href="#wheel-wedge" transform="rotate(-175)" fill="rgb(0,255,236)" />
+          <use href="#wheel-wedge" transform="rotate(-176)" fill="rgb(0,255,240)" />
+          <use href="#wheel-wedge" transform="rotate(-177)" fill="rgb(0,255,244)" />
+          <use href="#wheel-wedge" transform="rotate(-178)" fill="rgb(0,255,249)" />
+          <use href="#wheel-wedge" transform="rotate(-179)" fill="rgb(0,255,253)" />
+          <use href="#wheel-wedge" transform="rotate(-180)" fill="rgb(0,253,255)" />
+          <use href="#wheel-wedge" transform="rotate(-181)" fill="rgb(0,249,255)" />
+          <use href="#wheel-wedge" transform="rotate(-182)" fill="rgb(0,244,255)" />
+          <use href="#wheel-wedge" transform="rotate(-183)" fill="rgb(0,240,255)" />
+          <use href="#wheel-wedge" transform="rotate(-184)" fill="rgb(0,236,255)" />
+          <use href="#wheel-wedge" transform="rotate(-185)" fill="rgb(0,232,255)" />
+          <use href="#wheel-wedge" transform="rotate(-186)" fill="rgb(0,227,255)" />
+          <use href="#wheel-wedge" transform="rotate(-187)" fill="rgb(0,223,255)" />
+          <use href="#wheel-wedge" transform="rotate(-188)" fill="rgb(0,219,255)" />
+          <use href="#wheel-wedge" transform="rotate(-189)" fill="rgb(0,215,255)" />
+          <use href="#wheel-wedge" transform="rotate(-190)" fill="rgb(0,210,255)" />
+          <use href="#wheel-wedge" transform="rotate(-191)" fill="rgb(0,206,255)" />
+          <use href="#wheel-wedge" transform="rotate(-192)" fill="rgb(0,202,255)" />
+          <use href="#wheel-wedge" transform="rotate(-193)" fill="rgb(0,198,255)" />
+          <use href="#wheel-wedge" transform="rotate(-194)" fill="rgb(0,193,255)" />
+          <use href="#wheel-wedge" transform="rotate(-195)" fill="rgb(0,189,255)" />
+          <use href="#wheel-wedge" transform="rotate(-196)" fill="rgb(0,185,255)" />
+          <use href="#wheel-wedge" transform="rotate(-197)" fill="rgb(0,181,255)" />
+          <use href="#wheel-wedge" transform="rotate(-198)" fill="rgb(0,176,255)" />
+          <use href="#wheel-wedge" transform="rotate(-199)" fill="rgb(0,172,255)" />
+          <use href="#wheel-wedge" transform="rotate(-200)" fill="rgb(0,168,255)" />
+          <use href="#wheel-wedge" transform="rotate(-201)" fill="rgb(0,164,255)" />
+          <use href="#wheel-wedge" transform="rotate(-202)" fill="rgb(0,159,255)" />
+          <use href="#wheel-wedge" transform="rotate(-203)" fill="rgb(0,155,255)" />
+          <use href="#wheel-wedge" transform="rotate(-204)" fill="rgb(0,151,255)" />
+          <use href="#wheel-wedge" transform="rotate(-205)" fill="rgb(0,147,255)" />
+          <use href="#wheel-wedge" transform="rotate(-206)" fill="rgb(0,142,255)" />
+          <use href="#wheel-wedge" transform="rotate(-207)" fill="rgb(0,138,255)" />
+          <use href="#wheel-wedge" transform="rotate(-208)" fill="rgb(0,134,255)" />
+          <use href="#wheel-wedge" transform="rotate(-209)" fill="rgb(0,130,255)" />
+          <use href="#wheel-wedge" transform="rotate(-210)" fill="rgb(0,125,255)" />
+          <use href="#wheel-wedge" transform="rotate(-211)" fill="rgb(0,121,255)" />
+          <use href="#wheel-wedge" transform="rotate(-212)" fill="rgb(0,117,255)" />
+          <use href="#wheel-wedge" transform="rotate(-213)" fill="rgb(0,113,255)" />
+          <use href="#wheel-wedge" transform="rotate(-214)" fill="rgb(0,108,255)" />
+          <use href="#wheel-wedge" transform="rotate(-215)" fill="rgb(0,104,255)" />
+          <use href="#wheel-wedge" transform="rotate(-216)" fill="rgb(0,100,255)" />
+          <use href="#wheel-wedge" transform="rotate(-217)" fill="rgb(0,96,255)" />
+          <use href="#wheel-wedge" transform="rotate(-218)" fill="rgb(0,91,255)" />
+          <use href="#wheel-wedge" transform="rotate(-219)" fill="rgb(0,87,255)" />
+          <use href="#wheel-wedge" transform="rotate(-220)" fill="rgb(0,83,255)" />
+          <use href="#wheel-wedge" transform="rotate(-221)" fill="rgb(0,79,255)" />
+          <use href="#wheel-wedge" transform="rotate(-222)" fill="rgb(0,74,255)" />
+          <use href="#wheel-wedge" transform="rotate(-223)" fill="rgb(0,70,255)" />
+          <use href="#wheel-wedge" transform="rotate(-224)" fill="rgb(0,66,255)" />
+          <use href="#wheel-wedge" transform="rotate(-225)" fill="rgb(0,62,255)" />
+          <use href="#wheel-wedge" transform="rotate(-226)" fill="rgb(0,57,255)" />
+          <use href="#wheel-wedge" transform="rotate(-227)" fill="rgb(0,53,255)" />
+          <use href="#wheel-wedge" transform="rotate(-228)" fill="rgb(0,49,255)" />
+          <use href="#wheel-wedge" transform="rotate(-229)" fill="rgb(0,45,255)" />
+          <use href="#wheel-wedge" transform="rotate(-230)" fill="rgb(0,40,255)" />
+          <use href="#wheel-wedge" transform="rotate(-231)" fill="rgb(0,36,255)" />
+          <use href="#wheel-wedge" transform="rotate(-232)" fill="rgb(0,32,255)" />
+          <use href="#wheel-wedge" transform="rotate(-233)" fill="rgb(0,28,255)" />
+          <use href="#wheel-wedge" transform="rotate(-234)" fill="rgb(0,23,255)" />
+          <use href="#wheel-wedge" transform="rotate(-235)" fill="rgb(0,19,255)" />
+          <use href="#wheel-wedge" transform="rotate(-236)" fill="rgb(0,15,255)" />
+          <use href="#wheel-wedge" transform="rotate(-237)" fill="rgb(0,11,255)" />
+          <use href="#wheel-wedge" transform="rotate(-238)" fill="rgb(0,6,255)" />
+          <use href="#wheel-wedge" transform="rotate(-239)" fill="rgb(0,2,255)" />
+          <use href="#wheel-wedge" transform="rotate(-240)" fill="rgb(2,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-241)" fill="rgb(6,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-242)" fill="rgb(11,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-243)" fill="rgb(15,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-244)" fill="rgb(19,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-245)" fill="rgb(23,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-246)" fill="rgb(28,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-247)" fill="rgb(32,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-248)" fill="rgb(36,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-249)" fill="rgb(40,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-250)" fill="rgb(45,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-251)" fill="rgb(49,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-252)" fill="rgb(53,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-253)" fill="rgb(57,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-254)" fill="rgb(62,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-255)" fill="rgb(66,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-256)" fill="rgb(70,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-257)" fill="rgb(74,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-258)" fill="rgb(79,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-259)" fill="rgb(83,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-260)" fill="rgb(87,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-261)" fill="rgb(91,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-262)" fill="rgb(96,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-263)" fill="rgb(100,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-264)" fill="rgb(104,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-265)" fill="rgb(108,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-266)" fill="rgb(113,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-267)" fill="rgb(117,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-268)" fill="rgb(121,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-269)" fill="rgb(125,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-270)" fill="rgb(130,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-271)" fill="rgb(134,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-272)" fill="rgb(138,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-273)" fill="rgb(142,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-274)" fill="rgb(147,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-275)" fill="rgb(151,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-276)" fill="rgb(155,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-277)" fill="rgb(159,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-278)" fill="rgb(164,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-279)" fill="rgb(168,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-280)" fill="rgb(172,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-281)" fill="rgb(176,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-282)" fill="rgb(181,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-283)" fill="rgb(185,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-284)" fill="rgb(189,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-285)" fill="rgb(193,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-286)" fill="rgb(198,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-287)" fill="rgb(202,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-288)" fill="rgb(206,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-289)" fill="rgb(210,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-290)" fill="rgb(215,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-291)" fill="rgb(219,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-292)" fill="rgb(223,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-293)" fill="rgb(227,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-294)" fill="rgb(232,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-295)" fill="rgb(236,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-296)" fill="rgb(240,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-297)" fill="rgb(244,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-298)" fill="rgb(249,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-299)" fill="rgb(253,0,255)" />
+          <use href="#wheel-wedge" transform="rotate(-300)" fill="rgb(255,0,253)" />
+          <use href="#wheel-wedge" transform="rotate(-301)" fill="rgb(255,0,249)" />
+          <use href="#wheel-wedge" transform="rotate(-302)" fill="rgb(255,0,244)" />
+          <use href="#wheel-wedge" transform="rotate(-303)" fill="rgb(255,0,240)" />
+          <use href="#wheel-wedge" transform="rotate(-304)" fill="rgb(255,0,236)" />
+          <use href="#wheel-wedge" transform="rotate(-305)" fill="rgb(255,0,232)" />
+          <use href="#wheel-wedge" transform="rotate(-306)" fill="rgb(255,0,227)" />
+          <use href="#wheel-wedge" transform="rotate(-307)" fill="rgb(255,0,223)" />
+          <use href="#wheel-wedge" transform="rotate(-308)" fill="rgb(255,0,219)" />
+          <use href="#wheel-wedge" transform="rotate(-309)" fill="rgb(255,0,215)" />
+          <use href="#wheel-wedge" transform="rotate(-310)" fill="rgb(255,0,210)" />
+          <use href="#wheel-wedge" transform="rotate(-311)" fill="rgb(255,0,206)" />
+          <use href="#wheel-wedge" transform="rotate(-312)" fill="rgb(255,0,202)" />
+          <use href="#wheel-wedge" transform="rotate(-313)" fill="rgb(255,0,198)" />
+          <use href="#wheel-wedge" transform="rotate(-314)" fill="rgb(255,0,193)" />
+          <use href="#wheel-wedge" transform="rotate(-315)" fill="rgb(255,0,189)" />
+          <use href="#wheel-wedge" transform="rotate(-316)" fill="rgb(255,0,185)" />
+          <use href="#wheel-wedge" transform="rotate(-317)" fill="rgb(255,0,181)" />
+          <use href="#wheel-wedge" transform="rotate(-318)" fill="rgb(255,0,176)" />
+          <use href="#wheel-wedge" transform="rotate(-319)" fill="rgb(255,0,172)" />
+          <use href="#wheel-wedge" transform="rotate(-320)" fill="rgb(255,0,168)" />
+          <use href="#wheel-wedge" transform="rotate(-321)" fill="rgb(255,0,164)" />
+          <use href="#wheel-wedge" transform="rotate(-322)" fill="rgb(255,0,159)" />
+          <use href="#wheel-wedge" transform="rotate(-323)" fill="rgb(255,0,155)" />
+          <use href="#wheel-wedge" transform="rotate(-324)" fill="rgb(255,0,151)" />
+          <use href="#wheel-wedge" transform="rotate(-325)" fill="rgb(255,0,147)" />
+          <use href="#wheel-wedge" transform="rotate(-326)" fill="rgb(255,0,142)" />
+          <use href="#wheel-wedge" transform="rotate(-327)" fill="rgb(255,0,138)" />
+          <use href="#wheel-wedge" transform="rotate(-328)" fill="rgb(255,0,134)" />
+          <use href="#wheel-wedge" transform="rotate(-329)" fill="rgb(255,0,130)" />
+          <use href="#wheel-wedge" transform="rotate(-330)" fill="rgb(255,0,125)" />
+          <use href="#wheel-wedge" transform="rotate(-331)" fill="rgb(255,0,121)" />
+          <use href="#wheel-wedge" transform="rotate(-332)" fill="rgb(255,0,117)" />
+          <use href="#wheel-wedge" transform="rotate(-333)" fill="rgb(255,0,113)" />
+          <use href="#wheel-wedge" transform="rotate(-334)" fill="rgb(255,0,108)" />
+          <use href="#wheel-wedge" transform="rotate(-335)" fill="rgb(255,0,104)" />
+          <use href="#wheel-wedge" transform="rotate(-336)" fill="rgb(255,0,100)" />
+          <use href="#wheel-wedge" transform="rotate(-337)" fill="rgb(255,0,96)" />
+          <use href="#wheel-wedge" transform="rotate(-338)" fill="rgb(255,0,91)" />
+          <use href="#wheel-wedge" transform="rotate(-339)" fill="rgb(255,0,87)" />
+          <use href="#wheel-wedge" transform="rotate(-340)" fill="rgb(255,0,83)" />
+          <use href="#wheel-wedge" transform="rotate(-341)" fill="rgb(255,0,79)" />
+          <use href="#wheel-wedge" transform="rotate(-342)" fill="rgb(255,0,74)" />
+          <use href="#wheel-wedge" transform="rotate(-343)" fill="rgb(255,0,70)" />
+          <use href="#wheel-wedge" transform="rotate(-344)" fill="rgb(255,0,66)" />
+          <use href="#wheel-wedge" transform="rotate(-345)" fill="rgb(255,0,62)" />
+          <use href="#wheel-wedge" transform="rotate(-346)" fill="rgb(255,0,57)" />
+          <use href="#wheel-wedge" transform="rotate(-347)" fill="rgb(255,0,53)" />
+          <use href="#wheel-wedge" transform="rotate(-348)" fill="rgb(255,0,49)" />
+          <use href="#wheel-wedge" transform="rotate(-349)" fill="rgb(255,0,45)" />
+          <use href="#wheel-wedge" transform="rotate(-350)" fill="rgb(255,0,40)" />
+          <use href="#wheel-wedge" transform="rotate(-351)" fill="rgb(255,0,36)" />
+          <use href="#wheel-wedge" transform="rotate(-352)" fill="rgb(255,0,32)" />
+          <use href="#wheel-wedge" transform="rotate(-353)" fill="rgb(255,0,28)" />
+          <use href="#wheel-wedge" transform="rotate(-354)" fill="rgb(255,0,23)" />
+          <use href="#wheel-wedge" transform="rotate(-355)" fill="rgb(255,0,19)" />
+          <use href="#wheel-wedge" transform="rotate(-356)" fill="rgb(255,0,15)" />
+          <use href="#wheel-wedge" transform="rotate(-357)" fill="rgb(255,0,11)" />
+          <use href="#wheel-wedge" transform="rotate(-358)" fill="rgb(255,0,6)" />
+          <use href="#wheel-wedge" transform="rotate(-359)" fill="rgb(255,0,2)" />
+        </g>
+        <rect width="24" height="24" fill="url(#wheel-white)" />
+        <g id="picker-wheel-rim-shading" mask="url(#rim-mask)">
+          <rect width="24" height="24" fill="white" mask="url(#rim-white-mask)" />
+          <rect width="24" height="24" fill="url(#rim-shadow)" />
+        </g>
+        <circle id="picker-wheel-center-mark" cx="12.4" cy="12.25" r="1.5" fill="url(#wheel-dot)" />
+      </g>
+    </symbol>
+    <symbol id="common_SliderHoriz" viewBox="0 0 19 14" data-file="Images/common_SliderHoriz.tiff" data-reconstructed="true">
+      <use href="SliderKnobs.svg#slider-knob-horizontal"/>
+    </symbol>
+    <symbol id="common_SliderVert" viewBox="0 0 14 19" data-file="Images/common_SliderVert.tiff" data-reconstructed="true">
+      <use href="SliderKnobs.svg#slider-knob-vertical"/>
+    </symbol>
+    <symbol id="common_TabDownSelectedLeft" viewBox="0 0 13 18" data-file="Images/common_TabDownSelectedLeft.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-selected-left-design"/>
+    </symbol>
+    <symbol id="common_TabDownSelectedRight" viewBox="0 0 13 18" data-file="Images/common_TabDownSelectedRight.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-selected-right-design"/>
+    </symbol>
+    <symbol id="common_TabDownSelectedToUnSelectedJunction" viewBox="0 0 13 18" data-file="Images/common_TabDownSelectedToUnSelectedJunction.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-selected-to-unselected-junction-design"/>
+    </symbol>
+    <symbol id="common_TabDownUnSelectedJunction" viewBox="0 0 13 18" data-file="Images/common_TabDownUnSelectedJunction.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-unselected-junction-design"/>
+    </symbol>
+    <symbol id="common_TabDownUnSelectedLeft" viewBox="0 0 13 18" data-file="Images/common_TabDownUnSelectedLeft.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-unselected-left-design"/>
+    </symbol>
+    <symbol id="common_TabDownUnSelectedRight" viewBox="0 0 13 18" data-file="Images/common_TabDownUnSelectedRight.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-unselected-right-design"/>
+    </symbol>
+    <symbol id="common_TabDownUnSelectedToSelectedJunction" viewBox="0 0 13 18" data-file="Images/common_TabDownUnSelectedToSelectedJunction.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-down-unselected-to-selected-junction-design"/>
+    </symbol>
+    <symbol id="common_TabSelectedLeft" viewBox="0 0 13 17" data-file="Images/common_TabSelectedLeft.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-selected-left-design"/>
+    </symbol>
+    <symbol id="common_TabSelectedRight" viewBox="0 0 13 17" data-file="Images/common_TabSelectedRight.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-selected-right-design"/>
+    </symbol>
+    <symbol id="common_TabSelectedToUnSelectedJunction" viewBox="0 0 13 17" data-file="Images/common_TabSelectedToUnSelectedJunction.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-selected-to-unselected-junction-design"/>
+    </symbol>
+    <symbol id="common_TabUnSelectedJunction" viewBox="0 0 13 17" data-file="Images/common_TabUnSelectedJunction.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-unselected-junction-design"/>
+    </symbol>
+    <symbol id="common_TabUnSelectedLeft" viewBox="0 0 13 17" data-file="Images/common_TabUnSelectedLeft.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-unselected-left-design"/>
+    </symbol>
+    <symbol id="common_TabUnSelectedRight" viewBox="0 0 13 17" data-file="Images/common_TabUnSelectedRight.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-unselected-right-design"/>
+    </symbol>
+    <symbol id="common_TabUnSelectedToSelectedJunction" viewBox="0 0 13 17" data-file="Images/common_TabUnSelectedToSelectedJunction.tiff" data-reconstructed="true">
+      <use href="TabEdges.svg#tab-unselected-to-selected-junction-design"/>
+    </symbol>
+    <symbol id="common_StepperDown" viewBox="0 0 18 13" data-file="Images/common_StepperDown.tiff" data-reconstructed="true">
+      <use href="StepperButtons.svg#stepper-down-design"/>
+    </symbol>
+    <symbol id="common_StepperDownHighlighted" viewBox="0 0 18 13" data-file="Images/common_StepperDownHighlighted.tiff" data-reconstructed="true">
+      <use href="StepperButtons.svg#stepper-down-highlighted-design"/>
+    </symbol>
+    <symbol id="common_StepperUp" viewBox="0 0 18 13" data-file="Images/common_StepperUp.tiff" data-reconstructed="true">
+      <use href="StepperButtons.svg#stepper-up-design"/>
+    </symbol>
+    <symbol id="common_StepperUpHighlighted" viewBox="0 0 18 13" data-file="Images/common_StepperUpHighlighted.tiff" data-reconstructed="true">
+      <use href="StepperButtons.svg#stepper-up-highlighted-design"/>
+    </symbol>
+    <symbol id="common_LeftTabStop" viewBox="0 0 8 8" data-file="Images/common_LeftTabStop.tiff" data-reconstructed="true">
+      <use href="RulerMarkers.svg#ruler-left-design"/>
+    </symbol>
+    <symbol id="common_RightTabStop" viewBox="0 0 8 8" data-file="Images/common_RightTabStop.tiff" data-reconstructed="true">
+      <use href="RulerMarkers.svg#ruler-right-design"/>
+    </symbol>
+    <symbol id="common_CenterTabStop" viewBox="0 0 8 8" data-file="Images/common_CenterTabStop.tiff" data-reconstructed="true">
+      <use href="RulerMarkers.svg#ruler-center-design"/>
+    </symbol>
+    <symbol id="common_DecimalTabStop" viewBox="0 0 8 8" data-file="Images/common_DecimalTabStop.tiff" data-reconstructed="true">
+      <use href="RulerMarkers.svg#ruler-decimal-design"/>
+    </symbol>
+    <symbol id="common_ProgressIndeterminate_1" viewBox="0 0 24 24" data-file="Images/common_ProgressIndeterminate_1.tiff" data-reconstructed="true">
+      <use href="ProgressStripes.svg#progress-stripes-1-design"/>
+    </symbol>
+    <symbol id="common_ProgressIndeterminate_2" viewBox="0 0 24 24" data-file="Images/common_ProgressIndeterminate_2.tiff" data-reconstructed="true">
+      <use href="ProgressStripes.svg#progress-stripes-2-design"/>
+    </symbol>
+    <symbol id="common_ProgressIndeterminate_3" viewBox="0 0 24 24" data-file="Images/common_ProgressIndeterminate_3.tiff" data-reconstructed="true">
+      <use href="ProgressStripes.svg#progress-stripes-3-design"/>
+    </symbol>
+    <symbol id="common_ProgressIndeterminate_4" viewBox="0 0 24 24" data-file="Images/common_ProgressIndeterminate_4.tiff" data-reconstructed="true">
+      <use href="ProgressStripes.svg#progress-stripes-4-design"/>
+    </symbol>
+    <symbol id="common_ProgressIndeterminate_5" viewBox="0 0 24 24" data-file="Images/common_ProgressIndeterminate_5.tiff" data-reconstructed="true">
+      <use href="ProgressStripes.svg#progress-stripes-5-design"/>
+    </symbol>
+    <symbol id="common_ProgressIndeterminate_6" viewBox="0 0 24 24" data-file="Images/common_ProgressIndeterminate_6.tiff" data-reconstructed="true">
+      <use href="ProgressStripes.svg#progress-stripes-6-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_1" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_1.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-1-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_2" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_2.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-2-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_3" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_3.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-3-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_4" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_4.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-4-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_5" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_5.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-5-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_6" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_6.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-6-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_7" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_7.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-7-design"/>
+    </symbol>
+    <symbol id="common_ProgressSpinning_8" viewBox="0 0 32 32" data-file="Images/common_ProgressSpinning_8.tiff" data-reconstructed="true">
+      <use href="ProgressSpinners.svg#progress-spinner-8-design"/>
+    </symbol>
+    <symbol id="page_portrait" viewBox="0 0 48 48" data-file="Images/page_portrait.tiff" data-reconstructed="true">
+      <use href="PageOrientation.svg#page-portrait-design"/>
+    </symbol>
+    <symbol id="page_landscape" viewBox="0 0 48 48" data-file="Images/page_landscape.tiff" data-reconstructed="true">
+      <use href="PageOrientation.svg#page-landscape-design"/>
+    </symbol>
+  </defs>
+  <use id="preview" href="#GSRGBColorPicker" />
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  
+  <defs>
+    <path id="shine" d="M33.125 14.0 34.975 29.675 47.125 21.5 36.225 31.225 52.0 31.65 52.0 32.675 36.025 33.15 47.125 43.125 35.05 34.75 34 48 32.4 48 31.525 35.4 15.5 48.0 4.0 48.0 29.925 34.0 29.75 33.275 14.3 32.375 29.675 31.05 20.325 22.05 31.65 29.8Z" />
+    <symbol id="highlight" viewBox="0 0 48 48" data-logical-size="48 48">
+      <use href="#shine" fill="#ffff00" stroke="#ffff00" stroke-width="1" opacity=".14" />
+      <use href="#shine" fill="#ffff00" />
+    </symbol>
+    <path id="flag-outline" d="M20.5 15.1Q26.3 13.9 31 16.3 34.9 18.2 38 19.1L32 36Q27.3 33.2 24.2 32 21 30.8 17 31.9Z" />
+    <clipPath id="flag-clip"><use href="#flag-outline" /></clipPath>
+    <symbol id="ntfs" viewBox="0 0 48 48" data-logical-size="48 48">
+      <use href="#flag-outline" fill="#18120e" />
+      <g clip-path="url(#flag-clip)">
+        <path id="flag-red" d="M23.5 17.7Q26 17.1 28.8 18.6L27.6 22.9Q25.1 21.5 22 22.1Z" fill="#ef5427" />
+        <path id="flag-green" d="M31.3 18.9Q33.5 19.8 35.3 20.5L33.6 24.7Q31.7 25 29.8 24Z" fill="#48a54f" />
+        <path id="flag-blue" d="M20.5 24Q23.5 23.8 26.4 25.2L25.1 29.8Q22 28.5 19 29.2Z" fill="#0062a5" />
+        <path id="flag-yellow" d="M28.4 26.1Q30 26.5 32 27.1L30.6 32.1Q28.8 31.8 26.7 30.6Z" fill="#ffb500" />
+      </g>
+      <g id="flag-trail" fill="#1b1b1b">
+        <path d="M14 14.2 17.2 14.6 17.3 15.5 14.5 15.2ZM18.3 15.3 21 15.9 20.5 17 18.1 16.3Z" />
+        <path d="M11.5 20 13.5 20.5 13.2 21.6 11.1 21ZM15.5 21.1 18.6 21.7 18.2 23 15.2 22.4Z" />
+        <path d="M12.5 25 15.3 25.8 15 27 12.1 26.1ZM10.5 28.5 12.7 29.5 12.2 30.3 10 29.2Z" />
+        <path d="M14.1 30 17.1 30.8 16.8 31.9 13.7 31.1Z" />
+      </g>
+      <g id="red-trail" fill="#ed4d29">
+        <path d="M9.7 16 11.8 16.6 11.5 17.5 9.4 16.9ZM14.4 17.2 17.8 18 17.5 19.1 14.1 18.3Z" />
+        <path d="M17.8 19 20.8 19.5 20.5 20.7 17.4 20Z" />
+      </g>
+      <g id="blue-trail" fill="#1e85be">
+        <path d="M9.5 22.5 11.7 23.1 11.4 24 9.2 23.4ZM13.2 23.5 16.5 24.4 16.2 25.4 12.9 24.6Z" />
+        <path d="M15.2 26.3 19.2 27.3 18.8 28.4 14.8 27.4Z" />
+      </g>
+    </symbol>
+  </defs>
+  <use id="preview" href="#highlight" />
+</svg>

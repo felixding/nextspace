@@ -1,0 +1,26 @@
+{
+  "cases": {
+    "HDD.fs": {
+      "source": "Applications/Workspace/Resources/HDD.fs.tiff",
+      "source_sha256": "489a8de658d32072300bc7ce1706b87724fa94ae728e992a8adf398fb7332493",
+      "png": "HDD.fs.png",
+      "png_sha256": "8b7507a061f8e9b532509b498477c5e4fe6c2790082dd4072a26147872d75652",
+      "rgb_representation_index": 1
+    },
+    "HDD.openfs": {
+      "source": "Applications/Workspace/Resources/HDD.openfs.tiff",
+      "source_sha256": "ca25579a7197d5604e73696638dcb0d7e5500811bbedd347cd4fbff8d402f2b8",
+      "png": "HDD.openfs.png",
+      "png_sha256": "ad481f123a0926b90db87a7c7687d89e0bd1e5e363778eff8fd0e65d7145cc3c",
+      "rgb_representation_index": 1
+    },
+    "NTFS_HDD.fs": {
+      "source": "Applications/Workspace/Resources/NTFS_HDD.fs.tiff",
+      "source_sha256": "0e90161c1a4cde66ad727190ae0d61f58545e592179ef0ad8d936954063b753a",
+      "png": "NTFS_HDD.fs.png",
+      "png_sha256": "0bbe6dfdda5ac617a973efb0051d0ab073d21bbb083fbc999d55ca44074f6078",
+      "rgb_representation_index": 0
+    }
+  },
+  "reference": "Native RGB-context exports from the original resources before NeXTSpirit import. Both complete retained NeXTSpirit sets lack the highlight and NTFS flag."
+}

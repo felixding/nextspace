@@ -1,0 +1,18 @@
+{
+  "prompt": "Use case: precise-object-edit.\nImage 1 is the edit target and authoritative original: an enlarged 33\u00d724 photograph inside a historical NeXTSTEP Review icon. Image 2 is a rejected reconstruction, provided only as an example of fine photographic texture, NOT as an authority for composition or colors.\nReconstruct Image 1 as a genuinely high-resolution natural photograph with the exact original composition, silhouette, tonal regions and subdued color palette. Replace sampling blocks with fine natural cloud, vegetation and water detail. Preserve the original broad dark olive headland on the left, its height and full footprint, the low dark horizon strip, dark navy upper sky, muted periwinkle/lavender cloud regions, gray-green water and warm gray foreground. The original's headland is broader and darker than Image 2 and its water is much less bright. Match Image 1's sampled colors closely when the result is reduced to 33\u00d724. Do not use tropical cyan, intense blue, bright white cloud masses, golden beach, extra landscape, new islands, new objects or a different horizon. Do not preserve pixel cells or merely interpolate them. Output only the opaque high-resolution photo in the original 33:24 aspect ratio, with no border, monitor or text.",
+  "mode": "built-in",
+  "intent": "edit",
+  "selected": true,
+  "source": "/Users/felixding/.codex/generated_images/01a17bef-43a7-72d1-b3fd-e939371f1021/exec-9f564554-ba62-4ca6-9dbd-a2beabb9bdec.png",
+  "source_sha256": "290e1c85aef39fda2b109d79445857fc5f622d1cac6db914bb022813197aab28",
+  "source_pixels": [
+    1471,
+    1069
+  ],
+  "original_source": "Applications/Review/Resources/Review.tiff",
+  "original_author": "Serg Stoyan, 2005",
+  "palette_correction": "ReviewScreen.svg",
+  "all_original_pixels_identical": false,
+  "source_generation_reproducible": false,
+  "build_from_pinned_source_reproducible": true
+}

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 66 57">
+  <defs>
+    <linearGradient id="login-preferences-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#494567"/><stop offset="1" stop-color="#44405f"/>
+    </linearGradient>
+    <radialGradient id="login-preferences-panel" cx=".5" cy=".2" r=".9">
+      <stop stop-color="#929496"/><stop offset="1" stop-color="#838281"/>
+    </radialGradient>
+  </defs>
+  <symbol id="LoginPreferences" viewBox="0 0 66 57" data-file="Resources/Loginwindow.tiff" data-reconstructed="true">
+    <g opacity=".94117647">
+      <use href="../../Artwork/Monitor.svg#display-monitor-original-core"/>
+      <path d="M16 11H50V36H16Z" fill="url(#login-preferences-glass)"/>
+      <path d="M22 17H45V31H21V30H44V17Z" fill="#000"/>
+      <path d="M21 16H44V30H21Z" fill="#444844"/>
+      <path d="M22 17H43V29H22Z" fill="url(#login-preferences-panel)"/>
+      <path d="M21 16H43V17H22V29H21Z" fill="#fff"/>
+      <path d="M28 20H41V23H28Z M28 23H41V26H28Z" fill="#333333"/>
+      <path d="M29 21H41V23H29Z M29 24H41V26H29Z" fill="#fff"/>
+    </g>
+  </symbol>
+  <use id="preview" href="#LoginPreferences"/>
+</svg>

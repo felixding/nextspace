@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- Original leather portfolio reconstruction. SPDX-License-Identifier: GPL-2.0-or-later. -->
+  <defs>
+    <linearGradient id="folder-body-light" gradientUnits="userSpaceOnUse" x1="12" y1="39" x2="43" y2="22">
+      <stop stop-color="#66483d" />
+      <stop offset=".45" stop-color="#7f534d" />
+      <stop offset="1" stop-color="#b58e68" />
+    </linearGradient>
+    <linearGradient id="folder-flap-light" gradientUnits="userSpaceOnUse" x1="24" y1="5" x2="24.90754348498113" y2="32.1056023126082">
+      <stop stop-color="#79675a" />
+      <stop offset=".35" stop-color="#856155" />
+      <stop offset="1" stop-color="#4d322d" />
+    </linearGradient>
+    <linearGradient id="folder-flap-crosslight" gradientUnits="userSpaceOnUse" x1="14" y1="20" x2="43" y2="19">
+      <stop stop-color="#000" stop-opacity=".07" />
+      <stop offset=".45" stop-color="#c3936c" stop-opacity=".05" />
+      <stop offset="1" stop-color="#ffff3e" stop-opacity="0.2112655035815783" />
+    </linearGradient>
+    <radialGradient id="folder-rolled-lip" gradientUnits="userSpaceOnUse" cx="43" cy="16" r="10" gradientTransform="translate(0 -16) scale(1 2)">
+      <stop stop-color="#f1d8b7" stop-opacity="0.45" />
+      <stop offset="1" stop-color="#cba57e" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="folder-spine-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="18" x2="0" y2="42">
+      <stop stop-color="#000" />
+      <stop offset=".12" stop-color="#63413b" />
+      <stop offset="1" stop-color="#eee7d0" />
+    </linearGradient>
+    <linearGradient id="folder-binding-light" gradientUnits="userSpaceOnUse" x1="0" y1="9" x2="0" y2="36">
+      <stop stop-color="#c7ac91" />
+      <stop offset=".42" stop-color="#eee7d0" />
+      <stop offset=".55" stop-color="#dfd4ba" />
+      <stop offset="1" stop-color="#aa7b5c" />
+    </linearGradient>
+    <linearGradient id="folder-top-rim" gradientUnits="userSpaceOnUse" x1="9" y1="17" x2="42" y2="0">
+      <stop stop-color="#eee7d0" />
+      <stop offset=".15" stop-color="#eed7b4" />
+      <stop offset="1" stop-color="#e2c5a0" />
+    </linearGradient>
+    <path id="folder-front-outline" d="M10 17.4 43 1.2V29.3L10.2 45.6 7 43.7V18Z" />
+    <path id="folder-flap-outline" d="M11.5 17 40.4 .6Q43.7 -.4 44 2.7V10.4C44 13.3 45.5 14.3 47 15.9L46.5 17 14 33.6Q12.4 32.4 12 30.5Z" />
+    <g id="folder-cast-shadow" fill="#000">
+      <path d="M8.2 43.2 40.8 27.6 47.0625 31.9375 16.9625 46.99Z" opacity=".16" />
+      <path d="M8.6 43.5 41.1 28.3 46.4 32 14.35 46.99Z" opacity="0.16822429906542055" />
+      <path d="M9.1 43.6 41.7 28.9 44.5 31.45 13.15 46.5Z" opacity="0.29775280898876405" />
+    </g>
+    <g id="folder-case-body">
+      <use href="#folder-cast-shadow" />
+      <use href="#folder-front-outline" fill="#372222" />
+      <path d="M10.4 18.3 41.8 2V29L10.8 44.7Z" fill="url(#folder-body-light)" />
+      <use href="#folder-front-outline" fill="url(#folder-fold-cast-shadow)" />
+      <path d="M10.7 44.4 41.6 28.6 42.5 29.5 11.1 45.7 9.2 44.4Z" fill="#000" />
+      <path d="M41.4 20H43V28.8L41.4 29.5Z" fill="#372222" />
+      <path d="M7 17H8V43.2H7Z" fill="#eee7d0" />
+      <path d="M8 18H9V42.9H8Z" fill="#5b3a38" />
+      <path d="M9 18H10.9V42.6L10 43.2Z" fill="url(#folder-spine-bevel)" />
+      <path d="M9 43 10.4 44.8 12.1 44.1 11.3 43.6 10 44 9.7 42.9Z" fill="#000" />
+    </g>
+    <g id="folder-closed-flap">
+      <path d="M7.1 17.2 9.2 15 40.2 -.7 42 -.6 44.2 .3 42.2 .6 10.1 16.7Z" fill="url(#folder-top-rim)" id="folder-top-edge" />
+      <path id="folder-top-fold-bevel" d="M9.8 15.8 42.2 -.2 44.1 .7 11.7 17.8Z" fill="#c3a88e" />
+      <path d="M11.1 17.4 43.9 .4V10.5C44 13.4 46.1 15.8 47.4 17.4L13.5 36.1 11.6 32.3Z" fill="#372222" />
+      <use href="#folder-flap-outline" fill="url(#folder-flap-light)" />
+      <use href="#folder-flap-outline" fill="url(#folder-flap-crosslight)" />
+      <use href="#folder-flap-outline" fill="url(#folder-right-panel-light)" clip-path="url(#folder-right-panel-clip)" />
+      <use href="#folder-flap-outline" fill="url(#folder-rolled-lip)" />
+      <use href="#folder-flap-outline" fill="url(#folder-rolled-fold-highlight)" />
+      <path d="M11.1 18.6 12.7 19.4V27.3L11.6 30.2Z" fill="#eee7d0" />
+      <path d="M11 20H12V27L12.7 30.8 11.7 31.3Z" fill="#372222" />
+      <path d="M14 33.4516 46.5 16.8516 47 16.0516" fill="none" stroke="url(#folder-fold-ink)" stroke-width="1.0381929659008122" id="folder-fold-crease" />
+    </g>
+    <g id="folder-center-binding">
+      <path d="M28.9 9H30V35.6L28.9 36.2Z" fill="#372222" />
+      <path d="M27.7 8.6 28.9 9.2V36.1L27.7 36.7Z" fill="url(#folder-binding-light)" />
+      <path d="M22.4 7.2 23.8 5.9 26.7 7.2 29.4 9 28.4 9.9 26.3 8.2 24 7.1 23 8Z" fill="#eee7d0" />
+      <path d="M26.2 7.9 28.3 8.9 28.7 9.8 27.8 9.2Z" fill="#372222" />
+      <path d="M27.1 20.3 28.4 19.4 30.3 19.7 30.2 20.8 28.2 22.1 26.8 21.3Z" fill="#eee7d0" />
+      <path d="M28.9 19.7H29.9V20.9H28.9Z" fill="#000" />
+      <path d="M27.8 20.7H28.8V21.7H27.8Z" fill="#000" />
+    </g>
+    <filter id="folder-unavailable-tint" x="0" y="0" width="1" height="1" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values=".5 0 0 0 .333333333 0 .5 0 0 .333333333 0 0 .5 0 .333333333 0 0 0 1 0" />
+    </filter>
+    <symbol id="closed" viewBox="0 0 48 48" data-file="closed.tiff" data-reconstructed="true" data-workspace-files="common_Folder.tiff common_DownloadFolder.tiff common_ImageFolder.tiff common_LibraryFolder.tiff common_MusicFolder.tiff" data-desktopkit-files="NXFolder.tiff" data-theme-files="common_Folder.tiff common_ApplicationFolder.tiff common_Desktop.tiff common_DocsFolder.tiff common_DownloadFolder.tiff common_GSFolder.tiff common_ImageFolder.tiff common_LibraryFolder.tiff common_MusicFolder.tiff common_VideoFolder.tiff">
+      <use href="#folder-case-body" />
+      <use href="#folder-closed-flap" />
+      <use href="#folder-center-binding" />
+    </symbol>
+    <symbol id="bad" viewBox="0 0 48 48" data-file="bad.tiff" data-reconstructed="true" data-workspace-files="badFolder.tiff">
+      <use href="#closed" filter="url(#folder-unavailable-tint)" />
+    </symbol>
+    <linearGradient id="folder-fold-cast-shadow" gradientUnits="userSpaceOnUse" x1="0" y1="40" x2="1.44" y2="42.88">
+      <stop offset="0" stop-color="#000" stop-opacity="0.5" />
+      <stop offset="0.45" stop-color="#000" stop-opacity="0.04969468756424781" />
+      <stop offset="0.75" stop-color="#000" stop-opacity="0.19665455323509956" />
+      <stop offset="1" stop-color="#000" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="folder-rolled-fold-highlight" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="translate(30 23) rotate(-27) scale(13 2)">
+      <stop offset="0" stop-color="#dcc3a3" stop-opacity="0.3817055887494326" />
+      <stop offset="0.5" stop-color="#dcc3a3" stop-opacity="0.21811747928539008" />
+      <stop offset="1" stop-color="#dcc3a3" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="folder-right-panel-light" gradientUnits="userSpaceOnUse" x1="40" y1="2" x2="29.0" y2="20.014608791585196">
+      <stop offset="0" stop-color="#b48e75" />
+      <stop offset="0.5" stop-color="#a38067" />
+      <stop offset="1" stop-color="#7f583f" />
+    </linearGradient>
+    <clipPath id="folder-right-panel-clip" clipPathUnits="userSpaceOnUse">
+      <rect x="29.5" y="0" width="18.5" height="48" />
+    </clipPath>
+    <linearGradient id="folder-fold-ink" gradientUnits="userSpaceOnUse" x1="14" y1="33.6" x2="46.5" y2="17">
+      <stop offset="0" stop-color="#4a3232" />
+      <stop offset="0.5" stop-color="#140505" />
+      <stop offset="1" stop-color="#3b2e2e" />
+    </linearGradient>
+  </defs>
+  <use id="preview" href="#closed" width="48" height="48" />
+</svg>

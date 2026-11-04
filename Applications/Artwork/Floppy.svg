@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="case" gradientUnits="userSpaceOnUse" x1="3" y1="2" x2="43" y2="44">
+      <stop stop-color="#4c3b69" />
+      <stop offset=".45" stop-color="#282239" />
+      <stop offset="1" stop-color="#171921" />
+    </linearGradient>
+    <linearGradient id="metal" gradientUnits="userSpaceOnUse" x1="12" y1="2" x2="31" y2="15">
+      <stop stop-color="#b6bed0" />
+      <stop offset=".27" stop-color="#8992ab" />
+      <stop offset=".6" stop-color="#c4c5d2" />
+      <stop offset="1" stop-color="#9e9daf" />
+    </linearGradient>
+    <linearGradient id="label-rim" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#44435b" />
+      <stop offset=".5" stop-color="#554575" />
+      <stop offset="1" stop-color="#665881" />
+    </linearGradient>
+    <g id="floppy-body">
+      <path id="shadow" d="M5 4H40L47 11V47H6Z" fill="#000" opacity=".3333333333" />
+      <path id="case-outline" d="M3 1H39L45 7V45H3L2 44V2Z" fill="#000" />
+      <path d="M3 2H39L44 7V44H3Z" fill="url(#case)" />
+      <path d="M3 1H39V2H3ZM2 2H3V44H2Z" fill="#ddd" />
+      <g id="shutter-well">
+        <path d="M7 1H35V16H9L7 14Z" fill="#99a3aa" />
+        <path d="M8 2H34V14H8Z" fill="#554f6e" />
+        <path d="M7 1H34V2H7Z" fill="#b5aad3" />
+        <path d="M7 2H8V15H7Z" fill="#000" />
+      </g>
+      <path d="M39 2 44 7V44H40V5Z" fill="#10121b" opacity=".6" />
+      <path d="M7 20H38L40 22V44H7Z" fill="#000" />
+      <path d="M9 21H36L39 23V44H8V23Z" fill="url(#label-rim)" />
+      <path id="label-paper" d="M11 22H35Q37 22 37 24V44H10V24Q10 22 11 22Z" fill="#fff" />
+      <g id="dos" fill="#665577" fill-rule="evenodd" transform="translate(0 -3.625) scale(1 1.125)">
+        <path id="letter-d" d="M11 29H15.2Q18 29 18 31.8V34.2Q18 37 15.2 37H11ZM12.6 30.2V35.8H15.1Q16.5 35.8 16.5 34.1V31.9Q16.5 30.2 15.1 30.2Z" />
+        <path id="letter-o" d="M22.7 29H24.3Q27 29 27 31.7V34.3Q27 37 24.3 37H22.7Q20 37 20 34.3V31.7Q20 29 22.7 29ZM22.9 30.2Q21.6 30.2 21.6 31.7V34.3Q21.6 35.8 22.9 35.8H24.1Q25.4 35.8 25.4 34.3V31.7Q25.4 30.2 24.1 30.2Z" />
+        <path id="letter-s" d="M35.2 31.1C35.2 29.2 29.7 29.2 29.7 31C29.7 32.6 35.3 32.7 35.3 35C35.3 36.8 29.5 36.8 29.5 34.9" stroke="#665577" stroke-width="1.6" stroke-linejoin="round" fill="none" stroke-linecap="butt" />
+      </g>
+    </g>
+    <g id="floppy-shutter">
+      <path d="M12 1H33V15H12Z" fill="#ddd" />
+      <path id="shutter" d="M13 2H32V14H13Z" fill="url(#metal)" />
+      <path d="M12 1H13V15H12ZM13 1H33V2H13Z" fill="#fff" />
+      <path d="M32 2H33V15H12V14H32Z" fill="#777387" />
+      <path id="shutter-slot" d="M26 3H30V13H26Z" fill="#fff" />
+      <path d="M27 4H29V12H27Z" fill="#555" />
+    </g>
+    <symbol id="Floppy" viewBox="0 0 48 48" data-logical-size="48 48" data-reconstructed="true" data-workspace-files="DOS_FD.fs.tiff">
+      <use href="#floppy-body" />
+      <use href="#floppy-shutter" />
+    </symbol>
+    <path id="floppy-shine" d="M24.0 -4.5 25.65 9.5 39.5 -0.5 26.1 10.45 46.5 11.425 46.5 11.4 25.5 11.95 41.0 24.0 25.825 13.125 24.225 24.5 22.75 13.625 0.0 33.875 0.0 27.5 21.55 12.5 22.0 12.125 4.75 11.2 21.75 10.575 12.0 1.8 23.0 9.3Z" />
+    <symbol id="FloppyOpen" viewBox="0 0 48 48" data-logical-size="48 48" data-reconstructed="true" data-workspace-files="DOS_FD.openfs.tiff">
+      <use href="#floppy-body" />
+      <use href="#floppy-shutter" transform="translate(-4 0)" />
+      <use href="#floppy-shine" fill="#ffff00" stroke="#ffff00" stroke-width="1" opacity=".14" />
+      <use href="#floppy-shine" fill="#ffff00" />
+    </symbol>
+  </defs>
+  <use id="preview" href="#Floppy" />
+</svg>

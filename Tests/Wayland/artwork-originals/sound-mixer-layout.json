@@ -1,0 +1,94 @@
+{
+  "purpose": "Original Mixer Gorm geometry; microphone art is clipped at the application group bottom in the original layout.",
+  "gorm_source_hashes": {
+    "Applications/Preferences/Modules/Sound/English.lproj/Mixer.gorm/data.info": "df26f4ad92abf93c79d6bc8088d3265080f5790e64ca3168dd59f8bf4206b60f",
+    "Applications/Preferences/Modules/Sound/English.lproj/Mixer.gorm/data.classes": "4406bd6a830eb8686c3d79a1fb67339a2457362fa1fc92691e58b521d5c5f294",
+    "Applications/Preferences/Modules/Sound/English.lproj/Mixer.gorm/objects.gorm": "339f996ad0633992d0274f7e4fd70cec411d97127390015c8c40db899f36c03b"
+  },
+  "views": {
+    "appVolumeMuteImg": {
+      "base": [
+        63,
+        189,
+        36,
+        36
+      ],
+      "visible": [
+        63,
+        196,
+        36,
+        29
+      ],
+      "logical": [
+        36.00820346805322,
+        36.00820346805322
+      ],
+      "scaling": 2,
+      "alignment": 0,
+      "frame_style": 0
+    },
+    "appVolumeLoudImg": {
+      "base": [
+        357,
+        189,
+        36,
+        36
+      ],
+      "visible": [
+        357,
+        196,
+        36,
+        29
+      ],
+      "logical": [
+        36.00820346805322,
+        36.00820346805322
+      ],
+      "scaling": 2,
+      "alignment": 0,
+      "frame_style": 0
+    },
+    "deviceVolumeMuteImg": {
+      "base": [
+        68,
+        48,
+        36,
+        36
+      ],
+      "visible": [
+        68,
+        48,
+        36,
+        33
+      ],
+      "logical": [
+        36.00820346805322,
+        36.00820346805322
+      ],
+      "scaling": 2,
+      "alignment": 0,
+      "frame_style": 0
+    },
+    "deviceVolumeLoudImg": {
+      "base": [
+        362,
+        48,
+        36,
+        36
+      ],
+      "visible": [
+        362,
+        48,
+        36,
+        33
+      ],
+      "logical": [
+        36.00820346805322,
+        36.00820346805322
+      ],
+      "scaling": 2,
+      "alignment": 0,
+      "frame_style": 0
+    }
+  }
+}

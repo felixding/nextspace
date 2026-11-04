@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <path id="bare-house" d="M1.2 23.7L24.43 .85L47.65 23.6L42 25V39.5L47.3 47.2H.7L6.6 39.5V25.3Z" />
+    <linearGradient id="reflection-alpha" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff" stop-opacity=".5" />
+      <stop offset="1" stop-color="#fff" stop-opacity=".05" />
+    </linearGradient>
+    <radialGradient id="neighbor-ground" gradientUnits="userSpaceOnUse" cx="23" cy="35" r="1" gradientTransform="translate(23 35) scale(29 13) translate(-23 -35)">
+      <stop stop-color="#668773" stop-opacity=".9" />
+      <stop offset=".7" stop-color="#668773" stop-opacity=".75" />
+      <stop offset="1" stop-color="#668773" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="neighbor-vapor">
+      <stop stop-color="#645858" />
+      <stop offset=".6" stop-color="#645858" />
+      <stop offset="1" stop-color="#645858" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id="neighbor-vapor-bounds">
+      <path d="M30 3H42V11H30Z" />
+    </clipPath>
+  </defs>
+  <symbol id="BareHouse" viewBox="0 0 48 48">
+    <use href="#bare-house" fill="#fff" />
+    <path fill="#fff" d="M31.9 3.3H38.2V14.9H31.9Z" />
+  </symbol>
+  <symbol id="RepairLeft" viewBox="0 0 48 48">
+    <path fill="#fff" d="M0 14.4H18.9V48H0Z" />
+  </symbol>
+  <symbol id="Reflection" viewBox="0 0 48 48">
+    <path fill="url(#reflection-alpha)" d="M0 0H48V48H0Z" />
+  </symbol>
+  <symbol id="Ground" viewBox="0 0 48 48">
+    <ellipse cx="23" cy="35" rx="29" ry="13" fill="url(#neighbor-ground)" />
+  </symbol>
+  <symbol id="NeighborSmoke" viewBox="0 0 48 48" data-logical-size="48 48">
+    <g fill="url(#neighbor-vapor)" clip-path="url(#neighbor-vapor-bounds)">
+      <ellipse cx="30.350" cy="4.350" rx="0.850" ry="0.750" opacity="0.8660" />
+      <ellipse cx="33.475" cy="5.900" rx="3.075" ry="1.850" opacity="0.5730" />
+      <ellipse cx="36.375" cy="6.675" rx="2.200" ry="1.750" opacity="0.4050" />
+      <ellipse cx="38.275" cy="7.750" rx="2.225" ry="1.650" opacity="0.8160" />
+      <ellipse cx="40.100" cy="7.325" rx="1.075" ry="1.975" opacity="0.9980" />
+      <ellipse cx="38.750" cy="4.750" rx="1.700" ry="1.875" opacity="0.3030" />
+      <ellipse cx="39.925" cy="10.075" rx="1.475" ry="1.050" opacity="0.8210" />
+    </g>
+  </symbol>
+  <use id="preview" href="#BareHouse" />
+</svg>

@@ -1,0 +1,641 @@
+{
+  "cases": {
+    "PathArrow": {
+      "symbol": "RightArrow",
+      "source": "Applications/Workspace/Resources/RightArrow.tiff",
+      "source_sha256": "27f3bc456b44769af064f1f0c23dc69338d2c885233f33d65d5b4dc0b24876cd",
+      "png": "PathArrow.png",
+      "png_sha256": "9bd6f24ad0f6e24a096b2527361fd9be318331b7bdd1bca0044c26f6d8429459",
+      "installed_original": "/usr/NextSpace/Apps/Workspace.app/Resources/RightArrow.tiff",
+      "native_reader": {
+        "density_selections": [
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1.25
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1.5
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1.75
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 2
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 3
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 4
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 5
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 6
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 7
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 8
+          }
+        ],
+        "representations": [
+          {
+            "logical_height": 7,
+            "logical_width": 7,
+            "height": 7,
+            "width": 7,
+            "samples": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "color_space": "NSDeviceRGBColorSpace"
+          }
+        ],
+        "ok": true,
+        "libraries": [
+          "/usr/lib/aarch64-linux-gnu/libicuuc.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/gconv/UTF-32.so",
+          "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0",
+          "/usr/lib/aarch64-linux-gnu/libp11-kit.so.0.4.1",
+          "/usr/lib/aarch64-linux-gnu/libltdl.so.7.3.3",
+          "/usr/lib/aarch64-linux-gnu/libfontconfig.so.1.12.1",
+          "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.38.3",
+          "/usr/lib/aarch64-linux-gnu/libunistring.so.5.2.0",
+          "/usr/lib/aarch64-linux-gnu/libcap.so.2.75",
+          "/usr/lib/aarch64-linux-gnu/libLerc.so.4",
+          "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.14.0",
+          "/usr/lib/aarch64-linux-gnu/libsasl2.so.2.0.25",
+          "/usr/lib/aarch64-linux-gnu/liblber.so.2.0.200",
+          "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+          "/usr/lib/aarch64-linux-gnu/libm.so.6",
+          "/usr/lib/aarch64-linux-gnu/libz.so.1.3.1",
+          "/usr/lib/aarch64-linux-gnu/libbz2.so.1.0.4",
+          "/usr/lib/aarch64-linux-gnu/libssl.so.3",
+          "/usr/lib/aarch64-linux-gnu/libresolv.so.2",
+          "/usr/lib/aarch64-linux-gnu/librtmp.so.1",
+          "/usr/lib/aarch64-linux-gnu/libkeyutils.so.1.10",
+          "/usr/lib/aarch64-linux-gnu/libfreetype.so.6.20.2",
+          "/usr/lib/aarch64-linux-gnu/libssh2.so.1.0.1",
+          "/usr/lib/aarch64-linux-gnu/libc.so.6",
+          "/usr/lib/aarch64-linux-gnu/libfftw3.so.3.6.10",
+          "/usr/NextSpace/lib/libobjc.so.4.6",
+          "/usr/lib/aarch64-linux-gnu/libicui18n.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/libnettle.so.8.10",
+          "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4",
+          "/usr/lib/aarch64-linux-gnu/libbrotlidec.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libldap.so.2.0.200",
+          "/usr/lib/aarch64-linux-gnu/libwebp.so.7.1.10",
+          "/usr/lib/aarch64-linux-gnu/libsharpyuv.so.0.1.1",
+          "/usr/lib/aarch64-linux-gnu/libavahi-client.so.3.2.9",
+          "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+          "/usr/lib/aarch64-linux-gnu/libavahi-common.so.3.5.4",
+          "/usr/lib/aarch64-linux-gnu/libxml2.so.2.9.14",
+          "/usr/lib/aarch64-linux-gnu/libpng16.so.16.48.0",
+          "/usr/lib/aarch64-linux-gnu/libgssapi_krb5.so.2.2",
+          "/usr/lib/aarch64-linux-gnu/libatomic.so.1.2.0",
+          "/usr/lib/aarch64-linux-gnu/libkrb5.so.3.3",
+          "/usr/lib/aarch64-linux-gnu/gconv/UTF-16.so",
+          "/usr/lib/aarch64-linux-gnu/libhogweed.so.6.10",
+          "/usr/lib/aarch64-linux-gnu/liblcms2.so.2.0.16",
+          "/usr/lib/aarch64-linux-gnu/libpsl.so.5.3.4",
+          "/usr/lib/aarch64-linux-gnu/libnghttp2.so.14.28.3",
+          "/usr/lib/aarch64-linux-gnu/libidn2.so.0.4.0",
+          "/usr/lib/aarch64-linux-gnu/libjpeg.so.62.3.0",
+          "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8400.4",
+          "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libtiff.so.6.1.0",
+          "/usr/NextSpace/lib/libdispatch.so",
+          "/usr/lib/aarch64-linux-gnu/libicudata.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/libk5crypto.so.3.1",
+          "/usr/lib/aarch64-linux-gnu/libgmp.so.10.5.0",
+          "/usr/lib/aarch64-linux-gnu/libngtcp2_crypto_gnutls.so.8.2.0",
+          "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.40.0",
+          "/usr/lib/aarch64-linux-gnu/libxslt.so.1.1.35",
+          "/usr/lib/aarch64-linux-gnu/libMagickCore-7.Q16.so.10.0.2",
+          "/Library/Libraries/libgnustep-gui.so.0.32.0",
+          "/usr/lib/aarch64-linux-gnu/libgnutls.so.30.40.3",
+          "/usr/lib/aarch64-linux-gnu/libcom_err.so.2.1",
+          "/usr/lib/aarch64-linux-gnu/libkrb5support.so.0.1",
+          "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0",
+          "/usr/lib/aarch64-linux-gnu/libcrypto.so.3",
+          "/usr/lib/aarch64-linux-gnu/liblqr-1.so.0.3.2",
+          "/usr/lib/aarch64-linux-gnu/libjbig.so.0",
+          "/usr/lib/aarch64-linux-gnu/libdeflate.so.0",
+          "/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0",
+          "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0",
+          "/usr/lib/aarch64-linux-gnu/libngtcp2.so.16.2.9",
+          "/usr/NextSpace/lib/libBlocksRuntime.so",
+          "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+          "/usr/lib/aarch64-linux-gnu/libcurl-gnutls.so.4.8.0",
+          "/usr/lib/aarch64-linux-gnu/libtasn1.so.6.6.4",
+          "/usr/lib/aarch64-linux-gnu/libnghttp3.so.9.2.6",
+          "/Library/Libraries/libgnustep-base.so.1.31.1",
+          "/usr/lib/aarch64-linux-gnu/libbrotlicommon.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libexpat.so.1.13.0",
+          "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.7",
+          "/usr/lib/aarch64-linux-gnu/liblzma.so.5.8.1",
+          "/usr/lib/aarch64-linux-gnu/libgif.so.7.2.0",
+          "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0"
+        ],
+        "source": "/usr/NextSpace/Apps/Workspace.app/Resources/RightArrow.tiff",
+        "source_sha256": "27f3bc456b44769af064f1f0c23dc69338d2c885233f33d65d5b4dc0b24876cd"
+      }
+    },
+    "BrowserArrow": {
+      "symbol": "RightArrow",
+      "source": "Tests/Wayland/artwork-originals/navigation/BrowserArrow.tiff",
+      "source_sha256": "847c623f54e75d318a682c73c093c281f6d41b5137d0d310022e52081b4ab96a",
+      "png": "BrowserArrow.png",
+      "png_sha256": "9bd6f24ad0f6e24a096b2527361fd9be318331b7bdd1bca0044c26f6d8429459",
+      "installed_original": "/Library/Images/common_3DArrowRight.tiff",
+      "native_reader": {
+        "density_selections": [
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 1.25
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 1.5
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 1.75
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 2
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 3
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 4
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 5
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 6
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 7
+          },
+          {
+            "representation_index": 1,
+            "height": 28,
+            "width": 28,
+            "scale": 8
+          }
+        ],
+        "representations": [
+          {
+            "logical_height": 7,
+            "logical_width": 7,
+            "height": 7,
+            "width": 7,
+            "samples": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "color_space": "NSDeviceWhiteColorSpace"
+          },
+          {
+            "logical_height": 7,
+            "logical_width": 7,
+            "height": 28,
+            "width": 28,
+            "samples": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "color_space": "NSDeviceWhiteColorSpace"
+          }
+        ],
+        "ok": true,
+        "libraries": [
+          "/usr/lib/aarch64-linux-gnu/libicuuc.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/gconv/UTF-32.so",
+          "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0",
+          "/usr/lib/aarch64-linux-gnu/libp11-kit.so.0.4.1",
+          "/usr/lib/aarch64-linux-gnu/libltdl.so.7.3.3",
+          "/usr/lib/aarch64-linux-gnu/libfontconfig.so.1.12.1",
+          "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.38.3",
+          "/usr/lib/aarch64-linux-gnu/libunistring.so.5.2.0",
+          "/usr/lib/aarch64-linux-gnu/libcap.so.2.75",
+          "/usr/lib/aarch64-linux-gnu/libLerc.so.4",
+          "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.14.0",
+          "/usr/lib/aarch64-linux-gnu/libsasl2.so.2.0.25",
+          "/usr/lib/aarch64-linux-gnu/liblber.so.2.0.200",
+          "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+          "/usr/lib/aarch64-linux-gnu/libm.so.6",
+          "/usr/lib/aarch64-linux-gnu/libz.so.1.3.1",
+          "/usr/lib/aarch64-linux-gnu/libbz2.so.1.0.4",
+          "/usr/lib/aarch64-linux-gnu/libssl.so.3",
+          "/usr/lib/aarch64-linux-gnu/libresolv.so.2",
+          "/usr/lib/aarch64-linux-gnu/librtmp.so.1",
+          "/usr/lib/aarch64-linux-gnu/libkeyutils.so.1.10",
+          "/usr/lib/aarch64-linux-gnu/libfreetype.so.6.20.2",
+          "/usr/lib/aarch64-linux-gnu/libssh2.so.1.0.1",
+          "/usr/lib/aarch64-linux-gnu/libc.so.6",
+          "/usr/lib/aarch64-linux-gnu/libfftw3.so.3.6.10",
+          "/usr/NextSpace/lib/libobjc.so.4.6",
+          "/usr/lib/aarch64-linux-gnu/libicui18n.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/libnettle.so.8.10",
+          "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4",
+          "/usr/lib/aarch64-linux-gnu/libbrotlidec.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libldap.so.2.0.200",
+          "/usr/lib/aarch64-linux-gnu/libwebp.so.7.1.10",
+          "/usr/lib/aarch64-linux-gnu/libsharpyuv.so.0.1.1",
+          "/usr/lib/aarch64-linux-gnu/libavahi-client.so.3.2.9",
+          "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+          "/usr/lib/aarch64-linux-gnu/libavahi-common.so.3.5.4",
+          "/usr/lib/aarch64-linux-gnu/libxml2.so.2.9.14",
+          "/usr/lib/aarch64-linux-gnu/libpng16.so.16.48.0",
+          "/usr/lib/aarch64-linux-gnu/libgssapi_krb5.so.2.2",
+          "/usr/lib/aarch64-linux-gnu/libatomic.so.1.2.0",
+          "/usr/lib/aarch64-linux-gnu/libkrb5.so.3.3",
+          "/usr/lib/aarch64-linux-gnu/gconv/UTF-16.so",
+          "/usr/lib/aarch64-linux-gnu/libhogweed.so.6.10",
+          "/usr/lib/aarch64-linux-gnu/liblcms2.so.2.0.16",
+          "/usr/lib/aarch64-linux-gnu/libpsl.so.5.3.4",
+          "/usr/lib/aarch64-linux-gnu/libnghttp2.so.14.28.3",
+          "/usr/lib/aarch64-linux-gnu/libidn2.so.0.4.0",
+          "/usr/lib/aarch64-linux-gnu/libjpeg.so.62.3.0",
+          "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8400.4",
+          "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libtiff.so.6.1.0",
+          "/usr/NextSpace/lib/libdispatch.so",
+          "/usr/lib/aarch64-linux-gnu/libicudata.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/libk5crypto.so.3.1",
+          "/usr/lib/aarch64-linux-gnu/libgmp.so.10.5.0",
+          "/usr/lib/aarch64-linux-gnu/libngtcp2_crypto_gnutls.so.8.2.0",
+          "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.40.0",
+          "/usr/lib/aarch64-linux-gnu/libxslt.so.1.1.35",
+          "/usr/lib/aarch64-linux-gnu/libMagickCore-7.Q16.so.10.0.2",
+          "/Library/Libraries/libgnustep-gui.so.0.32.0",
+          "/usr/lib/aarch64-linux-gnu/libgnutls.so.30.40.3",
+          "/usr/lib/aarch64-linux-gnu/libcom_err.so.2.1",
+          "/usr/lib/aarch64-linux-gnu/libkrb5support.so.0.1",
+          "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0",
+          "/usr/lib/aarch64-linux-gnu/libcrypto.so.3",
+          "/usr/lib/aarch64-linux-gnu/liblqr-1.so.0.3.2",
+          "/usr/lib/aarch64-linux-gnu/libjbig.so.0",
+          "/usr/lib/aarch64-linux-gnu/libdeflate.so.0",
+          "/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0",
+          "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0",
+          "/usr/lib/aarch64-linux-gnu/libngtcp2.so.16.2.9",
+          "/usr/NextSpace/lib/libBlocksRuntime.so",
+          "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+          "/usr/lib/aarch64-linux-gnu/libcurl-gnutls.so.4.8.0",
+          "/usr/lib/aarch64-linux-gnu/libtasn1.so.6.6.4",
+          "/usr/lib/aarch64-linux-gnu/libnghttp3.so.9.2.6",
+          "/Library/Libraries/libgnustep-base.so.1.31.1",
+          "/usr/lib/aarch64-linux-gnu/libbrotlicommon.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libexpat.so.1.13.0",
+          "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.7",
+          "/usr/lib/aarch64-linux-gnu/liblzma.so.5.8.1",
+          "/usr/lib/aarch64-linux-gnu/libgif.so.7.2.0",
+          "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0"
+        ],
+        "source": "/Library/Images/common_3DArrowRight.tiff",
+        "source_sha256": "847c623f54e75d318a682c73c093c281f6d41b5137d0d310022e52081b4ab96a"
+      }
+    },
+    "BrowserArrowHighlighted": {
+      "symbol": "RightArrowHighlighted",
+      "source": "Tests/Wayland/artwork-originals/navigation/BrowserArrowHighlighted.tiff",
+      "source_sha256": "c255f6e7d41c86b143eb9e8c92f09bb789c265988f50e49f65dfb5c79d98f5f3",
+      "png": "BrowserArrowHighlighted.png",
+      "png_sha256": "7b64fb1d847c6a2272732b01c1bec40b8d2f198c279865dbfe08cae0538c2ba6",
+      "installed_original": "/Library/Images/common_3DArrowRightH.tiff",
+      "native_reader": {
+        "density_selections": [
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1.25
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1.5
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 1.75
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 2
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 3
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 4
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 5
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 6
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 7
+          },
+          {
+            "representation_index": 0,
+            "height": 7,
+            "width": 7,
+            "scale": 8
+          }
+        ],
+        "representations": [
+          {
+            "logical_height": 7,
+            "logical_width": 7,
+            "height": 7,
+            "width": 7,
+            "samples": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                0
+              ]
+            ],
+            "color_space": "NSDeviceRGBColorSpace"
+          }
+        ],
+        "ok": true,
+        "libraries": [
+          "/usr/lib/aarch64-linux-gnu/libicuuc.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/gconv/UTF-32.so",
+          "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0",
+          "/usr/lib/aarch64-linux-gnu/libp11-kit.so.0.4.1",
+          "/usr/lib/aarch64-linux-gnu/libltdl.so.7.3.3",
+          "/usr/lib/aarch64-linux-gnu/libfontconfig.so.1.12.1",
+          "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.38.3",
+          "/usr/lib/aarch64-linux-gnu/libunistring.so.5.2.0",
+          "/usr/lib/aarch64-linux-gnu/libcap.so.2.75",
+          "/usr/lib/aarch64-linux-gnu/libLerc.so.4",
+          "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.14.0",
+          "/usr/lib/aarch64-linux-gnu/libsasl2.so.2.0.25",
+          "/usr/lib/aarch64-linux-gnu/liblber.so.2.0.200",
+          "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+          "/usr/lib/aarch64-linux-gnu/libm.so.6",
+          "/usr/lib/aarch64-linux-gnu/libz.so.1.3.1",
+          "/usr/lib/aarch64-linux-gnu/libbz2.so.1.0.4",
+          "/usr/lib/aarch64-linux-gnu/libssl.so.3",
+          "/usr/lib/aarch64-linux-gnu/libresolv.so.2",
+          "/usr/lib/aarch64-linux-gnu/librtmp.so.1",
+          "/usr/lib/aarch64-linux-gnu/libkeyutils.so.1.10",
+          "/usr/lib/aarch64-linux-gnu/libfreetype.so.6.20.2",
+          "/usr/lib/aarch64-linux-gnu/libssh2.so.1.0.1",
+          "/usr/lib/aarch64-linux-gnu/libc.so.6",
+          "/usr/lib/aarch64-linux-gnu/libfftw3.so.3.6.10",
+          "/usr/NextSpace/lib/libobjc.so.4.6",
+          "/usr/lib/aarch64-linux-gnu/libicui18n.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/libnettle.so.8.10",
+          "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4",
+          "/usr/lib/aarch64-linux-gnu/libbrotlidec.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libldap.so.2.0.200",
+          "/usr/lib/aarch64-linux-gnu/libwebp.so.7.1.10",
+          "/usr/lib/aarch64-linux-gnu/libsharpyuv.so.0.1.1",
+          "/usr/lib/aarch64-linux-gnu/libavahi-client.so.3.2.9",
+          "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+          "/usr/lib/aarch64-linux-gnu/libavahi-common.so.3.5.4",
+          "/usr/lib/aarch64-linux-gnu/libxml2.so.2.9.14",
+          "/usr/lib/aarch64-linux-gnu/libpng16.so.16.48.0",
+          "/usr/lib/aarch64-linux-gnu/libgssapi_krb5.so.2.2",
+          "/usr/lib/aarch64-linux-gnu/libatomic.so.1.2.0",
+          "/usr/lib/aarch64-linux-gnu/libkrb5.so.3.3",
+          "/usr/lib/aarch64-linux-gnu/gconv/UTF-16.so",
+          "/usr/lib/aarch64-linux-gnu/libhogweed.so.6.10",
+          "/usr/lib/aarch64-linux-gnu/liblcms2.so.2.0.16",
+          "/usr/lib/aarch64-linux-gnu/libpsl.so.5.3.4",
+          "/usr/lib/aarch64-linux-gnu/libnghttp2.so.14.28.3",
+          "/usr/lib/aarch64-linux-gnu/libidn2.so.0.4.0",
+          "/usr/lib/aarch64-linux-gnu/libjpeg.so.62.3.0",
+          "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8400.4",
+          "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libtiff.so.6.1.0",
+          "/usr/NextSpace/lib/libdispatch.so",
+          "/usr/lib/aarch64-linux-gnu/libicudata.so.76.1",
+          "/usr/lib/aarch64-linux-gnu/libk5crypto.so.3.1",
+          "/usr/lib/aarch64-linux-gnu/libgmp.so.10.5.0",
+          "/usr/lib/aarch64-linux-gnu/libngtcp2_crypto_gnutls.so.8.2.0",
+          "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.40.0",
+          "/usr/lib/aarch64-linux-gnu/libxslt.so.1.1.35",
+          "/usr/lib/aarch64-linux-gnu/libMagickCore-7.Q16.so.10.0.2",
+          "/Library/Libraries/libgnustep-gui.so.0.32.0",
+          "/usr/lib/aarch64-linux-gnu/libgnutls.so.30.40.3",
+          "/usr/lib/aarch64-linux-gnu/libcom_err.so.2.1",
+          "/usr/lib/aarch64-linux-gnu/libkrb5support.so.0.1",
+          "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0",
+          "/usr/lib/aarch64-linux-gnu/libcrypto.so.3",
+          "/usr/lib/aarch64-linux-gnu/liblqr-1.so.0.3.2",
+          "/usr/lib/aarch64-linux-gnu/libjbig.so.0",
+          "/usr/lib/aarch64-linux-gnu/libdeflate.so.0",
+          "/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0",
+          "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0",
+          "/usr/lib/aarch64-linux-gnu/libngtcp2.so.16.2.9",
+          "/usr/NextSpace/lib/libBlocksRuntime.so",
+          "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+          "/usr/lib/aarch64-linux-gnu/libcurl-gnutls.so.4.8.0",
+          "/usr/lib/aarch64-linux-gnu/libtasn1.so.6.6.4",
+          "/usr/lib/aarch64-linux-gnu/libnghttp3.so.9.2.6",
+          "/Library/Libraries/libgnustep-base.so.1.31.1",
+          "/usr/lib/aarch64-linux-gnu/libbrotlicommon.so.1.1.0",
+          "/usr/lib/aarch64-linux-gnu/libexpat.so.1.13.0",
+          "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.7",
+          "/usr/lib/aarch64-linux-gnu/liblzma.so.5.8.1",
+          "/usr/lib/aarch64-linux-gnu/libgif.so.7.2.0",
+          "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0"
+        ],
+        "source": "/Library/Images/common_3DArrowRightH.tiff",
+        "source_sha256": "c255f6e7d41c86b143eb9e8c92f09bb789c265988f50e49f65dfb5c79d98f5f3"
+      }
+    }
+  },
+  "upstream_images": "gnustep-gui 0.32.0 Images/common_3DArrowRight{,H}.tiff; hashes verified against the retained upstream source"
+}

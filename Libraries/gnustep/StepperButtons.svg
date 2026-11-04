@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 13">
+  <!-- Original GNUstep stepper bevels and arrow silhouettes. Shared continuous triangles, not enlarged pixels. SPDX-License-Identifier: LGPL-2.1-or-later. -->
+  <defs>
+    <g id="stepper-frame">
+      <path d="M1 0 H17 V12 H1 Z" fill="black" />
+      <path d="M1 0 H16 V1 H2 V11 H1 Z" fill="white" />
+      <path d="M2 10 H15 V1 H16 V11 H2 Z" fill="#555" />
+    </g>
+    <path id="stepper-face" d="M2 1 H15 V10 H2 Z" />
+    <path id="stepper-arrow-edge" d="M4.75 2 H12.25 L8.5 8.75 Z" />
+    <path id="stepper-arrow-core" d="M5.25 1.75 H11.75 L8.5 7.75 Z" />
+    <symbol id="stepper-down-design" viewBox="0 0 18 13">
+      <g transform="translate(0 0)">
+        <use href="#stepper-frame" />
+        <use href="#stepper-face" fill="#aaa" />
+      </g>
+      <g shape-rendering="crispEdges" transform="translate(0 0)">
+        <use href="#stepper-arrow-edge" fill="#555" />
+        <use href="#stepper-arrow-core" fill="black" />
+      </g>
+    </symbol>
+    <symbol id="stepper-down-highlighted-design" viewBox="0 0 18 13">
+      <g transform="translate(0 0)">
+        <use href="#stepper-frame" />
+        <use href="#stepper-face" fill="white" />
+      </g>
+      <g shape-rendering="crispEdges" transform="translate(0 0)">
+        <use href="#stepper-arrow-edge" fill="#aaa" />
+        <use href="#stepper-arrow-core" fill="#555" />
+      </g>
+    </symbol>
+    <symbol id="stepper-up-design" viewBox="0 0 18 13">
+      <g transform="translate(0 1)">
+        <use href="#stepper-frame" />
+        <use href="#stepper-face" fill="#aaa" />
+      </g>
+      <g shape-rendering="crispEdges" transform="translate(0 12) scale(1 -1)">
+        <use href="#stepper-arrow-edge" fill="#555" />
+        <use href="#stepper-arrow-core" fill="black" />
+      </g>
+    </symbol>
+    <symbol id="stepper-up-highlighted-design" viewBox="0 0 18 13">
+      <g transform="translate(0 1)">
+        <use href="#stepper-frame" />
+        <use href="#stepper-face" fill="white" />
+      </g>
+      <g shape-rendering="crispEdges" transform="translate(0 12) scale(1 -1)">
+        <use href="#stepper-arrow-edge" fill="#aaa" />
+        <use href="#stepper-arrow-core" fill="#555" />
+      </g>
+    </symbol>
+  </defs>
+  <use id="preview" href="#stepper-up-design" />
+</svg>

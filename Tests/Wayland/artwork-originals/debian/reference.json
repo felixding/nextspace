@@ -1,0 +1,18 @@
+{
+  "source": "Applications/Workspace/Resources/app-debian-48.tiff",
+  "source_sha256": "64d04a87ad88b53409f4cce04a357d3d078bb07b1df780a6b7ab83ee92d7bd8b",
+  "png": "Debian.png",
+  "png_sha256": "cf8c4c0e47c8eb88b63f6c647abfafff3a4e3b7cb56023da60cedcb0c67baf6a",
+  "upstream": "openlogo-nd.svg",
+  "upstream_url": "https://www.debian.org/logos/openlogo-nd.svg",
+  "upstream_sha256": "89a3ca1a1bc91610edcc637457e7275a159309f4621829b2a0170e28970cac20",
+  "upstream_path_count": 12,
+  "license": "CC-BY-SA-3.0",
+  "nextspirit_catalog": "Applications/Artwork/NextSpirit.json",
+  "nextspirit_matching_icon": null,
+  "logical_size": [
+    52,
+    64
+  ],
+  "existing_fill": "#d70751"
+}

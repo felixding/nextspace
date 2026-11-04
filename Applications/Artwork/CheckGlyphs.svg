@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <!-- Original beveled check marks; shared face with original checkbox and standalone shadow-tip variants. SPDX-License-Identifier: GPL-2.0-or-later. -->
+  <defs>
+    <g id="check-shadow-stem">
+      <path d="M4 7H6V9H4Z" fill="currentColor" />
+    </g>
+    <g id="check-ink-and-light">
+      <path d="M4 5H5V8H4Z" fill="#000" />
+      <path d="M3 11 11 3H12L3 12Z" fill="#000" />
+      <path d="M3 5H4V11H3Z" fill="#fff" />
+      <path d="M3 10 11 2H12L3 11Z" fill="#fff" />
+    </g>
+    <g id="checkbox-check" shape-rendering="crispEdges">
+      <use href="#check-shadow-stem" />
+      <path d="M4 11 11 4H12L4 12Z" fill="currentColor" />
+      <use href="#check-ink-and-light" />
+    </g>
+    <g id="standalone-check" shape-rendering="crispEdges">
+      <use href="#check-shadow-stem" />
+      <path d="M4 11 12 3H13L4 12Z" fill="currentColor" />
+      <use href="#check-ink-and-light" />
+    </g>
+  </defs>
+  <use id="preview" href="#checkbox-check" color="#555" />
+</svg>

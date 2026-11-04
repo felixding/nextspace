@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8">
+  <!-- Original GNUstep ruler markers. Shared continuous strokes and original decimal contrast. SPDX-License-Identifier: LGPL-2.1-or-later. -->
+  <defs>
+    <path id="ruler-marker-stem" d="M3.5 2 V6" fill="none" stroke-width="1" />
+    <path id="ruler-marker-crossbar" d="M1 5.5 H6" fill="none" stroke-width="1" />
+    <linearGradient id="ruler-decimal-contrast" x1="3.5" y1="2.5" x2="3.5" y2="4.5" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="black" stop-opacity="0.9019607843137255" />
+      <stop offset="0.5" stop-color="black" stop-opacity="0.6" />
+      <stop offset="1" stop-color="black" stop-opacity="0.1843137254901961" />
+    </linearGradient>
+    <symbol id="ruler-left-design" viewBox="0 0 8 8">
+      <use href="#ruler-marker-stem" stroke="black" />
+      <path d="M3 5.5 H6" fill="none" stroke="black" stroke-width="1" />
+    </symbol>
+    <symbol id="ruler-right-design" viewBox="0 0 8 8">
+      <use href="#ruler-marker-stem" stroke="black" />
+      <path d="M1 5.5 H4" fill="none" stroke="black" stroke-width="1" />
+    </symbol>
+    <symbol id="ruler-center-design" viewBox="0 0 8 8">
+      <use href="#ruler-marker-stem" stroke="black" />
+      <use href="#ruler-marker-crossbar" stroke="black" />
+    </symbol>
+    <symbol id="ruler-decimal-design" viewBox="0 0 8 8">
+      <use href="#ruler-marker-stem" stroke="url(#ruler-decimal-contrast)" />
+      <use href="#ruler-marker-crossbar" stroke="black" />
+    </symbol>
+  </defs>
+  <use id="preview" href="#ruler-left-design" />
+</svg>

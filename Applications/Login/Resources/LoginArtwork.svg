@@ -1,0 +1,484 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 462 260">
+  <defs>
+    <symbol id="Panel" viewBox="0 0 462 260" data-reconstructed="true">
+      <path d="M0 0H462V260H0Z" fill="url(#login-panel-panel-base)" />
+      <path d="M0 0H462V260H0Z" fill="url(#login-panel-panel-center)" mask="url(#login-panel-panel-light)" />
+      <use href="#login-panel-wordmark-shape" x="-1.4249999999999998" y="-1.0625" fill="#fff" stroke="#fff" stroke-width="2.025" opacity="0.3875" stroke-linejoin="round" />
+      <use href="#login-panel-wordmark-shape" x="0.8999999999999999" y="0.875" fill="#000" stroke="#000" stroke-width="1.0625" stroke-linejoin="round" />
+      <use href="#login-panel-wordmark-shape" x="-1.4249999999999998" y="-1.0625" fill="#fff" stroke="#fff" stroke-width="0.125" stroke-linejoin="round" />
+      <g clip-path="url(#login-panel-wordmark-clip)">
+        <path d="M0 0H462V260H0Z" fill="url(#login-panel-wordmark-base)" />
+        <path d="M0 0H462V260H0Z" fill="url(#login-panel-wordmark-center)" mask="url(#login-panel-panel-light)" />
+      </g>
+      <path d="M3 88H458V89H3Z" fill="url(#login-panel-separator-dark)" />
+      <path d="M3 89H458V90H3Z" fill="url(#login-panel-separator-light)" />
+      <path d="M3 169H458V170H3Z" fill="url(#login-panel-separator-dark)" />
+      <path d="M3 170H458V171H3Z" fill="url(#login-panel-separator-light)" />
+      <path d="M238.937500 179.531250L257.656250 214.750000L250.593750 232.062500L219.062500 248.125000L202.750000 218.187500L204.875000 197.437500Z" transform="translate(4.24375 2.40625)" fill="black" opacity="0.398125" filter="url(#login-panel-cube-shadow)" />
+      <path d="M204.875000 197.437500L223.406250 233.218750L219.062500 248.125000L202.750000 218.187500Z" fill="url(#login-panel-cube-left)" />
+      <path d="M223.406250 233.218750L257.656250 214.750000L250.593750 232.062500L219.062500 248.125000Z" fill="url(#login-panel-cube-right)" />
+      <path d="M204.875000 197.437500L238.937500 179.531250L257.656250 214.750000L223.406250 233.218750Z" fill="#010101" />
+      <path d="M205.093750 197.500000L238.937500 179.500000" fill="none" stroke="#e8e8e8" stroke-width="1.662500" />
+      <path d="M202.093750 218.812500L205.093750 197.500000" fill="none" stroke="url(#login-panel-cube-side-edge)" stroke-width="1.687500" />
+      <path d="M204.875000 197.437500L223.406250 233.218750L257.656250 214.750000" fill="none" stroke="#8d8d8d" stroke-width="0.500000" />
+      <path id="login-panel-cube-N" d="M217.737500 212.250000L210.775000 199.925000L228.225000 204.750000L221.250000 192.100000" fill="none" stroke="#ff3617" stroke-width="2.437500" stroke-linejoin="round" />
+      <path id="login-panel-cube-X" d="M217.687500 215.062500L238.812500 221.125000M225.125000 228.437500L231.125000 207.937500" fill="none" stroke="#23ef34" stroke-width="2.44" stroke-linejoin="round" />
+      <path id="login-panel-cube-T" d="M233.375000 207.500000L247.575000 199.937500M240.275000 203.325000L247.575000 217.000000" fill="none" stroke="#f000ff" stroke-width="2.312500" stroke-linejoin="round" />
+      <path id="login-panel-cube-e" d="M242.387500 192.987500C243.062500 199.812500 236.937500 202.562500 232.437500 200.562500C228.000000 198.937500 226.150000 192.625000 230.000000 188.562500C231.375000 186.987500 234.562500 185.800000 237.912500 187.100000C241.375000 189.012500 241.925000 190.225000 241.075000 189.837500L228.050000 196.800000" fill="none" stroke="#ffe90f" stroke-width="2.250000" stroke-linejoin="round" />
+      <path d="M460 1V258L458 256V3Z" fill="url(#login-panel-frame-inner-right)" />
+      <path d="M458 256H3L1 258H460Z" fill="url(#login-panel-frame-inner-bottom)" />
+      <path d="M461 0H462V260L460 258V1Z" fill="url(#login-panel-frame-outer-right)" />
+      <path d="M0 259L1 258H460L462 260H0Z" fill="url(#login-panel-frame-outer-bottom)" />
+      <path d="M0 0H461L458 3H3V256L0 259Z" fill="url(#login-panel-frame-highlight)" />
+    </symbol>
+    <symbol id="Fields" viewBox="0 0 328 63" data-reconstructed="true">
+      <use href="#login-field-inset" />
+      <use href="#login-field-inset" y="34" />
+    </symbol>
+    <symbol id="FieldNames" viewBox="0 0 115 63" data-reconstructed="true">
+      <use href="#login-controls-login-labels" x="0.875000" y="0.812500" color="white" />
+      <use href="#login-controls-login-labels" color="black" />
+    </symbol>
+    <symbol id="powerbuttonup" viewBox="0 0 48 48" data-reconstructed="true">
+      <path d="M0 0H48V48H0Z" fill="url(#login-controls-bg-power)" />
+      <g transform="translate(-1.125 -1.0625)">
+        <use href="#login-controls-power-ring" x="1.0" y="0.96875" fill="#f4f4f4" stroke="#f4f4f4" stroke-width="0.125" stroke-linejoin="miter" />
+        <use href="#login-controls-power-ring" x="-0.9375" y="-0.90625" fill="#191919" stroke="#191919" stroke-width="0.125" stroke-linejoin="miter" />
+        <use href="#login-controls-power-ring" fill="url(#login-controls-power-face-ring)" />
+      </g>
+      <g transform="translate(-1 -1)">
+        <path d="M26 12H27V28H26Z" fill="#f4f4f4" />
+        <path d="M24 27H26V28H24Z" fill="#f4f4f4" />
+        <path d="M23 11H26V12H23Z" fill="#313131" />
+        <path d="M23 12H24V27H23Z" fill="#222222" />
+        <use href="#login-controls-power-bar" fill="url(#login-controls-power-bar-face)" />
+      </g>
+      <path d="M0 0H47V1H1V47H0Z" fill="white" />
+      <path d="M46 1H47V47H1V46H46Z" fill="#515551" />
+      <path d="M47 0H48V48H0V47H47Z" fill="black" />
+      <use href="#login-controls-caption-Power" />
+    </symbol>
+    <symbol id="powerbuttondown" viewBox="0 0 48 48" data-reconstructed="true">
+      <path d="M0 0H48V48H0Z" fill="white" />
+      <use href="#login-controls-power-ring" x="-1.0625" y="-1.0" fill="#2d2d2d" stroke="#2d2d2d" stroke-width="0.15625" stroke-linejoin="miter" />
+      <use href="#login-controls-power-ring" fill="#f03825" />
+      <path d="M23 11H26V12H24V27H23Z" fill="#2d2d2d" />
+      <use href="#login-controls-power-bar" fill="#f03825" />
+      <path d="M0 0H47V1H1V47H0Z" fill="black" />
+      <use href="#login-controls-caption-Power" x="1" y="1" />
+    </symbol>
+    <symbol id="restartbuttonup" viewBox="0 0 48 48" data-reconstructed="true">
+      <path d="M0 0H48V48H0Z" fill="url(#login-controls-bg-restart)" />
+      <g transform="translate(-1 -1)">
+        <use href="#login-controls-restart-no-head" x="0.53125" y="0.9375" fill="#f4f4f4" stroke="#f4f4f4" stroke-width="0.71875" stroke-linejoin="miter" />
+        <use href="#login-controls-restart-head" x="0.8125" y="0.28125" fill="#f4f4f4" stroke="#f4f4f4" stroke-width="1.25" stroke-linejoin="miter" />
+        <path d="M37.0 28.96875H38.0V32.0H37.0Z" fill="#f4f4f4" />
+        <path d="M13.875 31.0H37.0V32.0H13.875Z" fill="#f4f4f4" />
+        <use href="#login-controls-restart-body" x="-1.15625" y="-0.90625" fill="#1e1e1e" stroke="#1e1e1e" stroke-width="0.11249999999999999" stroke-linejoin="miter" />
+        <path d="M12.875 27.96875H37.0V28.96875H12.875Z" fill="#313131" />
+        <path d="M12.875 28.96875H13.875V31.0H12.875Z" fill="#222222" />
+        <use href="#login-controls-restart-base" fill="url(#login-controls-restart-base-face)" />
+        <use href="#login-controls-restart-body" fill="#5d5e5f" />
+      </g>
+      <path d="M0 0H47V1H1V47H0Z" fill="white" />
+      <path d="M46 1H47V47H1V46H46Z" fill="#515551" />
+      <path d="M47 0H48V48H0V47H47Z" fill="black" />
+      <use href="#login-controls-caption-Restart" />
+    </symbol>
+    <symbol id="restartbuttondown" viewBox="0 0 48 48" data-reconstructed="true">
+      <path d="M0 0H48V48H0Z" fill="white" />
+      <use href="#login-controls-restart-no-head" x="-1.05625" y="-0.9624999999999999" fill="#2d2d2d" stroke="#2d2d2d" stroke-width="0.15000000000000002" stroke-linejoin="miter" />
+      <use href="#login-controls-restart-head" x="-0.625" y="-0.8125" fill="#2d2d2d" stroke="#2d2d2d" stroke-width="1.03125" stroke-linejoin="miter" />
+      <path d="M12.875 27.96875H37.0V28.96875H13.875V31.0H12.875Z" fill="#2d2d2d" />
+      <use href="#login-controls-restart-base" fill="#f03825" />
+      <use href="#login-controls-restart-body" fill="#f03825" />
+      <path d="M0 0H47V1H1V47H0Z" fill="black" />
+      <use href="#login-controls-caption-Restart" x="1" y="1" />
+    </symbol>
+    <linearGradient id="login-field-shade-0" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="246.500705" y2="141.737905">
+      <stop stop-color="#222222" />
+      <stop offset="0.463414634" stop-color="#444546" />
+      <stop offset="1" stop-color="#252525" />
+    </linearGradient>
+    <linearGradient id="login-field-shade-1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="292.204900" y2="102.271715">
+      <stop stop-color="#232323" />
+      <stop offset="0.461890244" stop-color="#48484a" />
+      <stop offset="1" stop-color="#2a2a2a" />
+    </linearGradient>
+    <g id="login-field-inset">
+      <path d="M0 0H328V29H0Z" fill="url(#login-field-shade-0)" />
+      <path d="M1 1H328V29H1Z" fill="#fff" />
+      <path d="M1 1H327V28H1Z" fill="url(#login-field-shade-1)" />
+      <path d="M2 2H327V28H2Z" fill="#a9a9a9" />
+      <path d="M2 2H326V27H2Z" fill="#fff" />
+    </g>
+    <linearGradient id="login-panel-frame-highlight" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="310.14343725549026" y2="382.9769087078627">
+      <stop stop-color="#f1f2ff" />
+      <stop offset="1" stop-color="#848383" />
+    </linearGradient>
+    <linearGradient id="login-panel-frame-inner-right" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="260">
+      <stop offset="0.00000000" stop-color="#222223" />
+      <stop offset="0.05555556" stop-color="#252526" />
+      <stop offset="0.11111111" stop-color="#282829" />
+      <stop offset="0.16666667" stop-color="#2b2b2c" />
+      <stop offset="0.22222222" stop-color="#2e2e30" />
+      <stop offset="0.27777778" stop-color="#313133" />
+      <stop offset="0.33333333" stop-color="#343436" />
+      <stop offset="0.38888889" stop-color="#37373a" />
+      <stop offset="0.44444444" stop-color="#3c3d40" />
+      <stop offset="0.50000000" stop-color="#38393c" />
+      <stop offset="0.55555556" stop-color="#343436" />
+      <stop offset="0.61111111" stop-color="#313133" />
+      <stop offset="0.66666667" stop-color="#2f2f31" />
+      <stop offset="0.72222222" stop-color="#2d2d2f" />
+      <stop offset="0.77777778" stop-color="#2b2b2c" />
+      <stop offset="0.83333333" stop-color="#29292a" />
+      <stop offset="0.88888889" stop-color="#272728" />
+      <stop offset="0.94444444" stop-color="#252525" />
+      <stop offset="1.00000000" stop-color="#242424" />
+    </linearGradient>
+    <linearGradient id="login-panel-frame-outer-right" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="260">
+      <stop offset="0.00000000" stop-color="#020303" />
+      <stop offset="0.05555556" stop-color="#050506" />
+      <stop offset="0.11111111" stop-color="#080809" />
+      <stop offset="0.16666667" stop-color="#0b0b0c" />
+      <stop offset="0.22222222" stop-color="#0e0e0f" />
+      <stop offset="0.27777778" stop-color="#101112" />
+      <stop offset="0.33333333" stop-color="#141416" />
+      <stop offset="0.38888889" stop-color="#161719" />
+      <stop offset="0.44444444" stop-color="#191a1c" />
+      <stop offset="0.50000000" stop-color="#191a1c" />
+      <stop offset="0.55555556" stop-color="#151517" />
+      <stop offset="0.61111111" stop-color="#121314" />
+      <stop offset="0.66666667" stop-color="#101012" />
+      <stop offset="0.72222222" stop-color="#0e0e0f" />
+      <stop offset="0.77777778" stop-color="#0c0c0c" />
+      <stop offset="0.83333333" stop-color="#09090a" />
+      <stop offset="0.88888889" stop-color="#060708" />
+      <stop offset="0.94444444" stop-color="#040404" />
+      <stop offset="1.00000000" stop-color="#030303" />
+    </linearGradient>
+    <linearGradient id="login-panel-frame-inner-bottom" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="462" y2="0">
+      <stop offset="0.00000000" stop-color="#222222" />
+      <stop offset="0.06250000" stop-color="#242425" />
+      <stop offset="0.12500000" stop-color="#272728" />
+      <stop offset="0.18750000" stop-color="#292a2a" />
+      <stop offset="0.25000000" stop-color="#2c2c2d" />
+      <stop offset="0.31250000" stop-color="#2e2f30" />
+      <stop offset="0.37500000" stop-color="#303133" />
+      <stop offset="0.43750000" stop-color="#333436" />
+      <stop offset="0.50000000" stop-color="#353638" />
+      <stop offset="0.56250000" stop-color="#343436" />
+      <stop offset="0.62500000" stop-color="#323234" />
+      <stop offset="0.68750000" stop-color="#2f2f30" />
+      <stop offset="0.75000000" stop-color="#2c2c2e" />
+      <stop offset="0.81250000" stop-color="#2a2a2c" />
+      <stop offset="0.87500000" stop-color="#282828" />
+      <stop offset="0.93750000" stop-color="#252526" />
+      <stop offset="1.00000000" stop-color="#232323" />
+    </linearGradient>
+    <linearGradient id="login-panel-frame-outer-bottom" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="462" y2="0">
+      <stop offset="0.00000000" stop-color="#010202" />
+      <stop offset="0.06250000" stop-color="#040404" />
+      <stop offset="0.12500000" stop-color="#060608" />
+      <stop offset="0.18750000" stop-color="#08090a" />
+      <stop offset="0.25000000" stop-color="#0b0c0c" />
+      <stop offset="0.31250000" stop-color="#0d0e10" />
+      <stop offset="0.37500000" stop-color="#101112" />
+      <stop offset="0.43750000" stop-color="#121315" />
+      <stop offset="0.50000000" stop-color="#151618" />
+      <stop offset="0.56250000" stop-color="#161618" />
+      <stop offset="0.62500000" stop-color="#141415" />
+      <stop offset="0.68750000" stop-color="#101112" />
+      <stop offset="0.75000000" stop-color="#0e0e0f" />
+      <stop offset="0.81250000" stop-color="#0b0b0c" />
+      <stop offset="0.87500000" stop-color="#080808" />
+      <stop offset="0.93750000" stop-color="#050506" />
+      <stop offset="1.00000000" stop-color="#020202" />
+    </linearGradient>
+    <linearGradient id="login-panel-separator-dark" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="462" y2="0">
+      <stop stop-color="#2a2a2a" />
+      <stop offset="1" stop-color="#222222" />
+    </linearGradient>
+    <linearGradient id="login-panel-separator-light" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="462" y2="0">
+      <stop stop-color="#d6d6d6" />
+      <stop offset="1" stop-color="#c9c9c9" />
+    </linearGradient>
+    <linearGradient id="login-panel-cube-left" gradientUnits="userSpaceOnUse" x1="204" y1="211" x2="220" y2="244">
+      <stop stop-color="#383838" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <linearGradient id="login-panel-cube-right" gradientUnits="userSpaceOnUse" x1="225" y1="232" x2="246" y2="238">
+      <stop stop-color="#383838" />
+      <stop offset="1" stop-color="#0b0b0b" />
+    </linearGradient>
+    <filter id="login-panel-cube-shadow" x="-1" y="-1" width="3" height="3">
+      <feGaussianBlur stdDeviation="1.993750" />
+    </filter>
+    <linearGradient id="login-panel-cube-side-edge" gradientUnits="userSpaceOnUse" x1="204.875" y1="197.4375" x2="202.75" y2="218.1875">
+      <stop stop-color="#f9f9f9" />
+      <stop offset="1" stop-color="#9a9a9a" />
+    </linearGradient>
+    <linearGradient id="login-panel-panel-base" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="260">
+      <stop offset="0.00000000" stop-color="#7c7b7c" />
+      <stop offset="0.05555556" stop-color="#7d7d7d" />
+      <stop offset="0.11111111" stop-color="#7f7f7f" />
+      <stop offset="0.16666667" stop-color="#808081" />
+      <stop offset="0.22222222" stop-color="#818283" />
+      <stop offset="0.27777778" stop-color="#818282" />
+      <stop offset="0.33333333" stop-color="#828283" />
+      <stop offset="0.38888889" stop-color="#838384" />
+      <stop offset="0.44444444" stop-color="#838485" />
+      <stop offset="0.50000000" stop-color="#848485" />
+      <stop offset="0.55555556" stop-color="#848485" />
+      <stop offset="0.61111111" stop-color="#838485" />
+      <stop offset="0.66666667" stop-color="#838384" />
+      <stop offset="0.72222222" stop-color="#828283" />
+      <stop offset="0.77777778" stop-color="#818182" />
+      <stop offset="0.83333333" stop-color="#7f8080" />
+      <stop offset="0.88888889" stop-color="#7e7e7f" />
+      <stop offset="0.94444444" stop-color="#7d7d7d" />
+      <stop offset="1.00000000" stop-color="#7c7c7c" />
+    </linearGradient>
+    <linearGradient id="login-panel-panel-center" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="260">
+      <stop offset="0.00000000" stop-color="#88898b" />
+      <stop offset="0.05555556" stop-color="#8b8c8e" />
+      <stop offset="0.11111111" stop-color="#8e8f92" />
+      <stop offset="0.16666667" stop-color="#919295" />
+      <stop offset="0.22222222" stop-color="#939498" />
+      <stop offset="0.27777778" stop-color="#97989c" />
+      <stop offset="0.33333333" stop-color="#98999d" />
+      <stop offset="0.38888889" stop-color="#97989c" />
+      <stop offset="0.44444444" stop-color="#96969b" />
+      <stop offset="0.50000000" stop-color="#949599" />
+      <stop offset="0.55555556" stop-color="#929397" />
+      <stop offset="0.61111111" stop-color="#909194" />
+      <stop offset="0.66666667" stop-color="#8f8f92" />
+      <stop offset="0.72222222" stop-color="#8d8d90" />
+      <stop offset="0.77777778" stop-color="#8b8b8e" />
+      <stop offset="0.83333333" stop-color="#89898b" />
+      <stop offset="0.88888889" stop-color="#878789" />
+      <stop offset="0.94444444" stop-color="#858587" />
+      <stop offset="1.00000000" stop-color="#838485" />
+    </linearGradient>
+    <linearGradient id="login-panel-wordmark-base" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="260">
+      <stop offset="0.00000000" stop-color="#565656" />
+      <stop offset="0.05555556" stop-color="#585857" />
+      <stop offset="0.11111111" stop-color="#595959" />
+      <stop offset="0.16666667" stop-color="#5b5b5b" />
+      <stop offset="0.22222222" stop-color="#5c5c5c" />
+      <stop offset="0.27777778" stop-color="#5c5c5c" />
+      <stop offset="0.33333333" stop-color="#5d5d5d" />
+      <stop offset="0.38888889" stop-color="#5e5e5e" />
+      <stop offset="0.44444444" stop-color="#5e5e5f" />
+      <stop offset="0.50000000" stop-color="#5e5f5f" />
+      <stop offset="0.55555556" stop-color="#5e5e5f" />
+      <stop offset="0.61111111" stop-color="#5e5e5f" />
+      <stop offset="0.66666667" stop-color="#5d5d5e" />
+      <stop offset="0.72222222" stop-color="#5c5c5d" />
+      <stop offset="0.77777778" stop-color="#5b5b5c" />
+      <stop offset="0.83333333" stop-color="#5a5a5a" />
+      <stop offset="0.88888889" stop-color="#595959" />
+      <stop offset="0.94444444" stop-color="#585757" />
+      <stop offset="1.00000000" stop-color="#575656" />
+    </linearGradient>
+    <linearGradient id="login-panel-wordmark-center" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="260">
+      <stop offset="0.00000000" stop-color="#636365" />
+      <stop offset="0.05555556" stop-color="#656668" />
+      <stop offset="0.11111111" stop-color="#68696b" />
+      <stop offset="0.16666667" stop-color="#6b6c6e" />
+      <stop offset="0.22222222" stop-color="#6d6e71" />
+      <stop offset="0.27777778" stop-color="#717175" />
+      <stop offset="0.33333333" stop-color="#727276" />
+      <stop offset="0.38888889" stop-color="#717175" />
+      <stop offset="0.44444444" stop-color="#707074" />
+      <stop offset="0.50000000" stop-color="#6e6f72" />
+      <stop offset="0.55555556" stop-color="#6c6d70" />
+      <stop offset="0.61111111" stop-color="#6b6b6e" />
+      <stop offset="0.66666667" stop-color="#69696c" />
+      <stop offset="0.72222222" stop-color="#67676a" />
+      <stop offset="0.77777778" stop-color="#656567" />
+      <stop offset="0.83333333" stop-color="#636365" />
+      <stop offset="0.88888889" stop-color="#616163" />
+      <stop offset="0.94444444" stop-color="#5f5f60" />
+      <stop offset="1.00000000" stop-color="#5e5e5f" />
+    </linearGradient>
+    <linearGradient id="login-panel-panel-light-mask" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="462" y2="0">
+      <stop offset="0.00000000" stop-color="white" stop-opacity="0.18155057" />
+      <stop offset="0.03125000" stop-color="white" stop-opacity="0.22566173" />
+      <stop offset="0.06250000" stop-color="white" stop-opacity="0.28789981" />
+      <stop offset="0.09375000" stop-color="white" stop-opacity="0.35794859" />
+      <stop offset="0.12500000" stop-color="white" stop-opacity="0.43207971" />
+      <stop offset="0.15625000" stop-color="white" stop-opacity="0.50775235" />
+      <stop offset="0.18750000" stop-color="white" stop-opacity="0.58291275" />
+      <stop offset="0.21875000" stop-color="white" stop-opacity="0.65578043" />
+      <stop offset="0.25000000" stop-color="white" stop-opacity="0.72476782" />
+      <stop offset="0.28125000" stop-color="white" stop-opacity="0.78844922" />
+      <stop offset="0.31250000" stop-color="white" stop-opacity="0.84555099" />
+      <stop offset="0.34375000" stop-color="white" stop-opacity="0.89495169" />
+      <stop offset="0.37500000" stop-color="white" stop-opacity="0.93568677" />
+      <stop offset="0.40625000" stop-color="white" stop-opacity="0.96695495" />
+      <stop offset="0.43750000" stop-color="white" stop-opacity="0.98812489" />
+      <stop offset="0.46875000" stop-color="white" stop-opacity="0.99874103" />
+      <stop offset="0.50000000" stop-color="white" stop-opacity="0.99852813" />
+      <stop offset="0.53125000" stop-color="white" stop-opacity="0.98739412" />
+      <stop offset="0.56250000" stop-color="white" stop-opacity="0.96543107" />
+      <stop offset="0.59375000" stop-color="white" stop-opacity="0.93291422" />
+      <stop offset="0.62500000" stop-color="white" stop-opacity="0.89029912" />
+      <stop offset="0.65625000" stop-color="white" stop-opacity="0.83821714" />
+      <stop offset="0.68750000" stop-color="white" stop-opacity="0.77746952" />
+      <stop offset="0.71875000" stop-color="white" stop-opacity="0.70902085" />
+      <stop offset="0.75000000" stop-color="white" stop-opacity="0.63399254" />
+      <stop offset="0.78125000" stop-color="white" stop-opacity="0.55365823" />
+      <stop offset="0.81250000" stop-color="white" stop-opacity="0.46944364" />
+      <stop offset="0.84375000" stop-color="white" stop-opacity="0.38293633" />
+      <stop offset="0.87500000" stop-color="white" stop-opacity="0.29591678" />
+      <stop offset="0.90625000" stop-color="white" stop-opacity="0.21043875" />
+      <stop offset="0.93750000" stop-color="white" stop-opacity="0.12904307" />
+      <stop offset="0.96875000" stop-color="white" stop-opacity="0.05545807" />
+      <stop offset="1.00000000" stop-color="white" stop-opacity="0.00000000" />
+    </linearGradient>
+    <mask id="login-panel-panel-light" maskUnits="userSpaceOnUse" x="0" y="0" width="462" height="260">
+      <path d="M0 0H462V260H0Z" fill="url(#login-panel-panel-light-mask)" />
+    </mask>
+    <path id="login-panel-wordmark-O" fill-rule="evenodd" clip-rule="evenodd" d="M16.4375 0C16.5145806875 12.332909999999993 10.483548437499996 22.6375 0.14148437500000005 22.6375C-10.200579687499998 22.6375 -16.3604193125 12.332909999999993 -16.4375 0C-16.5145806875 -12.332909999999993 -10.483548437499996 -22.6375 -0.14148437500000005 -22.6375C10.200579687499998 -22.6375 16.3604193125 -12.332909999999993 16.4375 0ZM4.825 -0.09999999999999998C4.796368187500001 7.535150000000006 3.2450193750000014 11.65 -0.0440625 11.65C-3.333144375000001 11.65 -4.8536318125 7.535150000000006 -4.825 -0.09999999999999998C-4.796368187500001 -7.735150000000005 -3.2450193750000014 -11.85 0.0440625 -11.85C3.333144375000001 -11.85 4.8536318125 -7.735150000000005 4.825 -0.09999999999999998Z" />
+    <path id="login-panel-wordmark-P" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H12.625C23.625 0 28.625 6.71875 28.625 15.625S22.425 29.0375 12.625 29.0375H11.45V43.625H0ZM11.3875 9.5V19.25H13.225C18.375 19.25 18.375 9.5 13.225 9.5Z" />
+    <path id="login-panel-wordmark-E" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H21.5625V9.9H11.3125V16.375H20.375V26.5375H11.3125V33.375H21.5625V43.625H0Z" />
+    <path id="login-panel-wordmark-N" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H10.25L19.375 23.0625V0H30.0V43.6875H19.25L10.75 19.375V43.6875H0Z" />
+    <path id="login-panel-wordmark-S" fill-rule="evenodd" clip-rule="evenodd" d="M21.1875 2.8125L21.3125 14.0C18.625 9.9375 12.125 8.0 12.125 11.75C9.1875 11.875 13.0 16.4375 17.6875 19.1875C25.5 25.5 22.875 38.9375 16.375 42.125C11.1875 45.6875 4.4375 44.75 0.5 42.3125L0.4375 29.9375C4.875 35.1875 10.5 35.4375 11.375 30.8125C13.5 32.75 10.6875 28.3125 7.125 25.6875C-1.1875 18.875 -1.375 12.5625 2.4375 5.0625C6.8125 -1.75 15.9375 -2.5 21.1875 2Z" />
+    <path id="login-panel-wordmark-T" fill-rule="evenodd" clip-rule="evenodd" d="M0 0H24.4375V10.6875H17.6875V43.6875H6.325V10.6875H0Z" />
+    <g id="login-panel-wordmark-shape">
+      <use href="#login-panel-wordmark-O" x="128.8125" y="41.175" />
+      <use href="#login-panel-wordmark-P" x="149.375" y="19.4375" />
+      <use href="#login-panel-wordmark-E" x="181.4375" y="19.4375" />
+      <use href="#login-panel-wordmark-N" x="208.3125" y="19.375" />
+      <use href="#login-panel-wordmark-S" x="242.875" y="19.375" />
+      <use href="#login-panel-wordmark-T" x="267.3125" y="19.375" />
+      <use href="#login-panel-wordmark-E" x="295.3125" y="19.4375" />
+      <use href="#login-panel-wordmark-P" x="322.25" y="19.4375" />
+    </g>
+    <clipPath id="login-panel-wordmark-clip">
+      <use href="#login-panel-wordmark-O" x="128.8125" y="41.175" />
+      <use href="#login-panel-wordmark-P" x="149.375" y="19.4375" />
+      <use href="#login-panel-wordmark-E" x="181.4375" y="19.4375" />
+      <use href="#login-panel-wordmark-N" x="208.3125" y="19.375" />
+      <use href="#login-panel-wordmark-S" x="242.875" y="19.375" />
+      <use href="#login-panel-wordmark-T" x="267.3125" y="19.375" />
+      <use href="#login-panel-wordmark-E" x="295.3125" y="19.4375" />
+      <use href="#login-panel-wordmark-P" x="322.25" y="19.4375" />
+    </clipPath>
+    <path id="login-controls-letter-N" d="M -1.000000 13.043750 V 0.250000 H 1.250000 L 7.881250 10.443750 V 0.406250 H 9.800000 V 13.293750 H 7.687500 L 1.025000 3.175000 V 13.450000 Z" stroke-width="1.990625" fill="currentColor" stroke="none" fill-rule="evenodd" />
+    <path id="login-controls-letter-P" d="M -0.757500 13.263750 V 0.127500 H 4.773750 C 10.216250 -0.122500 10.653750 8.721250 4.305000 8.065000 H 1.270000 V 13.763750 Z M 1.270000 2.033750 V 6.131250 H 4.586250 C 7.560000 6.725000 8.060000 1.502500 4.367500 1.940000 Z" stroke-width="2.000000" fill="currentColor" stroke="none" fill-rule="evenodd" />
+    <path id="login-controls-letter-a" d="M 1.200000 6.912500 C 0.987500 3.287500 7.975000 3.550000 7.700000 6.812500 V 12.800000 Q 8.012500 13.850000 9.437500 13.000000 M 7.818750 7.925000 C 5.062500 8.900000 1.062500 8.300000 0.862500 10.812500 C 0.493750 14.150000 5.250000 14.081250 7.512500 11.312500" stroke-width="1.779688" />
+    <path id="login-controls-letter-m" d="M 0.031250 13.000000 V 3.625000 M 0.062500 7.000000 C 0.631250 3.100000 6.568750 3.350000 6.100000 6.562500 V 13.062500 M 6.443750 6.437500 C 6.631250 3.200000 13.137500 3.168750 12.200000 7.250000 V 13.000000" stroke-width="1.887500" />
+    <path id="login-controls-letter-e" d="M 0.200000 8.700000 H 8.000000 C 8.043750 3.006250 0.668750 2.600000 0.418750 8.750000 C 0.056250 14.275000 7.093750 14.462500 7.906250 10.587500" stroke-width="1.803125" />
+    <path id="login-controls-letter-s" d="M 6.825000 6.818750 C 7.125000 3.250000 0.212500 3.625000 0.937500 6.650000 C 0.100000 8.850000 6.112500 8.400000 6.937500 10.187500 C 8.462500 14.225000 -0.150000 14.231250 0.137500 10.562500" stroke-width="1.840625" />
+    <path id="login-controls-letter-w" d="M -0.862500 3.687500 H 1.312500 L 3.312500 10.850000 L 4.725000 3.687500 H 6.962500 L 8.875000 10.318750 L 10.687500 3.750000 H 12.700000 L 9.775000 13.187500 H 7.937500 L 5.937500 6.250000 L 4.225000 13.125000 H 2.200000 Z" stroke-width="1.821875" fill="currentColor" stroke="none" fill-rule="evenodd" />
+    <path id="login-controls-letter-o" d="M 8.275000 9.437500 C 8.025000 2.512500 0.312500 2.950000 0.343750 9.000000 C 0.250000 15.206250 8.493750 14.737500 7.962500 9.468750 Z" stroke-width="1.812500" />
+    <path id="login-controls-letter-r" d="M 0.093750 13.062500 V 3.593750 M -0.187500 7.737500 C 0.200000 5.418750 2.287500 4.018750 4.131250 4.612500" stroke-width="1.864063" />
+    <path id="login-controls-letter-d" d="M 7.806250 8.906250 C 8.931250 2.950000 0.625000 2.512500 0.718750 8.250000 C 0.187500 14.862500 8.212500 14.800000 8.118750 8.687500 Z M 8.150000 0.312500 V 13.812500" stroke-width="1.803125" />
+    <g id="login-controls-login-labels" fill="none" stroke="currentColor" stroke-linejoin="round">
+      <use href="#login-controls-letter-N" transform="translate(63.062500 7.350000) scale(1.003125 1.019531)" />
+      <use href="#login-controls-letter-a" transform="translate(74.781250 7.350000) scale(0.920313 0.970313)" />
+      <use href="#login-controls-letter-m" transform="translate(86.000000 7.350000) scale(0.904688 1.037500)" />
+      <use href="#login-controls-letter-e" transform="translate(100.250000 7.350000) scale(0.911719 0.985938)" />
+      <use href="#login-controls-letter-P" transform="translate(32.062500 41.475000) scale(1.042188 0.990625)" />
+      <use href="#login-controls-letter-a" transform="translate(42.781250 41.475000) scale(0.920313 0.970313)" />
+      <use href="#login-controls-letter-s" transform="translate(53.000000 41.475000) scale(0.918750 0.971875)" />
+      <use href="#login-controls-letter-s" transform="translate(62.000000 41.475000) scale(0.918750 0.971875)" />
+      <use href="#login-controls-letter-w" transform="translate(70.812500 41.475000) scale(0.953125 1.018750)" />
+      <use href="#login-controls-letter-o" transform="translate(84.250000 41.475000) scale(0.893750 0.953906)" />
+      <use href="#login-controls-letter-r" transform="translate(95.125000 41.475000) scale(0.952344 1.026562)" />
+      <use href="#login-controls-letter-d" transform="translate(99.937500 41.475000) scale(0.900000 0.975000)" />
+    </g>
+    <path id="login-controls-power-ring" d="M38.0625 19.8125C38.0625 27.00946064583125 32.22821064583125 32.84375 25.03125 32.84375C17.83428935416875 32.84375 12.0 27.00946064583125 12.0 19.8125C12.0 12.61553935416875 17.83428935416875 6.78125 25.03125 6.78125C32.22821064583125 6.78125 38.0625 12.61553935416875 38.0625 19.8125ZM35.96875 19.8125C35.96875 25.8531144509375 31.0718644509375 30.75 25.03125 30.75C18.9906355490625 30.75 14.09375 25.8531144509375 14.09375 19.8125C14.09375 13.7718855490625 18.9906355490625 8.875 25.03125 8.875C31.0718644509375 8.875 35.96875 13.7718855490625 35.96875 19.8125Z" fill-rule="evenodd" />
+    <path id="login-controls-power-bar" d="M24 12H26V27H24Z" />
+    <path id="login-controls-restart-shaft" d="M13.07497794 7.37906369L25.70832110 29.20948067L33.98219988 15.23190673L32.14280012 14.14309327L25.72917890 24.97801933L14.92502206 6.30843631Z" />
+    <path id="login-controls-restart-connector" d="M25.09375 25.0H26.40625V28.78125H25.09375Z" />
+    <path id="login-controls-restart-base" d="M13.875 28.96875H37.0V31.0H13.875Z" />
+    <path id="login-controls-restart-head" d="M29.08125000 14.95000000L34.51250000 11.95000000L34.63750000 18.18750000Z" />
+    <linearGradient id="login-controls-bg-power" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="34.042739497670944" y2="56.42134148029535">
+      <stop stop-color="#858688" />
+      <stop offset="1" stop-color="#7e7e7f" />
+    </linearGradient>
+    <linearGradient id="login-controls-bg-restart" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="25.29066191571121" y2="57.91657694725889">
+      <stop stop-color="#88898b" />
+      <stop offset="1" stop-color="#818182" />
+    </linearGradient>
+    <radialGradient id="login-controls-power-face-ring" gradientUnits="userSpaceOnUse" cx="25.03125" cy="19.8125" r="13.03125">
+      <stop stop-color="#767678" />
+      <stop offset="0.7616306954436451" stop-color="#767678" />
+      <stop offset="0.891127098321343" stop-color="#5e6060" />
+      <stop offset="1" stop-color="#5e6060" />
+    </radialGradient>
+    <g id="login-controls-restart-body">
+      <use href="#login-controls-restart-shaft" />
+      <use href="#login-controls-restart-connector" />
+      <use href="#login-controls-restart-head" />
+    </g>
+    <linearGradient id="login-controls-power-bar-face" gradientUnits="userSpaceOnUse" x1="24.5" x2="25.5" y1="0" y2="0">
+      <stop stop-color="#4b4c4d" />
+      <stop offset="1" stop-color="#7d7e7f" />
+    </linearGradient>
+    <linearGradient id="login-controls-restart-base-face" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="29.46875" y2="30.46875">
+      <stop stop-color="#4b4c4d" />
+      <stop offset="1" stop-color="#7d7e7f" />
+    </linearGradient>
+    <g id="login-controls-restart-no-head">
+      <use href="#login-controls-restart-shaft" />
+      <use href="#login-controls-restart-connector" />
+    </g>
+    <g id="login-controls-caption-letter-P">
+      <path d="M 0.000000 0.000000 H 3.000000 A 2.000000 2.000000 0 0 1 3.000000 4.000000 H 1.000000 V 8.000000 H 0.000000 Z M 1.000000 1.000000 H 3.000000 A 1.000000 1.000000 0 0 1 3.000000 3.000000 H 1.000000 Z" fill="currentColor" fill-rule="evenodd" stroke="none" />
+    </g>
+    <g id="login-controls-caption-letter-R">
+      <use href="#login-controls-caption-letter-P" />
+      <path d="M 3.000000 3.000000 C 4.300000 3.000000 5.000000 3.900000 5.000000 5.000000 V 8.000000 H 4.000000 V 5.000000 C 4.000000 4.000000 3.400000 4.000000 3.000000 4.000000 Z" fill="currentColor" fill-rule="evenodd" stroke="none" />
+    </g>
+    <g id="login-controls-caption-letter-o">
+      <path d="M 5.000000 5.000000 A 2.500000 3.000000 0 1 1 0.000000 5.000000 A 2.500000 3.000000 0 1 1 5.000000 5.000000 Z M 4.000000 5.000000 A 1.500000 2.400000 0 1 1 1.000000 5.000000 A 1.500000 2.400000 0 1 1 4.000000 5.000000 Z" fill="currentColor" fill-rule="evenodd" stroke="none" />
+    </g>
+    <g id="login-controls-caption-letter-e">
+      <path d="M 3.500000 6.000000 C 2.500000 8.500000 0.500000 7.500000 0.500000 5.000000 C 0.500000 2.000000 3.500000 2.000000 3.500000 4.500000 H 0.500000" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="login-controls-caption-letter-s">
+      <path d="M 3.500000 3.500000 C 3.200000 2.200000 0.800000 2.200000 0.500000 3.500000 C 0.400000 4.600000 3.500000 4.300000 3.750000 5.600000 C 3.500000 7.800000 0.600000 8.000000 0.750000 6.500000" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" />
+    </g>
+    <g id="login-controls-caption-letter-t">
+      <path d="M 1.000000 0.000000 H 2.000000 V 6.600000 Q 2.000000 7.000000 3.000000 7.000000 V 8.000000 H 2.000000 C 1.300000 8.000000 1.000000 7.600000 1.000000 7.000000 Z M 0.000000 2.000000 H 3.000000 V 3.000000 H 0.000000 Z" fill="currentColor" fill-rule="evenodd" stroke="none" />
+    </g>
+    <g id="login-controls-caption-letter-w">
+      <path fill="currentColor" d="M-.2 2H.8L3.2 8H2.2Z" />
+      <path fill="currentColor" d="M6.2 2H7.2L4.8 8H3.8Z" />
+      <path fill="currentColor" d="M3 4H4L3 8H2Z" />
+      <path fill="currentColor" d="M3 4H4L5 8H4Z" />
+      <path fill="currentColor" d="M3 2H4V4H3Z" />
+    </g>
+    <g id="login-controls-caption-letter-r">
+      <path d="M0 2H1V8H0Z" fill="currentColor" />
+      <path d="M.5 4Q1.5 3.2 3 2.5" stroke="currentColor" stroke-width="1" fill="none" />
+    </g>
+    <g id="login-controls-caption-letter-a">
+      <path fill="currentColor" d="M0 2H2.2C3.4 2 4 2.8 4 4V6.5H3V4C3 3 2.6 3 0 3Z" />
+      <path fill="currentColor" d="M3 6.5C3 7 4 7.7 4.5 7.7H5V7H4.5C4.1 7 4 6.8 4 6.5Z" />
+      <path fill="currentColor" fill-rule="evenodd" d="M4 6A2 2 0 1 1 0 6A2 2 0 1 1 4 6ZM3 6A1 1 0 1 1 1 6A1 1 0 1 1 3 6Z" />
+    </g>
+    <g id="login-controls-caption-Power" color="black" shape-rendering="crispEdges">
+      <use href="#login-controls-caption-letter-P" x="10" y="35" />
+      <use href="#login-controls-caption-letter-o" x="16" y="35" />
+      <use href="#login-controls-caption-letter-w" x="22" y="35" />
+      <use href="#login-controls-caption-letter-e" x="30" y="35" />
+      <use href="#login-controls-caption-letter-r" x="35" y="35" />
+    </g>
+    <g id="login-controls-caption-Restart" color="black" shape-rendering="crispEdges">
+      <use href="#login-controls-caption-letter-R" x="8" y="35" />
+      <use href="#login-controls-caption-letter-e" x="14" y="35" />
+      <use href="#login-controls-caption-letter-s" x="19" y="35" />
+      <use href="#login-controls-caption-letter-t" x="24" y="35" />
+      <use href="#login-controls-caption-letter-a" x="28" y="35" />
+      <use href="#login-controls-caption-letter-r" x="33" y="35" />
+      <use href="#login-controls-caption-letter-t" x="37" y="35" />
+    </g>
+  </defs>
+  <use id="preview" href="#Panel" width="462" height="260" />
+</svg>

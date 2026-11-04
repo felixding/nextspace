@@ -1,0 +1,27 @@
+<!-- Original GNUstep GUI slider knobs, LGPL-2.0-or-later. Continuous bevel geometry. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 19 14">
+  <defs>
+    <linearGradient id="slider-grip-highlight" gradientUnits="userSpaceOnUse" x1="0" y1="11.5" x2="0" y2="12.5">
+      <stop offset="0" stop-color="#fff"/>
+      <stop offset="1" stop-color="#aaa"/>
+    </linearGradient>
+    <linearGradient id="slider-grip-highlight-transposed" href="#slider-grip-highlight" gradientTransform="matrix(0 1 1 0 0 0)"/>
+    <symbol id="slider-knob-horizontal" viewBox="0 0 19 14">
+      <rect width="19" height="14" fill="#000"/>
+      <rect width="18" height="13" fill="#5d5d5d"/>
+      <path d="M0 0H17V1H2V12H1V13H0Z" fill="#fff"/>
+      <rect id="horizontal-face" x="2" y="1" width="15" height="11" fill="#aaa"/>
+      <rect id="horizontal-grip-shadow" x="8" y="1" width="1" height="12" fill="#5d5d5d"/>
+      <rect x="9" y="1" width="1" height="12" fill="url(#slider-grip-highlight)"/>
+    </symbol>
+    <symbol id="slider-knob-vertical" viewBox="0 0 14 19">
+      <rect width="14" height="19" fill="#000"/>
+      <rect width="13" height="18" fill="#5d5d5d"/>
+      <path d="M0 0H13V1H2V17H0Z" fill="#fff"/>
+      <rect id="vertical-face" x="2" y="1" width="10" height="16" fill="#aaa"/>
+      <rect id="vertical-grip-shadow" x="1" y="8" width="12" height="1" fill="#5d5d5d"/>
+      <rect x="0" y="9" width="13" height="1" fill="url(#slider-grip-highlight-transposed)"/>
+    </symbol>
+  </defs>
+  <use id="preview" href="#slider-knob-horizontal"/>
+</svg>

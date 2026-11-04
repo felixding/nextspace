@@ -1,0 +1,1809 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="preferences-frame" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fafafa" />
+      <stop offset=".35" stop-color="#b4b4bb" />
+      <stop offset="1" stop-color="#54545e" />
+    </linearGradient>
+    <linearGradient id="preferences-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#f9fbff" />
+      <stop offset=".75" stop-color="#e9e8ed" />
+      <stop offset="1" stop-color="#aaaab5" />
+    </linearGradient>
+    <g id="preferences-case">
+      <path d="M4 3H47V45L38 47H1V18Z" fill="#0d0d12" />
+      <path d="M39 18 46 15V44L39 46Z" fill="#43434f" />
+      <path d="M40 20 44 18V41L40 43Z" fill="#29292f" />
+      <path d="M2 18H39V45H2Z" fill="url(#preferences-frame)" />
+      <path d="M2.5 44V18.5H38.5" fill="none" stroke="#fff" stroke-width=".75" />
+      <path d="M7 21H35V42H7Z" fill="#41414b" />
+      <path d="M9 22H34V40H9Z" fill="url(#preferences-glass)" />
+      <path d="M9 39.5H33.5V22.5" fill="none" stroke="#fff" stroke-width=".6" />
+      <path d="M7 41H35V42H7Z" fill="#181822" />
+      <path d="M1 17 4 2H47L44 17Z" fill="url(#preferences-frame)" stroke="#d8d8df" stroke-width=".5" />
+      <path d="M3 15.5 5.4 4H44.8L42.4 15.5Z" fill="#050509" />
+      <path d="M4 15H42L44 5" fill="none" stroke="#55576e" stroke-width=".7" />
+    </g>
+    <linearGradient id="module-device" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#fff" />
+      <stop offset=".4" stop-color="#e2e3df" />
+      <stop offset="1" stop-color="#858b88" />
+    </linearGradient>
+    <symbol id="DisplayMonitor" viewBox="0 0 66 57" data-file="Modules/Display/Resources/Monitor.tiff" data-reconstructed="true">
+      <use href="../Artwork/Monitor.svg#display-monitor-original" />
+    </symbol>
+    <linearGradient id="keyboard-original-face" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="51.129917531781466" y2="50.077508251713546">
+      <stop offset="0" stop-color="#e5eeee" />
+      <stop offset="0.025" stop-color="#e5eeee" />
+      <stop offset="0.05" stop-color="#e5eeee" />
+      <stop offset="0.075" stop-color="#e5eeee" />
+      <stop offset="0.1" stop-color="#e5eeee" />
+      <stop offset="0.125" stop-color="#e5eeee" />
+      <stop offset="0.15" stop-color="#e5eeee" />
+      <stop offset="0.175" stop-color="#e5eeee" />
+      <stop offset="0.2" stop-color="#e5eeee" />
+      <stop offset="0.225" stop-color="#e5eeee" />
+      <stop offset="0.25" stop-color="#e5eeee" />
+      <stop offset="0.275" stop-color="#e5eeee" />
+      <stop offset="0.3" stop-color="#e5eeee" />
+      <stop offset="0.325" stop-color="#e5eeee" />
+      <stop offset="0.35" stop-color="#e5eeee" />
+      <stop offset="0.375" stop-color="#e5eeee" />
+      <stop offset="0.4" stop-color="#e5eeee" />
+      <stop offset="0.425" stop-color="#e5eeee" />
+      <stop offset="0.45" stop-color="#e5eeee" />
+      <stop offset="0.475" stop-color="#e5eeee" />
+      <stop offset="0.5" stop-color="#e0eae9" />
+      <stop offset="0.525" stop-color="#dce5e4" />
+      <stop offset="0.55" stop-color="#d7e0df" />
+      <stop offset="0.575" stop-color="#d3dbda" />
+      <stop offset="0.6" stop-color="#ced6d5" />
+      <stop offset="0.625" stop-color="#c9d1d0" />
+      <stop offset="0.65" stop-color="#c5cccb" />
+      <stop offset="0.675" stop-color="#c0c7c6" />
+      <stop offset="0.7" stop-color="#bbc2c1" />
+      <stop offset="0.725" stop-color="#b6bcbb" />
+      <stop offset="0.75" stop-color="#b1b7b6" />
+      <stop offset="0.775" stop-color="#abb1b1" />
+      <stop offset="0.8" stop-color="#a6abab" />
+      <stop offset="0.825" stop-color="#a1a6a6" />
+      <stop offset="0.85" stop-color="#9ba0a0" />
+      <stop offset="0.875" stop-color="#969a9a" />
+      <stop offset="0.9" stop-color="#919395" />
+      <stop offset="0.925" stop-color="#8b8d8f" />
+      <stop offset="0.95" stop-color="#858789" />
+      <stop offset="0.975" stop-color="#808084" />
+      <stop offset="1" stop-color="#7a7a7e" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-side" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="19.0" y2="41.0">
+      <stop offset="0" stop-color="#767190" />
+      <stop offset="1" stop-color="#3d384c" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-lower" gradientUnits="userSpaceOnUse" x1="4.0" x2="62.0" y1="0" y2="0">
+      <stop offset="0" stop-color="#7c7191" />
+      <stop offset="1" stop-color="#423a4e" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-cable" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="5.5" y2="15.5">
+      <stop stop-color="#141937" stop-opacity="0.1875" />
+      <stop offset=".1" stop-color="#34334e" stop-opacity="0.35000000000000003" />
+      <stop offset=".2" stop-color="#332255" />
+      <stop offset=".4" stop-color="#666688" />
+      <stop offset=".65" stop-color="#3c3455" />
+      <stop offset="1" stop-color="#352a4e" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-key-face-3" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0.5" y2="2.5">
+      <stop offset="0" stop-color="#b9b5c2" />
+      <stop offset="0.5" stop-color="#433d69" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-key-left-3" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0.5" y2="2.5">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.5" stop-color="#b9b5c2" />
+      <stop offset="0.5" stop-color="#b9b5c2" />
+      <stop offset="1" stop-color="#433d69" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-key-right-3" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0.5" y2="2.5">
+      <stop offset="0" stop-color="#433d69" />
+      <stop offset="0.5" stop-color="#000000" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <g id="keyboard-original-key-3-3">
+      <rect width="3" height="3" fill="url(#keyboard-original-key-face-3)" />
+      <rect width="1" height="3" fill="url(#keyboard-original-key-left-3)" />
+      <rect x="2" width="1" height="3" fill="url(#keyboard-original-key-right-3)" />
+    </g>
+    <linearGradient id="keyboard-original-key-face-6" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0.5" y2="5.5">
+      <stop offset="0" stop-color="#b9b5c2" />
+      <stop offset="0.2" stop-color="#433d69" />
+      <stop offset="0.8" stop-color="#433d69" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-key-left-6" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0.5" y2="5.5">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="0.2" stop-color="#b9b5c2" />
+      <stop offset="0.8" stop-color="#b9b5c2" />
+      <stop offset="1" stop-color="#433d69" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-key-right-6" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="0.5" y2="5.5">
+      <stop offset="0" stop-color="#433d69" />
+      <stop offset="0.2" stop-color="#000000" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <g id="keyboard-original-key-3-6">
+      <rect width="3" height="6" fill="url(#keyboard-original-key-face-6)" />
+      <rect width="1" height="6" fill="url(#keyboard-original-key-left-6)" />
+      <rect x="2" width="1" height="6" fill="url(#keyboard-original-key-right-6)" />
+    </g>
+    <g id="keyboard-original-key-4-3">
+      <rect width="4" height="3" fill="url(#keyboard-original-key-face-3)" />
+      <rect width="1" height="3" fill="url(#keyboard-original-key-left-3)" />
+      <rect x="3" width="1" height="3" fill="url(#keyboard-original-key-right-3)" />
+    </g>
+    <g id="keyboard-original-key-5-3">
+      <rect width="5" height="3" fill="url(#keyboard-original-key-face-3)" />
+      <rect width="1" height="3" fill="url(#keyboard-original-key-left-3)" />
+      <rect x="4" width="1" height="3" fill="url(#keyboard-original-key-right-3)" />
+    </g>
+    <g id="keyboard-original-key-6-3">
+      <rect width="6" height="3" fill="url(#keyboard-original-key-face-3)" />
+      <rect width="1" height="3" fill="url(#keyboard-original-key-left-3)" />
+      <rect x="5" width="1" height="3" fill="url(#keyboard-original-key-right-3)" />
+    </g>
+    <g id="keyboard-original-key-23-3">
+      <rect width="23" height="3" fill="url(#keyboard-original-key-face-3)" />
+      <rect width="1" height="3" fill="url(#keyboard-original-key-left-3)" />
+      <rect x="22" width="1" height="3" fill="url(#keyboard-original-key-right-3)" />
+    </g>
+    <linearGradient id="keyboard-original-plug-left" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="15.5" y2="16.5">
+      <stop stop-color="#aa99bb" />
+      <stop offset="1" stop-color="#666677" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-corner" gradientUnits="userSpaceOnUse" x1="3" y1="40" x2="6" y2="42">
+      <stop offset=".192308" stop-color="#ccccdd" />
+      <stop offset=".423077" stop-color="#aa99bb" />
+      <stop offset=".576923" stop-color="#666" />
+      <stop offset=".807692" stop-color="#444455" />
+    </linearGradient>
+    <linearGradient id="keyboard-original-plug-base" gradientUnits="userSpaceOnUse" x1="31.5" x2="33.5" y1="0" y2="0">
+      <stop stop-color="#666688" />
+      <stop offset="1" stop-color="#000" />
+    </linearGradient>
+    <symbol id="Keyboard" viewBox="0 0 66 57" data-file="Modules/Keyboard/Resources/Keyboard.tiff" data-reconstructed="true">
+      <path d="M63 19H64V42.5Q64 43 63.5 43H5V42H63Z" fill="#000" opacity=".31372549" />
+      <g opacity=".94117647">
+        <path d="M35.3125 5.375C36.3 7.65 34.8 7.725 33.75 9.875S32.2 12.025 32.5 15.5" fill="none" stroke="url(#keyboard-original-cable)" stroke-width="1.225" stroke-linecap="round" />
+        <rect x="31" y="15" width="3" height="3" fill="#000" />
+        <path d="M31 15H32V17H31Z" fill="url(#keyboard-original-plug-left)" />
+        <path d="M33 15H34V16H33Z" fill="#776688" />
+        <path d="M2 17H63V41L62 42H3V41H2Z" fill="#000" />
+        <path d="M2 17H63V18H3V41H2Z" fill="#aaa" />
+        <path d="M3 18H62V40H3Z" fill="#fff" />
+        <path d="M4 19H61V40H4Z" fill="url(#keyboard-original-face)" />
+        <path d="M61 19H62V40H61Z" fill="url(#keyboard-original-side)" />
+        <path d="M4 40H62V41H4Z" fill="url(#keyboard-original-lower)" />
+        <path d="M3 40H4L6 42H3Z" fill="url(#keyboard-original-corner)" />
+        <path d="M3 41H4V42H3Z" fill="#aaa" />
+        <path d="M5 41H6V42H5Z" fill="#444455" />
+        <path d="M61 40H62V41H61Z" fill="#222" />
+        <path d="M62 18H63V19H62Z" fill="#222233" />
+        <path d="M63 18H64V19H63Z" fill="#aaa" />
+        <path d="M31 17H34V18H31Z" fill="url(#keyboard-original-plug-base)" />
+        <use href="#keyboard-original-key-3-3" x="6" y="23" />
+        <use href="#keyboard-original-key-3-3" x="10" y="23" />
+        <use href="#keyboard-original-key-3-3" x="13" y="23" />
+        <use href="#keyboard-original-key-3-3" x="16" y="23" />
+        <use href="#keyboard-original-key-3-3" x="19" y="23" />
+        <use href="#keyboard-original-key-3-3" x="23" y="23" />
+        <use href="#keyboard-original-key-3-3" x="26" y="23" />
+        <use href="#keyboard-original-key-3-3" x="29" y="23" />
+        <use href="#keyboard-original-key-3-3" x="33" y="23" />
+        <use href="#keyboard-original-key-3-3" x="36" y="23" />
+        <use href="#keyboard-original-key-3-3" x="39" y="23" />
+        <use href="#keyboard-original-key-3-3" x="42" y="23" />
+        <use href="#keyboard-original-key-3-3" x="6" y="27" />
+        <use href="#keyboard-original-key-3-3" x="9" y="27" />
+        <use href="#keyboard-original-key-3-3" x="12" y="27" />
+        <use href="#keyboard-original-key-3-3" x="15" y="27" />
+        <use href="#keyboard-original-key-3-3" x="18" y="27" />
+        <use href="#keyboard-original-key-3-3" x="21" y="27" />
+        <use href="#keyboard-original-key-3-3" x="24" y="27" />
+        <use href="#keyboard-original-key-3-3" x="27" y="27" />
+        <use href="#keyboard-original-key-3-3" x="30" y="27" />
+        <use href="#keyboard-original-key-3-3" x="33" y="27" />
+        <use href="#keyboard-original-key-3-3" x="36" y="27" />
+        <use href="#keyboard-original-key-3-3" x="39" y="27" />
+        <use href="#keyboard-original-key-3-3" x="42" y="27" />
+        <use href="#keyboard-original-key-5-3" x="6" y="30" />
+        <use href="#keyboard-original-key-3-3" x="11" y="30" />
+        <use href="#keyboard-original-key-3-3" x="14" y="30" />
+        <use href="#keyboard-original-key-3-3" x="17" y="30" />
+        <use href="#keyboard-original-key-3-3" x="20" y="30" />
+        <use href="#keyboard-original-key-3-3" x="23" y="30" />
+        <use href="#keyboard-original-key-3-3" x="26" y="30" />
+        <use href="#keyboard-original-key-3-3" x="29" y="30" />
+        <use href="#keyboard-original-key-3-3" x="32" y="30" />
+        <use href="#keyboard-original-key-3-3" x="35" y="30" />
+        <use href="#keyboard-original-key-3-3" x="38" y="30" />
+        <use href="#keyboard-original-key-4-3" x="41" y="30" />
+        <use href="#keyboard-original-key-6-3" x="6" y="33" />
+        <use href="#keyboard-original-key-3-3" x="12" y="33" />
+        <use href="#keyboard-original-key-3-3" x="15" y="33" />
+        <use href="#keyboard-original-key-3-3" x="18" y="33" />
+        <use href="#keyboard-original-key-3-3" x="21" y="33" />
+        <use href="#keyboard-original-key-3-3" x="24" y="33" />
+        <use href="#keyboard-original-key-3-3" x="27" y="33" />
+        <use href="#keyboard-original-key-3-3" x="30" y="33" />
+        <use href="#keyboard-original-key-3-3" x="33" y="33" />
+        <use href="#keyboard-original-key-3-3" x="36" y="33" />
+        <use href="#keyboard-original-key-6-3" x="39" y="33" />
+        <use href="#keyboard-original-key-4-3" x="6" y="36" />
+        <use href="#keyboard-original-key-4-3" x="10" y="36" />
+        <use href="#keyboard-original-key-23-3" x="14" y="36" />
+        <use href="#keyboard-original-key-4-3" x="37" y="36" />
+        <use href="#keyboard-original-key-4-3" x="41" y="36" />
+        <use href="#keyboard-original-key-3-3" x="47" y="27" />
+        <use href="#keyboard-original-key-3-3" x="50" y="27" />
+        <use href="#keyboard-original-key-3-3" x="53" y="27" />
+        <use href="#keyboard-original-key-3-3" x="47" y="30" />
+        <use href="#keyboard-original-key-3-3" x="50" y="30" />
+        <use href="#keyboard-original-key-3-3" x="53" y="30" />
+        <use href="#keyboard-original-key-3-3" x="47" y="33" />
+        <use href="#keyboard-original-key-3-3" x="50" y="33" />
+        <use href="#keyboard-original-key-3-3" x="53" y="33" />
+        <use href="#keyboard-original-key-3-3" x="47" y="36" />
+        <use href="#keyboard-original-key-3-3" x="50" y="36" />
+        <use href="#keyboard-original-key-3-3" x="53" y="36" />
+        <use href="#keyboard-original-key-3-3" x="56" y="27" />
+        <use href="#keyboard-original-key-3-3" x="56" y="30" />
+        <use href="#keyboard-original-key-3-6" x="56" y="33" />
+        <rect x="47" y="23" width="12" height="3" fill="#433d69" />
+        <rect x="49" y="24" width="2" height="1" fill="#b9b5c2" />
+        <rect x="52" y="24" width="2" height="1" fill="#b9b5c2" />
+        <rect x="55" y="24" width="2" height="1" fill="#b9b5c2" />
+      </g>
+    </symbol>
+    <linearGradient id="mouse-original-face" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="32.79763275855326" y2="32.122557680290015">
+      <stop offset="0" stop-color="#e5eded" />
+      <stop offset="0.025" stop-color="#e5eded" />
+      <stop offset="0.05" stop-color="#e5eded" />
+      <stop offset="0.075" stop-color="#e5eded" />
+      <stop offset="0.1" stop-color="#e5eded" />
+      <stop offset="0.125" stop-color="#e5eded" />
+      <stop offset="0.15" stop-color="#e5eded" />
+      <stop offset="0.175" stop-color="#e5eded" />
+      <stop offset="0.2" stop-color="#e5eded" />
+      <stop offset="0.225" stop-color="#e5eded" />
+      <stop offset="0.25" stop-color="#e5eded" />
+      <stop offset="0.275" stop-color="#e5eded" />
+      <stop offset="0.3" stop-color="#e5eded" />
+      <stop offset="0.325" stop-color="#e5eded" />
+      <stop offset="0.35" stop-color="#e5eded" />
+      <stop offset="0.375" stop-color="#e5eded" />
+      <stop offset="0.4" stop-color="#e5eded" />
+      <stop offset="0.425" stop-color="#e5eded" />
+      <stop offset="0.45" stop-color="#e5eded" />
+      <stop offset="0.475" stop-color="#e5eded" />
+      <stop offset="0.5" stop-color="#e5eded" />
+      <stop offset="0.525" stop-color="#e5eded" />
+      <stop offset="0.55" stop-color="#e5eded" />
+      <stop offset="0.575" stop-color="#e5eded" />
+      <stop offset="0.6" stop-color="#e5eded" />
+      <stop offset="0.625" stop-color="#e4ecec" />
+      <stop offset="0.65" stop-color="#dfe6e5" />
+      <stop offset="0.675" stop-color="#d9dfde" />
+      <stop offset="0.7" stop-color="#d3d8d7" />
+      <stop offset="0.725" stop-color="#ccd1d0" />
+      <stop offset="0.75" stop-color="#c6cac9" />
+      <stop offset="0.775" stop-color="#bfc3c1" />
+      <stop offset="0.8" stop-color="#b7bbb9" />
+      <stop offset="0.825" stop-color="#b0b3b1" />
+      <stop offset="0.85" stop-color="#a8aca9" />
+      <stop offset="0.875" stop-color="#9fa3a1" />
+      <stop offset="0.9" stop-color="#979b98" />
+      <stop offset="0.925" stop-color="#8e9390" />
+      <stop offset="0.95" stop-color="#848a87" />
+      <stop offset="0.975" stop-color="#7b817e" />
+      <stop offset="1" stop-color="#717875" />
+    </linearGradient>
+    <linearGradient id="mouse-original-side" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="13.0" y2="34.0">
+      <stop offset="0" stop-color="#7d7894" />
+      <stop offset="1" stop-color="#3c3445" />
+    </linearGradient>
+    <linearGradient id="mouse-original-joint" gradientUnits="userSpaceOnUse" x1="14.0" x2="30.0" y1="0" y2="0">
+      <stop offset="0" stop-color="#766986" />
+      <stop offset="1" stop-color="#413f50" />
+    </linearGradient>
+    <linearGradient id="mouse-original-divider" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="12.5" y2="18.5">
+      <stop offset="0" stop-color="#aa99bb" />
+      <stop offset="0.17" stop-color="#666677" />
+      <stop offset="1" stop-color="#444455" />
+    </linearGradient>
+    <linearGradient id="mouse-original-plug-left" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="9.5" y2="11.5">
+      <stop offset="0" stop-color="#aa99bb" />
+      <stop offset="0.5" stop-color="#666688" />
+      <stop offset="1" stop-color="#776688" />
+    </linearGradient>
+    <linearGradient id="mouse-original-plug-center" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="9.5" y2="11.5">
+      <stop offset="0" stop-color="#333344" />
+      <stop offset="0.5" stop-color="#333355" />
+      <stop offset="1" stop-color="#333344" />
+    </linearGradient>
+    <linearGradient id="mouse-original-lower" gradientUnits="userSpaceOnUse" x1="14.5" x2="29.5" y1="0" y2="0">
+      <stop offset="0" stop-color="#c3cad1" />
+      <stop offset="0.2" stop-color="#948fa9" />
+      <stop offset="0.6" stop-color="#45405e" />
+      <stop offset="1" stop-color="#111122" />
+    </linearGradient>
+    <linearGradient id="mouse-original-cable-color" gradientUnits="userSpaceOnUse" x1="21" x2="33.5" y1="0" y2="0">
+      <stop stop-color="#332255" />
+      <stop offset=".25" stop-color="#48415c" />
+      <stop offset=".55" stop-color="#332255" />
+      <stop offset=".84" stop-color="#776688" />
+      <stop offset=".92" stop-color="#34334e" stop-opacity="0.4" />
+      <stop offset="1" stop-color="#141937" stop-opacity="0.21250000000000002" />
+    </linearGradient>
+    <clipPath id="mouse-original-chassis-clip">
+      <path d="M12 11H31V33C31 38.1875 29.125 37.375 26.5625 37.9375H15.0C14.25 37.625 12 36.125 12 34.5Z" />
+    </clipPath>
+    <clipPath id="mouse-original-exterior">
+      <path d="M0 0H44V44H0ZM12 11H31V33C31 38.1875 29.125 37.375 26.5625 37.9375H15.0C14.25 37.625 12 36.125 12 34.5Z" fill-rule="evenodd" clip-rule="evenodd" />
+    </clipPath>
+    <symbol id="Mouse" viewBox="0 0 44 44" data-file="Modules/Mouse/Resources/Mouse.tiff" data-reconstructed="true">
+      <g clip-path="url(#mouse-original-exterior)">
+        <path d="M31.5 13.8V33C31.5 37 29.4 38.5 25.5 38.5H18C15.5 38.5 14.5 37.5 14.5 36" fill="none" stroke="#000" stroke-opacity=".31372549" stroke-width="1" />
+      </g>
+      <g opacity=".94117647">
+        <path d="M21.5 10V7.5C21.46875 5.5 24.95 4.5 26.325 6.3S28.575 8.1125 30.0 6.55S31.84375 3.79375 33.5 4.5" fill="none" stroke="url(#mouse-original-cable-color)" stroke-width="1.15" stroke-linecap="round" />
+        <g clip-path="url(#mouse-original-chassis-clip)">
+          <rect x="11" y="10" width="22" height="30" fill="#000" />
+          <path d="M12 11H31V12H13V35.5Q13 37 16 37V38Q12 38 12 35Z" fill="#aaa" />
+          <path d="M13 12H29V33Q29 37 25 37H16Q13 37 13 34Z" fill="#fff" />
+          <path d="M15 14H21V19H15ZM23 14H29V19H23Z" fill="url(#mouse-original-face)" />
+          <path d="M15 21H29V33Q29 36 25 36H17Q15 36 15 34Z" fill="url(#mouse-original-face)" />
+          <path d="M29 12H30V33Q30 37 26 37H17Q13 37 13 34C13 36 15 36 17 36H26Q29 36 29 33Z" fill="url(#mouse-original-side)" />
+          <path d="M13 34Q13 36 16 36H26Q29 36 29 33L30 34Q30 37 26 37H17Q14 37 13 35Z" fill="url(#mouse-original-lower)" />
+          <path d="M13 19H14V20H13Z" fill="#aaa" />
+          <path d="M14 19H30V20H14Z" fill="url(#mouse-original-joint)" />
+          <path d="M21 12H22V19H21Z" fill="url(#mouse-original-divider)" />
+        </g>
+        <path d="M20 9H23V12H20Z" fill="#000" />
+        <path d="M20 9H21V12H20Z" fill="url(#mouse-original-plug-left)" />
+        <path d="M21 9H22V12H21Z" fill="url(#mouse-original-plug-center)" />
+        <path d="M22 9H23V10H22Z" fill="#776688" />
+        <path d="M30 12H31V13H30Z" fill="#667788" />
+      </g>
+    </symbol>
+    <radialGradient id="screen-glow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(0.091992 -19.499584 -26.999843 -0.127375 19.875 16.25)">
+      <stop offset="0" stop-color="#554f7d" />
+      <stop offset="0.066667" stop-color="#544e7d" />
+      <stop offset="0.133333" stop-color="#544d7c" />
+      <stop offset="0.2" stop-color="#514678" />
+      <stop offset="0.266667" stop-color="#494170" />
+      <stop offset="0.333333" stop-color="#433a67" />
+      <stop offset="0.4" stop-color="#3c345c" />
+      <stop offset="0.466667" stop-color="#352f51" />
+      <stop offset="0.533333" stop-color="#302c47" />
+      <stop offset="0.666667" stop-color="#2b2540" />
+      <stop offset="0.833333" stop-color="#2a2540" />
+      <stop offset="1" stop-color="#2a253f" />
+    </radialGradient>
+    <linearGradient id="screen-face" gradientUnits="userSpaceOnUse" x1="14.924301" y1="15.302152" x2="39.931934" y2="40.942922">
+      <stop stop-color="#e7f0f0" />
+      <stop offset="1" stop-color="#7c7b7b" />
+    </linearGradient>
+    <linearGradient id="screen-side" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="37">
+      <stop stop-color="#78738f" />
+      <stop offset="1" stop-color="#443e57" />
+    </linearGradient>
+    <linearGradient id="screen-bottom" gradientUnits="userSpaceOnUse" x1="2" y1="0" x2="46" y2="0">
+      <stop stop-color="#767592" />
+      <stop offset="1" stop-color="#44415b" />
+    </linearGradient>
+    <linearGradient id="screen-shadow" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="38">
+      <stop stop-color="#232331" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <clipPath id="screen-body">
+      <path d="M3.0 1H44.2C45.746397300000005 1 47 2.52223185 47 4.3999999999999995V38H1V3.0C1 1.8454305 1.8454305 1 3.0 1Z" />
+    </clipPath>
+    <path d="M0 1H1V38H0ZM1 0H46V1H1Z" fill="#aaa" id="screen-outline" />
+    <g id="screen-panel">
+      <g clip-path="url(#screen-body)">
+        <path d="M1 1H47V38H1Z" fill="url(#screen-shadow)" />
+        <path d="M1 1H46V37H1Z" fill="#fff" />
+        <path d="M2 2H45V36H2Z" fill="url(#screen-face)" />
+        <path d="M45 2.33H46V37H45Z" fill="url(#screen-side)" />
+        <path d="M3 36H46V37H3Z" fill="url(#screen-bottom)" />
+        <path d="M1 37H2V38H1Z" fill="#777799" />
+        <path d="M2 36H3V37H2Z" fill="#aaa" />
+      </g>
+      <path d="M6 6H41V32H6Z" fill="#000" />
+      <path d="M7 7H41V32H7Z" fill="url(#screen-glow)" />
+      <path d="M41 7H42V33H7V32H41Z" fill="#fff" />
+      <path d="M41 6H42V7H41ZM6 32H7V33H6Z" fill="#aaa" />
+      <path d="M38 33H41V34H39V35H38Z" fill="url(#screen-bottom)" />
+      <path d="M41 34H42V36H39V35H41Z" fill="#bbb" />
+      <path d="M39 34H41V35H39Z" fill="#00ff22" />
+      <path d="M46 1H47V2H46Z" fill="#aaa" />
+    </g>
+    <symbol id="Screen" viewBox="0 0 60 48" data-file="Modules/Screen/Resources/Screen.tiff" data-reconstructed="true">
+      <use href="#screen-outline" x="1" y="0" />
+      <use href="#screen-outline" x="11" y="9" />
+      <use href="#screen-panel" x="1" y="0" />
+      <use href="#screen-panel" x="11" y="9" />
+    </symbol>
+    <linearGradient id="date-outer" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff" />
+      <stop offset="0.44" stop-color="#fff" />
+      <stop offset="0.56" stop-color="#000" />
+      <stop offset="1" stop-color="#000" />
+    </linearGradient>
+    <linearGradient id="date-metal" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#809eb8" />
+      <stop offset="0.3" stop-color="#7788aa" />
+      <stop offset="0.845" stop-color="#55666f" />
+      <stop offset="1" stop-color="#000" />
+    </linearGradient>
+    <linearGradient id="date-inset" x1="0" y1="0" x2="0.95" y2="1">
+      <stop stop-color="#000" />
+      <stop offset="0.325" stop-color="#000" />
+      <stop offset="0.5" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#ffffff" />
+    </linearGradient>
+    <linearGradient id="date-face" gradientUnits="userSpaceOnUse" x1="17.595563" y1="15.124096" x2="45.404437" y2="43.875904">
+      <stop stop-color="#f6f8f9" />
+      <stop offset="1" stop-color="#aca19a" />
+    </linearGradient>
+    <symbol id="Date" viewBox="0 0 66 57" data-file="Modules/Date/Resources/Date.tiff" data-reconstructed="true">
+      <g transform="matrix(1.004437 0.026042 0.026042 1.002428 -0.933448 -0.893878)">
+        <circle cx="31.5" cy="29.5" r="22.5" fill="url(#date-outer)" />
+      </g>
+      <circle cx="31.5" cy="29.5" r="21.575" fill="url(#date-metal)" transform="matrix(1 0.00375 0.00375 1 -0.110625 -0.118125)" />
+      <circle cx="31.5" cy="29.5" r="20.55" fill="url(#date-inset)" transform="matrix(1 0.02625 0.02625 1 -0.774375 -0.826875)" />
+      <g transform="matrix(1 0.0075 0.0075 1 0.00375 -0.06125)">
+        <circle cx="31.5" cy="29.5" r="19.825" fill="url(#date-face)" />
+      </g>
+      <path d="M31.5 11V15M47 29.5H51M31.5 44V48M13 29.5H17M17.5 15.5L21 19M45.5 15.5L42 19M17.5 43.5L21 40M45.5 43.5L42 40" fill="none" stroke="#000" stroke-width="1" />
+      <path d="M31.5 17V29.5H40" fill="none" stroke="#000" stroke-width="1" />
+    </symbol>
+    <linearGradient id="speaker-cabinet" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#303439" />
+      <stop offset=".5" stop-color="#14171b" />
+      <stop offset="1" stop-color="#030509" />
+    </linearGradient>
+    <radialGradient id="speaker-cone" cx=".45" cy=".4" r=".6">
+      <stop stop-color="#5b5a64" />
+      <stop offset=".45" stop-color="#35323e" />
+      <stop offset=".75" stop-color="#11131a" />
+      <stop offset="1" stop-color="#747981" />
+    </radialGradient>
+    <linearGradient id="sound-original-face" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="32.05308963789265" y2="44.822482482507034">
+      <stop offset="0" stop-color="#e5eeed" />
+      <stop offset="0.025" stop-color="#e5eeed" />
+      <stop offset="0.05" stop-color="#e5eeed" />
+      <stop offset="0.075" stop-color="#e5eeed" />
+      <stop offset="0.1" stop-color="#e5eeed" />
+      <stop offset="0.125" stop-color="#e5eeed" />
+      <stop offset="0.15" stop-color="#e5eeed" />
+      <stop offset="0.175" stop-color="#e5eeed" />
+      <stop offset="0.2" stop-color="#e5eeed" />
+      <stop offset="0.225" stop-color="#e5eeed" />
+      <stop offset="0.25" stop-color="#e5eeed" />
+      <stop offset="0.275" stop-color="#e5eeed" />
+      <stop offset="0.3" stop-color="#e5eeed" />
+      <stop offset="0.325" stop-color="#e5eeed" />
+      <stop offset="0.35" stop-color="#e5eeed" />
+      <stop offset="0.375" stop-color="#e5eeed" />
+      <stop offset="0.4" stop-color="#e5eeed" />
+      <stop offset="0.425" stop-color="#e5eeed" />
+      <stop offset="0.45" stop-color="#e5eeed" />
+      <stop offset="0.475" stop-color="#e1eae9" />
+      <stop offset="0.5" stop-color="#dde5e4" />
+      <stop offset="0.525" stop-color="#d8e0df" />
+      <stop offset="0.55" stop-color="#d3dbda" />
+      <stop offset="0.575" stop-color="#ced6d5" />
+      <stop offset="0.6" stop-color="#c9d0cf" />
+      <stop offset="0.625" stop-color="#c4cbc9" />
+      <stop offset="0.65" stop-color="#bfc5c4" />
+      <stop offset="0.675" stop-color="#b9bfbe" />
+      <stop offset="0.7" stop-color="#b3b9b8" />
+      <stop offset="0.725" stop-color="#aeb2b2" />
+      <stop offset="0.75" stop-color="#a8acab" />
+      <stop offset="0.775" stop-color="#a1a5a5" />
+      <stop offset="0.8" stop-color="#9b9e9e" />
+      <stop offset="0.825" stop-color="#959798" />
+      <stop offset="0.85" stop-color="#8e9091" />
+      <stop offset="0.875" stop-color="#88898a" />
+      <stop offset="0.9" stop-color="#818183" />
+      <stop offset="0.925" stop-color="#7a797c" />
+      <stop offset="0.95" stop-color="#737174" />
+      <stop offset="0.975" stop-color="#6b696d" />
+      <stop offset="1" stop-color="#646165" />
+    </linearGradient>
+    <linearGradient id="sound-original-top" gradientUnits="userSpaceOnUse" x1="0.0652122646368501" y1="1.2493612431211745" x2="0.5282649396082467" y2="10.120699615656997">
+      <stop stop-color="#f3faf9" />
+      <stop offset="1" stop-color="#8c9091" />
+    </linearGradient>
+    <linearGradient id="sound-original-grille" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="27.040166816828922" y2="47.13953679627673">
+      <stop offset="0" stop-color="#2c2a32" />
+      <stop offset="0.025" stop-color="#2c2a32" />
+      <stop offset="0.05" stop-color="#2c2a32" />
+      <stop offset="0.075" stop-color="#2c2a32" />
+      <stop offset="0.1" stop-color="#2c2a32" />
+      <stop offset="0.125" stop-color="#2c2a32" />
+      <stop offset="0.15" stop-color="#2c2a32" />
+      <stop offset="0.175" stop-color="#2c2a32" />
+      <stop offset="0.2" stop-color="#2c2a32" />
+      <stop offset="0.225" stop-color="#2c2a32" />
+      <stop offset="0.25" stop-color="#2c2a32" />
+      <stop offset="0.275" stop-color="#2c2a32" />
+      <stop offset="0.3" stop-color="#2c2a32" />
+      <stop offset="0.325" stop-color="#2c2a32" />
+      <stop offset="0.35" stop-color="#2c2a32" />
+      <stop offset="0.375" stop-color="#2c2932" />
+      <stop offset="0.4" stop-color="#2b2931" />
+      <stop offset="0.425" stop-color="#2b2831" />
+      <stop offset="0.45" stop-color="#2a2830" />
+      <stop offset="0.475" stop-color="#29272f" />
+      <stop offset="0.5" stop-color="#29272f" />
+      <stop offset="0.525" stop-color="#28262e" />
+      <stop offset="0.55" stop-color="#28262d" />
+      <stop offset="0.575" stop-color="#27252d" />
+      <stop offset="0.6" stop-color="#26242c" />
+      <stop offset="0.625" stop-color="#25242b" />
+      <stop offset="0.65" stop-color="#25232a" />
+      <stop offset="0.675" stop-color="#242229" />
+      <stop offset="0.7" stop-color="#232229" />
+      <stop offset="0.725" stop-color="#232128" />
+      <stop offset="0.75" stop-color="#222027" />
+      <stop offset="0.775" stop-color="#211f26" />
+      <stop offset="0.8" stop-color="#201f25" />
+      <stop offset="0.825" stop-color="#1f1e24" />
+      <stop offset="0.85" stop-color="#1f1d23" />
+      <stop offset="0.875" stop-color="#1e1c22" />
+      <stop offset="0.9" stop-color="#1d1b21" />
+      <stop offset="0.925" stop-color="#1c1a20" />
+      <stop offset="0.95" stop-color="#1b1a1e" />
+      <stop offset="0.975" stop-color="#1a191d" />
+      <stop offset="1" stop-color="#19181c" />
+    </linearGradient>
+    <linearGradient id="sound-original-right-bevel" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="8.0" y2="41.0">
+      <stop offset="0" stop-color="#70727c" />
+      <stop offset="1" stop-color="#534d5e" />
+    </linearGradient>
+    <linearGradient id="sound-original-aperture-left" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="9.0" y2="40.0">
+      <stop offset="0" stop-color="#7d7885" />
+      <stop offset="1" stop-color="#787582" />
+    </linearGradient>
+    <linearGradient id="sound-original-aperture-top" gradientUnits="userSpaceOnUse" x1="11.0" x2="32.0" y1="0" y2="0">
+      <stop offset="0" stop-color="#80848d" />
+      <stop offset="1" stop-color="#72767f" />
+    </linearGradient>
+    <linearGradient id="sound-original-aperture-right" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="10.0" y2="40.0">
+      <stop offset="0" stop-color="#b4b9bf" />
+      <stop offset="1" stop-color="#737579" />
+    </linearGradient>
+    <radialGradient id="sound-original-tweeter-shadow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(3.23125 0 0 4.0625 20.96875 17.21875)">
+      <stop offset="0" stop-color="#0c0c0e" />
+      <stop offset="0.35" stop-color="#0e0e12" />
+      <stop offset="0.65" stop-color="#18181a" />
+      <stop offset="0.85" stop-color="#222225" />
+      <stop offset="1" stop-color="#28282b" />
+    </radialGradient>
+    <radialGradient id="sound-original-tweeter-dome" cx=".4" cy=".35" r=".7">
+      <stop offset="0" stop-color="#bdc4bd" />
+      <stop offset="0.55" stop-color="#a4aaa4" />
+      <stop offset="1" stop-color="#495149" />
+    </radialGradient>
+    <radialGradient id="sound-original-woofer-shadow" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(5.21875 0 0 6.25 21.1875 30.1875)">
+      <stop offset="0" stop-color="#0a0a0c" />
+      <stop offset="0.35" stop-color="#0c0c10" />
+      <stop offset="0.65" stop-color="#161618" />
+      <stop offset="0.85" stop-color="#222225" />
+      <stop offset="1" stop-color="#28282b" />
+    </radialGradient>
+    <radialGradient id="sound-original-woofer-dome" cx=".4" cy=".35" r=".7">
+      <stop offset="0" stop-color="#c8cfc8" />
+      <stop offset="0.55" stop-color="#adb4ad" />
+      <stop offset="1" stop-color="#4d554d" />
+    </radialGradient>
+    <clipPath id="sound-original-bevel-clip">
+      <rect x="30" y="3" width="6" height="4" />
+    </clipPath>
+    <clipPath id="sound-original-cabinet-clip">
+      <path d="M0 0H31.796875V2C31.5 4.5 34.725 5.35 36 6V46H0Z" />
+    </clipPath>
+    <linearGradient id="sound-original-shadow-depth" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="36" y2="42.5">
+      <stop stop-color="#000" stop-opacity=".333333" />
+      <stop offset=".538462" stop-color="#000" stop-opacity=".333333" />
+      <stop offset=".692308" stop-color="#000" stop-opacity=".533333" />
+      <stop offset=".846154" stop-color="#000" stop-opacity=".533333" />
+      <stop offset="1" stop-color="#000" stop-opacity=".333333" />
+    </linearGradient>
+    <symbol id="Sound" viewBox="0 0 44 46" data-file="Modules/Sound/Resources/Sound.tiff" data-reconstructed="true">
+      <path d="M37 38L40 41V43H37Z" fill="#000" opacity=".2" shape-rendering="crispEdges" />
+      <path d="M37.5 40V42" fill="none" stroke="#000" stroke-opacity=".166667" stroke-width="1" />
+      <path d="M36.5 36V42.5H10.4" fill="none" stroke="url(#sound-original-shadow-depth)" stroke-width="1" />
+      <g clip-path="url(#sound-original-cabinet-clip)">
+        <path d="M7 7L12 2H32L36 6V42H7Z" fill="#000022" shape-rendering="crispEdges" />
+        <path d="M7 7L12 2H32L36 6V7H7Z" fill="#aaa" shape-rendering="crispEdges" />
+        <path d="M9 7L13 3H31L35 7Z" fill="url(#sound-original-top)" />
+        <path d="M12 3H14L10 7H8Z" fill="#fff" shape-rendering="crispEdges" />
+        <path d="M11.5 6H33L34 7H11.5Z" fill="#aaa" />
+        <g clip-path="url(#sound-original-bevel-clip)">
+          <path d="M31 3L35 7" stroke="#443355" stroke-width="1" />
+          <path d="M32 3L36 7" stroke="#667777" stroke-width="1" />
+        </g>
+        <path d="M7 7H8V42H7Z" fill="#aaa" />
+        <path d="M8 7H34V41H8Z" fill="#fff" />
+        <path d="M9 8H34V41H9Z" fill="url(#sound-original-face)" />
+        <path d="M34 7H35V41H34Z" fill="url(#sound-original-right-bevel)" />
+        <path d="M8 41H9V42H8Z" fill="#777788" />
+        <path d="M11 9H32V40H11Z" fill="#000" />
+        <path d="M11 9H12V39H11Z" fill="url(#sound-original-aperture-left)" />
+        <path d="M11 9H32V10H11Z" fill="url(#sound-original-aperture-top)" />
+        <path d="M12 10H31V39H12Z" fill="url(#sound-original-grille)" />
+        <path d="M32 10H33V40H32Z" fill="url(#sound-original-aperture-right)" />
+        <ellipse cx="20.96875" cy="17.21875" rx="3.23125" ry="4.0625" fill="url(#sound-original-tweeter-shadow)" />
+        <ellipse cx="21.75" cy="17.71875" rx="1.075" ry="1.525" transform="rotate(33.75 21.75 17.71875)" fill="url(#sound-original-tweeter-dome)" />
+        <path d="M25.5 26C28 27.8 28.5 31.5 25.4 35" fill="none" stroke="#4c4355" stroke-width=".45" />
+        <path d="M23.7 14.3C25.8 15.5 26 18.5 24.1 20.6" fill="none" stroke="#3f3b4b" stroke-width=".3" />
+        <ellipse cx="21.1875" cy="30.1875" rx="5.21875" ry="6.25" fill="url(#sound-original-woofer-shadow)" />
+        <ellipse cx="21.68125" cy="30.390625" rx="0.9437500000000001" ry="2.05" transform="rotate(26.875 21.68125 30.390625)" fill="url(#sound-original-woofer-dome)" />
+      </g>
+    </symbol>
+    <linearGradient id="font-original-face" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ee005b" />
+      <stop offset=".3" stop-color="#b60045" />
+      <stop offset=".65" stop-color="#650026" />
+      <stop offset="1" stop-color="#080006" />
+    </linearGradient>
+    <path id="font-original-f" d="M12 11.8H34.4L34.8 17.8H33.7C33.1 14.3 32.2 13 28.7 13H21V24.6H26.7C29.8 24.6 30.8 23.3 31 20.9H32V29.9H31C30.8 27.3 29.8 26 26.7 26H21V34.5C21 37 21.6 38 24.3 38.2V39H12V38.2C15.2 38 16.5 36.7 16.5 34.3V16.1C16.5 13.3 15.4 12.9 12 12.7Z" />
+    <symbol id="FontPreferences" viewBox="0 0 48 48" data-file="Modules/Font/Resources/FontPreferences.tiff" data-reconstructed="true">
+      <g fill="none" stroke="#658e94" stroke-width=".7">
+        <path d="M14.5 .5V47.5M17.5 3V46M20.5 1V46M23.5 6V46M29.5 1V46M32.5 6V47M34.5 3V47" />
+        <path d="M1 12.5H47M1 17.5H44M4 21.5H47M0 25.5H46M2 29.5H46M0 38.5H48" />
+        <circle cx="15" cy="16.5" r="3.8" />
+        <circle cx="32.5" cy="16.5" r="3.8" />
+        <circle cx="15" cy="35" r="3.8" />
+        <circle cx="23" cy="35" r="3.8" />
+        <circle cx="27" cy="23" r="4.5" />
+        <circle cx="27" cy="29" r="3.5" />
+      </g>
+      <use href="#font-original-f" transform="translate(1 1)" fill="#000" />
+      <use href="#font-original-f" fill="url(#font-original-face)" />
+      <path d="M12 11.6H34.4M16.2 15.5V34.4C16.2 36.4 15.2 37.8 12 38.1M21 24.4H26.7C29.2 24.4 30.4 23.5 30.9 21M21 13.2H28.6C31.2 13.2 32.5 14 33.4 16.2" fill="none" stroke="#fff" stroke-width=".8" />
+    </symbol>
+    <g id="services-stack-layer">
+      <path d="M8 1H38V7H8Z" fill="url(#module-device)" stroke="#0e1113" stroke-width=".6" />
+      <path d="M8.5 6.5V1.5H37.5" fill="none" stroke="#fff" stroke-width=".65" />
+    </g>
+    <g id="services-original-frame-7">
+      <path d="M7 0H39V7H7Z" fill="#000" />
+      <path d="M7 0H38V1H8V6H7Z" fill="#fff" />
+      <rect x="8" y="1" width="29" height="4" fill="currentColor" />
+      <path d="M37 1H38V6H8V5H37Z" fill="#555" />
+    </g>
+    <g id="services-original-frame-8">
+      <path d="M7 0H37V1H38V0H39V8H7Z" fill="#000" />
+      <path d="M7 0H37V1H8V7H7Z" fill="#fff" />
+      <rect x="8" y="1" width="29" height="5" fill="currentColor" />
+      <path d="M37 1H38V7H8V6H37Z" fill="#555" />
+    </g>
+    <linearGradient id="services-original-tray-front" gradientUnits="userSpaceOnUse" x1="2.0" x2="47.0" y1="0" y2="0">
+      <stop offset="0" stop-color="#516b7a" />
+      <stop offset="0.0625" stop-color="#577181" />
+      <stop offset="0.125" stop-color="#5c7687" />
+      <stop offset="0.1875" stop-color="#607a8b" />
+      <stop offset="0.25" stop-color="#627c8e" />
+      <stop offset="0.3125" stop-color="#647e90" />
+      <stop offset="0.375" stop-color="#647e90" />
+      <stop offset="0.4375" stop-color="#647d8f" />
+      <stop offset="0.5" stop-color="#627c8d" />
+      <stop offset="0.5625" stop-color="#5f7989" />
+      <stop offset="0.625" stop-color="#5b7484" />
+      <stop offset="0.6875" stop-color="#566f7e" />
+      <stop offset="0.75" stop-color="#506976" />
+      <stop offset="0.8125" stop-color="#49616d" />
+      <stop offset="0.875" stop-color="#405863" />
+      <stop offset="0.9375" stop-color="#374f57" />
+      <stop offset="1" stop-color="#2c444a" />
+    </linearGradient>
+    <linearGradient id="services-original-tray-lower" gradientUnits="userSpaceOnUse" x1="3.0" x2="45.0" y1="0" y2="0">
+      <stop offset="0" stop-color="#a5b3c5" />
+      <stop offset="0.0625" stop-color="#a0aebf" />
+      <stop offset="0.125" stop-color="#9ca9b9" />
+      <stop offset="0.1875" stop-color="#98a5b4" />
+      <stop offset="0.25" stop-color="#94a1af" />
+      <stop offset="0.3125" stop-color="#919dab" />
+      <stop offset="0.375" stop-color="#8e9aa7" />
+      <stop offset="0.4375" stop-color="#8c97a4" />
+      <stop offset="0.5" stop-color="#8a95a1" />
+      <stop offset="0.5625" stop-color="#89939f" />
+      <stop offset="0.625" stop-color="#87919d" />
+      <stop offset="0.6875" stop-color="#87909c" />
+      <stop offset="0.75" stop-color="#878f9c" />
+      <stop offset="0.8125" stop-color="#878f9c" />
+      <stop offset="0.875" stop-color="#878f9c" />
+      <stop offset="0.9375" stop-color="#888f9d" />
+      <stop offset="1" stop-color="#8a909e" />
+    </linearGradient>
+    <linearGradient id="services-original-tray-rim" gradientUnits="userSpaceOnUse" x1="3.0" x2="45.0" y1="0" y2="0">
+      <stop offset="0" stop-color="#1a2228" />
+      <stop offset="0.0625" stop-color="#1a2227" />
+      <stop offset="0.125" stop-color="#1a2227" />
+      <stop offset="0.1875" stop-color="#1a2227" />
+      <stop offset="0.25" stop-color="#1a2226" />
+      <stop offset="0.3125" stop-color="#1a2226" />
+      <stop offset="0.375" stop-color="#1a2226" />
+      <stop offset="0.4375" stop-color="#1a2226" />
+      <stop offset="0.5" stop-color="#192226" />
+      <stop offset="0.5625" stop-color="#192226" />
+      <stop offset="0.625" stop-color="#192226" />
+      <stop offset="0.6875" stop-color="#192226" />
+      <stop offset="0.75" stop-color="#192226" />
+      <stop offset="0.8125" stop-color="#192226" />
+      <stop offset="0.875" stop-color="#192227" />
+      <stop offset="0.9375" stop-color="#192227" />
+      <stop offset="1" stop-color="#192227" />
+    </linearGradient>
+    <linearGradient id="services-original-finger" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="26.5" y2="32.5">
+      <stop stop-color="#373733" />
+      <stop offset=".166667" stop-color="#6b716c" />
+      <stop offset=".333333" stop-color="#a5aaa3" />
+      <stop offset=".5" stop-color="#c3cdc1" />
+      <stop offset=".666667" stop-color="#bfc9be" />
+      <stop offset=".833333" stop-color="#ccd3c7" />
+      <stop offset="1" stop-color="#bac7b5" />
+    </linearGradient>
+    <linearGradient id="services-original-palm" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="26.5" y2="43">
+      <stop offset="0" stop-color="rgb(52.5,55.5,52.5)" />
+      <stop offset="0.242424" stop-color="rgb(135,138,135)" />
+      <stop offset="0.393939" stop-color="#909192" />
+      <stop offset="0.412879" stop-color="#939494" />
+      <stop offset="0.431818" stop-color="#979897" />
+      <stop offset="0.450758" stop-color="#9b9c9b" />
+      <stop offset="0.469697" stop-color="#a0a19f" />
+      <stop offset="0.488636" stop-color="#a5a6a4" />
+      <stop offset="0.507576" stop-color="#aaaba9" />
+      <stop offset="0.526515" stop-color="#b0b0ae" />
+      <stop offset="0.545455" stop-color="#b5b6b4" />
+      <stop offset="0.564394" stop-color="#bbbcba" />
+      <stop offset="0.583333" stop-color="#c1c1c0" />
+      <stop offset="0.602273" stop-color="#c7c7c6" />
+      <stop offset="0.621212" stop-color="#cccdcc" />
+      <stop offset="0.640152" stop-color="#d2d3d2" />
+      <stop offset="0.659091" stop-color="#d7d8d7" />
+      <stop offset="0.67803" stop-color="#dddddd" />
+      <stop offset="0.69697" stop-color="#e1e2e2" />
+      <stop offset="0.715909" stop-color="#e6e7e7" />
+      <stop offset="0.734848" stop-color="#eaebeb" />
+      <stop offset="0.753788" stop-color="#eeeeef" />
+      <stop offset="0.772727" stop-color="#f1f1f3" />
+      <stop offset="0.791667" stop-color="#f3f4f5" />
+      <stop offset="0.810606" stop-color="#f5f6f7" />
+      <stop offset="0.829545" stop-color="#f6f7f9" />
+      <stop offset="0.848485" stop-color="#f7f7f9" />
+      <stop offset="0.867424" stop-color="#f6f7f8" />
+      <stop offset="0.886364" stop-color="#f5f5f7" />
+      <stop offset="0.905303" stop-color="#f3f3f4" />
+      <stop offset="0.924242" stop-color="#f0f0f0" />
+      <stop offset="0.943182" stop-color="#ebebeb" />
+      <stop offset="0.962121" stop-color="#e6e6e5" />
+      <stop offset="0.981061" stop-color="#e0dfdd" />
+      <stop offset="1" stop-color="#d8d7d4" />
+    </linearGradient>
+    <linearGradient id="services-original-cuff" gradientUnits="userSpaceOnUse" x1="25.5" y1="45.5" x2="34.4776" y2="45.9489">
+      <stop offset="0" stop-color="#3e444b" />
+      <stop offset="0.333333" stop-color="#647e8b" />
+      <stop offset="0.666667" stop-color="#3f4951" />
+      <stop offset="1" stop-color="#2a2929" />
+    </linearGradient>
+    <linearGradient id="services-original-cuff-top" gradientUnits="userSpaceOnUse" x1="25" x2="34" y1="0" y2="0">
+      <stop offset="0" stop-color="#667788" />
+      <stop offset="0.4" stop-color="#667777" />
+      <stop offset="1" stop-color="#222222" />
+    </linearGradient>
+    <radialGradient id="services-original-hand-gloss">
+      <stop stop-color="#fff" />
+      <stop offset="0.725" stop-color="#fff" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+    <clipPath id="services-original-hand-clip">
+      <path d="M10 26H36V43H27.0C28.0125 40.0 24.8125 40.0625 22.0 39.0C18.25 37.2625 11.90625 31.2 10 26ZM22.78125 26H32V30.2C31 31.2 30 32.3 28.5 32.3H26.3125C24.96875 31.75 22.7 29.5 21.8 27.45C21.5 26.75 22.78125 26.8 22.78125 26Z" clip-rule="evenodd" />
+    </clipPath>
+    <clipPath id="services-original-hand-exterior">
+      <path d="M0 0H48V48H0ZM10 26H36V43H27.0C28.0125 40.0 24.8125 40.0625 22.0 39.0C18.25 37.2625 11.90625 31.2 10 26Z" clip-rule="evenodd" />
+    </clipPath>
+    <linearGradient id="services-original-hand-right" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="31" y2="43">
+      <stop stop-color="#100f0b" />
+      <stop offset="1" stop-color="#7b7c7a" />
+    </linearGradient>
+    <linearGradient id="services-original-furrow" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="29.5" y2="34.5">
+      <stop stop-color="#000" />
+      <stop offset="1" stop-color="rgb(0,8,0)" />
+    </linearGradient>
+    <linearGradient id="services-original-endcap" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="22.5" y2="24.5">
+      <stop stop-color="#2e172e" stop-opacity=".733333" />
+      <stop offset=".5" stop-color="#282d28" stop-opacity=".6" />
+      <stop offset="1" stop-color="#b4b4b4" stop-opacity=".25" />
+    </linearGradient>
+    <linearGradient id="services-original-inner-finger" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="26.5" y2="32.5">
+      <stop stop-color="#222" />
+      <stop offset=".166667" stop-color="#4b554d" />
+      <stop offset=".333333" stop-color="#71766c" />
+      <stop offset="1" stop-color="#88918b" />
+    </linearGradient>
+    <linearGradient id="services-original-palm-right" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="33" y2="43">
+      <stop offset="0" stop-color="#afd2b8" />
+      <stop offset="0.03125" stop-color="#abc9b4" />
+      <stop offset="0.0625" stop-color="#a1b5a8" />
+      <stop offset="0.09375" stop-color="#8d9292" />
+      <stop offset="0.125" stop-color="#7b707d" />
+      <stop offset="0.15625" stop-color="#776679" />
+      <stop offset="0.1875" stop-color="#887e8a" />
+      <stop offset="0.21875" stop-color="#a6a7a8" />
+      <stop offset="0.25" stop-color="#c4cac4" />
+      <stop offset="0.28125" stop-color="#dee2da" />
+      <stop offset="0.3125" stop-color="#f2efe9" />
+      <stop offset="0.34375" stop-color="#fbf4f0" />
+      <stop offset="0.375" stop-color="#f8f1ee" />
+      <stop offset="0.40625" stop-color="#eae6e3" />
+      <stop offset="0.4375" stop-color="#d5d6d3" />
+      <stop offset="0.46875" stop-color="#c0c3c2" />
+      <stop offset="0.5" stop-color="#aeafb3" />
+      <stop offset="0.53125" stop-color="#a19fa7" />
+      <stop offset="0.5625" stop-color="#9b97a2" />
+      <stop offset="0.59375" stop-color="#9e99a4" />
+      <stop offset="0.625" stop-color="#a8a5ad" />
+      <stop offset="0.65625" stop-color="#b4b4b9" />
+      <stop offset="0.6875" stop-color="#c0c1c4" />
+      <stop offset="0.71875" stop-color="#c8cbcc" />
+      <stop offset="0.75" stop-color="#cdd0d0" />
+      <stop offset="0.78125" stop-color="#d0d2d3" />
+      <stop offset="0.8125" stop-color="#d2d3d5" />
+      <stop offset="0.84375" stop-color="#d4d3d6" />
+      <stop offset="0.875" stop-color="#d5d3d7" />
+      <stop offset="0.90625" stop-color="#d6d3d8" />
+      <stop offset="0.9375" stop-color="#d8d3d9" />
+      <stop offset="0.96875" stop-color="#d9d3da" />
+      <stop offset="1" stop-color="#dad3db" />
+    </linearGradient>
+    <path id="services-original-hand-plane" d="M11.4 26H21.8C22 28.9 24.5 31.5 28 33Q31 33 33 30.3V26H35V43H28.2C28.4812 40.5312 28.7188 39.525 24 38.325C18.625 36.525 13.5 30.8 11.4 26Z" />
+    <clipPath id="services-original-light-clip">
+      <use href="#services-original-hand-plane" />
+    </clipPath>
+    <symbol id="Services" viewBox="0 0 48 48" data-file="Modules/Services/Resources/Services.tiff" data-reconstructed="true">
+      <g opacity=".94117647">
+        <g clip-path="url(#services-original-hand-exterior)">
+          <path d="M10 26H36V43H27.0C28.0125 40.0 24.8125 40.0625 22.0 39.0C18.25 37.2625 11.90625 31.2 10 26Z" transform="translate(-.65 .3)" fill="#000" opacity=".31372549" />
+        </g>
+        <g clip-path="url(#services-original-hand-clip)">
+          <rect x="9" y="25" width="28" height="19" fill="#000" />
+          <use href="#services-original-hand-plane" fill="url(#services-original-palm)" />
+          <path d="M11.2 26H15.4V31.5Q13 30.5 11.2 26Z" fill="url(#services-original-finger)" />
+          <path d="M16 26H19.5Q18.4 29 20.8 31.7L23.4 33.4L22.4 35Q17.5 32.3 16 29Z" fill="url(#services-original-inner-finger)" />
+          <path d="M33 26H35V33L32.3 33.8Q34 31 33 26Z" fill="url(#services-original-finger)" />
+          <g clip-path="url(#services-original-light-clip)">
+            <ellipse cx="17.3156" cy="29.9312" rx="0.95" ry="3.05" transform="rotate(-5 17.3156 29.9312)" fill="url(#services-original-hand-gloss)" />
+            <ellipse cx="19.8813" cy="34.3656" rx="1.07187" ry="4.96875" transform="rotate(-46.125 19.8813 34.3656)" fill="url(#services-original-hand-gloss)" />
+            <ellipse cx="29.9812" cy="39.75" rx="1.85" ry="5.89375" transform="rotate(-45.375 29.9812 39.75)" fill="url(#services-original-hand-gloss)" />
+          </g>
+          <path d="M34 33H35V43H34Z" fill="url(#services-original-palm-right)" />
+          <path d="M35 31H36V43H35Z" fill="url(#services-original-hand-right)" />
+          <path d="M11.5 26C11.7 28.8 13.3 30.5 15.5 32.5" fill="none" stroke="#000" stroke-width="1" />
+          <path d="M15.5 26V33.5" fill="none" stroke="#000" stroke-width="1" />
+          <path d="M18.5 26V29.5C18.25 30.8 19.9 32.2 22 34.15" fill="none" stroke="url(#services-original-furrow)" stroke-width="0.8" />
+          <path d="M21.6875 26V28.7C21.625 30.1 24.3 32.1 28.0625 33.3Q31.5 32.55 32 30.175V26" fill="none" stroke="#000" stroke-width="1.35" />
+        </g>
+        <rect x="25" y="43" width="13" height="5" fill="#000" />
+        <path d="M25 43H34L35 44.5V48H25Z" fill="url(#services-original-cuff)" shape-rendering="crispEdges" />
+        <path d="M25 43H34V44H25Z" fill="url(#services-original-cuff-top)" />
+        <use href="#services-original-frame-8" color="#000" />
+        <use href="#services-original-frame-7" y="8" color="#9999aa" />
+        <use href="#services-original-frame-7" y="15" color="#9999aa" />
+        <path d="M1 22H48V22.5L44.5 26H3.5L.5 23Z" fill="#000" shape-rendering="crispEdges" />
+        <path d="M0 22H1V23.5Q1 24.4 0 24.7Z" fill="url(#services-original-endcap)" />
+        <path d="M1 23H47L45 25H3Z" fill="url(#services-original-tray-front)" />
+        <path d="M3 24H45V25H3Z" fill="url(#services-original-tray-lower)" />
+        <path d="M3 25H45V26H3Z" fill="url(#services-original-tray-rim)" />
+        <path d="M1 22H48V23H1Z" fill="#fff" />
+      </g>
+    </symbol>
+    <linearGradient id="localization-blue" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#005372" />
+      <stop offset=".3" stop-color="#00b4d5" />
+      <stop offset=".6" stop-color="#006b8b" />
+      <stop offset="1" stop-color="#00a5ce" />
+    </linearGradient>
+    <linearGradient id="localization-original-blue" gradientUnits="userSpaceOnUse" x1="18" x2="51.0" y1="20" y2="20.0">
+      <stop offset="0.0" stop-color="#000000" />
+      <stop offset="0.015625" stop-color="#000000" />
+      <stop offset="0.03125" stop-color="#000212" />
+      <stop offset="0.046875" stop-color="#001f35" />
+      <stop offset="0.0625" stop-color="#003953" />
+      <stop offset="0.078125" stop-color="#004e6d" />
+      <stop offset="0.09375" stop-color="#006084" />
+      <stop offset="0.109375" stop-color="#017098" />
+      <stop offset="0.125" stop-color="#027ca8" />
+      <stop offset="0.140625" stop-color="#0287b7" />
+      <stop offset="0.15625" stop-color="#0391c3" />
+      <stop offset="0.171875" stop-color="#0398ce" />
+      <stop offset="0.1875" stop-color="#039ed7" />
+      <stop offset="0.203125" stop-color="#03a3df" />
+      <stop offset="0.21875" stop-color="#03a7e5" />
+      <stop offset="0.234375" stop-color="#03aaea" />
+      <stop offset="0.25" stop-color="#03acee" />
+      <stop offset="0.265625" stop-color="#03adf1" />
+      <stop offset="0.28125" stop-color="#03aef2" />
+      <stop offset="0.296875" stop-color="#03adf2" />
+      <stop offset="0.3125" stop-color="#04abef" />
+      <stop offset="0.328125" stop-color="#04a7eb" />
+      <stop offset="0.34375" stop-color="#04a2e4" />
+      <stop offset="0.359375" stop-color="#049bdb" />
+      <stop offset="0.375" stop-color="#0492ce" />
+      <stop offset="0.390625" stop-color="#0487be" />
+      <stop offset="0.40625" stop-color="#0479a9" />
+      <stop offset="0.421875" stop-color="#04678f" />
+      <stop offset="0.4375" stop-color="#035270" />
+      <stop offset="0.453125" stop-color="#02394b" />
+      <stop offset="0.46875" stop-color="#012b37" />
+      <stop offset="0.484375" stop-color="#013241" />
+      <stop offset="0.5" stop-color="#01384b" />
+      <stop offset="0.515625" stop-color="#013e55" />
+      <stop offset="0.53125" stop-color="#01445e" />
+      <stop offset="0.546875" stop-color="#014a67" />
+      <stop offset="0.5625" stop-color="#01506f" />
+      <stop offset="0.578125" stop-color="#015577" />
+      <stop offset="0.59375" stop-color="#015a7f" />
+      <stop offset="0.609375" stop-color="#015f86" />
+      <stop offset="0.625" stop-color="#01648e" />
+      <stop offset="0.640625" stop-color="#016995" />
+      <stop offset="0.65625" stop-color="#016e9b" />
+      <stop offset="0.671875" stop-color="#0273a2" />
+      <stop offset="0.6875" stop-color="#0277a8" />
+      <stop offset="0.703125" stop-color="#027cae" />
+      <stop offset="0.71875" stop-color="#0280b3" />
+      <stop offset="0.734375" stop-color="#0284b9" />
+      <stop offset="0.75" stop-color="#0388be" />
+      <stop offset="0.765625" stop-color="#038cc3" />
+      <stop offset="0.78125" stop-color="#0390c8" />
+      <stop offset="0.796875" stop-color="#0393cd" />
+      <stop offset="0.8125" stop-color="#0397d1" />
+      <stop offset="0.828125" stop-color="#039bd6" />
+      <stop offset="0.84375" stop-color="#039eda" />
+      <stop offset="0.859375" stop-color="#03a1de" />
+      <stop offset="0.875" stop-color="#03a5e2" />
+      <stop offset="0.890625" stop-color="#03a8e6" />
+      <stop offset="0.90625" stop-color="#03abe9" />
+      <stop offset="0.921875" stop-color="#02aeed" />
+      <stop offset="0.9375" stop-color="#02b1f0" />
+      <stop offset="0.953125" stop-color="#01b4f4" />
+      <stop offset="0.96875" stop-color="#01b7f7" />
+      <stop offset="0.984375" stop-color="#00bafb" />
+      <stop offset="1.0" stop-color="#00bdfe" />
+    </linearGradient>
+    <linearGradient id="localization-original-green" gradientUnits="userSpaceOnUse" x1="18" y1="20" x2="50.67326732673267" y2="23.26732673267327">
+      <stop offset="0.0" stop-color="#11ff11" />
+      <stop offset="0.015625" stop-color="#11ff11" />
+      <stop offset="0.03125" stop-color="#11ff11" />
+      <stop offset="0.046875" stop-color="#0eff11" />
+      <stop offset="0.0625" stop-color="#0aff11" />
+      <stop offset="0.078125" stop-color="#08ff11" />
+      <stop offset="0.09375" stop-color="#05ff11" />
+      <stop offset="0.109375" stop-color="#04ff11" />
+      <stop offset="0.125" stop-color="#02ff11" />
+      <stop offset="0.140625" stop-color="#02ff11" />
+      <stop offset="0.15625" stop-color="#01ff11" />
+      <stop offset="0.171875" stop-color="#01ff11" />
+      <stop offset="0.1875" stop-color="#00ff11" />
+      <stop offset="0.203125" stop-color="#00ff11" />
+      <stop offset="0.21875" stop-color="#00ff11" />
+      <stop offset="0.234375" stop-color="#00ff11" />
+      <stop offset="0.25" stop-color="#01f410" />
+      <stop offset="0.265625" stop-color="#01ea0f" />
+      <stop offset="0.28125" stop-color="#01e40e" />
+      <stop offset="0.296875" stop-color="#01e00e" />
+      <stop offset="0.3125" stop-color="#01dd0f" />
+      <stop offset="0.328125" stop-color="#01da0f" />
+      <stop offset="0.34375" stop-color="#01d60f" />
+      <stop offset="0.359375" stop-color="#01d10f" />
+      <stop offset="0.375" stop-color="#01cb0e" />
+      <stop offset="0.390625" stop-color="#01c10d" />
+      <stop offset="0.40625" stop-color="#01b60b" />
+      <stop offset="0.421875" stop-color="#01a80a" />
+      <stop offset="0.4375" stop-color="#009608" />
+      <stop offset="0.453125" stop-color="#008306" />
+      <stop offset="0.46875" stop-color="#006d04" />
+      <stop offset="0.484375" stop-color="#015502" />
+      <stop offset="0.5" stop-color="#013b01" />
+      <stop offset="0.515625" stop-color="#022201" />
+      <stop offset="0.53125" stop-color="#022f02" />
+      <stop offset="0.546875" stop-color="#023b02" />
+      <stop offset="0.5625" stop-color="#014603" />
+      <stop offset="0.578125" stop-color="#015104" />
+      <stop offset="0.59375" stop-color="#015b05" />
+      <stop offset="0.609375" stop-color="#016506" />
+      <stop offset="0.625" stop-color="#016f06" />
+      <stop offset="0.640625" stop-color="#017807" />
+      <stop offset="0.65625" stop-color="#018008" />
+      <stop offset="0.671875" stop-color="#018808" />
+      <stop offset="0.6875" stop-color="#019009" />
+      <stop offset="0.703125" stop-color="#01970a" />
+      <stop offset="0.71875" stop-color="#019e0a" />
+      <stop offset="0.734375" stop-color="#01a40b" />
+      <stop offset="0.75" stop-color="#01aa0b" />
+      <stop offset="0.765625" stop-color="#01b00c" />
+      <stop offset="0.78125" stop-color="#01b50c" />
+      <stop offset="0.796875" stop-color="#01ba0d" />
+      <stop offset="0.8125" stop-color="#01be0d" />
+      <stop offset="0.828125" stop-color="#01c20e" />
+      <stop offset="0.84375" stop-color="#01c60e" />
+      <stop offset="0.859375" stop-color="#01c90e" />
+      <stop offset="0.875" stop-color="#01cc0f" />
+      <stop offset="0.890625" stop-color="#01ce0f" />
+      <stop offset="0.90625" stop-color="#01d010" />
+      <stop offset="0.921875" stop-color="#01d210" />
+      <stop offset="0.9375" stop-color="#01d410" />
+      <stop offset="0.953125" stop-color="#01d510" />
+      <stop offset="0.96875" stop-color="#00d611" />
+      <stop offset="0.984375" stop-color="#00d611" />
+      <stop offset="1.0" stop-color="#00d611" />
+    </linearGradient>
+    <linearGradient id="localization-original-orange" gradientUnits="userSpaceOnUse" x1="18" y1="20" x2="50.91770573566085" y2="18.35411471321696">
+      <stop offset="0.0" stop-color="#000000" />
+      <stop offset="0.015625" stop-color="#000000" />
+      <stop offset="0.03125" stop-color="#000000" />
+      <stop offset="0.046875" stop-color="#000000" />
+      <stop offset="0.0625" stop-color="#000000" />
+      <stop offset="0.078125" stop-color="#000000" />
+      <stop offset="0.09375" stop-color="#000000" />
+      <stop offset="0.109375" stop-color="#000000" />
+      <stop offset="0.125" stop-color="#000000" />
+      <stop offset="0.140625" stop-color="#000000" />
+      <stop offset="0.15625" stop-color="#000000" />
+      <stop offset="0.171875" stop-color="#000000" />
+      <stop offset="0.1875" stop-color="#000000" />
+      <stop offset="0.203125" stop-color="#000000" />
+      <stop offset="0.21875" stop-color="#000000" />
+      <stop offset="0.234375" stop-color="#000000" />
+      <stop offset="0.25" stop-color="#000000" />
+      <stop offset="0.265625" stop-color="#000000" />
+      <stop offset="0.28125" stop-color="#000000" />
+      <stop offset="0.296875" stop-color="#000000" />
+      <stop offset="0.3125" stop-color="#000000" />
+      <stop offset="0.328125" stop-color="#000000" />
+      <stop offset="0.34375" stop-color="#000000" />
+      <stop offset="0.359375" stop-color="#000000" />
+      <stop offset="0.375" stop-color="#000000" />
+      <stop offset="0.390625" stop-color="#a75403" />
+      <stop offset="0.40625" stop-color="#a05402" />
+      <stop offset="0.421875" stop-color="#4c2a00" />
+      <stop offset="0.4375" stop-color="#7e4a03" />
+      <stop offset="0.453125" stop-color="#240a00" />
+      <stop offset="0.46875" stop-color="#2e1000" />
+      <stop offset="0.484375" stop-color="#371500" />
+      <stop offset="0.5" stop-color="#401b00" />
+      <stop offset="0.515625" stop-color="#492000" />
+      <stop offset="0.53125" stop-color="#522600" />
+      <stop offset="0.546875" stop-color="#5a2b01" />
+      <stop offset="0.5625" stop-color="#633001" />
+      <stop offset="0.578125" stop-color="#6c3501" />
+      <stop offset="0.59375" stop-color="#743a01" />
+      <stop offset="0.609375" stop-color="#7d3f01" />
+      <stop offset="0.625" stop-color="#854401" />
+      <stop offset="0.640625" stop-color="#8d4801" />
+      <stop offset="0.65625" stop-color="#944d01" />
+      <stop offset="0.671875" stop-color="#9c5101" />
+      <stop offset="0.6875" stop-color="#a35502" />
+      <stop offset="0.703125" stop-color="#aa5902" />
+      <stop offset="0.71875" stop-color="#b05d02" />
+      <stop offset="0.734375" stop-color="#b76102" />
+      <stop offset="0.75" stop-color="#bc6402" />
+      <stop offset="0.765625" stop-color="#c26701" />
+      <stop offset="0.78125" stop-color="#c76a01" />
+      <stop offset="0.796875" stop-color="#cc6d01" />
+      <stop offset="0.8125" stop-color="#d06f01" />
+      <stop offset="0.828125" stop-color="#d47101" />
+      <stop offset="0.84375" stop-color="#d87301" />
+      <stop offset="0.859375" stop-color="#db7501" />
+      <stop offset="0.875" stop-color="#dd7601" />
+      <stop offset="0.890625" stop-color="#df7701" />
+      <stop offset="0.90625" stop-color="#e07801" />
+      <stop offset="0.921875" stop-color="#e17800" />
+      <stop offset="0.9375" stop-color="#e17800" />
+      <stop offset="0.953125" stop-color="#e17800" />
+      <stop offset="0.96875" stop-color="#e07700" />
+      <stop offset="0.984375" stop-color="#df7600" />
+      <stop offset="1.0" stop-color="#dc7500" />
+    </linearGradient>
+    <path id="localization-original-cloth" d="M18.5 8H33C33.1 9.1 33.2 10.5 34 11Q43 11.2 50 12V37H34C33.5 37 32 36.5 32 36V34H19V31C20.3 28 20.3 15 20.3 12C20.3 10.5 19 9.4 18.5 8Z" />
+    <clipPath id="localization-original-cloth-clip">
+      <use href="#localization-original-cloth" />
+    </clipPath>
+    <linearGradient id="localization-original-metal" gradientUnits="userSpaceOnUse" x1="13.5" x2="16.5" y1="0" y2="0">
+      <stop offset="0.0" stop-color="rgb(149,153,178)" />
+      <stop offset="0.3333333333333333" stop-color="rgb(255,255,255)" />
+      <stop offset="0.6666666666666666" stop-color="rgb(102,107,127)" />
+      <stop offset="1.0" stop-color="rgb(30,25,34)" />
+    </linearGradient>
+    <linearGradient id="localization-original-sphere" gradientUnits="userSpaceOnUse" x1="12" y1="0" x2="17" y2="5">
+      <stop offset="0" stop-color="#8f92a9" />
+      <stop offset="0.5" stop-color="#bbb8d8" />
+      <stop offset="0.6" stop-color="#525552" />
+      <stop offset="1" stop-color="#0a0d0a" />
+    </linearGradient>
+    <radialGradient id="localization-original-glint">
+      <stop stop-color="#fff" />
+      <stop offset="0.35" stop-color="#fff" />
+      <stop offset="1" stop-color="#fff" stop-opacity="0" />
+    </radialGradient>
+    <g id="localization-original-pole">
+      <path d="M14 5H16V7H17V59H13V7H14Z" fill="url(#localization-original-metal)" />
+      <rect x="14" y="5" width="2" height="2" fill="url(#localization-original-neck)" />
+      <path d="M14 2H17V5H14Z" fill="#555" />
+      <circle cx="14.5" cy="2.5" r="2.5" fill="url(#localization-original-sphere)" shape-rendering="crispEdges" />
+      <ellipse cx="13.5" cy="1.5" rx="0.8" ry="0.8" fill="url(#localization-original-glint)" />
+    </g>
+    <g id="localization-original-world-outline">
+      <path d="M 31.9442 13.225 C 29.4126 13.225 28.1002 14.935 27.1957 17.025 C 26.5454 18.925 26.4555 22.25 26.912 24.15 C 27.688 27.76 31.1943 30.515 34.5982 30.515 L 34.6006 29.375 C 31.7271 29.28 29.9955 27 29.1324 23.675 C 28.8411 20.825 29.0356 19.115 29.2289 17.5 C 29.5174 15.505 30.3774 14.46 32.0203 14.175 Z " fill="url(#localization-original-crescent-light)" stroke="none" />
+      <path d="M 34.6188 30.9125 C 40.8187 33.1625 44.125 28.8312 44.1 21.9125 C 43.15 18.9625 40.85 15.5625 39.2813 16.7875" stroke-width="2.04375" />
+    </g>
+    <path id="localization-original-world-coasts" d="M35.5 19.5C35.4 18.8 35.1 17.7 35.7 17.4Q37 16.8 38.4 18.5 M35.5 19.5Q37.5 19.8 37.5 21Q38.8 21.5 38.5 22.5V24.5Q38.5 25.5 37.4 25.5H35.5 M37.4 22.5H35.5V23.5 M39.5 20.5Q40.5 21.1 40.5 22.4V24Q40.3 24.9 39.5 25.5Q39.2 27.4 37.3 28.3Q35.8 29 34.5 28.5 M36.5 27.5L37.5 28.5 M39.5 16.5H41.5Q42.2 17.1 42.5 18.5" stroke-width="1.14375" stroke-linecap="round" stroke-linejoin="round" />
+    <linearGradient id="localization-original-world" gradientUnits="userSpaceOnUse" x1="27" x2="44" y1="0" y2="0">
+      <stop stop-color="#fff" />
+      <stop offset=".15" stop-color="#fff" />
+      <stop offset=".35" stop-color="#718b7e" />
+      <stop offset=".5" stop-color="#244a50" />
+      <stop offset=".75" stop-color="#7c948a" />
+      <stop offset="1" stop-color="#c5cebd" />
+    </linearGradient>
+    <linearGradient id="localization-original-hoist" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="30.5" y2="37.5">
+      <stop stop-color="#555" />
+      <stop offset=".142857" stop-color="#555" />
+      <stop offset=".285714" stop-color="#202020" />
+      <stop offset=".714286" stop-color="#202020" />
+      <stop offset=".857143" stop-color="#555" />
+      <stop offset="1" stop-color="#555" />
+    </linearGradient>
+    <linearGradient id="localization-original-strap" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="38.5" y2="43.5">
+      <stop stop-color="#555" />
+      <stop offset=".2" stop-color="#dddded" />
+      <stop offset=".4" stop-color="#dddddd" />
+      <stop offset=".6" stop-color="#555" />
+      <stop offset="1" stop-color="#555" />
+    </linearGradient>
+    <g id="localization-original-hoists">
+      <path d="M17 7H18V8H19V14H18V10H17Z" fill="#555" />
+      <path d="M17 7H18V8H17Z M18 8H19V12H18Z" fill="#202020" />
+      <path d="M18 30H19V38H20V39H17V38H18Z" fill="url(#localization-original-hoist)" />
+    </g>
+    <linearGradient id="localization-original-blue-hem" gradientUnits="userSpaceOnUse" x1="19" x2="21" y1="0" y2="0">
+      <stop stop-color="#003747" />
+      <stop offset="1" stop-color="#00596c" />
+    </linearGradient>
+    <path id="localization-original-orange-cloth" d="M18.5 8H33C33.1 9.1 33.2 10.5 34 11Q43 11.2 50 12V37H34Q33.7 36.2 33 36H32Q31.5 35 31 35V33H19V31C20.3 28 20.3 15 20.3 12C20.3 10.5 19 9.4 18.5 8Z" />
+    <path id="localization-original-front-strap" d="M17 38H18V41H19V43H18V44H17Z" fill="url(#localization-original-strap)" />
+    <path id="localization-original-middle-strap" d="M17 38H19V41H18V44H17V41H18V39H17Z" fill="#555" />
+    <path id="localization-original-rear-strap" d="M18 38H19V44H18Z" fill="url(#localization-original-strap)" />
+    <g id="localization-original-rear-hoists">
+      <path d="M17 7H18V8H19V14H18V10H17Z" fill="#555" />
+      <path d="M17 7H18V8H17Z M18 8H19V12H18Z" fill="#202020" />
+      <path d="M18 30H19V39H18Z" fill="url(#localization-original-hoist)" />
+    </g>
+    <linearGradient id="localization-original-coast-light" gradientUnits="userSpaceOnUse" x1="34" x2="43" y1="0" y2="0">
+      <stop offset="0" stop-color="#222121" />
+      <stop offset="1" stop-color="#dddddc" />
+    </linearGradient>
+    <clipPath id="localization-original-orange-leading-clip">
+      <use href="#localization-original-orange-cloth" />
+    </clipPath>
+    <linearGradient id="localization-original-west-light" gradientUnits="userSpaceOnUse" x1="30.5" x2="33.5" y1="0" y2="0">
+      <stop offset="0" stop-color="#c4c4cc" />
+      <stop offset="0.333333" stop-color="#aaaaaa" />
+      <stop offset="0.666667" stop-color="#555555" />
+      <stop offset="1" stop-color="#2d2d28" />
+    </linearGradient>
+    <g id="localization-original-western-contours" fill="url(#localization-original-west-light)">
+      <path d="M 34.5674 15.5625 Q 32.0064 16.1375 30.9213 17.2375 L 30.9213 18.5375 Q 29.5323 18.8375 29.7637 20.4375 Q 29.648 21.7375 30.9213 22.0375 V 25.3875 Q 30.9213 24.3875 32.1945 25.2375 L 32.7733 26.9375 L 33.352 26.7375 L 33.1205 24.9375 Q 31.7894 24.6875 32.0787 22.5375 V 18.0375 L 33.2362 16.9375 Z " />
+    </g>
+    <path id="localization-original-green-cloth" d="M18.5 8H33C33.1 9.1 33.2 10.5 34 11Q43 11.2 50 12V37H34C33.5 37 32 36.5 32 36V34H19V31C20.3 28 20.3 15 20.3 12C20.3 10.5 19 9.4 18.5 8Z" />
+    <clipPath id="localization-original-green-cloth-clip">
+      <use href="#localization-original-green-cloth" />
+    </clipPath>
+    <linearGradient id="localization-original-orange-bevel" gradientUnits="userSpaceOnUse" x1="34" x2="50" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#572400" />
+      <stop offset="0.0625" stop-color="#542200" />
+      <stop offset="0.125" stop-color="#522000" />
+      <stop offset="0.1875" stop-color="#522000" />
+      <stop offset="0.25" stop-color="#542200" />
+      <stop offset="0.3125" stop-color="#582400" />
+      <stop offset="0.375" stop-color="#5e2700" />
+      <stop offset="0.4375" stop-color="#652c00" />
+      <stop offset="0.5" stop-color="#6f3200" />
+      <stop offset="0.5625" stop-color="#7a3800" />
+      <stop offset="0.625" stop-color="#874000" />
+      <stop offset="0.6875" stop-color="#964900" />
+      <stop offset="0.75" stop-color="#a75400" />
+      <stop offset="0.8125" stop-color="#ba5f00" />
+      <stop offset="0.875" stop-color="#cf6b00" />
+      <stop offset="0.9375" stop-color="#e67900" />
+      <stop offset="1.0" stop-color="#fe8800" />
+    </linearGradient>
+    <linearGradient id="localization-original-orange-lower-shadow" gradientUnits="userSpaceOnUse" x1="34" x2="51" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.020833333333333332" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.041666666666666664" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.0625" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.08333333333333333" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.10416666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.125" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.14583333333333331" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.16666666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.1875" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.20833333333333331" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.22916666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.25" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.2708333333333333" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.29166666666666663" stop-color="#000000" stop-opacity="0.003951568" />
+      <stop offset="0.3125" stop-color="#000000" stop-opacity="0.0200655" />
+      <stop offset="0.3333333333333333" stop-color="#000000" stop-opacity="0.04065885" />
+      <stop offset="0.35416666666666663" stop-color="#000000" stop-opacity="0.06424171" />
+      <stop offset="0.375" stop-color="#000000" stop-opacity="0.09016406" />
+      <stop offset="0.3958333333333333" stop-color="#000000" stop-opacity="0.1180434" />
+      <stop offset="0.41666666666666663" stop-color="#000000" stop-opacity="0.1476225" />
+      <stop offset="0.4375" stop-color="#000000" stop-opacity="0.1787146" />
+      <stop offset="0.4583333333333333" stop-color="#000000" stop-opacity="0.2111766" />
+      <stop offset="0.47916666666666663" stop-color="#000000" stop-opacity="0.2448948" />
+      <stop offset="0.5" stop-color="#000000" stop-opacity="0.2797765" />
+      <stop offset="0.5208333333333333" stop-color="#000000" stop-opacity="0.3157439" />
+      <stop offset="0.5416666666666666" stop-color="#000000" stop-opacity="0.3527312" />
+      <stop offset="0.5625" stop-color="#000000" stop-opacity="0.3906816" />
+      <stop offset="0.5833333333333333" stop-color="#000000" stop-opacity="0.4295455" />
+      <stop offset="0.6041666666666666" stop-color="#000000" stop-opacity="0.4692791" />
+      <stop offset="0.625" stop-color="#010100" stop-opacity="0.5098436" />
+      <stop offset="0.6458333333333333" stop-color="#060600" stop-opacity="0.551204" />
+      <stop offset="0.6666666666666666" stop-color="#0a0a00" stop-opacity="0.5933289" />
+      <stop offset="0.6875" stop-color="#0e0e00" stop-opacity="0.6361898" />
+      <stop offset="0.7083333333333333" stop-color="#121200" stop-opacity="0.6797605" />
+      <stop offset="0.7291666666666666" stop-color="#161600" stop-opacity="0.7240172" />
+      <stop offset="0.75" stop-color="#1d1a00" stop-opacity="0.7689378" />
+      <stop offset="0.7708333333333333" stop-color="#251f00" stop-opacity="0.8145021" />
+      <stop offset="0.7916666666666666" stop-color="#2d2400" stop-opacity="0.8606912" />
+      <stop offset="0.8125" stop-color="#352900" stop-opacity="0.9074874" />
+      <stop offset="0.8333333333333333" stop-color="#3c2e00" stop-opacity="0.9548745" />
+      <stop offset="0.8541666666666666" stop-color="#443300" stop-opacity="1" />
+      <stop offset="0.875" stop-color="#473300" stop-opacity="1" />
+      <stop offset="0.8958333333333333" stop-color="#4a3300" stop-opacity="1" />
+      <stop offset="0.9166666666666666" stop-color="#4d3300" stop-opacity="1" />
+      <stop offset="0.9375" stop-color="#503300" stop-opacity="1" />
+      <stop offset="0.9583333333333333" stop-color="#533300" stop-opacity="1" />
+      <stop offset="0.9791666666666666" stop-color="#553300" stop-opacity="1" />
+      <stop offset="1.0" stop-color="#553300" stop-opacity="1" />
+    </linearGradient>
+    <linearGradient id="localization-original-green-bevel" gradientUnits="userSpaceOnUse" x1="34" x2="50" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#006207" />
+      <stop offset="0.0625" stop-color="#005e07" />
+      <stop offset="0.125" stop-color="#005c07" />
+      <stop offset="0.1875" stop-color="#005c07" />
+      <stop offset="0.25" stop-color="#005d07" />
+      <stop offset="0.3125" stop-color="#006108" />
+      <stop offset="0.375" stop-color="#006608" />
+      <stop offset="0.4375" stop-color="#006d09" />
+      <stop offset="0.5" stop-color="#007709" />
+      <stop offset="0.5625" stop-color="#00810a" />
+      <stop offset="0.625" stop-color="#008e0b" />
+      <stop offset="0.6875" stop-color="#009d0c" />
+      <stop offset="0.75" stop-color="#00ad0d" />
+      <stop offset="0.8125" stop-color="#00c00f" />
+      <stop offset="0.875" stop-color="#00d410" />
+      <stop offset="0.9375" stop-color="#00ea12" />
+      <stop offset="1.0" stop-color="#00ff13" />
+    </linearGradient>
+    <linearGradient id="localization-original-green-lower-shadow" gradientUnits="userSpaceOnUse" x1="34" x2="51" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.020833333333333332" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.041666666666666664" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.0625" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.08333333333333333" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.10416666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.125" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.14583333333333331" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.16666666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.1875" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.20833333333333331" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.22916666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.25" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.2708333333333333" stop-color="#000000" stop-opacity="0.003571335" />
+      <stop offset="0.29166666666666663" stop-color="#000000" stop-opacity="0.01130558" />
+      <stop offset="0.3125" stop-color="#000000" stop-opacity="0.02218424" />
+      <stop offset="0.3333333333333333" stop-color="#000000" stop-opacity="0.03578947" />
+      <stop offset="0.35416666666666663" stop-color="#000000" stop-opacity="0.05186426" />
+      <stop offset="0.375" stop-color="#000000" stop-opacity="0.07022747" />
+      <stop offset="0.3958333333333333" stop-color="#000000" stop-opacity="0.09074152" />
+      <stop offset="0.41666666666666663" stop-color="#000000" stop-opacity="0.1132968" />
+      <stop offset="0.4375" stop-color="#000000" stop-opacity="0.137803" />
+      <stop offset="0.4583333333333333" stop-color="#000000" stop-opacity="0.1641839" />
+      <stop offset="0.47916666666666663" stop-color="#000000" stop-opacity="0.1923738" />
+      <stop offset="0.5" stop-color="#000000" stop-opacity="0.2223153" />
+      <stop offset="0.5208333333333333" stop-color="#000000" stop-opacity="0.2539577" />
+      <stop offset="0.5416666666666666" stop-color="#000000" stop-opacity="0.2872555" />
+      <stop offset="0.5625" stop-color="#000000" stop-opacity="0.3221679" />
+      <stop offset="0.5833333333333333" stop-color="#000000" stop-opacity="0.3586576" />
+      <stop offset="0.6041666666666666" stop-color="#000000" stop-opacity="0.3966906" />
+      <stop offset="0.625" stop-color="#000200" stop-opacity="0.4362356" />
+      <stop offset="0.6458333333333333" stop-color="#000600" stop-opacity="0.4772637" />
+      <stop offset="0.6666666666666666" stop-color="#000b00" stop-opacity="0.5197481" />
+      <stop offset="0.6875" stop-color="#000f00" stop-opacity="0.5636638" />
+      <stop offset="0.7083333333333333" stop-color="#001400" stop-opacity="0.6089874" />
+      <stop offset="0.7291666666666666" stop-color="#001900" stop-opacity="0.6556968" />
+      <stop offset="0.75" stop-color="#002100" stop-opacity="0.7037716" />
+      <stop offset="0.7708333333333333" stop-color="#002c00" stop-opacity="0.7531922" />
+      <stop offset="0.7916666666666666" stop-color="#003600" stop-opacity="0.8039402" />
+      <stop offset="0.8125" stop-color="#004100" stop-opacity="0.8559981" />
+      <stop offset="0.8333333333333333" stop-color="#004b00" stop-opacity="0.9093494" />
+      <stop offset="0.8541666666666666" stop-color="#005500" stop-opacity="0.9639783" />
+      <stop offset="0.875" stop-color="#005503" stop-opacity="1" />
+      <stop offset="0.8958333333333333" stop-color="#005506" stop-opacity="1" />
+      <stop offset="0.9166666666666666" stop-color="#005509" stop-opacity="1" />
+      <stop offset="0.9375" stop-color="#00550c" stop-opacity="1" />
+      <stop offset="0.9583333333333333" stop-color="#00550f" stop-opacity="1" />
+      <stop offset="0.9791666666666666" stop-color="#005511" stop-opacity="1" />
+      <stop offset="1.0" stop-color="#005511" stop-opacity="1" />
+    </linearGradient>
+    <linearGradient id="localization-original-blue-bevel" gradientUnits="userSpaceOnUse" x1="34" x2="50" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#034e68" />
+      <stop offset="0.0625" stop-color="#034b65" />
+      <stop offset="0.125" stop-color="#034963" />
+      <stop offset="0.1875" stop-color="#044964" />
+      <stop offset="0.25" stop-color="#044966" />
+      <stop offset="0.3125" stop-color="#044b69" />
+      <stop offset="0.375" stop-color="#044f6e" />
+      <stop offset="0.4375" stop-color="#045475" />
+      <stop offset="0.5" stop-color="#05597d" />
+      <stop offset="0.5625" stop-color="#056187" />
+      <stop offset="0.625" stop-color="#056993" />
+      <stop offset="0.6875" stop-color="#0573a0" />
+      <stop offset="0.75" stop-color="#057eaf" />
+      <stop offset="0.8125" stop-color="#058abf" />
+      <stop offset="0.875" stop-color="#0598d1" />
+      <stop offset="0.9375" stop-color="#05a7e5" />
+      <stop offset="1.0" stop-color="#05b7fa" />
+    </linearGradient>
+    <linearGradient id="localization-original-blue-lower-shadow" gradientUnits="userSpaceOnUse" x1="34" x2="51" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.020833333333333332" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.041666666666666664" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.0625" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.08333333333333333" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.10416666666666666" stop-color="#000000" stop-opacity="0" />
+      <stop offset="0.125" stop-color="#000000" stop-opacity="0.001832199" />
+      <stop offset="0.14583333333333331" stop-color="#000000" stop-opacity="0.007814211" />
+      <stop offset="0.16666666666666666" stop-color="#000000" stop-opacity="0.01668117" />
+      <stop offset="0.1875" stop-color="#000000" stop-opacity="0.0279727" />
+      <stop offset="0.20833333333333331" stop-color="#000000" stop-opacity="0.04142596" />
+      <stop offset="0.22916666666666666" stop-color="#000000" stop-opacity="0.0568623" />
+      <stop offset="0.25" stop-color="#000000" stop-opacity="0.07414908" />
+      <stop offset="0.2708333333333333" stop-color="#000000" stop-opacity="0.09318223" />
+      <stop offset="0.29166666666666663" stop-color="#000000" stop-opacity="0.113877" />
+      <stop offset="0.3125" stop-color="#000000" stop-opacity="0.1361625" />
+      <stop offset="0.3333333333333333" stop-color="#000000" stop-opacity="0.1599782" />
+      <stop offset="0.35416666666666663" stop-color="#000000" stop-opacity="0.1852713" />
+      <stop offset="0.375" stop-color="#000000" stop-opacity="0.2119956" />
+      <stop offset="0.3958333333333333" stop-color="#000101" stop-opacity="0.2401097" />
+      <stop offset="0.41666666666666663" stop-color="#000303" stop-opacity="0.2695767" />
+      <stop offset="0.4375" stop-color="#000505" stop-opacity="0.3003629" />
+      <stop offset="0.4583333333333333" stop-color="#000707" stop-opacity="0.3324378" />
+      <stop offset="0.47916666666666663" stop-color="#000909" stop-opacity="0.3657734" />
+      <stop offset="0.5" stop-color="#000c0c" stop-opacity="0.4003437" />
+      <stop offset="0.5208333333333333" stop-color="#000e0e" stop-opacity="0.4361248" />
+      <stop offset="0.5416666666666666" stop-color="#001010" stop-opacity="0.4730945" />
+      <stop offset="0.5625" stop-color="#001212" stop-opacity="0.511232" />
+      <stop offset="0.5833333333333333" stop-color="#001414" stop-opacity="0.5505177" />
+      <stop offset="0.6041666666666666" stop-color="#001616" stop-opacity="0.5909335" />
+      <stop offset="0.625" stop-color="#001818" stop-opacity="0.632462" />
+      <stop offset="0.6458333333333333" stop-color="#001a1a" stop-opacity="0.675087" />
+      <stop offset="0.6666666666666666" stop-color="#001c1c" stop-opacity="0.7187932" />
+      <stop offset="0.6875" stop-color="#001f1f" stop-opacity="0.7635659" />
+      <stop offset="0.7083333333333333" stop-color="#002121" stop-opacity="0.8093912" />
+      <stop offset="0.7291666666666666" stop-color="#002323" stop-opacity="0.856256" />
+      <stop offset="0.75" stop-color="#002a2c" stop-opacity="0.9041475" />
+      <stop offset="0.7708333333333333" stop-color="#003338" stop-opacity="0.9530539" />
+      <stop offset="0.7916666666666666" stop-color="#003b44" stop-opacity="1" />
+      <stop offset="0.8125" stop-color="#00444f" stop-opacity="1" />
+      <stop offset="0.8333333333333333" stop-color="#004d5b" stop-opacity="1" />
+      <stop offset="0.8541666666666666" stop-color="#015565" stop-opacity="1" />
+      <stop offset="0.875" stop-color="#0d5253" stop-opacity="1" />
+      <stop offset="0.8958333333333333" stop-color="#194f41" stop-opacity="1" />
+      <stop offset="0.9166666666666666" stop-color="#254c2f" stop-opacity="1" />
+      <stop offset="0.9375" stop-color="#31491d" stop-opacity="1" />
+      <stop offset="0.9583333333333333" stop-color="#3d460b" stop-opacity="1" />
+      <stop offset="0.9791666666666666" stop-color="#444400" stop-opacity="1" />
+      <stop offset="1.0" stop-color="#444400" stop-opacity="1" />
+    </linearGradient>
+    <linearGradient id="localization-original-crescent-light" gradientUnits="userSpaceOnUse" x1="29" x2="34" y1="0" y2="0">
+      <stop offset="0.0" stop-color="#ffffff" />
+      <stop offset="0.2" stop-color="#c6c6cc" />
+      <stop offset="0.5" stop-color="#aaaaaa" />
+      <stop offset="0.7" stop-color="#555555" />
+      <stop offset="1.0" stop-color="#222222" />
+    </linearGradient>
+    <linearGradient id="localization-original-neck" gradientUnits="userSpaceOnUse" x1="14.5" x2="15.5" y1="0" y2="0">
+      <stop offset="0" stop-color="#b2b2d2" />
+      <stop offset="1" stop-color="#555555" />
+    </linearGradient>
+    <linearGradient id="localization-original-upper-hem" gradientUnits="userSpaceOnUse" x1="0" x2="0" y1="9.5" y2="10.5">
+      <stop offset="0" stop-color="#004477" />
+      <stop offset="1" stop-color="#004466" />
+    </linearGradient>
+    <symbol id="Localization" viewBox="0 0 52 49" data-file="Modules/Localization/Resources/Localization.tiff" data-reconstructed="true">
+      <g opacity=".94117647">
+        <g transform="translate(-12 10)">
+          <rect x="34" y="37" width="17" height="1" fill="url(#localization-original-orange-lower-shadow)" />
+          <path d="M18 12H21V33H18Z" fill="#ec7b00" />
+          <use href="#localization-original-orange-cloth" fill="url(#localization-original-orange)" />
+          <path d="M19 9H20V11H19Z" fill="url(#localization-original-upper-hem)" />
+          <rect x="34" y="36" width="16" height="1" fill="url(#localization-original-orange-bevel)" />
+          <g clip-path="url(#localization-original-orange-leading-clip)">
+            <rect x="18" y="8" width="7" height="25" fill="#dd7700" />
+          </g>
+          <g clip-path="url(#localization-original-cloth-clip)">
+            <use href="#localization-original-world-outline" fill="none" stroke="url(#localization-original-world)" stroke-width="1.9" opacity="0.25" />
+            <use href="#localization-original-western-contours" />
+            <use href="#localization-original-world-coasts" fill="none" stroke="url(#localization-original-coast-light)" />
+          </g>
+          <path d="M50 13H51V38H50Z" fill="#553300" />
+          <use href="#localization-original-rear-hoists" />
+          <use href="#localization-original-rear-strap" />
+          <use href="#localization-original-pole" />
+        </g>
+        <g transform="translate(-6 5)">
+          <rect x="34" y="37" width="17" height="1" fill="url(#localization-original-green-lower-shadow)" />
+          <path d="M18 12H21V33H18Z" fill="#00f611" />
+          <use href="#localization-original-green-cloth" fill="url(#localization-original-green)" />
+          <path d="M19 9H20V11H19Z" fill="url(#localization-original-upper-hem)" />
+          <rect x="34" y="36" width="16" height="1" fill="url(#localization-original-green-bevel)" />
+          <g clip-path="url(#localization-original-green-cloth-clip)">
+            <use href="#localization-original-world-outline" fill="none" stroke="url(#localization-original-world)" stroke-width="1.9" opacity="0.25" />
+            <use href="#localization-original-western-contours" />
+            <use href="#localization-original-world-coasts" fill="none" stroke="url(#localization-original-coast-light)" />
+          </g>
+          <path d="M50 13H51V38H50Z" fill="#005511" />
+          <use href="#localization-original-hoists" />
+          <use href="#localization-original-middle-strap" />
+          <rect x="17" y="36" width="1" height="2" fill="#ccc" />
+          <use href="#localization-original-pole" />
+        </g>
+        <g transform="translate(0 0)">
+          <rect x="34" y="37" width="17" height="1" fill="url(#localization-original-blue-lower-shadow)" />
+          <path d="M19 12H21V33H19Z" fill="url(#localization-original-blue-hem)" />
+          <use href="#localization-original-cloth" fill="url(#localization-original-blue)" />
+          <path d="M19 9H20V11H19Z" fill="url(#localization-original-upper-hem)" />
+          <rect x="34" y="36" width="16" height="1" fill="url(#localization-original-blue-bevel)" />
+          <g clip-path="url(#localization-original-cloth-clip)">
+            <use href="#localization-original-world-outline" fill="none" stroke="url(#localization-original-world)" stroke-width="1.9" opacity="1" />
+            <use href="#localization-original-western-contours" />
+            <use href="#localization-original-world-coasts" fill="none" stroke="url(#localization-original-coast-light)" />
+          </g>
+          <path d="M50 13H51V38H50Z" fill="#4b4200" />
+          <use href="#localization-original-hoists" />
+          <use href="#localization-original-front-strap" />
+          <rect x="18" y="38" width="1" height="3" fill="#555" />
+          <rect x="18" y="41" width="1" height="2" fill="#c4c4cc" />
+          <use href="#localization-original-pole" />
+        </g>
+      </g>
+    </symbol>
+    <linearGradient id="expert-original-card-shadow" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#6b6f70" />
+      <stop offset="1" stop-color="#6b706b" />
+    </linearGradient>
+    <linearGradient id="expert-original-card-top" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#e5e6e5" />
+      <stop offset="1" stop-color="#ece8e9" />
+    </linearGradient>
+    <linearGradient id="expert-original-card-lower" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#d9cecf" />
+      <stop offset=".2" stop-color="#bcc5bd" />
+      <stop offset="1" stop-color="#bcc1c4" />
+    </linearGradient>
+    <linearGradient id="expert-original-ribbon-field" gradientUnits="userSpaceOnUse" x1="5" y1="0" x2="23" y2="0">
+      <stop stop-color="#ffff00" />
+      <stop offset=".16" stop-color="#eada00" />
+      <stop offset=".25" stop-color="#c5bb1a" />
+      <stop offset=".4" stop-color="#b78c31" />
+      <stop offset=".5" stop-color="#b87641" />
+      <stop offset=".53" stop-color="#bd6b42" />
+      <stop offset=".6" stop-color="#bda628" />
+      <stop offset=".7" stop-color="#bdb923" />
+      <stop offset=".84" stop-color="#adaa23" />
+      <stop offset=".94" stop-color="#887e19" />
+      <stop offset="1" stop-color="#504607" />
+    </linearGradient>
+    <linearGradient id="expert-original-gold-field" gradientUnits="userSpaceOnUse" x1="3" y1="6" x2="27" y2="23">
+      <stop stop-color="#ffff00" />
+      <stop offset=".45" stop-color="#b9b526" />
+      <stop offset="1" stop-color="#9b8d1f" />
+    </linearGradient>
+    <radialGradient id="expert-original-ruby-field" cx=".43" cy=".4" r=".65">
+      <stop stop-color="#8d1a35" />
+      <stop offset=".6" stop-color="#b32951" />
+      <stop offset="1" stop-color="#b83051" />
+    </radialGradient>
+    <linearGradient id="expert-original-gold-highlight" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#d9d804" />
+      <stop offset="1" stop-color="#7e7427" />
+    </linearGradient>
+    <linearGradient id="expert-original-ruby-edge" x1="0" y1="0" x2="1" y2=".8">
+      <stop stop-color="#c03856" />
+      <stop offset=".5" stop-color="#b9424f" />
+      <stop offset="1" stop-color="#b5384c" />
+    </linearGradient>
+    <path id="expert-original-ribbon-outline" d="M11 23.8Q8.375 27.5 7.65 32.6L5.4 44.875Q7.8 45.5 16.025 40.925L23.0375 45.8L21.2 23.5Z" />
+    <path id="expert-original-sunburst-outline" d="M15.7507 1.59669L16.4493 1.55331L17.55 5.8125L19.3309 3.82966L20.1691 3.97034L19.975 6.775L24.5649 4.5919L24.8851 4.9081L23.2125 9.925L26.0621 8.99256L26.3379 10.0574L24.8125 13.1375L27.2296 13.1649L27.4954 14.3351L24.3 15.7875L27.2326 18.7652L27.1674 19.1598L24.7 17.975L25.0923 21.9436L24.6577 23.4314L21.2375 22.8L20.5289 24.272L20.0711 24.928L16.4625 23.7L15.6451 26.3857L15.1049 26.4893L13.1 23.1L11.1226 25.3306L10.7274 25.2694L10.325 22.1L5.49088 22.6636L5.05912 22.4114L7.3 18.85L3.18256 18.0967L3.06744 17.1033L6.2 14.6L1.99696 14.4992L1.95304 13.9008L7.1 12.35L3.94426 9.48577L4.15574 8.71423L8.15 10.4L5.52819 5.0645L5.97181 4.6605L10.9 6.4L10.2033 2.96907L10.7967 2.88093L14.125 5.4125Z" />
+    <linearGradient id="expert-original-olive-cap" x1="0" y1="0" x2=".3" y2="1">
+      <stop offset="0" stop-color="#4b4216" />
+      <stop offset=".7" stop-color="#66671c" />
+      <stop offset="1" stop-color="#373700" />
+    </linearGradient>
+    <filter id="expert-original-star-cast-shadow" x="-.2" y="-.2" width="1.4" height="1.4" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="0.2" />
+    </filter>
+    <linearGradient id="expert-original-lower-face-9" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffff00" />
+      <stop offset="1" stop-color="#feff00" />
+    </linearGradient>
+    <linearGradient id="expert-original-lower-face-10" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#ffff00" />
+      <stop offset="1" stop-color="#ffff00" />
+    </linearGradient>
+    <linearGradient id="expert-original-lower-face-11" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#e1f328" />
+      <stop offset="1" stop-color="#afa500" />
+    </linearGradient>
+    <symbol id="Expert" viewBox="0 0 60 49" data-file="Modules/Expert/Resources/Expert.tiff" data-reconstructed="true">
+      <g id="expert-ribbon">
+        <use href="#expert-original-ribbon-outline" transform="translate(1.0875 0.2125)" fill="#000" opacity="0.85" />
+        <use href="#expert-original-ribbon-outline" fill="url(#expert-original-ribbon-field)" />
+        <path d="M10.9 24.7Q8.375 29.8 7.15 36.5L5.9 44.175" fill="none" stroke="#fff300" stroke-width="1.4" />
+      </g>
+      <path d="M22 10H57V39H26L22 38Z" fill="url(#expert-original-card-shadow)" />
+      <path d="M21 10H56V38H21Q20 31 19 26L21 20Z" fill="#000" />
+      <path d="M22 9H55V37H22Q21 31 20 26L22 20Z" fill="#fff" />
+      <path d="M22 9H55V10H23V36H22Z" fill="url(#expert-original-card-top)" />
+      <path d="M22 36H55V37H22Z" fill="url(#expert-original-card-lower)" />
+      <g fill="#000">
+        <path id="expert-letter-U" d="M25 11.7462H27V19.6Q27 21 28.5 21Q30 21 30 19.6V11.7462H32V20Q32 23 28.5 23Q25 23 25 20Z" />
+        <path id="expert-letter-N" d="M33 11.7462H35V23H33Z M39 11.7462H41V23H39Z M33.7 12H35.55L40.725 23H38.875Z" />
+        <path id="expert-letter-I" d="M42 11.7462H44V23H42Z" />
+        <path id="expert-letter-X" d="M45.225 11.9H47.525L52.2563 23H50.2938Z M50.05 11.9H52.35L47.3063 23H45.3438Z" />
+      </g>
+      <g id="expert-small-type" fill="#252925">
+        <path d="M22.6 26.975V26C22.9575 25.675 23.7619 26.025 24.3875 26L24.3875 26.025C24.745 25.7 25.5494 26.05 26.175 26.025V26.975Q24.3875 27.055 22.6 26.975Z" fill="#272b27" />
+        <path d="M26.45 26.9125V25.9C26.8333 25.55 27.6958 25.95 28.3667 25.9L28.3667 25.7C28.75 25.35 29.6125 25.75 30.2833 25.7L30.2833 25.9C30.6667 25.55 31.5292 25.95 32.2 25.9V26.9125Q29.325 26.9925 26.45 26.9125Z" fill="#434743" />
+        <path d="M32.6 26.9V25.7C32.96 25.35 33.77 25.75 34.4 25.7L34.4 25.825C34.76 25.475 35.57 25.875 36.2 25.825L36.2 26.025C36.56 25.675 37.37 26.075 38 26.025V26.9Q35.3 26.98 32.6 26.9Z" fill="#282c28" />
+        <path d="M38.55 26.9V25.475C38.9283 25.325 39.7796 25.325 40.4417 25.475L40.4417 26.3C40.82 26.15 41.6713 26.15 42.3333 26.3L42.3333 25.65C42.7117 25.5 43.5629 25.5 44.225 25.65V26.9Q41.3875 26.98 38.55 26.9Z" fill="#000000" />
+        <path d="M44.6 26.9125V26.45C44.9667 26.3 45.7917 26.3 46.4333 26.45L46.4333 25.7C46.8 25.55 47.625 25.55 48.2667 25.7L48.2667 26.15C48.6333 26 49.4583 26 50.1 26.15V26.9125Q47.35 26.9925 44.6 26.9125Z" fill="#212521" />
+        <path d="M51.3 26.9V26.725C51.695 26.575 52.5837 26.575 53.275 26.725V26.9Q52.2875 26.98 51.3 26.9Z" fill="#000000" />
+        <path d="M22.6 30.0375V29.2C23.04 29.05 24.03 29.05 24.8 29.2L24.8 29.25C25.24 29.1 26.23 29.1 27 29.25L27 29.525C27.44 29.375 28.43 29.375 29.2 29.525L29.2 29.25C29.64 29.1 30.63 29.1 31.4 29.25V30.0375Q27 30.1175 22.6 30.0375Z" fill="#181c18" />
+        <path d="M32.6 29.95V29.15C32.98 29 33.835 29 34.5 29.15L34.5 29.25C34.88 29.1 35.735 29.1 36.4 29.25L36.4 29.275C36.78 29.125 37.635 29.125 38.3 29.275L38.3 28.9C38.68 28.75 39.535 28.75 40.2 28.9V29.95Q36.4 30.03 32.6 29.95Z" fill="#0d110d" />
+        <path d="M40.3 30.0375V29.5C40.7 29.15 41.6 29.55 42.3 29.5L42.3 29.75C42.7 29.4 43.6 29.8 44.3 29.75L44.3 28.975C44.7 28.625 45.6 29.025 46.3 28.975V30.0375Q43.3 30.1175 40.3 30.0375Z" fill="#141814" />
+        <path d="M46.8 29.975V29.25C47.11 29.075 47.8075 29.125 48.35 29.25V29.975Q47.575 30.055 46.8 29.975Z" fill="#0e120e" />
+        <path d="M48.85 29.975V29.75C49.295 29.6 50.2962 29.6 51.075 29.75L51.075 29.75C51.52 29.6 52.5212 29.6 53.3 29.75V29.975Q51.075 30.055 48.85 29.975Z" fill="#0c100c" />
+        <path d="M22.6 33.0375V32.15C22.98 32 23.835 32 24.5 32.15L24.5 32.35C24.88 32.2 25.735 32.2 26.4 32.35L26.4 31.825C26.78 31.675 27.635 31.675 28.3 31.825L28.3 32.15C28.68 32 29.535 32 30.2 32.15V33.0375Q26.4 33.1175 22.6 33.0375Z" fill="#303430" />
+        <path d="M30.55 32.9V31.95C30.84 31.8 31.4925 31.8 32 31.95L32 32.225C32.29 32.075 32.9425 32.075 33.45 32.225L33.45 32.175C33.74 32.025 34.3925 32.025 34.9 32.175V32.9Q32.725 32.98 30.55 32.9Z" fill="#181c18" />
+        <path d="M35.5 32.975V32.15C35.86 32 36.67 32 37.3 32.15V32.975Q36.4 33.055 35.5 32.975Z" fill="#151915" />
+      </g>
+      <path id="expert-signature" d="M39.3 34.1Q39.5 33.1 40.3 33.5L41.3 33.7L42.3 31.8L42.3 33.9Q43 34.3 43.6 33.7L44.7 33.9L45.9 32L46.2 33.7Q47.6 34.2 48.8 33.5L50.4 31.8" fill="none" stroke="#de4e3d" stroke-width="1.375" stroke-linecap="round" stroke-linejoin="round" transform="translate(0.3 0.1125)" />
+      <path id="expert-paper-bottom-ink" d="M22 37H56V38H22Z" fill="#191516" />
+      <g id="expert-seal">
+        <use href="#expert-original-sunburst-outline" transform="translate(0.5 0.825)" fill="#393e14" opacity="0.8062500000000001" filter="url(#expert-original-star-cast-shadow)" />
+        <use href="#expert-original-sunburst-outline" fill="url(#expert-original-gold-field)" />
+        <g id="expert-sunburst-folds">
+          <path fill="url(#expert-original-gold-highlight)" d="M15.7507 1.59669L14.125 5.4125L15.6663 5.5925L16.4493 1.55331Z" />
+          <path fill="#0c1007" d="M16.4493 1.55331L17.55 5.8125L16.454 5.6845Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M19.3309 3.82966L17.55 5.8125L18.6412 6.24563L20.1691 3.97034Z" />
+          <path fill="#111507" d="M20.1691 3.97034L19.975 6.775L19.393 6.544Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M24.5649 4.5919L19.975 6.775L21.4319 8.1925L24.8851 4.9081Z" />
+          <path fill="#0c1208" d="M24.8851 4.9081L23.2125 9.925L22.565 9.295Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M26.0621 8.99256L23.2125 9.925L23.9325 11.3706L26.3379 10.0574Z" />
+          <path fill="#101314" d="M26.3379 10.0574L24.8125 13.1375L23.9805 11.467Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M27.2296 13.1649L24.8125 13.1375L24.5819 14.33L27.4954 14.3351Z" />
+          <path fill="#121706" d="M27.4954 14.3351L24.3 15.7875L24.3615 15.4695Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M27.2326 18.7652L24.3 15.7875L24.48 16.7719L27.1674 19.1598Z" />
+          <path fill="#333309" d="M27.1674 19.1598L24.7 17.975L24.38 16.225Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M25.0923 21.9436L24.7 17.975L23.1419 20.1463L24.6577 23.4314Z" />
+          <path fill="#3e4010" d="M24.6577 23.4314L21.2375 22.8L24.0075 18.94Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M20.5289 24.272L21.2375 22.8L19.0888 23.205L20.0711 24.928Z" />
+          <path fill="#0e150d" d="M20.0711 24.928L16.4625 23.7L18.468 23.322Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M15.6451 26.3857L16.4625 23.7L14.9494 23.43L15.1049 26.4893Z" />
+          <path fill="#121608" d="M15.1049 26.4893L13.1 23.1L13.5035 23.172Z" />
+          <path fill="url(#expert-original-lower-face-9)" d="M11.1226 25.3306L13.1 23.1L11.8512 22.65L10.7274 25.2694Z" />
+          <path fill="#151c06" d="M10.7274 25.2694L10.325 22.1L10.658 22.22Z" />
+          <path fill="url(#expert-original-lower-face-10)" d="M5.49088 22.6636L10.325 22.1L8.96375 20.6375L5.05912 22.4114Z" />
+          <path fill="#282e07" d="M5.05912 22.4114L7.3 18.85L7.663 19.24Z" />
+          <path fill="url(#expert-original-lower-face-11)" d="M3.18256 18.0967L7.3 18.85L6.805 16.9375L3.06744 17.1033Z" />
+          <path fill="#232808" d="M3.06744 17.1033L6.2 14.6L6.332 15.11Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M1.99696 14.4992L6.2 14.6L6.605 13.5875L1.95304 13.9008Z" />
+          <path fill="#1c1f0a" d="M1.95304 13.9008L7.1 12.35L6.974 12.665Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M3.94426 9.48577L7.1 12.35L7.5725 11.4725L4.15574 8.71423Z" />
+          <path fill="#1a2108" d="M4.15574 8.71423L8.15 10.4L8.024 10.634Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M5.52819 5.0645L8.15 10.4L9.3875 8.6L5.97181 4.6605Z" />
+          <path fill="#0c0f0a" d="M5.97181 4.6605L10.9 6.4L10.24 7.36Z" />
+          <path fill="url(#expert-original-gold-highlight)" d="M10.2033 2.96907L10.9 6.4L12.3513 5.95562L10.7967 2.88093Z" />
+          <path fill="#121209" d="M10.7967 2.88093L14.125 5.4125L12.964 5.768Z" />
+          <g id="expert-foil-recesses">
+            <path d="M8.3 22L9.6 22.5" fill="none" stroke="#16140b" stroke-width="1" transform="translate(0.1875 0.25)" opacity="1.0" />
+            <path d="M13.2 22.8L12.4 24.6" fill="none" stroke="#16140b" stroke-width="1.1" transform="translate(0.1875 0.0625)" opacity="1.0" />
+            <path d="M17.2 23L16.4 25.5" fill="none" stroke="#16140b" stroke-width="1.1" transform="translate(0.25 0.1)" opacity="1.0" />
+            <path d="M24.1 15.1L26.6 14.9L26.5 16.9L24.1 16.7Z" fill="#10120a" transform="translate(-0.175 0.25)" opacity="0.75" />
+            <path d="M23.5 19.2L26.6 18.9L27.1 21.4L24.1 21.1Z" fill="#11150a" transform="translate(0.25 0.25)" opacity="1.0" />
+          </g>
+        </g>
+        <path id="expert-ruby-outer" d="M14.4 7.1C19.2 6.4 22.7 9.8 22.8 14.7C22.8 19.2 19.7 22.4 15.2 22.8C10.4 23.1 7.1 19.9 7 15.3C6.8 11.1 9.8 7.5 14.4 7.1Z" fill="url(#expert-original-ruby-edge)" transform="translate(14.9 14.3) scale(0.99 0.98) translate(-14.8 -14.8)" />
+        <path id="expert-ruby-inner" d="M14.5 8.2C18.8 7.4 21.6 10.5 21.7 14.9C21.8 18.8 18.9 21.7 15 21.8C10.8 22 8 19 8 15C7.9 11.5 10.9 8.8 14.5 8.2Z" fill="url(#expert-original-ruby-field)" transform="translate(14.9 14.3) scale(0.99 0.98) translate(-14.8 -14.8)" />
+        <path id="expert-dark-center" d="M16.55 8.2Q18.1 9.5 18.85 12L20.35 14Q20.5 17.2 17.5 19.1L13.15 21.2Q11.9 18.8 10.6 16.45Q9.5 15.1 10.8 11.9L12.9 10.5Z" fill="#000" />
+        <path id="expert-center-gold" d="M15.2 9.2Q17 8.9 17.7 10.4L17.7 11.7L15.1 12.2L14 11.5L14.7 10Z" fill="url(#expert-original-olive-cap)" />
+        <path id="expert-center-ruby" d="M13.4 10.7L14.1 11.7L14.5 12.7L13.2 12.5L12.3 14.3L11.8 13.3L12.2 12.6L11.3 12Z" fill="#651f29" />
+        <path id="expert-center-violet" d="M15.6 11.8L18.1 12.3L18.7 14.8L17.8 14.5L17.2 13.5L16 13.8L15.6 13Z" fill="#5e1b4d" />
+        <path id="expert-center-green" d="M15.8 13Q15.1 14.4 15.9 15.1L16.8 15.5L15.2 16L14.7 17.9L14.1 17.5L14 16.5L13.1 15.9L13.4 14.4L14.4 14.5L14.8 13.5Z" fill="#145a2a" transform="translate(14.975 14.925) scale(1.07 1.07) translate(-14.8 -15)" />
+        <path d="M14.2 15.1L14.8 14.9L15 15.8L14.2 16.2Z" fill="#0f8b27" transform="translate(14.975 14.925) scale(1.07 1.07) translate(-14.8 -15)" />
+      </g>
+    </symbol>
+    <linearGradient id="sound-control-original-blue-face" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#244880" />
+      <stop offset=".45" stop-color="#1d3c80" />
+      <stop offset="1" stop-color="#1e3b7d" />
+    </linearGradient>
+    <linearGradient id="sound-control-original-chrome" x1="0" y1="0" x2=".65" y2="1">
+      <stop stop-color="#a6aeca" />
+      <stop offset=".5" stop-color="#f6f4fe" />
+      <stop offset="1" stop-color="#faf0f6" />
+    </linearGradient>
+    <linearGradient id="sound-control-original-dot-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#294c96" />
+      <stop offset="1" stop-color="#0d346a" />
+    </linearGradient>
+    <g id="sound-control-original-speaker-body">
+      <path id="mixer-speaker-back-bevel" fill="#7c899e" d="M10 11.525H14.9V11.925H10Z" opacity="0.42500000000000004" />
+      <use id="mixer-speaker-edge" href="#sound-control-original-speaker-face-outline" fill="url(#sound-control-original-speaker-extrusion-light)" transform="translate(1.1375 1.08125)" opacity="0.9562499999999999" />
+      <use id="mixer-speaker-face" href="#sound-control-original-speaker-face-outline" fill="url(#sound-control-original-blue-face)" />
+      <path d="M22.05 8.6L22.7 9.1V26.625L22.05 25.9Z" fill="#ffffff" />
+    </g>
+    <g id="sound-control-original-microphone-body">
+      <use id="mixer-microphone-stand-shadow" href="#sound-control-original-microphone-stand-outline" fill="url(#sound-control-original-chrome)" transform="translate(1 0.95)" />
+      <path id="mixer-microphone-fork-rim" d="M11.475 14.3V21.55C11.475 26.6 21.7 26.6 21.7 21.55V14.3" fill="none" stroke="url(#sound-control-original-chrome)" stroke-width="1.5" />
+      <path id="mixer-microphone-fork" d="M10.675 13.7V20.95C10.675 26 20.9 26 20.9 20.95V13.7" fill="none" stroke="url(#sound-control-original-blue-face)" stroke-width="1.1624999999999999" />
+      <use id="mixer-microphone-stand" href="#sound-control-original-microphone-stand-outline" fill="url(#sound-control-original-blue-face)" />
+      <rect id="mixer-microphone-capsule-rim" x="13.200000000000001" y="5.124999999999998" width="6.8" height="18.900000000000002" rx="3.3750000000000004" fill="url(#sound-control-original-chrome)" />
+      <rect id="mixer-microphone-capsule" x="12.3" y="4.174999999999998" width="6.8" height="18.900000000000002" rx="3.3750000000000004" fill="url(#sound-control-original-blue-face)" />
+    </g>
+    <g id="sound-control-original-level-dot">
+      <path fill="#fffdff" d="M28.640267 26.233238C30.309375 26.891283 30.368594 28.831118 29.434233 29.913928C28.555757 31.089368 26.537482 31.426100 24.967389 29.637946L25.682611 28.957054C27.087518 30.293900 27.994243 29.893132 28.622017 29.243572C29.193906 28.501382 29.340625 27.528717 28.309733 26.961762Z" />
+      <ellipse cx="27.531249999999996" cy="28.724999999999998" rx="1.2999999999999998" ry="0.8875000000000001" fill="url(#sound-control-original-level-gray-sheen)" />
+      <circle cx="27.025" cy="28.025000000000002" r="1.175" fill="url(#sound-control-original-dot-blue)" />
+    </g>
+    <g id="sound-control-original-wave-quiet" fill="none">
+      <path d="M23.85 13.75C25.5507 13.75 26.675 15.4602 26.675 17.1C26.675 18.7398 25.5507 20.45 23.85 20.45" transform="translate(0.80625 1)" stroke="url(#sound-control-original-quiet-chrome)" stroke-width="1.4812500000000004" opacity="1.0" />
+      <path d="M23.85 13.75C25.5507 13.75 26.675 15.4602 26.675 17.1C26.675 18.7398 25.5507 20.45 23.85 20.45" stroke="url(#sound-control-original-quiet-acoustic-blue)" stroke-width="0.9500000000000001" transform="translate(0 -0.35)" />
+    </g>
+    <g id="sound-control-original-wave-loud-0" fill="none">
+      <path d="M20.75 13.6438C22.0641 13.6438 23.45 15.1477 23.45 17C23.45 18.8523 22.0641 20.3563 20.75 20.3563" transform="translate(0.7875 1.00625)" stroke="url(#sound-control-original-side-chrome)" stroke-width="1.4375" opacity="1.0" />
+      <path d="M20.75 13.6438C22.0641 13.6438 23.45 15.1477 23.45 17C23.45 18.8523 22.0641 20.3563 20.75 20.3563" stroke="url(#sound-control-original-acoustic-blue)" stroke-width="1.0875" transform="translate(0 -0.075)" />
+    </g>
+    <g id="sound-control-original-wave-loud-1" fill="none">
+      <path d="M20.75 11.2312C23.1839 11.2312 25.825 13.8153 25.825 17C25.825 20.1847 23.1839 22.7687 20.75 22.7687" transform="translate(0.7875 1.00625)" stroke="url(#sound-control-original-side-chrome)" stroke-width="1.4375" opacity="1.0" />
+      <path d="M20.75 11.2312C23.1839 11.2312 25.825 13.8153 25.825 17C25.825 20.1847 23.1839 22.7687 20.75 22.7687" stroke="url(#sound-control-original-acoustic-blue)" stroke-width="1.0875" transform="translate(0 -0.075)" />
+    </g>
+    <g id="sound-control-original-wave-loud-2" fill="none">
+      <path d="M20.75 8.7875C24.2992 8.7875 28.1562 12.466 28.1562 17C28.1562 21.5339 24.2992 25.2125 20.75 25.2125" transform="translate(0.7875 1.00625)" stroke="url(#sound-control-original-side-chrome)" stroke-width="1.4375" opacity="1.0" />
+      <path d="M20.75 8.7875C24.2992 8.7875 28.1562 12.466 28.1562 17C28.1562 21.5339 24.2992 25.2125 20.75 25.2125" stroke="url(#sound-control-original-acoustic-blue)" stroke-width="1.0875" transform="translate(0 -0.075)" />
+    </g>
+    <path id="sound-control-original-microphone-stand-outline" d="M14.95 25.2H16.45L17.975 29.3H18.45V30.025H12.95V29.3H13.425Z" />
+    <linearGradient id="sound-control-original-side-chrome" x1="0" y1="0" x2="1" y2="0.6937500000000002">
+      <stop offset="0" stop-color="#949bb8" />
+      <stop offset="0.5" stop-color="#d7d4e1" />
+      <stop offset="1" stop-color="#effafe" />
+    </linearGradient>
+    <linearGradient id="sound-control-original-acoustic-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#0d3480" />
+      <stop offset="1" stop-color="#2e327e" />
+    </linearGradient>
+    <path id="sound-control-original-speaker-face-outline" d="M10 11.925H14.9V14.7L22.05 8.5V25.7L14.9 18.825V21.95H10Z" />
+    <linearGradient id="sound-control-original-speaker-extrusion-light" x1="0" y1="0" x2="1" y2="0.75">
+      <stop offset="0" stop-color="#aaaaaa" />
+      <stop offset="0.5" stop-color="#e5e5e5" />
+      <stop offset="1" stop-color="#f1f1f1" />
+    </linearGradient>
+    <linearGradient id="sound-control-original-level-gray-sheen" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#a1b8bb" />
+      <stop offset="1" stop-color="#8e93cd" />
+    </linearGradient>
+    <linearGradient id="sound-control-original-quiet-chrome" x1="0" y1="0" x2="1" y2="0.39375000000000016">
+      <stop offset="0" stop-color="#707690" />
+      <stop offset="0.5" stop-color="#c7c5ce" />
+      <stop offset="1" stop-color="#e6dce2" />
+    </linearGradient>
+    <linearGradient id="sound-control-original-quiet-acoustic-blue" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#16318a" />
+      <stop offset="1" stop-color="#1a3a87" />
+    </linearGradient>
+    <symbol id="volMute" viewBox="0 0 36 36" data-file="Modules/Sound/Resources/volMute.tiff" data-reconstructed="true">
+      <use href="#sound-control-original-speaker-body" />
+      <use href="#sound-control-original-wave-quiet" />
+    </symbol>
+    <symbol id="volLoud" viewBox="0 0 36 36" data-file="Modules/Sound/Resources/volLoud.tiff" data-reconstructed="true">
+      <use href="#sound-control-original-speaker-body" transform="translate(-3 0)" />
+      <use href="#sound-control-original-wave-loud-0" />
+      <use href="#sound-control-original-wave-loud-1" />
+      <use href="#sound-control-original-wave-loud-2" />
+    </symbol>
+    <symbol id="micMute" viewBox="0 0 36 36" data-file="Modules/Sound/Resources/micMute.tiff" data-reconstructed="true">
+      <use href="#sound-control-original-microphone-body" />
+      <use href="#sound-control-original-level-dot" />
+    </symbol>
+    <symbol id="micLoud" viewBox="0 0 36 36" data-file="Modules/Sound/Resources/micLoud.tiff" data-reconstructed="true">
+      <use href="#sound-control-original-microphone-body" />
+      <use href="#sound-control-original-level-dot" transform="translate(0 0)" />
+      <use href="#sound-control-original-level-dot" transform="translate(0 -4)" />
+      <use href="#sound-control-original-level-dot" transform="translate(0 -8)" />
+      <use href="#sound-control-original-level-dot" transform="translate(0 -12)" />
+      <use href="#sound-control-original-level-dot" transform="translate(0 -16)" />
+      <use href="#sound-control-original-level-dot" transform="translate(0 -20)" />
+    </symbol>
+    <linearGradient id="mouse-hand-silver" x1="0" y1="0" x2=".2" y2="1">
+      <stop stop-color="#f5f5ee" />
+      <stop offset=".4" stop-color="#c4c6c0" />
+      <stop offset=".7" stop-color="#989c97" />
+      <stop offset="1" stop-color="#e0e2da" />
+    </linearGradient>
+    <linearGradient id="mouse-hand-shadow" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#313834" />
+      <stop offset=".4" stop-color="#666e68" />
+      <stop offset="1" stop-color="#a3aaa2" />
+    </linearGradient>
+    <g id="mouse-hand-right">
+      <path d="M0 0H122V50H0Z" fill="#aaa" />
+      <path d="M28 35C21 37 16 34 12 32L13 27Q12 22 8 27" fill="none" stroke="#171c18" stroke-width="1.3" stroke-linecap="round" />
+      <path d="M27 34Q44 23 65 28L80 33V41H27Z" fill="#303833" />
+      <path d="M29 31Q43 25 65 29L76 33H29Z" fill="url(#module-device)" stroke="#727c75" stroke-width=".5" />
+      <path d="M28 33H78V40H28Z" fill="#abb1aa" stroke="#242d27" stroke-width=".6" />
+      <path d="M29 34H77M29 36H77M29 38H77" stroke="#eff1e8" stroke-width=".65" />
+      <path d="M51 28.5V33" stroke="#68736b" stroke-width=".6" />
+      <path d="M122 47C110 47 100 44 92 43L66 43Q57 44 55 39Q53 35 59 34L76 34Q81 33 77 31C69 28 62 27 56 26Q48 23 40 25L32 28Q29 30 26 29Q24 28 27 25L42 17Q52 11 59 8Q67 2 78 7L96 16C105 22 110 28 122 31Z" fill="url(#mouse-hand-silver)" stroke="#777f76" stroke-width=".65" stroke-linejoin="round" />
+      <path d="M28 26Q37 17 48 17L63 19Q76 22 86 28L78 31Q67 25 56 24L42 23Z" fill="url(#mouse-hand-shadow)" />
+      <path d="M34 20Q48 14 60 18L78 24" fill="none" stroke="#f4f4e9" stroke-width="1.1" stroke-linecap="round" />
+      <path d="M50 14Q58 10 65 10L76 13M60 8Q67 5 75 9M64 15Q74 15 85 21" fill="none" stroke="#e2e4da" stroke-width=".8" stroke-linecap="round" />
+      <path d="M58 35Q53 38 60 41L91 42Q105 44 116 42" fill="none" stroke="#eff0e5" stroke-width="1.2" stroke-linecap="round" />
+      <path d="M61 35Q57 35 57 38L62 40Q66 40 67 37L66 35Z" fill="#edf0e3" stroke="#a0a89c" stroke-width=".55" />
+      <path d="M87 30Q94 33 101 33M90 36Q98 38 106 37" fill="none" stroke="#929c90" stroke-width=".65" stroke-linecap="round" />
+    </g>
+    <symbol id="righthand" viewBox="0 0 122 50" data-file="Modules/Mouse/Resources/righthand.tiff">
+      <use href="#mouse-hand-right" />
+    </symbol>
+    <symbol id="lefthand" viewBox="0 0 122 50" data-file="Modules/Mouse/Resources/lefthand.tiff">
+      <use href="#mouse-hand-right" transform="translate(122 0) scale(-1 1)" />
+    </symbol>
+    <symbol id="ClockViewTile" viewBox="0 0 64 64" data-file="English.lproj/ClockViewTile.tiff" data-reconstructed="true">
+      <use href="../Artwork/ClockTile.svg#clock-tile-original" />
+    </symbol>
+    <symbol id="Preferences" viewBox="0 0 48 48" data-file="English.lproj/Preferences.tiff">
+      <use href="#preferences-case" />
+      <use href="#preferences-lettering" fill="#002c00" transform="translate(.4 .35)" />
+      <use href="#preferences-lettering" fill="#00ff34" />
+    </symbol>
+    <path id="preferences-glyph-E" d="M57 0 319 1349H1238L1208 1193H480L398 771H1066L1036 617H368L278 156H1047L1017 0Z" />
+    <path id="preferences-glyph-F" d="M512 1193 416 699H1092L1061 541H385L280 0H89L351 1349H1242L1212 1193Z" />
+    <path id="preferences-glyph-P" d="M1198 945Q1182 861 1137.0 783.5Q1092 706 1020.0 646.0Q948 586 850.0 550.0Q752 514 629 514H348L248 0H57L319 1349H779Q888 1349 968.5 1327.0Q1049 1305 1102.0 1264.0Q1155 1223 1181.0 1165.0Q1207 1107 1207 1035Q1207 992 1198 945ZM1005 942Q1011 974 1011 1002Q1011 1098 940.0 1147.0Q869 1196 726 1196H480L377 665H631Q713 665 777.5 686.5Q842 708 889.0 745.0Q936 782 965.0 833.0Q994 884 1005 942Z" />
+    <path id="preferences-glyph-R" d="M852 0 598 575H360L248 0H57L319 1349H801Q1010 1349 1112.5 1273.0Q1215 1197 1215 1060Q1215 1021 1206 976Q1194 914 1162.5 852.5Q1131 791 1079.0 739.5Q1027 688 954.5 650.0Q882 612 788 597L1072 0ZM1013 973Q1016 987 1017.0 1000.5Q1018 1014 1018 1026Q1018 1196 752 1196H480L389 726H669Q752 726 812.0 746.0Q872 766 913.5 799.5Q955 833 979.0 878.0Q1003 923 1013 973Z" />
+    <path id="preferences-glyph-S" d="M1095 370Q1079 285 1034.0 213.5Q989 142 915.0 90.0Q841 38 738.0 9.0Q635 -20 501 -20Q267 -20 154.5 72.0Q42 164 40 338L232 375Q233 320 248.5 275.0Q264 230 299.5 197.5Q335 165 392.5 147.0Q450 129 535 129Q607 129 669.0 142.5Q731 156 779.5 185.0Q828 214 860.5 259.0Q893 304 905 367Q907 379 908.5 390.0Q910 401 910 412Q910 467 881.5 502.5Q853 538 806.5 562.0Q760 586 702.0 602.0Q644 618 585 633Q542 645 499.0 657.5Q456 670 416.0 686.5Q376 703 342.0 724.5Q308 746 282.5 775.0Q257 804 242.5 843.0Q228 882 228 932Q228 950 230.0 969.5Q232 989 236 1010Q255 1106 304.0 1174.5Q353 1243 424.5 1286.5Q496 1330 586.0 1350.0Q676 1370 776 1370Q892 1370 970.0 1349.5Q1048 1329 1096.0 1288.0Q1144 1247 1166.5 1186.5Q1189 1126 1193 1046L999 1013Q998 1064 984.0 1104.0Q970 1144 940.0 1171.0Q910 1198 862.5 1212.0Q815 1226 747 1226Q667 1226 609.5 1209.5Q552 1193 513.5 1164.5Q475 1136 453.5 1097.0Q432 1058 423 1013Q421 1002 420.0 991.5Q419 981 419 972Q419 925 442.5 895.0Q466 865 506.0 844.5Q546 824 599.0 809.5Q652 795 711 779Q782 760 852.0 738.0Q922 716 978.0 681.0Q1034 646 1069.0 592.0Q1104 538 1104 455Q1104 417 1095 370Z" />
+    <g id="preferences-lettering">
+      <use href="#preferences-glyph-P" transform="translate(7.000000 13.5) scale(0.005126953 -0.005126953)" />
+      <use href="#preferences-glyph-R" transform="translate(13.301025 13.5) scale(0.005126953 -0.005126953)" />
+      <use href="#preferences-glyph-E" transform="translate(19.602051 13.5) scale(0.005126953 -0.005126953)" />
+      <use href="#preferences-glyph-F" transform="translate(25.903076 13.5) scale(0.005126953 -0.005126953)" />
+      <use href="#preferences-glyph-S" transform="translate(32.204102 13.5) scale(0.005126953 -0.005126953)" />
+    </g>
+  </defs>
+  <use id="preview" href="#Preferences" />
+</svg>

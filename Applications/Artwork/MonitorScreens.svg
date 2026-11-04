@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <clipPath id="monitor-glass">
+      <path d="M7.3 6.8C17.2 6.1 30.9 6.1 40.5 6.8C41.05 14.5 41.05 24.5 40.5 31.65C30.5 32.45 17.3 32.45 7.3 31.65C6.75 24.4 6.75 14.4 7.3 6.8Z" id="monitor-glass-outline" />
+    </clipPath>
+    <radialGradient id="monitor-purple" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(30 0 0 28 20 14)">
+      <stop stop-color="#655a98" />
+      <stop offset=".5" stop-color="#2a2541" />
+      <stop offset="1" stop-color="#241a2d" />
+    </radialGradient>
+    <radialGradient id="unix-purple" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(30 0 0 28 20 14)">
+      <stop stop-color="#5a4d83" />
+      <stop offset=".5" stop-color="#40395f" />
+      <stop offset="1" stop-color="#403157" />
+    </radialGradient>
+    <pattern id="monitor-checker" patternUnits="userSpaceOnUse" width="2" height="2">
+      <g opacity=".08">
+        <path d="M0 0H2V2H0Z" fill="#007828" />
+        <path d="M0 0H1V1H0ZM1 1H2V2H1Z" fill="#8c00aa" />
+      </g>
+    </pattern>
+    <g id="monitor-background" clip-path="url(#monitor-glass)">
+      <path d="M0 0H48V48H0Z" />
+      <path d="M0 0H48V48H0Z" fill="url(#monitor-checker)" />
+      <path d="M37 8H40V23H37Z" fill="currentColor" />
+      <g fill="#aaa">
+        <path d="M37 8H39V10H37Z" />
+        <path d="M37 11H39V13H37Z" />
+        <path d="M37 14H39V16H37Z" />
+        <path d="M37 17H39V19H37Z" />
+        <path d="M37 20H39V22H37Z" />
+      </g>
+    </g>
+    <path id="question-outline" d="M19.2 15.05C18.35 14.2 18.35 12.7 19.1 11.65C20.1 10.2 22.25 9.5 23.8 9.65C25.8 9.85 27.4 10.95 27.85 12.7C28.35 14.6 27.6 16.1 26.55 17.55C25.05 19 23.98 20.55 23.725 23.1H23.375C23.325 20.7 23.9 18.8 24.9 17.35C26 15.5 26.3 13.6 25.55 12.2C25 10.9 23.75 10.4 22.4 10.55C20.7 11.2 19.9 12 20.2 12.85C20.45 13.5 20.7 13.95 20.45 14.55C20.3 15.05 19.7 15.45 19.2 15.05Z" />
+    <g id="question-ink">
+      <use href="#question-outline" transform="translate(.35 .35)" />
+      <circle cx="23.715" cy="27.5" r="1.39" />
+    </g>
+    <symbol id="question" viewBox="0 0 48 48" data-logical-size="48 48">
+      <use href="#monitor-background" fill="url(#monitor-purple)" color="#001111" />
+      <g clip-path="url(#monitor-glass)">
+        <use href="#question-ink" fill="#35ff59" stroke="#35ff59" stroke-width="2.3" opacity=".055" />
+        <use href="#question-ink" fill="#35ff59" stroke="#35ff59" stroke-width="1.25" opacity=".12" />
+        <use href="#question-ink" fill="#44ff55" stroke="#44ff55" stroke-width=".55" opacity=".27" />
+        <use href="#question-ink" fill="#44ff55" />
+      </g>
+    </symbol>
+    <symbol id="unix" viewBox="0 0 48 48" data-logical-size="48 48">
+      <use href="#monitor-background" fill="url(#unix-purple)" color="#001111" />
+      <g clip-path="url(#monitor-glass)">
+        <path d="M11 13H33V27H11Z" fill="#000" />
+        <path d="M12 16H32V26H12Z" fill="#fff" />
+        <path d="M12 14H13V15H12ZM31 14H32V15H31Z" fill="#aaa" />
+        <path d="M18 14H26V15H18Z" fill="#555" />
+        <g fill="none" stroke="#221199" stroke-linejoin="round">
+          <path d="M14.5 19V21.2C14.5 22.1 15.05 22.5 16 22.5C16.95 22.5 17.5 22.1 17.5 21.2V19" stroke-width="1.07" />
+          <path d="M19.5 23V19.5L22.5 22.5V19" stroke-width=".95" />
+          <path d="M24.5 19V23" stroke-width=".965" />
+          <path d="M26 19H27.16L30 23H28.84ZM28.84 19H30L27.16 23H26Z" fill="#221199" stroke="none" />
+        </g>
+      </g>
+    </symbol>
+    <symbol id="bundle" viewBox="0 0 48 48" data-logical-size="48 48">
+      <use href="#monitor-background" fill="url(#unix-purple)" color="#001111" />
+      <g clip-path="url(#monitor-glass)">
+        <path d="M26 16H34V29H26Z" fill="#000" />
+        <path d="M27 19H33V28H27Z" fill="#fff" />
+        <path d="M27 17H28V18H27ZM32 17H33V18H32Z" fill="#aaa" />
+      </g>
+    </symbol>
+  </defs>
+  <use id="preview" href="#question" />
+</svg>

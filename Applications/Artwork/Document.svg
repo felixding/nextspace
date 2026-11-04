@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <g id="document">
+      <path d="M3 1H40L46 7V47H3Z" fill="#fff" stroke="#242424" stroke-width=".6" />
+      <path d="M40 1V7H46" fill="#d6d6d6" stroke="#8a8a8a" stroke-width=".5" />
+    </g>
+  </defs>
+</svg>

@@ -1,0 +1,255 @@
+<!-- Missing Recycler poses: original ribbon geometry, palette and fold shading. -->
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <ns0:defs>
+    <ns0:linearGradient id="ribbon-left-back" x1="0" y1=".2" x2="1" y2=".8" gradientUnits="objectBoundingBox">
+      <ns0:stop stop-color="#002100" />
+      <ns0:stop offset=".4" stop-color="#13680a" />
+      <ns0:stop offset="1" stop-color="#2a9519" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="ribbon-right-back" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+      <ns0:stop stop-color="#146a07" />
+      <ns0:stop offset=".5" stop-color="#40be2b" />
+      <ns0:stop offset=".75" stop-color="#299317" />
+      <ns0:stop offset="1" stop-color="#003500" />
+    </ns0:linearGradient>
+    <ns0:symbol id="recycler-2" viewBox="0 0 64 64" data-logical-size="64 64" data-reconstructed="true" data-file="Resources/recycler-2.tiff">
+      <ns0:g stroke-linejoin="round" clip-path="url(#recycler-2-bounds)">
+        <ns0:use href="#recycler-2-face-1-shape" fill="url(#recycler-2-face-1)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-2-face-1-shape" fill="url(#recycler-2-face-1)" stroke="url(#recycler-2-face-1)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-2-face-2-shape" fill="url(#recycler-2-face-2)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-2-face-2-shape" fill="url(#recycler-2-face-2)" stroke="url(#recycler-2-face-2)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-2-face-3-shape" fill="url(#ribbon-left-back)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-2-face-3-shape" fill="url(#ribbon-left-back)" stroke="url(#ribbon-left-back)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-2-face-4-shape" fill="url(#recycler-2-face-4)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-2-face-4-shape" fill="url(#recycler-2-face-4)" stroke="url(#recycler-2-face-4)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-2-face-5-shape" fill="url(#recycler-2-face-5)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-2-face-5-shape" fill="url(#recycler-2-face-5)" stroke="url(#recycler-2-face-5)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-2-face-6-shape" fill="url(#recycler-2-face-6)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-2-face-6-shape" fill="url(#recycler-2-face-6)" stroke="url(#recycler-2-face-6)" stroke-width="0.39999999999999997" />
+        <ns0:path id="recycler-2-fold-1" d="M36.2 9.5C34.5 9.5 32.4 13.5 30.3 17.5" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-2-material)" />
+        <ns0:path id="recycler-2-fold-2" d="M20 39.5C16.5 43 16.5 48.5 19.6 52" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-2-material)" />
+        <ns0:path id="recycler-2-fold-3" d="M30.5 41.5H45.7Q52.2 41.4 54.9 38.5" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-2-material)" />
+        <ns0:path id="recycler-2-fold-4" d="M26.1 26.6 30.5 28.4" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-2-material)" />
+      </ns0:g>
+    </ns0:symbol>
+    <ns0:symbol id="recycler-3" viewBox="0 0 64 64" data-logical-size="64 64" data-reconstructed="true" data-file="Resources/recycler-3.tiff">
+      <ns0:g stroke-linejoin="round" clip-path="url(#recycler-3-bounds)">
+        <ns0:use href="#recycler-3-face-1-shape" fill="url(#recycler-3-face-1)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-3-face-1-shape" fill="url(#recycler-3-face-1)" stroke="url(#recycler-3-face-1)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-3-face-2-shape" fill="url(#recycler-3-face-2)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-3-face-2-shape" fill="url(#recycler-3-face-2)" stroke="url(#recycler-3-face-2)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-3-face-3-shape" fill="url(#ribbon-right-back)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-3-face-3-shape" fill="url(#ribbon-right-back)" stroke="url(#ribbon-right-back)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-3-face-4-shape" fill="url(#recycler-3-face-4)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-3-face-4-shape" fill="url(#recycler-3-face-4)" stroke="url(#recycler-3-face-4)" stroke-width="0.39999999999999997" />
+        <ns0:path id="recycler-3-fold-1" d="M28.7 20.1 33.4 22.2" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-3-material)" />
+      </ns0:g>
+    </ns0:symbol>
+    <ns0:symbol id="recycler-4" viewBox="0 0 64 64" data-logical-size="64 64" data-reconstructed="true" data-file="Resources/recycler-4.tiff">
+      <ns0:g stroke-linejoin="round" clip-path="url(#recycler-4-bounds)">
+        <ns0:use href="#recycler-4-face-1-shape" fill="url(#recycler-4-face-1)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-4-face-1-shape" fill="url(#recycler-4-face-1)" stroke="url(#recycler-4-face-1)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-4-face-2-shape" fill="url(#recycler-4-face-2)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-4-face-2-shape" fill="url(#recycler-4-face-2)" stroke="url(#recycler-4-face-2)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-4-face-3-shape" fill="url(#recycler-4-face-3)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-4-face-3-shape" fill="url(#recycler-4-face-3)" stroke="url(#recycler-4-face-3)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-4-face-4-shape" fill="url(#recycler-4-face-4)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-4-face-4-shape" fill="url(#recycler-4-face-4)" stroke="url(#recycler-4-face-4)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-4-face-5-shape" fill="url(#recycler-4-face-5)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-4-face-5-shape" fill="url(#recycler-4-face-5)" stroke="url(#recycler-4-face-5)" stroke-width="0.39999999999999997" />
+        <ns0:use href="#recycler-4-face-6-shape" fill="url(#recycler-4-face-6)" stroke="#12451c" stroke-width="0.6" />
+        <ns0:use href="#recycler-4-face-6-shape" fill="url(#recycler-4-face-6)" stroke="url(#recycler-4-face-6)" stroke-width="0.39999999999999997" />
+        <ns0:path id="recycler-4-fold-1" d="M36.2 9.5C34.5 9.5 32.4 13.5 30.3 17.5" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-4-material)" />
+        <ns0:path id="recycler-4-fold-2" d="M20.3 39.5C17 42.5 16.5 47.3 20.6 52.1" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-4-material)" />
+        <ns0:path id="recycler-4-fold-3" d="M45.5 35.8V41.2Q49.8 41.3 55 38.4" fill="none" stroke="#00220b" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".95" filter="url(#ribbon-fold-shadow)" clip-path="url(#recycler-4-material)" />
+      </ns0:g>
+    </ns0:symbol>
+    <ns0:linearGradient id="recycler-2-face-1" gradientUnits="userSpaceOnUse" x1="8.7143" y1="22.7014" x2="16.7675" y2="43.6809">
+      <ns0:stop offset="0.0000" stop-color="#105216" />
+      <ns0:stop offset="0.1667" stop-color="#1a7121" />
+      <ns0:stop offset="0.3333" stop-color="#238e29" />
+      <ns0:stop offset="0.5000" stop-color="#29ae32" />
+      <ns0:stop offset="0.6667" stop-color="#2dbf38" />
+      <ns0:stop offset="0.8333" stop-color="#4ecd5a" />
+      <ns0:stop offset="1.0000" stop-color="#7ce691" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-2-face-2" gradientUnits="userSpaceOnUse" x1="21.3635" y1="23.7266" x2="15.7430" y2="17.4844">
+      <ns0:stop offset="0.0000" stop-color="#1c9a26" />
+      <ns0:stop offset="0.3333" stop-color="#5bc967" />
+      <ns0:stop offset="0.6667" stop-color="#8ae395" />
+      <ns0:stop offset="1.0000" stop-color="#97e7a3" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-2-face-4" gradientUnits="userSpaceOnUse" x1="12.7515" y1="19.6355" x2="27.8013" y2="42.8103">
+      <ns0:stop offset="0.0000" stop-color="#a8f4b6" />
+      <ns0:stop offset="0.1667" stop-color="#90e99f" />
+      <ns0:stop offset="0.3333" stop-color="#67da77" />
+      <ns0:stop offset="0.5000" stop-color="#39b645" />
+      <ns0:stop offset="0.6667" stop-color="#269a2c" />
+      <ns0:stop offset="0.8333" stop-color="#1a6f20" />
+      <ns0:stop offset="1.0000" stop-color="#0b330e" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-2-face-5" gradientUnits="userSpaceOnUse" x1="26.1881" y1="51.3971" x2="24.5701" y2="48.2215">
+      <ns0:stop offset="0.0000" stop-color="#289933" />
+      <ns0:stop offset="0.5000" stop-color="#39af45" />
+      <ns0:stop offset="1.0000" stop-color="#46c653" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-2-face-6" gradientUnits="userSpaceOnUse" x1="37.6158" y1="27.3295" x2="55.2823" y2="40.1649">
+      <ns0:stop offset="0.0000" stop-color="#61c56e" />
+      <ns0:stop offset="0.1667" stop-color="#8cf39f" />
+      <ns0:stop offset="0.3333" stop-color="#94faa7" />
+      <ns0:stop offset="0.5000" stop-color="#7fe890" />
+      <ns0:stop offset="0.6667" stop-color="#43b84c" />
+      <ns0:stop offset="0.8333" stop-color="#1c7d22" />
+      <ns0:stop offset="1.0000" stop-color="#03340a" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-3-face-1" gradientUnits="userSpaceOnUse" x1="41.7057" y1="46.3188" x2="19.3249" y2="21.4625">
+      <ns0:stop offset="0.0000" stop-color="#77e289" />
+      <ns0:stop offset="0.1667" stop-color="#6edb7f" />
+      <ns0:stop offset="0.3333" stop-color="#45cb51" />
+      <ns0:stop offset="0.5000" stop-color="#29af31" />
+      <ns0:stop offset="0.6667" stop-color="#24932b" />
+      <ns0:stop offset="0.8333" stop-color="#248f2b" />
+      <ns0:stop offset="1.0000" stop-color="#218928" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-3-face-2" gradientUnits="userSpaceOnUse" x1="10.9007" y1="16.7856" x2="25.6776" y2="39.5400">
+      <ns0:stop offset="0.0000" stop-color="#9df0a7" />
+      <ns0:stop offset="0.1667" stop-color="#97eda5" />
+      <ns0:stop offset="0.3333" stop-color="#8be79a" />
+      <ns0:stop offset="0.5000" stop-color="#5ccd6c" />
+      <ns0:stop offset="0.6667" stop-color="#30ad3b" />
+      <ns0:stop offset="0.8333" stop-color="#279f2d" />
+      <ns0:stop offset="1.0000" stop-color="#208726" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-3-face-4" gradientUnits="userSpaceOnUse" x1="34.8183" y1="22.6113" x2="56.7236" y2="36.8367">
+      <ns0:stop offset="0.0000" stop-color="#78e688" />
+      <ns0:stop offset="0.1667" stop-color="#8af39d" />
+      <ns0:stop offset="0.3333" stop-color="#91f8a5" />
+      <ns0:stop offset="0.5000" stop-color="#90f5a3" />
+      <ns0:stop offset="0.6667" stop-color="#5acb65" />
+      <ns0:stop offset="0.8333" stop-color="#228a28" />
+      <ns0:stop offset="1.0000" stop-color="#023e09" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-4-face-1" gradientUnits="userSpaceOnUse" x1="26.7858" y1="29.7487" x2="22.5581" y2="25.0533">
+      <ns0:stop offset="0.0000" stop-color="#1e8224" />
+      <ns0:stop offset="0.3333" stop-color="#197120" />
+      <ns0:stop offset="0.6667" stop-color="#145d1a" />
+      <ns0:stop offset="1.0000" stop-color="#0f4714" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-4-face-2" gradientUnits="userSpaceOnUse" x1="10.4216" y1="18.0508" x2="19.0819" y2="33.0508">
+      <ns0:stop offset="0.0000" stop-color="#b1fcbf" />
+      <ns0:stop offset="0.1667" stop-color="#85e292" />
+      <ns0:stop offset="0.3333" stop-color="#42ba4d" />
+      <ns0:stop offset="0.5000" stop-color="#269e2e" />
+      <ns0:stop offset="0.6667" stop-color="#25972d" />
+      <ns0:stop offset="0.8333" stop-color="#26952d" />
+      <ns0:stop offset="1.0000" stop-color="#27942d" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-4-face-3" gradientUnits="userSpaceOnUse" x1="45.2143" y1="40.7112" x2="33.5045" y2="30.1676">
+      <ns0:stop offset="0.0000" stop-color="#72ff92" />
+      <ns0:stop offset="0.1667" stop-color="#61f37c" />
+      <ns0:stop offset="0.3333" stop-color="#46ce58" />
+      <ns0:stop offset="0.5000" stop-color="#2da637" />
+      <ns0:stop offset="0.6667" stop-color="#248f2a" />
+      <ns0:stop offset="0.8333" stop-color="#1e7c24" />
+      <ns0:stop offset="1.0000" stop-color="#15671d" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-4-face-4" gradientUnits="userSpaceOnUse" x1="33.5000" y1="33.5000" x2="20.0000" y2="20.0000">
+      <ns0:stop offset="0.0000" stop-color="#051f04" />
+      <ns0:stop offset="0.1667" stop-color="#145417" />
+      <ns0:stop offset="0.3333" stop-color="#26962d" />
+      <ns0:stop offset="0.5000" stop-color="#2eae37" />
+      <ns0:stop offset="0.6667" stop-color="#3cbd49" />
+      <ns0:stop offset="0.8333" stop-color="#57d268" />
+      <ns0:stop offset="1.0000" stop-color="#6be17e" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-4-face-5" gradientUnits="userSpaceOnUse" x1="20.0018" y1="34.6441" x2="29.5460" y2="51.1752">
+      <ns0:stop offset="0.0000" stop-color="#26952e" />
+      <ns0:stop offset="0.1667" stop-color="#25942c" />
+      <ns0:stop offset="0.3333" stop-color="#25942c" />
+      <ns0:stop offset="0.5000" stop-color="#289d30" />
+      <ns0:stop offset="0.6667" stop-color="#34b03d" />
+      <ns0:stop offset="0.8333" stop-color="#3eba49" />
+      <ns0:stop offset="1.0000" stop-color="#33a73e" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="recycler-4-face-6" gradientUnits="userSpaceOnUse" x1="50.5124" y1="25.7374" x2="58.5118" y2="29.8133">
+      <ns0:stop offset="0.0000" stop-color="#49ad53" />
+      <ns0:stop offset="0.1667" stop-color="#42b74b" />
+      <ns0:stop offset="0.3333" stop-color="#30a738" />
+      <ns0:stop offset="0.5000" stop-color="#24912b" />
+      <ns0:stop offset="0.6667" stop-color="#1d7924" />
+      <ns0:stop offset="0.8333" stop-color="#14611c" />
+      <ns0:stop offset="1.0000" stop-color="#094012" />
+    </ns0:linearGradient>
+    <ns0:clipPath id="recycler-2-bounds">
+      <ns0:rect x="9" y="9" width="48" height="49" />
+    </ns0:clipPath>
+    <ns0:clipPath id="recycler-3-bounds">
+      <ns0:rect x="9" y="9" width="51" height="49" />
+    </ns0:clipPath>
+    <ns0:clipPath id="recycler-4-bounds">
+      <ns0:rect x="4" y="7" width="52" height="51" />
+    </ns0:clipPath>
+    <ns0:path id="recycler-2-face-1-shape" d="M19.6 12.6 22 10Q23.1 9.5 25.5 9.5H40Q44.5 9.5 46.2 13.6L51.7 24.3 56.5 22.7 49.7 32.5H37.6L40.7 30.3 32.9 14.4 30.3 17.5Z" />
+    <ns0:path id="recycler-2-face-2-shape" d="M19.6 12.6 22 10Q23.1 9.5 25.5 9.5H36.2C34.5 9.5 32.4 13.5 30.3 17.5Z" />
+    <ns0:path id="recycler-2-face-3-shape" d="M11.5 17.5H24.5L30.5 28.4 26.1 26.6 19.2 41.5H21.5V52.5Q17.2 52 14.8 48L10.2 38.7Q8.5 35.5 10 31.5L15.8 21.2Z" />
+    <ns0:path id="recycler-2-face-4-shape" d="M11.5 17.5H24.5L30.5 28.4 26.1 26.6 20 39.5C16.5 43 16.5 48.5 19.6 52Q16.3 50.7 14.8 48L10.2 38.7Q8.5 35.5 10 31.5L15.8 21.2Z" />
+    <ns0:path id="recycler-2-face-5-shape" d="M44.7 37.6 53.3 32.5H55.5V36.5Q54.6 40.1 50.4 48.4Q48 52.5 44.8 52.5H30.5V57.5H29.5L24.5 46.7 29.5 36.5H30.5V41.5H45.7Z" />
+    <ns0:path id="recycler-2-face-6-shape" d="M54.9 38.5 50.4 48.4Q48 52.5 44.8 52.5H30.5V57.5H29.5L24.5 46.7 29.5 36.5H30.5V41.5H45.7Q52.2 41.4 54.9 38.5Z" />
+    <ns0:path id="recycler-3-face-1-shape" d="M29.5 9.5H40Q44.5 9.5 46.2 13.6L54.3 31.2 59.5 28.7 52.4 38.6H40.5V37.5L43.1 35.7Z" />
+    <ns0:path id="recycler-3-face-2-shape" d="M14.5 11.5H27.5L33.5 22.4 29.1 20.6L16 48.5 10.2 38.7Q8.5 35.5 10 31.5L18.8 15.2Z" />
+    <ns0:path id="recycler-3-face-3-shape" d="M48 41.5 53.5 40 50.4 48.4Q48 52.5 44.8 52.5H25.5V57.5H24.5L19.5 47.7 24.5 36.5H25.5V41.5Z" />
+    <ns0:path id="recycler-3-face-4-shape" d="M53.5 40 50.4 48.4Q48 52.5 44.8 52.5H25.5V57.5H24.5L19.5 47.7 24.5 36.5H25.5V41.5H45.7Q49.2 41.4 53.5 40Z" />
+    <ns0:path id="recycler-4-face-1-shape" d="M12.5 26.7 20.7 11.5Q21.7 9.5 25 9.5H44.7L46.5 7.5H48.5L42.1 17.5H30.6L23.7 32.4Z" />
+    <ns0:path id="recycler-4-face-2-shape" d="M12.5 26.7 20.7 11.5Q21.7 9.5 25 9.5H36.2C34.5 9.5 32.4 13.5 30.3 17.5L23.7 32.4Z" />
+    <ns0:path id="recycler-4-face-3-shape" d="M4.5 31.5H17.5L23.2 41.5H36.5V52.5H21Q17.8 52.4 15.5 48.5L10.2 36.7Z" />
+    <ns0:path id="recycler-4-face-4-shape" d="M4.5 31.5H17.5L23.2 41.5H20.3L18.7 44.7C17.7 47.4 17.8 50.2 20.6 52.1Q17.8 52.4 15.5 48.5L10.2 36.7Z" />
+    <ns0:path id="recycler-4-face-5-shape" d="M37.5 23.5 46.5 18.5H48.5L55.5 33Q56.5 35.5 55 38.4L50.2 48.4Q48.2 51.5 45.5 52V57.5H44.5L39.5 47.5 43.5 36.5 42.5 35.7Z" />
+    <ns0:path id="recycler-4-face-6-shape" d="M55 38.4 50.2 48.4Q48.2 51.5 45.5 52V57.5H44.5L39.5 47.5 43.5 36.5H44.5V41.5H45.7Q52.2 41.4 55 38.4Z" />
+    <ns0:filter id="ribbon-fold-shadow" x="0" y="0" width="64" height="64" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <ns0:feGaussianBlur stdDeviation=".3" />
+    </ns0:filter>
+    <ns0:clipPath id="recycler-2-material">
+      <ns0:use href="#recycler-2-face-1-shape" />
+      <ns0:use href="#recycler-2-face-2-shape" />
+      <ns0:use href="#recycler-2-face-3-shape" />
+      <ns0:use href="#recycler-2-face-4-shape" />
+      <ns0:use href="#recycler-2-face-5-shape" />
+      <ns0:use href="#recycler-2-face-6-shape" />
+    </ns0:clipPath>
+    <ns0:clipPath id="recycler-3-material">
+      <ns0:use href="#recycler-3-face-1-shape" />
+      <ns0:use href="#recycler-3-face-2-shape" />
+      <ns0:use href="#recycler-3-face-3-shape" />
+      <ns0:use href="#recycler-3-face-4-shape" />
+    </ns0:clipPath>
+    <ns0:clipPath id="recycler-4-material">
+      <ns0:use href="#recycler-4-face-1-shape" />
+      <ns0:use href="#recycler-4-face-2-shape" />
+      <ns0:use href="#recycler-4-face-3-shape" />
+      <ns0:use href="#recycler-4-face-4-shape" />
+      <ns0:use href="#recycler-4-face-5-shape" />
+      <ns0:use href="#recycler-4-face-6-shape" />
+    </ns0:clipPath>
+    <ns0:symbol id="CheckMark" viewBox="0 0 10 10" data-reconstructed="true" data-file="Resources/CheckMark.tiff">
+      <ns0:use href="../Artwork/CheckGlyphs.svg#standalone-check" transform="translate(-3 -2)" color="#818181" />
+    </ns0:symbol>
+
+    <ns0:clipPath id="permissions-cross-limit"><ns0:rect x="16" y="3" width="10" height="9" /></ns0:clipPath>
+    <ns0:symbol id="PermYes" viewBox="0 0 44 16" data-reconstructed="true" data-file="Inspectors/English.lproj/PermYes.tiff">
+      <ns0:path d="M0 0H44V16H0Z" fill="#aaa" />
+      <ns0:use href="../Artwork/CheckGlyphs.svg#checkbox-check" transform="translate(15 1)" color="#555" />
+    </ns0:symbol>
+    <ns0:symbol id="PermNo" viewBox="0 0 44 16" data-reconstructed="true" data-file="Inspectors/English.lproj/PermNo.tiff" shape-rendering="crispEdges">
+      <ns0:path d="M0 0H44V16H0Z" fill="#aaa" />
+      <ns0:path d="M18 4H19L25 10V11Z" fill="#555" />
+      <ns0:path d="M17 12 24 5H25L17 13Z" fill="#555" clip-path="url(#permissions-cross-limit)" />
+      <ns0:path d="M16 4H17L25 12V13Z M16 10 23 3H25L16 12Z" fill="#fff" />
+      <ns0:path d="M17 4H18L25 11V12Z M16 12 24 4H25L16 13Z" fill="#000" clip-path="url(#permissions-cross-limit)" />
+    </ns0:symbol>
+    <ns0:symbol id="PermNoChange" viewBox="0 0 44 16" data-reconstructed="true" data-file="Inspectors/English.lproj/PermNoChange.tiff">
+      <ns0:path d="M0 0H44V16H0Z" fill="#aaa" />
+      <ns0:path d="M16 7H26V8H16Z" fill="#fff" /><ns0:path d="M16 8H26V9H16Z" fill="#000" />
+    </ns0:symbol>
+    </ns0:defs>
+  <ns0:use id="preview" href="#recycler-2" />
+</ns0:svg>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <ellipse id="example-disc" cx="23.915" cy="23.72" rx="22.645" ry="23.225" />
+    <path id="example-stair" d="M31.75 8.15H47.5475V47.72H1.43V37.9H16.34V25.29Q16.34 24.09 17.54 24.09H30.78Q31.75 24.09 31.75 23.12Z" />
+    <path id="example-back" d="M31.75 8.15H47.5475V47.72H1.43V38.52H16.34V24.09H31.75Z" />
+    <clipPath id="example-disc-clip">
+      <use href="#example-disc" />
+    </clipPath>
+    <clipPath id="example-light-clip">
+      <use href="#example-stair" />
+    </clipPath>
+    <filter id="example-shadow" x="-.5" y="-.5" width="2" height="2" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="1.37" />
+    </filter>
+    <filter id="example-edge-softness" x="-.5" y="-.5" width="2" height="2" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="0.3" />
+    </filter>
+    <filter id="example-side-softness" x="-.5" y="-.5" width="2" height="2" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="0.76" />
+    </filter>
+    <filter id="example-rim-softness" x="-.5" y="-.5" width="2" height="2" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="0.755" />
+    </filter>
+    <linearGradient id="example-top-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="8.15" x2="0" y2="10.02">
+      <stop stop-color="#000" stop-opacity="0.162" />
+      <stop offset="1" stop-color="#000" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="example-dark" gradientUnits="userSpaceOnUse" cx="23.915" cy="23.72" r="22.645">
+      <stop stop-color="#4c4c4c" />
+      <stop offset=".65" stop-color="#4c4c4c" />
+      <stop offset=".85" stop-color="#3c3c3c" />
+      <stop offset="1" stop-color="#000" />
+    </radialGradient>
+    <linearGradient id="example-dark-top" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="18">
+      <stop stop-color="#000" stop-opacity="0.9975" />
+      <stop offset=".4" stop-color="#000" stop-opacity=".35" />
+      <stop offset=".7" stop-color="#000" stop-opacity=".1" />
+      <stop offset="1" stop-color="#000" stop-opacity="0" />
+    </linearGradient>
+    <radialGradient id="example-light" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(22.4 0 0 24.0 38.44 16.24)">
+      <stop stop-color="#fefefe" />
+      <stop offset=".15" stop-color="#f8f8f8" />
+      <stop offset=".3" stop-color="#e8e8e8" />
+      <stop offset=".5" stop-color="#cacaca" />
+      <stop offset=".7" stop-color="#a8a8a8" />
+      <stop offset=".9" stop-color="#8e8e8e" />
+      <stop offset="1" stop-color="#898989" />
+    </radialGradient>
+  </defs>
+  <symbol id="GNUstepExample" viewBox="0 0 48 48" data-logical-size="48 48" data-reconstructed="true" data-workspace-files="GNUstep48x48.tiff" data-desktopkit-files="GNUstep48x48.tiff">
+    <use href="#example-disc" fill="#000" opacity="0.5925" filter="url(#example-shadow)" />
+    <use href="#example-back" fill="#000" opacity=".995" />
+    <use href="#example-disc" fill="url(#example-dark)" />
+    <use href="#example-disc" fill="url(#example-dark-top)" />
+    <g clip-path="url(#example-disc-clip)">
+      <path d="M31.75 8.15H29.509999999999998V24.09H31.75Z M16.34 24.09C14.1 24.09 14.1 26.59 14.1 28.09V37.9H16.34Z" fill="#000" opacity="0.893" filter="url(#example-side-softness)" />
+      <use href="#example-stair" fill="url(#example-light)" />
+      <g clip-path="url(#example-light-clip)">
+        <path d="M0 8.15H48V10.02H0Z" fill="url(#example-top-bevel)" />
+        <path d="M47.5475 8.15H31.75V23.12Q31.75 24.09 30.78 24.09H17.54Q16.34 24.09 16.34 25.29V37.9H1.43" fill="none" stroke="#000" stroke-width="1.3475" opacity="0.313" filter="url(#example-edge-softness)" />
+      </g>
+      <use href="#example-disc" fill="none" stroke="#000" stroke-width="1.04" opacity="0.699" filter="url(#example-rim-softness)" />
+    </g>
+  </symbol>
+  <use id="preview" href="#GNUstepExample" />
+</svg>

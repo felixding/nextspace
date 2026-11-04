@@ -1,0 +1,19 @@
+{
+  "cases": {
+    "Floppy": {
+      "source": "Applications/Workspace/Resources/DOS_FD.fs.tiff",
+      "source_sha256": "94b74c0c14adfce35aee58ae6fb6d13f545496afd5e7eddb5647d8708cfea89d",
+      "png": "DOS_FD.fs.png",
+      "png_sha256": "5512759920624118abfc6a8d22424a8d6245c00ea28cb68512dcd113ab2019f3",
+      "rgb_representation_index": 1
+    },
+    "FloppyOpen": {
+      "source": "Applications/Workspace/Resources/DOS_FD.openfs.tiff",
+      "source_sha256": "ed0e339c6e0a3b67073d0b8eada9704602dc29e7edb64aeadd5722235d653d73",
+      "png": "DOS_FD.openfs.png",
+      "png_sha256": "83a5cab59417c7bdeae137393ef23fd46c4fbaf2b2499bc37c6bd0e5b0daeb37",
+      "rgb_representation_index": 1
+    }
+  },
+  "reference": "Native RGB-context exports before reconstruction. The open resource moves the shutter four logical points left. No matching floppy appears in either complete retained NeXTSpirit set."
+}
