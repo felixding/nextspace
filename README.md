@@ -21,15 +21,19 @@ NEXTSPACE is not just a set of applications tightly integrated to each other. It
 Unlike other 'real' and 'serious' projects, I have not yet defined a target audience for NEXTSPACE. I intentionally left aside modern UI design trends (fancy animations, shadows, gray blurry lines, flat controls, acid colors, transparency). I like the accurate, clear, grayish, and "boring" UI that helps, not hinder, to get my job done.
 
 ## Not planned
-* Porting to other Linux distributions and operating systems. For now, I want a fast, accurate, and stable version for RedHat-based Linux distributions. Currently these are Fedora, CentOS Stream 9, Rocky Linux 9 and Alma Linux 9. However, NEXTSPACE was designed to be portable and thus this point may be changed in future.
+* Qualifying additional platforms before the native Wayland target is ready. Current development focuses on Debian 13 ARM64; Intel/AMD and other distributions are deferred.
 * GNOME, KDE, macOS rival in terms of visual effects, modern design principles, look and feel.
 * Implementing a macOS-like desktop paradigm. There is another good place for this -- see [Étoilé](http://etoileos.com).
 
 ## Installing
-There are several methods of NEXTSPACE installation:
-1. Get release builds [here](https://github.com/trunkmaster/nextspace/releases). At the time of writing there are RPM builds for CentOS 7, 8 and Fedora31. As of CentOS 7 EOL in 2024, no more CentOS builds will be created in the future. RPM packages will built for latest release of Fedora. Optionally may be created builds for stable Debian release and packed as a tarball.
-2. Make own build of packages. Installation is based off CentOS 7's minimal install, you can find [full directions in the installation guide](https://github.com/trunkmaster/nextspace/wiki/Install-Guide).
-3. Install it from source with help of build scripts (tested on Debian, Ubuntu LTS and Fedora). Please follow [build instructions](https://github.com/trunkmaster/nextspace/blob/master/Packaging/Sources/README.md) if you've choose this way.
+The current native Wayland preview targets Debian 13 ARM64. Follow the
+[Debian package guide](Packaging/Debian/README.md) to build and validate the
+desktop. The [implementation status](docs/Wayland-Implementation-Status.md)
+records the qualified software and remaining release gates.
+
+[Lima helpers](Tests/Lima/README.txt) support local development and testing on
+Apple Silicon Macs. Lima is an optional developer tool; the Debian desktop
+packages run directly on Linux.
 
 ## For developers
 For those who are eager to know "How it's done?" can find information on development tasks, goals, solutions, implementation details, and build instructions on the [Wiki](https://github.com/trunkmaster/nextspace/wiki).

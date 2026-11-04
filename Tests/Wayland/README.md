@@ -347,7 +347,9 @@ references and upstream license are retained in `artwork-originals/color-panel`.
 `color_picker_artwork.py` exercises the actual panel's four mode buttons at all
 five scales, compares their images and the main picker image, and quits normally.
 The pinned GNUstep subpickers report mode masks rather than enum values; the
-fixture records that existing behavior. Both this runner and `color_wheel.py`
+fixture records that existing behavior. Picker tabs are selected by their actual
+remote picker class, so bundle discovery order does not change the target. Both
+this runner and `color_wheel.py`
 use the shared setup in `color_panel.py`. The normal GUI build renders qualified
 symbols from `Libraries/gnustep/Artwork.svg` before building the picker bundles.
 `magnifier_fidelity.py` protects the original magnifier's circular rim, split
@@ -734,21 +736,24 @@ failure without weakening behavior assertions or deadlines.
   exact restoration and removal of the fullscreen output also pass in the
   staged modern runtime. Classic-runtime and real-display qualification remain
   separate gates.
-- `title_layout.py` uses the compositor's actual layout helper and an isolated
-  Xvfb/Xft reference built from the original Window Maker functions. It checks
+- `title_layout.py` uses the compositor's actual layout helper and fixed
+  references captured from the original Window Maker functions and Xft. It checks
   density-independent metrics, prefix/tail shortening, intact Unicode clusters,
   malformed UTF-8 and actual ink at all five scales. The generated GPL reference
   retains the original notices and is separate from the MIT compositor.
   Both the legacy monochrome default and `--antialiased` mode compare ASCII
-  metrics and exact 1x glyph pixels with Xft. Xvfb is included in the test image.
-- `font_config.py` compares matched Fontconfig properties with actual Xft:
+  metrics and exact 1x glyph pixels. The [reference manifest and maintenance
+  instructions](fixtures/title-reference/README.md) pin source/font hashes and
+  rendering options. Native CI does not start or require an X server.
+- The optional historical `font_config.py` reference tool compares matched
+  Fontconfig properties with actual Xft:
   global antialias/hinting rules, explicit face files, hinting/autohint/bitmap
   settings and the legacy antialias fallback. Metrics stay logical across five
   densities; complete 1x glyph pixels match, and CJK font fallback is checked.
   Matrix, variation and subpixel properties, legacy XLFD names and complete
   frame raster parity remain open.
 - `title_appearance.py` checks actual trusted-shell font/antialias/justification
-  changes against original Xft glyph pixels, including explicit hinting and
+  changes against the same fixed original glyph pixels, including explicit hinting and
   face-file changes, an actually stopped
   application, all five densities, shell replacement, invalid inputs and four
   Objective-C run-loop modes. `--legacy-compositor` additionally verifies that

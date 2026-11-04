@@ -111,7 +111,10 @@
     "initial_native_failure": "Private staging directory prevents disposable PAM user execution; artifact collection lacks access to fixture homes.",
     "permission_fixes_reproduced_on_linux": true,
     "hosted_fix_confirmation_pending": true,
-    "legacy_x11_workflows_removed": 4
+    "legacy_x11_workflows_removed": 4,
+    "hosted_permission_fixes_confirmed": true,
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41852858665",
+    "latest_completed_result": "failure: Xvfb reference and color-picker tab-order fixture"
   },
   "evidence_locations": {
     "compact_capsules": ".build/evidence/",
@@ -145,5 +148,38 @@
     "priority_restored": true,
     "canonical_cleanup_verified": true,
     "product_patch_promoted": false
+  },
+  "native_title_reference": {
+    "archive": ".build/wayland-validation/arm64-title-reference-v1-evidence.tar.gz",
+    "bytes": 846891,
+    "sha256": "8e28421427310d7039b2b5e7b3258abdc9d62b8272e78683666ca4987f4b3a77",
+    "reference_records": 169,
+    "reference_rasters": 25,
+    "layout_cases": 920,
+    "configured_fonts": 9,
+    "live_title_snapshots": 147,
+    "protocol_client_checks": 6,
+    "matched_payload_files": 4386,
+    "matched_literal_links": 120,
+    "documentation_files_omitted_by_image_policy": 17,
+    "independent_extracted_replay": true,
+    "x_server_required": false,
+    "compiled_product_changed": false
+  },
+  "color_picker_identity_fixture": {
+    "archive": ".build/wayland-validation/arm64-color-picker-order-v1-evidence.tar.gz",
+    "bytes": 1972295,
+    "sha256": "5627e4c47db109b1658940cf2e2ae4f351adea33b4cdd5bf59d165328e99edb1",
+    "native_image_comparisons": 120,
+    "real_pointer_actions": 30,
+    "scales_percent": [
+      100,
+      125,
+      150,
+      175,
+      200
+    ],
+    "runtime_unchanged": true,
+    "assertions_and_tolerances_unchanged": true
   }
 }

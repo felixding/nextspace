@@ -233,10 +233,34 @@ for Docker. The first hosted native job reaches the PAM fixture, then fails
 because its root-owned temporary installation directory has mode 0700. Artifact
 collection also cannot traverse private fixture homes. The test runner now makes
 only the staged installation root traversable; collection takes ownership after
-the container exits. A Linux reproduction verifies execution and collection while
-preserving private home/file modes. Hosted confirmation remains pending. The four
-former X11 source/RPM workflows and their badges are removed.
- Native101/native102 cold build, network-disabled
+the container exits. Both five-density PAM tests and artifact collection now pass
+in the hosted rerun. The four former X11 source/RPM workflows and their badges
+are removed.
+
+The same native job next encounters an old title-reference test requiring Xvfb.
+Its original Window Maker/Xft metrics and glyphs are now fixed inputs: 169 records,
+25 rasters, source/font hashes and rendering options. Native CI keeps the exact
+original pixel assertions without starting an X server. Two 460-case layout runs
+and nine configured fonts pass. A fresh Debian 13 ARM64 container with native106
+and no Xvfb passes 147 live title snapshots and six protocol/client checks.
+Independent replay verifies the original glyph comparisons. All 4,386 present
+payload files and 120 literal links match package receipts; the image's dpkg
+policy omits seventeen documentation files. The 846,891-byte capsule is
+`arm64-title-reference-v1-evidence.tar.gz`, SHA-256
+`8e28421427310d7039b2b5e7b3258abdc9d62b8272e78683666ca4987f4b3a77`.
+
+The package job reaches the shared color-picker workflow, where the fixture
+clicks tab zero and selects Named Colors instead of Sliders. Picker order follows
+bundle discovery. The controls probe now reports remote picker identities and
+both artwork fixtures select by identity. Native106 passes 120 image comparisons
+and thirty real pointer actions across all five scales with unchanged assertions
+and pixel tolerances. The 1,972,295-byte capsule is
+`arm64-color-picker-order-v1-evidence.tar.gz`, SHA-256
+`5627e4c47db109b1658940cf2e2ae4f351adea33b4cdd5bf59d165328e99edb1`.
+These changes affect test tooling and reference data; compiled product inputs
+still match the qualified cohort. Full hosted-suite confirmation remains pending.
+
+Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
 upgraded directory artwork: after nine successful native canvases, the second
 Home-viewer query returns status 1 with empty output. The failed installation is

@@ -21,11 +21,8 @@ and checks a fresh Debian consumer with no X server installed. It verifies exact
 package payloads, native application and Workspace workflows, saved-profile
 Login, live toolkit/compositor upgrade, retained configuration and removal.
 `desktop-consumer.sh` can repeat the clean consumer using existing build/replay
-artifacts. The native7/native8 cold build, offline source replay and complete
-clean-consumer lifecycle pass, with an independent host evidence audit.
-The newer native9/native10 cohort also passes those checks with the fractional
-UI pixel-grid fix and strict Terminal full-frame repaint assertion: 3,823 identical
-offline inputs, six packages and 94 frozen validation sources pass archive audit.
+artifacts. Qualified cohorts and evidence hashes are recorded in
+[the current status](../../docs/Wayland-Implementation-Status.md).
 New runs build their probes from the cold build's source snapshot and run their
 lifecycle checks from its verified source archive. Ongoing checkout edits do not
 change the validation cohort. The shared extractor checks both the archive hash
