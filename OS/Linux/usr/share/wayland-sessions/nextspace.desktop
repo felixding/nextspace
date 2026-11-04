@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=NEXTSPACE (Wayland)
+Comment=NEXTSPACE desktop
+Exec=/usr/NextSpace/bin/nextspace-wayland-session
+TryExec=/usr/NextSpace/bin/nextspace-wayland-session
+Type=Application
+DesktopNames=NEXTSPACE

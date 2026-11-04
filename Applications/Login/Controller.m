@@ -251,6 +251,11 @@ static int catchXErrors(Display *dpy, XErrorEvent *event) { return 0; }
 - (void)setWindowVisible:(BOOL)flag
 {
   [self clearFields];
+  if ([self isNativeLogin]) {
+    if (flag) { [window center]; [window makeKeyAndOrderFront:self]; }
+    else [window orderOut:self];
+    return;
+  }
   if (flag) {
     [self setRootWindowBackground];
     [window center];
@@ -402,8 +407,9 @@ static int catchXErrors(Display *dpy, XErrorEvent *event) { return 0; }
 
 - (NSString *)lastLoggedInUser
 {
-  if ([[prefs objectForKey:@"RememberLastLoggedInUser"] integerValue] == 1) {
-    return [prefs objectForKey:@"LastLoggedInUser"];
+  if ([[self loginPreference:@"RememberLastLoggedInUser"] integerValue] == 1) {
+    return [self isNativeLogin] ? [[NSUserDefaults standardUserDefaults] stringForKey:@"NativeLastLoggedInUser"] :
+      [prefs objectForKey:@"LastLoggedInUser"];
   }
 
   return nil;
@@ -411,6 +417,11 @@ static int catchXErrors(Display *dpy, XErrorEvent *event) { return 0; }
 
 - (void)setLastLoggedInUser:(NSString *)username
 {
+  if ([self isNativeLogin]) {
+    [[NSUserDefaults standardUserDefaults] setObject:username ?: @"" forKey:@"NativeLastLoggedInUser"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    return;
+  }
   [prefs setObject:username == nil ? @"" : [NSString stringWithString:username]
             forKey:@"LastLoggedInUser"];
 }
@@ -542,6 +553,15 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
 
 @end
 
+/* Gorm embeds image representations; load the density-aware resources instead. */
+static NSImage *LoginImage(NSString *name, NSImage *fallback)
+{
+  NSString *directory = [[NSBundle mainBundle] pathForResource:@"Login" ofType:@"gorm"];
+  NSString *path = [directory stringByAppendingPathComponent:[name stringByAppendingPathExtension:@"tiff"]];
+  NSImage *image = [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
+  return image ?: fallback;
+}
+
 @implementation Controller
 
 - (void)awakeFromNib
@@ -557,6 +577,15 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
   userSessions = [[NSMutableDictionary alloc] init];
 
   NSLog(@"awakeFromNib");
+
+  [panelImageView setImage:LoginImage(@"Panel", [panelImageView image])];
+  [fieldsImage setImage:LoginImage(@"Fields", [fieldsImage image])];
+  [fieldsLabelImage setImage:LoginImage(@"FieldNames", [fieldsLabelImage image])];
+  // The archived panel uses gray normal images and white/red highlighted images.
+  [shutDownBtn setImage:LoginImage(@"powerbuttonup", [shutDownBtn image])];
+  [shutDownBtn setAlternateImage:LoginImage(@"powerbuttondown", [shutDownBtn alternateImage])];
+  [restartBtn setImage:LoginImage(@"restartbuttonup", [restartBtn image])];
+  [restartBtn setAlternateImage:LoginImage(@"restartbuttondown", [restartBtn alternateImage])];
 
   // Adjust window size to background image size
   rect = [window frame];
@@ -601,7 +630,7 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
   host_name = [NSString stringWithCString:displayname];
   [hostnameField setStringValue:host_name];
 
-  if ([[prefs objectForKey:@"DisplayHostName"] integerValue] == 0) {
+  if ([[self loginPreference:@"DisplayHostName"] integerValue] == 0) {
     if ([hostnameField superview] != nil) {
       [hostnameField removeFromSuperview];
     }
@@ -613,6 +642,7 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
 - (void)applicationDidFinishLaunching:(NSNotification *)notif
 {
   NSLog(@"appDidFinishLaunch: start");
+  if ([self isNativeLogin]) { [self startNativeLogin]; return; }
 
   // Initialize X resources
   [self initXApp];
@@ -668,6 +698,7 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
 
 - (void)authenticate:(id)sender
 {
+  if ([self isNativeLogin]) { [self authenticateNative:sender]; return; }
   NSString *user = [[NSString alloc] initWithString:[userName stringValue]];
 
   // [self setBusyCursor];
@@ -698,7 +729,7 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
       [NSApp terminate:self];  // Equivalent to "Quit" menu item
       return;
     } else if ([user isEqualToString:@"shake"]) {  // for testing
-      [window shakePanel:xPanelWindow onDisplay:xDisplay];
+      [window shakePanel];
       return;
     } else {
       [window makeFirstResponder:password];
@@ -707,12 +738,12 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
   }
 
   if ([self authenticateUser:user] == YES) {
-    [window shrinkPanel:xPanelWindow onDisplay:xDisplay];
+    [window shrinkPanel];
     [self setWindowVisible:NO];
     isWindowActive = NO;
     [self openSessionForUser:user];
   } else {
-    [window shakePanel:xPanelWindow onDisplay:xDisplay];
+    [window shakePanel];
   }
 
   [self clearFields];
@@ -737,6 +768,7 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
   }
 
   if (panelExitCode == RebootExitCode) {
+    if ([self isNativeLogin]) { [self requestNativePower:OSEPowerReboot]; return; }
     NSLog(@"[Controller] restart: application will be stopped with exit code: %d", panelExitCode);
     [NSApp stop:self];  // Go out of run loop
   }
@@ -759,6 +791,7 @@ int ConversationFunction(int num_msg, const struct pam_message **msg, struct pam
   }
 
   if (panelExitCode == ShutdownExitCode) {
+    if ([self isNativeLogin]) { [self requestNativePower:OSEPowerOff]; return; }
     NSLog(@"[Controller] shutDown: application will be stopped with exit code: %d", panelExitCode);
     [NSApp stop:self];  // Go out of run loop
   }

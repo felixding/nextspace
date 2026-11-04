@@ -19,13 +19,12 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 //
 
-#import <X11/Xlib.h>
 #import <AppKit/AppKit.h>
 
 @interface LoginWindow : NSWindow
 {
 }
-- (void)shakePanel:(Window)panel onDisplay:(Display *)dpy;
-- (void)shrinkPanel:(Window)panel onDisplay:(Display *)dpy;
+- (void)shakePanel;
+- (void)shrinkPanel;
 
 @end

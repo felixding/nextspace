@@ -22,11 +22,6 @@ if [ ! -d ${BUILD_ROOT}/${GIT_PKG_NAME} ]; then
 	curl -L https://github.com/gnustep/libs-gui/archive/gui-${gnustep_gui_version}.tar.gz -o ${BUILD_ROOT}/${GIT_PKG_NAME}.tar.gz
 	cd ${BUILD_ROOT}
 	tar zxf ${GIT_PKG_NAME}.tar.gz || exit 1
-	# Patches
-	cd ${BUILD_ROOT}/${GIT_PKG_NAME}
-	patch -p1 < ${SOURCES_DIR}/libs-gui_NSApplication.patch
-	patch -p1 < ${SOURCES_DIR}/libs-gui_NSPopUpButton.patch
-	patch -p1 < ${SOURCES_DIR}/libs-gui_GSThemeDrawing.patch
 #	cd Images
 #	tar zxf ${SOURCES_DIR}/gnustep-gui-images.tar.gz
 fi
@@ -35,6 +30,7 @@ fi
 # Build
 #----------------------------------------
 cd ${BUILD_ROOT}/${GIT_PKG_NAME} || exit 1
+sh "${SOURCES_DIR}/patches/apply-gui-patches.sh" "${BUILD_ROOT}/${GIT_PKG_NAME}" "${NEXTSPACE_BUILD_WAYLAND:-0}" || exit 1
 if [ -d obj ]; then
 	$MAKE_CMD clean
 fi

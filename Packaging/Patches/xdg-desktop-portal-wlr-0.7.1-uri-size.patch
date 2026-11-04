@@ -1,0 +1,10 @@
+--- a/src/screenshot/screenshot.c
++++ b/src/screenshot/screenshot.c
+@@ -126,7 +126,7 @@
+ 
+ 	const char uri_prefix[] = "file://";
+-	char uri[strlen(path) + strlen(uri_prefix) + 1];
++	char uri[sizeof(path) + sizeof(uri_prefix) - 1];
+ 	snprintf(uri, sizeof(uri), "%s%s", uri_prefix, path);
+ 
+ 	sd_bus_message *reply = NULL;

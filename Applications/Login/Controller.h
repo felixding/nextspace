@@ -33,6 +33,7 @@
 #import <SystemKit/OSEPower.h>
 
 #import "LoginWindow.h"
+#import "GreetdSession.h"
 
 // 1 - Catchall for general errors
 // 2 - Misuse of shell builtins (according to Bash documentation)
@@ -87,6 +88,8 @@ extern LoginExitCode panelExitCode;
   XcursorAnimate *busy_cursor;
   NSTimer *busyTimer;
   NSTimer *rrTimer;
+  GreetdSession *nativeLogin;
+  BOOL nativePowerPending;
 }
 
 @property (readonly) OSEScreen *systemScreen;
@@ -98,6 +101,14 @@ extern LoginExitCode panelExitCode;
 - (void)restart:sender;
 - (void)shutDown:sender;
 
+@end
+
+@interface Controller (NativeLogin) <GreetdSessionDelegate>
+- (BOOL)isNativeLogin;
+- (id)loginPreference:(NSString *)key;
+- (void)startNativeLogin;
+- (void)authenticateNative:(id)sender;
+- (void)requestNativePower:(OSEPowerAction)action;
 @end
 
 @interface Controller (UserSession)

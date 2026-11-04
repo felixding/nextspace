@@ -35,6 +35,10 @@ fi
 #----------------------------------------
 # CoreFoundation
 cd ${BUILD_ROOT}/${CF_PKG_NAME} || exit 1
+CF_STREAM_PATCH="${PROJECT_DIR}/Libraries/libcorefoundation/CFStream-linux-thread-name.patch"
+if ! patch --reverse --dry-run -p1 < "$CF_STREAM_PATCH" >/dev/null 2>&1; then
+    patch -p1 < "$CF_STREAM_PATCH" || exit 1
+fi
 rm -rf .build 2>/dev/null
 mkdir -p .build
 cd .build

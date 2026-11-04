@@ -1,0 +1,12 @@
+--- a/crc/makecrc.c
++++ b/crc/makecrc.c
+@@ -51,7 +51,8 @@
+ 
+ static void initcrctab(name, poly, init, swapped, bits)
+ char *name;
+-int poly, init, swapped, bits;
++unsigned int poly;
++int init, swapped, bits;
+ {
+     register  int b, i;
+     unsigned short v;

@@ -1,0 +1,12 @@
+#!/bin/sh
+# Opt-in user launcher; PAM/logind must already supply this user's runtime/seat.
+set -eu
+bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export PATH="$bindir:${PATH:-/usr/local/bin:/usr/bin:/bin}" XDG_SESSION_CLASS=user
+unset GREETD_SOCK
+
+if [ "$#" -eq 0 ]; then
+  set -- --locker "$bindir/nextspace-wayland-locker" --capture-backend "$bindir/nextspace-wayland-capture" \
+    -- /usr/NextSpace/Apps/Workspace.app/Workspace
+fi
+exec "$bindir/nextspace-session" --private-bus --session-hook "$bindir/nextspace-session-hook" "$@"

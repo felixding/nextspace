@@ -20,6 +20,7 @@
 //
 
 #include <sys/wait.h>
+#include <signal.h>
 #include <dispatch/dispatch.h>
 
 #include <X11/Xlib.h>
@@ -212,10 +213,36 @@ int runCommand(NSString *command, BOOL wait)
   return (wait == NO) ? pid : child_status;
 }
 
+static volatile sig_atomic_t stopRequested = 0;
+
 static void handleSignal(int sig)
 {
-  fprintf(stderr, "[Login] got signal %i\n", sig);
-  [NSApp stop:nil];
+  stopRequested = 1;
+}
+
+@interface LoginSignalHandler : NSObject
++ (void)handlePendingStop:(NSTimer *)timer;
+@end
+
+@implementation LoginSignalHandler
++ (void)handlePendingStop:(NSTimer *)timer
+{
+  if (stopRequested) {
+    // Finish defaults writes on the main run loop, never in a signal handler.
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    [NSApp stop:nil];
+  }
+}
+@end
+
+static void watchStopRequests(void)
+{
+  NSTimer *timer = [NSTimer timerWithTimeInterval:0.1 target:[LoginSignalHandler class]
+    selector:@selector(handlePendingStop:) userInfo:nil repeats:YES];
+  NSRunLoop *loop = [NSRunLoop currentRunLoop];
+  for (NSString *mode in [NSArray arrayWithObjects:NSDefaultRunLoopMode,
+      NSModalPanelRunLoopMode, NSEventTrackingRunLoopMode, nil])
+    [loop addTimer:timer forMode:mode];
 }
 
 OSEDefaults *getDefaults(NSString *appPath)
@@ -315,6 +342,26 @@ int main(int argc, const char **argv)
 
   panelExitCode = 0;
 
+  const char *greeterSocket = getenv("GREETD_SOCK");
+#ifdef NEXTSPACE_BUILD_WAYLAND
+  if (!greeterSocket || !*greeterSocket) {
+    fprintf(stderr, "Login requires the native greeter session launcher.\n");
+    [pool release]; return 1;
+  }
+#endif
+
+  if (greeterSocket && *greeterSocket) {
+    if (getuid() == 0 || geteuid() == 0) {
+      fprintf(stderr, "Login: the native greeter must run as an unprivileged account.\n");
+      [pool release]; return 1;
+    }
+    signal(SIGQUIT, handleSignal);
+    [LoginApplication sharedApplication];
+    watchStopRequests();
+    NSApplicationMain(argc, argv);
+    [pool release]; return 0;
+  }
+
   // SIGQUIT will be received from systemd on `systemctl stop loginwindow`
   signal(SIGQUIT, handleSignal);
 
@@ -347,6 +394,7 @@ int main(int argc, const char **argv)
     [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"GSX11HandlesWindowDecorations"];
     // Start our application without appicon
     [LoginApplication sharedApplication];
+    watchStopRequests();
     NSApplicationMain(argc, argv);
     //---------------------------------------------------------------------------
 

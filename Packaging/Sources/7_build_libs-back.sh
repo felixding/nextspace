@@ -27,6 +27,9 @@ cp -R ${SOURCES_DIR}/back ${BUILD_ROOT}
 #----------------------------------------
 . /Developer/Makefiles/GNUstep.sh
 cd ${BUILD_DIR}
+if [ "${NEXTSPACE_BUILD_WAYLAND:-0}" = "1" ]; then
+  autoreconf -fi || exit 1
+fi
 
 # ART
 $MAKE_CMD clean || exit 1
@@ -50,6 +53,14 @@ $INSTALL_CMD fonts=no || exit 1
 #----------------------------------------
 # Post install
 #----------------------------------------
+if [ "${NEXTSPACE_BUILD_WAYLAND:-0}" = "1" ]; then
+  $MAKE_CMD clean || exit 1
+  ./configure --enable-server=wayland --enable-graphics=cairo --with-name=wayland || exit 1
+  $MAKE_CMD || exit 1
+  $INSTALL_CMD -C Source fonts=no || exit 1
+  # Native storage uses a separate executable and keeps the X11 gpbs intact.
+  $INSTALL_CMD -C Tools || exit 1
+fi
 if [ "$DEST_DIR" = "" ]; then
 	sudo ldconfig
 fi

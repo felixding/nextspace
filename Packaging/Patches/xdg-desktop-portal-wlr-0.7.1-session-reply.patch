@@ -1,0 +1,11 @@
+--- a/src/screencast/screencast.c
++++ b/src/screencast/screencast.c
+@@ -549,6 +549,8 @@
+ 		if (strcmp(sess->session_handle, session_handle) == 0) {
+ 				logprint(DEBUG, "dbus: start: found matching session %s", sess->session_handle);
+ 				cast = sess->screencast_data.screencast_instance;
++				/* Reply persistence belongs to this session, not the list sentinel. */
++				break;
+ 		}
+ 	}
+ 	if (!cast) {

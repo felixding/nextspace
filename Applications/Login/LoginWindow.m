@@ -25,13 +25,52 @@
 //
 
 #import <unistd.h>
+#include <math.h>
+#include <time.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#import <GNUstepGUI/GSDisplayServer.h>
 
 #import <SystemKit/OSEScreen.h>
 #import <SystemKit/OSEDisplay.h>
-#import <SystemKit/OSEMouse.h>
 
-#import "Controller.h"
 #import "LoginWindow.h"
+
+@interface NSObject (LoginDisplayModel)
+- (OSEScreen *)systemScreen;
+@end
+
+#define ANIMATION_DELAY 250
+#define NATIVE_ANIMATION_DURATION 0.2
+
+static BOOL nativeWindowPlacement(void)
+{ return [GSCurrentServer() respondsToSelector:@selector(logicalDesktopBounds)]; }
+
+static void flushNativePanel(LoginWindow *window, NSRect expected)
+{
+  NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:NATIVE_ANIMATION_DURATION];
+  // AppKit updates the frame when Wayland acknowledges it. Finish that move
+  // before a later request or restoration can be skipped against a stale frame.
+  do {
+    [window displayIfNeeded];
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+      beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.001]];
+  } while (!NSEqualRects([window frame], expected) && [deadline timeIntervalSinceNow] > 0);
+}
+
+static NSTimeInterval animationElapsed(struct timespec started)
+{
+  struct timespec now;
+  clock_gettime(CLOCK_MONOTONIC, &now);
+  return now.tv_sec - started.tv_sec + (now.tv_nsec - started.tv_nsec) / 1000000000.0;
+}
+
+static void movePanel(Display *display, Window native, int x, int y)
+{
+  XMoveWindow(display, native, x, y);
+  XSync(display, False);
+  usleep(ANIMATION_DELAY);
+}
 
 @implementation LoginWindow
 
@@ -74,7 +113,16 @@
 */
 - (void)center
 {
+  if (nativeWindowPlacement()) {
+    NSScreen *screen = [self screen] ?: [NSScreen mainScreen];
+    if (!screen) return;
+    NSRect bounds = [screen frame], frame = [self frame];
+    [self setFrameOrigin:NSMakePoint(floor(NSMidX(bounds) - NSWidth(frame) / 2),
+                                    floor(NSMidY(bounds) - NSHeight(frame) / 2))];
+    return;
+  }
   OSEScreen *screen = [[NSApp delegate] systemScreen];
+  if (!screen) { [super center]; return; }
   OSEDisplay *display = nil;
   NSSize screenSize;
   NSRect displayRect;
@@ -85,7 +133,7 @@
 
   // Get NEXTSPACE display rect
   if (screen != nil) {
-    [screen randrUpdateScreenResources];
+    [screen refreshDisplays];
     if ([[screen activeDisplays] count] > 0) {
       display = [screen mainDisplay];
       if (!display) {
@@ -122,11 +170,9 @@
   [self setFrameOrigin:newOrigin];
 }
 
-#define ANIMATION_DELAY 250
-
 - (NSPoint)windowScreenOrigin
 {
-  NSRect allScreensFrame;
+  NSRect allScreensFrame = NSZeroRect;
   NSRect frame = [self frame];
   NSPoint origin = frame.origin;
 
@@ -142,9 +188,13 @@
   return origin;
 }
 
-- (void)shakePanel:(Window)panel onDisplay:(Display *)dpy
+- (void)shakePanel
 {
-  NSPoint origin = [self windowScreenOrigin];
+  BOOL native = nativeWindowPlacement();
+  Display *dpy = native ? NULL : [GSCurrentServer() serverDevice];
+  Window panel = native ? 0 : (Window)[GSCurrentServer() windowDevice:[self windowNumber]];
+  NSRect original = [self frame];
+  NSPoint origin = native ? original.origin : [self windowScreenOrigin];
   int x, initial_x, y;
   int i, j, num_steps, num_shakes;
 
@@ -153,24 +203,40 @@
 
   num_steps = 4;
   num_shakes = 14;
+  if (native) {
+    struct timespec started;
+    clock_gettime(CLOCK_MONOTONIC, &started);
+    int step = 1;
+    @try {
+      do {
+        int phase = step % (num_steps * 4);
+        int offset = phase < num_steps ? phase :
+          (phase < num_steps * 3 ? num_steps * 2 - phase : phase - num_steps * 4);
+        NSRect frame = original;
+        frame.origin.x += offset * 10;
+        [self setFrame:frame display:NO];
+        flushNativePanel(self, frame);
+        usleep(16000);
+        step = MAX(step + 1, (int)(animationElapsed(started) / NATIVE_ANIMATION_DURATION * num_steps * 4 * num_shakes));
+      } while (step < num_steps * 4 * num_shakes);
+    } @finally {
+      [self setFrame:original display:YES];
+      flushNativePanel(self, original);
+    }
+    return;
+  }
   for (i = 0; i < num_shakes; i++) {
     for (j = 0; j < num_steps; j++) {
       x += 10;
-      XMoveWindow(dpy, panel, x, y);
-      XSync(dpy, false);
-      usleep(ANIMATION_DELAY);
+      movePanel(dpy, panel, x, y);
     }
     for (j = 0; j < num_steps * 2; j++) {
       x -= 10;
-      XMoveWindow(dpy, panel, x, y);
-      XSync(dpy, false);
-      usleep(ANIMATION_DELAY);
+      movePanel(dpy, panel, x, y);
     }
     for (j = 0; j < num_steps; j++) {
       x += 10;
-      XMoveWindow(dpy, panel, x, y);
-      XSync(dpy, false);
-      usleep(ANIMATION_DELAY);
+      movePanel(dpy, panel, x, y);
     }
   }
   XMoveWindow(dpy, panel, initial_x, y);
@@ -179,9 +245,41 @@
 
 #define SHRINK_FACTOR 2
 
-- (void)shrinkPanel:(Window)panel onDisplay:(Display *)dpy
+- (void)shrinkPanel
 {
   NSRect windowRect = [self frame];
+  if (nativeWindowPlacement()) {
+    NSView *content = [self contentView];
+    NSRect bounds = [content bounds];
+    BOOL autoresizes = [content autoresizesSubviews];
+    struct timespec started;
+    clock_gettime(CLOCK_MONOTONIC, &started);
+    [content setAutoresizesSubviews:NO];
+    @try {
+      CGFloat width = NSWidth(windowRect) - SHRINK_FACTOR;
+      while (width > 0) {
+        CGFloat inset = (NSWidth(windowRect) - width) / 2;
+        NSRect frame = NSMakeRect(NSMinX(windowRect) + inset, NSMinY(windowRect), width, NSHeight(windowRect));
+        [self setFrame:frame display:NO];
+        [content setBounds:NSMakeRect(NSMinX(bounds) + inset, NSMinY(bounds), width, NSHeight(bounds))];
+        [content setNeedsDisplay:YES];
+        flushNativePanel(self, frame);
+        usleep(16000);
+        // Skip obsolete frames instead of extending the animation at higher densities.
+        width = MIN(width - SHRINK_FACTOR,
+          floor(NSWidth(windowRect) * (1 - animationElapsed(started) / NATIVE_ANIMATION_DURATION) / SHRINK_FACTOR) * SHRINK_FACTOR);
+      }
+    } @finally {
+      [self setFrame:windowRect display:NO];
+      [content setBounds:bounds];
+      [content setAutoresizesSubviews:autoresizes];
+      [content setNeedsDisplay:YES];
+      flushNativePanel(self, windowRect);
+    }
+    return;
+  }
+  Display *dpy = [GSCurrentServer() serverDevice];
+  Window panel = (Window)[GSCurrentServer() windowDevice:[self windowNumber]];
   NSPoint origin = [self windowScreenOrigin];
   GC gc;
   Pixmap pixmap;

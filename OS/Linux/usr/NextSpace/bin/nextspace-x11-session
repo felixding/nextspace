@@ -1,0 +1,12 @@
+#!/bin/sh
+# The display manager supplies the authenticated X server and authority.
+set -eu
+if [ -z "${DISPLAY:-}" ]; then
+  echo 'The X11 session requires DISPLAY from the display manager.' >&2
+  exit 1
+fi
+unset WAYLAND_DISPLAY WAYLAND_SOCKET NEXTSPACE_SHELL_SOCKET NEXTSPACE_SESSION_ID GREETD_SOCK
+export XDG_SESSION_TYPE=x11 NEXTSPACE_GS_BACKEND=x11
+export XDG_SESSION_DESKTOP=NextSpace XDG_CURRENT_DESKTOP=NEXTSPACE DESKTOP_SESSION=nextspace-x11
+export PATH="/usr/NextSpace/bin:/Library/bin:/usr/NextSpace/sbin:/Library/sbin:${PATH:-/usr/bin:/bin}"
+exec /usr/NextSpace/Apps/Workspace.app/Workspace "$@"
