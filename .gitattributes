@@ -2,3 +2,4 @@
 Applications/Artwork/NeXTSpirit/** -text
 Applications/Artwork/Fonts/** -text
 Tests/Wayland/artwork-originals/** -text
+Tests/Wayland/fixtures/title-reference/** -text

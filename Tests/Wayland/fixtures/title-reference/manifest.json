@@ -1,0 +1,1542 @@
+{
+  "format": 1,
+  "sources": {
+    "Applications/Workspace/WM/misc.c": "921912df38237e369b4b4dffc2ae3e3c375b193cf41db87c9d3e33bdc57c6815",
+    "Applications/Workspace/WM/core/wfont.c": "a21b18db6d4520036971c9dad2995cea8f0f20aa3b73684b400b6dd7bff78519"
+  },
+  "files": {
+    "glyph-df1eaffa1350265b.png": "328ac1a8779ceb9a5fd8d8c100559726e4d28666f1cfd15477c6ae37ed79a2b5",
+    "glyph-ee188123c4983441.png": "5526c208d1abfd5cdac6120b30c5185e3dc4a8a1d5af7676ea67271359bd0f3f",
+    "glyph-7310433b5cec71cc.png": "719d4ca029d97cf69aac1e8e7aa18ef6667eb097caa28d7d9d338dc725edf38e",
+    "glyph-bba89ac6e322986e.png": "c39d2ef4a2f1166d5dcfe8fa0f4e5837ede744b76bc037e6696fbe17eeddabd8",
+    "glyph-1f91c51dc0a57f13.png": "3517218e344c89939f70f3fee5ef61bd2ffe25ba8f727e96209699ad1f1326f9",
+    "glyph-89303d1ae7169313.png": "75ee8f3cc34941276ab3bbba96b0ade248824b2137e83500359c6eeb7a6916d4",
+    "glyph-3b78c6dd169bbd92.png": "03ffefc7a88b1f81dc704a8bb9d81bc935312b7795b9dccbde9264435eed46b6",
+    "glyph-1686fc817111b96b.png": "a640286e25179ff72cdd6a303ced2e13d1e88311464e7de391ae88bff70c2b0a",
+    "glyph-4e51261b964d4ee5.png": "01e1217067d22b85d165defd5b1096fa5e0f685662e1d9889a2181d6cd51dfb3",
+    "glyph-056cd291cd8b851e.png": "328ac1a8779ceb9a5fd8d8c100559726e4d28666f1cfd15477c6ae37ed79a2b5",
+    "glyph-5aae652195ffa278.png": "5526c208d1abfd5cdac6120b30c5185e3dc4a8a1d5af7676ea67271359bd0f3f",
+    "glyph-4ed05ca3dbb7a8ef.png": "719d4ca029d97cf69aac1e8e7aa18ef6667eb097caa28d7d9d338dc725edf38e",
+    "glyph-be37f4e612fb2613.png": "c39d2ef4a2f1166d5dcfe8fa0f4e5837ede744b76bc037e6696fbe17eeddabd8",
+    "glyph-6e0093c33b03200d.png": "3517218e344c89939f70f3fee5ef61bd2ffe25ba8f727e96209699ad1f1326f9",
+    "glyph-8aea47cb57e72fa7.png": "75ee8f3cc34941276ab3bbba96b0ade248824b2137e83500359c6eeb7a6916d4",
+    "glyph-c40e3b783b01f170.png": "03ffefc7a88b1f81dc704a8bb9d81bc935312b7795b9dccbde9264435eed46b6",
+    "glyph-b9cc017927e63078.png": "a640286e25179ff72cdd6a303ced2e13d1e88311464e7de391ae88bff70c2b0a",
+    "glyph-4ce30ca7624e59e8.png": "01e1217067d22b85d165defd5b1096fa5e0f685662e1d9889a2181d6cd51dfb3",
+    "glyph-dd8ecd2ad9b44294.png": "a1a698d5388c933ae1f529fc23920109f21edc7233a6ee5bfa5684fd021a682c",
+    "glyph-416381d7a78b05db.png": "c0877d0952492a81d7ac0b6871b8c2243d0e048203fa94f7d9ac0ecc906ee234",
+    "glyph-5b1dd89a054b57f3.png": "0ebc84b9cc8de804066e7cbf926543aead6644d1bfbbfcfd2738e72d0e96f899",
+    "glyph-bcdf48e2297bdf9b.png": "84abb4ee3e5997db987e5ec15d34d5c2660e81b75ade0e1f8574ab2e7fe04293",
+    "glyph-37e57bba1a089b9a.png": "328ac1a8779ceb9a5fd8d8c100559726e4d28666f1cfd15477c6ae37ed79a2b5",
+    "glyph-0905f63351b5c33d.png": "328ac1a8779ceb9a5fd8d8c100559726e4d28666f1cfd15477c6ae37ed79a2b5",
+    "glyph-17a157aab55a1f0b.png": "744ca438eef2b94c0c31a0c6d7f56f6c1a7c3dea21d0b53416cf32e780854b4c",
+    "legacy-reference.c": "8a5c923b983c6a2af04405f755aaad711b932d60cdd76cbe2015863fa6ac42b9"
+  },
+  "fonts": {
+    "Helvetica:bold:pixelsize=12:antialias=false": {
+      "font_sha256": "fe7d3f1eedbf27b74341d1130b759d8e42378d8d5713bfae5106a59f194642c7",
+      "options": {
+        "index": "0",
+        "antialias": "False,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "Helvetica:bold:pixelsize=12:antialias=true": {
+      "font_sha256": "fe7d3f1eedbf27b74341d1130b759d8e42378d8d5713bfae5106a59f194642c7",
+      "options": {
+        "index": "0",
+        "antialias": "True,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "DejaVu Sans:postscriptname=DejaVuSans-Bold:pixelsize=14:antialias=false:embeddedbitmap=true": {
+      "font_sha256": "a4c5bc453ca281d90ea079e596da7ae0dfeb5777497c29ec254e76d97ff6f890",
+      "options": {
+        "index": "0",
+        "antialias": "False,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "DejaVu Sans:postscriptname=DejaVuSans-Bold:pixelsize=15:antialias=true:embeddedbitmap=false": {
+      "font_sha256": "a4c5bc453ca281d90ea079e596da7ae0dfeb5777497c29ec254e76d97ff6f890",
+      "options": {
+        "index": "0",
+        "antialias": "True,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "False",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "DejaVu Sans Mono:bold:pixelsize=14:antialias=true": {
+      "font_sha256": "0d3c03d1b667192f91223660a3163325cf83132662fe4d9f7d6e596bf7a995c2",
+      "options": {
+        "index": "0",
+        "antialias": "True,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "Helvetica:bold:size=12:dpi=96:antialias=false": {
+      "font_sha256": "fe7d3f1eedbf27b74341d1130b759d8e42378d8d5713bfae5106a59f194642c7",
+      "options": {
+        "index": "0",
+        "antialias": "False,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "Helvetica:bold:pixelsize=12:hinting=false:hintstyle=0:antialias=false": {
+      "font_sha256": "fe7d3f1eedbf27b74341d1130b759d8e42378d8d5713bfae5106a59f194642c7",
+      "options": {
+        "index": "0",
+        "antialias": "False,True",
+        "hinting": "False",
+        "hintstyle": "0,1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "Helvetica:bold:pixelsize=12:autohint=true:hintstyle=3:antialias=true": {
+      "font_sha256": "fe7d3f1eedbf27b74341d1130b759d8e42378d8d5713bfae5106a59f194642c7",
+      "options": {
+        "index": "0",
+        "antialias": "True,True",
+        "hinting": "True",
+        "hintstyle": "3,1",
+        "autohint": "True",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    },
+    "DejaVu Sans:file=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:pixelsize=12:antialias=false": {
+      "font_sha256": "a4c5bc453ca281d90ea079e596da7ae0dfeb5777497c29ec254e76d97ff6f890",
+      "options": {
+        "index": "0",
+        "antialias": "False,True",
+        "hinting": "True",
+        "hintstyle": "1",
+        "autohint": "False",
+        "embeddedbitmap": "True",
+        "rgba": "5",
+        "lcdfilter": "1"
+      }
+    }
+  },
+  "records": {
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        83,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        83,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",20]": {
+      "text": "...e",
+      "metrics": [
+        15,
+        83,
+        19
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",40]": {
+      "text": "...robe",
+      "metrics": [
+        15,
+        83,
+        38
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",80]": {
+      "text": "...ylandProbe",
+      "metrics": [
+        15,
+        83,
+        78
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",120]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",200]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",400]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ],
+      "image": "glyph-df1eaffa1350265b.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        87,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        87,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",20]": {
+      "text": "...A",
+      "metrics": [
+        15,
+        87,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",40]": {
+      "text": "...oWA",
+      "metrics": [
+        15,
+        87,
+        37
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",80]": {
+      "text": "...TAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        75
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",120]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",200]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",400]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AVATAR-ToWA\",10000]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ],
+      "image": "glyph-ee188123c4983441.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        210,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        210,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",20]": {
+      "text": "...n",
+      "metrics": [
+        15,
+        210,
+        19
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",40]": {
+      "text": "...sion",
+      "metrics": [
+        15,
+        210,
+        36
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",80]": {
+      "text": "...e.extension",
+      "metrics": [
+        15,
+        210,
+        80
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",120]": {
+      "text": "...g-name.extension",
+      "metrics": [
+        15,
+        210,
+        117
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",200]": {
+      "text": "...abcdefghij-long-name.extension",
+      "metrics": [
+        15,
+        210,
+        199
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",400]": {
+      "text": "file-abcdefghij-long-name.extension",
+      "metrics": [
+        15,
+        210,
+        210
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"file-abcdefghij-long-name.extension\",10000]": {
+      "text": "file-abcdefghij-long-name.extension",
+      "metrics": [
+        15,
+        210,
+        210
+      ],
+      "image": "glyph-7310433b5cec71cc.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        276,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        276,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",20]": {
+      "text": "...t",
+      "metrics": [
+        15,
+        276,
+        17
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",40]": {
+      "text": "...n.txt",
+      "metrics": [
+        15,
+        276,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",80]": {
+      "text": "AppName:...t",
+      "metrics": [
+        15,
+        276,
+        77
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",120]": {
+      "text": "AppName:...sion.txt",
+      "metrics": [
+        15,
+        276,
+        117
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",200]": {
+      "text": "AppName:...-a-long-extension.txt",
+      "metrics": [
+        15,
+        276,
+        196
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",400]": {
+      "text": "AppName: document-with-a-long-extension.txt",
+      "metrics": [
+        15,
+        276,
+        276
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"AppName: document-with-a-long-extension.txt\",10000]": {
+      "text": "AppName: document-with-a-long-extension.txt",
+      "metrics": [
+        15,
+        276,
+        276
+      ],
+      "image": "glyph-bba89ac6e322986e.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        248,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        248,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",20]": {
+      "text": "...t",
+      "metrics": [
+        15,
+        248,
+        17
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",40]": {
+      "text": "...e.txt",
+      "metrics": [
+        15,
+        248,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",80]": {
+      "text": "Application:...",
+      "metrics": [
+        15,
+        248,
+        80
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",120]": {
+      "text": "Application:...file.txt",
+      "metrics": [
+        15,
+        248,
+        119
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",200]": {
+      "text": "Application:...ct/important-file.txt",
+      "metrics": [
+        15,
+        248,
+        197
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",400]": {
+      "text": "Application: /tmp/project/important-file.txt",
+      "metrics": [
+        15,
+        248,
+        248
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"Application: /tmp/project/important-file.txt\",10000]": {
+      "text": "Application: /tmp/project/important-file.txt",
+      "metrics": [
+        15,
+        248,
+        248
+      ],
+      "image": "glyph-1f91c51dc0a57f13.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        20,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        20,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",20]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",40]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",80]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",120]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",200]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",400]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A:X\",10000]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ],
+      "image": "glyph-89303d1ae7169313.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        40,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        40,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",20]": {
+      "text": "A...",
+      "metrics": [
+        15,
+        40,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",40]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",80]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",120]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",200]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",400]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"A thing\",10000]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ],
+      "image": "glyph-3b78c6dd169bbd92.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",0]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",5]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",20]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",40]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",80]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",120]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",200]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",400]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"\",10000]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ],
+      "image": "glyph-1686fc817111b96b.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        8,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        8,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",20]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",40]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",80]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",120]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",200]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",400]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=false\",\"X\",10000]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ],
+      "image": "glyph-4e51261b964d4ee5.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        83,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        83,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",20]": {
+      "text": "...e",
+      "metrics": [
+        15,
+        83,
+        19
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",40]": {
+      "text": "...robe",
+      "metrics": [
+        15,
+        83,
+        38
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",80]": {
+      "text": "...ylandProbe",
+      "metrics": [
+        15,
+        83,
+        78
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",120]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",200]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",400]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ],
+      "image": "glyph-056cd291cd8b851e.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        87,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        87,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",20]": {
+      "text": "...A",
+      "metrics": [
+        15,
+        87,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",40]": {
+      "text": "...oWA",
+      "metrics": [
+        15,
+        87,
+        37
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",80]": {
+      "text": "...TAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        75
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",120]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",200]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",400]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AVATAR-ToWA\",10000]": {
+      "text": "AVATAR-ToWA",
+      "metrics": [
+        15,
+        87,
+        87
+      ],
+      "image": "glyph-5aae652195ffa278.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        210,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        210,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",20]": {
+      "text": "...n",
+      "metrics": [
+        15,
+        210,
+        19
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",40]": {
+      "text": "...sion",
+      "metrics": [
+        15,
+        210,
+        36
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",80]": {
+      "text": "...e.extension",
+      "metrics": [
+        15,
+        210,
+        80
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",120]": {
+      "text": "...g-name.extension",
+      "metrics": [
+        15,
+        210,
+        117
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",200]": {
+      "text": "...abcdefghij-long-name.extension",
+      "metrics": [
+        15,
+        210,
+        199
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",400]": {
+      "text": "file-abcdefghij-long-name.extension",
+      "metrics": [
+        15,
+        210,
+        210
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"file-abcdefghij-long-name.extension\",10000]": {
+      "text": "file-abcdefghij-long-name.extension",
+      "metrics": [
+        15,
+        210,
+        210
+      ],
+      "image": "glyph-4ed05ca3dbb7a8ef.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        276,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        276,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",20]": {
+      "text": "...t",
+      "metrics": [
+        15,
+        276,
+        17
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",40]": {
+      "text": "...n.txt",
+      "metrics": [
+        15,
+        276,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",80]": {
+      "text": "AppName:...t",
+      "metrics": [
+        15,
+        276,
+        77
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",120]": {
+      "text": "AppName:...sion.txt",
+      "metrics": [
+        15,
+        276,
+        117
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",200]": {
+      "text": "AppName:...-a-long-extension.txt",
+      "metrics": [
+        15,
+        276,
+        196
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",400]": {
+      "text": "AppName: document-with-a-long-extension.txt",
+      "metrics": [
+        15,
+        276,
+        276
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"AppName: document-with-a-long-extension.txt\",10000]": {
+      "text": "AppName: document-with-a-long-extension.txt",
+      "metrics": [
+        15,
+        276,
+        276
+      ],
+      "image": "glyph-be37f4e612fb2613.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        248,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        248,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",20]": {
+      "text": "...t",
+      "metrics": [
+        15,
+        248,
+        17
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",40]": {
+      "text": "...e.txt",
+      "metrics": [
+        15,
+        248,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",80]": {
+      "text": "Application:...",
+      "metrics": [
+        15,
+        248,
+        80
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",120]": {
+      "text": "Application:...file.txt",
+      "metrics": [
+        15,
+        248,
+        119
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",200]": {
+      "text": "Application:...ct/important-file.txt",
+      "metrics": [
+        15,
+        248,
+        197
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",400]": {
+      "text": "Application: /tmp/project/important-file.txt",
+      "metrics": [
+        15,
+        248,
+        248
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"Application: /tmp/project/important-file.txt\",10000]": {
+      "text": "Application: /tmp/project/important-file.txt",
+      "metrics": [
+        15,
+        248,
+        248
+      ],
+      "image": "glyph-6e0093c33b03200d.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        20,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        20,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",20]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",40]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",80]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",120]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",200]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",400]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A:X\",10000]": {
+      "text": "A:X",
+      "metrics": [
+        15,
+        20,
+        20
+      ],
+      "image": "glyph-8aea47cb57e72fa7.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        40,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        40,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",20]": {
+      "text": "A...",
+      "metrics": [
+        15,
+        40,
+        20
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",40]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",80]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",120]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",200]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",400]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"A thing\",10000]": {
+      "text": "A thing",
+      "metrics": [
+        15,
+        40,
+        40
+      ],
+      "image": "glyph-c40e3b783b01f170.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",0]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",5]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",20]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",40]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",80]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",120]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",200]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",400]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"\",10000]": {
+      "text": "",
+      "metrics": [
+        15,
+        0,
+        0
+      ],
+      "image": "glyph-b9cc017927e63078.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",0]": {
+      "text": "...",
+      "metrics": [
+        15,
+        8,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",5]": {
+      "text": "...",
+      "metrics": [
+        15,
+        8,
+        12
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",20]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",40]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",80]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",120]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",200]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",400]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ]
+    },
+    "[\"Helvetica:bold:pixelsize=12:antialias=true\",\"X\",10000]": {
+      "text": "X",
+      "metrics": [
+        15,
+        8,
+        8
+      ],
+      "image": "glyph-4ce30ca7624e59e8.png"
+    },
+    "[\"DejaVu Sans:postscriptname=DejaVuSans-Bold:pixelsize=14:antialias=false:embeddedbitmap=true\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        17,
+        113,
+        113
+      ],
+      "image": "glyph-dd8ecd2ad9b44294.png"
+    },
+    "[\"DejaVu Sans:postscriptname=DejaVuSans-Bold:pixelsize=15:antialias=true:embeddedbitmap=false\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        18,
+        123,
+        123
+      ],
+      "image": "glyph-416381d7a78b05db.png"
+    },
+    "[\"DejaVu Sans Mono:bold:pixelsize=14:antialias=true\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        17,
+        96,
+        96
+      ],
+      "image": "glyph-5b1dd89a054b57f3.png"
+    },
+    "[\"Helvetica:bold:size=12:dpi=96:antialias=false\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        20,
+        112,
+        112
+      ],
+      "image": "glyph-bcdf48e2297bdf9b.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:hinting=false:hintstyle=0:antialias=false\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ],
+      "image": "glyph-37e57bba1a089b9a.png"
+    },
+    "[\"Helvetica:bold:pixelsize=12:autohint=true:hintstyle=3:antialias=true\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        83,
+        83
+      ],
+      "image": "glyph-0905f63351b5c33d.png"
+    },
+    "[\"DejaVu Sans:file=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:pixelsize=12:antialias=false\",\"WaylandProbe\",10000]": {
+      "text": "WaylandProbe",
+      "metrics": [
+        15,
+        104,
+        104
+      ],
+      "image": "glyph-17a157aab55a1f0b.png"
+    }
+  },
+  "generation": {
+    "libraries": {
+      "xft": "2.3.6",
+      "fontconfig": "2.15.0",
+      "freetype2": "26.2.20"
+    },
+    "xvfb_sha256": "d7e34c84456cb0325bc663121ac9b39d990ecfdab0854d834d4bb56c72118810",
+    "description": "Unmodified original Window Maker width/shortening code and Xft rendering; no native compositor output is used."
+  }
+}

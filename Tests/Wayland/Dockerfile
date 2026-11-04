@@ -3,7 +3,7 @@ RUN apt-get -qq update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no
     build-essential autoconf automake libtool pkg-config curl ca-certificates \
     meson ninja-build python3 python3-pil gnustep-make libgnustep-gui-dev libgnustep-base-dev hwdata \
     libwlroots-0.18-dev=0.18.2-3 wayland-protocols=1.44-1 \
-    libwayland-dev libxkbcommon-dev libsystemd-dev liblcms2-dev libcairo2-dev libpango1.0-dev libfontconfig-dev \
+    libwayland-dev libxkbcommon-dev libsystemd-dev liblcms2-dev libcairo2-dev libpango1.0-dev libfontconfig-dev fontconfig \
     libfreetype-dev libffi-dev libxt-dev libxft-dev libxrandr-dev libxfixes-dev \
     libxcursor-dev libxmu-dev libxinerama-dev libgl-dev libwraster-dev \
     libtiff-dev libjpeg-dev libpng-dev libgif-dev libmagickcore-dev libicu-dev librsvg2-bin poppler-utils ghostscript \

@@ -15,19 +15,8 @@ import uuid
 from PIL import Image
 from integration import until
 from shell import Shell
-from title_layout import reference_source
+from title_reference import Reference, PROFILES, effective_pattern
 
-PROFILES = (
-    ("Helvetica:bold:pixelsize=12", False),
-    ("Helvetica:bold:pixelsize=12", True),
-    ("DejaVu Sans:postscriptname=DejaVuSans-Bold:pixelsize=14:antialias=false:embeddedbitmap=true", True),
-    ("DejaVu Sans:postscriptname=DejaVuSans-Bold:pixelsize=15:antialias=true:embeddedbitmap=false", False),
-    ("DejaVu Sans Mono:bold:pixelsize=14:antialias=true", False),
-    ("Helvetica:bold:size=12:dpi=96:antialias=false", False),
-    ("Helvetica:bold:pixelsize=12:hinting=false:hintstyle=0", False),
-    ("Helvetica:bold:pixelsize=12:autohint=true:hintstyle=3", True),
-    ("DejaVu Sans:file=/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf:pixelsize=12", False),
-)
 JUSTIFICATIONS = ("center", "left", "right")
 
 
@@ -86,13 +75,8 @@ def run(compositor, shell_probe, workspace_shell_probe, gui_probe, artifacts):
     frames = artifacts / "frames"
     frames.mkdir()
     repo = Path(__file__).resolve().parents[2]
-    source, inputs = reference_source(repo)
-    (artifacts / "legacy-reference.c").write_text(source)
-    flags = subprocess.check_output(["pkg-config", "--cflags", "--libs", "xft", "x11"], text=True).split()
-    reference = artifacts / "legacy-reference"
-    subprocess.run(["cc", "-std=c11", "-I" + str(repo / "Applications/Workspace/WM/core"),
-                    str(artifacts / "legacy-reference.c"), "-o", str(reference), *flags], check=True)
-    (artifacts / "reference-inputs.json").write_text(json.dumps(inputs, indent=2) + "\n")
+    reference = Reference(repo)
+    (artifacts / "reference-inputs.json").write_text(json.dumps(reference.metadata, indent=2) + "\n")
     rows, checks, owners, processes = [], [], [], []
     stopped = False
     client = None
@@ -111,13 +95,6 @@ def run(compositor, shell_probe, workspace_shell_probe, gui_probe, artifacts):
         processes.append(server)
         child.close()
         broker_child.close()
-        read, write = os.pipe()
-        with (artifacts / "xvfb.log").open("w") as log:
-            xserver = subprocess.Popen(["Xvfb", "-displayfd", str(write), "-screen", "0", "1600x1200x24",
-                                       "-nolisten", "tcp"], pass_fds=[write], stdout=log, stderr=log)
-        processes.append(xserver)
-        os.close(write)
-
         def command(value):
             assert server.poll() is None, "Compositor exited"
             control.sendall(value.encode())
@@ -159,21 +136,16 @@ def run(compositor, shell_probe, workspace_shell_probe, gui_probe, artifacts):
             line = server.stdout.readline().strip()
             assert line.startswith("WAYLAND_DISPLAY="), line
             env["WAYLAND_DISPLAY"] = line.split("=", 1)[1]
-            assert select.select([read], [], [], 10)[0]
-            reference_env = dict(env, DISPLAY=":" + os.read(read, 64).decode().strip())
-            os.close(read)
-            read = None
             references = []
             for index, (pattern, antialiased) in enumerate(PROFILES):
-                effective = ":antialias=true" in pattern or (":antialias=" not in pattern and antialiased)
-                font = pattern if ":antialias=" in pattern else pattern + (":antialias=true" if effective else ":antialias=false")
-                path = artifacts / f"xft-{index}.ppm"
-                result = subprocess.run([str(reference), "10000", "WaylandProbe", font, str(path)],
-                                        env=reference_env, capture_output=True, check=True)
-                height, width, _ = map(int, result.stderr.split())
-                with Image.open(path) as image:
-                    bounds = image.getbbox()
-                    glyphs = image.crop(bounds).copy()
+                font = effective_pattern(pattern, antialiased)
+                effective = ":antialias=true" in font
+                original = reference.get(font, "WaylandProbe")
+                height, width, _ = original["metrics"]
+                image = reference.image(original)
+                image.save(artifacts / f"original-{index}.png")
+                bounds = image.getbbox()
+                glyphs = image.crop(bounds)
                 references.append(dict(effective=effective, height=height, width=width,
                                        bounds=bounds, glyphs=glyphs))
             (artifacts / "reference-metrics.json").write_text(json.dumps([
@@ -279,7 +251,6 @@ def run(compositor, shell_probe, workspace_shell_probe, gui_probe, artifacts):
             (artifacts / "results.json").write_text(json.dumps(dict(rows=rows, checks=checks), indent=2) + "\n")
             print(f"Native title appearance: {len(rows)} snapshots and {len(checks)} protocol/client checks PASS")
         finally:
-            if read is not None: os.close(read)
             if stopped and client and client.poll() is None: os.kill(client.pid, signal.SIGCONT)
             for owner in owners:
                 if owner.process.poll() is None: owner.stop()
