@@ -3,17 +3,15 @@ import json
 from pathlib import Path
 from PIL import Image
 from application_artwork import representations
-from color_panel import color_panel
+from color_panel import color_panel,main_pickers
 from color_picker_artwork import compare
 from integration import until
 from picker_icons_fidelity import NAMES,SIZES
 
 
 def mode_images(state):
-    buttons=[c for c in state['image_cells'] if c.get('matrix_columns')==3];assert len(buttons)==3
-    wheel,=[c for c in buttons if c['logical']==[24,24]]
-    named,=[c for c in buttons if c['column']!=0 and c['logical']==[36,24]]
-    return {NAMES[0]:named,NAMES[1]:wheel}
+    pickers=main_pickers(state)
+    return {name:pickers[name] for name in NAMES}
 
 
 def run(compositor,application,probe,density_probe,artifacts,baseline=False):

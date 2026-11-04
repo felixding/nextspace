@@ -8,6 +8,13 @@ from timemon_pause import application_action
 from timemon_static_artwork import open_panel
 
 
+def main_pickers(state):
+    buttons=[cell for cell in state['image_cells'] if cell.get('matrix_columns')==3]
+    pickers={cell['picker_class']:cell for cell in buttons}
+    assert len(buttons)==len(pickers)==3,buttons
+    return pickers
+
+
 class ColorPanel:
     def __init__(self,app,probe,env,command,artifacts):
         self.app,self.probe,self.env,self.command,self.artifacts=app,probe,env,command,artifacts

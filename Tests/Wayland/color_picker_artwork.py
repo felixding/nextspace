@@ -4,7 +4,7 @@ import math
 from pathlib import Path
 from PIL import Image,ImageChops
 from application_artwork import representations,placed_reference
-from color_panel import color_panel
+from color_panel import color_panel,main_pickers
 from integration import until
 
 MODES=('GSGrayColorPicker','GSRGBColorPicker','GSCMYKColorPicker','GSHSBColorPicker')
@@ -33,7 +33,7 @@ def run(compositor,application,probe,density_probe,artifacts,baseline=False):
         else:frames[name],selections[name]=representations(density_probe,resources/(name+'.tiff'),resource_artifacts,(36,24))
     with color_panel(compositor,application,probe,artifacts/'panel') as panel:
         command=panel.command
-        main=next(c for c in panel.controls()['image_cells'] if c.get('matrix_columns')==3 and c['column']==0)
+        main=main_pickers(panel.controls())['GSStandardColorPicker']
         panel.click(main['base'])
         until(lambda:len([c for c in panel.controls()['image_cells'] if c.get('matrix_columns')==4])==4,
               'The native slider picker exposes its four mode buttons')
@@ -52,7 +52,7 @@ def run(compositor,application,probe,density_probe,artifacts,baseline=False):
                 assert len(state['fields'])==len(state['sliders'])==(1,3,4,3)[mode]
                 buttons=sorted([c for c in state['image_cells'] if c.get('matrix_columns')==4],key=lambda c:c['column'])
                 assert [c['column'] for c in buttons if c['selected']]==[mode]
-                main=next(c for c in state['image_cells'] if c.get('matrix_columns')==3 and c['column']==0)
+                main=main_pickers(state)['GSStandardColorPicker']
                 expected=[[36,24]] if baseline else [[36,24],[45,30],[54,36],[63,42],[72,48]]
                 assert all(v['representations']==expected for v in [*buttons,main])
                 directory=artifacts/f'{density}-{mode}';directory.mkdir()

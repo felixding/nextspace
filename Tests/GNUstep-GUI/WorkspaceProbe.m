@@ -183,6 +183,12 @@ static void timeMonControls(id view, NSMutableDictionary *controls, NSString *wh
           image[@"row"]=@(row);image[@"column"]=@(column);
           image[@"matrix_columns"]=@([view numberOfColumns]);
           image[@"selected"]=@([[[view cellAtRow:row column:column] valueForKey:@"state"] integerValue]!=NSOffState);
+          if ([[view target] isKindOfClass:[NSColorPanel class]] &&
+              [NSStringFromSelector([view action]) isEqual:@"_showNewPicker:"]) {
+            NSArray *pickers = [[view target] valueForKey:@"pickers"];
+            if (column < (NSInteger)[pickers count])
+              image[@"picker_class"] = [NSString stringWithString:[[pickers objectAtIndex:column] className]];
+          }
           [controls[@"image_cells"] addObject:image];
         }
       }
