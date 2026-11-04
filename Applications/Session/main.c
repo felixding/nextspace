@@ -51,6 +51,7 @@ static pid_t launch(char *const arguments[], int descriptor, int output, char ro
 {
   pid_t parent = getpid();
   pid_t pid = fork();
+  if (pid < 0) fprintf(stderr, "[session] Cannot fork %s: %s\n", arguments[0], strerror(errno));
   if (pid != 0) return pid;
   if (prctl(PR_SET_PDEATHSIG, SIGTERM) < 0 || getppid() != parent) _exit(126);
   if (output >= 0) install_fd(output, STDOUT_FILENO);
@@ -563,7 +564,7 @@ int main(int argc, char **argv)
     }
     if (workspace < 0 && wayland && activation_ready && profile_ready && milliseconds() >= restart) {
       workspace = launch_workspace(broker[0], argv + optind, initial);
-      if (workspace < 0) break;
+      if (workspace < 0) { fprintf(stderr, "[session] Cannot start Workspace.\n"); break; }
       initial = false;
     }
     int timeout = workspace < 0 ? (int)((wayland ? restart : deadline) - milliseconds()) : -1;
@@ -590,13 +591,25 @@ int main(int argc, char **argv)
     }
     struct pollfd logind_poll = session_logind_poll(&logind, &timeout);
     struct pollfd descriptors[] = {{signals, POLLIN, 0}, {output[0], POLLIN, 0}, {broker[0], POLLIN, 0}, logind_poll};
-    if (poll(descriptors, 4, timeout) < 0) { if (errno == EINTR) continue; break; }
-    if (descriptors[1].revents & (POLLHUP | POLLERR | POLLNVAL)) { result = 1; break; }
-    if ((descriptors[1].revents & POLLIN) && !read_ready(output[0], &wayland)) { result = 1; break; }
+    if (poll(descriptors, 4, timeout) < 0) {
+      if (errno == EINTR) continue;
+      fprintf(stderr, "[session] Event polling failed: %s\n", strerror(errno)); break;
+    }
+    if (descriptors[1].revents & (POLLHUP | POLLERR | POLLNVAL)) {
+      fprintf(stderr, "[session] Compositor output closed (poll events %#x).\n", descriptors[1].revents);
+      result = 1; break;
+    }
+    if ((descriptors[1].revents & POLLIN) && !read_ready(output[0], &wayland)) {
+      fprintf(stderr, "[session] Invalid compositor readiness output.\n"); result = 1; break;
+    }
     if (descriptors[2].revents) {
       char event;
       ssize_t count = recv(broker[0], &event, 1, MSG_DONTWAIT | MSG_TRUNC);
-      if (count != 1) { result = 1; break; }
+      if (count != 1) {
+        fprintf(stderr, "[session] Compositor broker receive failed (%zd bytes): %s\n",
+          count, count < 0 ? strerror(errno) : "closed or malformed message");
+        result = 1; break;
+      }
       if (event == 'R') {
         if (!lock_requested) { lock_requested = true; lock_failures = 0; }
         if (!locker_command) fprintf(stderr, "[session] No locker configured; desktop remains locked.\n");
@@ -614,7 +627,10 @@ int main(int argc, char **argv)
         session_logind_sleep_protected(&logind);
         lock_confirmed = true;
         session_logind_hint(&logind, true);
-      } else { result = 1; break; }
+      } else {
+        fprintf(stderr, "[session] Unexpected compositor broker event %#x.\n", (unsigned char)event);
+        result = 1; break;
+      }
     }
     if (!descriptors[0].revents) continue;
     struct signalfd_siginfo info;
@@ -629,7 +645,11 @@ int main(int argc, char **argv)
     int status;
     pid_t child;
     while ((child = waitpid(-1, &status, WNOHANG)) > 0) {
-      if (child == server || child == bus) { stopping = true; result = 1; }
+      if (child == server || child == bus) {
+        fprintf(stderr, "[session] %s exited with %d.\n", child == server ? "Compositor" : "D-Bus daemon",
+          WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status));
+        stopping = true; result = 1;
+      }
       else if (child == profile) {
         profile = -1; profile_ready = true; profile_deadline = 0;
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)

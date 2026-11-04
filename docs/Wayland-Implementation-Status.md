@@ -18,11 +18,11 @@ source inputs, 79 literal links, 321 external libraries and 510 result reports.
 Both package phases complete 446 Review requests without timeout, seventy
 archive extractions, three positive decoder cases and six CRC rejection controls.
 The previous Review and directory failure points pass in this run; their
-historical causes remain unestablished. Compiled product inputs match the
-frozen cohort. Backend/protocol/test documentation and an independent-compositor
-fixture now postdate the freeze; these changes do not alter packaged code or
-resources. Later source changes are documentation and validation/development
-tools; the current source audit records them separately from compiled inputs.
+historical causes remain unestablished. Rendering, framework and application
+inputs match the frozen cohort. Supervisor startup-error reporting now postdates
+that freeze and awaits fresh package qualification. Backend/protocol/test
+documentation and validation/development tools are recorded separately in the
+current source audit.
 
 The 1,029,821,535-byte capsule is
 `native-current-native105-evidence.tar.gz`, SHA-256
@@ -257,8 +257,9 @@ and thirty real pointer actions across all five scales with unchanged assertions
 and pixel tolerances. The 1,972,295-byte capsule is
 `arm64-color-picker-order-v1-evidence.tar.gz`, SHA-256
 `5627e4c47db109b1658940cf2e2ae4f351adea33b4cdd5bf59d165328e99edb1`.
-These changes affect test tooling and reference data; compiled product inputs
-still match the qualified cohort. Full hosted-suite confirmation remains pending.
+These title and picker changes affect test tooling and reference data while
+retaining the qualified product inputs. Full hosted-suite confirmation remains
+pending.
 
 The title fixtures load the repository fonts through a private Fontconfig
 environment before DesktopKit installs Helvetica. Both 460-case suites and 147
@@ -298,8 +299,21 @@ the Font panel toggles antialiasing. The runner now installs that existing
 configuration after DesktopKit and refreshes its font cache. Fontconfig selects
 the bundled Helvetica; all three unchanged Font-panel checks retain Helvetica
 Bold at 12px. The 147 application records and 24 printing cases also pass under
-this package-matching configuration. Remaining Workspace and Terminal IME checks
-continue separately from hosted native-suite qualification.
+this package-matching configuration. Workspace/Preferences/archive workflows,
+Terminal IME and real Pinyin/Hangul also pass in the completed continuation.
+The 506,866,160-byte capsule is `arm64-native-continuation-v1-evidence.tar.gz`,
+SHA-256 `26550b425abcd6400ab1358dad7485ba9ae025a25cc1deb8689eabc1904a2391`.
+Streaming verification checks 9,994 files, 412 literal links, modes and owners.
+After a second source comparison, 1,412,707,210 bytes of duplicate test outputs
+are removed; the compiled runtime and installed-bin pointer remain available.
+
+Another hosted run reproduces the startup exit after D-Bus publication and input
+method readiness. The supervisor now reports fork failures, failed polling,
+closed readiness/broker channels, unexpected broker events and compositor/bus
+exit codes. Six local lifecycle modes, including the installed launcher, retain
+their original recovery and cleanup assertions. Compositor-loss and bus-loss
+controls verify the new diagnostics. The hosted startup cause remains open;
+this reporting change does not establish a fix.
 
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during

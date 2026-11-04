@@ -147,6 +147,12 @@
       "application_records_passed": 147,
       "textedit_printing_cases_passed": 24,
       "full_native_suite_passed": false
+    },
+    "supervisor_exit_path_reporting": {
+      "local_modes_passed": 6,
+      "compositor_and_bus_loss_diagnostics_verified": true,
+      "current_runtime_source_postdates_qualified_package": true,
+      "hosted_startup_cause_established": false
     }
   },
   "evidence_locations": {
@@ -224,5 +230,25 @@
     ],
     "runtime_unchanged": true,
     "assertions_and_tolerances_unchanged": true
+  },
+  "local_native_continuation": {
+    "archive": ".build/evidence/components/arm64-native-continuation-v1-evidence.tar.gz",
+    "bytes": 506866160,
+    "sha256": "26550b425abcd6400ab1358dad7485ba9ae025a25cc1deb8689eabc1904a2391",
+    "files": 9994,
+    "literal_links": 412,
+    "manifest_exact": true,
+    "segmented_run": true,
+    "fresh_uninterrupted_native_suite_passed": false,
+    "application_records": 147,
+    "textedit_printing_cases": 24,
+    "workspace_passed": true,
+    "terminal_ime_passed": true,
+    "pinyin_appkit_cases": 20,
+    "pinyin_terminal_cases": 5,
+    "hangul_appkit_cases": 20,
+    "hangul_terminal_cases": 5,
+    "duplicate_test_bytes_removed": 1412707210,
+    "compiled_runtime_retained": true
   }
 }
