@@ -137,10 +137,11 @@
       41877259688,
       41881024015,
       41885419730,
-      41890301167
+      41890301167,
+      41895922471
     ],
-    "hosted_native_suite_passed": false,
-    "latest_native_failure": "Installed compositor SIGSEGV during IME startup; reproduced by Meson removing RUNPATH and loading incompatible distro wlroots. Preserving pinned RUNPATH passes all six local installed lifecycle modes; hosted confirmation pending.",
+    "hosted_native_suite_passed": true,
+    "latest_native_failure": "Workspace probe fixture consumed prior asynchronous desktop broadcast; now waits for existing desktop-result completion and preserves original state assertion. Local four-mode fixture and deterministic event controls pass; hosted confirmation pending.",
     "installed_launcher_local_passed": true,
     "supervisor_failure_capture_control_passed": true,
     "native_font_configuration": {
@@ -160,7 +161,8 @@
       "failure_observation_maximum_ms": 50,
       "installed_launcher_client_protocol_trace_verified": true,
       "compositor_broker_receive_error_reporting": true,
-      "hosted_compositor_sigsegv_observed": true
+      "hosted_compositor_sigsegv_observed": true,
+      "hosted_diagnostics_package_lifecycle_passed": true
     },
     "text_input_complete_records": {
       "failed_run": 41887399009,
@@ -177,7 +179,7 @@
       "bytes": 273806,
       "sha256": "4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2",
       "payload_files_verified": 60,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false
     },
     "installed_wlroots_loader": {
       "failed_hosted_run": 41895922471,
@@ -192,7 +194,8 @@
       "sha256": "bd91ea0d6ae50e5b59d979a87611575892e745a164897ec152894399ab6dd15a",
       "payload_files_verified": 137,
       "portable_audit_passed": true,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false,
+      "hosted_run_confirmed": 41900653577
     },
     "pasteboard_ownership_fixture": {
       "failed_run": 41899010879,
@@ -210,6 +213,38 @@
       "bytes": 2382758,
       "sha256": "20d10b20989daddf7cd87b6a57887e01ea8e38cdef551a1877e14313c99a9d35",
       "payload_files_verified": 134,
+      "hosted_confirmation_pending": true
+    },
+    "hosted_native_qualified_run": "https://github.com/felixding/nextspace/actions/runs/41900653577",
+    "hosted_native_qualified_head": "a866a80bd91ea5035c9f149fb5960bd38e59c23f",
+    "hosted_native_qualified_job": 126821839504,
+    "hosted_native_raw_archive": {
+      "bytes": 201287036,
+      "sha256": "88efb817660cc1d05bff699cba392560bfa15bc4bdc7201bfdd3555e0896a2af",
+      "regular_files": 8376,
+      "literal_links": 410,
+      "metadata_records": 1283,
+      "captured_inputs": 4404,
+      "current_non_test_inputs_matched": 3814,
+      "combined_application_records": 147,
+      "textedit_printing_cases": 24,
+      "supervisor_modes": 6,
+      "physical_gpu_qualified": false
+    },
+    "current_compiled_product_inputs_match_qualified_native": true,
+    "latest_validation_fixtures_hosted_pending": true,
+    "shell_desktop_completion_fixture": {
+      "failed_run": 41903395108,
+      "existing_completion_event_used": true,
+      "original_state_assertion_preserved": true,
+      "workspace_runloop_modes_passed": 4,
+      "captured_old_failure_reproduced": true,
+      "wrong_completion_still_rejected": true,
+      "archive": "arm64-shell-desktop-reply-v1-evidence.tar.gz",
+      "bytes": 179039,
+      "sha256": "88ff360f98873be33b3c9cef62b2924627ec0eb2076e4494c3aa69650665dcb9",
+      "payload_files_verified": 47,
+      "product_sources_unchanged": true,
       "hosted_confirmation_pending": true
     }
   },
@@ -335,5 +370,6 @@
     "bytes": 2195638,
     "sha256": "f246e517005f3a28bf8922eefcd982eeb7d0311738058f90e37a00413f2849ed",
     "return_method": "VT_ACTIVATE ioctl; keyboard Ctrl-Alt-F1 activates the original console"
-  }
+  },
+  "overall_progress_percent_estimate": 94
 }

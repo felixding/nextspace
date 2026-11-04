@@ -172,7 +172,8 @@ def run(compositor, shell_probe, registry_probe, artifacts, gui_probe=None, work
         def check_desktops(owner, identifier):
             def state(request, current, count=4):
                 before = len(owner.events); owner.send(request)
-                result = owner.wait(lambda: next((e for e in reversed(owner.events[before:]) if e["event"] == "desktops"), None),
+                reply = "desktop-result" if owner.workspace else "desktops"
+                result = owner.wait(lambda: next((e for e in reversed(owner.events[before:]) if e["event"] == reply), None),
                                     "desktop request reply")
                 assert (result["current"], result["count"]) == (current, count), result
             def moved(index, sticky=False):

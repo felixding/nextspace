@@ -10,7 +10,19 @@ ARM64 CI and the existing Lima guest. Intel/AMD qualification is deferred.
 Physical hardware and unrestricted artwork redistribution remain release gates;
 they do not block ARM implementation and personal-use validation.
 
-Current product qualification is native105/native106 on Debian 13/aarch64.
+Hosted ARM64 run `41900653577` at `a866a80b` completes the full native suite
+in one uninterrupted job: 147 combined application records, 24 TextEdit printing
+cases, twelve toolkit printing suites, Workspace, six supervisor modes, native
+Login, portals and Pinyin/Hangul. The installed compositor loads the pinned
+wlroots library. Seven hosted package jobs also complete their full lifecycle.
+The 201,287,036-byte native ZIP has SHA-256
+`88efb817660cc1d05bff699cba392560bfa15bc4bdc7201bfdd3555e0896a2af`.
+Streaming verification checks 8,376 regular files and 410 literal links; all
+1,280 selected JSON files decode. All 3,814 captured non-test inputs match the
+current product sources. Later changes affect verification and documentation;
+the newest fixture revisions still await complete hosted confirmation.
+
+The frozen installed qualification is native105/native106 on Debian 13/aarch64.
 Cold build, network-disabled source replay, clean installation, live upgrade,
 upgraded application workflows and removal pass in one uninterrupted consumer.
 The independent audit verifies six packages, 170 ARM64 ELFs (164 private), 4,416
@@ -19,7 +31,7 @@ Both package phases complete 446 Review requests without timeout, seventy
 archive extractions, three positive decoder cases and six CRC rejection controls.
 The previous Review and directory failure points pass in this run; their
 historical causes remain unestablished. Supervisor and compositor channel-error
-reporting now postdates that freeze and awaits fresh package qualification.
+reporting postdates that freeze and now also passes hosted package qualification.
 Framework and application inputs retain their qualified versions. Backend/protocol/test
 documentation and validation/development tools are recorded separately in the
 current source audit.
@@ -347,7 +359,7 @@ wlroots RUNPATH option then passes all six original lifecycle modes through the
 actual Meson installation, without a loader override. All 21 compositor source
 files and 435 wlroots source files match the hosted inputs. Native CI now retains
 that library path and records the installed compositor's dependency resolution.
-Hosted confirmation remains pending. The 2,379,469-byte capsule is
+The full hosted native run confirms this fix. The 2,379,469-byte capsule is
 `arm64-installed-wlroots-loader-v1-evidence.tar.gz`, SHA-256
 `bd91ea0d6ae50e5b59d979a87611575892e745a164897ec152894399ab6dd15a`;
 all 137 payload files and the portable audit verify.
@@ -360,8 +372,8 @@ newline-terminated records. All four regular and secure run-loop modes pass
 across five densities, followed by exact Terminal IME bytes at every density.
 The 273,806-byte capsule is `arm64-text-input-records-v1-evidence.tar.gz`, SHA-256
 `4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2`.
-Its 60 payload files verify. Six hosted ARM64 package jobs now complete the
-full lifecycle; fresh full native-suite confirmation remains pending.
+Its 60 payload files verify. Seven hosted ARM64 package jobs complete the
+full lifecycle; the uninterrupted native run also confirms this reader fix.
 
 A later package run stops because the clipboard reset fixture loses ownership
 between declaration and writing its sentinel. The helper now distinguishes that
@@ -376,6 +388,17 @@ runs quiet. The 2,382,758-byte capsule is
 `20d10b20989daddf7cd87b6a57887e01ea8e38cdef551a1877e14313c99a9d35`;
 all 134 payload files verify. These fixture changes retain the existing
 pasteboard storage and stale-write protection; hosted confirmation is pending.
+
+The newest native run next exposes a desktop fixture consuming an asynchronous
+count-2 broadcast as the reply to a count-4 request. The real Workspace probe
+already emits a separate completion event. The fixture now waits for that event
+before applying its original state assertion. All four Workspace run-loop modes
+pass. A coordinated replay reproduces the old failure, accepts the actual
+completion and still rejects a wrong completion. Product code and deadlines
+remain unchanged. The 179,039-byte capsule is
+`arm64-shell-desktop-reply-v1-evidence.tar.gz`, SHA-256
+`88ff360f98873be33b3c9cef62b2924627ec0eb2076e4494c3aa69650665dcb9`;
+all 47 payload files verify. Hosted confirmation of this fixture fix is pending.
 
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
@@ -509,7 +532,7 @@ CPU and buffer-memory thresholds; and release/default promotion after those gate
 and applicable artwork redistribution permission. Intel/AMD work remains deferred.
 The reproduced unpaced kernel-keyboard stress loss also needs resolution;
 the earlier paced trials do not explain it. Lima's virtual DRM checks do not
-establish hardware results. Overall progress is approximately 93%; remaining time
+establish hardware results. Overall progress is approximately 94%; remaining time
 is not yet reliably estimable.
 
 Earlier implementation logs are retained locally under `.build/evidence/history/`.
