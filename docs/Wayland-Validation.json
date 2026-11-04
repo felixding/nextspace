@@ -164,7 +164,15 @@
     "documentation_files_omitted_by_image_policy": 17,
     "independent_extracted_replay": true,
     "x_server_required": false,
-    "compiled_product_changed": false
+    "compiled_product_changed": false,
+    "bundled_font_environment": {
+      "layout_cases": 920,
+      "configured_font_rasters_and_metrics": 9,
+      "installed_desktopkit_fonts_required": false,
+      "system_font_selection_unchanged": true,
+      "xvfb_present": false,
+      "hosted_confirmation_pending": true
+    }
   },
   "color_picker_identity_fixture": {
     "archive": ".build/wayland-validation/arm64-color-picker-order-v1-evidence.tar.gz",

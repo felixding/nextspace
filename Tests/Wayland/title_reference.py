@@ -1,8 +1,10 @@
 """Read original Window Maker title references without an X server."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
+from xml.sax.saxutils import escape
 
 from PIL import Image
 
@@ -36,18 +38,27 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def font_signature(pattern):
+def font_signature(pattern, env=None):
     fields = ("file", "index", "antialias", "hinting", "hintstyle", "autohint",
               "embeddedbitmap", "rgba", "lcdfilter")
     values = subprocess.check_output(["fc-match", "-f",
-        "".join("%{" + field + "}\\n" for field in fields), pattern], text=True).splitlines()
+        "".join("%{" + field + "}\\n" for field in fields), pattern], text=True, env=env).splitlines()
     assert len(values) == len(fields), (pattern, values)
     return {"font_sha256": sha(Path(values[0])), "options": dict(zip(fields[1:], values[1:]))}
 
 
 class Reference:
-    def __init__(self, repo):
+    def __init__(self, repo, artifacts):
         self.directory = repo / "Tests/Wayland/fixtures/title-reference"
+        # The toolkit-only build runs before DesktopKit installs /Library/Fonts.
+        # Load the same bundled font bytes privately for these tests and children.
+        config = artifacts / "fonts.conf"
+        fonts = repo / "Frameworks/DesktopKit/Resources/Fonts"
+        config.write_text('<fontconfig><include>/etc/fonts/fonts.conf</include>'
+                          f'<dir>{escape(str(fonts))}</dir>'
+                          f'<cachedir>{escape(str(artifacts / "font-cache"))}</cachedir>'
+                          '</fontconfig>\n')
+        self.env = dict(os.environ, FONTCONFIG_FILE=str(config))
         manifest = self.directory / "manifest.json"
         self.data = json.loads(manifest.read_text())
         assert self.data["format"] == 1
@@ -64,7 +75,7 @@ class Reference:
 
     def get(self, pattern, text, limit=10000):
         if pattern not in self.checked_fonts:
-            actual = font_signature(pattern)
+            actual = font_signature(pattern, self.env)
             expected = self.data["fonts"][pattern]
             assert actual == expected, ("Reference font/substitution changed", pattern, actual, expected)
             self.checked_fonts.add(pattern)

@@ -11,6 +11,10 @@ server. They retain the original shortening, exact 100% pixel comparisons,
 Fontconfig preference cases and all five native densities. A changed source,
 font selection or reference file requires an explicit baseline review.
 
+Both fixtures load the repository's bundled fonts through a private Fontconfig
+configuration, including before DesktopKit installs `/Library/Fonts`. Their
+probes and compositor inherit that configuration; system font settings stay intact.
+
 For reference maintenance only, use a Debian 13 environment with the original
 GNUstep Helvetica fonts, DejaVu fonts, Xft development files and Xvfb:
 

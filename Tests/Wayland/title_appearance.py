@@ -75,13 +75,13 @@ def run(compositor, shell_probe, workspace_shell_probe, gui_probe, artifacts):
     frames = artifacts / "frames"
     frames.mkdir()
     repo = Path(__file__).resolve().parents[2]
-    reference = Reference(repo)
+    reference = Reference(repo, artifacts)
     (artifacts / "reference-inputs.json").write_text(json.dumps(reference.metadata, indent=2) + "\n")
     rows, checks, owners, processes = [], [], [], []
     stopped = False
     client = None
     with tempfile.TemporaryDirectory(prefix="nextspace-title-appearance-") as runtime:
-        env = dict(os.environ, XDG_RUNTIME_DIR=runtime, WLR_BACKENDS="headless",
+        env = dict(reference.env, XDG_RUNTIME_DIR=runtime, WLR_BACKENDS="headless",
                    WLR_HEADLESS_OUTPUTS="2", WLR_RENDERER="pixman",
                    NEXTSPACE_COMPOSITOR_CAPTURE_DIR=str(frames.resolve()))
         for key in ("DISPLAY", "WAYLAND_DISPLAY", "WAYLAND_SOCKET"):

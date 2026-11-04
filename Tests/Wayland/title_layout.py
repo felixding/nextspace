@@ -21,7 +21,7 @@ from title_reference import Reference, TITLES, LIMITS
 def check(probe, artifacts, antialiased):
     repo = Path(__file__).resolve().parents[2]
     artifacts.mkdir(parents=True, exist_ok=True)
-    reference = Reference(repo)
+    reference = Reference(repo, artifacts)
     metadata = dict(**reference.metadata, probe_sha256=hashlib.sha256(probe.read_bytes()).hexdigest(),
                     reference_font="Helvetica:bold:pixelsize=12:antialias=" + ("true" if antialiased else "false"),
                     legacy_default_font="Helvetica:bold:pixelsize=12:antialias=false",
@@ -32,7 +32,7 @@ def check(probe, artifacts, antialiased):
         def layout(text, limit, density=120, png=None):
             args = [str(probe), str(density), str(limit), text]
             if png or antialiased: args.extend([str(png) if png else "", "1" if antialiased else "0"])
-            result = json.loads(subprocess.check_output(args))
+            result = json.loads(subprocess.check_output(args, env=reference.env))
             result["text"] = base64.b64decode(result.pop("text_base64")).decode("utf-8")
             return result
 
@@ -98,7 +98,7 @@ def check(probe, artifacts, antialiased):
             assert ink[3] <= math.ceil((result["height"] + 1) * scale), (density, result, ink)
             raster.append(dict(density=density, ink=ink, metrics=result))
         # Malformed application titles must become valid UTF-8 before shaping.
-        malformed = subprocess.check_output([str(probe).encode(), b"120", b"300", b"bad\xfftitle", b"", b"1" if antialiased else b"0"])
+        malformed = subprocess.check_output([str(probe).encode(), b"120", b"300", b"bad\xfftitle", b"", b"1" if antialiased else b"0"], env=reference.env)
         assert "\ufffd" in base64.b64decode(json.loads(malformed)["text_base64"]).decode("utf-8")
         (artifacts / "results.json").write_text(json.dumps(dict(rows=rows, raster=raster,
             legacy_default_diagnostics=defaults, xft_raster=references), indent=2, ensure_ascii=False) + "\n")

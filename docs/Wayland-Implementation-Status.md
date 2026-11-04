@@ -260,6 +260,13 @@ and pixel tolerances. The 1,972,295-byte capsule is
 These changes affect test tooling and reference data; compiled product inputs
 still match the qualified cohort. Full hosted-suite confirmation remains pending.
 
+The next hosted native run reaches the fixed title references but selects Nimbus
+Sans before DesktopKit installs its bundled Helvetica. Both title fixtures now
+load the repository fonts through a private Fontconfig environment shared with
+their children. In the fresh ARM64 image without installed DesktopKit fonts or
+Xvfb, both 460-case suites and nine exact original font raster/metric comparisons
+pass. System font selection stays unchanged. Full hosted confirmation is pending.
+
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
 upgraded directory artwork: after nine successful native canvases, the second
