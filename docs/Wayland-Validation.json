@@ -1,0 +1,130 @@
+{
+  "as_of": "2026-11-04",
+  "status": "ARM software preview; full plan incomplete",
+  "target": {
+    "distribution": "Debian 13",
+    "architecture": "aarch64",
+    "display_stack": "native Wayland only",
+    "scales_percent": [
+      100,
+      125,
+      150,
+      175,
+      200
+    ]
+  },
+  "package_lifecycle": {
+    "archive": ".build/wayland-packaging/native-current-native105-evidence.tar.gz",
+    "sha256": "45a87f3d3b84418b3e1dd010286f7ebb6d0d72577d630684ca87ec873d8823c7",
+    "bytes": 1029821535,
+    "packages": 6,
+    "arm64_elfs_verified": 170,
+    "private_elfs": 164,
+    "source_inputs": 4416,
+    "literal_links": 79,
+    "external_libraries": 321,
+    "full_package_lifecycle_qualified": true
+  },
+  "package_result_reports": 510,
+  "qualified_versions": [
+    "0.1.0~native105",
+    "0.1.0~native106"
+  ],
+  "system_login_evidence": {
+    "passed": true,
+    "archive": ".build/wayland-validation/system-greetd-native106-v2-evidence.tar.gz",
+    "bytes": 650812,
+    "sha256": "8fec48481f056a913a7d23c1afd77c859e15e1c2e6c9129c559124d2977aa9fd",
+    "full_plan_complete": false,
+    "physical_gpu_qualified": false
+  },
+  "headless_performance_evidence": {
+    "passed": true,
+    "archive": ".build/wayland-validation/arm64-performance-v1-evidence.tar.gz",
+    "bytes": 2986534,
+    "sha256": "74353a9aee4f4582cbfdb098d56fe7fdc284224eade116adb0b833f9e84e9792",
+    "files": 260,
+    "trials": 8,
+    "phases": 120,
+    "offered_inputs": 38400,
+    "shared_buffers_released_after_every_client": true,
+    "physical_gpu_qualified": false,
+    "hardware_performance_thresholds_qualified": false,
+    "full_plan_complete": false
+  },
+  "virtual_drm_performance_evidence": {
+    "passed": true,
+    "archive": ".build/wayland-validation/arm64-vz-performance-v1-evidence.tar.gz",
+    "bytes": 3908384,
+    "sha256": "3d133d03b56a592f9c24df4cd921934e4205231494fec63a05412a75c8444520",
+    "files": 81,
+    "guest_archives": 7,
+    "independent_replay": true,
+    "trials": 5,
+    "phases": 75,
+    "offered_requests": 24000,
+    "traced_scroll_events": 7200,
+    "native_scroll_states": 7197,
+    "coalesced_states": 3,
+    "physical_gpu_qualified": false,
+    "physical_60hz_qualified": false,
+    "full_plan_complete": false
+  },
+  "independent_compositor_evidence": {
+    "passed": true,
+    "archive": ".build/wayland-validation/arm64-weston-fallback-v1-evidence.tar.gz",
+    "bytes": 741098,
+    "sha256": "c9965eea8e7ce0ef7f7c6cac2509eb6d206f49dad96cd715b674f77304a5e8a3",
+    "files": 7,
+    "cases": 2,
+    "private_runtime_files_matched": 6,
+    "guest_packages_restored": true,
+    "full_plan_complete": false
+  },
+  "keyboard_burst_profile": {
+    "passed": true,
+    "archive": ".build/wayland-validation/arm64-kernel-profile-v1-evidence.tar.gz",
+    "bytes": 1605872,
+    "sha256": "b78ec1b61282078146bb07fc6f32665e24f163430bbb99b785572e0bd48f382e",
+    "files": 27,
+    "private_runtime_files_matched": 14,
+    "independent_replay": true,
+    "endpoint_stress_passed": false,
+    "product_patch_promoted": false,
+    "full_plan_complete": false
+  },
+  "portable_password_helper": {
+    "archive": ".build/wayland-macbook/NEXTSPACE-MacBook-password-update.tar.gz",
+    "sha256": "b7a92b5b63d05d2785f8fcb056d61e05acc85796866e58acad9d6579c1f34032",
+    "bytes": 19344454,
+    "initial_password_setup_tested": true,
+    "forced_password_reset_tested": true,
+    "pam_su_authentication_passed": true,
+    "macbook_execution_verified": false
+  },
+  "ci": {
+    "configured_runner": "ubuntu-24.04-arm",
+    "fresh_debian_dependency_resolution_passed": true,
+    "hosted_run_verified": false
+  },
+  "evidence_locations": {
+    "compact_capsules": ".build/evidence/",
+    "development_history": ".build/history/",
+    "working_vm": ".build/lima-home/nextspace-gui/",
+    "portable_vm": ".build/wayland-macbook/"
+  },
+  "remaining": [
+    "Physical display, input, modeset, hotplug and gamma validation",
+    "Supported physical suspend/resume and VT cycles",
+    "Physical frame timing and hardware-specific performance thresholds",
+    "Unpaced synthetic keyboard-burst loss; complete scheduling bottleneck remains unestablished",
+    "MacBook execution confirmation",
+    "Artwork permission for unrestricted release",
+    "Release/default promotion after qualification"
+  ],
+  "deferred": [
+    "Intel/AMD hardware qualification"
+  ],
+  "physical_gpu_qualified": false,
+  "full_plan_complete": false
+}
