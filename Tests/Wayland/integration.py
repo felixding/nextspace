@@ -120,7 +120,8 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                 target = max(outputs, key=lambda o: o["x"])["name"]
                 origin = min(outputs, key=lambda o: o["x"])
                 with (artifacts / "probe.log").open("w") as stdout, (artifacts / "probe-errors.log").open("w") as stderr:
-                    client = subprocess.Popen([probe, "-GSBackend", "libgnustep-wayland", "-GSTheme", "NextSpace"],
+                    client = subprocess.Popen([probe, "-GSBackend", "libgnustep-wayland", "-GSTheme", "NextSpace",
+                                               "-PointerButtonProbe", "YES" if protocol_mode == "native" else "NO"],
                                               env=env, stdout=stdout, stderr=stderr)
 
                 def window():
@@ -150,6 +151,7 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                         w["buffer_width"], w["buffer_height"]) == expected
 
                 until(lambda: dimensions(120), "initial 100% buffer")
+                (artifacts / "client-runtime.json").write_text(json.dumps(process_runtime(client.pid), indent=2) + "\n")
                 if during_upgrade:
                     before = dict(compositor=process_runtime(server.pid), client=process_runtime(client.pid))
                     for name, pid in (('compositor', server.pid), ('client', client.pid)):
@@ -211,6 +213,10 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                 until(lambda: len([e for e in events() if e["event"] == "click"]) >= 8, "logical pointer delivery")
                 clicks = [e for e in events() if e["event"] == "click"]
                 assert all(e["x"] == 200 and e["y"] == 301 for e in clicks), clicks
+                if protocol_mode == "native":
+                    from pointer_buttons import check
+                    (artifacts / "pointer-buttons.json").write_text(json.dumps(
+                        check(command, events, until, wid, target, dimensions), indent=2) + "\n")
                 scales = [e for e in events() if e["event"] == "scale"]
                 glyphs = [e for e in events() if e["event"] == "glyph-advance"]
                 readbacks = [e for e in events() if e["event"] == "readback"]

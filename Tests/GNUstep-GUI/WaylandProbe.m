@@ -206,6 +206,8 @@ static void pathRasterSample(NSUInteger kind, CGFloat x, CGFloat y, BOOL antiali
 - (BOOL)acceptsFirstMouse:(NSEvent *)event { return YES; }
 - (void)mouseDown:(NSEvent *)event
 {
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"PointerButtonProbe"])
+    [[self window] setAcceptsMouseMovedEvents:YES];
   [[self window] makeFirstResponder:self];
   NSPoint p = [event locationInWindow];
   printf("{\"event\":\"click\",\"x\":%.3f,\"y\":%.3f}\n", p.x, p.y);
@@ -324,6 +326,13 @@ static void pathRasterSample(NSUInteger kind, CGFloat x, CGFloat y, BOOL antiali
   NSInteger number = [event windowNumber];
   NSInteger clicks = type == NSLeftMouseDown ? [event clickCount] : 0;
   unsigned keycode = type == NSKeyUp ? [event keyCode] : 0;
+  if ([[NSUserDefaults standardUserDefaults] boolForKey:@"PointerButtonProbe"] &&
+      ((type >= NSLeftMouseDown && type <= NSRightMouseDragged) ||
+       (type >= NSOtherMouseDown && type <= NSOtherMouseDragged))) {
+    printf("{\"event\":\"pointer-event\",\"type\":%lu,\"button\":%ld,\"x\":%.3f,\"y\":%.3f,\"scale\":%.4f}\n",
+      (unsigned long)type, (long)[event buttonNumber], point.x, point.y, [[event window] backingScaleFactor]);
+    fflush(stdout);
+  }
   [super sendEvent:event];
   if (type == NSLeftMouseDown) {
     printf("{\"event\":\"mouse-handled\",\"x\":%.0f,\"y\":%.0f,\"window\":%ld,\"clicks\":%ld}\n",

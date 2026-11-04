@@ -303,17 +303,18 @@
       41907855298,
       41912596427,
       41914460977,
-      41917570942
+      41917570942,
+      41926347690
     ],
     "latest_hosted_native_qualification": {
-      "run": 41917570942,
-      "head": "95c7ea2ce786d4db95282b7eabdf7c225586591a",
-      "job": 126881178683,
+      "run": 41926347690,
+      "head": "4825ed8fadb15743f8913b8c79ad5850a44cdc6f",
+      "job": 126911639144,
       "passed": true,
-      "artifact_id": 13366233544,
-      "bytes": 201281236,
-      "sha256": "7e031aa0966fd5537561c01eb7fd4c5c0f955b644ade7d4443a5043408b53619",
-      "regular_files": 8384,
+      "artifact_id": 13370906698,
+      "bytes": 201590771,
+      "sha256": "d43816343f12538e1a7cf4936ea4b72567983492012fc34fb8fea6407cd7c2da",
+      "regular_files": 8394,
       "literal_links": 410,
       "json_files_validated": 1280,
       "jsonl_files_retained": 164,
@@ -321,7 +322,7 @@
       "textedit_printing_cases": 24,
       "printing_suites": 12,
       "gtk_qt_density_cases": 10,
-      "popup_density_cases": 10,
+      "popup_density_cases": 20,
       "clipboard_transfers": 20,
       "installed_pinned_wlroots_confirmed": true,
       "physical_gpu_qualified": false,
@@ -411,8 +412,46 @@
       "sha256": "6f0abd0f6a9b9607ce0367dfda2105aecb0a05b9eb9f6db5f9fdf8dc28557b89",
       "payload_files_verified": 612,
       "extracted_portable_audit_passed": true,
+      "hosted_confirmation_pending": false,
+      "installed_packages_or_vm_updated": false,
+      "hosted_confirmation_run": 41926347690
+    },
+    "native_pointer_buttons": {
+      "button_names": [
+        "left",
+        "right",
+        "middle",
+        "side",
+        "extra",
+        "forward",
+        "back",
+        "task"
+      ],
+      "scales": [
+        120,
+        150,
+        180,
+        210,
+        240
+      ],
+      "cases": 40,
+      "public_pointer_events": 120,
+      "zero_based_appkit_button_numbers": true,
+      "extra_button_drag_type_preserved": true,
+      "logical_coordinates_preserved": true,
+      "same_permanent_probe_original_backend_rejected": true,
+      "observation_only_logging": true,
+      "real_textfield_middle_click_preserved": true,
+      "clipboard_transfers_retained": 20,
+      "popup_cases_retained": 20,
+      "original_deadlines_unchanged": true,
+      "archive": "arm64-pointer-buttons-v1-evidence.tar.gz",
+      "bytes": 2588556,
+      "sha256": "2a3f91adac1d0abfb67fda66d16269e5046404d1a1a040ae4a84b418f20d58bf",
+      "payload_files_verified": 333,
+      "extracted_portable_audit_passed": true,
       "hosted_confirmation_pending": true,
-      "installed_packages_or_vm_updated": false
+      "desktop_packages_or_lima_updated": false
     }
   },
   "evidence_locations": {
@@ -422,7 +461,7 @@
     "portable_vm": ".build/wayland-macbook/"
   },
   "remaining": [
-    "Complete hosted ARM64 native suite and confirm installed wlroots library selection",
+    "Confirm the latest backend mouse-event fix in hosted ARM64 CI",
     "Intermittent large-TIFF Review density timeout; original deadlines pass in focused and full-application follow-ups but cause remains unestablished",
     "Physical display, input, modeset, hotplug and gamma validation",
     "Supported physical suspend/resume and VT cycles",

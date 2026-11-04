@@ -38,6 +38,16 @@ twenty exact clipboard transfers and ten popup cases. The compact audit is
 `arm64-hosted-native-popup-v1-evidence.tar.gz`, SHA-256
 `10938ad7dbe802426ad0b422cd22ae14dff52f7bf0698379528a864cd71e28cd`;
 all 1,460 payload files and both extracted audits pass.
+A sixth full native job, `126911639144` in run `41926347690` at `4825ed8f`,
+confirms the additional partial-parent and pointer-focus popup fixes below.
+Its 201,590,771-byte ZIP has SHA-256
+`d43816343f12538e1a7cf4936ea4b72567983492012fc34fb8fea6407cd7c2da`;
+8,394 regular files, 410 literal links and 1,280 JSON files verify. Independent
+audit confirms twenty popup cases and twenty exact clipboard transfers. The
+1,928,040-byte compact audit is `arm64-hosted-partial-popup-v1-evidence.tar.gz`,
+SHA-256 `a4e54c760cb4388ba742d716daea666fcb94c6167c06d1b4cb41571757934c91`;
+all 1,459 payload files and both extracted audits pass. Its package job remains
+in progress.
 
 The completion audit finds that native GTK/Qt comparisons cover density and
 pointer input but omit their clipboard transfers. The same probes and integration
@@ -80,9 +90,24 @@ reference window after output changes. Original size assertions and deadlines
 remain unchanged. The 3,837,603-byte capsule is
 `arm64-partial-parent-popup-v1-evidence.tar.gz`, SHA-256
 `6f0abd0f6a9b9607ce0367dfda2105aecb0a05b9eb9f6db5f9fdf8dc28557b89`;
-all 612 payload files and the extracted audit pass. These two additional product
-fixes await hosted qualification; the installed session stage and Lima guest
-remain unchanged.
+all 612 payload files and the extracted audit pass. The sixth hosted native job
+confirms these two additional product fixes. The installed session stage and Lima
+guest remain unchanged.
+
+A public mouse-event audit then finds Linux button codes 272–279 exposed through
+`NSEvent.buttonNumber`, and extra-button drags reported as ordinary mouse moves.
+The backend now uses one shared conversion to AppKit button numbers and reports
+other-mouse drag events for extra buttons. Forty cases across eight buttons and
+all five densities check 120 public press/drag/release events with stable logical
+coordinates. The same permanent probe and assertions reject the original
+installed backend, then pass with the fixed bundle. Probe logging leaves ordinary
+AppKit dispatch untouched; real NSTextField middle-click paste, primary-selection
+serial checks, twenty clipboard transfers and twenty popup cases still pass.
+The 2,588,556-byte capsule is `arm64-pointer-buttons-v1-evidence.tar.gz`, SHA-256
+`2a3f91adac1d0abfb67fda66d16269e5046404d1a1a040ae4a84b418f20d58bf`;
+all 333 payload files and the extracted audit pass. This backend fix awaits
+fresh hosted qualification; desktop packages and Lima retain their earlier
+versions.
 
 The frozen installed qualification is native105/native106 on Debian 13/aarch64.
 Cold build, network-disabled source replay, clean installation, live upgrade,

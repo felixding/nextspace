@@ -50,6 +50,12 @@
 #define DOUBLECLICK_DELAY 300
 #define DOUBLECLICK_MOVE_THREASHOLD 3
 
+/* NSEvent numbers mouse buttons from zero, rather than using Linux codes. */
+static NSInteger pointerButtonNumber(uint32_t button)
+{
+  return button >= BTN_LEFT ? button - BTN_LEFT : 0;
+}
+
 /* Pointer coordinates belong to the focused surface, even during capture. */
 static NSPoint pointerLocation(WaylandConfig *config, struct window *target, double x, double y)
 {
@@ -234,6 +240,7 @@ pointer_handle_motion(void *data, struct wl_pointer *pointer, uint32_t time,
                 eventType = NSRightMouseDragged;
                 break;
               case BTN_MIDDLE:
+              default:
                 eventType = NSOtherMouseDragged;
                 break;
             }
@@ -248,7 +255,7 @@ pointer_handle_motion(void *data, struct wl_pointer *pointer, uint32_t time,
 			      eventNumber:time
 			       clickCount:0
 				 pressure:1.0 // XXX should this be 0 when no button is pressed?
-			     buttonNumber:wlconfig->pointer.button
+			     buttonNumber:pointerButtonNumber(wlconfig->pointer.button)
 				   deltaX:deltaX
 				   deltaY:deltaY
 				   deltaZ:0.];
@@ -420,13 +427,7 @@ pointer_handle_button(void *data, struct wl_pointer *pointer, uint32_t serial,
      handlers? */
   tick = serial;
 
-  /* FIXME: X11 backend uses the XGetPointerMapping()-returned values from
-     its map_return argument as constants for buttonNumber. As the variant
-     with buttonNumber: seems to be a GNUstep extension, and the value
-     internal, it might be ok to just provide libinput constant as we're doing
-     here. If this is truly correct, please update this comment to document
-     the correctness of doing so. */
-  buttonNumber = button;
+  buttonNumber = pointerButtonNumber(button);
 
   event = [NSEvent mouseEventWithType:eventType
 			     location:eventLocation

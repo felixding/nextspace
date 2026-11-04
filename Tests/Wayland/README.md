@@ -61,6 +61,14 @@ and pointer focus when GTK reuses a popup surface. Calibration mode preserves th
 existing 801×601 minimum, and the native reference window returns to its intended
 output after the comparisons.
 
+Native integration also checks the public `NSEvent` button number and event type
+for press, drag and release across all five densities. Forty cases cover the
+eight standard mouse buttons, producing 120 checked events with stable logical
+coordinates. Button numbers follow the [GNUstep event constructor contract](https://www.gnustep.org/resources/documentation/Developer/Gui/Reference/NSEvent.html):
+zero for left, one for right and two for middle. Extra buttons produce other-mouse
+drag events. Probe logging observes events before ordinary AppKit dispatch;
+the real NSTextField middle-click paste checks remain enabled.
+
 `source_links.py --artifacts ...` checks source snapshots and replay before a
 cold package build. It preserves all 57 cursor alias chains, rejects flattened
 or shortened links, and includes targets outside the initially selected folders.
