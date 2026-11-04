@@ -41,6 +41,7 @@ cp "$repo/Applications/Login/GreetdClient.h" "$repo/Applications/Login/GreetdCli
   NEXTSPACE_FRAMEWORKS_DIR="$repo/Frameworks" \
   NEXTSPACE_PROTOCOLS_DIR="$repo/Protocols" WaylandProbe.all.tool.variables \
   PasteboardProbe.all.tool.variables WorkspaceProbe.all.tool.variables DragProbe.all.tool.variables \
+  PrintingProbe.all.tool.variables NameServerLockProbe.all.tool.variables \
   EventQueueProbe.all.tool.variables \
   ShellConnectionProbe.all.tool.variables OutputResultProbe.all.tool.variables DockSettingsProbe.all.tool.variables \
   LoginSessionProbe.all.tool.variables LoginWindowProbe.all.tool.variables) > "$build/probe-build.log" 2>&1 || {

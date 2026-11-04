@@ -17,6 +17,19 @@ from titlebar import run as run_titlebar
 from state_requests import run as run_state_requests
 
 
+def frame_pixels_ready(image, scale):
+    # A valid monochrome NeXT frame has only four colors. Check its actual
+    # title/control ink and bevels instead of requiring antialiasing shades.
+    image = image.convert("RGB")
+    def edge(value):
+        return (value * scale + 60) // 120
+    for box in ((4, 4, 18, 18), (23, 2, 300, 20), (304, 4, 318, 18)):
+        if image.crop(tuple(edge(value) for value in box)).getextrema() != ((0, 255),) * 3:
+            return False
+    return (image.getpixel((edge(40), edge(1))) == (170, 170, 170) and
+            image.getpixel((edge(40), edge(20))) == (85, 85, 85))
+
+
 def run(compositor, probe, shell_probe, artifacts):
     artifacts.mkdir(parents=True)
     captures = artifacts / "captures"
@@ -102,7 +115,7 @@ def run(compositor, probe, shell_probe, artifacts):
                     def captured():
                         try:
                             with Image.open(image_path) as image:
-                                return image.size == expected and len(image.convert("RGB").getcolors(image.width * image.height)) > 4
+                                return image.size == expected and frame_pixels_ready(image, scale)
                         except OSError:
                             return False
                     until(captured, "rendered title, bevels and buttons at backing density")
