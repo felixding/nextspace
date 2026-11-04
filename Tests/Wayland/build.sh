@@ -146,6 +146,8 @@ python3 "$repo/Tests/Wayland/login_window.py" --compositor "$build/compositor/ne
   --probe "$build/fixture/obj/LoginWindowProbe" --image "$repo/Applications/Login/Resources/loginwindow.tiff" \
   --artifacts "$build/results/login-window"
 install_root=$(mktemp -d "$build/install.XXXXXX")
+# PAM/session fixtures execute these installed binaries as a disposable user.
+chmod 755 "$install_root"
 meson install -C "$build/compositor" --no-rebuild --destdir "$install_root"
 installed_bin=$(python3 - "$install_root" <<'PY'
 from pathlib import Path

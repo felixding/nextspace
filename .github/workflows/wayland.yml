@@ -22,6 +22,12 @@ jobs:
           mkdir -p wayland-results
           docker run --init --name nextspace-wayland-test -v "$PWD/wayland-results:/results" \
             -e NEXTSPACE_WAYLAND_BUILD_DIR=/results nextspace-native-stack-test
+      - name: Make container results readable by the artifact collector
+        if: always()
+        run: |
+          if [ -d wayland-results ]; then
+            sudo chown -R "$(id -u):$(id -g)" wayland-results
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -46,6 +52,12 @@ jobs:
           docker build -f Tests/Wayland/Dockerfile.native-stack -t nextspace-native-stack-test .
       - name: Cold build, offline replay and clean desktop upgrade
         run: sh Tests/Wayland/desktop-packages.sh desktop-package-results
+      - name: Make container results readable by the artifact collector
+        if: always()
+        run: |
+          if [ -d desktop-package-results ]; then
+            sudo chown -R "$(id -u):$(id -g)" desktop-package-results
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
