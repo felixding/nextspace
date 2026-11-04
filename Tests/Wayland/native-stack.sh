@@ -30,10 +30,19 @@ python3 "$repo/Tests/Wayland/outputs.py" --compositor "$build/compositor/nextspa
   --shell-probe "$build/compositor/shell-probe" --registry-probe "$build/compositor/registry-probe" \
   --readonly-probe "$build/fixture/obj/DisplayModelProbe" --artifacts "$build/results/display-bootstrap"
 build_runtime_applications
+# The installed user launcher also needs Login's production hook executable.
+installed_bin=$(cat "$build/results/installed-session-bin.txt")
+install -m755 "$build/apps/Login/obj/nextspace-session-hook" "$installed_bin/nextspace-session-hook"
+python3 "$repo/Tests/Wayland/supervisor.py" --supervisor "$installed_bin/nextspace-session" \
+  --compositor "$installed_bin/nextspace-compositor" --shell-probe "$build/fixture/obj/ShellConnectionProbe" \
+  --client "$build/compositor/gtk-probe" --input-method-probe "$build/compositor/registry-probe" \
+  --private-bus --launcher "$installed_bin/nextspace-wayland-session" \
+  --artifacts "$build/results/supervisor-native-launcher"
 XDG_DESKTOP_PORTAL_DIR="$repo/OS/Linux/usr/share/xdg-desktop-portal/portals" \
 python3 "$repo/Tests/Wayland/portal.py" --compositor "$build/compositor/nextspace-compositor" \
   --shell-probe "$build/compositor/shell-probe" --receiver "$build/compositor/pipewire-probe" \
   --chooser "$build/apps/Workspace/obj/nextspace-screencast-chooser" --client "$build/compositor/gtk-probe" \
+  --client-argument=--capture-pattern \
   --backend "$build/capture-stage/usr/NextSpace/libexec/nextspace-wayland/portal/xdg-desktop-portal-wlr" \
   --native-chooser --supervisor "$build/compositor/nextspace-session" \
   --workspace-probe "$build/fixture/obj/ShellConnectionProbe" --lock-probe "$build/compositor/lock-probe" \

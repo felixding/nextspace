@@ -14,6 +14,7 @@ static unsigned drag_repeat = 1;
 static bool initial_maximized, initial_fullscreen;
 static bool window_drag;
 static const char *window_title;
+static bool capture_pattern;
 static void install_window_keys(GtkWidget *window);
 
 static gboolean window_key(GtkEventControllerKey *controller, guint keyval,
@@ -88,6 +89,10 @@ static gboolean x11_event(GdkDisplay *display, XEvent *event, void *data)
 static void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, void *data)
 {
   cairo_set_source_rgb(cr, 0.75, 0.75, 0.75); cairo_paint(cr);
+  if (capture_pattern) {
+    cairo_set_source_rgb(cr, 0.25, 0.25, 0.25);
+    cairo_rectangle(cr, width / 2, 0, width - width / 2, height); cairo_fill(cr);
+  }
   cairo_set_source_rgb(cr, 0, 0, 0); cairo_set_font_size(cr, 18);
   cairo_move_to(cr, 20, 40); cairo_show_text(cr, "GTK native Wayland: text and thin lines");
   cairo_rectangle(cr, 20, 60, 761, 1); cairo_fill(cr);
@@ -246,6 +251,7 @@ int main(int argc, char **argv)
     if (strcmp(argv[index], "--maximize") == 0) initial_maximized = true;
     else if (strcmp(argv[index], "--fullscreen") == 0) initial_fullscreen = true;
     else if (strcmp(argv[index], "--window-drag") == 0) window_drag = true;
+    else if (strcmp(argv[index], "--capture-pattern") == 0) capture_pattern = true;
     else if (strcmp(argv[index], "--title") == 0 && index + 1 < argc) window_title = argv[++index];
     else if (strcmp(argv[index], "--drag-source") == 0) drag_source_mode = true;
     else if (strcmp(argv[index], "--drag-target") == 0) drag_target_mode = true;

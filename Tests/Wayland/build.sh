@@ -158,6 +158,7 @@ assert len(paths) == 1 and paths[0].is_file(), paths
 print(paths[0].parent)
 PY
 )
+printf '%s\n' "$installed_bin" > "$build/results/installed-session-bin.txt"
 if [ "${NEXTSPACE_TEST_LOCK_PAM:-0}" = 1 ]; then
   python3 "$repo/Tests/Wayland/lock_pam.py" --supervisor "$installed_bin/nextspace-session" \
     --compositor "$installed_bin/nextspace-compositor" --locker "$installed_bin/nextspace-wayland-locker" \
@@ -263,7 +264,7 @@ for pair in native-native gtk-native native-gtk; do
   python3 "$repo/Tests/Wayland/drag.py" "$@" --pair "$pair" --negative-origin --file-drag --framed \
     --artifacts "$build/results/drag-negative-$pair"
 done
-for supervisor_mode in native compositor-loss private-bus bus-loss private-bus-compositor-loss native-launcher; do
+for supervisor_mode in native compositor-loss private-bus bus-loss private-bus-compositor-loss; do
   supervisor="$build/compositor/nextspace-session"
   compositor="$build/compositor/nextspace-compositor"
   case "$supervisor_mode" in
@@ -272,11 +273,6 @@ for supervisor_mode in native compositor-loss private-bus bus-loss private-bus-c
     private-bus) set -- --private-bus ;;
     bus-loss) set -- --private-bus --bus-loss ;;
     private-bus-compositor-loss) set -- --private-bus --compositor-loss ;;
-    native-launcher)
-      supervisor="$installed_bin/nextspace-session"
-      compositor="$installed_bin/nextspace-compositor"
-      set -- --private-bus --launcher "$installed_bin/nextspace-wayland-session"
-      ;;
   esac
   python3 "$repo/Tests/Wayland/supervisor.py" --supervisor "$supervisor" \
     --compositor "$compositor" --shell-probe "$build/fixture/obj/ShellConnectionProbe" \

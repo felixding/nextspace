@@ -27,7 +27,7 @@ from text_input import stop_process
 
 def run(compositor, shell_probe, receiver, chooser, client, artifacts, backend='/usr/libexec/xdg-desktop-portal-wlr',
         native_chooser=False, pasteboard_server='/Library/bin/gpbs-wayland', supervisor=None, workspace_probe=None,
-        lock_probe=None, portal_configuration=None, capture_launcher=None):
+        lock_probe=None, portal_configuration=None, capture_launcher=None, client_args=()):
     artifacts.mkdir(parents=True)
     DBusGMainLoop(set_as_default=True)
     processes, logs, records = [], [], []
@@ -98,7 +98,7 @@ def run(compositor, shell_probe, receiver, chooser, client, artifacts, backend='
                 shell=Shell(shell_probe,broker,env,artifacts,0,version=18)
             shell.wait(lambda:shell.output_batches,'portal shell')
             if native_chooser:start([pasteboard_server,'--no-fork'],'pasteboard')
-            content=start([client],'content',dict(GDK_BACKEND='wayland'),stdin=subprocess.PIPE)
+            content=start([client,*client_args],'content',dict(GDK_BACKEND='wayland'),stdin=subprocess.PIPE)
             until(lambda:any(w['pid']==content.pid and w['visible'] for w in command('windows')),'portal test content')
             if not supervisor:
                 pipewire=start(['pipewire'],'pipewire')
@@ -340,6 +340,7 @@ def run(compositor, shell_probe, receiver, chooser, client, artifacts, backend='
                 screenshot_supported=False,hardware_tested=False),indent=2)+'\n')
             print(f'Desktop portal/PipeWire: {len(records)} frames and cancellation PASS')
         finally:
+            (artifacts/'partial-results.json').write_text(json.dumps(dict(frames=records),indent=2)+'\n')
             if bus:bus.close()
             if 'lock_fifo' in locals() and lock_fifo is not None:os.close(lock_fifo)
             if 'listener' in locals() and listener:listener.close()
@@ -362,4 +363,5 @@ if __name__=='__main__':
     p.add_argument('--pasteboard-server',default='/Library/bin/gpbs-wayland')
     p.add_argument('--portal-configuration')
     p.add_argument('--capture-launcher')
+    p.add_argument('--client-argument',dest='client_args',action='append',default=[])
     run(**vars(p.parse_args()))
