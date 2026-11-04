@@ -292,6 +292,7 @@ struct nextspace_popup {
 	struct wl_list link;
 	struct wlr_xdg_popup *xdg_popup;
 	struct wl_listener commit;
+	struct wl_listener unmap;
 	struct wl_listener reposition;
 	struct wl_listener destroy;
 };
@@ -1597,6 +1598,11 @@ static void xdg_popup_unconstrain(struct nextspace_popup *popup) {
   wlr_xdg_surface_get_geometry(root, &geometry);
   struct wlr_output *output = wlr_output_layout_output_at(popup->server->output_layout,
     root_x + geometry.width / 2, root_y + geometry.height / 2);
+  if (!output) {
+    struct nextspace_toplevel *owner = tree->node.data;
+    struct nextspace_output *visible = owner ? policy_size_output(owner, 0, NULL) : NULL;
+    if (visible) output = visible->wlr_output;
+  }
   if (!output) return;
   struct wlr_box box;
   wlr_output_layout_get_box(popup->server->output_layout, output, &box);
@@ -1620,15 +1626,30 @@ static void xdg_popup_reposition(struct wl_listener *listener, void *data) {
   xdg_popup_unconstrain(popup);
 }
 
+static void xdg_popup_clear_pointer(struct nextspace_popup *popup) {
+  struct wlr_surface *focused = popup->server->seat->pointer_state.focused_surface;
+  if (focused && wlr_surface_get_root_surface(focused) == popup->xdg_popup->base->surface) {
+    wlr_seat_pointer_notify_clear_focus(popup->server->seat);
+    policy_refresh_pointer(popup->server);
+  }
+}
+
+static void xdg_popup_unmap(struct wl_listener *listener, void *data) {
+  struct nextspace_popup *popup = wl_container_of(listener, popup, unmap);
+  xdg_popup_clear_pointer(popup);
+}
+
 static void xdg_popup_destroy(struct wl_listener *listener, void *data) {
 	/* Called when the xdg_popup is destroyed. */
 	struct nextspace_popup *popup = wl_container_of(listener, popup, destroy);
 
 	wl_list_remove(&popup->commit.link);
+	wl_list_remove(&popup->unmap.link);
 	wl_list_remove(&popup->reposition.link);
 	wl_list_remove(&popup->destroy.link);
 	wl_list_remove(&popup->link);
   if (popup->holder) wlr_scene_node_destroy(&popup->holder->node);
+  xdg_popup_clear_pointer(popup);
 
 	free(popup);
 }
@@ -1659,6 +1680,9 @@ static void server_new_xdg_popup(struct wl_listener *listener, void *data) {
 
 	popup->commit.notify = xdg_popup_commit;
 	wl_signal_add(&xdg_popup->base->surface->events.commit, &popup->commit);
+
+  popup->unmap.notify = xdg_popup_unmap;
+  wl_signal_add(&xdg_popup->base->surface->events.unmap, &popup->unmap);
 
   popup->reposition.notify = xdg_popup_reposition;
   wl_signal_add(&xdg_popup->events.reposition, &popup->reposition);

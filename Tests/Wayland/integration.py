@@ -765,6 +765,38 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
 
                         def comparator_window():
                             return next((w for w in command("windows") if w["title"] == toolkit), None)
+                        def comparator_popup_trial(bounds, x, y, dx, dy):
+                            assert command(f"move {cid} {x} {y}")["ok"]
+                            parent = comparator_window()
+                            assert (parent["x"], parent["y"]) == (x, y), parent
+                            assert command(f"focus {cid}")["ok"]
+                            activations = len(comparator_events("popup-activate"))
+                            comparator_key(25)  # p: open the toolkit's native popup.
+
+                            def comparator_popup():
+                                popups = command("popups")
+                                if len(popups) != 1: return None
+                                popup = popups[0]
+                                if (popup["width"], popup["height"]) != (200, 120): return None
+                                expected = tuple((popup[n] * scale + 60) // 120 for n in ("width", "height"))
+                                return popup if (popup["buffer_width"], popup["buffer_height"]) == expected else None
+
+                            popup = until(comparator_popup, f"{toolkit} native popup at {scale}/120")
+                            assert bounds["x"] <= popup["x"] <= bounds["x"] + bounds["width"] - popup["width"], popup
+                            assert bounds["y"] <= popup["y"] <= bounds["y"] + bounds["height"] - popup["height"], popup
+                            assert command(f"move {cid} {x + dx} {y + dy}")["ok"]
+                            moved = until(lambda: next((p for p in command("popups") if
+                                (p["x"], p["y"]) == (popup["x"] + dx, popup["y"] + dy)), None),
+                                f"{toolkit} popup follows its parent")
+                            px, py = moved["x"] + moved["width"] // 2, moved["y"] + moved["height"] // 2
+                            assert command(f"hit {px} {py}") == dict(id=cid, popup=True)
+                            assert command(f"pointer {px} {py}")["ok"]
+                            assert command("button 272")["ok"]
+                            until(lambda: len(comparator_events("popup-activate")) == activations + 1,
+                                  f"{toolkit} popup action")
+                            until(lambda: not command("popups"), f"{toolkit} popup cleanup")
+                            return dict(parent=parent, output=bounds, initial=popup, moved=moved, action_activated=True)
+
                         cw = until(comparator_window, f"{toolkit} native window")
                         cid = cw["id"]
                         for scale in (120, 150, 180, 210, 240):
@@ -816,34 +848,23 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                             current_output = next(o for o in command("outputs") if o["name"] == target)
                             edge_x = current_output["x"] + max(0, current_output["width"] - cw["width"])
                             edge_y = current_output["y"] + max(0, current_output["height"] - cw["height"])
-                            assert command(f"move {cid} {edge_x} {edge_y}")["ok"]
-                            assert command(f"focus {cid}")["ok"]
-                            activations = len(comparator_events("popup-activate"))
-                            comparator_key(25)  # p: open the toolkit's native popup.
-
-                            def comparator_popup():
-                                popups = command("popups")
-                                if len(popups) != 1: return None
-                                popup = popups[0]
-                                if (popup["width"], popup["height"]) != (200, 120): return None
-                                expected = tuple((popup[n] * scale + 60) // 120 for n in ("width", "height"))
-                                return popup if (popup["buffer_width"], popup["buffer_height"]) == expected else None
-
-                            popup = until(comparator_popup, f"{toolkit} native popup at {scale}/120")
-                            assert current_output["x"] <= popup["x"] <= current_output["x"] + current_output["width"] - popup["width"], popup
-                            assert current_output["y"] <= popup["y"] <= current_output["y"] + current_output["height"] - popup["height"], popup
-                            assert command(f"move {cid} {edge_x - 20} {edge_y - 20}")["ok"]
-                            moved = until(lambda: next((p for p in command("popups") if
-                                (p["x"], p["y"]) == (popup["x"] - 20, popup["y"] - 20)), None),
-                                f"{toolkit} popup follows its parent")
-                            px, py = moved["x"] + moved["width"] // 2, moved["y"] + moved["height"] // 2
-                            assert command(f"hit {px} {py}") == dict(id=cid, popup=True)
-                            assert command(f"pointer {px} {py}")["ok"]
-                            assert command("button 272")["ok"]
-                            until(lambda: len(comparator_events("popup-activate")) == activations + 1,
-                                  f"{toolkit} popup action")
-                            until(lambda: not command("popups"), f"{toolkit} popup cleanup")
-                            trial["popup"] = dict(initial=popup, moved=moved, action_activated=True)
+                            trial["popup"] = comparator_popup_trial(current_output, edge_x, edge_y, -20, -20)
+                            # Keep the menu-bearing edge visible while the parent center is off-screen.
+                            left = min(command("outputs"), key=lambda o: o["x"])
+                            previous_scale = left["scale"]
+                            assert command(f"test-scale {left['name']} {scale} 10000")["ok"]
+                            assert command("confirm")["ok"]
+                            heads = command("outputs")
+                            left = next(o for o in heads if o["name"] == left["name"])
+                            partial = comparator_popup_trial(left, left["x"] - 700,
+                                left["y"] + max(0, left["height"] - cw["height"]), 20, -20)
+                            parent = partial["parent"]
+                            cx, cy = parent["x"] + parent["width"] / 2, parent["y"] + parent["height"] / 2
+                            assert not any(o["x"] <= cx < o["x"] + o["width"] and o["y"] <= cy < o["y"] + o["height"] for o in heads)
+                            assert parent["x"] < left["x"] < parent["x"] + parent["width"]
+                            trial["partial_parent_popup"] = partial
+                            assert command(f"test-scale {left['name']} {previous_scale} 10000")["ok"]
+                            assert command("confirm")["ok"]
                             results.append(trial)
                             assert command(f"move {cid} 10 10")["ok"]
                         until(lambda: len(comparator_events("click")) >= 5, f"{toolkit} logical clicks")
@@ -866,7 +887,14 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                         if comparator.poll() is None: comparator.terminate(); comparator.wait(timeout=5)
                     assert command(f"test-scale {target} 180 10000")["ok"]
                     assert command("confirm")["ok"]
-                    until(lambda: dimensions(180), "GNUstep density restored after comparator")
+                    output = next(o for o in command("outputs") if o["name"] == target)
+                    assert command(f"move {wid} {output['x'] + 10} {output['y'] + 10}")["ok"]
+                    try:
+                        until(lambda: dimensions(180), "GNUstep density restored after comparator")
+                    except BaseException:
+                        (artifacts / f"{toolkit}-restore-failure.json").write_text(json.dumps(dict(
+                            windows=command("windows"), outputs=command("outputs")), indent=2) + "\n")
+                        raise
                 if applications:
                     results.extend(run_applications(command, env, artifacts, applications, until))
                     # Application trials can change either output's geometry.

@@ -140,7 +140,10 @@
       41890301167,
       41895922471,
       41903395108,
-      41907855298
+      41907855298,
+      41912596427,
+      41914460977,
+      41917570942
     ],
     "hosted_native_suite_passed": true,
     "latest_native_failure": "Prior desktop-broadcast fixture failure fixed; four Workspace run-loop modes now pass in hosted native job126847207604.",
@@ -298,28 +301,28 @@
     "hosted_native_successful_runs": [
       41900653577,
       41907855298,
-      41912596427
+      41912596427,
+      41914460977,
+      41917570942
     ],
     "latest_hosted_native_qualification": {
-      "run": 41907855298,
-      "head": "44c12258122368b0b47a0178e90797786768f661",
-      "job": 126847207604,
+      "run": 41917570942,
+      "head": "95c7ea2ce786d4db95282b7eabdf7c225586591a",
+      "job": 126881178683,
       "passed": true,
-      "artifact_id": 13362956227,
-      "bytes": 201163987,
-      "sha256": "879230dd4a3cede3cb7911d97c35ca3316611a5f16583349a2c06a65e7ae1983",
-      "regular_files": 8371,
+      "artifact_id": 13366233544,
+      "bytes": 201281236,
+      "sha256": "7e031aa0966fd5537561c01eb7fd4c5c0f955b644ade7d4443a5043408b53619",
+      "regular_files": 8384,
       "literal_links": 410,
       "json_files_validated": 1280,
       "jsonl_files_retained": 164,
-      "captured_inputs": 4404,
-      "current_non_test_inputs_matched": 3814,
       "combined_application_records": 147,
       "textedit_printing_cases": 24,
       "printing_suites": 12,
       "gtk_qt_density_cases": 10,
-      "workspace_run_loop_modes": 4,
-      "workspace_completed_desktop_requests": 44,
+      "popup_density_cases": 10,
+      "clipboard_transfers": 20,
       "installed_pinned_wlroots_confirmed": true,
       "physical_gpu_qualified": false,
       "full_plan_complete": false
@@ -354,7 +357,8 @@
       "payload_files_verified": 210,
       "extracted_portable_audit_passed": true,
       "product_sources_unchanged": true,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false,
+      "hosted_confirmation_run": 41917570942
     },
     "current_product_change_since_qualification": "Applications/Compositor/src/main.c: constrain xdg_popup.reposition with the existing initial-placement helper; installed Lima packages are unchanged.",
     "native_comparator_popup_reposition": {
@@ -379,7 +383,36 @@
       "payload_files_verified": 367,
       "extracted_portable_audit_passed": true,
       "installed_packages_or_vm_updated": false,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false,
+      "hosted_confirmation_run": 41917570942
+    },
+    "native_comparator_partial_parent_popup": {
+      "root_causes": [
+        "Parent center outside all outputs skips popup constraints",
+        "Reused popup surface retains stale pointer focus"
+      ],
+      "shared_visible_output_policy": true,
+      "shared_pointer_focus_cleanup": true,
+      "popup_cases": 20,
+      "clipboard_transfers_retained": 20,
+      "scales": [
+        120,
+        150,
+        180,
+        210,
+        240
+      ],
+      "same_peers_original_compositor_rejected": true,
+      "pointer_enter_protocol_verified": true,
+      "animations_control_still_fails": true,
+      "original_assertions_and_deadlines_preserved": true,
+      "archive": "arm64-partial-parent-popup-v1-evidence.tar.gz",
+      "bytes": 3837603,
+      "sha256": "6f0abd0f6a9b9607ce0367dfda2105aecb0a05b9eb9f6db5f9fdf8dc28557b89",
+      "payload_files_verified": 612,
+      "extracted_portable_audit_passed": true,
+      "hosted_confirmation_pending": true,
+      "installed_packages_or_vm_updated": false
     }
   },
   "evidence_locations": {

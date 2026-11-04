@@ -14,7 +14,7 @@ Hosted ARM64 run `41900653577` at `a866a80b` completes the full native suite
 in one uninterrupted job: 147 combined application records, 24 TextEdit printing
 cases, twelve toolkit printing suites, Workspace, six supervisor modes, native
 Login, portals and Pinyin/Hangul. The installed compositor loads the pinned
-wlroots library. Nine hosted package jobs also complete their full lifecycle.
+wlroots library. Twelve hosted package jobs also complete their full lifecycle.
 The 201,287,036-byte native ZIP has SHA-256
 `88efb817660cc1d05bff699cba392560bfa15bc4bdc7201bfdd3555e0896a2af`.
 Streaming verification checks 8,376 regular files and 410 literal links; all
@@ -29,8 +29,15 @@ fixtures. Its 201,163,987-byte ZIP has SHA-256
 run-loop modes complete their eleven desktop requests. A third native job,
 `126863785386` at `b4c6bd00`, confirms clipboard-failure reporting. Run
 `41907855298` also completes its package job, making both jobs green on one
-revision. Later comparator checks and the popup product fix await hosted
-confirmation.
+revision. A fourth native run at `78769c0f` confirms the clipboard comparisons.
+The fifth, run `41917570942` at `95c7ea2c`, confirms the popup reposition fix;
+its package job also passes. The 201,281,236-byte native ZIP has SHA-256
+`7e031aa0966fd5537561c01eb7fd4c5c0f955b644ade7d4443a5043408b53619`.
+Its 8,384 regular files, 410 literal links and 1,280 JSON files verify, including
+twenty exact clipboard transfers and ten popup cases. The compact audit is
+`arm64-hosted-native-popup-v1-evidence.tar.gz`, SHA-256
+`10938ad7dbe802426ad0b422cd22ae14dff52f7bf0698379528a864cd71e28cd`;
+all 1,460 payload files and both extracted audits pass.
 
 The completion audit finds that native GTK/Qt comparisons cover density and
 pointer input but omit their clipboard transfers. The same probes and integration
@@ -41,8 +48,8 @@ Qt probe without clipboard support and a modified producer that reuses stale
 text. The 1,060,481-byte capsule is
 `arm64-comparator-clipboard-v1-evidence.tar.gz`, SHA-256
 `05983306e0f3da1da9c703d1ca54f22c8b1d8af0be747eac5d5298f9359190cf`;
-all 210 payload files and an independent extracted audit verify. Hosted
-confirmation of these additional checks is pending.
+all 210 payload files and an independent extracted audit verify. The fourth and
+fifth hosted native runs confirm these checks.
 
 Native GTK/Qt popup checks expose a compositor bug: initial placement is
 constrained, but `xdg_popup.reposition` bypasses the bounds check. A GTK protocol
@@ -55,9 +62,27 @@ constraints, parent movement, pointer hit testing, activation and cleanup. All
 twenty clipboard transfers still pass. The 2,255,994-byte capsule is
 `arm64-popup-reposition-v1-evidence.tar.gz`, SHA-256
 `1187113215b66bf3b024d71ce4e8e9c9455a74637d2acd2259bbd88e8be8daab`;
-all 367 payload files and an independent extracted replay verify. This changes
-the compositor beyond the latest hosted qualification; framework/application
-sources and the installed Lima packages retain their earlier versions.
+all 367 payload files and an independent extracted replay verify. The fifth
+hosted native run confirms this fix. Installed Lima packages retain their
+earlier versions.
+
+Further popup checks reproduce two additional bugs. A partly visible parent's
+center can lie outside every output, skipping popup constraints. Output selection
+now reuses the existing visible-area policy. GTK also reuses its popup surface;
+stale pointer focus prevents a fresh enter event and activation. Popup unmap and
+destruction now share pointer-focus cleanup and refresh. Protocol traces record
+missing enter events before the fix and fresh events afterward; disabling GTK
+animations alone still fails. The same current peers and assertions reject the
+original compositor and pass twenty popup cases across both toolkits and all five
+densities, while all twenty clipboard transfers still pass. The calibration
+fixture requests its existing 801×601 minimum, and explicitly restores the native
+reference window after output changes. Original size assertions and deadlines
+remain unchanged. The 3,837,603-byte capsule is
+`arm64-partial-parent-popup-v1-evidence.tar.gz`, SHA-256
+`6f0abd0f6a9b9607ce0367dfda2105aecb0a05b9eb9f6db5f9fdf8dc28557b89`;
+all 612 payload files and the extracted audit pass. These two additional product
+fixes await hosted qualification; the installed session stage and Lima guest
+remain unchanged.
 
 The frozen installed qualification is native105/native106 on Debian 13/aarch64.
 Cold build, network-disabled source replay, clean installation, live upgrade,
@@ -409,7 +434,7 @@ newline-terminated records. All four regular and secure run-loop modes pass
 across five densities, followed by exact Terminal IME bytes at every density.
 The 273,806-byte capsule is `arm64-text-input-records-v1-evidence.tar.gz`, SHA-256
 `4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2`.
-Its 60 payload files verify. Nine hosted ARM64 package jobs complete the
+Its 60 payload files verify. Twelve hosted ARM64 package jobs complete the
 full lifecycle; the uninterrupted native run also confirms this reader fix.
 
 A later package run stops because the clipboard reset fixture loses ownership

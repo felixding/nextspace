@@ -268,6 +268,7 @@ static void activate(GtkApplication *app, void *data)
   g_signal_connect(window, "notify::maximized", G_CALLBACK(window_state), NULL);
   g_signal_connect(window, "notify::fullscreened", G_CALLBACK(window_state), NULL);
   GtkWidget *area = gtk_drawing_area_new();
+  if (popup_controls) gtk_widget_set_size_request(area, 801, 601);
   gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(area), draw, NULL, NULL);
   GtkGesture *click = gtk_gesture_click_new();
   g_signal_connect(click, "pressed", G_CALLBACK(pressed), window);

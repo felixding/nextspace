@@ -54,7 +54,12 @@ check its density and constraints, move its parent, then activate it through rea
 pointer input. `p` opens the popup. GTK's `--popup-controls` allocates its menu
 button before presentation. An original-compositor control preserves the
 off-screen failure from a later positioner request; the fixed compositor passes
-all ten popup cases and keeps the clipboard checks unchanged.
+all ten popup cases and keeps the clipboard checks unchanged. Each density also
+opens and activates another popup while its parent is partly visible and its
+center lies outside every output. These twenty popup cases cover output selection
+and pointer focus when GTK reuses a popup surface. Calibration mode preserves the
+existing 801×601 minimum, and the native reference window returns to its intended
+output after the comparisons.
 
 `source_links.py --artifacts ...` checks source snapshots and replay before a
 cold package build. It preserves all 57 cursor alias chains, rejects flattened
