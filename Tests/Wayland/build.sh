@@ -114,6 +114,8 @@ else
   # A restored source snapshot can be older than cached generated headers.
   meson setup --wipe "$build/compositor" "$repo/Applications/Compositor" -Dcomparators=true
 fi
+# Installed fixtures retain the same pinned library as the build directory.
+meson configure "$build/compositor" -Dwlroots_rpath="$wlroots_libdir"
 meson compile -C "$build/compositor"
 ldd "$build/compositor/nextspace-compositor" > "$build/compositor-libraries.txt"
 meson test -C "$build/compositor" --print-errorlogs

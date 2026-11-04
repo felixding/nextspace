@@ -337,8 +337,20 @@ errors. A failure-only 50ms observation window lets the kernel publish an exit
 status after closing the child's files. Controlled compositor-loss cases record
 SIGKILL while the original ownership/cleanup assertions pass. The installed
 launcher fixture also retains client protocol messages for its handshake;
-its unchanged lifecycle checks pass locally. The hosted cause remains under
-investigation.
+its unchanged lifecycle checks pass locally. The next hosted trace confirms
+SIGSEGV during input-method startup.
+
+A real Meson installation reproduces that crash: its empty installed RUNPATH
+selects Debian's incompatible wlroots library. The same installed binary passes
+when only library selection changes to the pinned build. Preserving the existing
+wlroots RUNPATH option then passes all six original lifecycle modes through the
+actual Meson installation, without a loader override. All 21 compositor source
+files and 435 wlroots source files match the hosted inputs. Native CI now retains
+that library path and records the installed compositor's dependency resolution.
+Hosted confirmation remains pending. The 2,379,469-byte capsule is
+`arm64-installed-wlroots-loader-v1-evidence.tar.gz`, SHA-256
+`bd91ea0d6ae50e5b59d979a87611575892e745a164897ec152894399ab6dd15a`;
+all 137 payload files and the portable audit verify.
 
 One hosted package run stops during the secure IME fixture because its reader
 parses an unfinished JSON line. The completed log contains 119 valid records;

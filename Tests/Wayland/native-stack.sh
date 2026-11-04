@@ -36,6 +36,7 @@ build_runtime_applications
 # The installed user launcher also needs Login's production hook executable.
 installed_bin=$(cat "$build/results/installed-session-bin.txt")
 install -m755 "$build/apps/Login/obj/nextspace-session-hook" "$installed_bin/nextspace-session-hook"
+ldd "$installed_bin/nextspace-compositor" >> "$build/native-runtime.txt"
 WAYLAND_DEBUG=client python3 "$repo/Tests/Wayland/supervisor.py" --supervisor "$installed_bin/nextspace-session" \
   --compositor "$installed_bin/nextspace-compositor" --shell-probe "$build/fixture/obj/ShellConnectionProbe" \
   --client "$build/compositor/gtk-probe" --input-method-probe "$build/compositor/registry-probe" \

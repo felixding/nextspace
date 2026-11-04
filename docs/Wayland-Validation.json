@@ -140,7 +140,7 @@
       41890301167
     ],
     "hosted_native_suite_passed": false,
-    "latest_native_failure": "Shell probe exits3 before readiness is observed; compositor broker EOF follows. Cause remains unestablished.",
+    "latest_native_failure": "Installed compositor SIGSEGV during IME startup; reproduced by Meson removing RUNPATH and loading incompatible distro wlroots. Preserving pinned RUNPATH passes all six local installed lifecycle modes; hosted confirmation pending.",
     "installed_launcher_local_passed": true,
     "supervisor_failure_capture_control_passed": true,
     "native_font_configuration": {
@@ -159,7 +159,8 @@
       "compositor_nonreaped_signal_status_verified": true,
       "failure_observation_maximum_ms": 50,
       "installed_launcher_client_protocol_trace_verified": true,
-      "compositor_broker_receive_error_reporting": true
+      "compositor_broker_receive_error_reporting": true,
+      "hosted_compositor_sigsegv_observed": true
     },
     "text_input_complete_records": {
       "failed_run": 41887399009,
@@ -177,6 +178,21 @@
       "sha256": "4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2",
       "payload_files_verified": 60,
       "hosted_confirmation_pending": true
+    },
+    "installed_wlroots_loader": {
+      "failed_hosted_run": 41895922471,
+      "compositor_sigsegv_confirmed": true,
+      "meson_installation_failure_reproduced": true,
+      "same_binary_pinned_loader_passed": true,
+      "preserved_runpath_local_modes_passed": 6,
+      "compositor_source_files_match_hosted": 21,
+      "wlroots_source_files_match_hosted": 435,
+      "archive": "arm64-installed-wlroots-loader-v1-evidence.tar.gz",
+      "bytes": 2379469,
+      "sha256": "bd91ea0d6ae50e5b59d979a87611575892e745a164897ec152894399ab6dd15a",
+      "payload_files_verified": 137,
+      "portable_audit_passed": true,
+      "hosted_confirmation_pending": true
     }
   },
   "evidence_locations": {
@@ -186,7 +202,7 @@
     "portable_vm": ".build/wayland-macbook/"
   },
   "remaining": [
-    "Complete hosted ARM64 native suite; investigate the installed-launcher startup exit",
+    "Complete hosted ARM64 native suite and confirm installed wlroots library selection",
     "Intermittent large-TIFF Review density timeout; original deadlines pass in focused and full-application follow-ups but cause remains unestablished",
     "Physical display, input, modeset, hotplug and gamma validation",
     "Supported physical suspend/resume and VT cycles",
