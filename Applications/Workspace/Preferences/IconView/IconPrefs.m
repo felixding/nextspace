@@ -24,6 +24,7 @@
 
 #import "IconPrefs.h"
 #import <SystemKit/OSEDefaults.h>
+#import "../../WSImageResources.h"
 
 #define DEFAULT_LABEL_WIDTH 100
 
@@ -99,6 +100,10 @@ static inline NSRect IncrementedRect(NSRect r)
   NSRect frame;
   NSRect shortLabelFrame;
   NSRect box2Frame;
+
+  NSString *images = [[NSBundle bundleForClass:[self class]] pathForResource:@"IconPrefs" ofType:@"gorm"];
+  WSSetViewImage(leftArr, images, @"sizerLeft");
+  WSSetViewImage(rightArr, images, @"sizerRight");
 
   // get the box and destroy the bogus window
   [box retain];

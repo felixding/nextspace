@@ -387,13 +387,11 @@ int wDesktopNew(WScreen *scr)
   return -1;
 }
 
-Bool wDesktopDelete(WScreen *scr, int workspace)
+Bool wDesktopCanDelete(WScreen *scr, int workspace)
 {
   WWindow *tmp;
-  WDesktop **list;
-  int i, j;
 
-  if (workspace <= 0)
+  if (workspace <= 0 || workspace >= scr->desktop_count)
     return False;
 
   /* verify if workspace is in use by some window */
@@ -403,6 +401,16 @@ Bool wDesktopDelete(WScreen *scr, int workspace)
       return False;
     tmp = tmp->prev;
   }
+  return True;
+}
+
+Bool wDesktopDelete(WScreen *scr, int workspace)
+{
+  WDesktop **list;
+  int i, j;
+
+  if (!wDesktopCanDelete(scr, workspace))
+    return False;
 
   if (!wPreferences.flags.noclip) {
     wDockDestroy(scr->desktops[workspace]->clip);
@@ -412,7 +420,7 @@ Bool wDesktopDelete(WScreen *scr, int workspace)
   list = wmalloc(sizeof(WDesktop *) * (scr->desktop_count - 1));
   j = 0;
   for (i = 0; i < scr->desktop_count; i++) {
-    if (i != workspace - 1) {
+    if (i != workspace) {
       list[j++] = scr->desktops[i];
     } else {
       if (scr->desktops[i]->name)

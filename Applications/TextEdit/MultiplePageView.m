@@ -161,9 +161,9 @@
 
 /**** Printing support... ****/
 
-- (BOOL)knowsPagesFirst:(int *)firstPageNum last:(int *)lastPageNum {
-    *lastPageNum = [self numberOfPages];
-    return YES;     
+- (BOOL)knowsPageRange:(NSRange *)range {
+    *range = NSMakeRange(1, [self numberOfPages]);
+    return YES;
 }
 
 - (NSRect)rectForPage:(NSInteger)page {

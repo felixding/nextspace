@@ -261,6 +261,8 @@
 
 - (id)_inspectorWithRegistry:(NSMutableDictionary *)registry
 {
+  // Nib loading can service selection changes while an inspector is incomplete.
+  if ([[registry objectForKey:@"loading"] boolValue]) return nil;
   NSString *inspectorPath = [registry objectForKey:@"path"];
   id object = [registry objectForKey:@"object"];
   NSBundle *bundle = nil;
@@ -273,15 +275,20 @@
       }
     }
 
-    object = [NSClassFromString([registry objectForKey:@"class"]) new];
-    if (object != nil) {
-      [registry setObject:object forKey:@"object"];
-      // Waiting for inspector section to initialize
-      while ([object window] == nil) {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-                                 beforeDate:[NSDate dateWithTimeIntervalSinceNow:.5]];
+    [registry setObject:@YES forKey:@"loading"];
+    @try {
+      object = [NSClassFromString([registry objectForKey:@"class"]) new];
+      if (object != nil) {
+        [registry setObject:object forKey:@"object"];
+        // Waiting for inspector section to initialize
+        while ([object window] == nil) {
+          [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                                   beforeDate:[NSDate dateWithTimeIntervalSinceNow:.5]];
+        }
+        [registry setObject:[[object window] contentView] forKey:@"view"];
       }
-      [registry setObject:[[object window] contentView] forKey:@"view"];
+    } @finally {
+      [registry removeObjectForKey:@"loading"];
     }
   }
 

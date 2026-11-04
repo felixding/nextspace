@@ -27,7 +27,6 @@
 {
   OSEMouse *mouse;
   NSImage *image;
-  NSImage *handImage;
   
   id view;
   id window;

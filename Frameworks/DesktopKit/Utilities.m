@@ -21,6 +21,17 @@
 
 #import "Utilities.h"
 
+void NXTSetBundleImages(NSView *view, NSDictionary *resourceNames)
+{
+  if ([view isKindOfClass:[NSImageView class]]) {
+    NSString *name = [resourceNames objectForKey:NSStringFromSize([[(NSImageView *)view image] size])];
+    NSString *path = name ? [[NSBundle mainBundle] pathForResource:name ofType:@"tiff"] : nil;
+    NSImage *image = path ? [[[NSImage alloc] initWithContentsOfFile:path] autorelease] : nil;
+    if (image) [(NSImageView *)view setImage:image];
+  }
+  for (NSView *child in [view subviews]) NXTSetBundleImages(child, resourceNames);
+}
+
 NSString *NXTShortenString(NSString *fullString,
                           CGFloat viewWidth,
                           NSFont *font,

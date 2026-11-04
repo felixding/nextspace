@@ -29,9 +29,12 @@ ifndef CMAKE
 	CMAKE=cmake
 endif
 
+ifneq ($(NEXTSPACE_BUILD_WAYLAND),1)
 before-all::
 	@ echo "Preparing WM..."
 	@ cd $(WM_DIR)/cmake; ${CMAKE} . -DCMAKE_C_COMPILER=clang
+
+endif
 
 after-all::
 	@ echo " Copying Viewers bundles into the app wrapper ..."

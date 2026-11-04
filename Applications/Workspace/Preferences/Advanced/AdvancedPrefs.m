@@ -21,8 +21,8 @@
 
 #import <SystemKit/OSEDefaults.h>
 #import "AdvancedPrefs.h"
-#import <Workspace+WM.h>
-#import <dock.h>
+#import "WindowManager.h"
+
 
 @implementation AdvancedPrefs
 
@@ -67,14 +67,18 @@
   [slideWhenOpening setState:![df boolForKey:@"DontSlideIconsWhenOpening"]];
   [slideOnBadFop setState:![df boolForKey:@"DontSlideIconBackOnBadFop"]];
 
-  [dockLevelBtn selectItemWithTag:wDockLevel(wDefaultScreen()->dock)];
+  id<WSWindowManager> manager = WSCurrentWindowManager();
+  [dockLevelBtn selectItemWithTag:[manager dockLevel]];
+  [[dockLevelBtn menu] setAutoenablesItems:NO];
+  for (id item in [dockLevelBtn itemArray])
+    [item setEnabled:[[manager supportedDockLevels] containsObject:[NSNumber numberWithInteger:[item tag]]]];
 }
 
 // --- Actions
 
 - (void)setDockLevel:(id)sender
 {
-  wDockSetLevel(wDefaultScreen()->dock, [[sender selectedItem] tag]);
+  [WSCurrentWindowManager() setDockLevel:[[sender selectedItem] tag]];
 }
 
 - (void)setSlidesWhenChangingPath:(id)sender

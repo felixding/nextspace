@@ -2030,7 +2030,7 @@ void wWindowChangeDesktop(WWindow *wwin, int workspace)
       CFNumberRef workspaceNumber =
           CFNumberCreate(kCFAllocatorDefault, kCFNumberShortType, &workspace);
       CFDictionaryAddValue(info, CFSTR("workspace"), workspaceNumber);
-      CFNotificationCenterPostNotification(scr->notificationCenter, WMDidChangeDesktopNotification,
+      CFNotificationCenterPostNotification(scr->notificationCenter, WMDidChangeWindowDesktopNotification,
                                            wwin, info, TRUE);
       CFRelease(workspaceNumber);
       CFRelease(info);

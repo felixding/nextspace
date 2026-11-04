@@ -42,6 +42,9 @@ typedef struct _XRRScreenResources {
 #import "OSEDefaults.h"
 #import "OSEDisplay.h"
 #import "OSEScreen.h"
+#import "OSEX11Display.h"
+#import "OSEWaylandDisplay.h"
+#import "OSEPower.h"
 #import "OSEMouse.h"
 
 // NXGlobalDomain key
@@ -65,6 +68,9 @@ NSString *OSEDisplayResolutionSizeKey = @"ResolutionSize";
 NSString *OSEDisplayResolutionRateKey = @"ResolutionRate";
 NSString *OSEDisplayPhSizeKey = @"PhysicalSize";
 NSString *OSEDisplayPropertiesKey = @"Properties";
+NSString *OSEDisplayModeKey = @"Mode";
+NSString *OSEDisplayScaleKey = @"Scale120";
+NSString *OSEDisplayTransformKey = @"Transform";
 
 // Notifications
 NSString *OSEScreenDidChangeNotification = @"OSEScreenDidChangeNotification";
@@ -255,7 +261,7 @@ static OSEScreen *systemScreen = nil;
 + (id)sharedScreen
 {
   if (systemScreen == nil) {
-    systemScreen = [[[OSEScreen alloc] init] autorelease];
+    systemScreen = [[OSEScreen alloc] init];
   }
 
   return systemScreen;
@@ -273,21 +279,12 @@ static OSEScreen *systemScreen = nil;
 
   [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
 
-  if (background_pixmap != None && backgroundPixmapOwner == self) {
-    // From XChangeProperty(3): "The lifetime of a property is not tied to the storing client.
-    // Properties remain until explicitly deleted, until the window is destroyed, or until the
-    // server resets.". So we don't need to free `background_pixmap` property.
-    //   XFree(&background_pixmap);
-    background_pixmap = None;
-    backgroundPixmapOwner = nil;
+  if (_x11) {
+    if (_x11->gc != None) XFreeGC(_x11->display, _x11->gc);
+    if (_x11->resources) XRRFreeScreenResources(_x11->resources);
+    if (_x11->display) XCloseDisplay(_x11->display);
+    free(_x11);
   }
-  if (background_gc != None) {
-    XFreeGC(xDisplay, background_gc);
-    background_gc = None;
-  }
-  XRRFreeScreenResources(screen_resources);
-
-  XCloseDisplay(xDisplay);
 
   [systemDisplays release];
   [updateScreenLock release];
@@ -295,41 +292,42 @@ static OSEScreen *systemScreen = nil;
   [_systemPower stopEventsMonitor];
   [_systemPower release];
 
-  systemScreen = nil;
+  if (systemScreen == self) systemScreen = nil;
 
   [super dealloc];
 }
 
 - (id)init
 {
+  if ([self isMemberOfClass:[OSEScreen class]] && OSEUsesWaylandDisplay()) {
+    [self release]; return [OSEWaylandScreen new];
+  }
   int event_base, error_base;
   int major_version, minor_version;
 
-  if (systemScreen != nil) {
-    return systemScreen;
-  }
+  if (!(self = [super init])) return nil;
+  _x11 = calloc(1, sizeof(*_x11));
+  if (!_x11) { [self release]; return nil; }
 
-  xDisplay = XOpenDisplay(getenv("DISPLAY"));
-  if (!xDisplay) {
+  _x11->display = XOpenDisplay(getenv("DISPLAY"));
+  if (!_x11->display) {
     NSLog(@"Can't open Xorg display. Please setup DISPLAY environment variable.");
-    return nil;
+    [self release]; return nil;
   }
 
-  if (XRRQueryExtension(xDisplay, &event_base, &error_base) == True) {
-    XRRQueryVersion(xDisplay, &major_version, &minor_version);
+  if (XRRQueryExtension(_x11->display, &event_base, &error_base) == True) {
+    XRRQueryVersion(_x11->display, &major_version, &minor_version);
     NSDebugLLog(@"Screen", @"XRandR %i.%i, event base:%i, error base:%i",
                 major_version, minor_version,
                 event_base, error_base);
   }
   else {
     NSLog(@"[OSEScreen] no XRandR extension available. Return nil.");
-    return nil;
+    [self release]; return nil;
   }
 
-  self = [super init];
-
-  xRootWindow = RootWindow(xDisplay, DefaultScreen(xDisplay));
-  screen_resources = NULL;
+  _x11->root = RootWindow(_x11->display, DefaultScreen(_x11->display));
+  _x11->resources = NULL;
 
   updateScreenLock = [[NSLock alloc] init];
   [self randrUpdateScreenResources];
@@ -348,8 +346,8 @@ static OSEScreen *systemScreen = nil;
   }
 
   useAutosave = NO;
-  background_pixmap = None;
-  background_gc = None;
+  _x11->pixmap = None;
+  _x11->gc = None;
 
   _systemPower = [[OSEPower sharedPower] retain];
 
@@ -362,6 +360,27 @@ static OSEScreen *systemScreen = nil;
 
   return self;
 }
+
+/* Native subclasses initialize the shared model without opening Xlib. */
+- (id)initDisplayModel { return [super init]; }
+- (void)refreshDisplays { [self randrUpdateScreenResources]; }
+- (NSRect)logicalBounds
+{
+  NSRect bounds = NSZeroRect;
+  BOOL first = YES;
+  for (OSEDisplay *display in [self activeDisplays]) {
+    bounds = first ? [display frame] : NSUnionRect(bounds, [display frame]); first = NO;
+  }
+  return bounds;
+}
+- (BOOL)isNativeDisplay { return NO; }
+- (BOOL)supportsDisplayConfiguration { return _x11 && _x11->display; }
+- (BOOL)supportsDisplayTransactions { return NO; }
+- (NSDictionary *)testDisplayLayout:(NSArray *)layout { return nil; }
+- (NSDictionary *)beginDisplayLayout:(NSArray *)layout timeout:(NSUInteger)milliseconds { return nil; }
+- (NSDictionary *)displayLayoutStatus { return nil; }
+- (BOOL)confirmDisplayLayout { return NO; }
+- (BOOL)cancelDisplayLayout { return NO; }
 
 - (void)setUseAutosave:(BOOL)yn
 {
@@ -389,10 +408,10 @@ static OSEScreen *systemScreen = nil;
 
 - (XRRScreenResources *)randrScreenResources
 {
-  if (screen_resources == NULL) {
+  if (_x11->resources == NULL) {
     [self randrUpdateScreenResources];
   }
-  return screen_resources;
+  return _x11->resources;
 }
 
 - (void)randrUpdateScreenResources
@@ -408,10 +427,10 @@ static OSEScreen *systemScreen = nil;
   NSDebugLLog(@"Screen", @"OSEScreen: randrUpdateScreenResources: START");
   
   // Reread screen resources
-  if (screen_resources) {
-    XRRFreeScreenResources(screen_resources);
+  if (_x11->resources) {
+    XRRFreeScreenResources(_x11->resources);
   }
-  screen_resources = XRRGetScreenResources(xDisplay, xRootWindow);
+  _x11->resources = XRRGetScreenResources(_x11->display, _x11->root);
 
   // Create/clean display information local cache.
   if (systemDisplays) {
@@ -422,11 +441,11 @@ static OSEScreen *systemScreen = nil;
   }
 
   // Update displays info
-  for (int i=0; i < screen_resources->noutput; i++) {
-    display = [[OSEDisplay alloc] initWithOutputInfo:screen_resources->outputs[i]
-                                     screenResources:screen_resources
+  for (int i=0; i < _x11->resources->noutput; i++) {
+    display = [[OSEDisplay alloc] initWithOutputInfo:_x11->resources->outputs[i]
+                                     screenResources:_x11->resources
                                               screen:self
-                                            xDisplay:xDisplay];
+                                            xDisplay:_x11->display];
 
     [systemDisplays addObject:display];
     [display release];
@@ -452,9 +471,9 @@ static OSEScreen *systemScreen = nil;
   RRCrtc      crtc;
   XRRCrtcInfo *info;
 
-  for (int i=0; i<screen_resources->ncrtc; i++) {
-    crtc = screen_resources->crtcs[i];
-    info = XRRGetCrtcInfo(xDisplay, screen_resources, crtc);
+  for (int i=0; i<_x11->resources->ncrtc; i++) {
+    crtc = _x11->resources->crtcs[i];
+    info = XRRGetCrtcInfo(_x11->display, _x11->resources, crtc);
     // fprintf(stderr, "CRTC '%lu' has %i outputs.\n", crtc, info->noutput);
     
     if (info->noutput == 0) {
@@ -481,9 +500,9 @@ static OSEScreen *systemScreen = nil;
   int x, y;
   unsigned width, height, bw, depth;
 
-  XGetGeometry (xDisplay, xRootWindow,
+  XGetGeometry (_x11->display, _x11->root,
                 &root, &x, &y, &width, &height, &bw, &depth);
-  XSync (xDisplay, 0);
+  XSync (_x11->display, 0);
 
   return (NSUInteger)depth;
 }
@@ -527,8 +546,8 @@ static OSEScreen *systemScreen = nil;
   // is set with XSetWindowBackground function and:
   // "XSetWindowBackground uses a pixmap of undefined size filled with the pixel
   // value you passed" [XSetWindowBackground(3)].
-  if (XGetWindowAttributes(xDisplay, xRootWindow, &attrs) != 0) {
-    image = XGetImage(xDisplay, xRootWindow, 0, 0,
+  if (XGetWindowAttributes(_x11->display, _x11->root, &attrs) != 0) {
+    image = XGetImage(_x11->display, _x11->root, 0, 0,
                       attrs.width, attrs.height, AllPlanes, ZPixmap);
     if (image != NULL) {
       pixel = XGetPixel(image, attrs.width-1, attrs.height-1); // magic: works in VM
@@ -565,38 +584,38 @@ static OSEScreen *systemScreen = nil;
 - (void)_setBackgroundXColor:(XColor)xColor
                   forXScreen:(Screen *)xScreen
 {
-  Atom rootpmap_id = XInternAtom(xDisplay, "_XROOTPMAP_ID", False);
+  Atom rootpmap_id = XInternAtom(_x11->display, "_XROOTPMAP_ID", False);
 
-  if (background_pixmap == None) {
+  if (_x11->pixmap == None) {
     // Try to get existing _XROOTPMAP_ID property
     Atom type;
     int format;
     unsigned long length, after;
     unsigned char *data = 0;
-    int result = XGetWindowProperty(xDisplay, xRootWindow, rootpmap_id, 0, 1, True, AnyPropertyType,
+    int result = XGetWindowProperty(_x11->display, _x11->root, rootpmap_id, 0, 1, True, AnyPropertyType,
                                     &type, &format, &length, &after, &data);
 
     if (result == Success && data && type == XA_PIXMAP && format == 32 && length == 1) {
       // Do not clear out - owner may still exist (Login.app)
-      // XKillClient(xDisplay, *((Pixmap *)data));
+      // XKillClient(_x11->display, *((Pixmap *)data));
       // XFree(data);
-      background_pixmap = *((Pixmap *)data);
+      _x11->pixmap = *((Pixmap *)data);
     } else {
-      background_pixmap = XCreatePixmap(xDisplay, xRootWindow, 1, 1, DefaultDepth(xDisplay, 0));
-      backgroundPixmapOwner = self;
+      _x11->pixmap = XCreatePixmap(_x11->display, _x11->root, 1, 1, DefaultDepth(_x11->display, 0));
+      _x11->pixmapOwner = self;
     }
-    background_gc_values.foreground = xColor.pixel;
-    background_gc = XCreateGC(xDisplay, xRootWindow, GCForeground, &background_gc_values);
+    _x11->gcValues.foreground = xColor.pixel;
+    _x11->gc = XCreateGC(_x11->display, _x11->root, GCForeground, &_x11->gcValues);
   }
 
   // Set new _XROOTPMAP_ID property
-  if (background_pixmap != None) {
-    background_gc_values.foreground = xColor.pixel;
-    XChangeGC(xDisplay, background_gc, GCForeground, &background_gc_values);
+  if (_x11->pixmap != None) {
+    _x11->gcValues.foreground = xColor.pixel;
+    XChangeGC(_x11->display, _x11->gc, GCForeground, &_x11->gcValues);
 
-    XFillRectangle(xDisplay, background_pixmap, background_gc, 0, 0, 1, 1);
-    XChangeProperty(xDisplay, xRootWindow, rootpmap_id, XA_PIXMAP, 32, PropModeReplace,
-                    (unsigned char *)&background_pixmap, 1);
+    XFillRectangle(_x11->display, _x11->pixmap, _x11->gc, 0, 0, 1, 1);
+    XChangeProperty(_x11->display, _x11->root, rootpmap_id, XA_PIXMAP, 32, PropModeReplace,
+                    (unsigned char *)&_x11->pixmap, 1);
   }
 }
 
@@ -607,7 +626,7 @@ static OSEScreen *systemScreen = nil;
   unsigned red, green, blue;
   NSString *rgbSpec;
   char     *x_color_spec;
-  Screen   *xScreen = DefaultScreenOfDisplay(xDisplay);
+  Screen   *xScreen = DefaultScreenOfDisplay(_x11->display);
   XColor   xColor;
 
   // rgbColor = [color colorUsingColorSpaceName:NSDeviceRGBColorSpace];
@@ -619,22 +638,22 @@ static OSEScreen *systemScreen = nil;
   
   x_color_spec = (char *)[rgbSpec cString];
   
-  if (!XParseColor(xDisplay, xScreen->cmap, x_color_spec, &xColor)) {
+  if (!XParseColor(_x11->display, xScreen->cmap, x_color_spec, &xColor)) {
     fprintf(stderr,"OSEScreen: unknown color \"%s\"\n", x_color_spec);
     return NO;
   }
-  if (!XAllocColor(xDisplay, xScreen->cmap, &xColor)) {
+  if (!XAllocColor(_x11->display, xScreen->cmap, &xColor)) {
     fprintf(stderr, "OSEScreen: unable to allocate color for \"%s\"\n",
             x_color_spec);
     return NO;
   }
 
   // Set background for non-compositor sessions
-  XSetWindowBackground(xDisplay, xRootWindow, xColor.pixel);
-  XClearWindow(xDisplay, xRootWindow);
+  XSetWindowBackground(_x11->display, _x11->root, xColor.pixel);
+  XClearWindow(_x11->display, _x11->root);
   // Set background for sessions with compositor
   [self _setBackgroundXColor:xColor forXScreen:xScreen];
-  XSync(xDisplay, False);
+  XSync(_x11->display, False);
 
   return YES;
 }
@@ -699,7 +718,7 @@ static OSEScreen *systemScreen = nil;
 - (void)setMainDisplay:(OSEDisplay *)display
 {
   if (display == nil) {
-    XRRSetOutputPrimary(xDisplay, xRootWindow, None);
+    XRRSetOutputPrimary(_x11->display, _x11->root, None);
     [self randrUpdateScreenResources];
     return;
   }
@@ -801,9 +820,9 @@ static OSEScreen *systemScreen = nil;
               @"NXSystem: activate display: %@ with frame: %@",
               display.outputName, NSStringFromRect(display.frame));
 
-  XLockDisplay(xDisplay);
+  XLockDisplay(_x11->display);
   [self applyDisplayLayout:newLayout];
-  XUnlockDisplay(xDisplay);
+  XUnlockDisplay(_x11->display);
 }
 
 - (void)deactivateDisplay:(OSEDisplay *)display
@@ -814,9 +833,9 @@ static OSEScreen *systemScreen = nil;
   
   newLayout = [self arrangedDisplayLayout];
 
-  XLockDisplay(xDisplay);
+  XLockDisplay(_x11->display);
   [self applyDisplayLayout:newLayout];
-  XUnlockDisplay(xDisplay);
+  XUnlockDisplay(_x11->display);
   
   NSDebugLLog(@"Screen",
               @"NXSystem: deactivated display: %@ with frame: %@",
@@ -1098,7 +1117,7 @@ static OSEScreen *systemScreen = nil;
   if (newPixSize.width > sizeInPixels.width &&
       newPixSize.height > sizeInPixels.height) {
     NSDebugLLog(@"Screen", @"OSEScreen: set new BIGGER screen size: START");
-    XRRSetScreenSize(xDisplay, xRootWindow,
+    XRRSetScreenSize(_x11->display, _x11->root,
                      (int)newPixSize.width, (int)newPixSize.height,
                      (int)mmSize.width, (int)mmSize.height);
     NSDebugLLog(@"Screen", @"OSEScreen: set new BIGGER screen size: END");
@@ -1133,7 +1152,7 @@ static OSEScreen *systemScreen = nil;
                                          height:frame.size.height
                                            rate:[frameRate doubleValue]];
       [display setResolution:resolution position:frame.origin];
-      XFlush(xDisplay);
+      XFlush(_x11->display);
 
       lastActiveDisplay = display;
     } else {  // Setting zero resolution to display disables it.
@@ -1147,7 +1166,7 @@ static OSEScreen *systemScreen = nil;
   if (newPixSize.width < sizeInPixels.width ||
       newPixSize.height < sizeInPixels.height) {
     NSDebugLLog(@"Screen", @"OSEScreen: set new SMALLER screen size: START");
-    XRRSetScreenSize(xDisplay, xRootWindow,
+    XRRSetScreenSize(_x11->display, _x11->root,
                      (int)newPixSize.width, (int)newPixSize.height,
                      (int)mmSize.width, (int)mmSize.height);
     NSDebugLLog(@"Screen", @"OSEScreen: set new SMALLER screen size: END");
@@ -1314,7 +1333,7 @@ NSComparisonResult compareLayoutEntries(NSDictionary *displayA,
 //------------------------------------------------------------------------------
 // Video adapters
 //------------------------------------------------------------------------------
-// provider_resources = XRRGetProviderResources(xDisplay, xRootWindow);
+// provider_resources = XRRGetProviderResources(_x11->display, _x11->root);
 // if (provider_resources->nproviders < 1)
 //   { // No video cards - applying layout doesn't make sense or work.
 //     NSLog(@"OSEScreen: No video adapters found - no saved layout will be applied.");

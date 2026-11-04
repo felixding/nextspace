@@ -26,16 +26,7 @@
 //-----------------------------------------------------------------------------
 // Common part
 //-----------------------------------------------------------------------------
-#include <dispatch/dispatch.h>
-#include <CoreFoundation/CFRunLoop.h>
-extern dispatch_queue_t workspace_q;
-extern CFRunLoopRef wm_runloop;
-
-typedef enum WorkspaceExitCode {
-  WSLogoutOnQuit = 0,     // normal application quit
-  WSPowerOffOnQuit = 129  // ShutdownExitCode in Login/Controller.h
-} WorkspaceExitCode;
-extern WorkspaceExitCode ws_quit_code;
+#include "Session.h"
 
 //-----------------------------------------------------------------------------
 // Visible in Workspace only

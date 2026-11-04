@@ -39,7 +39,7 @@
 }
 
 @property NSRect displayFrame;
-@property (assign) NSString *displayName;
+@property (copy) NSString *displayName;
 @property (readonly) OSEDisplay *display;
 
 - initWithFrame:(NSRect)frameRect

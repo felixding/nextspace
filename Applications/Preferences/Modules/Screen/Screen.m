@@ -35,6 +35,7 @@
 #import <AppKit/NSPanel.h>
 
 #import <SystemKit/OSEDisplay.h>
+#import <DesktopKit/NXTDisplayConfiguration.h>
 
 #import "ScreenCanvas.h"
 #import "DisplayBox.h"
@@ -78,7 +79,7 @@
   [appIconYardImage release];
   [iconYardImage release];
 
-  [displayBoxList release];
+  [displayBoxList release]; [nativePositions release];
   [systemScreen release];
   [view release];
 
@@ -149,12 +150,13 @@
       [db setSelected:NO];
   }
 
-  [setMainBtn setEnabled:(![sender isMain] && [sender isActive])];
+  BOOL configurable = [systemScreen supportsDisplayConfiguration];
+  [setMainBtn setEnabled:(configurable && ![sender isMain] && [sender isActive])];
 
   [setStateBtn setTitle:[sender isActive] ? @"Disable" : @"Enable"];
 
-  if (([sender isActive] && [[systemScreen activeDisplays] count] > 1) ||
-      (![sender isActive] && ![systemScreen isLidClosed])) {
+  if (configurable && (([sender isActive] && [[systemScreen activeDisplays] count] > 1) ||
+      (![sender isActive] && ![systemScreen isLidClosed]))) {
     [setStateBtn setEnabled:YES];
   } else {
     [setStateBtn setEnabled:NO];
@@ -166,8 +168,16 @@
   OSEDisplay *display;
 
   display = [systemScreen displayWithName:selectedBox.displayName];
-  // [OSEDisplay setMain:] will generate OSEScreenDidChangeNotification.
-  [systemScreen setMainDisplay:display];
+  if ([systemScreen isNativeDisplay]) {
+    NSMutableArray *layout = [NSMutableArray array];
+    for (NSDictionary *entry in [systemScreen currentLayout]) {
+      NSMutableDictionary *changed = [[entry mutableCopy] autorelease];
+      [changed setObject:[[entry objectForKey:OSEDisplayIDKey] isEqual:[display uniqueID]] ? @"YES" : @"NO"
+        forKey:OSEDisplayIsMainKey];
+      [layout addObject:changed];
+    }
+    NXTConfirmDisplayLayout(systemScreen, layout);
+  } else [systemScreen setMainDisplay:display];
 }
 
 - (void)setDisplayState:(id)sender
@@ -176,6 +186,23 @@
 
   display = [systemScreen displayWithName:selectedBox.displayName];
 
+  if ([systemScreen isNativeDisplay]) {
+    BOOL enable = ![display isActive], primary = NO;
+    NSMutableArray *layout = [NSMutableArray array];
+    for (NSDictionary *entry in [systemScreen currentLayout]) {
+      NSMutableDictionary *changed = [[entry mutableCopy] autorelease];
+      if ([[entry objectForKey:OSEDisplayIDKey] isEqual:[display uniqueID]]) {
+        [changed setObject:enable ? @"YES" : @"NO" forKey:OSEDisplayIsActiveKey];
+        if (enable) [changed setObject:[entry objectForKey:OSEDisplayHiddenFrameKey] forKey:OSEDisplayFrameKey];
+        else [changed setObject:@"NO" forKey:OSEDisplayIsMainKey];
+      }
+      primary |= [[changed objectForKey:OSEDisplayIsMainKey] boolValue];
+      [layout addObject:changed];
+    }
+    if (!primary) for (NSMutableDictionary *entry in layout)
+      if ([[entry objectForKey:OSEDisplayIsActiveKey] boolValue]) { [entry setObject:@"YES" forKey:OSEDisplayIsMainKey]; break; }
+    NXTConfirmDisplayLayout(systemScreen, layout); return;
+  }
   if ([[sender title] isEqualToString:@"Disable"]) {
     [systemScreen deactivateDisplay:display];
   } else {
@@ -185,7 +212,7 @@
 
 - (void)revertArrangement:(id)sender
 {
-  [systemScreen applyDisplayLayout:[systemScreen arrangedDisplayLayout]];
+  if (![systemScreen isNativeDisplay]) [systemScreen applyDisplayLayout:[systemScreen arrangedDisplayLayout]];
   [self updateDisplayBoxList];
 
   [revertBtn setEnabled:NO];
@@ -214,6 +241,23 @@ NSComparisonResult compareDisplayBoxes(DisplayBox *displayA, DisplayBox *display
 
 - (void)applyArrangement:(id)sender
 {
+  if ([systemScreen isNativeDisplay]) {
+    if (scaleFactor <= 0) return;
+    NSMutableArray *layout = [NSMutableArray array];
+    for (NSDictionary *entry in [systemScreen currentLayout]) {
+      NSMutableDictionary *changed = [[entry mutableCopy] autorelease];
+      for (DisplayBox *box in displayBoxList) if ([[entry objectForKey:OSEDisplayIDKey] isEqual:[box.display uniqueID]]) {
+        NSPoint original = [[nativePositions objectForKey:box.displayName] pointValue];
+        NSRect frame = NSRectFromString([entry objectForKey:OSEDisplayFrameKey]);
+        frame.origin.x += round(([box frame].origin.x - original.x) / scaleFactor);
+        frame.origin.y += round(([box frame].origin.y - original.y) / scaleFactor);
+        [changed setObject:NSStringFromRect(frame) forKey:OSEDisplayFrameKey];
+      }
+      [layout addObject:changed];
+    }
+    NXTConfirmDisplayLayout(systemScreen, layout);
+    [self updateDisplayBoxList]; [revertBtn setEnabled:NO]; [applyBtn setEnabled:NO]; return;
+  }
   NSLog(@"Convert DisplayBox positions and set to OSEDisplay.");
 
   NSArray *dbList;
@@ -333,13 +377,11 @@ NSComparisonResult compareDisplayBoxes(DisplayBox *displayA, DisplayBox *display
   // Calculate scale factor
   for (OSEDisplay *d in displays) {
     displayRect = [d frame];
-    if (dMaxWidth < displayRect.size.width || dMaxHeight < displayRect.size.height) {
-      dMaxWidth = displayRect.size.width;
-      dMaxHeight = displayRect.size.height;
-    }
+    dMaxWidth = MAX(dMaxWidth, displayRect.size.width);
+    dMaxHeight = MAX(dMaxHeight, displayRect.size.height);
   }
-  scaleWidth = (canvasRect.size.width / dMaxWidth) / 3;
-  scaleHeight = (canvasRect.size.height / dMaxHeight) / 3;
+  scaleWidth = (canvasRect.size.width / MAX(1, dMaxWidth)) / 3;
+  scaleHeight = (canvasRect.size.height / MAX(1, dMaxHeight)) / 3;
   scaleFactor = (scaleWidth < scaleHeight) ? scaleWidth : scaleHeight;
 
   // Create and add display boxes
@@ -350,6 +392,7 @@ NSComparisonResult compareDisplayBoxes(DisplayBox *displayA, DisplayBox *display
       displayRect = d.frame;
 
     dBoxRect.origin.x = floor(displayRect.origin.x * scaleFactor);
+    /* The canvas content view and output coordinates both grow downward. */
     dBoxRect.origin.y = floor(displayRect.origin.y * scaleFactor);
     dBoxRect.size.width = floor(displayRect.size.width * scaleFactor);
     dBoxRect.size.height = floor(displayRect.size.height * scaleFactor);
@@ -369,6 +412,10 @@ NSComparisonResult compareDisplayBoxes(DisplayBox *displayA, DisplayBox *display
   }
 
   [(ScreenCanvas *)canvas centerBoxes];
+  NSMutableDictionary *positions = [NSMutableDictionary dictionary];
+  for (DisplayBox *box in displayBoxList) [positions setObject:[NSValue valueWithPoint:[box frame].origin]
+    forKey:box.displayName];
+  [nativePositions release]; nativePositions = [positions copy];
   [self selectFirstEnabledMonitor];
 }
 
@@ -377,7 +424,7 @@ NSComparisonResult compareDisplayBoxes(DisplayBox *displayA, DisplayBox *display
 //
 - (void)screenDidUpdate:(NSNotification *)aNotif
 {
-  NSLog(@"Screen: XRandR screen resources was updated, refreshing...");
+  NSLog(@"Screen: display configuration changed, refreshing...");
   [self updateDisplayBoxList];
 }
 

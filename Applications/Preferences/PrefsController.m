@@ -35,6 +35,7 @@
 #import <DesktopKit/NXTBundle.h>
 
 #import "PrefsController.h"
+#include <math.h>
 
 @implementation PrefsController
 
@@ -42,6 +43,7 @@
 {
   self = [super init];
   prefsViews = [[NSMutableDictionary alloc] init];
+  moduleSizes = [NSMutableDictionary new];
   return self;
 }
 
@@ -84,7 +86,7 @@
 {
   NSLog(@"PrefsController: dealloc");
 
-  [prefsViews release];
+  [prefsViews release]; [moduleSizes release];
   [window close];
   [window release];
 
@@ -113,12 +115,39 @@
 
   module = [prefsViews objectForKey:buttonCaption];
   view = [module view];
+  if (!view) return;
 
   buttonRect = [sender cellFrameAtRow:0 column:[sender selectedColumn]];
   [iconList scrollRectToVisible:buttonRect];
   
+  NSValue *savedSize = [moduleSizes objectForKey:buttonCaption];
+  if (!savedSize) {
+    savedSize = [NSValue valueWithSize:[view frame].size]; [moduleSizes setObject:savedSize forKey:buttonCaption];
+  }
+  NSSize desired = [savedSize sizeValue];
+  CGFloat delta = moduleHeight > 0 ? desired.height - moduleHeight : 0;
+  moduleHeight = desired.height;
+  if (fabs(delta) > 0.1) {
+    NSRect boxFrame = [prefsViewBox frame];
+    NSView *content = [window contentView];
+    BOOL autoresize = [content autoresizesSubviews]; [content setAutoresizesSubviews:NO];
+    NSRect frame = [window frame]; frame.origin.y -= delta; frame.size.height += delta;
+    [window setFrame:frame display:NO];
+    /* Move the icon browser and its separate divider together. */
+    for (NSView *sibling in [content subviews]) {
+      NSRect siblingFrame = [sibling frame];
+      if (sibling != prefsViewBox && siblingFrame.origin.y >= NSMaxY(boxFrame) - 1) {
+        siblingFrame.origin.y += delta; [sibling setFrame:siblingFrame];
+      }
+    }
+    boxFrame.size.height += delta;
+    [prefsViewBox setFrame:boxFrame];
+    [content setAutoresizesSubviews:autoresize];
+  }
+  [view setFrameSize:desired];
   [prefsViewBox setContentView:view];
-  [view setNeedsDisplay:YES];
+  /* Resizing/replacing a module also exposes its parent's retained pixels. */
+  [[window contentView] setNeedsDisplay:YES];
   [window setTitle:buttonCaption];
        
   currentModule = module;

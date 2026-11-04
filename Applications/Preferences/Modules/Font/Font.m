@@ -152,6 +152,8 @@ static NSPanel *fontPanel = nil;
 
   wmDefaultsPath =
       [NSString stringWithFormat:@"%@/.NextSpace/WM.plist", GSDefaultsRootForUser(NSUserName())];
+  [[NSFileManager defaultManager] createDirectoryAtPath:[wmDefaultsPath stringByDeletingLastPathComponent]
+    withIntermediateDirectories:YES attributes:nil error:NULL];
 
   if (![[NSFileManager defaultManager] fileExistsAtPath:wmDefaultsPath]) {
     NSLog(@"[Font] can't find existing WM defaults database! Creating new...");
@@ -168,6 +170,7 @@ static NSPanel *fontPanel = nil;
 - (void)_setWMFont:(NSFont *)font forKey:(NSString *)key
 {
   NSMutableString *value;
+  if (!font) return;
 
   // Convert font name into the FontConfig format.
   value = [NSMutableString
@@ -207,6 +210,7 @@ static NSPanel *fontPanel = nil;
 
   defaults = [NSUserDefaults standardUserDefaults];
   domain = [[defaults persistentDomainForName:NSGlobalDomain] mutableCopy];
+  if (!domain) domain = [NSMutableDictionary new];
 
   bundle = [NSBundle bundleForClass:[self class]];
   imagePath = [bundle pathForResource:@"FontPreferences" ofType:@"tiff"];
@@ -366,15 +370,18 @@ static NSPanel *fontPanel = nil;
   // WM
   // [self setWMPreference:([sender intValue] ? @"YES" : @"NO") forKey:@"UseAntialiasedText"];
 
-  fontName = [defaults objectForKey:@"NSBoldFont"];
-  fontSize = [[defaults objectForKey:@"NSBoldFontSize"] floatValue];
+  fontName = [self _getStringDefault:@"NSBoldFont"];
+  fontSize = [self _getFloatDefault:@"NSBoldFontSize"];
   font = [NSFont fontWithName:fontName size:fontSize];
+  if (!font) font = [NSFont boldSystemFontOfSize:fontSize];
   [self _setWMFont:font forKey:@"MenuTitleFont"];
   [self _setWMFont:font forKey:@"WindowTitleFont"];
 
-  fontName = [defaults objectForKey:@"NSFont"];
-  fontSize = [[defaults objectForKey:@"NSFontSize"] floatValue];
+  fontName = [self _getStringDefault:@"NSFont"];
+  fontSize = [self _getFloatDefault:@"NSFontSize"];
   font = [NSFont fontWithName:fontName size:fontSize];
+  if (!font) font = [NSFont systemFontOfSize:fontSize];
+  fontName = [font fontName];
   [self _setWMFont:font forKey:@"MenuTextFont"];
   [self _setWMFont:[NSFont fontWithName:fontName size:fontSize - 3.0] forKey:@"IconTitleFont"];
   [self _setWMFont:[NSFont fontWithName:fontName size:fontSize * 2.0] forKey:@"LargeDisplayFont"];

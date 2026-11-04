@@ -80,6 +80,7 @@
   NXTSound *bellSound;
   NSTimer *powerOffTimer;
   int powerOffTimeout;
+  BOOL _powerOffPending;
 
   // NSWorkspace category ivars
   NSMutableDictionary *_iconMap;

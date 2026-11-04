@@ -54,6 +54,7 @@
 
 #import "CoreFoundationBridge.h"
 #import "WMNotificationCenter.h"
+#import "Session.h"
 
 @implementation CFObject
 @end
@@ -203,7 +204,7 @@ static void _handleCFNotification(CFNotificationCenterRef center, void *observer
       [_remoteCenter addObserver:self
                         selector:@selector(_handleRemoteNotification:)
                             name:nil
-                          object:@"GSWorkspaceNotification"];
+                          object:WSSessionServiceName(@"GSWorkspaceNotification")];
     } @catch (NSException *e) {
       NSLog(@"Workspace Manager caught exception while connecting to"
              " Distributed Notification Center %@: %@",
@@ -292,9 +293,10 @@ static void _handleCFNotification(CFNotificationCenterRef center, void *observer
 
   // globally from Workspace to applications (from _handleCFNotificaition: or Workspace)
   if ([object isKindOfClass:[NSString class]] != NO &&
-      [object isEqualToString:@"GSWorkspaceNotification"] != NO) {
+      ([object isEqualToString:@"GSWorkspaceNotification"] != NO ||
+       [object isEqualToString:WSSessionServiceName(@"GSWorkspaceNotification")] != NO)) {
     // dispatch to NSDistributedNotificationCenter
-    [_remoteCenter postNotificationName:name object:object userInfo:info];
+    [_remoteCenter postNotificationName:name object:WSSessionServiceName(@"GSWorkspaceNotification") userInfo:info];
   }
 
   // post to CFNC only if it hasn't came from CFNC

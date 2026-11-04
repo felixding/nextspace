@@ -110,8 +110,6 @@
   [[panel contentView] addSubview:otherButton];
   [otherButton release];
 
-  [panel setDefaultButtonCell:[defaultButton cell]];
-
   [self awakeFromNib];
 }
 
@@ -212,6 +210,7 @@
   minButtonWidth = [defaultButton frame].size.width;
   
   [panel setLevel:NSModalPanelWindowLevel];
+  [panel setDefaultButtonCell:[defaultButton cell]];
   
   [titleField setRefusesFirstResponder:YES];
   
@@ -326,8 +325,12 @@
   NSRect  panelFrame = [panel frame];
   NSRect  messageFrame = [messageView frame];
   NSFont  *font = [messageView font];
+  NSScreen *nativeScreen = nil;
+  if ([GSCurrentServer() respondsToSelector:@selector(logicalDesktopBounds)]) {
+    nativeScreen = [[NSApp keyWindow] screen] ?: [[NSApp mainWindow] screen] ?: [NSScreen mainScreen];
+  }
   CGFloat emptyPanelHeight;
-  CGFloat maxPanelHeight = screenSize.height - ICON_YARD_HEIGHT;
+  CGFloat maxPanelHeight = (nativeScreen ? NSHeight([nativeScreen frame]) : screenSize.height) - ICON_YARD_HEIGHT;
   NSRect textRect;
 
   // Panel without message view
@@ -353,10 +356,20 @@
   // Screen size possibly was changed after application start.
   // GNUstep information about screen size is obsolete. Adopt origin.y to
   // GNUstep screen coordinates.
-  OSEMouse   *mouse = [[OSEMouse new] autorelease];
-  OSEDisplay *display = [systemScreen displayAtPoint:[mouse locationOnScreen]];
+  OSEDisplay *display = nil;
+  if (!nativeScreen) {
+    OSEMouse *mouse = [[OSEMouse new] autorelease];
+    display = [systemScreen displayAtPoint:[mouse locationOnScreen]];
+  }
 
-  if (display) {
+  if (nativeScreen) {
+    // Native clients cannot rely on a global pointer location. Center within
+    // the owning window's logical output, including layouts with output gaps.
+    NSRect bounds = [nativeScreen frame];
+    panelFrame.origin.x = NSMidX(bounds) - panelFrame.size.width / 2;
+    panelFrame.origin.y = NSMinY(bounds) + bounds.size.height * 0.75 - panelFrame.size.height / 2;
+  }
+  else if (display) {
     panelFrame.origin.x = display.frame.origin.x;
     panelFrame.origin.x += display.frame.size.width/2 - panelFrame.size.width/2;
       

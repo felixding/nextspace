@@ -21,6 +21,7 @@
 
 #import "BrowserPrefs.h"
 #import <SystemKit/OSEDefaults.h>
+#import "../../WSImageResources.h"
 
 static inline NSRect IncrementedRect(NSRect r)
 {
@@ -81,6 +82,9 @@ static inline NSRect IncrementedRect(NSRect r)
   NSRect frame;
   NSRect shortLabelFrame;
   NSRect box2Frame;
+
+  NSString *images = [[NSBundle bundleForClass:[self class]] pathForResource:@"BrowserPrefs" ofType:@"gorm"];
+  WSSetViewImage(rightArr, images, @"sizerRight");
 
   // get the box and destroy the bogus window
   [box retain];

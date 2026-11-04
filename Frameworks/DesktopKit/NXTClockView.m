@@ -660,6 +660,9 @@ NSString *NXTClockView24HourFormat = @"ClockView24HourFormat";
     }
     else {
       [DNC removeObserver:self];
+      [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:NSUserDefaultsDidChangeNotification
+                                                  object:nil];
     }
   }
   isTrackDefaults = flag;

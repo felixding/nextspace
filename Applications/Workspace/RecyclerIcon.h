@@ -20,25 +20,19 @@
 //
 
 #include <AppKit/AppKit.h>
-
-#import "Workspace+WM.h"
-
-@interface RecyclerIconView : NSView
-{
-  NSTimer *timer;
-  unsigned int draggingMask;
-}
-- (void)setImage:(NSImage *)anImage;
-@end
+#import "WSIconTileView.h"
 
 @class Recycler;
 
+@interface RecyclerIconView : WSIconTileView
+{
+  Recycler *recycler;
+  NSTimer *timer;
+  unsigned int draggingMask;
+}
+- (id)initWithFrame:(NSRect)frame recycler:(Recycler *)owner;
+@end
+
 @interface RecyclerIcon : NSWindow
-
-+ (WAppIcon *)createAppIconForDock:(WDock *)dock;
-+ (WAppIcon *)recyclerAppIconForDock:(WDock *)dock;
-+ (void)updatePositionInDock:(WDock *)dock;
-
-- (id)initWithWindowRef:(void *)X11Window recycler:(Recycler *)theRecycler;
 
 @end

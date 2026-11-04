@@ -25,10 +25,9 @@
 #import <DesktopKit/NXTIconBadge.h>
 #import <SystemKit/OSEFileSystemMonitor.h>
 
-#import <Viewers/PathIcon.h>
-
 #import "RecyclerIcon.h"
-#import "Workspace+WM.h"
+
+@class PathIcon;
 
 @interface ItemsLoader : NSOperation
 {
@@ -75,16 +74,16 @@
   NSDragOperation draggingSourceMask;
 }
 
-@property (atomic, readonly) WAppIcon *dockIcon;
-@property (atomic, readonly) RecyclerIcon *appIcon;
+@property (atomic, readonly) NSWindow *appIcon;
 @property (atomic, readonly) NSString *path;
 @property (atomic, readonly) NSInteger itemsCount;
 
-- (id)initWithDock:(WDock *)dock;
+- (id)init;
 
 - (void)setIconImage:(NSImage *)image;
 - (void)updateIconImage;
 - (void)updatePanel;
+- (void)mouseDown:(NSEvent *)event;
 
 - (void)empty;
 

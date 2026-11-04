@@ -19,72 +19,21 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 //
 
-/*
- * Provides integration with XRandR subsystem.
- * Manage display layouts.
- *
- * OSEScreen, OSEDisplay
-
- *
- * Definitions
- *
- Screen  - A set of displays (monitors) for a single user with one keyboard and
-           mouse. In other words, screen is a set of hardware resources: one or
-           more monitors, one keyboard and one mouse.
-           Logical screen size may be bigger then sum of OSEDisplays resolutions.
-
-           Xrandr's name - Screen.
-
- Display - Physical monitor and hardware that can be color, grayscale, or
-           monochrome. Characterized by, resolution, refresh rate, gamma
-           correction, brightness, contrast.
-           Also has specific properties like: vendor and model name, serial
-           number etc.
-
-           Xrandr's name - Output.
-
- View    - Image visible for user on Display. It's part of Screen and can be
-           visible on multiple Displays (in case of clonning). View is always
-           part of Screen but can be invisible on some Display.
-
-           Xrandr's name - CRTC.
-
- *
- * Description
- *
- OSEScreen subsystem is a set of functions and classes to get and set underlying 
- windowing system information, including:
- - Getting Display information: resolution, monitor mode, monitor type
-   (CRT, TFT, LVDS), gamma, color depth, dpi value, monitor model.
- - Changing Display modes: resolution, refresh rate, full screen.
- - Configuring Display configuration: mirroring, dual screen.
- - Providing mechanism to do various display manipulation: fading, switching
-   to console, power management.
- */
-#include <X11/extensions/Xrandr.h>
-
+/* Display modes are physical pixels. Frames and desktop bounds are logical
+   coordinates. Backend handles are private to the selected implementation. */
 #import <Foundation/Foundation.h>
-#import <AppKit/NSColor.h>
-#import <SystemKit/OSEPower.h>
-
-@class OSEDisplay;
+@class OSEDisplay, OSEPower;
 
 @interface OSEScreen : NSObject
 {
- @private
-  Display *xDisplay;
-  Window xRootWindow;
-
-  Pixmap background_pixmap;
-  GC background_gc;
-  XGCValues background_gc_values;
-  id backgroundPixmapOwner;
-
+ @protected
   BOOL useAutosave;
-  NSLock *updateScreenLock;
-  XRRScreenResources *screen_resources;
   NSMutableArray *systemDisplays;
   NSSize sizeInPixels, sizeInMilimeters;
+  OSEPower *_systemPower;
+ @private
+  struct OSEX11ScreenState *_x11;
+  NSLock *updateScreenLock;
 }
 
 @property (readonly) OSEPower *systemPower;
@@ -94,10 +43,21 @@
 
 - (BOOL)isLidClosed;
 
-- (XRRScreenResources *)randrScreenResources;
-- (void)randrUpdateScreenResources;
-- (RRCrtc)randrFindFreeCRTC;
+- (void)refreshDisplays;
+- (NSRect)logicalBounds;
+- (BOOL)isNativeDisplay;
+- (BOOL)supportsDisplayConfiguration;
+- (BOOL)supportsDisplayTransactions;
+/* Native preview/confirmation. The returned result uses OSESessionSettings's
+   status values; timeout and settings-process failure are compositor owned. */
+- (NSDictionary *)testDisplayLayout:(NSArray *)layout;
+- (NSDictionary *)beginDisplayLayout:(NSArray *)layout timeout:(NSUInteger)milliseconds;
+- (NSDictionary *)displayLayoutStatus;
+- (BOOL)confirmDisplayLayout;
+- (BOOL)cancelDisplayLayout;
 
+/* Compatibility virtual-screen extent; native callers use logicalBounds.
+   Per-display physical dimensions are OSEDisplay.modePixelSize. */
 - (NSSize)sizeInPixels;
 - (NSSize)sizeInMilimeters;
 - (NSUInteger)colorDepth;
@@ -172,6 +132,9 @@ extern NSString *OSEDisplayResolutionSizeKey;
 extern NSString *OSEDisplayResolutionRateKey;
 extern NSString *OSEDisplayPhSizeKey;
 extern NSString *OSEDisplayPropertiesKey;
+extern NSString *OSEDisplayModeKey;
+extern NSString *OSEDisplayScaleKey;
+extern NSString *OSEDisplayTransformKey;
 
 // Notifications
 extern NSString *OSEScreenDidChangeNotification;

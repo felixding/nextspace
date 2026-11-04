@@ -6,6 +6,7 @@
 */
 
 #import <DesktopKit/NXTAlert.h>
+#import <DesktopKit/Utilities.h>
 
 #include "ApplicationDelegate.h"
 #include "Foundation/NSObjCRuntime.h"
@@ -127,6 +128,12 @@
   NSString *thePath;
   NSString *tempFilesDefaultValue;
   NSString *errorString = nil;
+
+  NSDictionary *artwork = [NSDictionary dictionaryWithObjectsAndKeys:
+    @"application", NSStringFromSize(NSMakeSize(48, 48)),
+    @"narrow", NSStringFromSize(NSMakeSize(184, 19)), nil];
+  NXTSetBundleImages([infoPanel contentView], artwork);
+  NXTSetBundleImages([debugWindow contentView], artwork);
 
   // read the user defaults
   [self setupUserDefaults];

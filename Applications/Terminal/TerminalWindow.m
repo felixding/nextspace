@@ -44,6 +44,7 @@ NSString *TerminalWindowSizeDidChangeNotification = @"TerminalWindowSizeDidChang
 - (void)_baseSizeHack
 {
   GSDisplayServer *xServer = GSCurrentServer();
+  if (![xServer isKindOfClass:NSClassFromString(@"XGServer")]) return;
   Display *xDisplay = [xServer serverDevice];
   Window _win = (Window)[xServer windowDevice:[win windowNumber]];
   XSizeHints size_hints;

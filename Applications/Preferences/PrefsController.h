@@ -39,6 +39,8 @@
   id			currentModule;
   NSMutableDictionary	*prefsViews;
   NSMutableDictionary   *loadedBundles;
+  NSMutableDictionary *moduleSizes;
+  CGFloat moduleHeight;
 }
 
 - (NSWindow *)window;

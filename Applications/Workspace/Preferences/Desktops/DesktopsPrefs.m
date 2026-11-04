@@ -22,63 +22,28 @@
 #import "DesktopsPrefs.h"
 
 #import <SystemKit/OSEDefaults.h>
-#import <Workspace+WM.h>
+#import <WindowManager.h>
 #import <Controller.h>
-#import <WMNotificationCenter.h>
 
-#include <core/wuserdefaults.h>
-#include <desktop.h>
-#include <screen.h>
 
 @interface DesktopsPrefs (Private)
-- (NSString *)_wmPreferencesPathForName:(NSString *)fileName;
 - (NSDictionary *)_wmState;
 - (NSDictionary *)_wmDefaults;
+- (BOOL)_saveShortcuts:(NSDictionary *)settings;
 @end
 
 @implementation DesktopsPrefs (Private)
-
-- (NSString *)_wmPreferencesPathForName:(NSString *)fileName
-{
-  CFStringRef wm_defaults_path, domain_file;
-  const char *wm_preferences_path;
-  NSString *path;
-
-  domain_file = CFStringCreateWithFormat(kCFAllocatorDefault, 0, CFSTR("%s.plist"), [fileName cString]);
-  wm_defaults_path = WMUserDefaultsCopyStringForDomain(domain_file);
-  if (!wm_defaults_path)
-    return nil;
-
-  wm_preferences_path = CFStringGetCStringPtr(wm_defaults_path, kCFStringEncodingUTF8);
-  path = [NSString stringWithCString:wm_preferences_path];
-  CFRelease(wm_defaults_path);
-
-  NSDebugLLog(@"Preferences", @"WM defaults with name %@ path: %@", fileName, path);
-
-  return path;  
-}
-
 - (NSDictionary *)_wmState
 {
-  NSDictionary *wmState;
-
-  // Defaults existance handled by WM.
-  wmState = [[NSDictionary alloc] initWithContentsOfFile:[self _wmPreferencesPathForName:@"WMState"]];
-
-  return [wmState autorelease];
+  NSMutableArray *desktops = [NSMutableArray array];
+  for (NSString *name in [[WSCurrentWindowManager() desktopSettings:nil] objectForKey:@"names"])
+    [desktops addObject:@{@"Name": name}];
+  return @{@"Desktops": desktops};
 }
-
 - (NSDictionary *)_wmDefaults
-{
-  NSDictionary *wmDefaults;
-
-  // Defaults existance handled by WM.
-  wmDefaults = [[NSDictionary alloc] initWithContentsOfFile:[self _wmPreferencesPathForName:@"WM"]];
-
-  return [wmDefaults autorelease];
-}
-
-
+{ return [[WSCurrentWindowManager() desktopSettings:nil] objectForKey:@"shortcuts"]; }
+- (BOOL)_saveShortcuts:(NSDictionary *)settings
+{ return [WSCurrentWindowManager() desktopSettings:@{@"shortcuts": settings}] != nil; }
 @end
 
 @implementation DesktopsPrefs
@@ -106,10 +71,8 @@
 
   wmStateDesktops =
       [[NSMutableArray alloc] initWithArray:[[self _wmState] objectForKey:@"Desktops"]];
-  desktopsCount = (wmStateDesktops && [wmStateDesktops count] > 0) ? [wmStateDesktops count] : 1;
-  for (int i = 9; i >= desktopsCount; i--) {
-    [[desktopReps objectAtIndex:i] removeFromSuperview];
-  }
+  desktopsCount = (wmStateDesktops && [wmStateDesktops count] > 0) ? MIN(10, [wmStateDesktops count]) : 1;
+  [self arrangeDesktopReps];
 
   [desktopsNumber selectItemWithTag:desktopsCount];
   [nameField setStringValue:@""];
@@ -152,8 +115,10 @@
     [wmStateDesktops release];
   }
   wmStateDesktops = [[NSMutableArray alloc] initWithArray:[wmState objectForKey:@"Desktops"]];
+  desktopsCount = MAX(1, MIN(10, [wmStateDesktops count]));
+  [desktopsNumber selectItemWithTag:desktopsCount];
   [self arrangeDesktopReps];
-  [[desktopReps objectAtIndex:wDefaultScreen()->current_desktop] performClick:self];
+  [[desktopReps objectAtIndex:MIN(desktopsCount - 1, [WSCurrentWindowManager() desktopIndex])] performClick:self];
   [wmState release];
 
   NSDebugLLog(@"Preferences", @"switchKey = %@ (%li/%li), directSwitchKey = %@ (%li/%li)",
@@ -176,7 +141,7 @@
     [switchKey selectItemAtIndex:1];
   }
   //
-  shortcut = [wmDefaults objectForKey:@"Workspace1Key"];
+  shortcut = [wmDefaults objectForKey:@"Desktop1Key"];
   modifiers = [shortcut componentsSeparatedByString:@"+"];
   if ([[modifiers objectAtIndex:0] isEqualToString:@"Super"]) {
     [directSwitchKey selectItemWithTag:0];
@@ -196,6 +161,12 @@
   CGFloat boxWidth = [desktopsBox frame].size.width;
   NSPoint repPoint = repFrame.origin;
   NSButton *rep;
+
+  for (NSUInteger i = 0; i < [desktopReps count]; i++) {
+    rep = [desktopReps objectAtIndex:i];
+    if (i >= desktopsCount) [rep removeFromSuperview];
+    else if ([rep superview] != desktopsBox) [desktopsBox addSubview:rep];
+  }
 
   repPoint.x = floorf((boxWidth - repsWidth) / 2);
   repPoint.y = floorf(repPoint.y);
@@ -236,15 +207,10 @@
 - (void)changeName:(id)sender
 {
   NSInteger index = [desktopReps indexOfObject:selectedDesktopRep];
-  NSString *name = [nameField stringValue];
-  WScreen *scr = wDefaultScreen();
-
-  wDesktopRename(wDefaultScreen(), [desktopReps indexOfObject:selectedDesktopRep], [name cString]);
-  [changeNameBtn setEnabled:NO];
-
-  wDesktopSaveState(scr);
-  WMUserDefaultsWrite(scr->session_state, CFSTR("WMState"));
-  [wmStateDesktops replaceObjectAtIndex:index withObject:@{@"Name" : name}];
+  [wmStateDesktops replaceObjectAtIndex:index withObject:@{@"Name": [nameField stringValue]}];
+  if ([WSCurrentWindowManager() desktopSettings:@{@"names": [wmStateDesktops valueForKey:@"Name"]}])
+    [changeNameBtn setEnabled:NO];
+  else [self revert:nil];
 }
 
 - (void)controlTextDidChange:(NSNotification *)aNotification
@@ -273,34 +239,15 @@
 
 - (void)setWorkspaceQuantity:(id)sender
 {
-  NSInteger wsCountNew = [[sender selectedItem] tag];
-  int diff = wsCountNew - desktopsCount;
-  WScreen *scr = wDefaultScreen();
-
-  if (diff < 0) {  // remove WS
-    for (int i = desktopsCount; i > wsCountNew; i--) {
-      wDesktopDelete(wDefaultScreen(), i);
-      [[desktopReps objectAtIndex:i - 1] removeFromSuperview];
-    }
-  } else {
-    wDesktopMake(wDefaultScreen(), diff);
-    for (int i = desktopsCount; i < wsCountNew; i++) {
-      [desktopsBox addSubview:[desktopReps objectAtIndex:i]];
-    }
-    [desktopsBox setNeedsDisplay:YES];
-  }
-
-  wDesktopSaveState(scr);
-  WMUserDefaultsWrite(scr->session_state, CFSTR("WMState"));
-
+  NSInteger count = [[sender selectedItem] tag];
+  NSMutableArray *names = [[[wmStateDesktops valueForKey:@"Name"] mutableCopy] autorelease];
+  while ([names count] > count) [names removeLastObject];
+  while ([names count] < count) [names addObject:[NSString stringWithFormat:@"Desktop %lu", (unsigned long)[names count] + 1]];
+  if (![WSCurrentWindowManager() desktopSettings:@{@"names": names}]) { [self revert:nil]; return; }
   [wmStateDesktops setArray:[[self _wmState] objectForKey:@"Desktops"]];
-
-  // Select last WS rep button if selected one was removed
-  if ([desktopReps indexOfObject:selectedDesktopRep] >= wsCountNew) {
-    [self selectWorkspace:[desktopReps objectAtIndex:wsCountNew - 1]];
-  }
-  desktopsCount = wsCountNew;
-
+  desktopsCount = count;
+  if ([desktopReps indexOfObject:selectedDesktopRep] >= count)
+    [self selectWorkspace:[desktopReps objectAtIndex:count - 1]];
   [self arrangeDesktopReps];
 }
 
@@ -309,12 +256,9 @@
 {
   NSInteger selectedItemTag = [[sender selectedItem] tag];
   NSMutableDictionary *wmDefaults;
-  NSString *prefix;
+  NSString *prefix = @"Control";
 
-  wmDefaults = [[NSMutableDictionary alloc] initWithDictionary:[self _wmDefaults]];
-  if (!wmDefaults) {
-    wmDefaults = [[NSMutableDictionary alloc] init];
-  }
+  wmDefaults = [NSMutableDictionary new];
 
   switch (selectedItemTag) {
     case 0:  // Alternate + Control + Arrow Keys
@@ -330,24 +274,16 @@
 
   [wmDefaults setObject:[NSString stringWithFormat:@"%@+Right", prefix] forKey:@"NextWorkspaceKey"];
   [wmDefaults setObject:[NSString stringWithFormat:@"%@+Left", prefix] forKey:@"PrevWorkspaceKey"];
-  [wmDefaults writeToFile:[self _wmPreferencesPathForName:@"WM"] atomically:YES];
+  BOOL saved = [self _saveShortcuts:wmDefaults];
   [wmDefaults release];
-
-  // Specify notification name as string to omit redefinition confusion
-  [[WMNotificationCenter defaultCenter]
-      postNotificationName:@"WMDidChangeAppearanceSettingsNotification"
-                    object:@"GSWorkspaceNotification"
-                  userInfo:nil];
+  if (!saved) [self revert:nil];
 }
 - (void)setDirectSwitchShortcut:(id)sender
 {
   NSMutableDictionary *wmDefaults;
-  NSString *prefix;
+  NSString *prefix = @"Control";
 
-  wmDefaults = [[NSMutableDictionary alloc] initWithDictionary:[self _wmDefaults]];
-  if (!wmDefaults) {
-    wmDefaults = [NSMutableDictionary new];
-  }
+  wmDefaults = [NSMutableDictionary new];
 
   switch ([[sender selectedItem] tag]) {
     case 0:  // Alternate + Control + Number Keys
@@ -363,11 +299,12 @@
 
   for (int i = 1; i < 10; i++) {
     [wmDefaults setObject:[NSString stringWithFormat:@"%@+%i", prefix, i]
-                   forKey:[NSString stringWithFormat:@"Workspace%iKey", i]];
+                   forKey:[NSString stringWithFormat:@"Desktop%iKey", i]];
   }
-  [wmDefaults setObject:[NSString stringWithFormat:@"%@+0", prefix] forKey:@"Workspace10Key"];
-  [wmDefaults writeToFile:[self _wmPreferencesPathForName:@"WM"] atomically:YES];
+  [wmDefaults setObject:[NSString stringWithFormat:@"%@+0", prefix] forKey:@"Desktop10Key"];
+  BOOL saved = [self _saveShortcuts:wmDefaults];
   [wmDefaults release];
+  if (!saved) [self revert:nil];
 }
 
 // ---

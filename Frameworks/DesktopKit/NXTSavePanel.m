@@ -108,6 +108,18 @@ static NXTSavePanel *_savePanel = nil;
   [_form setTag:NSFileHandlingPanelForm];
   [_homeButton setTag:NSFileHandlingPanelHomeButton];
   [_homeButton setToolTip:_(@"Home")];
+
+  NSBundle *artworkBundle=[NSBundle bundleForClass:[NXTSavePanel class]];
+  NSArray *imageNames=@[@"NXTPanelHome",@"NXTPanelMount",@"NXTPanelUnmount"];
+  NSButton *imageButtons[]={_homeButton,_diskButton,_ejectButton};
+  for (NSUInteger index=0;index<3;index++) {
+    NSString *path=[artworkBundle pathForResource:[imageNames objectAtIndex:index]
+                                         ofType:@"tiff" inDirectory:@"Images"];
+    NSImage *image=path ? [[NSImage alloc] initWithContentsOfFile:path] : nil;
+    if (image) [imageButtons[index] setImage:image];
+    [image release];
+  }
+
   [_diskButton setTag:NSFileHandlingPanelDiskButton];
   [_diskButton setToolTip:_(@"Mount")];
   [_ejectButton setTag:NSFileHandlingPanelDiskEjectButton];

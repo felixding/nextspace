@@ -30,6 +30,8 @@
 #import "Controller.h"
 #import "RecyclerIcon.h"
 #import "Recycler.h"
+#import "WindowManager.h"
+#import <Viewers/PathIcon.h>
 
 @implementation ItemsLoader
 
@@ -171,27 +173,13 @@ static NSMutableArray *fileList = nil;
   [super dealloc];
 }
 
-- (id)initWithDock:(WDock *)dock
+- (id)init
 {
-  XClassHint classhint;
   NSFileManager *fileManager = [NSFileManager defaultManager];
   BOOL isDir;
-  WAppIcon *workspace_dock_icon = dock->icon_array[0];
 
   self = [super init];
-
-  _dockIcon = [RecyclerIcon recyclerAppIconForDock:dock];
-
-  if (_dockIcon == NULL || dock == NULL) {
-    NSLog(@"Recycler Dock icon creation failed!");
-    return nil;
-  }
-
-  classhint.res_name = "Recycler";
-  classhint.res_class = "GNUstep";
-  XSetClassHint(dpy, _dockIcon->icon->core->window, &classhint);
-  _dockIcon->icon->owner = workspace_dock_icon->icon->owner;
-  _dockIcon->main_window = workspace_dock_icon->main_window;
+  if (!self) return nil;
 
   _path = [NSHomeDirectory() stringByAppendingPathComponent:@".Recycler"];
   [_path retain];
@@ -200,27 +188,31 @@ static NSMutableArray *fileList = nil;
 
   if ([fileManager fileExistsAtPath:_path isDirectory:&isDir] == NO) {
     if ([fileManager createDirectoryAtPath:_path attributes:nil] == NO) {
-      NXTRunAlertPanel(_(@"Workspace"),
-                       _(@"Your Recycler storage doesn't exist and cannot"
-                          " be created at path: %@."),
-                       _(@"Dismiss"), nil, nil, _path);
+      NXTRunAlertPanel(NSLocalizedString(@"Workspace", nil),
+                       NSLocalizedString(@"Your Recycler storage doesn't exist and cannot"
+                          " be created at path: %@.", nil),
+                       NSLocalizedString(@"Dismiss", nil), nil, nil, _path);
       // THINK: is it possible to not be able to create directory in $HOME?
     }
     // TODO: validate contents of exixsting directory: Was it created by Workspace?
   } else if (isDir == NO) {
-    NXTRunAlertPanel(_(@"Workspace"),
-                     _(@"Your Recycler storage is not directory.\n"
+    NXTRunAlertPanel(NSLocalizedString(@"Workspace", nil),
+                     NSLocalizedString(@"Your Recycler storage is not directory.\n"
                         "Do you want to disable or recover Recycler?.\n"
                         "'Recover' operation destroys existing file '.Recycler'"
-                        " in your home directory."),
-                     _(@"Disable"), _(@"Recover"), nil);
+                        " in your home directory.", nil),
+                     NSLocalizedString(@"Disable", nil), NSLocalizedString(@"Recover", nil), nil);
     // TODO: on disable Recycler icon should be removed from screen.
   }
 
-  _appIcon = [[RecyclerIcon alloc] initWithWindowRef:&_dockIcon->icon->core->window recycler:self];
+  _appIcon = [WSCurrentWindowManager() newRecyclerIconForRecycler:self];
+  if (!_appIcon) {
+    NSLog(@"Recycler Dock icon creation failed!");
+    [self release]; return nil;
+  }
   [_appIcon setLevel:NSDockWindowLevel];
 
-  appIconView = [[RecyclerIconView alloc] initWithFrame:NSMakeRect(0, 0, 64, 64)];
+  appIconView = [[RecyclerIconView alloc] initWithFrame:NSMakeRect(0, 0, 64, 64) recycler:self];
   [_appIcon setContentView:appIconView];
   [appIconView release];
 

@@ -21,11 +21,18 @@
 
 #import "OSEDefaults.h"
 #import "OSEMouse.h"
+#import "OSEWaylandDisplay.h"
+#import "OSEWaylandInput.h"
+#import <AppKit/NSEvent.h>
+#include <math.h>
 
 #import <X11/Xlib.h>
 #import <X11/Xcursor/Xcursor.h>
+#import <GNUstepGUI/GSDisplayServer.h>
 
 NSString *OSEMouseAcceleration = @"MouseAcceleration";
+NSString *OSEMouseWaylandAcceleration = @"WaylandPointerAcceleration";
+NSString *OSEMouseWaylandProfile = @"WaylandPointerProfile";
 NSString *OSEMouseThreshold = @"MouseThreshold";
 NSString *OSEMouseDoubleClickTime = @"MouseDoubleClickTime";
 NSString *OSEMouseWheelScroll = @"MouseWheelScroll";
@@ -34,7 +41,37 @@ NSString *OSEMouseMenuButtonEnabled = @"MenuButtonEnabled";
 NSString *OSEMouseMenuButtonHand = @"MenuButtonHand";
 NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 
+@interface GSDisplayServer (NativeMouseGeometry)
+- (NSRect)logicalDesktopBounds;
+@end
+
 @implementation OSEMouse
+
++ (void)configureWithDefaults:(OSEDefaults *)defaults
+{
+  OSEMouse *mouse = [self new];
+  if ([mouse usesNativeInputSettings]) {
+    id speed = [defaults objectForKey:OSEMouseWaylandAcceleration];
+    if (speed) [mouse setNormalizedAcceleration:[speed doubleValue]
+      profile:[defaults integerForKey:OSEMouseWaylandProfile]];
+  } else [mouse setAcceleration:[defaults integerForKey:OSEMouseAcceleration]
+                     threshold:[defaults integerForKey:OSEMouseThreshold]];
+  [mouse release];
+}
+
++ (NSInteger)dragThreshold
+{
+  if ([GSCurrentServer() isKindOfClass:NSClassFromString(@"XGServer")])
+    return [[[self new] autorelease] accelerationThreshold];
+  NSInteger value = [[NSUserDefaults standardUserDefaults] integerForKey:@"GSMouseMoveThreshold"];
+  return value > 0 ? value : 3;
+}
++ (NSTimeInterval)doubleClickInterval
+{
+  NSInteger value = [[NSUserDefaults standardUserDefaults] integerForKey:@"GSDoubleClickTime"];
+  if (value <= 0) value = [[OSEDefaults globalUserDefaults] integerForKey:OSEMouseDoubleClickTime];
+  return (value > 0 ? value : 300) / 1000.0;
+}
 
 - (id)init
 {
@@ -48,7 +85,7 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
   wmdFormat = @"%@/Library/Preferences/.WindowMaker/WindowMaker";
   wmDefaultsPath = [[NSString alloc] initWithFormat:wmdFormat,
                                      NSHomeDirectory()];
-  wmDefaults = [[NSMutableDictionary alloc]
+  if (!OSEUsesWaylandDisplay()) wmDefaults = [[NSMutableDictionary alloc]
                  initWithContentsOfFile:wmDefaultsPath];
   
   acceleration = [self acceleration];
@@ -70,9 +107,24 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
   [super dealloc];
 }
 
+- (BOOL)usesNativeInputSettings { return OSEUsesWaylandDisplay(); }
+- (double)normalizedAcceleration { return [[OSEWaylandInputSettings() objectForKey:@"speed"] doubleValue]; }
+- (NSUInteger)accelerationProfile { return [[OSEWaylandInputSettings() objectForKey:@"profile"] unsignedIntegerValue]; }
+- (BOOL)setNormalizedAcceleration:(double)speed profile:(NSUInteger)profile
+{
+  if (!OSEUsesWaylandDisplay() || !isfinite(speed) || speed < -1 || speed > 1 || profile > 1) return NO;
+  if (!OSEChangeWaylandInputSettings(@"pointer", [NSDictionary dictionaryWithObjectsAndKeys:
+      [NSNumber numberWithDouble:speed], @"speed", [NSNumber numberWithUnsignedInteger:profile], @"profile", nil])) return NO;
+  [nxDefaults setObject:[NSNumber numberWithDouble:speed] forKey:OSEMouseWaylandAcceleration];
+  [nxDefaults setInteger:profile forKey:OSEMouseWaylandProfile];
+  [nxDefaults synchronize];
+  return YES;
+}
+
 // Acceleration
 - (NSInteger)acceleration
 {
+  if (OSEUsesWaylandDisplay()) return 0; /* No X11 ratio on libinput. */
   Display    *dpy;
   int        accel_numerator, accel_denominator, accel_threshold;
   NSInteger  accel;
@@ -88,6 +140,7 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 }
 - (NSInteger)accelerationThreshold
 {
+  if (OSEUsesWaylandDisplay()) return [OSEMouse dragThreshold];
   Display    *dpy;
   int        accel_numerator, accel_denominator, accel_threshold;
   OSEDefaults *defs = [OSEDefaults globalUserDefaults];
@@ -101,6 +154,13 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 }
 - (void)setAcceleration:(NSInteger)speed threshold:(NSInteger)pixels
 {
+  if (OSEUsesWaylandDisplay()) {
+    /* The native UI uses the normalized speed API. This compatibility path
+       changes only the existing logical toolkit drag threshold. */
+    if (pixels > 0) { threshold = pixels; [self _setGSDefaultsObject:[NSNumber numberWithInteger:pixels]
+      forKey:@"GSMouseMoveThreshold"]; }
+    return;
+  }
   Display    *dpy = XOpenDisplay(NULL);
   NSInteger  accel_numerator, accel_denominator, threshold;
   BOOL       changeAcceleration = (speed > 0) ? YES : NO;
@@ -196,6 +256,11 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 }
 - (NSUInteger)menuButton
 {
+  if (OSEUsesWaylandDisplay()) {
+    NSInteger event = [gsDefaults integerForKey:@"GSMenuButtonEvent"];
+    if (!event) event = [nxDefaults integerForKey:OSEMouseMenuButtonHand];
+    return event == NSLeftMouseDown ? NSLeftMouseDown : NSRightMouseDown;
+  }
   NSInteger event;
   
   event = [gsDefaults integerForKey:@"GSMouseScrollMultiplier"];
@@ -217,6 +282,11 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 
 - (NSPoint)locationOnScreen
 {
+  if (OSEUsesWaylandDisplay()) {
+    NSPoint point = [NSEvent mouseLocation];
+    NSRect bounds = [GSCurrentServer() logicalDesktopBounds];
+    point.y = NSMaxY(bounds) - point.y; return point;
+  }
   Display	*dpy;
   Window	root_window, rwindow, cwindow;
   int		root_x, root_y, win_x, win_y;
@@ -251,6 +321,7 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 // TODO
 - (NSString *)cursorTheme
 {
+  if (OSEUsesWaylandDisplay()) return [[[NSProcessInfo processInfo] environment] objectForKey:@"XCURSOR_THEME"] ?: @"default";
   Display 	*dpy = XOpenDisplay(NULL);
   NSString	*themeName = nil;
   
@@ -267,9 +338,9 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
 {
   NSMutableDictionary *globalDomain;
   
-  globalDomain = [[gsDefaults persistentDomainForName:NSGlobalDomain]
-                   mutableCopy];
-  
+  globalDomain = [[gsDefaults persistentDomainForName:NSGlobalDomain] mutableCopy];
+  if (!globalDomain) globalDomain = [NSMutableDictionary new];
+
   [globalDomain setObject:object forKey:key];
   [gsDefaults setPersistentDomain:globalDomain forName:NSGlobalDomain];
   [gsDefaults synchronize];
@@ -282,14 +353,14 @@ NSString *OSEMouseCursorTheme = @"MouseCursorTheme";
   BOOL sendNotification = NO;
   
   // Acceleration
-  if (acceleration != [nxDefaults integerForKey:OSEMouseAcceleration])
+  if (!OSEUsesWaylandDisplay() && acceleration != [nxDefaults integerForKey:OSEMouseAcceleration])
     {
       [nxDefaults setInteger:acceleration forKey:OSEMouseAcceleration];
       [nxDefaults synchronize];
     }
 
   // Threshold
-  if (threshold != [nxDefaults integerForKey:OSEMouseThreshold])
+  if (!OSEUsesWaylandDisplay() && threshold != [nxDefaults integerForKey:OSEMouseThreshold])
     {
       [nxDefaults setInteger:threshold forKey:OSEMouseThreshold];
       [nxDefaults synchronize];

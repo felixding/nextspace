@@ -15,6 +15,7 @@
 #import "loadave.h"
 #import "TimeMonColors.h"
 #import "NSColorExtensions.h"
+#import <DesktopKit/Utilities.h>
 #import <syslog.h>
 #import <math.h>
 
@@ -87,10 +88,24 @@
   [bp moveToPoint:point];
   [bp lineToPoint:lineEnd];
   [bp stroke];
+
+  if (te == nil) {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"TimeMonP" ofType:@"tiff"];
+    NSImage *pausedImage = [[[NSImage alloc] initWithContentsOfFile:path] autorelease];
+    [pausedImage compositeToPoint:NSZeroPoint operation:NSCompositeSourceOver];
+  }
 }
 
 - (void)awakeFromNib
 {
+  for (NSTextField *field in @[periodText, lagText, factorText])
+    [field setDelegate:self];
+
+  NSDictionary *artwork = [NSDictionary dictionaryWithObject:@"TM-info"
+    forKey:NSStringFromSize(NSMakeSize(50, 50))];
+  for (NSWindow *window in [NSApp windows])
+    NXTSetBundleImages([window contentView], artwork);
+
   NSString *path = [[NSBundle mainBundle] pathForResource:@"README" 
                                                    ofType:@"rtf"];
   // load the readme if it exists.
@@ -343,19 +358,11 @@
 - (void)togglePause:(id)sender
 {
   if (te) {
-    NSImage *pausedImage = [NSImage imageNamed:@"TimeMonP"];
-    NSImage *pausedStipple = [NSApp applicationIconImage];
-      
     [pauseMenuCell setTitle:@"Continue"];
     [te invalidate];
     te = nil;
       
-    [pausedStipple lockFocus];
-    [pausedImage compositeToPoint:NSZeroPoint 
-                        operation:NSCompositeSourceOver];
-    [pausedStipple unlockFocus];
-      
-    [NSApp setApplicationIconImage:pausedStipple];
+    [self display];
   } 
   else {
     float f;
@@ -406,23 +413,21 @@
   [self __reallocOldTimes];
 }
 
-- (BOOL)textShouldEndEditing:(NSText *)sender
+- (void)controlTextDidEndEditing:(NSNotification *)notification
 {
-  id delegate = [sender delegate];
+  id field = [notification object];
   
-  if (delegate == factorText) 
+  if (field == factorText)
     {
       [self setFactor:factorText];
     } 
-  else if (delegate == periodText) 
+  else if (field == periodText)
     {
       [self setPeriod:periodText];
     } 
-  else if (delegate == lagText) 
+  else if (field == lagText)
     {
       [self setLag:lagText];
     }
-
-  return YES;
 }
 @end

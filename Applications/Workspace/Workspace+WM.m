@@ -43,11 +43,10 @@
 #import "Workspace+WM.h"
 #import "Controller.h"
 #import "Recycler.h"
+#import "X11RecyclerIcon.h"
 #import "Processes/ProcessManager.h"
 
 NSString *WMShowAlertPanel = @"WMShowAlertPanelNotification";
-dispatch_queue_t workspace_q;
-WorkspaceExitCode ws_quit_code;
 
 // WM functions and vars
 extern Display *dpy;

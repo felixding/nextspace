@@ -40,7 +40,7 @@
 
   owner = prefs;
   
-  _display = aDisplay;
+  _display = [aDisplay retain];
 
   nameRect = frameRect;
   nameRect.size.height = 15;
@@ -67,6 +67,7 @@
 - (void)dealloc
 {
   NSLog(@"Screen: display box %@: -dealloc", [nameField stringValue]);
+  [_display release]; [displayName release]; [bgColor release];
   [super dealloc];
 }
 

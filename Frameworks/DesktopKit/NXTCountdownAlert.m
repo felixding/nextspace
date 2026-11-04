@@ -27,6 +27,8 @@
 
 - (void)dealloc
 {
+  [countDownTimer invalidate];
+  [countDownTimer release];
   [messageTextFormat release];
   [super dealloc];
 }
@@ -51,11 +53,11 @@
   }
   [messageView setText:[NSString stringWithFormat:messageTextFormat, countDownPeriod]];
 
-  countDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
+  countDownTimer = [[NSTimer scheduledTimerWithTimeInterval:1.0
                                                     target:self
                                                   selector:@selector(update:)
                                                   userInfo:nil
-                                                   repeats:YES];
+                                                   repeats:YES] retain];
   [[NSRunLoop currentRunLoop] addTimer:countDownTimer forMode:NSModalPanelRunLoopMode];
 }
 

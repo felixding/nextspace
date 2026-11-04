@@ -20,7 +20,8 @@
 //
 #import <GNUstepGUI/GSDisplayServer.h>
 #import "Application.h"
-#import "Workspace+WM.h"
+#import "WindowManager.h"
+#import "WSIconTileView.h"
 
 @interface WSApplication (Private)
 - (void)_openDocument:(NSString *)filePath;
@@ -66,13 +67,9 @@
 //-----------------------------------------------------------------------------
 // Application icon view
 //-----------------------------------------------------------------------------
-@interface WSAppIconView : NSView
+@interface WSAppIconView : WSIconTileView
 @end
 @implementation WSAppIconView
-
-// Class variables
-static NSCell *dragCell = nil;
-static NSCell *tileCell = nil;
 
 static NSSize scaledIconSizeForSize(NSSize imageSize)
 {
@@ -82,24 +79,6 @@ static NSSize scaledIconSizeForSize(NSSize imageSize)
   retSize.width = imageSize.width * iconSize.width / 64;
   retSize.height = imageSize.height * iconSize.height / 64;
   return retSize;
-}
-
-+ (void)initialize
-{
-  NSImage *tileImage;
-  NSSize iconSize;
-
-  iconSize = [GSCurrentServer() iconSize];
-  /* _appIconInit will set our image */
-  dragCell = [[NSCell alloc] initImageCell:nil];
-  [dragCell setBordered:NO];
-
-  tileImage = [[GSCurrentServer() iconTileImage] copy];
-  [tileImage setScalesWhenResized:YES];
-  [tileImage setSize:iconSize];
-  tileCell = [[NSCell alloc] initImageCell:tileImage];
-  RELEASE(tileImage);
-  [tileCell setBordered:NO];
 }
 
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
@@ -123,14 +102,6 @@ static NSSize scaledIconSizeForSize(NSSize imageSize)
 - (NSDragOperation)draggingUpdated:(id<NSDraggingInfo>)sender
 {
   return NSDragOperationGeneric;
-}
-
-- (void)drawRect:(NSRect)rect
-{
-  NSSize iconSize = [GSCurrentServer() iconSize];
-
-  [tileCell drawWithFrame:NSMakeRect(0, 0, iconSize.width, iconSize.height) inView:self];
-  [dragCell drawWithFrame:NSMakeRect(0, 0, iconSize.width, iconSize.height) inView:self];
 }
 
 - (id)initWithFrame:(NSRect)frame
@@ -222,7 +193,7 @@ static NSSize scaledIconSizeForSize(NSSize imageSize)
     [imgCopy setScalesWhenResized:YES];
     [imgCopy setSize:scaledIconSizeForSize(imageSize)];
   }
-  [dragCell setImage:imgCopy];
+  [super setImage:imgCopy];
   RELEASE(imgCopy);
   [self setNeedsDisplay:YES];
 }
@@ -277,7 +248,7 @@ static NSSize scaledIconSizeForSize(NSSize imageSize)
   }
 
   if (_app_is_hidden) {
-    wUnhideApplication(wApplicationWithName(NULL, "Workspace"), NO, NO);
+    [WSCurrentWindowManager() unhideWorkspace];
     [super unhide:sender];
 
     // if ([sender isKindOfClass:[NSMenuItem class]] == NO) {

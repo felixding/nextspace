@@ -38,6 +38,8 @@ typedef struct WDesktop {
 void wDesktopMake(WScreen *scr, int count);
 int wDesktopNew(WScreen *scr);
 int wGetDesktopNumber(WScreen *scr, const char *value);
+/* Zero-based index; the first desktop cannot be removed. */
+Bool wDesktopCanDelete(WScreen *scr, int desktop);
 Bool wDesktopDelete(WScreen *scr, int desktop);
 void wDesktopChange(WScreen *scr, int desktop, WWindow *focus_win);
 void wDesktopSaveFocusedWindow(WScreen *scr, int desktop, WWindow *wwin);

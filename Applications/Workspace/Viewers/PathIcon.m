@@ -27,6 +27,12 @@
 #import <GNUstepGUI/GSDisplayServer.h>
 #import <GNUstepGUI/GSDragView.h>
 
+#import "Controller+NSWorkspace.h"
+#import "FileViewer.h"
+#import <Processes/ProcessManager.h>
+#import "PathIcon.h"
+
+#ifndef NEXTSPACE_BUILD_WAYLAND
 #import "Workspace+WM.h"
 
 #import <core/WMcore.h>
@@ -35,10 +41,7 @@
 #import <defaults.h>
 #import <window_attributes.h>
 
-#import "Controller+NSWorkspace.h"
-#import "FileViewer.h"
-#import <Processes/ProcessManager.h>
-#import "PathIcon.h"
+
 
 @interface NSApplication (GNUstepPrivate)
 - (void)_postAndSendEvent:(NSEvent *)anEvent;
@@ -527,6 +530,8 @@ static NSDragOperation savedMask;
 
 @end
 
+#endif
+
 @implementation PathIcon
 
 //============================================================================
@@ -559,7 +564,6 @@ static NSDragOperation savedMask;
 {
   NSInteger clickCount;
   NSDate *evDate = [NSDate date];
-  OSEMouse *mouse = [[OSEMouse new] autorelease];
   id superView;
 
   if (target == nil || isSelectable == NO || [ev type] != NSLeftMouseDown) {
@@ -580,7 +584,7 @@ static NSDragOperation savedMask;
     NSDebugLLog(@"PathIcon", @"[PathIcon-mouseDown]: DRAGGING");
     NSPoint startPoint = [ev locationInWindow];
     NSInteger eventMask = NSLeftMouseDraggedMask | NSLeftMouseUpMask;
-    NSInteger moveThreshold = [mouse accelerationThreshold];
+    NSInteger moveThreshold = [OSEMouse dragThreshold];
 
     while ([(ev = [_window nextEventMatchingMask:eventMask]) type] != NSLeftMouseUp) {
       NSPoint endPoint = [ev locationInWindow];
@@ -603,7 +607,7 @@ static NSDragOperation savedMask;
     // if (!doubleClickPassesClick && [self _waitForSecondMouseClick] != nil) {
     if (!doubleClickPassesClick) {
       NSEvent *e;
-      CGFloat waitTime = [mouse doubleClickTime] / 1000.0;
+      CGFloat waitTime = [OSEMouse doubleClickInterval];
       NSDate *waitDate = [evDate dateByAddingTimeInterval:waitTime];
       unsigned mask =
           (NSLeftMouseDownMask | NSLeftMouseUpMask | NSRightMouseDown | NSRightMouseUpMask);

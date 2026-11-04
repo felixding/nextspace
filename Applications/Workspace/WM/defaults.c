@@ -1163,6 +1163,17 @@ void wDefaultsUpdateDomainsIfNeeded(void* arg)
   WScreen *scr;
   CFAbsoluteTime time = 0.0;
 
+  /* Settings notifications can arrive on AppKit's thread while inotify is
+   * already reloading textures on the window-manager loop. Keep all reloads
+   * with the X event owner so they cannot destroy the same resources twice. */
+  if (wm_runloop && CFRunLoopGetCurrent() != wm_runloop) {
+    CFRunLoopPerformBlock(wm_runloop, kCFRunLoopDefaultMode, ^{
+      wDefaultsUpdateDomainsIfNeeded(arg);
+    });
+    CFRunLoopWakeUp(wm_runloop);
+    return;
+  }
+
    // ~/Library/Preferences/.NextSpace/WM.plist
   time = WMUserDefaultsFileModificationTime(w_global.domain.wm_preferences->name, 0);
   if (w_global.domain.wm_preferences->timestamp < time) {

@@ -813,6 +813,14 @@ static void set_foreground(NSGraphicsContext *gc, unsigned char color, unsigned 
 
   NSDebugLLog(@"draw", @"total_draw=%i", total_draw);
 
+  if ([markedText length]) {
+    [NSGraphicsContext saveGraphicsState];
+    NSRectClip([self visibleRect]);
+    [markedText drawAtPoint:NSMakePoint(cursor_x * fx + border_x,
+      (screen_height - 1 - cursor_y + curr_sb_position) * fy + border_y)];
+    [NSGraphicsContext restoreGraphicsState];
+  }
+
   draw_all = 1;
 }
 
@@ -1271,7 +1279,55 @@ static void set_foreground(NSGraphicsContext *gc, unsigned char color, unsigned 
 
 - (BOOL)resignFirstResponder
 {
+  [self unmarkText];
   return YES;
+}
+
+/* Composition is an overlay. Only committed text reaches the PTY; terminal
+   history is not surrounding editable text and is never sent to an IME. */
+- (void)insertText:(id)text
+{
+  NSString *string = [text isKindOfClass:[NSAttributedString class]] ? [text string] : text;
+  [self unmarkText];
+  if (master_fd < 0 || ![string length]) return;
+  if (shouldScrollBottomOnInput) [self _scrollTo:0 update:YES];
+  [terminalParser sendString:string];
+}
+- (void)setMarkedText:(id)text selectedRange:(NSRange)range
+{
+  NSString *string = [text isKindOfClass:[NSAttributedString class]] ? [text string] : text;
+  [self unmarkText];
+  if (![string length] || master_fd < 0) return;
+  NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:font, NSFontAttributeName,
+    [NSColor colorWithCalibratedHue:TEXT_NORM_H saturation:TEXT_NORM_S brightness:TEXT_NORM_B alpha:1], NSForegroundColorAttributeName,
+    [NSColor colorWithCalibratedHue:WIN_BG_H saturation:WIN_BG_S brightness:WIN_BG_B alpha:1], NSBackgroundColorAttributeName,
+    [NSNumber numberWithInt:NSUnderlineStyleSingle], NSUnderlineStyleAttributeName, nil];
+  NSMutableAttributedString *marked = [[NSMutableAttributedString alloc] initWithString:string attributes:attributes];
+  markedSelection = range;
+  if (range.location != NSNotFound && NSMaxRange(range) <= [string length] && range.length)
+    [marked addAttribute:NSBackgroundColorAttributeName value:[NSColor selectedTextBackgroundColor] range:range];
+  [marked fixFontAttributeInRange:NSMakeRange(0, [marked length])];
+  markedText = marked;
+  [self setNeedsDisplay:YES];
+}
+- (void)unmarkText
+{
+  if (!markedText) return;
+  DESTROY(markedText);
+  [self setNeedsDisplay:YES];
+}
+- (BOOL)hasMarkedText { return [markedText length] != 0; }
+- (NSRange)markedRange { return [markedText length] ? NSMakeRange(0, [markedText length]) : NSMakeRange(NSNotFound, 0); }
+- (NSRect)firstRectForCharacterRange:(NSRange)range
+{
+  CGFloat offset = 0;
+  if ([markedText length] && markedSelection.location != NSNotFound && markedSelection.location <= [markedText length])
+    offset = [[markedText attributedSubstringFromRange:NSMakeRange(0, markedSelection.location)] size].width;
+  NSRect rect = NSMakeRect(cursor_x * fx + border_x + offset,
+    (screen_height - 1 - cursor_y + curr_sb_position) * fy + border_y, 1, fy);
+  rect = [self convertRect:rect toView:nil];
+  rect.origin = [[self window] convertBaseToScreen:rect.origin];
+  return rect;
 }
 
 @end
@@ -2394,6 +2450,7 @@ static int handled_mask = (NSDragOperationCopy | NSDragOperationPrivate | NSDrag
   [self closeProgram];
 
   DESTROY(terminalParser);
+  DESTROY(markedText);
 
   [scroller setTarget:nil];
   DESTROY(scroller);

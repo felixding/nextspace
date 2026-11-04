@@ -87,6 +87,13 @@ static Processes *shared = nil;
   [appList setCornerView:nil];
   [appList setDoubleAction:@selector(activateApp:)];
 
+  // Gorm embeds the old bitmap; load the resource's backing representations.
+  NSImage *killImage = [[[NSImage alloc] initWithContentsOfFile:
+      [[NSBundle mainBundle] pathForImageResource:@"Kill"]] autorelease];
+  if (killImage) {
+    [appKillBtn setImage:killImage];
+    if ([appKillBtn alternateImage]) [appKillBtn setAlternateImage:killImage];
+  }
   [appKillBtn setEnabled:NO];
 
   // Background processes

@@ -10,7 +10,7 @@ ADDITIONAL_CPPFLAGS +=
 #ADDITIONAL_CFLAGS += -D$(GNUSTEP_HOST_OS)
 
 # Additional flags to pass to the linker
-ADDITIONAL_LDFLAGS +=  
+ADDITIONAL_LDFLAGS += -lDesktopKit -lSystemKit
 
 # Additional include directories the compiler should search
 ADDITIONAL_INCLUDE_DIRS += 

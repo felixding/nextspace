@@ -325,6 +325,7 @@ static OSEDefaults *defaults = nil;
     }
   
   [mOptions release];
+  [savedOption release];
 
   return SUCCESS;
 }
@@ -343,7 +344,7 @@ static OSEDefaults *defaults = nil;
       [keyboard setInitialRepeat:[defs integerForKey:OSEKeyboardInitialRepeat]];
     }
   else if (sender == repeatRateMtrx)
-    { // NXKeyboard - RepeatRate - num of repeates per second
+    { // NXKeyboard - RepeatRate - interval between repeats in milliseconds
       [defs setInteger:[[sender selectedCell] tag] forKey:OSEKeyboardRepeatRate];
       [keyboard setRepeatRate:[defs integerForKey:OSEKeyboardRepeatRate]];
     }
@@ -652,8 +653,6 @@ static OSEDefaults *defaults = nil;
       value = [aDict objectForKey:k];
       [item setRepresentedObject:value];
     }
-  [aDict release];
-
   opt = [self _optionWithType:@"compose"];
   if (opt)
     {
@@ -665,6 +664,7 @@ static OSEDefaults *defaults = nil;
       [composeKeyBtn selectItemWithTitle:@"None"];
     }
   [opt release];
+  [aDict release];
   
   // Command and Alternate Swap
   opt = [self _optionWithType:@"altwin"];
@@ -688,8 +688,6 @@ static OSEDefaults *defaults = nil;
       value = [aDict objectForKey:k];
       [item setRepresentedObject:value];
     }
-  [aDict release];
-  
   opt = [self _optionWithType:@"caps"];
   if (opt == nil)
     {
@@ -708,6 +706,7 @@ static OSEDefaults *defaults = nil;
         selectItemWithTitle:[[aDict allKeysForObject:opt] lastObject]];
     }
   [opt release];
+  [aDict release];
 }
 - (void)composeBtnClicked:(id)sender
 {

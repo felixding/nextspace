@@ -63,7 +63,8 @@
           variants:(NSArray *)variants
            options:(NSArray *)options;
 
-// --- Initial Repeat and Repeat Rate
+// --- Repeat delay and compatibility interval, both in milliseconds.
+// Native Wayland rates are converted to/from hertz at this boundary.
 - (NSInteger)initialRepeat;
 - (void)setInitialRepeat:(NSInteger)delay;
 - (NSInteger)repeatRate;

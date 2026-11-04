@@ -21,6 +21,9 @@
 
 #import "OSEDefaults.h"
 #import "OSEKeyboard.h"
+#import "OSEWaylandInput.h"
+#import "OSEWaylandDisplay.h"
+#include <math.h>
 
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBrules.h>
@@ -51,7 +54,8 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
     initialRepeat = 0;
   if ((repeatRate = [defs integerForKey:OSEKeyboardRepeatRate]) < 0)
     repeatRate = 0;
-  [keyb setInitialRepeat:initialRepeat rate:repeatRate];
+  if (!OSEUsesWaylandDisplay() || [defs objectForKey:OSEKeyboardInitialRepeat] || [defs objectForKey:OSEKeyboardRepeatRate])
+    [keyb setInitialRepeat:initialRepeat rate:repeatRate];
 
   // Layouts and Modifiers
   layouts = [defs objectForKey:OSEKeyboardLayouts];
@@ -226,6 +230,13 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
 // Returned value is converted to dictionary XkbRF_VarDefsRec structure.
 - (NSDictionary *)_serverConfig
 {
+  if (OSEUsesWaylandDisplay()) {
+    NSDictionary *state = OSEWaylandInputSettings();
+    return [NSDictionary dictionaryWithObjectsAndKeys:[state objectForKey:@"model"] ?: @"pc105", OSEKeyboardModel,
+      [state objectForKey:@"layout"] ?: @"us", OSEKeyboardLayouts,
+      [state objectForKey:@"variant"] ?: @"", OSEKeyboardVariants,
+      [state objectForKey:@"options"] ?: @"", OSEKeyboardOptions, nil];
+  }
   Display 		*dpy;
   char			*file = NULL;
   XkbRF_VarDefsRec	vd;
@@ -287,6 +298,8 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
 // TODO
 - (BOOL)setModel:(NSString *)name
 {
+  if (OSEUsesWaylandDisplay()) return name && OSEChangeWaylandInputSettings(@"keyboard",
+    [NSDictionary dictionaryWithObject:name forKey:@"model"]);
   Display          *dpy;
   char             *file = NULL;
   XkbRF_VarDefsRec xkb_vars;
@@ -307,6 +320,10 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
 
 - (void)setNumLockState:(NSInteger)state
 {
+  if (OSEUsesWaylandDisplay()) {
+    OSEChangeWaylandInputSettings(@"keyboard", [NSDictionary dictionaryWithObject:
+      [NSNumber numberWithBool:state > 0] forKey:@"numlock"]); return;
+  }
   Display	*dpy = XOpenDisplay(NULL);
   XkbDescPtr	xkb;
   unsigned int	mask = 0;
@@ -520,6 +537,13 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
           variants:(NSArray *)variants
            options:(NSArray *)options
 {
+  if (OSEUsesWaylandDisplay()) {
+    NSMutableDictionary *changes = [NSMutableDictionary dictionary];
+    if (layouts) [changes setObject:[layouts componentsJoinedByString:@","] forKey:@"layout"];
+    if (variants) [changes setObject:[variants componentsJoinedByString:@","] forKey:@"variant"];
+    if (options) [changes setObject:[options componentsJoinedByString:@","] forKey:@"options"];
+    return OSEChangeWaylandInputSettings(@"keyboard", changes);
+  }
   Display          *dpy;
   char             *file = NULL;
   XkbRF_VarDefsRec xkb_vars;
@@ -552,6 +576,12 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
 
 - (void)_setXKBRepeat:(NSInteger)repeat rate:(NSInteger)rate
 {
+  if (OSEUsesWaylandDisplay()) {
+    NSMutableDictionary *changes = [NSMutableDictionary dictionary];
+    if (repeat > 0) [changes setObject:[NSNumber numberWithInteger:repeat] forKey:@"delay"];
+    if (rate > 0) [changes setObject:[NSNumber numberWithLong:lround(1000.0 / rate)] forKey:@"rate"];
+    OSEChangeWaylandInputSettings(@"keyboard", changes); return;
+  }
   XkbDescPtr xkb = XkbAllocKeyboard();
   Display    *dpy = XOpenDisplay(NULL);
 
@@ -596,6 +626,7 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
 
 - (NSInteger)initialRepeat
 {
+  if (OSEUsesWaylandDisplay()) return [[OSEWaylandInputSettings() objectForKey:@"delay"] integerValue];
   return [self _xkbControls]->ctrls->repeat_delay;
 }
 - (void)setInitialRepeat:(NSInteger)delay
@@ -604,6 +635,10 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
 }
 - (NSInteger)repeatRate
 {
+  if (OSEUsesWaylandDisplay()) {
+    NSInteger rate = [[OSEWaylandInputSettings() objectForKey:@"rate"] integerValue];
+    return rate > 0 ? lround(1000.0 / rate) : 0;
+  }
   return [self _xkbControls]->ctrls->repeat_interval;
 }
 - (void)setRepeatRate:(NSInteger)rate

@@ -21,11 +21,23 @@
 //
 
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #import "Communicator.h"
 
 BOOL makeCleanupOnStop;
+
+static char readProblemReply(const char *allowed)
+{
+  while (!isStopped) {
+    int answer = fgetc(stdin);
+    // Treat a disconnected controller as a Stop request.
+    if (answer == EOF) return 't';
+    if (answer != '\0' && strchr(allowed, answer)) return (char)answer;
+  }
+  return 't';
+}
 
 @implementation Communicator
 
@@ -153,9 +165,7 @@ static Communicator *shared = nil;
 
       printf("R%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 't');
+      answer = readProblemReply("sSt");
 
       switch (answer) {
         case 'S':
@@ -175,9 +185,7 @@ static Communicator *shared = nil;
 
       printf("W%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 't');
+      answer = readProblemReply("sSt");
 
       switch (answer) {
         case 'S':
@@ -197,9 +205,7 @@ static Communicator *shared = nil;
 
       printf("D%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 't');
+      answer = readProblemReply("sSt");
 
       switch (answer) {
         case 'S':
@@ -219,9 +225,7 @@ static Communicator *shared = nil;
 
       printf("M%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 't');
+      answer = readProblemReply("sSt");
 
       switch (answer) {
         case 'S':
@@ -244,10 +248,7 @@ static Communicator *shared = nil;
       // Ss - Skip
       printf("S%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 'n' && answer != 'N' && answer != 'c' &&
-               answer != 'C' && answer != 't');
+      answer = readProblemReply("sSnNcCt");
 
       switch (answer) {
         case 'S':
@@ -279,9 +280,7 @@ static Communicator *shared = nil;
       fflush(stdout);
       // Nn - New Link
       // Ss - Skip
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 'n' && answer != 'N' && answer != 't');
+      answer = readProblemReply("sSnNt");
 
       switch (answer) {
         case 'S':
@@ -308,9 +307,7 @@ static Communicator *shared = nil;
       }
       printf("A%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 'i' && answer != 'I' && answer != 't');
+      answer = readProblemReply("iIt");
 
       switch (answer) {
         case 'I':
@@ -329,9 +326,7 @@ static Communicator *shared = nil;
 
       printf("E%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 's' && answer != 'S' && answer != 'o' && answer != 'O' && answer != 't');
+      answer = readProblemReply("sSoOt");
 
       switch (answer) {
         case 'S':
@@ -356,9 +351,7 @@ static Communicator *shared = nil;
 
       printf("U%s\n", message != nil ? [message cString] : "");
       fflush(stdout);
-      do {
-        answer = fgetc(stdin);
-      } while (answer != 'S' && answer != 's' && answer != 't');
+      answer = readProblemReply("Sst");
 
       switch (answer) {
         case 'S':
@@ -373,7 +366,8 @@ static Communicator *shared = nil;
       break;
   }
 
-  return -1;
+  // Stop replies skip this item while the operation observes isStopped.
+  return SkipFile;
 }
 
 @end

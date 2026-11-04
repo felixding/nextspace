@@ -46,6 +46,17 @@
   NSInteger	menuButtonEvent;
 }
 
+// Logical interaction settings for toolkit views; no native input mutation.
++ (NSInteger)dragThreshold;
++ (NSTimeInterval)doubleClickInterval;
++ (void)configureWithDefaults:(OSEDefaults *)defaults;
+
+/* Native pointer speed has libinput's normalized -1..1 semantics. The X11
+   acceleration ratio remains a separate legacy setting. */
+- (BOOL)usesNativeInputSettings;
+- (double)normalizedAcceleration;
+- (NSUInteger)accelerationProfile;
+- (BOOL)setNormalizedAcceleration:(double)speed profile:(NSUInteger)profile;
 - (NSInteger)acceleration;
 - (NSInteger)accelerationThreshold;
 - (void)setAcceleration:(NSInteger)speed threshold:(NSInteger)pixels;
@@ -73,6 +84,8 @@
 @end
 
 extern NSString *OSEMouseAcceleration;
+extern NSString *OSEMouseWaylandAcceleration;
+extern NSString *OSEMouseWaylandProfile;
 extern NSString *OSEMouseThreshold;
 extern NSString *OSEMouseDoubleClickTime;
 extern NSString *OSEMouseWheelScroll;

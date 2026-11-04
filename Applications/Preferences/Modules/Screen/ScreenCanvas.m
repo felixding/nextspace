@@ -196,34 +196,11 @@ NSString *DisplayBoxPositionDidChangeNotification = @"DisplayBoxPositionDidChang
 
 - (NSRect)boxGroupRect
 {
-  NSRect groupRect = NSMakeRect(-1, -1, 0, 0);
-
+  NSRect groupRect = NSZeroRect;
+  BOOL first = YES;
   for (DisplayBox *db in [[self contentView] subviews]) {
-    if (db.frame.origin.x < groupRect.origin.x) {  // Extend to the left
-      groupRect.size.width += NSMinX(groupRect) - NSMinX(db.frame);
-      groupRect.origin.x = db.frame.origin.x;
-    } else {  // Extend to the right
-      if (NSMaxX(db.frame) > NSMaxX(groupRect)) {
-        groupRect.size.width += db.frame.size.width;
-      }
-      if (groupRect.origin.x < 0) {  // this is the first time we'll touch it
-        groupRect.origin.x = db.frame.origin.x;
-      }
-    }
-
-    if (db.frame.origin.y < groupRect.origin.y) {  // Extend to the top
-      groupRect.size.height += NSMinY(groupRect) - NSMinY(db.frame);
-      groupRect.origin.y = db.frame.origin.y;
-    } else {                       // Extend to the bottom
-      if (groupRect.origin.y < 0) { // this is the first time we'll touch it
-        groupRect.origin.y = db.frame.origin.y;
-      }
-      if (NSMaxY(db.frame) > NSMaxY(groupRect)) {
-        groupRect.size.height += NSMaxY(db.frame) - NSMaxY(groupRect);
-      }
-    }
-    // NSLog(@"box = %@, groupRect = %@",
-    //       NSStringFromRect(db.frame), NSStringFromRect(groupRect));
+    groupRect = first ? [db frame] : NSUnionRect(groupRect, [db frame]);
+    first = NO;
   }
 
   return groupRect;
@@ -267,7 +244,7 @@ NSString *DisplayBoxPositionDidChangeNotification = @"DisplayBoxPositionDidChang
   NSInteger moveThreshold;
 
   initialOrigin = boxOrigin = boxFrame.origin;
-  initialLocation = lastLocation = [theEvent locationInWindow];
+  location = initialLocation = lastLocation = [theEvent locationInWindow];
 
   moveThreshold = [[[OSEMouse new] autorelease] accelerationThreshold];
   [[NSCursor closedHandCursor] push];
@@ -287,7 +264,7 @@ NSString *DisplayBoxPositionDidChangeNotification = @"DisplayBoxPositionDidChang
         // NSLog(@"Mouse UP.");
         if (NSEqualPoints(initialLocation, location) == NO) {
           [self slideBox:box initialOrigin:initialOrigin];
-          [self centerBoxes];
+          if (![[OSEScreen sharedScreen] isNativeDisplay]) [self centerBoxes];
         }
         // Reset mouse cursor to cursor befor mouse down - openHandCursor.
         // TODO: on momentary mouse down/up (without drag) cursor turns

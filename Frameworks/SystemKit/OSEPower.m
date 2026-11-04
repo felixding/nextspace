@@ -53,9 +53,10 @@ static OSEPower *systemPower = nil;
 
   if (result != nil) {
     if ([result isKindOfClass:resultClass]) {
-      return result;
+      return [result retain];
     } else {
-      [result release];
+      /* send may return an autoreleased NSError when UPower is unavailable.
+         Callers own only the successfully typed property returned here. */
       result = nil;
     }
   }
