@@ -14,13 +14,20 @@ Hosted ARM64 run `41900653577` at `a866a80b` completes the full native suite
 in one uninterrupted job: 147 combined application records, 24 TextEdit printing
 cases, twelve toolkit printing suites, Workspace, six supervisor modes, native
 Login, portals and Pinyin/Hangul. The installed compositor loads the pinned
-wlroots library. Seven hosted package jobs also complete their full lifecycle.
+wlroots library. Eight hosted package jobs also complete their full lifecycle.
 The 201,287,036-byte native ZIP has SHA-256
 `88efb817660cc1d05bff699cba392560bfa15bc4bdc7201bfdd3555e0896a2af`.
 Streaming verification checks 8,376 regular files and 410 literal links; all
-1,280 selected JSON files decode. All 3,814 captured non-test inputs match the
-current product sources. Later changes affect verification and documentation;
-the newest fixture revisions still await complete hosted confirmation.
+1,280 selected JSON files decode. GTK and Qt each preserve logical window sizes
+and submit the expected buffer dimensions at all five densities. All 3,814
+captured non-test inputs match the
+current product sources. A second full native job, `126847207604` in run
+`41907855298` at `44c12258`, confirms the clipboard-ownership and desktop-reply
+fixtures. Its 201,163,987-byte ZIP has SHA-256
+`879230dd4a3cede3cb7911d97c35ca3316611a5f16583349a2c06a65e7ae1983`;
+8,371 files, 410 literal links and 1,280 JSON files verify. All four Workspace
+run-loop modes complete their eleven desktop requests. Only the later
+clipboard-failure reporting change still awaits hosted confirmation.
 
 The frozen installed qualification is native105/native106 on Debian 13/aarch64.
 Cold build, network-disabled source replay, clean installation, live upgrade,
@@ -372,7 +379,7 @@ newline-terminated records. All four regular and secure run-loop modes pass
 across five densities, followed by exact Terminal IME bytes at every density.
 The 273,806-byte capsule is `arm64-text-input-records-v1-evidence.tar.gz`, SHA-256
 `4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2`.
-Its 60 payload files verify. Seven hosted ARM64 package jobs complete the
+Its 60 payload files verify. Eight hosted ARM64 package jobs complete the
 full lifecycle; the uninterrupted native run also confirms this reader fix.
 
 A later package run stops because the clipboard reset fixture loses ownership
@@ -387,7 +394,20 @@ runs quiet. The 2,382,758-byte capsule is
 `arm64-pasteboard-ownership-v1-evidence.tar.gz`, SHA-256
 `20d10b20989daddf7cd87b6a57887e01ea8e38cdef551a1877e14313c99a9d35`;
 all 134 payload files verify. These fixture changes retain the existing
-pasteboard storage and stale-write protection; hosted confirmation is pending.
+pasteboard storage and stale-write protection. Hosted package job `126831487488`
+in run `41903395108` confirms them through the full lifecycle.
+
+Another package run times out copying Terminal's initial scrollback after
+upgrade. Its focused application remains alive and renders the expected text;
+the original failure report does not record the clipboard value. Failure reports
+now include the last clear result and exported byte count, text boundaries and
+stderr. Four local positive trials retain all 52 original records, including
+twenty Terminal density checks. A controlled failure captures the pending
+sentinel and live application state. The hosted timeout is not reproduced and
+its cause remains open; behavior and deadlines are unchanged. The 9,980,538-byte
+capsule is `arm64-terminal-copy-observation-v1-evidence.tar.gz`, SHA-256
+`8e9385fdb4c90765f120d52d16f9a97c23e52c8c8f72b12472dac6dedf6b2133`;
+all 523 payload files and an independent extracted audit verify.
 
 The newest native run next exposes a desktop fixture consuming an asynchronous
 count-2 broadcast as the reply to a count-4 request. The real Workspace probe
@@ -398,7 +418,8 @@ completion and still rejects a wrong completion. Product code and deadlines
 remain unchanged. The 179,039-byte capsule is
 `arm64-shell-desktop-reply-v1-evidence.tar.gz`, SHA-256
 `88ff360f98873be33b3c9cef62b2924627ec0eb2076e4494c3aa69650665dcb9`;
-all 47 payload files verify. Hosted confirmation of this fixture fix is pending.
+all 47 payload files verify. Hosted native job `126847207604` confirms this fix
+in all four Workspace run-loop modes.
 
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during

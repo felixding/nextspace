@@ -113,8 +113,8 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41899010879",
-    "latest_completed_result": "native compositor SIGSEGV before installed-RUNPATH fix; package test reset loses clipboard ownership between declaration and write",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41903395108",
+    "latest_completed_result": "Package lifecycle passed; native fixture consumed a prior desktop broadcast. The corrected fixture is confirmed by native job126847207604.",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -138,10 +138,11 @@
       41881024015,
       41885419730,
       41890301167,
-      41895922471
+      41895922471,
+      41903395108
     ],
     "hosted_native_suite_passed": true,
-    "latest_native_failure": "Workspace probe fixture consumed prior asynchronous desktop broadcast; now waits for existing desktop-result completion and preserves original state assertion. Local four-mode fixture and deterministic event controls pass; hosted confirmation pending.",
+    "latest_native_failure": "Prior desktop-broadcast fixture failure fixed; four Workspace run-loop modes now pass in hosted native job126847207604.",
     "installed_launcher_local_passed": true,
     "supervisor_failure_capture_control_passed": true,
     "native_font_configuration": {
@@ -213,7 +214,9 @@
       "bytes": 2382758,
       "sha256": "20d10b20989daddf7cd87b6a57887e01ea8e38cdef551a1877e14313c99a9d35",
       "payload_files_verified": 134,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false,
+      "hosted_confirmation_run": 41903395108,
+      "hosted_confirmation_job": 126831487488
     },
     "hosted_native_qualified_run": "https://github.com/felixding/nextspace/actions/runs/41900653577",
     "hosted_native_qualified_head": "a866a80bd91ea5035c9f149fb5960bd38e59c23f",
@@ -245,7 +248,77 @@
       "sha256": "88ff360f98873be33b3c9cef62b2924627ec0eb2076e4494c3aa69650665dcb9",
       "payload_files_verified": 47,
       "product_sources_unchanged": true,
+      "hosted_confirmation_pending": false,
+      "hosted_confirmation_run": 41907855298,
+      "hosted_confirmation_job": 126847207604,
+      "hosted_completed_desktop_requests": 44
+    },
+    "hosted_native_comparators": {
+      "source": "results/native/results.json",
+      "toolkits": [
+        "GtkProbe",
+        "QtProbe"
+      ],
+      "scales": [
+        120,
+        150,
+        180,
+        210,
+        240
+      ],
+      "records": 10,
+      "native": true,
+      "logical_dimensions_preserved": true,
+      "backing_density_verified": true
+    },
+    "application_clipboard_failure_capture": {
+      "failed_run": 41900653577,
+      "failed_job": 126821838864,
+      "phase": "upgraded-applications",
+      "failure": "Terminal scrollback copied timeout",
+      "application_alive_and_focused": true,
+      "expected_text_rendered": true,
+      "last_export_and_reset_results_captured": true,
+      "local_positive_records": 52,
+      "terminal_density_checks": 20,
+      "controlled_failure_diagnostics_verified": true,
+      "original_deadlines_and_behavior_preserved": true,
+      "hosted_timeout_reproduced": false,
+      "hosted_timeout_cause_established": false,
+      "archive": "arm64-terminal-copy-observation-v1-evidence.tar.gz",
+      "bytes": 9980538,
+      "sha256": "8e9385fdb4c90765f120d52d16f9a97c23e52c8c8f72b12472dac6dedf6b2133",
+      "payload_files_verified": 523,
+      "extracted_portable_audit_passed": true,
       "hosted_confirmation_pending": true
+    },
+    "hosted_native_successful_runs": [
+      41900653577,
+      41907855298
+    ],
+    "latest_hosted_native_qualification": {
+      "run": 41907855298,
+      "head": "44c12258122368b0b47a0178e90797786768f661",
+      "job": 126847207604,
+      "passed": true,
+      "artifact_id": 13362956227,
+      "bytes": 201163987,
+      "sha256": "879230dd4a3cede3cb7911d97c35ca3316611a5f16583349a2c06a65e7ae1983",
+      "regular_files": 8371,
+      "literal_links": 410,
+      "json_files_validated": 1280,
+      "jsonl_files_retained": 164,
+      "captured_inputs": 4404,
+      "current_non_test_inputs_matched": 3814,
+      "combined_application_records": 147,
+      "textedit_printing_cases": 24,
+      "printing_suites": 12,
+      "gtk_qt_density_cases": 10,
+      "workspace_run_loop_modes": 4,
+      "workspace_completed_desktop_requests": 44,
+      "installed_pinned_wlroots_confirmed": true,
+      "physical_gpu_qualified": false,
+      "full_plan_complete": false
     }
   },
   "evidence_locations": {

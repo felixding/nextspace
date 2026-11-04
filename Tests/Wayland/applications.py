@@ -27,14 +27,21 @@ def run(command, env, artifacts, programs, until):
         key(code, True); key(code, False)
         key(56, False)
 
+    clipboard = {}
+
     def copied_text():
         result = subprocess.run([programs["pasteboard"], "--export-text"], env=env, capture_output=True)
+        clipboard["export"] = dict(returncode=result.returncode, bytes=len(result.stdout),
+            prefix=result.stdout[:120].decode("utf-8", errors="replace"),
+            suffix=result.stdout[-120:].decode("utf-8", errors="replace"),
+            stderr=result.stderr.decode("utf-8", errors="replace"))
         assert result.returncode in (0, 1), result.stderr
         return result.stdout.decode("utf-8") if result.returncode == 0 else None
 
     def copy_selection():
         def cleared():
             result = subprocess.run([programs["pasteboard"], "--clear"], env=env)
+            clipboard["clear"] = dict(returncode=result.returncode)
             if result.returncode == 75: return False  # EX_TEMPFAIL: another owner won.
             result.check_returncode()
             return True
@@ -45,6 +52,7 @@ def run(command, env, artifacts, programs, until):
         executable = programs.get(name.lower())
         if not executable:
             continue
+        clipboard.clear()
         directory = artifacts / name
         directory.mkdir(parents=True, exist_ok=True)
         (directory / "failure.json").unlink(missing_ok=True)
@@ -249,7 +257,7 @@ def run(command, env, artifacts, programs, until):
             try:
                 capture_process_failure(process, directory, 'failure-application')
                 (directory / "failure.json").write_text(json.dumps(dict(windows=command("windows"),
-                    exit_code=process.poll()), indent=2) + "\n")
+                    exit_code=process.poll(), clipboard=clipboard), indent=2) + "\n")
             except Exception as diagnostic_error:
                 (directory / 'failure-diagnostic.txt').write_text(repr(diagnostic_error) + '\n')
             raise
