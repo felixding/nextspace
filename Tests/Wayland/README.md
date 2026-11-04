@@ -7,6 +7,10 @@ The current target is native Wayland only (user scope change, 2026-10-30).
 The production build excludes Window Maker, X11 sessions and Xwayland. Earlier
 compatibility results in this evidence history are outside the current scope.
 
+Automatic pull-request and master CI runs the `Wayland ARM64` workflow on
+Debian 13/aarch64, including native backend and desktop package lifecycle checks.
+The former X11 source and RPM workflows are removed.
+
 ## Reproduce on Linux or Docker
 
 ```sh
