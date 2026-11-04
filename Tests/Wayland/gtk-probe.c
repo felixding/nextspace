@@ -15,8 +15,15 @@ static bool initial_maximized, initial_fullscreen;
 static bool window_drag;
 static const char *window_title;
 static bool capture_pattern;
+static bool popup_controls;
 static unsigned clipboard_copies;
 static void install_window_keys(GtkWidget *window);
+
+static void popup_clicked(GtkButton *button, gpointer data)
+{
+  puts("{\"event\":\"popup-activate\"}"); fflush(stdout);
+  gtk_popover_popdown(GTK_POPOVER(data));
+}
 
 static void clipboard_text(GObject *object, GAsyncResult *result, gpointer data)
 {
@@ -55,6 +62,13 @@ static gboolean window_key(GtkEventControllerKey *controller, guint keyval,
     }
   }
   switch (keyval) {
+  case GDK_KEY_p: {
+    GtkWidget *menu = g_object_get_data(G_OBJECT(window), "comparison-popup");
+    if (!menu) return FALSE;
+    gtk_widget_set_visible(menu, TRUE);
+    gtk_menu_button_popup(GTK_MENU_BUTTON(menu));
+    break;
+  }
   case GDK_KEY_m: gtk_window_maximize(window); break;
   case GDK_KEY_u: gtk_window_unmaximize(window); break;
   case GDK_KEY_f: gtk_window_fullscreen(window); break;
@@ -272,7 +286,29 @@ static void activate(GtkApplication *app, void *data)
     g_signal_connect(target, "drop", G_CALLBACK(drag_drop), NULL);
     gtk_widget_add_controller(area, GTK_EVENT_CONTROLLER(target));
   }
-  gtk_window_set_child(GTK_WINDOW(window), area);
+  GtkWidget *overlay = gtk_overlay_new();
+  gtk_overlay_set_child(GTK_OVERLAY(overlay), area);
+  GtkWidget *menu = gtk_menu_button_new();
+  gtk_menu_button_set_label(GTK_MENU_BUTTON(menu), "Popup");
+  gtk_widget_set_halign(menu, GTK_ALIGN_END); gtk_widget_set_valign(menu, GTK_ALIGN_END);
+  GtkWidget *popover = gtk_popover_new();
+  gtk_popover_set_has_arrow(GTK_POPOVER(popover), FALSE);
+  gtk_widget_add_css_class(popover, "comparison-popup");
+  GtkCssProvider *css = gtk_css_provider_new();
+  gtk_css_provider_load_from_string(css,
+    "popover.comparison-popup { margin: 0; padding: 0; }"
+    "popover.comparison-popup > contents { padding: 0; border: 0; box-shadow: none; }");
+  gtk_style_context_add_provider_for_display(display, GTK_STYLE_PROVIDER(css), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+  g_object_unref(css);
+  GtkWidget *action = gtk_button_new_with_label("Popup action");
+  gtk_widget_set_size_request(action, 200, 120);
+  g_signal_connect(action, "clicked", G_CALLBACK(popup_clicked), popover);
+  gtk_popover_set_child(GTK_POPOVER(popover), action);
+  gtk_menu_button_set_popover(GTK_MENU_BUTTON(menu), popover);
+  gtk_overlay_add_overlay(GTK_OVERLAY(overlay), menu);
+  gtk_widget_set_visible(menu, popup_controls);
+  g_object_set_data(G_OBJECT(window), "comparison-popup", menu);
+  gtk_window_set_child(GTK_WINDOW(window), overlay);
   if (initial_maximized) gtk_window_maximize(GTK_WINDOW(window));
   if (initial_fullscreen) gtk_window_fullscreen(GTK_WINDOW(window));
   gtk_window_present(GTK_WINDOW(window));
@@ -285,6 +321,7 @@ int main(int argc, char **argv)
     else if (strcmp(argv[index], "--fullscreen") == 0) initial_fullscreen = true;
     else if (strcmp(argv[index], "--window-drag") == 0) window_drag = true;
     else if (strcmp(argv[index], "--capture-pattern") == 0) capture_pattern = true;
+    else if (strcmp(argv[index], "--popup-controls") == 0) popup_controls = true;
     else if (strcmp(argv[index], "--title") == 0 && index + 1 < argc) window_title = argv[++index];
     else if (strcmp(argv[index], "--drag-source") == 0) drag_source_mode = true;
     else if (strcmp(argv[index], "--drag-target") == 0) drag_target_mode = true;

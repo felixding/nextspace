@@ -750,7 +750,9 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                                        QT_QPA_PLATFORM="wayland", QT_QUICK_BACKEND="software")
                     path = artifacts / f"{toolkit}.log"
                     with path.open("w") as log, (artifacts / f"{toolkit}-errors.log").open("w") as errors:
-                        comparator = subprocess.Popen([executable], env=toolkit_env, stdout=log, stderr=errors)
+                        # Allocate GTK's menu button before opening the popover.
+                        args = [executable, "--popup-controls"] if toolkit == "GtkProbe" else [executable]
+                        comparator = subprocess.Popen(args, env=toolkit_env, stdout=log, stderr=errors)
                     try:
                         def comparator_events(event):
                             return [row for row in read_json_lines(path) if row["event"] == event]
@@ -811,6 +813,37 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                                 pasted = base64.b64decode(comparator_events("clipboard-paste")[-1]["base64"], validate=True)
                                 assert pasted == (artifacts / "native-copy.txt").read_bytes(), f"{toolkit} changed clipboard bytes"
                                 trial["clipboard"] = dict(to_native_bytes=len(text), from_native_bytes=len(pasted))
+                            current_output = next(o for o in command("outputs") if o["name"] == target)
+                            edge_x = current_output["x"] + max(0, current_output["width"] - cw["width"])
+                            edge_y = current_output["y"] + max(0, current_output["height"] - cw["height"])
+                            assert command(f"move {cid} {edge_x} {edge_y}")["ok"]
+                            assert command(f"focus {cid}")["ok"]
+                            activations = len(comparator_events("popup-activate"))
+                            comparator_key(25)  # p: open the toolkit's native popup.
+
+                            def comparator_popup():
+                                popups = command("popups")
+                                if len(popups) != 1: return None
+                                popup = popups[0]
+                                if (popup["width"], popup["height"]) != (200, 120): return None
+                                expected = tuple((popup[n] * scale + 60) // 120 for n in ("width", "height"))
+                                return popup if (popup["buffer_width"], popup["buffer_height"]) == expected else None
+
+                            popup = until(comparator_popup, f"{toolkit} native popup at {scale}/120")
+                            assert current_output["x"] <= popup["x"] <= current_output["x"] + current_output["width"] - popup["width"], popup
+                            assert current_output["y"] <= popup["y"] <= current_output["y"] + current_output["height"] - popup["height"], popup
+                            assert command(f"move {cid} {edge_x - 20} {edge_y - 20}")["ok"]
+                            moved = until(lambda: next((p for p in command("popups") if
+                                (p["x"], p["y"]) == (popup["x"] - 20, popup["y"] - 20)), None),
+                                f"{toolkit} popup follows its parent")
+                            px, py = moved["x"] + moved["width"] // 2, moved["y"] + moved["height"] // 2
+                            assert command(f"hit {px} {py}") == dict(id=cid, popup=True)
+                            assert command(f"pointer {px} {py}")["ok"]
+                            assert command("button 272")["ok"]
+                            until(lambda: len(comparator_events("popup-activate")) == activations + 1,
+                                  f"{toolkit} popup action")
+                            until(lambda: not command("popups"), f"{toolkit} popup cleanup")
+                            trial["popup"] = dict(initial=popup, moved=moved, action_activated=True)
                             results.append(trial)
                             assert command(f"move {cid} 10 10")["ok"]
                         until(lambda: len(comparator_events("click")) >= 5, f"{toolkit} logical clicks")
@@ -820,7 +853,8 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                         until(lambda: comparator.poll() is not None, f"{toolkit} close")
                         assert comparator.returncode == 0
                     except BaseException:
-                        diagnostic = dict(windows=command("windows"), exit_code=comparator.poll())
+                        diagnostic = dict(windows=command("windows"), popups=command("popups"),
+                                          outputs=command("outputs"), exit_code=comparator.poll())
                         for name in ("status", "wchan"):
                             try:
                                 diagnostic[name] = Path(f"/proc/{comparator.pid}/{name}").read_text()

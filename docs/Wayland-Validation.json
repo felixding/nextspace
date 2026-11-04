@@ -113,8 +113,8 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41903395108",
-    "latest_completed_result": "Package lifecycle passed; native fixture consumed a prior desktop broadcast. The corrected fixture is confirmed by native job126847207604.",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41907855298",
+    "latest_completed_result": "Both native and desktop package lifecycle jobs passed at44c12258.",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -139,7 +139,8 @@
       41885419730,
       41890301167,
       41895922471,
-      41903395108
+      41903395108,
+      41907855298
     ],
     "hosted_native_suite_passed": true,
     "latest_native_failure": "Prior desktop-broadcast fixture failure fixed; four Workspace run-loop modes now pass in hosted native job126847207604.",
@@ -234,7 +235,7 @@
       "supervisor_modes": 6,
       "physical_gpu_qualified": false
     },
-    "current_compiled_product_inputs_match_qualified_native": true,
+    "current_compiled_product_inputs_match_qualified_native": false,
     "latest_validation_fixtures_hosted_pending": true,
     "shell_desktop_completion_fixture": {
       "failed_run": 41903395108,
@@ -290,11 +291,14 @@
       "sha256": "8e9385fdb4c90765f120d52d16f9a97c23e52c8c8f72b12472dac6dedf6b2133",
       "payload_files_verified": 523,
       "extracted_portable_audit_passed": true,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false,
+      "hosted_confirmation_run": 41912596427,
+      "hosted_confirmation_job": 126863785386
     },
     "hosted_native_successful_runs": [
       41900653577,
-      41907855298
+      41907855298,
+      41912596427
     ],
     "latest_hosted_native_qualification": {
       "run": 41907855298,
@@ -350,6 +354,31 @@
       "payload_files_verified": 210,
       "extracted_portable_audit_passed": true,
       "product_sources_unchanged": true,
+      "hosted_confirmation_pending": true
+    },
+    "current_product_change_since_qualification": "Applications/Compositor/src/main.c: constrain xdg_popup.reposition with the existing initial-placement helper; installed Lima packages are unchanged.",
+    "native_comparator_popup_reposition": {
+      "root_cause": "Popup reposition requests bypass initial-placement output constraints",
+      "gtk_protocol_trace_captured": true,
+      "original_compositor_qt_failure_reproduced": true,
+      "shared_initial_and_reposition_constraint_helper": true,
+      "reposition_listener_removed_on_destroy": true,
+      "logical_popup_size": [
+        200,
+        120
+      ],
+      "popup_density_cases": 10,
+      "clipboard_transfers_retained": 20,
+      "edge_constraints": true,
+      "parent_movement": true,
+      "real_popup_activation_and_cleanup": true,
+      "original_deadlines_unchanged": true,
+      "archive": "arm64-popup-reposition-v1-evidence.tar.gz",
+      "bytes": 2255994,
+      "sha256": "1187113215b66bf3b024d71ce4e8e9c9455a74637d2acd2259bbd88e8be8daab",
+      "payload_files_verified": 367,
+      "extracted_portable_audit_passed": true,
+      "installed_packages_or_vm_updated": false,
       "hosted_confirmation_pending": true
     }
   },

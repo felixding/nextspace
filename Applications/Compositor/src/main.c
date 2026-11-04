@@ -292,6 +292,7 @@ struct nextspace_popup {
 	struct wl_list link;
 	struct wlr_xdg_popup *xdg_popup;
 	struct wl_listener commit;
+	struct wl_listener reposition;
 	struct wl_listener destroy;
 };
 
@@ -1584,37 +1585,39 @@ static void server_new_xdg_toplevel(struct wl_listener *listener, void *data) {
 	wl_signal_add(&xdg_toplevel->events.request_fullscreen, &toplevel->request_fullscreen);
 }
 
+static void xdg_popup_unconstrain(struct nextspace_popup *popup) {
+  struct wlr_xdg_surface *root = popup->xdg_popup->base;
+  while (root && root->role == WLR_XDG_SURFACE_ROLE_POPUP)
+    root = wlr_xdg_surface_try_from_wlr_surface(root->popup->parent);
+  if (!root || !root->data) return;
+  struct wlr_scene_tree *tree = root->data;
+  int root_x, root_y;
+  wlr_scene_node_coords(&tree->node, &root_x, &root_y);
+  struct wlr_box geometry;
+  wlr_xdg_surface_get_geometry(root, &geometry);
+  struct wlr_output *output = wlr_output_layout_output_at(popup->server->output_layout,
+    root_x + geometry.width / 2, root_y + geometry.height / 2);
+  if (!output) return;
+  struct wlr_box box;
+  wlr_output_layout_get_box(popup->server->output_layout, output, &box);
+  box.x -= root_x; box.y -= root_y;
+  wlr_xdg_popup_unconstrain_from_box(popup->xdg_popup, &box);
+}
+
 static void xdg_popup_commit(struct wl_listener *listener, void *data) {
-	/* Called when a new surface state is committed. */
-	struct nextspace_popup *popup = wl_container_of(listener, popup, commit);
+  struct nextspace_popup *popup = wl_container_of(listener, popup, commit);
   policy_update_popups(popup->server);
 
-	if (popup->xdg_popup->base->initial_commit) {
-		/* When an xdg_surface performs an initial commit, the compositor must
-		 * reply with a configure so the client can map the surface.
-		 * nextspace sends an empty configure. A more sophisticated compositor
-		 * might change an xdg_popup's geometry to ensure it's not positioned
-		 * off-screen, for example. */
-		struct wlr_xdg_surface *root = popup->xdg_popup->base;
-		while (root && root->role == WLR_XDG_SURFACE_ROLE_POPUP)
-			root = wlr_xdg_surface_try_from_wlr_surface(root->popup->parent);
-		if (root && root->data) {
-			struct wlr_scene_tree *tree = root->data;
-			int root_x, root_y;
-      wlr_scene_node_coords(&tree->node, &root_x, &root_y);
-			struct wlr_box geometry;
-			wlr_xdg_surface_get_geometry(root, &geometry);
-			struct wlr_output *output = wlr_output_layout_output_at(popup->server->output_layout,
-				root_x + geometry.width / 2, root_y + geometry.height / 2);
-			if (output) {
-				struct wlr_box box;
-				wlr_output_layout_get_box(popup->server->output_layout, output, &box);
-				box.x -= root_x; box.y -= root_y;
-				wlr_xdg_popup_unconstrain_from_box(popup->xdg_popup, &box);
-			}
-		}
-		wlr_xdg_surface_schedule_configure(popup->xdg_popup->base);
-	}
+  if (popup->xdg_popup->base->initial_commit) {
+    xdg_popup_unconstrain(popup);
+    wlr_xdg_surface_schedule_configure(popup->xdg_popup->base);
+  }
+}
+
+static void xdg_popup_reposition(struct wl_listener *listener, void *data) {
+  struct nextspace_popup *popup = wl_container_of(listener, popup, reposition);
+  /* wlroots schedules the new configure before emitting this request. */
+  xdg_popup_unconstrain(popup);
 }
 
 static void xdg_popup_destroy(struct wl_listener *listener, void *data) {
@@ -1622,6 +1625,7 @@ static void xdg_popup_destroy(struct wl_listener *listener, void *data) {
 	struct nextspace_popup *popup = wl_container_of(listener, popup, destroy);
 
 	wl_list_remove(&popup->commit.link);
+	wl_list_remove(&popup->reposition.link);
 	wl_list_remove(&popup->destroy.link);
 	wl_list_remove(&popup->link);
   if (popup->holder) wlr_scene_node_destroy(&popup->holder->node);
@@ -1655,6 +1659,9 @@ static void server_new_xdg_popup(struct wl_listener *listener, void *data) {
 
 	popup->commit.notify = xdg_popup_commit;
 	wl_signal_add(&xdg_popup->base->surface->events.commit, &popup->commit);
+
+  popup->reposition.notify = xdg_popup_reposition;
+  wl_signal_add(&xdg_popup->events.reposition, &popup->reposition);
 
 	popup->destroy.notify = xdg_popup_destroy;
 	wl_signal_add(&xdg_popup->events.destroy, &popup->destroy);

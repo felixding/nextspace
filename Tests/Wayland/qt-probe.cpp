@@ -5,10 +5,12 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QClipboard>
+#include <QPushButton>
 #include <cstdio>
 
 class Probe : public QWidget {
   unsigned copies = 0;
+  QWidget *popup = nullptr;
   void paintEvent(QPaintEvent *) override {
     QPainter painter(this);
     painter.fillRect(rect(), QColor(192, 192, 192));
@@ -21,6 +23,21 @@ class Probe : public QWidget {
     std::fflush(stdout);
   }
   void keyPressEvent(QKeyEvent *event) override {
+    if (event->key() == Qt::Key_P) {
+      if (!popup) {
+        popup = new QWidget(this, Qt::Popup | Qt::FramelessWindowHint | Qt::NoDropShadowWindowHint);
+        popup->setFixedSize(200, 120);
+        auto button = new QPushButton("Popup action", popup);
+        button->setGeometry(0, 0, 200, 120);
+        QObject::connect(button, &QPushButton::clicked, [this] {
+          std::puts("{\"event\":\"popup-activate\"}"); std::fflush(stdout);
+          popup->hide();
+        });
+      }
+      popup->move(mapToGlobal(QPoint(width() - 5, height() - 5)));
+      popup->show();
+      return;
+    }
     if (event->modifiers() & Qt::ControlModifier) {
       if (event->key() == Qt::Key_C) {
         QString line = QStringLiteral("QtProbe:%1:日本語\n").arg(++copies);

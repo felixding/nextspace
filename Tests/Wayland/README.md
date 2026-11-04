@@ -49,6 +49,12 @@ retain the original buffer-size and logical-pointer assertions. The probes use
 Ctrl-C/Ctrl-V, and the existing native probe publishes its text with `c`.
 The focused qualification rejects both the original Qt probe without clipboard
 support and a producer that acknowledges a new copy while reusing old text.
+The same GTK/Qt comparisons open a 200×120 native popup near the output edge,
+check its density and constraints, move its parent, then activate it through real
+pointer input. `p` opens the popup. GTK's `--popup-controls` allocates its menu
+button before presentation. An original-compositor control preserves the
+off-screen failure from a later positioner request; the fixed compositor passes
+all ten popup cases and keeps the clipboard checks unchanged.
 
 `source_links.py --artifacts ...` checks source snapshots and replay before a
 cold package build. It preserves all 57 cursor alias chains, rejects flattened
