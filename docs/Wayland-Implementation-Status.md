@@ -276,8 +276,20 @@ workflows and removal. All three containers exit successfully, preferences remai
 intact and no X server is installed. Its original upload reports case collisions
 between ZIP and zip captures. CI now wraps results in tar archives; Linux checks
 preserve both names, private modes/owners and literal links without changing the
-source permissions. Full hosted native-suite and archive-transport confirmation
-remain pending.
+source permissions. A second hosted ARM64 package job also passes. The latest
+native job fails at installed-session startup before Workspace reports ready;
+its complete tar archive uploads successfully. Its stderr does not
+identify the exit cause. The launcher passes a local check with its production
+Login helper, shell recovery and owned-process cleanup. The supervisor fixture
+now preserves complete stdout, exit status and failure state; a real failing-shell
+control verifies those diagnostics. Full hosted native-suite confirmation remains
+pending.
+
+A local full-stack continuation later times out while replacing Review's large
+TIFF buffer from 175% to 200%. A separate Review run passes all 124 workflow
+records with the original assertions and deadlines, including the same image
+formats and save/open panels. This does not establish the earlier timeout's cause;
+both results are retained and the remaining application checks continue.
 
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during

@@ -13,6 +13,7 @@ import hashlib
 import time
 from urllib.parse import unquote
 from integration import until
+from gnustep import capture_process_failure
 
 
 def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, compositor_loss=False, input_method_probe=None,
@@ -57,6 +58,8 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
                 env=env, pass_fds=[marker_fd], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log)
         os.close(marker_fd)
         os.set_blocking(session.stdout.fileno(), False)
+        transcript = artifacts / 'session.stdout.log'
+        transcript.write_bytes(b'')
         pending = b""
         events, environment = [], {}
         activated_pid = None
@@ -66,6 +69,8 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
             while select.select([session.stdout], [], [], 0)[0]:
                 chunk = os.read(session.stdout.fileno(), 65536)
                 if not chunk: break
+                with transcript.open('ab') as log:
+                    log.write(chunk)
                 pending += chunk
                 while b"\n" in pending:
                     line, pending = pending.split(b"\n", 1)
@@ -80,7 +85,7 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
         def wait(predicate, description):
             def check():
                 pump()
-                assert session.poll() is None, (artifacts / "session.log").read_text()[-6000:]
+                assert session.poll() is None, (session.returncode, (artifacts / "session.log").read_text()[-6000:])
                 return predicate()
             return until(check, description, timeout=15)
 
@@ -210,6 +215,13 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
                 assert rejected.returncode == 1 and b"private directory" in rejected.stderr
             (artifacts / "results.json").write_text(json.dumps(record, indent=2) + "\n")
             print("Session environment, shell recovery and owned process cleanup: PASS")
+        except BaseException:
+            pump()
+            capture_process_failure(session, artifacts, 'failure-session')
+            (artifacts / 'failure.json').write_text(json.dumps(dict(
+                returncode=session.poll(), environment=environment, events=events,
+                pending=pending.decode(errors='backslashreplace')), indent=2) + '\n')
+            raise
         finally:
             if session.poll() is None:
                 session.terminate()
