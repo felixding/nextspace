@@ -3,9 +3,12 @@
 #include <QWidget>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QKeyEvent>
+#include <QClipboard>
 #include <cstdio>
 
 class Probe : public QWidget {
+  unsigned copies = 0;
   void paintEvent(QPaintEvent *) override {
     QPainter painter(this);
     painter.fillRect(rect(), QColor(192, 192, 192));
@@ -16,6 +19,24 @@ class Probe : public QWidget {
   void mousePressEvent(QMouseEvent *event) override {
     std::printf("{\"event\":\"click\",\"x\":%.0f,\"y\":%.0f}\n", event->position().x(), event->position().y());
     std::fflush(stdout);
+  }
+  void keyPressEvent(QKeyEvent *event) override {
+    if (event->modifiers() & Qt::ControlModifier) {
+      if (event->key() == Qt::Key_C) {
+        QString line = QStringLiteral("QtProbe:%1:日本語\n").arg(++copies);
+        QApplication::clipboard()->setText(line.repeated(4096));
+        std::printf("{\"event\":\"clipboard-copy\",\"count\":%u}\n", copies);
+        std::fflush(stdout);
+        return;
+      }
+      if (event->key() == Qt::Key_V) {
+        QByteArray text = QApplication::clipboard()->text().toUtf8().toBase64();
+        std::printf("{\"event\":\"clipboard-paste\",\"base64\":\"%s\"}\n", text.constData());
+        std::fflush(stdout);
+        return;
+      }
+    }
+    QWidget::keyPressEvent(event);
   }
 };
 int main(int argc, char **argv) {

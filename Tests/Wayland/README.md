@@ -42,6 +42,14 @@ This prevents an old backend in the user's `Library/Bundles` from shadowing
 the configured package or private runtime. System and local library paths
 still come from that runtime's GNUstep configuration.
 
+The native integration run also exercises GTK and Qt clipboard shortcuts in both
+directions with AppKit at all five densities. Each producer writes a distinct
+UTF-8 payload for each density; every transfer exceeds 64KiB. Exact data checks
+retain the original buffer-size and logical-pointer assertions. The probes use
+Ctrl-C/Ctrl-V, and the existing native probe publishes its text with `c`.
+The focused qualification rejects both the original Qt probe without clipboard
+support and a producer that acknowledges a new copy while reusing old text.
+
 `source_links.py --artifacts ...` checks source snapshots and replay before a
 cold package build. It preserves all 57 cursor alias chains, rejects flattened
 or shortened links, and includes targets outside the initially selected folders.

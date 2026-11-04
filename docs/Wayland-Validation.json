@@ -319,6 +319,38 @@
       "installed_pinned_wlroots_confirmed": true,
       "physical_gpu_qualified": false,
       "full_plan_complete": false
+    },
+    "native_comparator_clipboard": {
+      "toolkits": [
+        "GtkProbe",
+        "QtProbe"
+      ],
+      "scales": [
+        120,
+        150,
+        180,
+        210,
+        240
+      ],
+      "directions": [
+        "comparator-to-AppKit",
+        "AppKit-to-comparator"
+      ],
+      "clipboard_transfers": 20,
+      "min_transfer_bytes": 81920,
+      "max_transfer_bytes": 120017,
+      "exact_utf8_bytes_verified": true,
+      "fresh_value_per_density": true,
+      "original_pointer_and_density_assertions_preserved": true,
+      "missing_support_rejected": true,
+      "stale_data_rejected": true,
+      "archive": "arm64-comparator-clipboard-v1-evidence.tar.gz",
+      "bytes": 1060481,
+      "sha256": "05983306e0f3da1da9c703d1ca54f22c8b1d8af0be747eac5d5298f9359190cf",
+      "payload_files_verified": 210,
+      "extracted_portable_audit_passed": true,
+      "product_sources_unchanged": true,
+      "hosted_confirmation_pending": true
     }
   },
   "evidence_locations": {

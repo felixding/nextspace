@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Exercise real native buffers, scale transitions, input and rollback."""
 import argparse
+import base64
 import json
 import os
 from pathlib import Path
@@ -751,6 +752,15 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                     with path.open("w") as log, (artifacts / f"{toolkit}-errors.log").open("w") as errors:
                         comparator = subprocess.Popen([executable], env=toolkit_env, stdout=log, stderr=errors)
                     try:
+                        def comparator_events(event):
+                            return [row for row in read_json_lines(path) if row["event"] == event]
+
+                        def comparator_key(code, control=False):
+                            keys = [(code, 1), (code, 0)]
+                            if control: keys = [(29, 1), *keys, (29, 0)]
+                            for key_code, pressed in keys:
+                                assert command(f"key {key_code} {pressed}")["ok"]
+
                         def comparator_window():
                             return next((w for w in command("windows") if w["title"] == toolkit), None)
                         cw = until(comparator_window, f"{toolkit} native window")
@@ -767,10 +777,44 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                             assert not cw["legacy"], cw
                             assert command(f"pointer {cw['x'] + 200} {cw['y'] + 300}")["ok"]
                             assert command("button 272")["ok"]
-                            results.append(dict(toolkit=toolkit, scale=scale, window=cw))
+                            trial = dict(toolkit=toolkit, scale=scale, window=cw)
+                            if registry_probe and pasteboard_probe:
+                                # A distinct offer per density prevents stale data from passing.
+                                copy_count = (120, 150, 180, 210, 240).index(scale) + 1
+                                text = (f"{toolkit}:{copy_count}:日本語\n" * 4096).encode()
+                                expected_file = artifacts / f"{toolkit}-clipboard-{scale}.txt"
+                                expected_file.write_bytes(text)
+                                previous_serial = command("selection-state")["serial"]
+                                assert command(f"focus {cid}")["ok"]
+                                comparator_key(46, control=True)
+                                until(lambda: any(row["count"] == copy_count for row in
+                                    comparator_events("clipboard-copy")), f"{toolkit} clipboard copy")
+                                until(lambda: command("selection-state")["serial"] != previous_serial,
+                                      f"{toolkit} fresh clipboard offer")
+                                assert command(f"focus {wid}")["ok"]
+                                until(lambda: subprocess.run([pasteboard_probe, "--text-file", str(expected_file)],
+                                    env=env, capture_output=True).returncode == 0,
+                                    f"{toolkit} clipboard imported into AppKit")
+
+                                previous_serial = command("selection-state")["serial"]
+                                copies = sum(e["event"] == "clipboard-copy" for e in events())
+                                comparator_key(46)
+                                until(lambda: sum(e["event"] == "clipboard-copy" for e in events()) > copies,
+                                      "native clipboard copy for comparator")
+                                until(lambda: command("selection-state")["serial"] != previous_serial and
+                                    "org.nextspace.test.binary" in command("selection"), "fresh AppKit clipboard offer")
+                                assert command(f"focus {cid}")["ok"]
+                                pastes = len(comparator_events("clipboard-paste"))
+                                comparator_key(47, control=True)
+                                until(lambda: len(comparator_events("clipboard-paste")) > pastes,
+                                      f"AppKit clipboard pasted in {toolkit}")
+                                pasted = base64.b64decode(comparator_events("clipboard-paste")[-1]["base64"], validate=True)
+                                assert pasted == (artifacts / "native-copy.txt").read_bytes(), f"{toolkit} changed clipboard bytes"
+                                trial["clipboard"] = dict(to_native_bytes=len(text), from_native_bytes=len(pasted))
+                            results.append(trial)
                             assert command(f"move {cid} 10 10")["ok"]
-                        until(lambda: len(read_json_lines(path)) >= 5, f"{toolkit} logical clicks")
-                        assert read_json_lines(path) == [
+                        until(lambda: len(comparator_events("click")) >= 5, f"{toolkit} logical clicks")
+                        assert comparator_events("click") == [
                             dict(event="click", x=200, y=300)] * 5
                         assert command(f"close {cid}")["ok"]
                         until(lambda: comparator.poll() is not None, f"{toolkit} close")

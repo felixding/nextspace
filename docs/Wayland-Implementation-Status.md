@@ -26,8 +26,20 @@ current product sources. A second full native job, `126847207604` in run
 fixtures. Its 201,163,987-byte ZIP has SHA-256
 `879230dd4a3cede3cb7911d97c35ca3316611a5f16583349a2c06a65e7ae1983`;
 8,371 files, 410 literal links and 1,280 JSON files verify. All four Workspace
-run-loop modes complete their eleven desktop requests. Only the later
-clipboard-failure reporting change still awaits hosted confirmation.
+run-loop modes complete their eleven desktop requests. Later clipboard-failure reporting and comparator-transfer checks still await
+hosted confirmation.
+
+The completion audit finds that native GTK/Qt comparisons cover density and
+pointer input but omit their clipboard transfers. The same probes and integration
+runner now check both directions with AppKit at every density: twenty exact
+UTF-8 transfers of 81,920–120,017 bytes. Each density uses a fresh producer value,
+and the original buffer and pointer assertions remain. Controls reject the old
+Qt probe without clipboard support and a modified producer that reuses stale
+text. The 1,060,481-byte capsule is
+`arm64-comparator-clipboard-v1-evidence.tar.gz`, SHA-256
+`05983306e0f3da1da9c703d1ca54f22c8b1d8af0be747eac5d5298f9359190cf`;
+all 210 payload files and an independent extracted audit verify. Hosted
+confirmation of these additional checks is pending.
 
 The frozen installed qualification is native105/native106 on Debian 13/aarch64.
 Cold build, network-disabled source replay, clean installation, live upgrade,

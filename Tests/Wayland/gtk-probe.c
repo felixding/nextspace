@@ -15,12 +15,45 @@ static bool initial_maximized, initial_fullscreen;
 static bool window_drag;
 static const char *window_title;
 static bool capture_pattern;
+static unsigned clipboard_copies;
 static void install_window_keys(GtkWidget *window);
+
+static void clipboard_text(GObject *object, GAsyncResult *result, gpointer data)
+{
+  GError *error = NULL;
+  char *text = gdk_clipboard_read_text_finish(GDK_CLIPBOARD(object), result, &error);
+  if (error) {
+    fprintf(stderr, "Clipboard read failed: %s\n", error->message);
+    g_error_free(error);
+    return;
+  }
+  char *encoded = g_base64_encode((const guchar *)(text ? text : ""), text ? strlen(text) : 0);
+  printf("{\"event\":\"clipboard-paste\",\"base64\":\"%s\"}\n", encoded);
+  fflush(stdout);
+  g_free(encoded); g_free(text);
+}
 
 static gboolean window_key(GtkEventControllerKey *controller, guint keyval,
     guint keycode, GdkModifierType state, gpointer data)
 {
   GtkWindow *window = data;
+  if (state & GDK_CONTROL_MASK) {
+    GdkClipboard *clipboard = gtk_widget_get_clipboard(GTK_WIDGET(window));
+    if (keyval == GDK_KEY_c) {
+      GString *text = g_string_new(NULL);
+      ++clipboard_copies;
+      for (unsigned i = 0; i < 4096; i++)
+        g_string_append_printf(text, "GtkProbe:%u:日本語\n", clipboard_copies);
+      gdk_clipboard_set_text(clipboard, text->str); g_string_free(text, TRUE);
+      printf("{\"event\":\"clipboard-copy\",\"count\":%u}\n", clipboard_copies);
+      fflush(stdout);
+      return TRUE;
+    }
+    if (keyval == GDK_KEY_v) {
+      gdk_clipboard_read_text_async(clipboard, NULL, clipboard_text, NULL);
+      return TRUE;
+    }
+  }
   switch (keyval) {
   case GDK_KEY_m: gtk_window_maximize(window); break;
   case GDK_KEY_u: gtk_window_unmaximize(window); break;
