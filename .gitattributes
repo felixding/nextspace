@@ -1,0 +1,4 @@
+# Preserve pinned upstream artwork, fonts and reference bytes on checkout.
+Applications/Artwork/NeXTSpirit/** -text
+Applications/Artwork/Fonts/** -text
+Tests/Wayland/artwork-originals/** -text

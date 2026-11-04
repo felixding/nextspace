@@ -1,0 +1,1 @@
+../../Packaging/Sources/copy-sources.sh

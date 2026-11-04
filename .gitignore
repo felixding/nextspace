@@ -23,3 +23,6 @@
 *.dir
 *~
 .build
+__pycache__/
+/Libraries/gnustep/back/Source/wayland/generated/
+.wayland-generated/

@@ -11,6 +11,77 @@ include $(GNUSTEP_MAKEFILES)/common.make
 VERSION = 0.1
 PACKAGE_NAME = GNUstepTests
 APP_NAME = GNUstepTests
+ifeq ($(WAYLAND_TESTS),yes)
+ADDITIONAL_OBJCFLAGS += -std=gnu11
+NEXTSPACE_FRAMEWORKS_DIR ?= ../../Frameworks
+ADDITIONAL_INCLUDE_DIRS += -I$(NEXTSPACE_FRAMEWORKS_DIR)
+TOOL_NAME = WaylandProbe PasteboardProbe WorkspaceProbe DragProbe NotificationCenterProbe PrintingProbe
+TOOL_NAME += NameServerLockProbe
+TOOL_NAME += EventQueueProbe
+EventQueueProbe_OBJC_FILES = EventQueueProbe.m
+EventQueueProbe_TOOL_LIBS = -lgnustep-gui
+NameServerLockProbe_OBJC_FILES = NameServerLockProbe.m
+ifeq ($(ARTWORK_TESTS),yes)
+TOOL_NAME += ArtworkProbe
+TOOL_NAME += ClockNotificationProbe
+ClockNotificationProbe_OBJC_FILES = ClockNotificationProbe.m
+ClockNotificationProbe_TOOL_LIBS = -lDesktopKit -lSystemKit -lgnustep-gui
+ArtworkProbe_OBJC_FILES = ArtworkProbe.m WSIconTileView.m
+ArtworkProbe_TOOL_LIBS = -lgnustep-gui
+endif
+ifeq ($(TERMINAL_ARTWORK_TESTS),yes)
+TOOL_NAME += TerminalArtworkProbe
+TerminalArtworkProbe_OBJC_FILES = ArtworkProbe.m TerminalIcon.m
+TerminalArtworkProbe_OBJCFLAGS = -DTERMINAL_ARTWORK
+TerminalArtworkProbe_TOOL_LIBS = -lgnustep-gui
+endif
+PrintingProbe_OBJC_FILES = PrintingProbe.m
+PrintingProbe_TOOL_LIBS = -lgnustep-gui
+NotificationCenterProbe_OBJC_FILES = NotificationCenterProbe.m
+ifeq ($(LOGIN_SESSION_TESTS),yes)
+TOOL_NAME += LoginSessionProbe
+LoginSessionProbe_OBJC_FILES = LoginSessionProbe.m GreetdClient.m
+TOOL_NAME += LoginWindowProbe
+LoginWindowProbe_OBJC_FILES = LoginWindowProbe.m LoginWindow.m
+LoginWindowProbe_TOOL_LIBS = -lgnustep-gui -lX11
+endif
+WaylandProbe_OBJC_FILES = WaylandProbe.m
+WaylandProbe_TOOL_LIBS = -lgnustep-gui
+DragProbe_OBJC_FILES = DragProbe.m
+DragProbe_TOOL_LIBS = -lgnustep-gui
+PasteboardProbe_OBJC_FILES = PasteboardProbe.m
+PasteboardProbe_TOOL_LIBS = -lgnustep-gui
+WorkspaceProbe_OBJC_FILES = WorkspaceProbe.m
+WorkspaceProbe_TOOL_LIBS = -lgnustep-gui
+ifeq ($(SYSTEMKIT_TESTS),yes)
+TOOL_NAME += DisplayModelProbe
+DisplayModelProbe_OBJC_FILES = DisplayModelProbe.m
+DisplayModelProbe_TOOL_LIBS = -lgnustep-gui -lSystemKit
+TOOL_NAME += GammaModelProbe
+GammaModelProbe_OBJC_FILES = GammaModelProbe.m
+GammaModelProbe_TOOL_LIBS = -lgnustep-gui -lSystemKit
+TOOL_NAME += PowerProbe
+PowerProbe_OBJC_FILES = PowerProbe.m
+PowerProbe_TOOL_LIBS = -lSystemKit -lgnustep-gui
+TOOL_NAME += AlertProbe
+AlertProbe_OBJC_FILES = AlertProbe.m
+AlertProbe_TOOL_LIBS = -lDesktopKit -lSystemKit -lgnustep-gui
+endif
+ifeq ($(WORKSPACE_SHELL_TESTS),yes)
+TOOL_NAME += ShellConnectionProbe
+TOOL_NAME += OutputResultProbe
+OutputResultProbe_OBJC_FILES = OutputResultProbe.m WSShellConnection.m
+TOOL_NAME += DockSettingsProbe
+DockSettingsProbe_OBJC_FILES = DockSettingsProbe.m WSDockSettings.m
+ShellConnectionProbe_OBJC_FILES = ShellConnectionProbe.m WSShellConnection.m
+ShellConnectionProbe_TOOL_LIBS = -lgnustep-gui
+NEXTSPACE_SHELL_CLIENT = ShellConnectionProbe
+NEXTSPACE_PROTOCOLS_DIR ?= ../../Protocols
+include $(NEXTSPACE_PROTOCOLS_DIR)/shell-client.make
+OutputResultProbe_C_FILES = $(ShellConnectionProbe_C_FILES)
+OutputResultProbe_TOOL_LIBS = $(ShellConnectionProbe_TOOL_LIBS)
+endif
+endif
 $(APP_NAME)_APPLICATION_ICON = GNUstep.tiff
 $(APP_NAME)_STANDARD_INSTALL = no
 
@@ -40,4 +111,7 @@ $(APP_NAME)_OBJC_FILES = \
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 include $(GNUSTEP_MAKEFILES)/application.make
+ifeq ($(WAYLAND_TESTS),yes)
+include $(GNUSTEP_MAKEFILES)/tool.make
+endif
 -include GNUmakefile.postamble
