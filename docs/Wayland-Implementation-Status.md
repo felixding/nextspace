@@ -172,6 +172,17 @@ The reusable `Tests/Wayland/compositor_profile.py` also passes a separate
 two-second headless CLI check. Its three small guest dependencies are retained
 as developer tools for future refinement.
 
+A bounded scheduling comparison retains 31 unpaced long bursts at 150% in
+a normal window. At nice 0, twelve of fifteen pass and three lose PTY bytes
+despite all 514 ingress keys being observed. At nice -5, fifteen of sixteen pass;
+the last case loses Return and retains 240 PTY bytes, while its independent reader
+also overruns. The planned final control does not run. Injection durations vary,
+so this does not establish the complete bottleneck or qualify a priority fix.
+Fourteen private runtime files match native106; priorities and canonical session
+state are restored. The independently replayed 1,239,802-byte capsule is
+`arm64-kernel-scheduling-v1-evidence.tar.gz`, SHA-256
+`974688e0409ba220e912f8ff6a2025a148e904d5e6e93559798a46453147d0c6`.
+
 The 200% native106 desktop was shown in the Mac mini's Lima window. At the
 user's request, that preview then ended cleanly for local MacBook delivery;
 its home files were saved before the temporary account was removed. A stopped
@@ -217,9 +228,15 @@ logind sleep notifications. Its device-suspend test fails because kernel
 its later GPU queue deadlock requires the restart described above. These VM
 limitations do not qualify device suspend/resume or block ARM implementation.
 
-The native ARM64 CI configuration now uses `ubuntu-24.04-arm` for both jobs and
-`linux/arm64` for Docker. Actionlint and YAML validation pass; a hosted GitHub
-run has not been performed. Native101/native102 cold build, network-disabled
+The native ARM64 CI uses `ubuntu-24.04-arm` for both jobs and `linux/arm64`
+for Docker. The first hosted native job reaches the PAM fixture, then fails
+because its root-owned temporary installation directory has mode 0700. Artifact
+collection also cannot traverse private fixture homes. The test runner now makes
+only the staged installation root traversable; collection takes ownership after
+the container exits. A Linux reproduction verifies execution and collection while
+preserving private home/file modes. Hosted confirmation remains pending. The four
+former X11 source/RPM workflows and their badges are removed.
+ Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
 upgraded directory artwork: after nine successful native canvases, the second
 Home-viewer query returns status 1 with empty output. The failed installation is

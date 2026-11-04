@@ -105,7 +105,13 @@
   "ci": {
     "configured_runner": "ubuntu-24.04-arm",
     "fresh_debian_dependency_resolution_passed": true,
-    "hosted_run_verified": false
+    "hosted_run_verified": false,
+    "hosted_run_observed": true,
+    "initial_native_job": "https://github.com/felixding/nextspace/actions/runs/41849763527/job/126642616560",
+    "initial_native_failure": "Private staging directory prevents disposable PAM user execution; artifact collection lacks access to fixture homes.",
+    "permission_fixes_reproduced_on_linux": true,
+    "hosted_fix_confirmation_pending": true,
+    "legacy_x11_workflows_removed": 4
   },
   "evidence_locations": {
     "compact_capsules": ".build/evidence/",
@@ -126,5 +132,18 @@
     "Intel/AMD hardware qualification"
   ],
   "physical_gpu_qualified": false,
-  "full_plan_complete": false
+  "full_plan_complete": false,
+  "keyboard_scheduling_comparison": {
+    "archive": ".build/wayland-validation/arm64-kernel-scheduling-v1-evidence.tar.gz",
+    "bytes": 1239802,
+    "sha256": "974688e0409ba220e912f8ff6a2025a148e904d5e6e93559798a46453147d0c6",
+    "independent_replay": true,
+    "long_bursts": 31,
+    "planned_sequence_completed": false,
+    "endpoint_stress_passed": false,
+    "private_runtime_files_matched": 14,
+    "priority_restored": true,
+    "canonical_cleanup_verified": true,
+    "product_patch_promoted": false
+  }
 }
