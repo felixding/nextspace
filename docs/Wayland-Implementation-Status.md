@@ -340,6 +340,17 @@ launcher fixture also retains client protocol messages for its handshake;
 its unchanged lifecycle checks pass locally. The hosted cause remains under
 investigation.
 
+One hosted package run stops during the secure IME fixture because its reader
+parses an unfinished JSON line. The completed log contains 119 valid records;
+splitting an actual Unicode escape reproduces the parser failure. The fixture
+now reuses the existing complete-line reader, which still rejects malformed
+newline-terminated records. All four regular and secure run-loop modes pass
+across five densities, followed by exact Terminal IME bytes at every density.
+The 273,806-byte capsule is `arm64-text-input-records-v1-evidence.tar.gz`, SHA-256
+`4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2`.
+Its 60 payload files verify. Six hosted ARM64 package jobs now complete the
+full lifecycle; fresh full native-suite confirmation remains pending.
+
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
 upgraded directory artwork: after nine successful native canvases, the second

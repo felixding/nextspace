@@ -113,8 +113,8 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41877259688",
-    "latest_completed_result": "desktop package lifecycle passed; native installed launcher lacked its production Login hook, fixed in 481a3efa",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41890301167",
+    "latest_completed_result": "desktop package lifecycle passed; native installed launcher exits before shell readiness; handshake diagnostics awaiting current run",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -134,7 +134,10 @@
     "hosted_package_successful_runs": [
       41863138262,
       41869320563,
-      41877259688
+      41877259688,
+      41881024015,
+      41885419730,
+      41890301167
     ],
     "hosted_native_suite_passed": false,
     "latest_native_failure": "Shell probe exits3 before readiness is observed; compositor broker EOF follows. Cause remains unestablished.",
@@ -157,6 +160,23 @@
       "failure_observation_maximum_ms": 50,
       "installed_launcher_client_protocol_trace_verified": true,
       "compositor_broker_receive_error_reporting": true
+    },
+    "text_input_complete_records": {
+      "failed_run": 41887399009,
+      "raw_artifact_sha256": "d50ef58496c440baa2f17eb20e8079022c0e47ec95d1a830989ed441a499db22",
+      "completed_log_records_valid": 119,
+      "partial_escape_failure_reproduced": true,
+      "shared_reader_reused": true,
+      "malformed_complete_records_still_rejected": true,
+      "regular_and_secure_runloop_modes": 4,
+      "scales": 5,
+      "terminal_exact_pty_cases": 5,
+      "local_full_ime_passed": true,
+      "archive": "arm64-text-input-records-v1-evidence.tar.gz",
+      "bytes": 273806,
+      "sha256": "4e56eaf6c1815ed3fc88f12748a64a3d45c6d86870cbf07f15cb857945a144c2",
+      "payload_files_verified": 60,
+      "hosted_confirmation_pending": true
     }
   },
   "evidence_locations": {

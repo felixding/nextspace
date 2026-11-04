@@ -11,7 +11,7 @@ import shutil
 import socket
 import subprocess
 import tempfile
-from integration import until
+from integration import read_json_lines, until
 
 
 def stop_process(process):
@@ -80,7 +80,7 @@ def run_native(executable, method, env, command, artifacts, secure=False, mode=0
             env=env, stdout=log, stderr=log)
     def events():
         assert process.poll() is None, f"Native probe exited {process.returncode}:\n" + log_path.read_text()[-4000:]
-        return [json.loads(line) for line in log_path.read_text().splitlines() if line.startswith('{"')]
+        return read_json_lines(log_path, '{"')
     def state(predicate):
         def check():
             states = [e for e in events() if e["event"] == "input-state"]
