@@ -20,6 +20,9 @@ ldd "$build/fixture/obj/WaylandProbe" >> "$build/native-runtime.txt"
 
 . "$repo/Packaging/Sources/native-desktop.sh"
 build_runtime_frameworks
+# Match the desktop package's font discovery before launching its applications.
+install -m644 "$repo/OS/Linux/etc/fonts/conf.d/25-nextspace-fonts.conf" /etc/fonts/conf.d/25-nextspace-fonts.conf
+fc-cache /Library/Fonts
 (cd "$build/fixture"; stage DisplayModelProbe-build make WAYLAND_TESTS=yes SYSTEMKIT_TESTS=yes \
   NEXTSPACE_FRAMEWORKS_DIR="$repo/Frameworks" \
   DisplayModelProbe.all.tool.variables GammaModelProbe.all.tool.variables PowerProbe.all.tool.variables AlertProbe.all.tool.variables)

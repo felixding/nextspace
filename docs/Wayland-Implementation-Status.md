@@ -291,6 +291,16 @@ records with the original assertions and deadlines, including the same image
 formats and save/open panels. This does not establish the earlier timeout's cause;
 both results are retained and the remaining application checks continue.
 
+The continuation completes 147 application records and 24 TextEdit printing
+cases, then finds that native CI omits the desktop package's Fontconfig file.
+Without it, AppKit and compositor titles select different fallback faces when
+the Font panel toggles antialiasing. The runner now installs that existing
+configuration after DesktopKit and refreshes its font cache. Fontconfig selects
+the bundled Helvetica; all three unchanged Font-panel checks retain Helvetica
+Bold at 12px. The 147 application records and 24 printing cases also pass under
+this package-matching configuration. Remaining Workspace and Terminal IME checks
+continue separately from hosted native-suite qualification.
+
 Native101/native102 cold build, network-disabled
 replay, clean installation and live upgrade pass. The same consumer stops during
 upgraded directory artwork: after nine successful native canvases, the second

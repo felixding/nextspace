@@ -113,8 +113,8 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
-    "latest_completed_result": "desktop package lifecycle passed; native font fixture failure subsequently fixed and confirmed",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41877259688",
+    "latest_completed_result": "desktop package lifecycle passed; native installed launcher lacked its production Login hook, fixed in 481a3efa",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -124,8 +124,30 @@
     "hosted_package_artifact_sha256": "6523296752bbc1ee3eb563a9b39cbdb8e4d2a08c0cbd8faee33438cbf90e663b",
     "hosted_artifact_case_collision_observed": true,
     "archive_transport_linux_fixture_passed": true,
-    "archive_transport_hosted_confirmation_pending": true,
-    "monochrome_decoration_local_fixture_passed": true
+    "archive_transport_hosted_confirmation_pending": false,
+    "monochrome_decoration_local_fixture_passed": true,
+    "archive_transport_hosted_run": "https://github.com/felixding/nextspace/actions/runs/41881024015",
+    "archive_transport_hosted_artifact_sha256": "c09e2bcc150a58f7ef7391911a2c95f3aa4ab1616b0c9bbd869890c6c24f98d9",
+    "archive_transport_zip_crc_verified": true,
+    "archive_transport_tar_files": 6507,
+    "archive_transport_tar_symlinks": 407,
+    "hosted_package_successful_runs": [
+      41863138262,
+      41869320563,
+      41877259688
+    ],
+    "hosted_native_suite_passed": false,
+    "latest_native_failure": "Installed launcher exits before shell readiness; original logs do not establish the cause.",
+    "installed_launcher_local_passed": true,
+    "supervisor_failure_capture_control_passed": true,
+    "native_font_configuration": {
+      "matches_desktop_package": true,
+      "bundled_helvetica_selected": true,
+      "antialias_font_preservation_cases": 3,
+      "application_records_passed": 147,
+      "textedit_printing_cases_passed": 24,
+      "full_native_suite_passed": false
+    }
   },
   "evidence_locations": {
     "compact_capsules": ".build/evidence/",
@@ -134,6 +156,8 @@
     "portable_vm": ".build/wayland-macbook/"
   },
   "remaining": [
+    "Complete hosted ARM64 native suite; investigate the installed-launcher startup exit",
+    "Intermittent large-TIFF Review density timeout; original deadlines pass in focused and full-application follow-ups but cause remains unestablished",
     "Physical display, input, modeset, hotplug and gamma validation",
     "Supported physical suspend/resume and VT cycles",
     "Physical frame timing and hardware-specific performance thresholds",
