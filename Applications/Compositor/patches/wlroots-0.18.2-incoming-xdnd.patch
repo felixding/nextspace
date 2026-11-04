@@ -1,0 +1,821 @@
+--- a/include/wlr/types/wlr_data_device.h
++++ b/include/wlr/types/wlr_data_device.h
+@@ -101,6 +101,8 @@
+ };
+ 
+ struct wlr_drag {
++	/* X11 sources keep their pointer focus while native offers change targets. */
++	bool keep_pointer_focus;
+ 	enum wlr_drag_grab_type grab_type;
+ 	struct wlr_seat_keyboard_grab keyboard_grab;
+ 	struct wlr_seat_pointer_grab pointer_grab;
+--- a/include/wlr/xwayland/xwayland.h
++++ b/include/wlr/xwayland/xwayland.h
+@@ -4,6 +4,7 @@
+  */
+ #ifndef WLR_USE_UNSTABLE
+ #error "Add -DWLR_USE_UNSTABLE to enable unstable wlroots features"
++
+ #endif
+ 
+ #ifndef WLR_XWAYLAND_XWAYLAND_H
+@@ -326,4 +327,14 @@
+ xcb_connection_t *wlr_xwayland_get_xwm_connection(
+ 	struct wlr_xwayland *wlr_xwayland);
+ 
++bool wlr_xwayland_surface_is_drag_icon(struct wlr_xwayland_surface *surface);
++
++/**
++ * Forward layout-space pointer motion to an active X11 drag source after
++ * normal seat motion dispatch. The X client owns its XDND pointer grab even
++ * while a native Wayland surface receives the drag offer.
++ */
++void wlr_xwayland_drag_motion(struct wlr_xwayland *xwayland,
++    uint32_t time_msec, double lx, double ly);
++
+ #endif
+--- a/include/xwayland/selection.h
++++ b/include/xwayland/selection.h
+@@ -4,6 +4,7 @@
+ #include <stdbool.h>
+ #include <xcb/xfixes.h>
+ #include <wayland-util.h>
++#include <wayland-server-protocol.h>
+ 
+ #define INCR_CHUNK_SIZE (64 * 1024)
+ 
+@@ -92,4 +93,20 @@
+ 	struct wlr_xwm *xwm, xcb_atom_t atom);
+ void xwm_selection_finish(struct wlr_xwm_selection *selection);
+ 
++xcb_atom_t xwm_dnd_action_to_atom(struct wlr_xwm *xwm,
++    enum wl_data_device_manager_dnd_action action);
++enum wl_data_device_manager_dnd_action xwm_dnd_action_from_atom(
++    struct wlr_xwm *xwm, xcb_atom_t atom);
++void xwm_dnd_send_event_to(struct wlr_xwm *xwm, xcb_window_t dest,
++    xcb_atom_t type, xcb_client_message_data_t *data);
++void xwm_selection_send_incoming(struct wlr_xwm_selection *selection,
++    struct wl_array *mime_types, struct wl_array *mime_types_atoms,
++    const char *requested_mime_type, int fd);
++bool xwm_selection_source_get_targets(struct wlr_xwm_selection *selection,
++    struct wl_array *mime_types, struct wl_array *mime_types_atoms);
++void xwm_dnd_start_incoming(struct wlr_xwm *xwm);
++void xwm_dnd_cancel_incoming(struct wlr_xwm *xwm);
++int xwm_dnd_handle_incoming_message(struct wlr_xwm *xwm,
++    xcb_client_message_event_t *event);
++
+ #endif
+--- a/include/xwayland/xwm.h
++++ b/include/xwayland/xwm.h
+@@ -87,6 +87,7 @@
+ 	DND_ACTION_COPY,
+ 	DND_ACTION_ASK,
+ 	DND_ACTION_PRIVATE,
++	DND_ACTION_LIST,
+ 	NET_CLIENT_LIST,
+ 	NET_CLIENT_LIST_STACKING,
+ 	NET_WORKAREA,
+@@ -121,6 +122,7 @@
+ 	struct wl_list unpaired_surfaces; // wlr_xwayland_surface.unpaired_link
+ 	struct wl_list pending_startup_ids; // pending_startup_id
+ 
++	struct x11_drag *incoming_drag;
+ 	struct wlr_drag *drag;
+ 	struct wlr_xwayland_surface *drag_focus;
+ 	struct wlr_xwayland_surface *drop_focus;
+--- a/types/data_device/wlr_drag.c
++++ b/types/data_device/wlr_drag.c
+@@ -513,7 +513,9 @@
+ 		uint32_t serial) {
+ 	drag->grab_type = WLR_DRAG_GRAB_KEYBOARD_POINTER;
+ 
+-	wlr_seat_pointer_clear_focus(seat);
++	if (!drag->keep_pointer_focus) {
++		wlr_seat_pointer_clear_focus(seat);
++	}
+ 	wlr_seat_pointer_start_grab(seat, &drag->pointer_grab);
+ 
+ 	wlr_seat_start_drag(seat, drag, serial);
+--- a/xwayland/meson.build
++++ b/xwayland/meson.build
+@@ -83,6 +83,7 @@
+ wlr_files += files(
+ 	'selection/dnd.c',
+ 	'selection/incoming.c',
++	'selection/incoming-dnd.c',
+ 	'selection/outgoing.c',
+ 	'selection/selection.c',
+ 	'server.c',
+--- a/xwayland/selection/dnd.c
++++ b/xwayland/selection/dnd.c
+@@ -9,7 +9,7 @@
+ #include "xwayland/xwm.h"
+ #include "xwayland/selection.h"
+ 
+-static xcb_atom_t data_device_manager_dnd_action_to_atom(
++xcb_atom_t xwm_dnd_action_to_atom(
+ 		struct wlr_xwm *xwm, enum wl_data_device_manager_dnd_action action) {
+ 	if (action & WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY) {
+ 		return xwm->atoms[DND_ACTION_COPY];
+@@ -21,9 +21,9 @@
+ 	return XCB_ATOM_NONE;
+ }
+ 
+-static enum wl_data_device_manager_dnd_action
+-		data_device_manager_dnd_action_from_atom(struct wlr_xwm *xwm,
+-		enum atom_name atom) {
++enum wl_data_device_manager_dnd_action
++		xwm_dnd_action_from_atom(struct wlr_xwm *xwm,
++		xcb_atom_t atom) {
+ 	if (atom == xwm->atoms[DND_ACTION_COPY] ||
+ 			atom == xwm->atoms[DND_ACTION_PRIVATE]) {
+ 		return WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
+@@ -35,29 +35,33 @@
+ 	return WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE;
+ }
+ 
+-static void xwm_dnd_send_event(struct wlr_xwm *xwm, xcb_atom_t type,
+-		xcb_client_message_data_t *data) {
+-	struct wlr_xwayland_surface *dest = xwm->drag_focus;
+-	assert(dest != NULL);
++void xwm_dnd_send_event_to(struct wlr_xwm *xwm, xcb_window_t dest,
++		xcb_atom_t type, xcb_client_message_data_t *data) {
+ 
+ 	xcb_client_message_event_t event = {
+ 		.response_type = XCB_CLIENT_MESSAGE,
+ 		.format = 32,
+ 		.sequence = 0,
+-		.window = dest->window_id,
++		.window = dest,
+ 		.type = type,
+ 		.data = *data,
+ 	};
+ 
+ 	xwm_send_event_with_size(xwm->xcb_conn,
+ 		0, // propagate
+-		dest->window_id,
++		dest,
+ 		XCB_EVENT_MASK_NO_EVENT,
+ 		&event,
+ 		sizeof(event));
+ 	xcb_flush(xwm->xcb_conn);
+ }
+ 
++static void xwm_dnd_send_event(struct wlr_xwm *xwm, xcb_atom_t type,
++		xcb_client_message_data_t *data) {
++	assert(xwm->drag_focus != NULL);
++	xwm_dnd_send_event_to(xwm, xwm->drag_focus->window_id, type, data);
++}
++
+ static void xwm_dnd_send_enter(struct wlr_xwm *xwm) {
+ 	struct wlr_drag *drag = xwm->drag;
+ 	assert(drag != NULL);
+@@ -114,7 +118,7 @@
+ 	data.data32[2] = ((uint32_t)(uint16_t)x << 16) | (uint16_t)y;
+ 	data.data32[3] = time;
+ 	data.data32[4] =
+-		data_device_manager_dnd_action_to_atom(xwm, drag->source->actions);
++		xwm_dnd_action_to_atom(xwm, drag->source->actions);
+ 
+ 	xwm_dnd_send_event(xwm, xwm->atoms[DND_POSITION], &data);
+ }
+@@ -155,7 +159,7 @@
+ 	data.data32[1] = drag->source->accepted;
+ 
+ 	if (drag->source->accepted) {
+-		data.data32[2] = data_device_manager_dnd_action_to_atom(xwm,
++		data.data32[2] = xwm_dnd_action_to_atom(xwm,
+ 			drag->source->current_dnd_action);
+ 	}
+ 
+@@ -164,6 +168,9 @@
+ 
+ int xwm_handle_selection_client_message(struct wlr_xwm *xwm,
+ 		xcb_client_message_event_t *ev) {
++	if (xwm_dnd_handle_incoming_message(xwm, ev)) {
++		return 1;
++	}
+ 	if (ev->type == xwm->atoms[DND_STATUS]) {
+ 		if (xwm->drag == NULL) {
+ 			wlr_log(WLR_DEBUG, "ignoring XdndStatus client message because "
+@@ -184,7 +191,7 @@
+ 		}
+ 
+ 		enum wl_data_device_manager_dnd_action action =
+-			data_device_manager_dnd_action_from_atom(xwm, action_atom);
++			xwm_dnd_action_from_atom(xwm, action_atom);
+ 
+ 		struct wlr_drag *drag = xwm->drag;
+ 		assert(drag != NULL);
+@@ -220,7 +227,7 @@
+ 		}
+ 
+ 		enum wl_data_device_manager_dnd_action action =
+-			data_device_manager_dnd_action_from_atom(xwm, action_atom);
++			xwm_dnd_action_from_atom(xwm, action_atom);
+ 
+ 		/* Consume completion once, and report the receiver's final operation.
+ 		 * Failed drops must cancel the source rather than leave it waiting. */
+--- a/xwayland/selection/incoming-dnd.c
++++ b/xwayland/selection/incoming-dnd.c
+@@ -0,0 +1,477 @@
++// SPDX-License-Identifier: MIT
++#include <assert.h>
++#include <stdlib.h>
++#include "util/time.h"
++#include <wlr/types/wlr_compositor.h>
++#include <wlr/types/wlr_data_device.h>
++#include <wlr/types/wlr_seat.h>
++#include <wlr/util/log.h>
++#include "types/wlr_data_device.h"
++#include "xwayland/selection.h"
++#include "xwayland/xwm.h"
++
++/* Keep one XDND selection bridge. Native offers use the existing wlroots drag
++ * and selection transfer machinery; the X source retains its pointer grab. */
++struct x11_drag {
++	struct wlr_data_source source;
++	struct wl_array atoms;
++	struct wlr_xwm *xwm;
++	struct wlr_drag *drag;
++	struct wlr_xwayland_surface *origin;
++	xcb_window_t owner, legacy_target;
++	const struct wlr_pointer_grab_interface *pointer;
++	struct wlr_pointer_grab_interface pointer_wrapper;
++	struct wlr_keyboard_grab_interface keyboard_wrapper;
++	struct wl_listener drag_destroy, origin_destroy, pending_destroy, legacy_destroy;
++	struct wlr_surface *pending_surface;
++	double pending_sx, pending_sy;
++	struct wl_event_source *timeout;
++	bool proxy_mapped, entered, released, dropped, finished, actions_known, source_destroyed;
++	uint32_t release_time;
++};
++
++static struct x11_drag *from_source(struct wlr_data_source *source) {
++	struct x11_drag *incoming = wl_container_of(source, incoming, source);
++	return incoming;
++}
++
++static void send_message_from(struct x11_drag *incoming, xcb_window_t target,
++		xcb_atom_t type, uint32_t flags, xcb_atom_t action) {
++	struct wlr_xwm *xwm = incoming->xwm;
++	xcb_client_message_data_t data = {0};
++	data.data32[0] = target;
++	data.data32[1] = flags;
++	data.data32[type == xwm->atoms[DND_STATUS] ? 4 : 2] = action;
++	xwm_dnd_send_event_to(xwm, incoming->owner, type, &data);
++}
++
++static void send_message(struct x11_drag *incoming, xcb_atom_t type,
++		uint32_t flags, xcb_atom_t action) {
++	send_message_from(incoming, incoming->xwm->dnd_selection.window, type, flags, action);
++}
++
++static void send_status(struct x11_drag *incoming) {
++	if (!incoming->entered || incoming->dropped) {
++		return;
++	}
++	struct wlr_data_source *source = &incoming->source;
++	bool accepted = incoming->drag && incoming->drag->focus &&
++		source->accepted && source->current_dnd_action;
++	/* Ask for every position: native widgets can accept different operations. */
++	send_message(incoming, incoming->xwm->atoms[DND_STATUS], 2 | accepted,
++		accepted ? xwm_dnd_action_to_atom(incoming->xwm, source->current_dnd_action) : XCB_ATOM_NONE);
++}
++
++static void sync_xwm(struct wlr_xwm *xwm) {
++	xcb_get_input_focus_reply_t *reply = xcb_get_input_focus_reply(xwm->xcb_conn,
++		xcb_get_input_focus(xwm->xcb_conn), NULL);
++	free(reply);
++}
++
++static void set_proxy(struct x11_drag *incoming, bool mapped) {
++	if (incoming->proxy_mapped == mapped) {
++		return;
++	}
++	wlr_log(WLR_DEBUG, "Incoming XDND proxy mapped=%d", mapped);
++	incoming->proxy_mapped = mapped;
++	struct wlr_xwm *xwm = incoming->xwm;
++	if (mapped) {
++		xcb_map_window(xwm->xcb_conn, xwm->dnd_selection.window);
++		xcb_configure_window(xwm->xcb_conn, xwm->dnd_selection.window,
++			XCB_CONFIG_WINDOW_STACK_MODE, (uint32_t[]){XCB_STACK_MODE_ABOVE});
++	} else {
++		xcb_unmap_window(xwm->xcb_conn, xwm->dnd_selection.window);
++		/* The source may coalesce leave/reentry before dispatching its next
++		 * motion. Its XDND enter state ends only on an actual XdndLeave. */
++	}
++	/* The next motion travels over Wayland, a different connection. Complete
++	 * the X map/unmap first so the source sees MapNotify before that motion. */
++	sync_xwm(xwm);
++}
++
++static void source_send(struct wlr_data_source *source, const char *mime, int fd) {
++	struct x11_drag *incoming = from_source(source);
++	xwm_selection_send_incoming(&incoming->xwm->dnd_selection,
++		&source->mime_types, &incoming->atoms, mime, fd);
++}
++
++static void source_accept(struct wlr_data_source *source, uint32_t serial,
++		const char *mime) {
++	send_status(from_source(source));
++}
++
++static void source_action(struct wlr_data_source *source,
++		enum wl_data_device_manager_dnd_action action) {
++	send_status(from_source(source));
++}
++
++static void destroy_incoming(struct x11_drag *incoming) {
++	set_proxy(incoming, false);
++	wl_list_remove(&incoming->origin_destroy.link);
++	wl_list_remove(&incoming->legacy_destroy.link);
++	wl_list_remove(&incoming->pending_destroy.link);
++	wl_event_source_remove(incoming->timeout);
++	incoming->xwm->incoming_drag = NULL;
++	struct wlr_xwm_selection_transfer *transfer, *tmp;
++	wl_list_for_each_safe(transfer, tmp, &incoming->xwm->dnd_selection.incoming, link) {
++		xwm_selection_transfer_destroy(transfer);
++	}
++	wl_array_release(&incoming->atoms);
++	free(incoming);
++}
++
++static void cancel_incoming(struct x11_drag *incoming) {
++	if (incoming->source_destroyed) destroy_incoming(incoming);
++	else wlr_data_source_destroy(&incoming->source);
++}
++
++static void source_destroy(struct wlr_data_source *source) {
++	struct x11_drag *incoming = from_source(source);
++	incoming->source_destroyed = true;
++	wlr_log(WLR_DEBUG, "Incoming XDND destroyed: released=%d dropped=%d finished=%d",
++		incoming->released, incoming->dropped, incoming->finished);
++	if (incoming->legacy_target && incoming->released && !incoming->finished) {
++		send_message_from(incoming, incoming->legacy_target, incoming->xwm->atoms[DND_STATUS], 2, XCB_ATOM_NONE);
++		send_message_from(incoming, incoming->legacy_target, incoming->xwm->atoms[DND_FINISHED], 0, XCB_ATOM_NONE);
++	}
++	if (incoming->dropped && !incoming->finished) {
++		/* Also clear the negotiated operation: GTK's X11 source reports its
++		 * last action even when XdndFinished carries failure. */
++		send_message(incoming, incoming->xwm->atoms[DND_STATUS], 2, XCB_ATOM_NONE);
++		send_message(incoming, incoming->xwm->atoms[DND_FINISHED], 0, XCB_ATOM_NONE);
++	}
++	if (!incoming->released && incoming->origin->surface &&
++			incoming->xwm->seat->pointer_state.focused_surface == incoming->origin->surface) {
++		/* End the legacy gesture with a rejected release. Some X toolkits do
++		 * not handle Escape, and a Wayland leave alone preserves their X grab.
++		 * Keep the physical seat button state until the real release arrives. */
++		send_message_from(incoming, incoming->legacy_target ? incoming->legacy_target :
++			incoming->xwm->dnd_selection.window, incoming->xwm->atoms[DND_STATUS], 2, XCB_ATOM_NONE);
++		sync_xwm(incoming->xwm);
++		wlr_seat_pointer_send_button(incoming->xwm->seat, get_current_time_msec(),
++			incoming->xwm->seat->pointer_state.grab_button, WL_POINTER_BUTTON_STATE_RELEASED);
++		wlr_seat_pointer_send_frame(incoming->xwm->seat);
++		wlr_seat_pointer_clear_focus(incoming->xwm->seat);
++	}
++	if (incoming->released && incoming->entered && !incoming->dropped &&
++			!incoming->finished && !incoming->legacy_target) {
++		/* The receiver may disappear before XdndDrop crosses the other
++		 * connection. Keep only the reply state until that message arrives;
++		 * XdndFinished sent before it can be ignored by the source. */
++		set_proxy(incoming, false);
++		wl_event_source_timer_update(incoming->timeout, 5000);
++		return;
++	}
++	destroy_incoming(incoming);
++}
++
++static void source_finish(struct wlr_data_source *source) {
++	struct x11_drag *incoming = from_source(source);
++	if (!incoming->dropped) {
++		wl_event_source_timer_update(incoming->timeout, 1);
++		return;
++	}
++	incoming->finished = true;
++	send_message(incoming, incoming->xwm->atoms[DND_FINISHED], 1,
++		xwm_dnd_action_to_atom(incoming->xwm, source->current_dnd_action));
++	/* Finish callers still own their offer until this callback returns. */
++	wl_event_source_timer_update(incoming->timeout, 1);
++}
++
++static const struct wlr_data_source_impl source_impl = {
++	.send = source_send,
++	.accept = source_accept,
++	.destroy = source_destroy,
++	.dnd_finish = source_finish,
++	.dnd_action = source_action,
++};
++
++static int timeout(void *data) {
++	struct x11_drag *incoming = data;
++	incoming->entered = false;
++	cancel_incoming(incoming);
++	return 0;
++}
++
++static struct x11_drag *from_grab(struct wlr_seat_pointer_grab *grab) {
++	struct wlr_drag *drag = grab->data;
++	return from_source(drag->source);
++}
++
++static void clear_pending(struct x11_drag *incoming) {
++	wl_list_remove(&incoming->pending_destroy.link);
++	wl_list_init(&incoming->pending_destroy.link);
++	incoming->pending_surface = NULL;
++}
++
++static void pointer_clear_focus(struct wlr_seat_pointer_grab *grab) {
++	struct x11_drag *incoming = from_grab(grab);
++	if (incoming->released) return;
++	clear_pending(incoming);
++	incoming->legacy_target = XCB_WINDOW_NONE;
++	wl_list_remove(&incoming->legacy_destroy.link);
++	wl_list_init(&incoming->legacy_destroy.link);
++	incoming->pointer->clear_focus(grab);
++	set_proxy(incoming, false);
++}
++
++static void pending_destroy(struct wl_listener *listener, void *data) {
++	struct x11_drag *incoming = wl_container_of(listener, incoming, pending_destroy);
++	/* A drop freezes its destination, but never keeps a dead surface. */
++	clear_pending(incoming);
++	incoming->pointer->clear_focus(&incoming->drag->pointer_grab);
++	if (!incoming->released) set_proxy(incoming, false);
++}
++
++static void legacy_destroy(struct wl_listener *listener, void *data) {
++	struct x11_drag *incoming = wl_container_of(listener, incoming, legacy_destroy);
++	wlr_data_source_destroy(&incoming->source);
++}
++
++static void pointer_enter(struct wlr_seat_pointer_grab *grab,
++		struct wlr_surface *surface, double sx, double sy) {
++	struct x11_drag *incoming = from_grab(grab);
++	if (incoming->released) return;
++	struct wlr_xwayland_surface *legacy = wlr_xwayland_surface_try_from_wlr_surface(surface);
++	if (legacy) {
++		pointer_clear_focus(grab);
++		incoming->legacy_target = legacy->window_id;
++		wl_signal_add(&legacy->events.destroy, &incoming->legacy_destroy);
++		return;
++	}
++	if (surface != incoming->pending_surface) {
++		wl_list_remove(&incoming->pending_destroy.link);
++		incoming->pending_surface = surface;
++		wl_signal_add(&surface->events.destroy, &incoming->pending_destroy);
++	}
++	incoming->pending_sx = sx; incoming->pending_sy = sy;
++	if (incoming->actions_known) {
++		incoming->pointer->enter(grab, surface, sx, sy);
++	}
++	set_proxy(incoming, true);
++}
++
++static uint32_t pointer_button(struct wlr_seat_pointer_grab *grab,
++		uint32_t time, uint32_t button, uint32_t state) {
++	struct x11_drag *incoming = from_grab(grab);
++	if (button == grab->seat->pointer_state.grab_button &&
++			state == WL_POINTER_BUTTON_STATE_RELEASED) {
++		incoming->released = true;
++		incoming->release_time = time;
++		wl_event_source_timer_update(incoming->timeout, incoming->legacy_target ? 10000 : 5000);
++	}
++	/* XdndDrop, rather than this physical release, commits a native drop. */
++	uint32_t serial = wlr_seat_pointer_send_button(grab->seat, time, button, state);
++	wlr_seat_pointer_send_frame(grab->seat);
++	return serial;
++}
++
++static void keyboard_key(struct wlr_seat_keyboard_grab *grab,
++		uint32_t time, uint32_t key, uint32_t state) {
++	wlr_seat_keyboard_send_key(grab->seat, time, key, state);
++}
++
++static void keyboard_modifiers(struct wlr_seat_keyboard_grab *grab,
++		const struct wlr_keyboard_modifiers *modifiers) {
++	wlr_seat_keyboard_send_modifiers(grab->seat, modifiers);
++}
++
++static void drag_destroy(struct wl_listener *listener, void *data) {
++	struct x11_drag *incoming = wl_container_of(listener, incoming, drag_destroy);
++	wl_list_remove(&incoming->drag_destroy.link);
++	incoming->drag = NULL;
++	clear_pending(incoming);
++	set_proxy(incoming, false);
++}
++
++static void origin_destroy(struct wl_listener *listener, void *data) {
++	struct x11_drag *incoming = wl_container_of(listener, incoming, origin_destroy);
++	incoming->released = true;
++	incoming->entered = false;
++	cancel_incoming(incoming);
++}
++
++void xwm_dnd_cancel_incoming(struct wlr_xwm *xwm) {
++	if (xwm->incoming_drag) {
++		/* X-to-X completion stays on X11; selection release acknowledges it. */
++		if (xwm->incoming_drag->legacy_target) xwm->incoming_drag->finished = true;
++		xwm->incoming_drag->released = true;
++		/* Selection loss ends any pending reply as well as the live source. */
++		xwm->incoming_drag->entered = false;
++		cancel_incoming(xwm->incoming_drag);
++	}
++}
++
++static void read_actions(struct x11_drag *incoming, uint32_t suggested) {
++	struct wlr_xwm *xwm = incoming->xwm;
++	incoming->source.actions = 0;
++	xcb_get_property_reply_t *reply = xcb_get_property_reply(xwm->xcb_conn,
++		xcb_get_property(xwm->xcb_conn, 0, incoming->owner,
++			xwm->atoms[DND_ACTION_LIST], XCB_ATOM_ATOM, 0, 64), NULL);
++	if (reply && reply->format == 32 && reply->type == XCB_ATOM_ATOM) {
++		xcb_atom_t *atoms = xcb_get_property_value(reply);
++		for (size_t i = 0; i < reply->value_len; i++) {
++			incoming->source.actions |= xwm_dnd_action_from_atom(xwm, atoms[i]);
++		}
++	}
++	free(reply);
++	if (!incoming->source.actions) {
++		incoming->source.actions = suggested ? suggested : WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
++	}
++	incoming->actions_known = true;
++}
++
++void xwm_dnd_start_incoming(struct wlr_xwm *xwm) {
++	struct wlr_seat *seat = xwm->seat;
++	struct wlr_surface *surface = seat->pointer_state.focused_surface;
++	struct wlr_xwayland_surface *origin = surface ?
++		wlr_xwayland_surface_try_from_wlr_surface(surface) : NULL;
++	if (!origin || seat->drag || xwm->incoming_drag ||
++			seat->pointer_state.button_count != 1 ||
++			xwm->dnd_selection.owner == XCB_WINDOW_NONE ||
++			xwm->dnd_selection.owner == xwm->dnd_selection.window) {
++		return;
++	}
++	struct x11_drag *incoming = calloc(1, sizeof(*incoming));
++	if (!incoming) {
++		return;
++	}
++	incoming->xwm = xwm;
++	incoming->owner = xwm->dnd_selection.owner;
++	incoming->origin = origin;
++	wlr_data_source_init(&incoming->source, &source_impl);
++	wl_array_init(&incoming->atoms);
++	wl_list_init(&incoming->origin_destroy.link);
++	wl_list_init(&incoming->legacy_destroy.link);
++	incoming->legacy_destroy.notify = legacy_destroy;
++	wl_list_init(&incoming->pending_destroy.link);
++	incoming->pending_destroy.notify = pending_destroy;
++	incoming->timeout = wl_event_loop_add_timer(
++		wl_display_get_event_loop(seat->display), timeout, incoming);
++	if (!incoming->timeout || !xwm_selection_source_get_targets(&xwm->dnd_selection,
++			&incoming->source.mime_types, &incoming->atoms) || !incoming->atoms.size) {
++		if (incoming->timeout) {
++			wlr_data_source_destroy(&incoming->source);
++		} else {
++			free(incoming);
++		}
++		return;
++	}
++	incoming->source.actions = WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
++	incoming->drag = wlr_drag_create(wlr_seat_client_for_wl_client(seat,
++		wl_resource_get_client(surface->resource)), &incoming->source, NULL);
++	if (!incoming->drag) {
++		wlr_data_source_destroy(&incoming->source);
++		return;
++	}
++	incoming->drag->keep_pointer_focus = true;
++	incoming->pointer = incoming->drag->pointer_grab.interface;
++	incoming->pointer_wrapper = *incoming->pointer;
++	incoming->pointer_wrapper.enter = pointer_enter;
++	incoming->pointer_wrapper.clear_focus = pointer_clear_focus;
++	incoming->pointer_wrapper.button = pointer_button;
++	incoming->drag->pointer_grab.interface = &incoming->pointer_wrapper;
++	incoming->keyboard_wrapper = *incoming->drag->keyboard_grab.interface;
++	incoming->keyboard_wrapper.key = keyboard_key;
++	incoming->keyboard_wrapper.modifiers = keyboard_modifiers;
++	incoming->drag->keyboard_grab.interface = &incoming->keyboard_wrapper;
++	incoming->drag_destroy.notify = drag_destroy;
++	wl_signal_add(&incoming->drag->events.destroy, &incoming->drag_destroy);
++	incoming->origin_destroy.notify = origin_destroy;
++	wl_signal_add(&origin->events.destroy, &incoming->origin_destroy);
++	xwm->incoming_drag = incoming;
++	double sx = seat->pointer_state.sx, sy = seat->pointer_state.sy;
++	wlr_seat_request_start_drag(seat, incoming->drag, surface, seat->pointer_state.grab_serial);
++	/* A compositor rejection destroys the source synchronously. */
++	if (xwm->incoming_drag == incoming) {
++		wlr_seat_pointer_enter(seat, surface, sx, sy);
++	}
++}
++
++void wlr_xwayland_drag_motion(struct wlr_xwayland *xwayland,
++		uint32_t time, double lx, double ly) {
++	struct wlr_xwm *xwm = xwayland->xwm;
++	struct x11_drag *incoming = xwm ? xwm->incoming_drag : NULL;
++	if (!incoming || !incoming->drag || incoming->released) {
++		return;
++	}
++	wlr_seat_pointer_send_motion(xwm->seat, time,
++		lx - incoming->origin->x, ly - incoming->origin->y);
++	wlr_seat_pointer_send_frame(xwm->seat);
++}
++
++int xwm_dnd_handle_incoming_message(struct wlr_xwm *xwm,
++		xcb_client_message_event_t *event) {
++	bool known = event->type == xwm->atoms[DND_ENTER] ||
++		event->type == xwm->atoms[DND_POSITION] ||
++		event->type == xwm->atoms[DND_LEAVE] || event->type == xwm->atoms[DND_DROP];
++	if (!known) {
++		return 0;
++	}
++	struct x11_drag *incoming = xwm->incoming_drag;
++	if (!incoming || event->format != 32 || event->window != xwm->dnd_selection.window ||
++			event->data.data32[0] != incoming->owner || incoming->dropped) {
++		return 1;
++	}
++	if (incoming->source_destroyed) {
++		if (event->type == xwm->atoms[DND_DROP]) {
++			send_message(incoming, xwm->atoms[DND_STATUS], 2, XCB_ATOM_NONE);
++			send_message(incoming, xwm->atoms[DND_FINISHED], 0, XCB_ATOM_NONE);
++			destroy_incoming(incoming);
++		} else if (event->type == xwm->atoms[DND_LEAVE]) {
++			destroy_incoming(incoming);
++		}
++		return 1;
++	}
++	wlr_log(WLR_DEBUG, "Incoming XDND message atom=%u entered=%d released=%d",
++		event->type, incoming->entered, incoming->released);
++	if (event->type == xwm->atoms[DND_ENTER]) {
++		unsigned version = event->data.data32[1] >> 24;
++		incoming->entered = version >= 3 && version <= XDND_VERSION;
++	} else if (event->type == xwm->atoms[DND_POSITION] && incoming->entered) {
++		xwm->dnd_selection.timestamp = event->data.data32[3];
++		incoming->source.compositor_action = xwm_dnd_action_from_atom(xwm, event->data.data32[4]);
++		if (!incoming->actions_known) {
++			read_actions(incoming, incoming->source.compositor_action);
++			/* Announce the immutable source action mask before creating offers. */
++			if (incoming->pending_surface) {
++				incoming->pointer->enter(&incoming->drag->pointer_grab,
++					incoming->pending_surface, incoming->pending_sx, incoming->pending_sy);
++			}
++		}
++		struct wlr_data_offer *offer;
++		wl_list_for_each(offer, &xwm->seat->drag_offers, link) {
++			if (offer->source == &incoming->source) {
++				data_offer_update_action(offer);
++			}
++		}
++		send_status(incoming);
++	} else if (event->type == xwm->atoms[DND_LEAVE]) {
++		incoming->entered = false;
++		if (incoming->released) {
++			wlr_data_source_destroy(&incoming->source);
++		}
++	} else if (event->type == xwm->atoms[DND_DROP] && incoming->entered && incoming->released) {
++		xwm->dnd_selection.timestamp = event->data.data32[2];
++		incoming->dropped = true;
++		wl_event_source_timer_update(incoming->timeout, 10000);
++		incoming->pointer->button(&incoming->drag->pointer_grab,
++			incoming->release_time, xwm->seat->pointer_state.grab_button, WL_POINTER_BUTTON_STATE_RELEASED);
++	}
++	return 1;
++}
++
++/* GTK 4.18 creates untyped override-redirect drag surfaces. During its grab,
++ * exclude only untyped auxiliary windows owned by the source process; typed
++ * menus and other clients remain eligible targets. No geometry heuristic. */
++bool wlr_xwayland_surface_is_drag_icon(struct wlr_xwayland_surface *surface) {
++	if (xwm_atoms_contains(surface->xwm, surface->window_type,
++			surface->window_type_len, NET_WM_WINDOW_TYPE_DND)) {
++		return true;
++	}
++	struct x11_drag *incoming = surface->xwm->incoming_drag;
++	return incoming && incoming->drag && surface != incoming->origin &&
++		surface->window_id != incoming->owner && surface->override_redirect &&
++		surface->window_type_len == 0 && surface->pid > 0 &&
++		surface->pid == incoming->origin->pid;
++}
+--- a/xwayland/selection/incoming.c
++++ b/xwayland/selection/incoming.c
+@@ -193,7 +193,7 @@
+ 	}
+ }
+ 
+-static void source_send(struct wlr_xwm_selection *selection,
++void xwm_selection_send_incoming(struct wlr_xwm_selection *selection,
+ 		struct wl_array *mime_types, struct wl_array *mime_types_atoms,
+ 		const char *requested_mime_type, int fd) {
+ 	struct wlr_xwm *xwm = selection->xwm;
+@@ -232,7 +232,7 @@
+ 		selection->atom,
+ 		mime_type_atom,
+ 		xwm->atoms[WL_SELECTION],
+-		XCB_TIME_CURRENT_TIME);
++		selection == &xwm->dnd_selection ? selection->timestamp : XCB_TIME_CURRENT_TIME);
+ 
+ 	xcb_flush(xwm->xcb_conn);
+ 
+@@ -266,7 +266,7 @@
+ 		data_source_from_wlr_data_source(wlr_source);
+ 	struct wlr_xwm_selection *selection = source->selection;
+ 
+-	source_send(selection, &wlr_source->mime_types, &source->mime_types_atoms,
++	xwm_selection_send_incoming(selection, &wlr_source->mime_types, &source->mime_types_atoms,
+ 		mime_type, fd);
+ }
+ 
+@@ -302,7 +302,7 @@
+ 	struct x11_primary_selection_source *source = wl_container_of(wlr_source, source, base);
+ 	struct wlr_xwm_selection *selection = source->selection;
+ 
+-	source_send(selection, &wlr_source->mime_types, &source->mime_types_atoms,
++	xwm_selection_send_incoming(selection, &wlr_source->mime_types, &source->mime_types_atoms,
+ 		mime_type, fd);
+ }
+ 
+@@ -319,7 +319,7 @@
+ 	.destroy = primary_selection_source_destroy,
+ };
+ 
+-static bool source_get_targets(struct wlr_xwm_selection *selection,
++bool xwm_selection_source_get_targets(struct wlr_xwm_selection *selection,
+ 		struct wl_array *mime_types, struct wl_array *mime_types_atoms) {
+ 	struct wlr_xwm *xwm = selection->xwm;
+ 
+@@ -410,7 +410,7 @@
+ 		source->selection = selection;
+ 		wl_array_init(&source->mime_types_atoms);
+ 
+-		bool ok = source_get_targets(selection, &source->base.mime_types,
++		bool ok = xwm_selection_source_get_targets(selection, &source->base.mime_types,
+ 			&source->mime_types_atoms);
+ 		if (ok) {
+ 			wlr_seat_request_set_selection(xwm->seat, NULL, &source->base,
+@@ -429,7 +429,7 @@
+ 		source->selection = selection;
+ 		wl_array_init(&source->mime_types_atoms);
+ 
+-		bool ok = source_get_targets(selection, &source->base.mime_types,
++		bool ok = xwm_selection_source_get_targets(selection, &source->base.mime_types,
+ 			&source->mime_types_atoms);
+ 		if (ok) {
+ 			wlr_seat_set_primary_selection(xwm->seat, &source->base,
+@@ -438,7 +438,7 @@
+ 			wlr_primary_selection_source_destroy(&source->base);
+ 		}
+ 	} else if (selection == &xwm->dnd_selection) {
+-		// TODO
++		xwm_dnd_start_incoming(xwm);
+ 	}
+ }
+ 
+@@ -498,7 +498,7 @@
+ 				wlr_seat_request_set_primary_selection(xwm->seat, NULL, NULL,
+ 					wl_display_next_serial(xwm->xwayland->wl_display));
+ 			} else if (selection == &xwm->dnd_selection) {
+-				// TODO: DND
++				xwm_dnd_cancel_incoming(xwm);
+ 			} else {
+ 				wlr_log(WLR_DEBUG, "X11 selection has been cleared, but cannot "
+ 					"clear Wayland selection");
+@@ -514,6 +514,9 @@
+ 		wlr_log(WLR_DEBUG, "proxy window lost selection ownership");
+ 	}
+ 
++	if (selection == &xwm->dnd_selection && selection->owner != event->owner) {
++		xwm_dnd_cancel_incoming(xwm);
++	}
+ 	selection->owner = event->owner;
+ 
+ 	if (selection->owner == selection->window) {
+--- a/xwayland/selection/selection.c
++++ b/xwayland/selection/selection.c
+@@ -320,6 +320,9 @@
+ 		return;
+ 	}
+ 
++	if (xwm->incoming_drag) {
++		return; // The X client retains XDND selection ownership.
++	}
+ 	xwm_selection_set_owner(&xwm->dnd_selection, drag != NULL);
+ 	xwm_seat_handle_start_drag(xwm, drag);
+ }
+--- a/xwayland/xwm.c
++++ b/xwayland/xwm.c
+@@ -86,6 +86,7 @@
+ 	[DND_ACTION_COPY] = "XdndActionCopy",
+ 	[DND_ACTION_ASK] = "XdndActionAsk",
+ 	[DND_ACTION_PRIVATE] = "XdndActionPrivate",
++	[DND_ACTION_LIST] = "XdndActionList",
+ 	[NET_CLIENT_LIST] = "_NET_CLIENT_LIST",
+ 	[NET_CLIENT_LIST_STACKING] = "_NET_CLIENT_LIST_STACKING",
+ 	[NET_WORKAREA] = "_NET_WORKAREA",
+@@ -1875,6 +1876,7 @@
+ 		return;
+ 	}
+ 
++	xwm_dnd_cancel_incoming(xwm);
+ 	xwm_selection_finish(&xwm->clipboard_selection);
+ 	xwm_selection_finish(&xwm->primary_selection);
+ 	xwm_selection_finish(&xwm->dnd_selection);

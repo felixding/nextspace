@@ -1,0 +1,3 @@
+option('comparators', type: 'boolean', value: false, description: 'Build GTK and Qt native test clients')
+option('portals', type: 'boolean', value: false, description: 'Build the PipeWire capture verification client')
+option('wlroots_rpath', type: 'string', value: '', description: 'Installed compositor search path for a private wlroots build')

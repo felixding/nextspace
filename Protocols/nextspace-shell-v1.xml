@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="nextspace_shell_v1">
+  <copyright>
+    Copyright (c) 2026 NEXTSPACE contributors
+    SPDX-License-Identifier: MIT
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+  </copyright>
+  <interface name="nextspace_shell_v1" version="18">
+    <description summary="session-authorized desktop window control">
+      Only the Wayland connection supplied by the session supervisor can see or
+      bind this global. An application ID, PID or same-user public connection
+      grants no authority. Application names and titles are untrusted metadata.
+
+      On binding and on snapshot, reset starts a complete enumeration, window
+      describes each mapped toplevel, and done ends the batch. Later window and
+      closed events update this state by ID. IDs are compositor-local and must
+      not be persisted between compositor sessions. Requests for stale IDs are
+      ignored. Coordinates use logical desktop units with a top-left origin.
+
+      The supervisor retains a private broker descriptor, separate from the
+      shell. It can replace the authorized connection after a shell crash. The
+      new shell receives a fresh snapshot; compositor and other clients survive.
+      The old connection is closed on replacement. Loss of the broker revokes
+      the shell connection. A compositor restart requires a new session.
+    </description>
+    <enum name="flags" bitfield="true">
+      <entry name="focused" value="1"/>
+      <entry name="legacy" value="2"/>
+      <entry name="accepts_focus" value="4"/>
+      <entry name="minimized" value="8" since="2"/>
+      <entry name="shaded" value="16" since="3"/>
+      <entry name="not_presented" value="32" since="4"/>
+    </enum>
+    <request name="destroy" type="destructor"/>
+    <request name="snapshot"/>
+    <request name="activate"><arg name="id" type="uint"/></request>
+    <request name="close"><arg name="id" type="uint"/></request>
+    <request name="move">
+      <arg name="id" type="uint"/><arg name="x" type="int"/><arg name="y" type="int"/>
+    </request>
+    <event name="reset"/>
+    <event name="window">
+      <arg name="id" type="uint"/><arg name="app_id" type="string"/>
+      <arg name="title" type="string"/><arg name="pid" type="int"/>
+      <arg name="flags" type="uint" enum="flags"/>
+      <arg name="x" type="int"/><arg name="y" type="int"/>
+      <arg name="width" type="int"/><arg name="height" type="int"/>
+    </event>
+    <event name="closed"><arg name="id" type="uint"/></event>
+    <event name="done"/>
+    <request name="set_minimized" since="2">
+      <arg name="id" type="uint"/><arg name="minimized" type="uint"/>
+    </request>
+    <request name="set_shaded" since="3">
+      <arg name="id" type="uint"/><arg name="shaded" type="uint"/>
+    </request>
+    <event name="window_info" since="3">
+      <description summary="additional presentation metadata for a window">
+        Sent immediately after each window event. client_id and style are
+        client-supplied; match client_id only within an authenticated native PID.
+        A zero title_height means no supported client frame for shading.
+      </description>
+      <arg name="id" type="uint"/><arg name="client_id" type="uint"/>
+      <arg name="style" type="uint"/><arg name="title_height" type="uint"/>
+      <arg name="level" type="int"/>
+    </event>
+    <request name="set_presented" since="4">
+      <description summary="control shell presentation without changing application state">
+        Suppress or restore a mapped window in scene rendering, hit testing and
+        focus selection. This preserves its buffers, geometry, minimization and
+        AppKit state. The shell uses it for Dock/IconYard presentation. It is not
+        an application hide notification. State survives shell replacement;
+        activate restores presentation as well as minimization and shading.
+      </description>
+      <arg name="id" type="uint"/><arg name="presented" type="uint"/>
+    </request>
+    <request name="set_level" since="5">
+      <description summary="assign compositor stacking for desktop icons">
+        Uses the same logical stacking levels as the application protocol, with
+        values clamped to -1000 through 1000. Desktop policy can place a running
+        application's icon in the Dock without changing its AppKit window state.
+        This grants neither shell nor session-lock authority to that application.
+      </description>
+      <arg name="id" type="uint"/><arg name="level" type="int"/>
+    </request>
+    <request name="order" since="6">
+      <description summary="raise or lower within the existing stacking level">
+        An above value of zero lowers the window; any other value raises it.
+        This never changes its level, focus, geometry or application state.
+      </description>
+      <arg name="id" type="uint"/><arg name="above" type="uint"/>
+    </request>
+    <event name="pointer_focus" since="6">
+      <description summary="compositor window currently under the pointer">
+        Reports zero for the desktop, or the mapped toplevel owning the focused
+        surface, including its popups. Sent after the initial snapshot and when
+        the target changes. Desktop policy uses this to raise and lower the Dock
+        with its configured delays, including icons owned by other applications.
+        Pointer focus is independent of keyboard activation.
+      </description>
+      <arg name="id" type="uint"/>
+    </event>
+    <request name="output_snapshot" since="7"/>
+    <request name="configure_outputs" since="7">
+      <description summary="create a complete, revision-checked output transaction">
+        Every connected head must appear exactly once. At least one must remain
+        enabled, and exactly one enabled head must be primary. Stale revisions
+        fail without changing hardware. Only one applied transaction may await
+        confirmation. Destroying it or losing the shell restores the previous
+        layout. Hotplug cancels it and restores surviving heads before recovery.
+      </description>
+      <arg name="configuration" type="new_id" interface="nextspace_output_configuration_v1"/>
+      <arg name="revision" type="uint"/>
+    </request>
+    <event name="outputs_reset" since="7"><arg name="revision" type="uint"/></event>
+    <event name="output" since="7">
+      <description summary="physical mode and independent logical output state">
+        IDs last for this compositor connection only. Names identify connectors;
+        make/model/serial describe hardware. Persist these together, never the ID.
+        Pixel modes are untransformed. Logical bounds use top-left desktop units,
+        scale is an integer numerator over 120, and transform is wl_output.transform.
+        All head, identity and mode events form one batch ending in outputs_done.
+      </description>
+      <arg name="id" type="uint"/><arg name="name" type="string"/>
+      <arg name="enabled" type="uint"/><arg name="primary" type="uint"/>
+      <arg name="width" type="int"/><arg name="height" type="int"/><arg name="refresh" type="int"/>
+      <arg name="scale" type="uint"/><arg name="transform" type="uint"/>
+      <arg name="x" type="int"/><arg name="y" type="int"/>
+      <arg name="logical_width" type="int"/><arg name="logical_height" type="int"/>
+    </event>
+    <event name="output_identity" since="7">
+      <arg name="id" type="uint"/><arg name="make" type="string"/><arg name="model" type="string"/>
+      <arg name="serial" type="string"/><arg name="width_mm" type="int"/><arg name="height_mm" type="int"/>
+    </event>
+    <event name="output_mode" since="7">
+      <arg name="id" type="uint"/><arg name="width" type="int"/><arg name="height" type="int"/>
+      <arg name="refresh" type="int"/><arg name="preferred" type="uint"/>
+    </event>
+    <event name="outputs_done" since="7"/>
+    <request name="input_snapshot" since="8"/>
+    <request name="set_keyboard" since="8">
+      <description summary="apply validated xkbcommon rules and repeat settings">
+        Rule strings are bounded and compiled before changing any device. Repeat
+        delay is milliseconds and rate is hertz; zero rate disables repeat.
+        Numlock is an explicit Boolean. Settings apply to present and new keyboards.
+      </description>
+      <arg name="serial" type="uint"/><arg name="model" type="string"/>
+      <arg name="layout" type="string"/><arg name="variant" type="string"/><arg name="options" type="string"/>
+      <arg name="delay" type="uint"/><arg name="rate" type="uint"/><arg name="numlock" type="uint"/>
+    </request>
+    <request name="set_pointer" since="8">
+      <description summary="libinput acceleration, independent of X11 thresholds">
+        Speed is libinput's normalized -1 through 1 value. Profile is adaptive=0
+        or flat=1. Unsupported physical-device combinations fail and restore the
+        preceding settings. The saved intent also applies to newly added devices.
+        Toolkit drag thresholds and double-click timing remain logical settings.
+      </description>
+      <arg name="serial" type="uint"/><arg name="speed" type="fixed"/><arg name="profile" type="uint"/>
+    </request>
+    <event name="input_settings" since="8">
+      <arg name="model" type="string"/><arg name="layout" type="string"/>
+      <arg name="variant" type="string"/><arg name="options" type="string"/>
+      <arg name="delay" type="uint"/><arg name="rate" type="uint"/><arg name="numlock" type="uint"/>
+      <arg name="speed" type="fixed"/><arg name="profile" type="uint"/><arg name="accelerated_devices" type="uint"/>
+    </event>
+    <event name="input_result" since="8">
+      <arg name="serial" type="uint"/><arg name="success" type="uint"/><arg name="reason" type="string"/>
+    </event>
+    <request name="background_snapshot" since="9"/>
+    <request name="set_background" since="9">
+      <description summary="set the opaque desktop color">
+        RGB components are normalized 0..1 values. Invalid components leave the
+        preceding color unchanged. Every request replies with the current color.
+        The compositor draws it below windows across the complete output layout.
+      </description>
+      <arg name="red" type="fixed"/><arg name="green" type="fixed"/><arg name="blue" type="fixed"/>
+    </request>
+    <event name="background" since="9">
+      <arg name="red" type="fixed"/><arg name="green" type="fixed"/><arg name="blue" type="fixed"/>
+    </event>
+    <request name="configure_desktops" since="10">
+      <description summary="set the desktop count">
+        Counts from 1 through 32 are accepted. Removing desktops moves their
+        windows to the final remaining desktop. Invalid requests leave state
+        unchanged. Each desktop request replies with desktops.
+      </description>
+      <arg name="count" type="uint"/>
+    </request>
+    <request name="switch_desktop" since="10"><arg name="index" type="uint"/></request>
+    <request name="move_to_desktop" since="10">
+      <arg name="id" type="uint"/><arg name="index" type="uint"/><arg name="sticky" type="uint"/>
+    </request>
+    <event name="desktops" since="10"><arg name="current" type="uint"/><arg name="count" type="uint"/></event>
+    <event name="window_desktop" since="10">
+      <arg name="id" type="uint"/><arg name="index" type="uint"/><arg name="sticky" type="uint"/>
+    </event>
+    <enum name="move_phase" since="11">
+      <entry name="begin" value="0"/><entry name="end" value="1"/><entry name="cancel" value="2"/>
+    </enum>
+    <request name="cancel_move" since="11"><arg name="id" type="uint"/></request>
+    <event name="interactive_move" since="11">
+      <description summary="icon placement tracking">
+        Standard serial-validated interactive moves of application and miniwindow
+        icons report begin, end or cancellation. Coordinates are logical desktop
+        top-left. The shell suspends automatic placement while tracking; only end
+        persists the new position. Cancellation restores the original position.
+        A snapshot includes begin for a move in progress. cancel_move affects only
+        the current icon grab with the matching id. Primary output bounds travel
+        with the event so a later output change cannot reinterpret the drop.
+      </description>
+      <arg name="id" type="uint"/><arg name="phase" type="uint" enum="move_phase"/>
+      <arg name="x" type="int"/><arg name="y" type="int"/>
+      <arg name="screen_x" type="int"/><arg name="screen_y" type="int"/>
+      <arg name="screen_width" type="int"/><arg name="screen_height" type="int"/>
+    </event>
+    <enum name="shortcut_action" since="12">
+      <entry name="raise" value="0"/><entry name="lower" value="1"/>
+      <entry name="next_application" value="2"/><entry name="previous_application" value="3"/>
+      <entry name="next_window" value="4"/><entry name="previous_window" value="5"/>
+      <entry name="next_desktop" value="6"/><entry name="previous_desktop" value="7"/>
+      <entry name="desktop_1" value="8"/><entry name="desktop_2" value="9"/>
+      <entry name="desktop_3" value="10"/><entry name="desktop_4" value="11"/>
+      <entry name="desktop_5" value="12"/><entry name="desktop_6" value="13"/>
+      <entry name="desktop_7" value="14"/><entry name="desktop_8" value="15"/>
+      <entry name="desktop_9" value="16"/><entry name="desktop_10" value="17"/>
+    </enum>
+    <request name="set_shortcuts" since="12">
+      <description summary="atomically replace desktop key bindings">
+        The array contains exactly 18 native-endian uint32 pairs, indexed by
+        shortcut_action: XKB keysym followed by a modifier mask. The mask uses
+        Shift=1, Control=4, Alt=8 and Logo=64. A zero keysym and mask disable an
+        action. Nonzero bindings must be unique. Symbols use the active keyboard
+        layout's unshifted level; lock modifiers do not affect matching.
+        Invalid arrays preserve every preceding binding. input_result replies
+        with the matching serial. Disconnecting the shell retains the bindings.
+      </description>
+      <arg name="serial" type="uint"/><arg name="bindings" type="array"/>
+    </request>
+    <request name="set_output_insets" since="13">
+      <description summary="reserve logical output edges for desktop components">
+        Only the authorized shell can set these nonnegative logical insets.
+        Each value must be at most 4096; unknown heads and invalid values are
+        ignored. Intent survives shell replacement and output configuration
+        rollback, and is discarded when the head disappears. If opposing insets
+        would consume more than half an output axis, that axis uses its full
+        extent until a larger layout permits the reservation again.
+        Maximized windows use the resulting work area; fullscreen windows use
+        the complete output. Floating windows retain their chosen frames.
+      </description>
+      <arg name="id" type="uint"/><arg name="left" type="int"/><arg name="top" type="int"/>
+      <arg name="right" type="int"/><arg name="bottom" type="int"/>
+    </request>
+    <event name="output_work_area" since="13">
+      <description summary="effective work area in logical desktop coordinates">
+        Sent in each output inventory batch after its output event. Disabled
+        heads have an empty work area. Insets are logical and do not rotate with
+        the physical panel. They do not change the output configuration revision.
+      </description>
+      <arg name="id" type="uint"/><arg name="x" type="int"/><arg name="y" type="int"/>
+      <arg name="width" type="int"/><arg name="height" type="int"/>
+    </event>
+    <enum name="maximized_drag_mode" since="14">
+      <entry name="move" value="0"/>
+      <entry name="restore_geometry" value="1"/>
+      <entry name="unmaximize" value="2"/>
+      <entry name="no_move" value="3"/>
+    </enum>
+    <request name="set_maximized_drag_mode" since="14">
+      <description summary="preserve the existing DragMaximizedWindow preference">
+        Move (the default) retains maximized size and state, including the saved
+        floating frame. RestoreGeometry restores the floating size with the
+        pointer at the same horizontal fraction of its title bar. Unmaximize
+        clears the state while retaining the current size. NoMove rejects the
+        move. Fullscreen windows never move or resize interactively.
+        Escape cancels a move and restores its preceding geometry and state.
+        Invalid modes are ignored. Changing the mode cancels an active move;
+        the chosen mode survives replacement of the authorized shell.
+      </description>
+      <arg name="mode" type="uint" enum="maximized_drag_mode"/>
+    </request>
+    <request name="set_double_click_time" since="15">
+      <description summary="share the existing toolkit double-click interval">
+        Publish GSDoubleClickTime in milliseconds for compositor-owned frame
+        gestures. This adds no stored preference. Values in 1..60000 are valid;
+        other values are ignored. The default is 350 ms, matching the legacy
+        window manager's fallback until Workspace publishes the user's setting.
+        Changing the interval clears an incomplete click pair. The interval
+        survives replacement of the authorized shell.
+      </description>
+      <arg name="milliseconds" type="uint"/>
+    </request>
+    <enum name="title_justification" since="16">
+      <entry name="center" value="0"/>
+      <entry name="left" value="1"/>
+      <entry name="right" value="2"/>
+    </enum>
+    <request name="set_title_appearance" since="16">
+      <description summary="preserve existing window-title appearance preferences">
+        The font is the existing WindowTitleFont Fontconfig pattern. Explicit
+        antialias properties override the UseAntialiasedText fallback flag.
+        Pixel sizes remain logical; point sizes use 96 logical DPI unless the
+        pattern supplies an explicit DPI. Empty or invalid patterns, effective
+        pixel sizes outside (0,512], antialiased values above 1 and unknown
+        justification values are ignored. Valid changes repaint existing server
+        titles without a client commit and survive shell replacement.
+        The default remains Helvetica bold 12 logical pixels, monochrome and
+        centered. Client decorations retain their application font settings.
+      </description>
+      <arg name="font" type="string"/>
+      <arg name="antialiased" type="uint"/>
+      <arg name="justification" type="uint" enum="title_justification"/>
+    </request>
+    <request name="lock" since="17">
+      <description summary="request a session-owned authenticated lock">
+        Immediately hide ordinary surfaces and input, then ask the private
+        session supervisor to start its configured locker. This request never
+        unlocks. Locker failure keeps the desktop hidden; only the authorized
+        ext-session-lock connection can unlock after authentication.
+      </description>
+    </request>
+    <request name="set_output_gamma" since="18">
+      <description summary="set a hardware output power curve through the authorized shell">
+        Gamma channels are exponents in 0.1..10 and brightness is in 0..2.
+        The ramp uses min(pow(position, channel) * brightness, 1), preserving
+        SystemKit's existing convention. Unknown, disabled or unsupported heads,
+        invalid values, and requests during a pending layout are ignored.
+        Failed backend test/commit leaves the published settings unchanged.
+        Every request replies with an output snapshot followed by its serial's
+        result. Settings survive shell replacement and mode changes;
+        they are discarded when the output disappears. No software fallback is
+        reported as hardware gamma support.
+      </description>
+      <arg name="serial" type="uint"/><arg name="id" type="uint"/><arg name="red" type="fixed"/>
+      <arg name="green" type="fixed"/><arg name="blue" type="fixed"/>
+      <arg name="brightness" type="fixed"/>
+    </request>
+    <event name="output_gamma" since="18">
+      <description summary="gamma capability and accepted values in an output inventory batch">
+        ramp_size is zero when hardware gamma is unavailable. Values describe
+        the compositor's accepted curve, with one as the initial channel and
+        brightness values. This event precedes outputs_done.
+      </description>
+      <arg name="id" type="uint"/><arg name="ramp_size" type="uint"/>
+      <arg name="red" type="fixed"/><arg name="green" type="fixed"/>
+      <arg name="blue" type="fixed"/><arg name="brightness" type="fixed"/>
+    </event>
+    <event name="output_gamma_result" since="18">
+      <arg name="serial" type="uint"/><arg name="success" type="uint"/>
+      <arg name="reason" type="string"/>
+    </event>
+  </interface>
+  <interface name="nextspace_output_configuration_v1" version="1">
+    <description summary="compositor-owned test, apply, confirm and rollback">
+      Set each head once before test or apply. Test leaves the object editable
+      only by destruction and recreation; apply may follow a successful test.
+      Apply starts the compositor deadline (1000 to 30000 milliseconds). Confirm
+      keeps the state; cancel or destroy reverts it. A settings process need not
+      stay alive for rollback. Results use status values below; reasons are for
+      diagnostics, and clients provide their own user-facing messages.
+    </description>
+    <enum name="status">
+      <entry name="tested" value="0"/><entry name="applied" value="1"/>
+      <entry name="confirmed" value="2"/><entry name="reverted" value="3"/>
+      <entry name="failed" value="4"/>
+    </enum>
+    <request name="destroy" type="destructor"/>
+    <request name="set_head">
+      <arg name="id" type="uint"/><arg name="enabled" type="uint"/><arg name="primary" type="uint"/>
+      <arg name="width" type="int"/><arg name="height" type="int"/><arg name="refresh" type="int"/>
+      <arg name="scale" type="uint"/><arg name="transform" type="uint"/>
+      <arg name="x" type="int"/><arg name="y" type="int"/>
+    </request>
+    <request name="test"/>
+    <request name="apply"><arg name="timeout_ms" type="uint"/></request>
+    <request name="confirm"/>
+    <request name="cancel"/>
+    <event name="result">
+      <arg name="status" type="uint" enum="status"/><arg name="reason" type="string"/>
+    </event>
+  </interface>
+</protocol>
