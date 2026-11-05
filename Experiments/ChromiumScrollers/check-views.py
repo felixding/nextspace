@@ -112,6 +112,10 @@ with (root/'native-text-app.log').open('w') as log:
    time.sleep(.02)
   assert command(f"raise {window['id']}")['ok']
   assert command(f"focus {window['id']}")['ok']
+  assert command('pointer 220 60')['ok'];assert command('button 272')['ok']
+  key(102);key(107,42)
+  row=wait(lambda s:s['start']==0 and s['end']==len(s['value'].encode('utf-16-le'))//2)
+  assert row['start']==0 and row['end']==len(row['value'].encode('utf-16-le'))//2,row
   key(47,56)
   length=len(clipboard_text.encode('utf-16-le'))//2
   check('native-application-to-browser-paste',dict(value=clipboard_text,start=length,end=length))

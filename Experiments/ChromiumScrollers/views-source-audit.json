@@ -269,6 +269,26 @@
       "name": "views_omnibox_execute",
       "address": "0x980f9c4",
       "guard_bytes": 20
+    },
+    {
+      "name": "views_pointer_press",
+      "address": "0xc707cf0",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_pointer_drag",
+      "address": "0xc708318",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_pointer_release",
+      "address": "0xc70878c",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_pointer_lost",
+      "address": "0xc708980",
+      "guard_bytes": 20
     }
   ],
   "compiled_layout": {
@@ -284,7 +304,10 @@
     "key_event_flags": 80,
     "key_event_key_code": 136,
     "key_event_dom_key": 152,
-    "libcxx_u16string_size": 24
+    "libcxx_u16string_size": 24,
+    "selection_controller_from_textfield": 1296,
+    "mouse_event_location_f": 136,
+    "mouse_event_root_location_f": 144
   },
   "decisions": [
     "Omnibox OnPaint inlines the base painter; intercept the actual PaintTextAndCursor call while the Omnibox painter owns the stack.",
@@ -292,10 +315,16 @@
     "Native pre-edit proposals execute original Views InsertChar/InsertText/DeleteRange transactions and veto the second native mutation.",
     "Actual NativeUI command selectors route cut/copy/paste to Omnibox ExecuteTextEditCommand, preserving application clipboard callbacks and paste sanitization.",
     "FocusManager receives modified native editing keys before browser accelerators; GNUstep resolves the commands without a copied key-binding table.",
-    "Native eventfd invalidations schedule the actual Views paint callback; the adapter adds no caret timer."
+    "Native eventfd invalidations schedule the actual Views paint callback; the adapter adds no caret timer.",
+    "SelectionController OnMousePressed with handled=true retains real engine click-count/drag-threshold bookkeeping while bypassing engine text geometry.",
+    "Native pointer selection enters the same actual NSTextField tracking loop used by Blink and Gecko; Views SetEditableSelectionRange applies the native range through real application callbacks.",
+    "Held native tracking draws operation 5 snapshots without rebinding the busy editor. Canonical model, focus, enabled and size changes stop the old native gesture.",
+    "Gesture ownership lasts until capture release/loss even after native tracking ends, preventing a late engine drag from using an uninitialized selection gesture.",
+    "Actual release modifiers are retained; no synthetic modifier release is introduced at mouseUp."
   ],
   "open": [
-    "Native address-bar mouse selection and tracking",
+    "Multiple-click metadata, right/middle buttons, selected-text data dragging, touch and long-field autoscroll",
+    "Broader first-focus/unelision and selection-direction behavior",
     "Undo/redo command availability and native menu routing",
     "Clipboard availability when native and platform clipboard state differ",
     "IME/composition, selection direction, accessibility, scaling and long-field scrolling",
@@ -304,5 +333,6 @@
     "Chrome, Vivaldi and other derivative builds/frontends",
     "GTK, Qt/KDE and other foreign applications"
   ],
-  "local_evidence": ".build/native-ui/chromium-views-source"
+  "local_evidence": ".build/native-ui/chromium-views-source",
+  "local_pointer_evidence": ".build/native-ui/chromium-views-pointer-source"
 }

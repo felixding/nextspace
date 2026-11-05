@@ -47,6 +47,14 @@ static const unsigned char chromium_views_utf16_bytes[20]={0x3f,0x23,0x03,0xd5,0
 static const unsigned char chromium_views_string_destroy_bytes[20]={0x5f,0x24,0x03,0xd5,0x08,0x00,0x40,0x39,0x48,0x00,0x00,0x37,0xc0,0x03,0x5f,0xd6,0x08,0x00,0x40,0xf9};
 #define NXS_CHROMIUM_VIEWS_OMNIBOX_EXECUTE_OFFSET 0x980f9c4ul
 static const unsigned char chromium_views_omnibox_execute_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbc,0xa9,0xf4,0x4f,0x03,0xa9,0xf3,0x03,0x00,0xaa,0x00,0x8c,0x42,0xf9};
+#define NXS_CHROMIUM_VIEWS_POINTER_PRESS_OFFSET 0xc707cf0ul
+static const unsigned char chromium_views_pointer_press_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x01,0xd1,0xfd,0x7b,0x04,0xa9,0xa8,0xef,0x02,0xb0,0xfd,0x03,0x01,0x91};
+#define NXS_CHROMIUM_VIEWS_POINTER_DRAG_OFFSET 0xc708318ul
+static const unsigned char chromium_views_pointer_drag_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x83,0x01,0xd1,0xfd,0x7b,0x03,0xa9,0xa8,0xef,0x02,0x90,0xfd,0xc3,0x00,0x91};
+#define NXS_CHROMIUM_VIEWS_POINTER_RELEASE_OFFSET 0xc70878cul
+static const unsigned char chromium_views_pointer_release_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x01,0xd1,0xfd,0x7b,0x04,0xa9,0xa8,0xef,0x02,0x90,0xfd,0x03,0x01,0x91};
+#define NXS_CHROMIUM_VIEWS_POINTER_LOST_OFFSET 0xc708980ul
+static const unsigned char chromium_views_pointer_lost_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0xf4,0x4f,0x01,0xa9,0xf3,0x03,0x00,0xaa,0x00,0x48,0x40,0xf9};
 static int guard_views_calls(void) {
 return !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_PAINT_OFFSET),chromium_views_omnibox_paint_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_TEXT_PAINT_OFFSET),chromium_views_text_paint_bytes,20)&&
@@ -71,7 +79,11 @@ return !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_PAINT_OFFSET),chromium_v
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_FOCUS_MANAGER_OFFSET),chromium_views_focus_manager_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_UTF16_OFFSET),chromium_views_utf16_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_STRING_DESTROY_OFFSET),chromium_views_string_destroy_bytes,20)&&
-!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_EXECUTE_OFFSET),chromium_views_omnibox_execute_bytes,20);
+!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_EXECUTE_OFFSET),chromium_views_omnibox_execute_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_POINTER_PRESS_OFFSET),chromium_views_pointer_press_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_POINTER_DRAG_OFFSET),chromium_views_pointer_drag_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_POINTER_RELEASE_OFFSET),chromium_views_pointer_release_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_POINTER_LOST_OFFSET),chromium_views_pointer_lost_bytes,20);
 }
 #define NXS_VIEWS_CUT 52
 #define NXS_VIEWS_COPY 53

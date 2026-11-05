@@ -125,9 +125,12 @@ for item in json.loads(args.controls.read_text()):
         if args.pointers and item['enabled'] and item['kind'] in (7,8):
             assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1),item['id']
             values=[]
-            for name,start,end,modifiers in [('left',3,3,0),('near',10,10,0),('middle',25,25,0),
+            cases=[('left',3,3,0),('near',10,10,0),('middle',25,25,0),
                 ('right',175,175,0),('forward',3,25,0),('reverse',30,3,0),
-                ('outside-right',3,210,0),('outside-left',30,-20,0),('shift-left',3,3,1),('shift-right',30,30,1)]:
+                ('outside-right',3,210,0),('outside-left',30,-20,0),('shift-left',3,3,1),('shift-right',30,30,1)]
+            if 'pointer_cases' in item:
+                cases=[(entry['name'],entry['x'],entry['end_x'],entry.get('modifiers',0)) for entry in item['pointer_cases']]
+            for name,start,end,modifiers in cases:
                 model=TextModel(C.sizeof(TextModel),item['text'].encode(),1 if modifiers else 0,2 if modifiers else 0,item.get('editable',1))
                 assert native.nxs_control_text_sync(pointer,C.byref(model))
                 pointer_case=dict(pumped=False,drag=start!=end,end=end,modifiers=modifiers)

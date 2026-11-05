@@ -1,0 +1,522 @@
+{
+  "date": "2026-11-06",
+  "status": "Partial native Chromium address-field pointer binding; full browser/application scope remains incomplete.",
+  "previous_checkpoint": "9b45fc19",
+  "browser": "Debian ARM64 Chromium 156.0.8078.79-1~deb13u1",
+  "chromium_rebuilt": false,
+  "native_provider_loader_shim_and_appkit_rebuilt": false,
+  "environment": {
+    "renderers": [
+      {
+        "pid": 4070,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 4082,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 5073,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      }
+    ],
+    "held_window_native_release_and_destruction": true,
+    "hashes": {
+      "adapter": "38036a2d1685ff7e193c2dc20cb28017083a692ee60eb6ad8aee8a5f0dc9b66b",
+      "shim": "e190ed92fe7b6d2e2b191e7074385b659bbc5222a1f31c43b6dc6849120ca3a4",
+      "loader": "e3802e8b39a50ef4440c8eb4fc3a2e44fc948bfbfc81116c468076ca35da4459",
+      "provider": "362933951af062ab1362a0415a9cf7759b8b4fe846d46526357ab088bafb202d",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "guest_memtotal_kib": 4010448,
+    "packages": 1050
+  },
+  "native_pointer": {
+    "checks": 50,
+    "independent_native_cases": [
+      {
+        "name": "left",
+        "x": 3,
+        "end_x": 3,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 0,
+        "end": 0
+      },
+      {
+        "name": "near",
+        "x": 10,
+        "end_x": 10,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 1,
+        "end": 1
+      },
+      {
+        "name": "middle",
+        "x": 25,
+        "end_x": 25,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 3,
+        "end": 3
+      },
+      {
+        "name": "right",
+        "x": 175,
+        "end_x": 175,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 5,
+        "end": 5
+      },
+      {
+        "name": "forward",
+        "x": 3,
+        "end_x": 25,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 0,
+        "end": 3
+      },
+      {
+        "name": "reverse",
+        "x": 30,
+        "end_x": 3,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 0,
+        "end": 4
+      },
+      {
+        "name": "outside-right",
+        "x": 3,
+        "end_x": 642,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "name": "outside-left",
+        "x": 30,
+        "end_x": -20,
+        "modifiers": 0,
+        "value": "Hello",
+        "start": 0,
+        "end": 4
+      },
+      {
+        "name": "shift-left",
+        "x": 3,
+        "end_x": 3,
+        "modifiers": 1,
+        "value": "Hello",
+        "start": 0,
+        "end": 3
+      },
+      {
+        "name": "shift-right",
+        "x": 30,
+        "end_x": 30,
+        "modifiers": 1,
+        "value": "Hello",
+        "start": 1,
+        "end": 4
+      }
+    ],
+    "actual_native_tracking_assertions": 10,
+    "held_and_released_application_ranges": 20,
+    "held_native_images": 6,
+    "complete_held_native_images": 2,
+    "held_visible_native_images": 4,
+    "complete_released_native_images": 6,
+    "comparisons": [
+      {
+        "case": "held-pixels-forward",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": [
+          18,
+          1,
+          31,
+          24
+        ],
+        "cursor": {
+          "visible": true,
+          "x": 196.0,
+          "y": 63.0,
+          "width": 24,
+          "height": 24,
+          "buffer_width": 24,
+          "buffer_height": 24,
+          "hotspot_x": 11,
+          "hotspot_y": 12,
+          "outputs": [
+            "HEADLESS-1"
+          ],
+          "samples": [
+            369098752,
+            0,
+            33554432,
+            0
+          ],
+          "pixels_hash": "0cc938172471c7b3"
+        },
+        "cursor_occlusion": [
+          14,
+          0,
+          38,
+          24
+        ],
+        "complete_field_compared": false
+      },
+      {
+        "case": "released-pixels-forward",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": null,
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "held-pixels-reverse",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": [
+          0,
+          1,
+          9,
+          24
+        ],
+        "cursor": {
+          "visible": true,
+          "x": 174.0,
+          "y": 63.0,
+          "width": 24,
+          "height": 24,
+          "buffer_width": 24,
+          "buffer_height": 24,
+          "hotspot_x": 11,
+          "hotspot_y": 12,
+          "outputs": [
+            "HEADLESS-1"
+          ],
+          "samples": [
+            369098752,
+            0,
+            33554432,
+            0
+          ],
+          "pixels_hash": "0cc938172471c7b3"
+        },
+        "cursor_occlusion": [
+          0,
+          0,
+          16,
+          24
+        ],
+        "complete_field_compared": false
+      },
+      {
+        "case": "released-pixels-reverse",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": null,
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "held-pixels-outside-right",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": {
+          "visible": true,
+          "x": 813.0,
+          "y": 63.0,
+          "width": 24,
+          "height": 24,
+          "buffer_width": 24,
+          "buffer_height": 24,
+          "hotspot_x": 11,
+          "hotspot_y": 12,
+          "outputs": [
+            "HEADLESS-1"
+          ],
+          "samples": [
+            369098752,
+            0,
+            33554432,
+            0
+          ],
+          "pixels_hash": "0cc938172471c7b3"
+        },
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "released-pixels-outside-right",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": null,
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "held-pixels-outside-left",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": {
+          "visible": true,
+          "x": 151.0,
+          "y": 63.0,
+          "width": 24,
+          "height": 24,
+          "buffer_width": 24,
+          "buffer_height": 24,
+          "hotspot_x": 11,
+          "hotspot_y": 12,
+          "outputs": [
+            "HEADLESS-1"
+          ],
+          "samples": [
+            369098752,
+            0,
+            33554432,
+            0
+          ],
+          "pixels_hash": "0cc938172471c7b3"
+        },
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "released-pixels-outside-left",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": null,
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "held-pixels-shift-left",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": [
+          0,
+          1,
+          9,
+          24
+        ],
+        "cursor": {
+          "visible": true,
+          "x": 174.0,
+          "y": 63.0,
+          "width": 24,
+          "height": 24,
+          "buffer_width": 24,
+          "buffer_height": 24,
+          "hotspot_x": 11,
+          "hotspot_y": 12,
+          "outputs": [
+            "HEADLESS-1"
+          ],
+          "samples": [
+            369098752,
+            0,
+            33554432,
+            0
+          ],
+          "pixels_hash": "0cc938172471c7b3"
+        },
+        "cursor_occlusion": [
+          0,
+          0,
+          16,
+          24
+        ],
+        "complete_field_compared": false
+      },
+      {
+        "case": "released-pixels-shift-left",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": null,
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      },
+      {
+        "case": "held-pixels-shift-right",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": [
+          23,
+          1,
+          36,
+          24
+        ],
+        "cursor": {
+          "visible": true,
+          "x": 201.0,
+          "y": 63.0,
+          "width": 24,
+          "height": 24,
+          "buffer_width": 24,
+          "buffer_height": 24,
+          "hotspot_x": 11,
+          "hotspot_y": 12,
+          "outputs": [
+            "HEADLESS-1"
+          ],
+          "samples": [
+            369098752,
+            0,
+            33554432,
+            0
+          ],
+          "pixels_hash": "0cc938172471c7b3"
+        },
+        "cursor_occlusion": [
+          19,
+          0,
+          43,
+          24
+        ],
+        "complete_field_compared": false
+      },
+      {
+        "case": "released-pixels-shift-right",
+        "passed": true,
+        "difference": null,
+        "unmasked_difference": null,
+        "cursor": null,
+        "cursor_occlusion": null,
+        "complete_field_compared": true
+      }
+    ],
+    "range_replacement_by_real_typing": true,
+    "geometry_change_during_held_selection": true
+  },
+  "address_field_regressions": 43,
+  "web_regressions": {
+    "progress": 20,
+    "input": 62,
+    "animation": 59,
+    "pointers": 100,
+    "text": 44,
+    "sliders": 50
+  },
+  "lifecycle": {
+    "checks": 5,
+    "close_window_during_held_selection": true,
+    "native_release_and_destruction_before_physical_mouseup": true,
+    "owned_helper_loss_during_held_selection": true,
+    "normal_engine_typing_after_helper_loss": true
+  },
+  "native_control_lifetime": {
+    "created": 1160,
+    "explicitly_destroyed": 1152,
+    "remaining_at_intentional_helper_kill": 8,
+    "scope": "Final retained cohort, including failed test iterations."
+  },
+  "cleanup": {
+    "all_recorded_owner_pids_exited": true,
+    "recorded_owner_count": 18,
+    "cohorts": {
+      "chromium-views-pointer-01": {
+        "pids": [
+          2550,
+          2558,
+          2561,
+          2553,
+          2554,
+          2970
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        }
+      },
+      "chromium-views-pointer-02": {
+        "pids": [
+          3090,
+          3097,
+          3100,
+          3093,
+          3094,
+          3502
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        }
+      },
+      "chromium-views-pointer-03": {
+        "pids": [
+          3982,
+          3988,
+          3991,
+          3985,
+          3986,
+          4396
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -9,
+            0
+          ],
+          "capture_exit": -15
+        }
+      }
+    },
+    "backend_alias_removed": true,
+    "cdp_forward_closed": true
+  },
+  "source_audit": "views-source-audit.json",
+  "local_evidence": ".build/native-ui/chromium-views-pointer-qualified",
+  "implementation": [
+    "Reuse the original Views handled pointer-press path for application bookkeeping.",
+    "Forward real local pointer coordinates and modifiers to the existing native control transport.",
+    "Echo only actual native ranges, preserving canonical application changes and application callbacks.",
+    "Retain outer Omnibox release/capture/primary-clipboard actions.",
+    "Add no native widget, hit-testing algorithm, drag threshold or widget timer."
+  ],
+  "test_corrections": [
+    "Busy snapshot rendering now reports the real canonical Views state in opt-in synthetic traces; the first run observed a stale pre-press trace.",
+    "Wait for composed native pixels after the real release, rather than comparing the first old frame.",
+    "The software cursor occludes part of four held images; compare outside its measured compositor rectangle, retain raw images and require complete released images. Two outside-field held images compare the complete field.",
+    "Single-click preparations displace the previous press beyond Chromium click aggregation distance. A retained rapid second-click case correctly entered the unsupported engine double-click path.",
+    "After native TextEdit owns focus, perform a real pointer enter and verify full application selection before pasting; focus command acknowledgment alone is not sufficient."
+  ],
+  "coverage_limits": [
+    "Multiple-click metadata, right/middle buttons, selected-text data dragging, touch and long-field autoscroll",
+    "Broader first-focus/unelision and selection-direction behavior",
+    "Undo/redo command availability and native menu routing",
+    "Clipboard availability when native and platform clipboard state differ",
+    "IME/composition, selection direction, accessibility, scaling and long-field scrolling",
+    "Remaining Views controls, menus, dialogs and detached menu layout",
+    "Firefox address bar and frontends",
+    "Chrome, Vivaldi and other derivative builds/frontends",
+    "GTK, Qt/KDE and other foreign applications"
+  ]
+}

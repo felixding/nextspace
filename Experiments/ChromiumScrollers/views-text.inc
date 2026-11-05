@@ -5,7 +5,8 @@ struct ViewsString {const uint16_t *data;size_t length;};
 struct ViewsField {
   struct ViewsField *next;
   struct NativeForm transport; /* Reuse the shared control wire helpers only. */
-  int owned;
+  int owned,pointer_owned;
+  unsigned pointer_modifiers;
 };
 struct ViewsTransaction {
   void *view;
@@ -28,6 +29,8 @@ static int (*original_views_controller_key)(void *,void *,const void *);
 static int (*original_views_accelerator_key)(void *,const void *);
 static void (*original_views_insert_char)(void *,const void *);
 static void (*original_views_insert_text)(void *,const void *,int);
+static int views_pointer_echo(struct ViewsField *);
+static void views_pointer_end(struct ViewsField *,int);
 static struct ViewsField *find_views_field(const void *view) {
   for(struct ViewsField *f=views_fields;f;f=f->next)if(f->transport.node==view)return f;
   return NULL;
@@ -41,6 +44,7 @@ static void views_schedule(void *view)
 static void views_native_work(int failed) {
   if(!views_enabled)return;
   for(struct ViewsField *f=views_fields;f;f=f->next)if(f->owned) {
+    if(f->transport.text_tracking&&(failed||!views_pointer_echo(f)))views_pointer_end(f,0);
     if(failed)f->owned=0;
     views_schedule(f->transport.node);
   }
@@ -70,10 +74,18 @@ static void views_trace(struct ViewsField *f,const struct BlinkTextModel *model)
     bounds.x,bounds.y,bounds.width,bounds.height,f->owned);free(hex);
 }
 static struct NXSResponse *views_sync(struct ViewsField *f) {
-  void *view=f->transport.node;struct BlinkTextModel model={0};
-  if(!views_model(view,&model))return NULL;
+  void *view=f->transport.node;
   f->transport.rect=*(struct Rect *)((char *)view+440);
   f->transport.enabled=*(const unsigned char *)((char *)view+458)==1;
+  if(f->transport.text_tracking) {
+    if(views_pointer_echo(f)) {
+      struct BlinkTextModel current={0};
+      if(views_model(view,&current)){views_trace(f,&current);free(current.value);}
+      return form_request(&f->transport,5,0,0,0);
+    }
+    views_pointer_end(f,0);
+  }
+  struct BlinkTextModel model={0};if(!views_model(view,&model))return NULL;
   struct NXSResponse *response=form_request(&f->transport,1,0,0,0);
   if(response&&!!response->parts[3].y!=original_views_has_focus(view))
     response=form_input_request(&f->transport,7,original_views_has_focus(view),0,0,NULL,NULL,0,0);
@@ -136,14 +148,15 @@ static void views_focus(void *view) {
   if(f&&f->owned){views_sync(f);views_cursor(view);}
 }
 static void views_blur(void *view) {
-  original_views_blur(view);struct ViewsField *f=find_views_field(view);
+  struct ViewsField *f=find_views_field(view);if(f)views_pointer_end(f,0);
+  original_views_blur(view);f=find_views_field(view);
   if(f&&f->owned)form_input_request(&f->transport,7,0,0,0,NULL,NULL,0,0);
 }
 static void views_destroy(void *view) {
   struct ViewsField **cursor=&views_fields;
   while(*cursor&&(*cursor)->transport.node!=view)cursor=&(*cursor)->next;
   struct ViewsField *f=*cursor;
-  if(f){*cursor=f->next;form_request(&f->transport,6,0,0,0);free(f->transport.title);free(f);refresh_form_watch();}
+  if(f){views_pointer_end(f,0);*cursor=f->next;form_request(&f->transport,6,0,0,0);free(f->transport.title);free(f);refresh_form_watch();}
   original_views_destroy(view);
 }
 static void views_clipboard_command(void *view,int command) {
@@ -186,6 +199,7 @@ static unsigned views_modifiers(const void *event) {
   unsigned flags=*(const unsigned *)((const char *)event+80);
   return ((flags&2)?NXS_SHIFT:0)|((flags&4)?NXS_CONTROL:0)|((flags&8)?NXS_ALT:0)|((flags&16)?NXS_SUPER:0);
 }
+#include "views-pointer.inc"
 static unsigned views_logical(unsigned key) {
   switch(key) {
     case 8:return NXS_KEY_BACKSPACE;case 9:return NXS_KEY_TAB;case 13:return NXS_KEY_ENTER;
@@ -199,6 +213,8 @@ static int views_key(struct ViewsField *f,const void *event,const void *string,i
   void *view=f->transport.node;
   if(!f->owned||views_transaction||!original_views_has_focus(view)||
      ((int (*)(const void *))(base+NXS_CHROMIUM_VIEWS_COMPOSITION_OFFSET))(view))return 0;
+  if(event)f->pointer_modifiers=views_modifiers(event);
+  views_pointer_end(f,1);
   struct ViewsTransaction transaction={.view=view,.control=f->transport.control,.event=character?event:NULL,.string=string,.behavior=behavior,.input=text};
   if(!views_model(view,&transaction.before))return 0;
   unsigned key=event?views_logical(*(const uint16_t *)((const char *)event+136)):NXS_KEY_TEXT;
@@ -283,6 +299,10 @@ static void views_insert_text(void *view,const void *string,int behavior) {
   if(!handled)original_views_insert_text(view,string,behavior);
 }
 static struct Detour views_detours[]={
+ {NXS_CHROMIUM_VIEWS_POINTER_PRESS_OFFSET,chromium_views_pointer_press_bytes,views_pointer_press,(void **)&original_views_pointer_press},
+ {NXS_CHROMIUM_VIEWS_POINTER_DRAG_OFFSET,chromium_views_pointer_drag_bytes,views_pointer_drag,(void **)&original_views_pointer_drag},
+ {NXS_CHROMIUM_VIEWS_POINTER_RELEASE_OFFSET,chromium_views_pointer_release_bytes,views_pointer_release,(void **)&original_views_pointer_release},
+ {NXS_CHROMIUM_VIEWS_POINTER_LOST_OFFSET,chromium_views_pointer_lost_bytes,views_pointer_lost,(void **)&original_views_pointer_lost},
  {NXS_CHROMIUM_VIEWS_ACCELERATOR_KEY_OFFSET,chromium_views_accelerator_key_bytes,views_accelerator_key,(void **)&original_views_accelerator_key},
  {NXS_CHROMIUM_VIEWS_OMNIBOX_PAINT_OFFSET,chromium_views_omnibox_paint_bytes,views_omnibox_paint,(void **)&original_views_omnibox_paint},
  {NXS_CHROMIUM_VIEWS_TEXT_PAINT_OFFSET,chromium_views_text_paint_bytes,views_text_paint,(void **)&original_views_text_paint},

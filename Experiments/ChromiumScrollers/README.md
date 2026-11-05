@@ -472,7 +472,7 @@ The source audit also accounts for the inlined Omnibox painter and separate
 engine caret view. Actual native invalidations reuse the eventfd/work-loop host.
 
 The [Views audit](views-source-audit.json) records the source receipts, compiled
-layouts and 24 instruction guards. [Qualification](views-qualification.json)
+layouts and 28 instruction guards, including the four pointer boundaries. [Qualification](views-qualification.json)
 records 43 address-field checks, including nine independent native editing-key
 cases, Alt+C/V/X, real focused TextEdit copy into the browser, and complete native
 images at two widths. All 335 webpage pointer/text/input/slider/progress/animation
@@ -489,9 +489,35 @@ The retained fixture harness, inputs, images and logs are under
 `NEXTSPACE_CHROMIUM_VIEWS_TRACE=1` records actual model values for synthetic tests
 and is off by default; keep it off for normal browsing.
 
-Native address-bar mouse selection, undo/redo availability, clipboard availability
+Native address-bar multiple-click metadata, undo/redo availability, clipboard availability
 across different native/platform states, IME, accessibility and scaling remain
 open. The surrounding address-bar layout, buttons, suggestion popup, tabs, menus
 and dialogs still need native integration. This qualifies one partial Chromium
 frontend binding; Chrome, Vivaldi, Firefox frontends and other toolkits remain
 required by the full scope.
+
+The [pointer qualification](views-pointer-qualification.json) now adds native
+single primary-click/Shift-click and selection dragging to the address field.
+`views-pointer.inc` binds the real SelectionController boundary to the existing
+native editor. Its original handled-press path retains application click-count
+and drag-threshold bookkeeping while skipping engine selection geometry.
+Application selection callbacks, release/capture handling and primary clipboard
+publication remain in Views/Omnibox. No hit testing, tracking loop or control is
+copied. Held drawing reads the actual busy editor; model, focus, enabled or size
+changes end that native gesture without overwriting application state.
+
+`check-views-pointer.py --fixture PATH --library PATH --backend NAME` compares
+ten cases with independent direct-provider ranges and verifies every gesture
+entered native tracking. Fifty assertions pass, including typing from the native
+range and resizing during a held gesture. Six released images compare the
+complete field. Two outside-field held images also compare the complete field;
+four other held comparisons exclude only the measured cursor overlay, retaining
+unaltered captures and requiring complete comparisons after release. The previous
+43 address-field and 335 webpage checks pass with the new adapter. Closing a
+window and losing the helper during held selection also pass recovery checks.
+The provider, loader, shim, AppKit and Chromium binaries remain unchanged.
+
+Right/middle buttons, multiple clicks, selected-text data dragging, touch,
+long-field autoscroll, broader initial-focus/unelision behavior, selection
+direction, IME and scaling remain unqualified. Those paths and the remaining
+browser frontend still require integration.
