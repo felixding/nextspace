@@ -168,11 +168,17 @@ static void configure(uintptr_t offset) {
 static void form_native_work(void *controller);
 static int views_enabled,views_trace_enabled;
 static unsigned forms_pointer_capabilities;
+static int forms_commands_enabled;
+static int chromium_application_command(const struct NXSNativeCommand *,const char *);
 static int views_watch_needed(void);
 static void views_native_work(int failed);
 #include "input.inc"
 #include "forms.inc"
 #include "views-text.inc"
+static int chromium_application_command(const struct NXSNativeCommand *command,const char *selector) {
+  if(views_transaction)return views_application_command(command,selector);
+  return blink_application_command(command,selector);
+}
 
 static int main_object(struct dl_phdr_info *info,size_t size,void *unused) {
   if(info->dlpi_name&&*info->dlpi_name)return 0;
@@ -202,6 +208,7 @@ __attribute__((constructor)) static void initialize(void) {
   }
   native_thickness=metrics->parts[0].width;
   if(metrics->parts[5].x==1)forms_pointer_capabilities=NXS_POINTER_CLICK_COUNT;
+  forms_commands_enabled=metrics->parts[5].y==1;
   const char *forms=getenv("NEXTSPACE_CHROMIUM_FORMS");
   forms_available=forms&&!strcmp(forms,"1")&&metrics->parts[0].height;
   if(isfinite(metrics->parts[4].width)&&metrics->parts[4].width>=0&&metrics->parts[4].width<=3)

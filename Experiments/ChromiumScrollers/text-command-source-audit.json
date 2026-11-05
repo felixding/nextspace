@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-06",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "sources": [
+    {
+      "path": "chrome/browser/ui/views/omnibox/omnibox_view_views.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/omnibox/omnibox_view_views.cc",
+      "sha256": "2148d87eeb48891426376b9cf00993cb80962e48b48178f4b6a5e05c26cd0ada",
+      "bytes": 102543
+    },
+    {
+      "path": "ui/views/controls/textfield/textfield.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/textfield/textfield.cc",
+      "sha256": "d7538ddd831d7d54f97e50dba2cf54f5ff21221bfecbb89c3bb5bd4b13813087",
+      "bytes": 126324
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/clipboard_commands.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/clipboard_commands.cc",
+      "sha256": "1ab7b0acccb90efca547a79e1925276754b8c8e83074601232d70e2c28772307",
+      "bytes": 37207
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/editor_command.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/editor_command.cc",
+      "sha256": "1f70c87441bf80861349c7edfc93245c4b6ace44ffcbdac85b7626ba0c90e8fc",
+      "bytes": 101534
+    }
+  ],
+  "native_boundary": "Existing optional shared application-command filter from Libraries/NativeUI/command-filter-source-audit.json. Native NSMenu/NSTextView own controls, shortcut interpretation, validation dispatch and action dispatch.",
+  "compiled_guards": [
+    {
+      "symbol": "OmniboxViewViews::IsTextEditCommandEnabled",
+      "address": "0x980f908",
+      "first_20_bytes": "5f2403d53fd8007188010054e903012a28008052"
+    },
+    {
+      "symbol": "blink::ClipboardCommands::EnabledCopy",
+      "address": "0xde57380",
+      "first_20_bytes": "3f2303d5fd7bbea9e103022af44f01a9fd030091"
+    },
+    {
+      "symbol": "blink::ClipboardCommands::EnabledCut",
+      "address": "0xde573fc",
+      "first_20_bytes": "3f2303d5fd7bbea9e103022af44f01a9fd030091"
+    },
+    {
+      "symbol": "blink::ClipboardCommands::EnabledPaste",
+      "address": "0xde57498",
+      "first_20_bytes": "3f2303d5ffc301d1fd7b04a9283502b0fd030191"
+    }
+  ],
+  "bindings": {
+    "views": "Call actual OmniboxViewViews IsTextEditCommandEnabled and ExecuteTextEditCommand, retaining its asynchronous paste, rejection policy and URL sanitization.",
+    "blink": "Call actual ClipboardCommands EnabledCopy/Cut/Paste with MenuOrKeyBinding source 0. Execute actual EditorCommand with the original KeyboardEvent. Browser handlers retain trusted events, cancellation, clipboard data and undo."
+  },
+  "findings": [
+    "A browser-owned Wayland clipboard can contain text while the offscreen helper NSPasteboard has no types. Native post-action reporting cannot enable Paste in that state.",
+    "One dispatcher chooses the active Views or Blink transaction so each process does not replace its own command handler with a different binding. Process, control, field and live-frame identity are checked before execution.",
+    "A claimed application action suppresses native mutation. Once an application action was attempted, Views reports the key handled even if the helper response or field disappears, preventing a second original action.",
+    "No native control, clipboard algorithm, menu implementation or shortcut table is copied. NativeUI provider, loader, shim, Chromium and installed AppKit are unchanged. Only the small Chromium adapter is rebuilt."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/chromium-command-source",
+    ".build/native-ui/chromium-clipboard-qualified"
+  ]
+}

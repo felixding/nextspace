@@ -1,0 +1,277 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "694bf7aa",
+  "status": "Qualified exact-build native clipboard command binding for Chromium address and webpage fields. Complete native browser/toolkit integration remains unfinished.",
+  "only_small_chromium_adapter_rebuilt": true,
+  "provider_loader_shim_browser_appkit_unchanged": true,
+  "environment": {
+    "paths": {
+      "chromium_adapter": "/var/tmp/nextspace-native-ui/chromium-command-filter-final-hook.so",
+      "provider": "/var/tmp/nextspace-native-ui/command-build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "shim": "/var/tmp/nextspace-native-ui/command-build/libnextspace-native-scroller.so.0.1",
+      "loader": "/var/tmp/nextspace-native-ui/command-build/native-ui/libnextspace-native-ui.so.0.1",
+      "chromium": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "appkit": "/Library/Libraries/libgnustep-gui.so.0.32.0"
+    },
+    "hashes": {
+      "chromium_adapter": "2032a37b8638e8641d914ec12f620cedb5bdc1c8015554941ec8a41bf2ab557c",
+      "provider": "56689f430d1cd195195a1263eda97dd8141f9b2a3b91b685feb44ca6aedd7536",
+      "shim": "1648848dbc2e7c0413986a76a557fd8f51faa6527717d96552f15e772a65832b",
+      "loader": "6bfc0d99101365f90e24cc8bf1a516b97261c62b95bfe75be49364365ac448b9",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "renderers": [
+      {
+        "pid": 9180,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 9194,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 9899,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "owned_browser_pids": [
+      9101,
+      9109,
+      9110,
+      9112,
+      9140,
+      9143,
+      9154,
+      9180,
+      9194,
+      9253,
+      9899
+    ],
+    "packages": 1050
+  },
+  "negative_control": {
+    "checks": 11,
+    "expected_failed_cases": [
+      "frontend-cold-paste",
+      "web-cold-paste"
+    ],
+    "evidence": ".build/native-ui/chromium-cold-negative/results.json",
+    "preconditions": "Actual original browser textarea pastes Alpha beta from the platform clipboard; helper --export-text returns exit 1 and no text after --empty."
+  },
+  "command_checks": {
+    "checks": 44,
+    "passed": 44,
+    "evidence": ".build/native-ui/chromium-clipboard-qualified/commands/results.json"
+  },
+  "views_checks": {
+    "checks": 43,
+    "passed": 43,
+    "evidence": ".build/native-ui/chromium-clipboard-qualified/chromium-command-filter-qualified/views-results.json"
+  },
+  "webpage_checks": {
+    "animation": {
+      "checks": 59,
+      "passed": 59,
+      "evidence": ".build/native-ui/chromium-clipboard-qualified/web/animation/results.json"
+    },
+    "input": {
+      "checks": 62,
+      "passed": 62,
+      "evidence": ".build/native-ui/chromium-clipboard-qualified/web/input/results.json"
+    },
+    "pointers": {
+      "checks": 100,
+      "passed": 100,
+      "evidence": ".build/native-ui/chromium-clipboard-qualified/web/pointers/results.json"
+    },
+    "progress": {
+      "checks": 20,
+      "passed": 20,
+      "evidence": ".build/native-ui/chromium-clipboard-qualified/web/progress/results.json"
+    },
+    "sliders": {
+      "checks": 50,
+      "passed": 50,
+      "evidence": ".build/native-ui/chromium-clipboard-qualified/web/sliders/results.json"
+    },
+    "text": {
+      "checks": 44,
+      "passed": 44,
+      "evidence": ".build/native-ui/chromium-clipboard-qualified/web/text/results.json"
+    }
+  },
+  "lifecycle": {
+    "checks": 4,
+    "passed": 4,
+    "evidence": ".build/native-ui/chromium-clipboard-qualified/chromium-command-filter-qualified/lifecycle-results.json"
+  },
+  "window_close": "Second real browser window closes and native control destruction is retained in window-close-events.json.",
+  "cleanup": {
+    "processes": [
+      {
+        "pid": 8235,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8238,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8239,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8243,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8251,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8613,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8616,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8617,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8619,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 8621,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9094,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9097,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9098,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9100,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9101,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9109,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9110,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9112,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9140,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9143,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9154,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9180,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9194,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9253,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9831,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 9899,
+        "state": null,
+        "stopped": true
+      }
+    ],
+    "sockets": [
+      {
+        "path": "/var/tmp/nextspace-native-ui/chromium-command-cold-negative/control.sock",
+        "exists": false
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/chromium-command-filter-probe/control.sock",
+        "exists": false
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/chromium-command-filter-qualified/control.sock",
+        "exists": false
+      }
+    ],
+    "private_alias_removed": true
+  },
+  "owned_automation": "Named session nextspace-chromium-text-078b99d269ac closed; only its 9941-to-9241 SSH forwarding canceled.",
+  "remaining": [
+    "Native application menus and Undo/Redo availability; default native text menu has no Undo item.",
+    "Rapid clipboard owner/focus transitions, non-text formats and clipboard lifetime.",
+    "Automatic focus restoration, resize parity, IME, accessibility and scaling.",
+    "Remaining native browser controls, menus and dialogs.",
+    "Chrome, Vivaldi and Firefox derivatives require their own verified build bindings.",
+    "GTK, Qt and KDE applications."
+  ],
+  "total_positive_assertions": 426,
+  "reproducible_adapter_build": {
+    "command": "python3 Experiments/ChromiumScrollers/build.py --output /var/tmp/nextspace-native-ui/chromium-command-filter-repro-hook.so",
+    "same_sha256_as_tested_adapter": true,
+    "sha256": "2032a37b8638e8641d914ec12f620cedb5bdc1c8015554941ec8a41bf2ab557c"
+  }
+}

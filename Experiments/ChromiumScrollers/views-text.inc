@@ -165,6 +165,21 @@ static void views_clipboard_command(void *view,int command) {
    * paste, application callbacks and history. NativeUI chooses the command. */
   ((void (*)(void *,int))(base+NXS_CHROMIUM_VIEWS_OMNIBOX_EXECUTE_OFFSET))((char *)view-16,command);
 }
+static int views_application_command(const struct NXSNativeCommand *request,const char *selector) {
+  struct ViewsTransaction *t=views_transaction;
+  if(!t||request->process!=identity()||request->control!=t->control||request->kind!=NXS_TEXTFIELD)return 0;
+  struct ViewsField *f=find_views_field(t->view);
+  if(!f||!f->owned||f->transport.control!=t->control||!original_views_has_focus(t->view))return 0;
+  int command=!strcmp(selector,"copy:")?NXS_VIEWS_COPY:!strcmp(selector,"cut:")?NXS_VIEWS_CUT:
+    !strcmp(selector,"paste:")?NXS_VIEWS_PASTE:-1;
+  if(command<0)return -1;
+  int enabled=((uint8_t (*)(const void *,int))(base+NXS_CHROMIUM_VIEWS_OMNIBOX_ENABLED_OFFSET))((char *)t->view-16,command);
+  if(request->phase==NXS_COMMAND_VALIDATE)return !!enabled;
+  t->attempted=1;
+  if(enabled)views_clipboard_command(t->view,command);
+  if(log_fd>=0)dprintf(log_fd,"%d native-views-command control=%llu command=%d enabled=%d\n",getpid(),(unsigned long long)t->control,command,!!enabled);
+  return !!enabled;
+}
 static int views_native_proposal(const struct NXSNativeTextEdit *edit,const char *replacement,const char *command) {
   struct ViewsTransaction *t=views_transaction;
   if(!t||edit->process!=identity()||edit->control!=t->control)return 0;
@@ -219,7 +234,8 @@ static int views_key(struct ViewsField *f,const void *event,const void *string,i
   if(!views_model(view,&transaction.before))return 0;
   unsigned key=event?views_logical(*(const uint16_t *)((const char *)event+136)):NXS_KEY_TEXT;
   unsigned modifiers=event?views_modifiers(event):0;
-  if(!views_sync(f)||!native_text_filter_register(views_native_proposal)){free(transaction.before.value);return 0;}
+  if(!views_sync(f)||!native_text_filter_register(views_native_proposal)||
+     (forms_commands_enabled&&!native_command_filter_register(chromium_application_command))){free(transaction.before.value);return 0;}
   views_transaction=&transaction;
   struct NXSResponse *response=form_input_request(&f->transport,8,0,NXS_KEY_DOWN,key,text,text,modifiers,
     event&&(*(const unsigned *)((const char *)event+80)&(1u<<17)));
@@ -227,7 +243,7 @@ static int views_key(struct ViewsField *f,const void *event,const void *string,i
   int handled=response&&response->parts[3].x;
   f=find_views_field(view);
   if(f&&f->transport.control==transaction.control) {
-    if(handled&&!transaction.proposed) {
+    if(handled&&!transaction.proposed&&!transaction.attempted) {
       struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=21,
         .process=identity(),.kind=f->transport.kind,.control=f->transport.control};
       response=exchange_bytes(&request,sizeof(request));
@@ -240,7 +256,7 @@ static int views_key(struct ViewsField *f,const void *event,const void *string,i
       }
     }
     f=find_views_field(view);
-    if(!f||f->transport.control!=transaction.control)return transaction.proposed?transaction.attempted:handled;
+    if(!f||f->transport.control!=transaction.control)return transaction.attempted?NXS_INPUT_HANDLED:transaction.proposed?0:handled;
     if(handled&&!transaction.proposed&&!transaction.attempted) {
       response=text_native_state(&f->transport);
       if(response) {
@@ -254,7 +270,7 @@ static int views_key(struct ViewsField *f,const void *event,const void *string,i
     f=find_views_field(view);
     if(f&&f->transport.control==transaction.control){views_sync(f);views_schedule(view);}
   }
-  return transaction.proposed?transaction.attempted:handled;
+  return transaction.attempted?NXS_INPUT_HANDLED:transaction.proposed?0:handled;
 }
 static int views_command_key(struct ViewsField *f,const void *event) {
   if(!f||*(const int *)((const char *)event+8)!=7)return 0;

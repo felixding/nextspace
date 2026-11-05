@@ -11,6 +11,33 @@ struct BlinkTextTransaction {
   int attempted;
 };
 static __thread struct BlinkTextTransaction *text_transaction;
+static void *text_frame(void *);
+static int blink_application_command(const struct NXSNativeCommand *request,const char *selector) {
+  static const struct {const char *selector,*name;uintptr_t enabled;} commands[]={
+    {"copy:","Copy",NXS_CHROMIUM_TEXT_COPY_ENABLED_OFFSET},
+    {"cut:","Cut",NXS_CHROMIUM_TEXT_CUT_ENABLED_OFFSET},
+    {"paste:","Paste",NXS_CHROMIUM_TEXT_PASTE_ENABLED_OFFSET}};
+  struct BlinkTextTransaction *t=text_transaction;
+  if(!t||request->process!=identity()||request->control!=t->control)return 0;
+  struct NativeForm *form=find_form(t->node);
+  if(!form||form->kind!=(int)request->kind||form->control!=t->control||text_frame(t->node)!=t->frame)return 0;
+  for(unsigned n=0;n<sizeof(commands)/sizeof(*commands);n++)if(!strcmp(selector,commands[n].selector)) {
+    int enabled=((uint8_t (*)(void *,void *,int))(base+commands[n].enabled))(t->frame,t->event,0);
+    if(request->phase==NXS_COMMAND_VALIDATE)return !!enabled;
+    t->attempted=1;
+    form=find_form(t->node);
+    if(!enabled||!form||form->control!=t->control||text_frame(t->node)!=t->frame)return 0;
+    void *name=((void *(*)(const char *,size_t))(base+NXS_CHROMIUM_TEXT_FROM_UTF8_OFFSET))(commands[n].name,strlen(commands[n].name));
+    struct BlinkEditorCommand action={.command=((void *(*)(const void *))(base+NXS_CHROMIUM_TEXT_COMMAND_OFFSET))(&name),.source=0,.frame=t->frame};
+    if(!action.command)action.frame=NULL;
+    void *empty=NULL;
+    int handled=((int (*)(const void *,const void *,void *))(base+NXS_CHROMIUM_TEXT_EXECUTE_OFFSET))(&action,&empty,t->event);
+    ((void (*)(void *))(base+0x7246038))(&name);
+    if(log_fd>=0)dprintf(log_fd,"%d native-blink-command control=%llu command=%s result=%d\n",getpid(),(unsigned long long)t->control,commands[n].name,!!handled);
+    return !!handled;
+  }
+  return -1;
+}
 static int (*original_text_paint)(void *,const void *,const void *,const void *,const struct Rect *);
 static void (*original_text_carets)(void *,const void *,const void *,const void *);
 static void (*original_text_delete_backward)(void *,unsigned char,int);
@@ -253,7 +280,8 @@ static int default_text_key(void *node,void *event) {
   uint64_t control=form->control;
   struct NXSResponse *response=sync_text_form(form,sync_form_focus(form,form_request(form,1,0,0,0)));
   struct BlinkTextTransaction transaction={.node=node,.frame=text_frame(node),.event=event,.control=control,.before=before.value};
-  if(response&&transaction.frame&&native_text_filter_register(native_text_proposal)) {
+  if(response&&transaction.frame&&native_text_filter_register(native_text_proposal)&&
+     (!forms_commands_enabled||native_command_filter_register(chromium_application_command))) {
     text_transaction=&transaction;
     response=form_input_request(form,8,0,NXS_KEY_DOWN,logical,text,unmodified,modifiers,!!(*(const unsigned *)((char *)event+108)&(1u<<5)));
     text_transaction=NULL;

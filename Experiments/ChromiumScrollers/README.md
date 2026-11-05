@@ -530,3 +530,36 @@ checks also consume references generated with `native-control-reference.py
 --pointers --click-counts`. No browser or AppKit rebuild is needed; only the
 small shared provider/loader extension and adapters change. Runtime and ABI
 evidence is in [click-count qualification](../../Libraries/NativeUI/click-count-qualification.json).
+
+## Application clipboard commands
+
+The Chromium address and webpage text bindings now opt into the existing shared
+application-command filter. GNUstep's real menu and editor still choose and
+validate keyboard actions. The bridge asks the actual Omnibox or Blink command
+controller whether Copy, Cut or Paste is available, then executes that existing
+application command once. No control, shortcut table, clipboard implementation
+or menu implementation is copied. Only the small Chromium adapter is rebuilt;
+Chromium, AppKit and the shared provider/loader/shim remain unchanged.
+
+This fixes native Paste when Chromium owns valid platform clipboard text but the
+offscreen native helper has no pasteboard types. `check-text-commands.py` proves
+that precondition with an original browser textarea before testing the native
+address and webpage fields. Its `--negative` mode requires both Paste cases to
+fail with the earlier adapter. Positive checks also cover trusted clipboard
+events, cancellation, Unicode, custom clipboard data, password/read-only fields,
+maxlength, existing engine undo and removal during paste. The real Omnibox paste
+path retains asynchronous policy checks and URL sanitization.
+
+The [source audit](text-command-source-audit.json) records the four additional
+compiled guards and exact upstream receipts. The
+[qualification](text-command-qualification.json) records 44 command assertions,
+43 address-field assertions, 335 webpage regressions and four recovery
+assertions. Complete native field images and native TextEdit clipboard exchange
+are included. All 26 recorded owner processes exited, and the private sockets,
+backend alias and owned automation connection were closed.
+
+This remains a partial binding for one exact Chromium build. Native application
+menus and Undo/Redo availability, clipboard owner/focus lifetimes, other clipboard
+formats, IME, accessibility, scaling, remaining browser controls and dialogs,
+derivative builds and GTK/Qt/KDE applications still require integration. The
+shared command boundary also serves the separately qualified Firefox binding.
