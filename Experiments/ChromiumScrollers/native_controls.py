@@ -1,0 +1,191 @@
+"""Transport for the shared native UI provider; contains no widget implementation."""
+import ctypes as C
+import itertools
+import math
+
+MAGIC = 0x4e585549
+
+class ControlRequest(C.Structure):
+    _fields_ = [('magic', C.c_uint32), ('operation', C.c_uint32), ('process', C.c_uint32),
+                ('kind', C.c_uint32), ('control', C.c_uint64), ('text_size', C.c_uint32),
+                ('reserved', C.c_uint32), ('width', C.c_double), ('height', C.c_double),
+                ('minimum', C.c_double), ('maximum', C.c_double), ('value', C.c_double),
+                ('x', C.c_double), ('y', C.c_double), ('enabled', C.c_int32), ('state', C.c_int32),
+                ('indeterminate', C.c_int32), ('modifiers', C.c_uint32)]
+
+class ControlConfig(C.Structure):
+    _fields_ = [('size', C.c_uint32), ('width', C.c_double), ('height', C.c_double),
+                ('minimum', C.c_double), ('maximum', C.c_double), ('value', C.c_double),
+                ('enabled', C.c_int), ('state', C.c_int), ('indeterminate', C.c_int), ('title', C.c_char_p)]
+
+class ControlState(C.Structure):
+    _fields_ = [('size', C.c_uint32), ('value', C.c_double), ('state', C.c_int),
+                ('enabled', C.c_int), ('tracking', C.c_int)]
+
+class Size(C.Structure):
+    _fields_ = [('width', C.c_double), ('height', C.c_double)]
+
+ControlChanged = C.CFUNCTYPE(None, C.c_void_p, C.c_int, C.POINTER(ControlState))
+
+class NativeControlServer:
+    def __init__(self, native, bitmap_type, response_type, pump_type, dispatch, pending, send, idle, log):
+        self.native, self.response_type = native, response_type
+        self.pending, self.send, self.idle, self.log = pending, send, idle, log
+        self.controls, self.contexts = {}, {}
+        self.identities = itertools.count(1)
+        self.active = None
+        self.metric_cache = {}
+        self.changed = ControlChanged(self._changed)
+        self.pump = pump_type(lambda context: dispatch(0))
+        native.nxs_control_create.argtypes = [C.c_int, ControlChanged, pump_type, C.c_void_p]
+        native.nxs_control_create.restype = C.c_void_p
+        native.nxs_control_destroy.argtypes = [C.c_void_p]
+        native.nxs_control_destroy.restype = C.c_int
+        native.nxs_control_sync.argtypes = [C.c_void_p, C.POINTER(ControlConfig)]
+        native.nxs_control_sync.restype = C.c_int
+        native.nxs_control_state.argtypes = [C.c_void_p]
+        native.nxs_control_state.restype = ControlState
+        native.nxs_control_size.argtypes = [C.c_void_p]
+        native.nxs_control_size.restype = Size
+        native.nxs_control_draw.argtypes = [C.c_void_p, C.c_double]
+        native.nxs_control_draw.restype = bitmap_type
+        native.nxs_control_track.argtypes = [C.c_void_p, C.c_double, C.c_double, C.c_uint]
+        native.nxs_control_send.argtypes = [C.c_void_p, C.c_int, C.c_double, C.c_double, C.c_uint]
+
+    def preferred(self, kind):
+        if kind not in self.metric_cache:
+            pointer = self.native.nxs_control_create(kind, ControlChanged(), type(self.pump)(), None)
+            if not pointer:
+                return 0, 0
+            try:
+                config = ControlConfig(C.sizeof(ControlConfig), 128, 24, 0, 100, 0, 1, 0, 0, b'')
+                self.native.nxs_control_sync(pointer, C.byref(config))
+                size = self.native.nxs_control_size(pointer)
+                self.metric_cache[kind] = size.width, size.height
+            finally:
+                self.native.nxs_control_destroy(pointer)
+        return self.metric_cache[kind]
+
+    def _changed(self, context, event, native_state):
+        state = self.contexts[context]
+        if state['destroy']:
+            return
+        state['actions'] += 1
+        self.log('native-form-action', process=state['key'][0], control=state['key'][1],
+                 kind=state['key'][2], action=event, count=state['actions'],
+                 value=native_state.contents.value, state=native_state.contents.state)
+
+    def _tracking(self, state):
+        return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
+
+    def _respond(self, client, req, state=None, pixels=False):
+        response = self.response_type()
+        response.magic, response.reserved = MAGIC, req.reserved
+        data = b''
+        if state:
+            current = self.native.nxs_control_state(state['native'])
+            response.parts[0].x = current.value
+            response.parts[0].y = self._tracking(state)
+            response.parts[0].width = state['actions']
+            response.parts[0].height = current.state
+            preferred = self.native.nxs_control_size(state['native'])
+            response.parts[1].width, response.parts[1].height = preferred.width, preferred.height
+            response.parts[2].x = current.enabled
+            if pixels:
+                bitmap = self.native.nxs_control_draw(state['native'], 1)
+                if bitmap.pixels:
+                    response.width, response.height, response.stride = bitmap.width, bitmap.height, bitmap.stride
+                    data = C.string_at(bitmap.pixels, bitmap.stride * bitmap.height)
+        self.send(client, response, data)
+
+    def message(self, client, data):
+        if len(data) < C.sizeof(ControlRequest):
+            return
+        req = ControlRequest.from_buffer_copy(data)
+        if req.magic != MAGIC or req.text_size != len(data) - C.sizeof(req) or req.text_size > 65536:
+            return
+        if not all(math.isfinite(x) for x in (req.x, req.y)):
+            self._respond(client, req)
+            return
+        key = req.process, req.control, req.kind
+        state = self.controls.get(key)
+        if state and state['destroy'] and req.operation != 5:
+            self._respond(client, req)
+            return
+        if req.operation == 1:
+            if not 1 <= req.kind <= 5 or not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value)):
+                self._respond(client, req)
+                return
+            if not 1 <= req.width <= 8192 or not 1 <= req.height <= 8192 or req.width * req.height > 8 * 1024 * 1024:
+                self._respond(client, req)
+                return
+            title = data[C.sizeof(req):]
+            if b'\0' in title:
+                self._respond(client, req)
+                return
+            try:
+                title.decode('utf-8')
+            except UnicodeDecodeError:
+                self._respond(client, req)
+                return
+            if state is None:
+                context = next(self.identities)
+                pointer = self.native.nxs_control_create(req.kind, self.changed, self.pump, context)
+                if not pointer:
+                    self._respond(client, req)
+                    return
+                state = dict(key=key, native=pointer, context=context, client=client, actions=0, destroy=False)
+                self.controls[key] = self.contexts[context] = state
+                self.log('native-form-control', process=req.process, control=req.control, kind=req.kind,
+                         width=req.width, height=req.height)
+            current = self.native.nxs_control_state(state['native'])
+            config = ControlConfig(C.sizeof(ControlConfig), req.width, req.height, req.minimum, req.maximum,
+                                   current.value if current.tracking else req.value, req.enabled,
+                                   current.state if current.tracking else req.state, req.indeterminate, title)
+            if not self.native.nxs_control_sync(state['native'], C.byref(config)):
+                self._respond(client, req)
+                return
+            self._respond(client, req, state, pixels=True)
+            return
+        if state:
+            if req.operation == 2 and self.idle():
+                state['starting'] = True
+                self.pending.append(lambda: self.track(state, req.x, req.y, req.modifiers))
+            elif req.operation in (3, 4) and self._tracking(state):
+                self.native.nxs_control_send(state['native'], 0 if req.operation == 3 else 1, req.x, req.y, req.modifiers)
+            elif req.operation == 6:
+                state['destroy'] = True
+                if self._tracking(state):
+                    self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
+                    self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
+        self._respond(client, req, state)
+
+    def track(self, state, x, y, modifiers):
+        if state['destroy']:
+            state['starting'] = False
+            return
+        self.active, state['starting'] = state, False
+        self.log('native-form-press', process=state['key'][0], control=state['key'][1], kind=state['key'][2], x=x, y=y)
+        try:
+            self.native.nxs_control_track(state['native'], x, y, modifiers)
+        finally:
+            self.active = None
+        self.log('native-form-release', process=state['key'][0], control=state['key'][1], kind=state['key'][2], actions=state['actions'])
+
+    def disconnect(self, client):
+        for state in self.controls.values():
+            if state['client'] is client:
+                state['destroy'] = True
+                if self._tracking(state):
+                    self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
+                    self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
+
+    def cleanup(self):
+        for key, state in list(self.controls.items()):
+            if state['destroy'] and self.native.nxs_control_destroy(state['native']):
+                del self.controls[key]
+                del self.contexts[state['context']]
+
+    def close(self):
+        for state in self.controls.values():
+            self.native.nxs_control_destroy(state['native'])

@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native standard-control transport</title>
+<style>
+  body { margin: 24px; font: 16px sans-serif; }
+  .row { height: 48px; display: flex; align-items: center; gap: 16px; }
+  button, input[type=button] { width: 128px; height: 24px; }
+  #large { width: 640px; height: 64px; }
+</style>
+<h1>Standard HTML controls</h1>
+<div class="row"><button id="button" type="button">Native button</button><span>Button element</span></div>
+<div class="row"><input id="input-button" type="button" value="Input button"><span>Input button</span></div>
+<div class="row"><input id="check" type="checkbox"><label for="check">Checkbox</label></div>
+<div class="row"><input id="mixed" type="checkbox"><label for="mixed">Mixed checkbox</label></div>
+<div class="row"><input id="radio-a" type="radio" name="choice"><label for="radio-a">Radio A</label><input id="radio-b" type="radio" name="choice"><label for="radio-b">Radio B</label></div>
+<div class="row"><button id="disabled" type="button" disabled>Disabled</button><input id="disabled-check" type="checkbox" disabled><input id="disabled-radio" type="radio" disabled></div>
+<div class="row"><button id="cancelled" type="button">Prevent default</button><span>Click listener cancels the action</span></div>
+<div class="row" style="height:80px"><button id="large" type="button">Large native control</button></div>
+<output id="status">Ready</output>
+<script>
+  document.querySelector('#mixed').indeterminate = true;
+  window.events = [];
+  for (const type of ['mousedown', 'mouseup', 'click', 'input', 'change']) {
+    document.addEventListener(type, event => {
+      if (!(event.target instanceof HTMLInputElement || event.target instanceof HTMLButtonElement)) return;
+      events.push({type, id: event.target.id, trusted: event.isTrusted, checked: event.target.checked});
+      document.querySelector('#status').textContent = event.target.id + ': ' + type;
+    });
+  }
+  document.querySelector('#cancelled').addEventListener('click', event => event.preventDefault());
+</script>

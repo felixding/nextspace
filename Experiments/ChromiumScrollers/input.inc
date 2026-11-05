@@ -199,16 +199,9 @@ static void immediate(uint32_t **out,unsigned reg,uintptr_t value) {
 static void jump(uint32_t **out,uintptr_t destination) {
   immediate(out,17,destination);*(*out)++=0xd65f0220u; /* RET x17 preserves LR. */
 }
-static int prepare_input(void) {
-  uintptr_t *table=(uintptr_t *)(base+0x11d4b228);
-  for(int i=2;i<120;i++)if(table[i]==base+0xc7a3550){if(scroll_offset_slot>=0)return 0;scroll_offset_slot=i-2;}
-  for(int i=2;i<120;i++)if(table[i]==base+0xdfe7078){if(minimum_offset_slot>=0)return 0;minimum_offset_slot=i-2;}
-  if(scroll_offset_slot<0||minimum_offset_slot<0)return 0;
-  uintptr_t *scrollbar_table=(uintptr_t *)(base+0x11d4f840);
-  for(int i=2;i<24;i++)if(scrollbar_table[i]==base+0xb249734){if(disconnect_slot>=0)return 0;disconnect_slot=i;}
-  if(disconnect_slot<0)return 0;
-  for(unsigned i=0;i<sizeof(input_detours)/sizeof(*input_detours);i++) {
-    struct Detour *d=&input_detours[i];unsigned char *target=(void *)(base+d->offset);
+static int prepare_detours(struct Detour *detours,size_t count) {
+  for(unsigned i=0;i<count;i++) {
+    struct Detour *d=&detours[i];unsigned char *target=(void *)(base+d->offset);
     if(memcmp(target,d->expected,20))return 0;
     uint32_t *memory=mmap(NULL,getpagesize(),PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANONYMOUS,-1,0);
     if(memory==MAP_FAILED)return 0;
@@ -235,15 +228,28 @@ static int prepare_input(void) {
   }
   return 1;
 }
+static int prepare_input(void) {
+  uintptr_t *table=(uintptr_t *)(base+0x11d4b228);
+  for(int i=2;i<120;i++)if(table[i]==base+0xc7a3550){if(scroll_offset_slot>=0)return 0;scroll_offset_slot=i-2;}
+  for(int i=2;i<120;i++)if(table[i]==base+0xdfe7078){if(minimum_offset_slot>=0)return 0;minimum_offset_slot=i-2;}
+  if(scroll_offset_slot<0||minimum_offset_slot<0)return 0;
+  uintptr_t *scrollbar_table=(uintptr_t *)(base+0x11d4f840);
+  for(int i=2;i<24;i++)if(scrollbar_table[i]==base+0xb249734){if(disconnect_slot>=0)return 0;disconnect_slot=i;}
+  if(disconnect_slot<0)return 0;
+  return prepare_detours(input_detours,sizeof(input_detours)/sizeof(*input_detours));
+}
+static void activate_detours(struct Detour *detours,size_t count) {
+  for(unsigned i=0;i<count;i++) {
+    struct Detour *d=&detours[i];unsigned char *target=(void *)(base+d->offset);
+    const uint32_t instructions[]={0xd503245f,0x58000050,0xd61f0200};
+    writable(target,20,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,instructions,12);memcpy(target+12,&d->replacement,8);
+    __builtin___clear_cache((char *)target,(char *)target+20);writable(target,20,PROT_READ|PROT_EXEC);
+  }
+}
 static void activate_input(void) {
   uintptr_t *scrollbar_table=(uintptr_t *)(base+0x11d4f840);
   writable(scrollbar_table,24*8,PROT_READ|PROT_WRITE);
   scrollbar_table[disconnect_slot]=(uintptr_t)disconnect_scrollbar;
   writable(scrollbar_table,24*8,PROT_READ);
-  for(unsigned i=0;i<sizeof(input_detours)/sizeof(*input_detours);i++) {
-    struct Detour *d=&input_detours[i];unsigned char *target=(void *)(base+d->offset);
-    const uint32_t instructions[]={0xd503245f,0x58000050,0xd61f0200};
-    writable(target,20,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,instructions,12);memcpy(target+12,&d->replacement,8);
-    __builtin___clear_cache((char *)target,(char *)target+20);writable(target,20,PROT_READ|PROT_EXEC);
-  }
+  activate_detours(input_detours,sizeof(input_detours)/sizeof(*input_detours));
 }

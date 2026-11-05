@@ -98,7 +98,8 @@ folder; the guest package inventory was unchanged.
 
 The [full native-control integration scope](../../docs/Native-Control-Integration.md)
 now records the requirement for browser UI, forms, menus, editing and shortcuts
-across browser families. Those additional controls are not implemented here.
+across browser families. The partial standard-form experiment below is the next
+implementation step; browser UI, menus and editing remain open.
 
 The earlier `qualified-zero.png` screenshot contains Chromium artwork in the
 nested disabled horizontal bar. Its original fallback trigger was not
@@ -134,3 +135,49 @@ native width. Changing only the UI library's `GSScrollerDefaultWidth` setting
 from 18 to 22 changed Chromium's layout and passed eight native pixel checks
 plus an arrow-action check without rebuilding Chromium or the bridge. This
 qualifies that metric handoff, not all controls or arbitrary theme changes.
+
+## Standard buttons, checkboxes and radio buttons
+
+Set `NEXTSPACE_CHROMIUM_FORMS=1` when launching the same pinned experiment to
+enable the initial standard-form bindings, and open `test-forms.html`. This flag
+is separate because these bindings do not yet cover the full control contract.
+They require the new NativeUI provider behind the legacy scrollbar ABI. The
+existing scrollbar-only library still works without generic controls.
+
+`forms.inc` connects Blink's element state, paint lifecycle, geometry and trusted
+mouse events to the provider. The helper calls `nxs_control_*`; it does not draw
+or implement controls. Native AppKit supplies button text, glyphs, preferred
+sizes, pressed state and mouse tracking. Blink's own text children are suppressed
+for the native push button, so its label is drawn once by the native library.
+The native action gates the existing DOM activation pipeline; page event handlers,
+checkbox preactivation/rollback and radio-group model updates stay in Chromium.
+Removal cancels native tracking and discards callbacks from the destroyed object.
+
+The common transport now sends larger images using sealed, read-only mapped file
+descriptors. The tested 640×64 native button exercises this path inside the
+sandboxed renderer. The experiment compiles only its small preload library;
+Chromium and the UI library remain unchanged.
+
+On the same ARM64/native106 setup at 100% scale, `check-forms.py` passed 33 checks:
+11 complete control images, 3 pressed images and 19 behavior/event assertions.
+Direct NativeUI references match every RGB pixel. `check-form-trace.py` separately
+verified 19 native press/release pairs, 16 native actions and 3 cancelled gestures
+(pointer capture, removal and reload). Eight existing scrollbar pixel checks
+also pass with the shared transport. See `forms-qualification.json` for evidence
+hashes and the exact limitations.
+
+`native-control-reference.py` renders reference images directly through the
+public library ABI, independently of Chromium and its IPC helper. Its `--controls`
+JSON describes each fixture control with `id`, `kind`, `width`, `height`, `title`,
+`enabled` and `state`; the browser checker also uses its measured integer `x` and
+`y`. The reference tool accepts the helper's `-GSBackend` option. Run browser
+checks with an explicitly owned agent-browser session and a fresh fixture, and
+validate the helper log from that run with `check-form-trace.py`.
+
+This qualifies the fixture's standard mouse path only. Native focus, keyboard,
+label activation, accessibility, touch, arbitrary fonts/automatic button sizing,
+rich button content, author-styled controls, CSS zoom/transforms, cross-process
+frames and HiDPI remain open. Titles containing NUL or exceeding 64 KiB currently
+fall back. Browser chrome and Chrome, Vivaldi, Firefox and derivatives have no
+qualified form bindings. Closing the private browser removes the memory patches;
+the installed NEXTSPACE session is unchanged.

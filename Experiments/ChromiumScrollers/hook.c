@@ -1,5 +1,5 @@
 /* Exact-build ARM64 experiment. Never rebuild or overwrite Chromium.
- * Rendering and geometry are supplied by the existing NSScroller bridge.
+ * Rendering, geometry and tracking are supplied by the separate NativeUI provider.
  * GPL-2.0-or-later. */
 #define _GNU_SOURCE
 #include "protocol.h"
@@ -17,6 +17,7 @@
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -24,6 +25,9 @@
 struct Rect {int x,y,width,height;};
 struct Flags {float color[4],width,miter;uint32_t bits;float hdr;void *objects[5];};
 _Static_assert(sizeof(struct Flags)==72,"Pinned PaintFlags layout");
+_Static_assert(sizeof(struct NXSControlRequest)==104,"Control request ABI");
+_Static_assert(offsetof(struct NXSControlRequest,reserved)==28,"Shared control sequence offset");
+_Static_assert(offsetof(struct NXSRequest,reserved)==28,"Shared scrollbar sequence offset");
 struct Shared {pthread_mutex_t mutex;uint32_t sequence;_Atomic uint32_t next_process;};
 static struct Shared *shared;
 static pid_t observed_pid;
@@ -32,6 +36,7 @@ static int channel=-1,log_fd=-1,draw_slot=-1;
 static uintptr_t base;
 static double native_thickness;
 static __thread unsigned char *packet;
+static __thread size_t packet_capacity;
 static __thread struct NXSRequest cached_request;
 static __thread struct NXSResponse cached_response;
 static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),text);}
@@ -49,23 +54,58 @@ static uint32_t identity(void) {
   return process_cookie;
 }
 
-static struct NXSResponse *exchange(struct NXSRequest req) {
+static struct NXSResponse *exchange_bytes(void *request,size_t request_size) {
   if(channel<0||!shared)return NULL;
-  if(!packet)packet=malloc(1024*1024);
+  if(!packet){packet_capacity=1024*1024;packet=malloc(packet_capacity);}
   if(!packet)return NULL;
   int locked=pthread_mutex_lock(&shared->mutex);
   if(locked==EOWNERDEAD)pthread_mutex_consistent(&shared->mutex);
   else if(locked)return NULL;
-  req.reserved=++shared->sequence;
-  ssize_t bytes=send(channel,&req,sizeof(req),MSG_NOSIGNAL);
+  uint32_t magic=*(const uint32_t *)request,sequence=++shared->sequence;
+  memcpy((char *)request+28,&sequence,4);
+  ssize_t bytes=send(channel,request,request_size,MSG_NOSIGNAL);
   struct NXSResponse *response=(struct NXSResponse *)packet;
-  if(bytes==sizeof(req)) {
-    do {bytes=recv(channel,packet,1024*1024,0);} while(bytes>=(ssize_t)sizeof(*response)&&response->reserved!=req.reserved);
+  if(bytes==(ssize_t)request_size) {
+    for(;;) {
+      struct iovec buffer={.iov_base=packet,.iov_len=packet_capacity};
+      char ancillary[CMSG_SPACE(sizeof(int)*4)];
+      struct msghdr message={.msg_iov=&buffer,.msg_iovlen=1,.msg_control=ancillary,.msg_controllen=sizeof(ancillary)};
+      bytes=recvmsg(channel,&message,MSG_CMSG_CLOEXEC);
+      if(bytes<0&&errno==EINTR)continue;
+      int descriptor=-1;
+      for(struct cmsghdr *c=CMSG_FIRSTHDR(&message);bytes>=0&&c;c=CMSG_NXTHDR(&message,c)) {
+        if(c->cmsg_level!=SOL_SOCKET||c->cmsg_type!=SCM_RIGHTS)continue;
+        size_t count=(c->cmsg_len-CMSG_LEN(0))/sizeof(int);int *fds=(int *)CMSG_DATA(c);
+        for(size_t i=0;i<count;i++){if(descriptor<0)descriptor=fds[i];else close(fds[i]);}
+      }
+      response=(struct NXSResponse *)packet;
+      if(bytes<(ssize_t)sizeof(*response)||(message.msg_flags&(MSG_TRUNC|MSG_CTRUNC))) {
+        if(descriptor>=0)close(descriptor);bytes=-1;break;
+      }
+      if((uint32_t)response->reserved!=sequence){if(descriptor>=0)close(descriptor);continue;}
+      if(descriptor>=0) {
+        struct stat metadata;
+        size_t pixels=response->size>=sizeof(*response)?response->size-sizeof(*response):0;
+        int valid=bytes==(ssize_t)sizeof(*response)&&pixels<=32*1024*1024&&pixels>0&&
+          !fstat(descriptor,&metadata)&&(uint64_t)metadata.st_size==pixels;
+        void *mapped=valid?mmap(NULL,pixels,PROT_READ,MAP_SHARED,descriptor,0):MAP_FAILED;
+        close(descriptor);
+        if(mapped==MAP_FAILED){bytes=-1;break;}
+        if(response->size>packet_capacity) {
+          size_t capacity=response->size;unsigned char *larger=realloc(packet,capacity);
+          if(!larger){munmap(mapped,pixels);bytes=-1;break;}
+          packet=larger;packet_capacity=capacity;response=(struct NXSResponse *)packet;
+        }
+        memcpy(response+1,mapped,pixels);munmap(mapped,pixels);bytes=response->size;
+      }
+      break;
+    }
   }
   pthread_mutex_unlock(&shared->mutex);
-  if(bytes<(ssize_t)sizeof(*response)||response->magic!=NXS_CHROMIUM_MAGIC||response->size!=bytes)return NULL;
+  if(bytes<(ssize_t)sizeof(*response)||response->magic!=magic||response->size!=bytes)return NULL;
   return response;
 }
+static struct NXSResponse *exchange(struct NXSRequest req){return exchange_bytes(&req,sizeof(req));}
 
 static struct NXSResponse *query(const void *bar,int layer,float value,int override_value) {
   if(!bar||channel<0||!shared)return NULL;
@@ -113,6 +153,27 @@ static int yes(void*t){return 1;}
 static int no(void*t){return 0;}
 static int has_thumb(void*t,const void*b){return *(const int *)((const char *)b+36)>*(const int *)((const char *)b+32);}
 
+static int draw_native_bitmap(void *canvas,const uint32_t *pixels,int width,float origin_x,float origin_y,int first_x,int first_y,int last_x,int last_y) {
+  typedef void (*Draw)(void *,const float *,const struct Flags *);
+  Draw draw=(Draw)(*(uintptr_t **)canvas)[draw_slot];
+  struct Flags flags={.miter=4,.bits=3u<<8,.hdr=-1};
+  int rectangles=0;
+  for(int y=first_y;y<last_y;y++) {
+    int x=first_x;
+    while(x<last_x) {
+      uint32_t color=pixels[y*width+x];int end=x+1;
+      while(end<last_x&&pixels[y*width+end]==color)end++;
+      if(color>>24) {
+        float alpha=(color>>24)/255.f;
+        flags.color[0]=((color>>16)&255)/(255.f*alpha);flags.color[1]=((color>>8)&255)/(255.f*alpha);flags.color[2]=(color&255)/(255.f*alpha);flags.color[3]=alpha;
+        float area[4]={origin_x+x,origin_y+y,origin_x+end,origin_y+y+1};draw(canvas,area,&flags);rectangles++;
+      }
+      x=end;
+    }
+  }
+  return rectangles;
+}
+
 static void paint(void *theme,void *info,const void *bar,const struct Rect *rect,int layer) {
   struct NXSResponse *r=query(bar,layer,0,0);
   if(!r||draw_slot<0) {
@@ -143,23 +204,7 @@ static void paint(void *theme,void *info,const void *bar,const struct Rect *rect
   }
   if(first_x<0)first_x=0;if(first_y<0)first_y=0;if(last_x>r->width)last_x=r->width;if(last_y>r->height)last_y=r->height;
 
-  typedef void (*Draw)(void *,const float *,const struct Flags *);
-  Draw draw=(Draw)(*(uintptr_t **)canvas)[draw_slot];
-  struct Flags flags={.miter=4,.bits=3u<<8,.hdr=-1};
-  int rectangles=0;
-  for(int y=first_y;y<last_y;y++) {
-    int x=first_x;
-    while(x<last_x) {
-      uint32_t color=pixels[y*r->width+x];int end=x+1;
-      while(end<last_x&&pixels[y*r->width+end]==color)end++;
-      if(color>>24) {
-        float alpha=(color>>24)/255.f;
-        flags.color[0]=((color>>16)&255)/(255.f*alpha);flags.color[1]=((color>>8)&255)/(255.f*alpha);flags.color[2]=(color&255)/(255.f*alpha);flags.color[3]=alpha;
-        float area[4]={origin_x+x,origin_y+y,origin_x+end,origin_y+y+1};draw(canvas,area,&flags);rectangles++;
-      }
-      x=end;
-    }
-  }
+  int rectangles=draw_native_bitmap(canvas,pixels,r->width,origin_x,origin_y,first_x,first_y,last_x,last_y);
   ((Dtor)(base+0xecefea8))(recorder);free(pixels);
   if(paint_count<=16&&log_fd>=0)dprintf(log_fd,"%d layer %d emitted %d rectangles\n",getpid(),layer,rectangles);
 }
@@ -189,6 +234,7 @@ static void configure(uintptr_t offset) {
   writable((char *)table-1,65*8+1,PROT_READ);note("native theme vtable installed");
 }
 #include "input.inc"
+#include "forms.inc"
 
 static int main_object(struct dl_phdr_info *info,size_t size,void *unused) {
   if(info->dlpi_name&&*info->dlpi_name)return 0;
@@ -225,13 +271,22 @@ __attribute__((constructor)) static void initialize(void) {
     note("native metrics unavailable; unchanged");return;
   }
   native_thickness=metrics->parts[0].width;
+  const char *forms=getenv("NEXTSPACE_CHROMIUM_FORMS");
+  forms_available=forms&&!strcmp(forms,"1")&&metrics->parts[0].height;
+  for(int kind=2;kind<=3;kind++) {
+    double width=metrics->parts[kind-1].width,height=metrics->parts[kind-1].height;
+    if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>256||height>256)forms_available=0;
+    else form_sizes[kind]=(struct SizeI){ceil(width),ceil(height)};
+  }
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};
   const unsigned char originals[][12]={{0x5f,0x24,0x03,0xd5,0x08,0x38,0x80,0xb9,0xa8,0x01,0x00,0x34},{0x5f,0x24,0x03,0xd5,0xc8,0x09,0x02,0xd0,0x08,0x01,0x24,0x91},{0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0xf3,0x0b,0x00,0xf9}};
   for(int i=0;i<3;i++)if(memcmp((void *)(base+offsets[i]),originals[i],12)){note("instruction guard failed; unchanged");return;}
   if(!prepare_input()){note("input guard failed; unchanged");return;}
+  if(forms_available&&!prepare_forms()){note("form guard failed; unchanged");return;}
   const uint32_t patch[]={0xd503245f,0x52800020,0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
+  if(forms_available){activate_forms();note("experimental native forms enabled");}
 }

@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-05",
+  "status": "opt-in pinned Chromium standard mouse prototype; full native controls remain incomplete",
+  "chromium": {
+    "package": "156.0.8078.79-1~deb13u1 ARM64",
+    "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "source_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "rebuilt": false
+  },
+  "environment": {
+    "distribution": "Debian 13 ARM64",
+    "nextspace": "native106",
+    "display": "private headless Wayland/Pixman",
+    "scale": 1,
+    "viewport": [
+      868,
+      571
+    ],
+    "all_observed_renderers_seccomp": 2,
+    "package_inventory_unchanged": true,
+    "installed_session_activated": false
+  },
+  "provider": {
+    "interface": "NativeUI C ABI 1",
+    "implementation": "installed AppKit NSButton, NSSwitchButton and NSRadioButton",
+    "control_implementations_copied": false,
+    "UI_library_rebuilt_for_this_step": false
+  },
+  "checks": {
+    "native_pixel_comparisons": 14,
+    "browser_behavior_assertions": 19,
+    "native_trace": {
+      "native_actions": {
+        "1": 6,
+        "2": 6,
+        "3": 4
+      },
+      "presses": 19,
+      "releases": 19,
+      "cancelled_gestures": 3,
+      "passed": true
+    },
+    "helper_round_trip_kinds": [
+      1,
+      2,
+      3
+    ],
+    "large_bitmap_sandbox_transport": [
+      640,
+      64
+    ],
+    "scrollbar_pixel_regressions": 8
+  },
+  "source_sha256": {
+    "hook.c": "fadff7e077f1459ce40ef7b3467675220afbdaaa01d1964a81442d0b5df34c95",
+    "input.inc": "533c870fdb44dabbbf38969a5560f7561b8e1739fb39134c3f29862635a1c4bf",
+    "forms.inc": "25d66ad322be8cff5277676ad9a0e683ab52b83b5bd714b775552966ab35502c",
+    "helper.py": "5814b69294e26de4ce259a69080695799a0405b5031c7e3eda20ac5e45dd9767",
+    "native_controls.py": "ba86e10c4317ad289dc0749c1afc3d31ff415918fcc7ce4c2c5fb10ab6e702b4",
+    "pinned-forms.h": "b810e391b07737ff19e1e70f3ed1b6ac77a5cf74b8feb35962a0df39f0ed40d6",
+    "protocol.h": "c87ce816e0b2d39e5a01b29028b6fd7f45a99f67c0b459bc58a6dee31be4aee9"
+  },
+  "evidence": {
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/results.json": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/native-actions.json": "8e9a7c705cebfb6f5841b68f58859c6c97a439f1bd7d93599a307fe9c0b7861f",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/native-helper.jsonl": "2e3ee3d2d4c142b44bed4ed1af55e28ed729d7edb682cd42afd21687e3afbb2d",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/native-hook.log": "0361b172e770b625a7e54eadf55fdd613e594d427af17ef22de3e29294ba7e5d",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/environment.json": "9cd06b3e4c354146343811e0df0c26ff481e6f98be3bb8760ba2293e814786c1",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/transport.json": "fa092247283cd0dd44b1baab6e7cdb116591e6797d1da26f0e2b33529d9d113f",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/button-pressed.png": "73438fadf168f582790eaba19acf7f062ddce064a51adca2c27d3c6ae357807c",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/check-pressed.png": "4448c254b0f8a0503fde579040bba89f971d1b7469379e67af5c3f9fe1b3a278",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/radio-a-pressed.png": "463447ec5974cf4e9f9e2b96d0fa23f8e915edd7cf2593c2da0ee51c4b270704",
+    ".build/foreign-scrollbars/chromium-prototype/forms-qualified/scrollbars/results.json": "70a7d088253e2c4cfaa35326d8153fe1cce6c6c49e829c7b6d05107bdbc6bfd1",
+    ".build/foreign-scrollbars/chromium-prototype/forms-controls.json": "058217ecbc1a91a055d01456496a7abec947bc857e39a0d67028fa8a6bdc36d6",
+    ".build/foreign-scrollbars/chromium-prototype/form-references-2/results.json": "4d9083e27f3c5ffdf3e7fcadfeac74026724519882f2d04a5f717b27d5890c8c"
+  },
+  "remaining": [
+    "native focus, keyboard, IME, touch and accessibility",
+    "label activation through the native control",
+    "automatic button sizing, arbitrary fonts and rich content",
+    "CSS appearance overrides, zoom, transforms and HiDPI",
+    "cross-process frames and helper failure recovery",
+    "text fields, sliders, progress, menus, popups, lists and tabs in applications",
+    "browser chrome and Chrome/Vivaldi/Firefox/derivative bindings",
+    "GTK/Qt full regression following provider separation"
+  ]
+}

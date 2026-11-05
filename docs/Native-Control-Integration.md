@@ -10,9 +10,10 @@ completion of this requirement.
 
 ## Shared implementation and distinct integration boundaries
 
-Keep one native host using installed GNUstep/AppKit and DesktopKit controls.
-`Libraries/ForeignScrollers` already hosts the real `NSScroller`; extend that
-boundary as additional control types are implemented. Do not copy native
+Keep one native host in `Libraries/NativeUI` using installed GNUstep/AppKit and
+DesktopKit controls. `Libraries/ForeignScrollers` now forwards its legacy ABI to
+that provider; toolkit and browser adapters consume the independent public C
+interface. Extend the provider as additional control types are implemented. Do not copy native
 artwork, geometry, editing rules, tracking loops or menu behavior into adapters.
 Native focus, hit testing, pressed/disabled state, keyboard interpretation, IME,
 selection, accessibility and lifecycle must be part of the contract, not just
@@ -24,7 +25,7 @@ required integration surfaces differ:
 | Surface | Required integration | Current evidence |
 | --- | --- | --- |
 | GTK and Qt widgets | Toolkit object/layout/input adapters | Existing adapters cover scrollbars only. |
-| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars. |
+| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars and partial standard button/checkbox/radio integration. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented or binary qualified. |
@@ -98,5 +99,11 @@ tracking/model probes and 30 unchanged-scrollbar bitmap comparisons pass on the
 private ARM64 test setup. The unchanged Chromium scrollbar path also passes
 through this provider; changing the UI library's width setting changes its
 layout and passes native pixels/input without a browser or bridge rebuild. Text, menus and the remaining controls are still open.
-The new types are not connected to GTK/Qt or browser controls yet; steps 3-5
-remain incomplete. The full application matrix must be rerun before activation.
+The first Blink bindings now connect standard push buttons, checkboxes and radio
+buttons in the same pinned Chromium experiment. They reuse this provider through
+its public C ABI for metrics, pixels and mouse tracking. Fourteen native pixel
+comparisons, nineteen browser assertions and independent native-action traces
+pass, including cancellation and destruction during tracking. Keyboard, focus,
+label activation and broader layout coverage are still incomplete. The new types
+are not connected to GTK/Qt or other browser families. Steps 3-5 and the full
+application matrix remain open; this experiment is not globally activated.
