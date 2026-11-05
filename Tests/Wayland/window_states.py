@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Drive standard maximize/fullscreen requests through GTK on Wayland and X11."""
+"""Drive standard maximize/fullscreen requests through GTK on Wayland."""
 import argparse
 import json
 import os
@@ -13,12 +13,12 @@ from integration import read_json_lines, until
 from shell import Shell
 
 
-def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_probe=None):
+def run(compositor, client, artifacts, registry_probe=None, shell_probe=None):
     artifacts.mkdir(parents=True)
     with tempfile.TemporaryDirectory(prefix="nextspace-window-states-") as runtime:
         env = dict(os.environ, XDG_RUNTIME_DIR=runtime, WLR_BACKENDS="headless",
                    WLR_HEADLESS_OUTPUTS="2", WLR_RENDERER="pixman", GSK_RENDERER="cairo",
-                   GTK_A11Y="none", GDK_BACKEND="x11" if legacy else "wayland")
+                   GTK_A11Y="none", GDK_BACKEND='wayland')
         for name in ("DISPLAY", "WAYLAND_DISPLAY", "WAYLAND_SOCKET"):
             env.pop(name, None)
         control, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
@@ -27,7 +27,7 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
         shell = None
         with (artifacts / "compositor.log").open("w") as log:
             server = subprocess.Popen([compositor, "-d", "-c", str(child.fileno()),
-                "-S", str(broker_child.fileno()), *(["-x"] if legacy else [])],
+                "-S", str(broker_child.fileno())],
                 pass_fds=[child.fileno(), broker_child.fileno()], env=env, stdout=subprocess.PIPE, stderr=log, text=True)
         child.close(); broker_child.close()
         records = []
@@ -68,7 +68,7 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                     return read_json_lines(path, "{")
 
                 w = until(window, "GTK window")
-                assert w["legacy"] == legacy, w
+                assert not w["legacy"], w
                 yield window, events
             except BaseException:
                 (artifacts / (name + "-failure.json")).write_text(json.dumps(dict(
@@ -91,9 +91,6 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                 for h in list(shell.outputs.values()): reserve(h["name"], True)
             if registry_probe:
                 subprocess.run([registry_probe, "--no-focus"], env=env, check=True, timeout=15)
-            if legacy:
-                env["DISPLAY"] = until(lambda: command("x-display") if command("x-display")["ready"] else None,
-                                       "managed Xwayland")["display"]
             left, right = sorted(command("outputs"), key=lambda o: o["x"])
             target = right["name"]
             scale(target, 150)
@@ -105,38 +102,6 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                 assert command(f"move {wid} {normal['x']} {normal['y']}")["ok"]
                 until(lambda: all(window()[k] == v for k, v in normal.items()), "initial floating frame")
 
-                if legacy:
-                    for position in ((1600, 0), (-1280, -200), (1600, 0), (-1280, -200)):
-                        assert command(f"output-position {target} {position[0]} {position[1]}")["ok"]
-                        for density in (120, 150, 180, 210, 240):
-                            scale(target, density)
-                            h = output(target)
-                            placed = dict(x=h['x']+40, y=h['y']+40, width=601, height=401)
-                            assert command(f"resize {wid} 601 401")["ok"]
-                            assert command(f"move {wid} {placed['x']} {placed['y']}")["ok"]
-                            until(lambda: all(window()[k] == v for k, v in placed.items()), "X11 pointer trial frame")
-                            heads = command("outputs")
-                            origin = (min(0, min(h['x'] for h in heads)), min(0, min(h['y'] for h in heads)))
-                            root = dict(placed, x=placed['x']-origin[0], y=placed['y']-origin[1])
-                            def configured():
-                                latest = next((e for e in reversed(events()) if e['event'] == 'x11-configure' and
-                                    e['width'] == 601 and e['height'] == 401), None)
-                                return latest and all(latest[k] == v for k, v in root.items())
-                            until(configured, "X server acknowledges translated window geometry")
-                            assert command("pointer 100 1100")["ok"]
-                            assert command(f"focus {wid}")["ok"]
-                            before = len(events())
-                            assert command(f"pointer {placed['x']+200} {placed['y']+100}")["ok"]
-                            assert command("button 272 1")["ok"]
-                            until(lambda: any(e['event'] == 'click' and (e['x'], e['y']) == (200, 100)
-                                for e in events()[before:]), "X11 exact logical click across output origins")
-                            until(lambda: command("move-state") == dict(id=wid, mode=1), "X11 click authorizes movement")
-                            assert command("button 272 0")["ok"]
-                            records.append(dict(pointer_origin=position, density=density, x11_geometry=root, window=window()))
-                    scale(target, 150)
-                    assert command(f"resize {wid} {normal['width']} {normal['height']}")["ok"]
-                    assert command(f"move {wid} {normal['x']} {normal['y']}")["ok"]
-                    until(lambda: all(window()[k] == v for k, v in normal.items()), "X11 state trial frame restored")
 
                 def key(code):
                     assert command(f"focus {wid}")["ok"]
@@ -152,7 +117,7 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                         if any(w[k] != frame[k] for k in ("x", "y", "width", "height")):
                             return None
                         if name:
-                            density = 120 if legacy else frame["scale"]
+                            density = frame['scale']
                             if (w["buffer_width"], w["buffer_height"]) != tuple(
                                     (frame[k] * density + 60) // 120 for k in ("width", "height")):
                                 return None
@@ -187,15 +152,12 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                 for density in (120, 150, 180, 210, 240, 150):
                     scale(target, density)
                     state(True, True, target)
-                # Restore where the original frame fits. GTK/X11 explicitly
-                # requests a smaller normal size if it exceeds its work area.
-                if not legacy:
-                    for code in (2, 3):
-                        before = len(events())
-                        key(code)
-                        chosen = until(lambda: next((e["name"] for e in events()[before:]
-                            if e["event"] == "fullscreen-output"), None), "requested fullscreen output")
-                        state(True, True, chosen)
+                for code in (2, 3):
+                    before = len(events())
+                    key(code)
+                    chosen = until(lambda: next((e["name"] for e in events()[before:]
+                        if e["event"] == "fullscreen-output"), None), "requested fullscreen output")
+                    state(True, True, chosen)
                 key(19)  # r: return to maximization on its original output.
                 state(True, False, target)
                 key(22)  # u: restore the exact original logical frame.
@@ -213,15 +175,8 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                 state(True, False, target)
                 key(22)
                 state(False, False)
-                # Exercise real GDK move requests, including X11's EWMH path.
-                # Window Maker defaults to keeping maximized size while moving.
-                if legacy:
-                    normal.update(width=601, height=401)
-                    # Keep the X11 floating frame inside the smallest work area
-                    # so GTK need not issue its own normal-size reduction.
-                    assert command(f"resize {wid} {normal['width']} {normal['height']}")["ok"]
-                    assert command(f"move {wid} {normal['x']} {normal['y']}")["ok"]
-                    until(lambda: all(window()[k] == v for k, v in normal.items()), "X11 negative-origin drag frame")
+                # Exercise real GDK move requests. Maximized windows retain
+                # their size while moving.
                 def frame(w):
                     return {k: w[k] for k in ("x", "y", "width", "height")}
 
@@ -366,7 +321,7 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                     until(lambda: window()[name] and all(window()[k] == frame[k]
                         for k in ("x", "y", "width", "height")), "initial " + name)
                     records.append(window())
-            if registry_probe and not legacy:
+            if registry_probe:
                 with (artifacts / "small-fullscreen.log").open("w") as log:
                     small = subprocess.Popen([registry_probe, "--small-fullscreen", "SmallFullscreen"],
                         env=env, stdout=log, stderr=log)
@@ -405,7 +360,7 @@ def run(compositor, client, artifacts, legacy=False, registry_probe=None, shell_
                 until(lambda: command(f"output-samples {left['name']}").get("center") != 0xff808080,
                       "fullscreen fill removed with its window")
             (artifacts / "results.json").write_text(json.dumps(records, indent=2) + "\n")
-            print(f"{'Xwayland' if legacy else 'Wayland'} maximize/fullscreen, density, output selection, restoration and hotplug: PASS")
+            print("Wayland maximize/fullscreen, density, output selection, restoration and hotplug: PASS")
         except BaseException:
             if server.poll() is None:
                 (artifacts / "failure.json").write_text(json.dumps(dict(windows=command("windows"),
@@ -425,7 +380,6 @@ if __name__ == "__main__":
     parser.add_argument("--compositor", required=True)
     parser.add_argument("--client", required=True)
     parser.add_argument("--artifacts", type=Path, required=True)
-    parser.add_argument("--legacy", action="store_true")
     parser.add_argument("--registry-probe")
     parser.add_argument("--shell-probe")
     run(**vars(parser.parse_args()))

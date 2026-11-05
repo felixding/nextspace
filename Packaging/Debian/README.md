@@ -64,6 +64,6 @@ python3 Packaging/Debian/build-wayland.py \
 
 The component alone does not provide the backend, applications or
 `nextspace-display-profile` helper required by the default greeter launcher.
-Earlier `packages.sh` X11-reference results are historical evidence and are
+Earlier X11-reference package results are historical evidence and are
 outside the current delivery scope. Installing these packages does not enable
 or replace the host display manager.

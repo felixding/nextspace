@@ -69,7 +69,7 @@ def submitted_image_pixels(rgb, pattern, logical_size, scale):
         assert all(abs(c - 213) <= 1 for c in sample(82, 8)), "Cropped vector line lost density or opacity"
     return dict(scale=scale, vector_matches_direct=True)
 
-def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, registry_probe=None, pasteboard_probe=None, pasteboard_server=None, comparators=(), applications=None, workspace_probe=None, primary_selection=False, server_frames=False, during_upgrade=None):
+def run(compositor, probe, artifacts, protocol_mode="native", registry_probe=None, pasteboard_probe=None, pasteboard_server=None, comparators=(), applications=None, workspace_probe=None, primary_selection=False, server_frames=False, during_upgrade=None):
     artifacts.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="nextspace-runtime-") as runtime:
         env = dict(os.environ, XDG_RUNTIME_DIR=runtime, WLR_BACKENDS="headless",
@@ -87,8 +87,6 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
             switches = {"native": [], "no-fractional": ["-F"], "no-viewporter": ["-V"],
                         "no-placement": ["-A"], "surface-v1": ["-1"],
                         "surface-v1-no-viewporter": ["-1", "-V"]}[protocol_mode]
-            if x11_probe:
-                switches.append("-x")
             server = subprocess.Popen([compositor, "-c", str(child.fileno()), *switches],
                 pass_fds=[child.fileno()], env=env, stdout=subprocess.PIPE,
                 stderr=log, text=True)
@@ -673,84 +671,6 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                     assert command(f"test-scale {target} 180 10000")["ok"]
                     assert command("confirm")["ok"]
                     until(lambda: dimensions(180), "density after stalled clipboard source")
-                if x11_probe:
-                    def xready():
-                        state = command("x-display")
-                        return state if state["ready"] else None
-
-                    display = until(xready, "managed Xwayland readiness")["display"]
-                    if registry_probe:
-                        subprocess.run([registry_probe], env=env, check=True)
-                        subprocess.run([registry_probe, "--invalid-placement"], env=env, check=True)
-                        subprocess.run([registry_probe, "--placement"], env=env, check=True)
-                        subprocess.run([registry_probe, "--no-focus"], env=env, check=True)
-                    xenv = dict(env, DISPLAY=display)
-                    if pasteboard_probe:
-                        assert command(f"focus {wid}")["ok"]
-                        assert command(f"pointer {output['x'] + 210} 310")["ok"]
-                        assert command("button 272")["ok"]
-                        key(46, True); key(46, False)
-                        until(lambda: any(m.startswith("application/x-nextspace-session-") for m in command("selection")),
-                              "native clipboard republished")
-                        copied = artifacts / "x11-native-copy.txt"
-                        with (artifacts / "x11-clipboard-reader.log").open("w") as log:
-                            reader = subprocess.Popen([x11_probe, "--clipboard-read", str(copied)], env=xenv, stdout=log, stderr=log)
-                        try:
-                            until(lambda: reader.poll() is not None, "native to Xwayland clipboard")
-                            assert reader.returncode == 0
-                            assert copied.read_text() == expected, "Xwayland changed native UTF-8 clipboard"
-                        finally:
-                            if reader.poll() is None: reader.terminate(); reader.wait(timeout=5)
-                        external = artifacts / "x11-external-copy.txt"
-                        external.write_text("Xwayland:日本語\n" * 6000)
-                        previous_selection = command("selection-state")["serial"]
-                        with (artifacts / "x11-clipboard-writer.log").open("w") as log:
-                            writer = subprocess.Popen([x11_probe, "--clipboard-write", str(external)], env=xenv, stdout=log, stderr=log)
-                        try:
-                            until(lambda: "X11 clipboard source set" in (artifacts / "x11-clipboard-writer.log").read_text(),
-                                  "X11 source selection")
-                            until(lambda: command("selection-state")["serial"] != previous_selection,
-                                  "new Xwayland selection generation")
-                            until(lambda: command("selection") and not any(m.startswith("application/x-nextspace-session-")
-                                  for m in command("selection")), "XWM exported selection")
-                            assert command(f"focus {wid}")["ok"]
-                            until(lambda: subprocess.run([pasteboard_probe, "--text-file", str(external)], env=env).returncode == 0,
-                                  "Xwayland to native clipboard")
-                            until(lambda: command("selection-state")["owned"], "Xwayland clipboard snapshot")
-                        finally:
-                            writer.terminate(); writer.wait(timeout=5)
-                        subprocess.run([pasteboard_probe, "--text-file", str(external)], env=env, check=True)
-                        persisted = artifacts / "x11-clipboard-after-owner-exit.txt"
-                        subprocess.run([registry_probe, "--clipboard-read", str(persisted)], env=env, check=True, timeout=10)
-                        assert persisted.read_bytes() == external.read_bytes(), "Xwayland producer exit lost the selection"
-                    with (artifacts / "x11.log").open("w") as log, (artifacts / "x11-errors.log").open("w") as errors:
-                        legacy = subprocess.Popen([x11_probe], env=xenv, stdout=log, stderr=errors)
-                    try:
-                        def xwindow():
-                            return next((w for w in command("windows") if w["title"] == "NextSpaceX11Probe" and w["legacy"]), None)
-
-                        xw = until(xwindow, "rootless X11 window")
-                        xid = xw["id"]
-                        assert command(f"x-rebind {xid}")["ok"]
-                        assert xwindow()["id"] == xid, "Observing an existing Xwayland map must retain its window"
-                        assert command(f"move {xid} {output['x'] + 10} 10")["ok"]
-                        assert command(f"focus {xid}")["ok"]
-                        until(lambda: xwindow()["x"] == output["x"] + 10, "legacy placement")
-                        assert (xwindow()["buffer_width"], xwindow()["buffer_height"]) == (801, 601), "Legacy quality policy changed"
-                        assert command(f"pointer {output['x'] + 210} 310")["ok"]
-                        assert command("button 272")["ok"]
-                        until(lambda: '"event":"click"' in (artifacts / "x11.log").read_text(), "Xwayland pointer delivery")
-                        xevents = read_json_lines(artifacts / "x11.log")
-                        assert any(e == dict(event="click", x=200, y=300) for e in xevents), xevents
-                        assert any(e["event"] == "focus" for e in xevents), xevents
-                        assert command(f"close {xid}")["ok"]
-                        until(lambda: legacy.poll() is not None, "X11 close")
-                        assert legacy.returncode == 0
-                        until(lambda: xwindow() is None, "XWM surface cleanup")
-                        results.append(dict(legacy="Xwayland", display=display, window=xw))
-                    finally:
-                        if legacy.poll() is None:
-                            legacy.terminate(); legacy.wait(timeout=5)
                 for toolkit, executable in comparators:
                     toolkit_env = dict(env, GDK_BACKEND="wayland", GSK_RENDERER="cairo", GTK_A11Y="none",
                                        QT_QPA_PLATFORM="wayland", QT_QUICK_BACKEND="software")
@@ -950,7 +870,7 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                 if primary_selection:
                     from primary_selection import check
                     check(command, env, registry_probe, pasteboard_probe, artifacts, wid, target, dimensions,
-                          protocol_source, key, events, expected, x11_probe, locals().get("xenv"))
+                          protocol_source, key, events, expected)
                 (artifacts / "results.json").write_text(json.dumps(results, indent=2) + "\n")
                 if protocol_mode == "native":
                     if registry_probe and pasteboard_probe:
@@ -1034,8 +954,6 @@ def run(compositor, probe, artifacts, protocol_mode="native", x11_probe=None, re
                         raise cleanup_errors[0]
                 if primary_failure is None:
                     assert server.returncode == 0, f"Compositor exit: {server.returncode}"
-                if x11_probe and "xenv" in locals():
-                    assert subprocess.run([x11_probe, "--check"], env=xenv).returncode != 0, "Orphaned Xwayland server"
 
 
 if __name__ == "__main__":
@@ -1045,7 +963,6 @@ if __name__ == "__main__":
     parser.add_argument("--artifacts", type=Path, default=Path("/tmp/nextspace-wayland-results"))
     parser.add_argument("--protocol-mode", choices=["native", "no-fractional", "no-viewporter", "no-placement",
                                                    "surface-v1", "surface-v1-no-viewporter"], default="native")
-    parser.add_argument("--x11-probe")
     parser.add_argument("--registry-probe")
     parser.add_argument("--pasteboard-probe")
     parser.add_argument("--pasteboard-server")
@@ -1060,7 +977,7 @@ if __name__ == "__main__":
     parser.add_argument("--primary-selection", action="store_true")
     parser.add_argument("--server-frames", action="store_true", help="Require native server frames and inspect the actual cropped viewport and compositor title buffers")
     args = parser.parse_args()
-    run(args.compositor, args.probe, args.artifacts, args.protocol_mode, args.x11_probe, args.registry_probe, args.pasteboard_probe, args.pasteboard_server,
+    run(args.compositor, args.probe, args.artifacts, args.protocol_mode, args.registry_probe, args.pasteboard_probe, args.pasteboard_server,
         [(name, path) for name, path in (("GtkProbe", args.gtk_probe), ("QtProbe", args.qt_probe)) if path],
         dict(terminal=args.terminal, textedit=args.textedit, review=args.review, timemon=args.timemon,
              pasteboard=args.pasteboard_probe, review_probe=args.review_probe)

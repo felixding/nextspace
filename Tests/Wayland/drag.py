@@ -23,11 +23,9 @@ def events(path):
 def run(compositor, client, artifacts, registry_probe=None, native_probe=None, pair='gtk-gtk',
         reject_target=False, same_client=False, file_drag=False, move=False, local_move=False, legacy_source=False,
         pasteboard_server=None, pasteboard_probe=None, protocol_mode='native', repeat=1, invalid_files=None,
-        delayed_drop=False, reentrant_move=False, late_x11_drop=False, framed=False, negative_origin=False):
+        delayed_drop=False, reentrant_move=False, framed=False, negative_origin=False):
     source_kind, target_kind = pair.split('-')
     native_source, native_target = source_kind == 'native', target_kind == 'native'
-    x11_source, x11_target = source_kind == 'x11', target_kind == 'x11'
-    xwayland = x11_source or x11_target
     if (native_source or native_target) and not native_probe: raise ValueError('Native probe is required')
     if same_client and pair != 'native-native': raise ValueError('Shared connection requires two native windows')
     if local_move and not native_source: raise ValueError('Local action masks require a native source')
@@ -37,7 +35,6 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
         raise ValueError('Text repetition requires a text source')
     if invalid_files and pair != 'gtk-native': raise ValueError('Invalid URI fixture requires GTK to native')
     if delayed_drop and (pair != 'native-native' or not file_drag): raise ValueError('Delayed fixture requires native mixed data')
-    if late_x11_drop and (not x11_source or x11_target): raise ValueError('Late XDND requires an X11 source and native receiver')
     rejected = reject_target or invalid_files is not None
     if bool(pasteboard_server) != bool(pasteboard_probe): raise ValueError('Storage requires its ping probe')
     source_title = 'NativeDragSource' if native_source else 'GtkDragSource'
@@ -54,7 +51,6 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
         control.settimeout(5)
         with (artifacts / 'compositor.log').open('w') as log:
             switches = {'native': [], 'no-fractional': ['-F'], 'no-viewporter': ['-V'], 'no-placement': ['-A']}[protocol_mode]
-            if xwayland: switches += ['-x']
             server = subprocess.Popen([compositor, '-c', str(child.fileno()), *switches], pass_fds=[child.fileno()],
                                       env=env, stdout=subprocess.PIPE, stderr=log, text=True)
         child.close()
@@ -74,9 +70,6 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
             entries = [e for e in events(artifacts / 'source.log') if e['event'] == 'drag-action']
             return entries[-1]['action'] if entries else None
         def negotiated(state, target, action):
-            if x11_source and x11_target:
-                # X-to-X negotiation stays on X11; the native offer is empty.
-                return state['active'] and source_action() == action
             return state['target'] == target['id'] and state['action'] == action
         def start_drag():
             nonlocal source
@@ -101,9 +94,6 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
             line = server.stdout.readline().strip()
             assert line.startswith('WAYLAND_DISPLAY='), line
             env['WAYLAND_DISPLAY'] = line.split('=', 1)[1]
-            if xwayland:
-                env['DISPLAY'] = until(lambda: (state['display'] if (state := command('x-display'))['ready'] else None),
-                                       'managed Xwayland is ready')
             if negative_origin:
                 head = command('outputs')[0]['name']
                 assert command(f'output-position {head} -1600 -200')['ok']
@@ -167,9 +157,7 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
                     if local_move and native and mode == 'source': arguments += ['-LocalMove', 'YES']
                     if legacy_source and native and mode == 'source': arguments += ['-LegacySource', 'YES']
                     if reentrant_move and mode == 'source': arguments += ['-ReentrantMove', 'YES']
-                    legacy = x11_source if mode == 'source' else x11_target
-                    client_env = dict(env, GDK_BACKEND='x11') if legacy else env
-                    process = subprocess.Popen(arguments, env=client_env, stdout=log, stderr=log)
+                    process = subprocess.Popen(arguments, env=env, stdout=log, stderr=log)
                     clients.append(process)
                     toolkit_clients[source_title if mode == 'source' else target_title] = process
                     if mode == 'target': target_process = process
@@ -200,8 +188,7 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
                         until(lambda: (w := window(title))['server_decorated'] and
                               w['surface_width'] < w['width'] and w['surface_height'] < w['height'],
                               'native server frame and content-only drag surface')
-                    legacy = x11_source if title == source_title else x11_target
-                    density = 120 if legacy else backing_scale(scale)
+                    density = backing_scale(scale)
                     until(lambda: (w := window(title))['preferred_scale'] == scale and
                           abs(w['buffer_width'] - 401 * density / 120) < 1,
                           'client renders the new density')
@@ -219,10 +206,6 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
                     output = command('outputs')[0]
                     assert command(f"pointer {output['x'] + 550} {output['y'] + 450}")['ok']
                     until(lambda: command('drag-state')['target'] == 0, 'drag leaves the target')
-                    if x11_source:
-                        # Native focus is always empty during X-to-X drags.
-                        # Wait for X11 leave before accepting a reentry status.
-                        until(lambda: source_action() == 0, 'X11 source acknowledges leaving the target')
                     assert command(f"pointer {target['x'] + 120} {target['y'] + 140}")['ok']
                     until(lambda: negotiated((d := command('drag-state')), target, action),
                           'same gesture reenters and renegotiates')
@@ -234,18 +217,13 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
                     assert (state['width'], state['height']) == (33, 31), state
                     assert state['samples'] == [0xffff0000] * 4, state
                 assert command(f"hit {target['x'] + 120} {target['y'] + 140}")['id'] == target['id'], 'drag image intercepts input'
-                if x11_source:
-                    # The native offer can settle before XdndStatus reaches the
-                    # source. Release only after both endpoints agree.
-                    until(lambda: source_action() == action,
-                          'X11 source receives the negotiated operation')
                 if delayed_drop and not trials: time.sleep(5.2)
                 assert command('button 272 0')['ok']
                 endings = until(lambda: (d if len(d := [e for e in events(artifacts / 'source.log') if e['event'] == 'drag-end']) > before_end else None),
                                 'source completes the drop')
                 if rejected:
                     assert len([e for e in events(artifacts / 'target.log') if e['event'] == 'drop']) == before
-                    if native_source or x11_source: assert endings[-1]['action'] == 0, endings[-1]
+                    if native_source: assert endings[-1]['action'] == 0, endings[-1]
                     else: assert len([e for e in events(artifacts / 'source.log') if e['event'] == 'drag-cancel']) == before_cancel + 1
                     drop = None
                 else:
@@ -273,9 +251,6 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
                     assert (endings[-1]['x'], endings[-1]['y']) == (target['x'] + 112, bottom - target['y'] - 148), endings[-1]
                 if not native_source:
                     assert endings[-1]['delete'] == (move and not rejected), endings[-1]
-                if x11_source:
-                    finished = [e for e in events(artifacts / 'source.log') if e['event'] == 'xdnd-finished']
-                    assert len(finished) == len(trials) + 1 and finished[-1]['success'] == (not rejected), finished
                 until(lambda: not command('drag-state')['active'] and not command('drag-state')['icon'],
                       'drag and image resources released')
                 trials.append(dict(source_scale=source_scale, target_scale=target_scale, state=state, drop=drop,
@@ -324,31 +299,13 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
                 cancelled = len([e for e in events(artifacts / 'source.log') if e['event'] == 'drag-cancel'])
                 finished_before = len([e for e in events(artifacts / 'source.log') if e['event'] == 'xdnd-finished'])
                 os.kill(target_process.pid, signal.SIGSTOP)
-                delayed_source = toolkit_clients[source_title] if late_x11_drop else None
-                if delayed_source:
-                    # Force receiver destruction before the X source can send
-                    # XdndDrop in response to the physical button release.
-                    os.kill(delayed_source.pid, signal.SIGSTOP)
-                try:
-                    assert command('button 272 0')['ok']
-                    target_process.kill(); target_process.wait(timeout=5)
-                    until(lambda: window(target_title) is None, 'closed receiver is removed')
-                finally:
-                    if delayed_source and delayed_source.poll() is None:
-                        os.kill(delayed_source.pid, signal.SIGCONT)
+                assert command('button 272 0')['ok']
+                target_process.kill(); target_process.wait(timeout=5)
+                until(lambda: window(target_title) is None, 'closed receiver is removed')
                 endings = until(lambda: (d if len(d := [e for e in events(artifacts / 'source.log') if e['event'] == 'drag-end']) > completed else None),
                                 'closed receiver cancels the source')
-                if native_source or x11_source: assert endings[-1]['action'] == 0, endings[-1]
+                if native_source: assert endings[-1]['action'] == 0, endings[-1]
                 else: assert len([e for e in events(artifacts / 'source.log') if e['event'] == 'drag-cancel']) == cancelled + 1
-                if x11_source:
-                    assert not endings[-1]['delete']
-                    finished = [e for e in events(artifacts / 'source.log') if e['event'] == 'xdnd-finished']
-                    if len(finished) > finished_before:
-                        assert len(finished) == finished_before + 1 and not finished[-1]['success'], finished
-                    else:
-                        # The receiver can disappear before XdndDrop reaches
-                        # the bridge; that path cancels without a finish reply.
-                        assert len([e for e in events(artifacts / 'source.log') if e['event'] == 'drag-cancel']) == cancelled + 1
                 until(lambda: not command('drag-state')['active'] and not command('drag-state')['icon'], 'closed receiver frees the drag')
             if native_source:
                 for operation in ('present', 'shade') if source['title_height'] else ('present',):
@@ -376,7 +333,7 @@ def run(compositor, client, artifacts, registry_probe=None, native_probe=None, p
             (artifacts / 'results.json').write_text(json.dumps(dict(pair=pair, rejected=rejected, same_client=same_client,
                 file_drag=file_drag, move=move, local_move=local_move, legacy_source=legacy_source,
                 protocol_mode=protocol_mode, repeat=repeat, invalid_files=invalid_files, delayed_drop=delayed_drop, trials=trials,
-                retained_source_cancellation=native_source, reentrant_move=reentrant_move, late_x11_drop=late_x11_drop,
+                retained_source_cancellation=native_source, reentrant_move=reentrant_move,
                 negative_origin=negative_origin,
                 passed=['toolkit transfers across outputs', 'logical drop coordinates at five densities',
                         'drag icon hit-test exclusion', 'source completion and icon teardown', 'desktop and escape cancellation',
@@ -416,7 +373,7 @@ def run_matrix(compositor, client, artifacts, registry_probe, native_probe, past
               for kind in ('remote-host', 'web-uri', 'malformed', 'nul')]
     cases += [('delayed-mixed', dict(pair='native-native', file_drag=True, delayed_drop=True))]
     for index, (name, configuration) in enumerate(cases):
-        run(compositor, client, artifacts / name, registry_probe=registry_probe if index == 0 or name == 'native-x11' else None,
+        run(compositor, client, artifacts / name, registry_probe=registry_probe if index == 0 else None,
             native_probe=native_probe, pasteboard_server=pasteboard_server, pasteboard_probe=pasteboard_probe,
             framed=framed, negative_origin=negative_origin,
             **configuration)
@@ -428,7 +385,7 @@ if __name__ == '__main__':
     parser.add_argument('--client', required=True)
     parser.add_argument('--registry-probe')
     parser.add_argument('--native-probe')
-    parser.add_argument('--pair', choices=['gtk-gtk', 'gtk-native', 'native-gtk', 'native-native', 'native-x11', 'gtk-x11', 'x11-native', 'x11-gtk', 'x11-x11'], default='gtk-gtk')
+    parser.add_argument('--pair', choices=['gtk-gtk', 'gtk-native', 'native-gtk', 'native-native'], default='gtk-gtk')
     parser.add_argument('--reject-target', action='store_true')
     parser.add_argument('--same-client', action='store_true')
     parser.add_argument('--file-drag', action='store_true')
@@ -443,7 +400,6 @@ if __name__ == '__main__':
     parser.add_argument('--invalid-files', choices=['remote-host', 'web-uri', 'malformed', 'nul'])
     parser.add_argument('--delayed-drop', action='store_true')
     parser.add_argument('--reentrant-move', action='store_true')
-    parser.add_argument('--late-x11-drop', action='store_true')
     parser.add_argument('--framed', action='store_true', help='Require native server frames for the GNUstep drag participants')
     parser.add_argument('--negative-origin', action='store_true')
     parser.add_argument('--artifacts', type=Path, required=True)

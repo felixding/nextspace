@@ -15,12 +15,25 @@ SystemKit now implements the native display model directly in `OSEScreen` and
 Xlib calls are removed, along with the direct Xrandr/xkbfile/Xcursor links and
 the xkbfile build dependency. The existing gamma, output transaction, native
 Workspace, Preferences and archive workflow checks pass locally. Existing probes
-use the public native models; no additional coverage was added. Hosted ARM64
-confirmation of this cleanup is pending.
+use the public native models. Its native ARM64 job passes in run `41980717134`
+at `3a2243f7`; that run's package job is still in progress.
 
-The latest full hosted qualification is run `41957255179` at `1f225782`: both
-native and desktop-packages pass. Ten full native runs and fifteen full package
-lifecycle runs are recorded. Details below preserve the sequence of earlier
+Login now contains only its existing unprivileged greetd/Wayland path. The old
+root PAM/Xorg session controller, X11 panel animations and root Login service
+are removed. Terminal no longer links X11 or sets X11 resize hints. Legacy
+installers no longer enable that service or install X11 drivers. Both applications
+rebuild without direct X11 links; the existing Login animation, seven greeter
+modes and Terminal five-density checks pass locally. Obsolete X11-only runners,
+fallback package checks and optional Xwayland test branches are removed. The
+native package lifecycle retains its shared filesystem snapshot helper.
+No new test cases were added. The existing Terminal scrolling comparison now
+excludes its independently changing running-program title indicator; the native
+frame-control checks already cover that indicator. Hosted confirmation of these
+application and fixture changes is pending.
+
+The latest full hosted qualification is run `41966391978` at `225292aa`: both
+native and desktop-packages pass. Eleven full native runs and sixteen full package
+lifecycle runs preceded the SystemKit cleanup. Details below preserve the sequence of earlier
 failures and follow-ups; hardware and unpaced keyboard-stress gates remain open.
 
 Hosted ARM64 run `41900653577` at `a866a80b` completes the full native suite

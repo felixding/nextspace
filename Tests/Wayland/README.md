@@ -500,11 +500,8 @@ readiness event before sending input. It requires Poppler and Ghostscript,
 included in the test image.
 `gpbs-startup.json` retains readiness replies and server state for startup
 failures; the readiness deadline is unchanged.
-`x11-workspace.py --printing-probe ...` reuses its existing unprivileged
-Workspace/Xvfb setup for both printing orientations. A bare Xvfb display does
-not provide GNUstep's normal window-manager startup contract. These tests do
-not spool a physical print job; broader application print workflows and physical
-queues remain separate qualification gates.
+These tests do not spool a physical print job; broader application print workflows
+and physical queues remain separate qualification gates.
 
 `event_queue.py --compositor ... --probe ... --artifacts ...` exercises six
 backend event-delivery contracts: nested reply loops, selective waits, unmatched
@@ -1260,7 +1257,7 @@ preserved as verified archives under `.build/history/`, with receipts, per-path
 manifests and restoration instructions. Working VMs, current ARM diagnostics and
 the current/comparison package cohorts remain available for continued refinement.
 
-The earlier `packages.sh` fixture qualified the isolated compositor/supervisor
+The removed compositor-only fixture qualified the isolated compositor/supervisor
 component and included an X11 reference before the Wayland-only scope change.
 Those compatibility results are historical. Use `desktop-packages.sh` for the
 complete native desktop lifecycle. Package fixtures require a fresh disposable

@@ -4,7 +4,7 @@ import subprocess
 from integration import until
 
 
-def check(command, env, registry, pasteboard, artifacts, wid, target, dimensions, protocol_source, key, events, clipboard_expected, x11=None, xenv=None):
+def check(command, env, registry, pasteboard, artifacts, wid, target, dimensions, protocol_source, key, events, clipboard_expected):
     assert registry and pasteboard
     original = next(o["scale"] for o in command("outputs") if o["name"] == target)
     expected = "Primary:日本語\n" + "selection:日本語\n" * 6000
@@ -134,25 +134,7 @@ def check(command, env, registry, pasteboard, artifacts, wid, target, dimensions
             until(lambda: any(e["event"] == "field-text" and e["text"] == "Middle:日本語" + field_text for e in events()),
                   "real NSTextField middle-click pastes the external primary selection")
         unchanged("field")
-        if x11:
-            focus_native()
-            key(25, True); key(25, False)
-            until(lambda: any(m.endswith("-primary") for m in command("primary-selection")), "native primary before X11 read")
-            destination = artifacts / "primary-native-x11.txt"
-            subprocess.run([x11, "--primary-read", str(destination)], env=xenv, check=True, timeout=15,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            assert destination.read_text() == expected
-            with (artifacts / "primary-x11-writer.log").open("w") as log:
-                writer = subprocess.Popen([x11, "--primary-write", str(external)], env=xenv, stdout=log, stderr=log)
-            try:
-                until(lambda: "X11 clipboard source set" in (artifacts / "primary-x11-writer.log").read_text(), "X11 primary owner")
-                focus_native()
-                until(lambda: imported(external),
-                      "X11 primary selection imports through the single XWM bridge")
-            finally:
-                if writer.poll() is None: writer.terminate(); writer.wait(timeout=5)
-            unchanged("X11")
-        (artifacts / "primary-selection.json").write_text(json.dumps(dict(scales=records, x11=bool(x11),
+        (artifacts / "primary-selection.json").write_text(json.dumps(dict(scales=records,
             first_selection=selected.read_text(), middle_click=True, invalid_serial=True), indent=2) + "\n")
     finally:
         assert command(f"test-scale {target} {original} 10000")["ok"]

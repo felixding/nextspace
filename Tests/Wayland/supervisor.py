@@ -16,7 +16,7 @@ from integration import until
 from gnustep import capture_process_failure
 
 
-def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, compositor_loss=False, input_method_probe=None,
+def run(supervisor, compositor, shell_probe, client, artifacts, compositor_loss=False, input_method_probe=None,
         private_bus=False, bus_loss=False, launcher=None, capture_probe=None):
     assert not bus_loss or private_bus, 'Bus-loss checks require --private-bus'
     artifacts.mkdir(parents=True, exist_ok=True)
@@ -54,7 +54,7 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
         with (artifacts / "session.log").open("w") as log:
             started = time.time()
             session = subprocess.Popen([launcher or supervisor, "--compositor", compositor,
-                *(["--xwayland"] if xwayland else []), *(["--private-bus"] if private_bus and not launcher else []), *method_arguments, "--", shell_probe],
+                *(["--private-bus"] if private_bus and not launcher else []), *method_arguments, "--", shell_probe],
                 env=env, pass_fds=[marker_fd], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log)
         os.close(marker_fd)
         os.set_blocking(session.stdout.fileno(), False)
@@ -110,14 +110,13 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
             assert next(e for e in events if e["event"] == "ready")["restore_settings"]
             assert environment["NEXTSPACE_SESSION_ID"].startswith("wayland-")
             assert environment["NEXTSPACE_SESSION_ID"] != env["NEXTSPACE_SESSION_ID"]
-            if xwayland: assert environment["DISPLAY"].startswith(":") and environment["DISPLAY"] != env["DISPLAY"]
-            else: assert "DISPLAY" not in environment
+            assert "DISPLAY" not in environment
             server_pid = next(pid for pid in children() if executable(pid) == Path(compositor))
             old_shell = next(pid for pid in children() if executable(pid) == Path(shell_probe))
             runtime_maps = dict(shell_initial=mapping(old_shell), compositor=mapping(server_pid))
             if private_bus:
                 from session_activation import check
-                activated_pid = check(environment, artifacts, xwayland, marker, runtime)
+                activated_pid = check(environment, artifacts, marker, runtime)
                 runtime_maps['activated_service'] = mapping(activated_pid)
             for pid in (server_pid, old_shell):
                 targets = [p.resolve() for p in Path(f"/proc/{pid}/fd").iterdir()]
@@ -193,10 +192,10 @@ def run(supervisor, compositor, shell_probe, client, artifacts, xwayland=False, 
                         "bus loss ends session" if bus_loss else "compositor loss ends session" if compositor_loss else "normal shell exit ends session",
                         "orphan reaping and forced owned-child cleanup"] +
                         (["actual D-Bus activation environment", "uncooperative activated client reaped", "private socket directory removed"] if private_bus else []))
-            if private_bus and not xwayland and not compositor_loss and not bus_loss:
+            if private_bus and not compositor_loss and not bus_loss:
                 from session_activation import failures
                 failures(supervisor, compositor, shell_probe, env, artifacts)
-            if not xwayland and not compositor_loss and not bus_loss:
+            if not compositor_loss and not bus_loss:
                 failures = [
                     ([supervisor, "--compositor", "/bin/false", "--", shell_probe], "compositor-failure"),
                     ([supervisor, "--compositor", compositor, "--", "/bin/false"], "shell-failure"),
@@ -239,7 +238,6 @@ if __name__ == "__main__":
     for name in ("supervisor", "compositor", "shell-probe", "client"):
         parser.add_argument("--" + name, required=True)
     parser.add_argument("--artifacts", type=Path, required=True)
-    parser.add_argument("--xwayland", action="store_true")
     parser.add_argument("--compositor-loss", action="store_true")
     parser.add_argument("--input-method-probe")
     parser.add_argument("--capture-probe")

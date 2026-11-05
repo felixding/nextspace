@@ -10,7 +10,7 @@ import shutil
 import subprocess
 
 from integration import run as native, until
-from package_lifecycle import snapshot
+from package_snapshot import snapshot
 from workspace import run as workspace
 from greeter_profile import run as greeter
 from process_failure import run as process_failure

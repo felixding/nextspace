@@ -1,4 +1,4 @@
-"""Real D-Bus activation checks shared by native/Xwayland supervisor cases."""
+"""Real D-Bus activation checks for native supervisor cases."""
 import ast
 import hashlib
 import json
@@ -24,7 +24,7 @@ def prepare(artifacts):
     return dict(XDG_DATA_HOME=str((directory / 'data').resolve()))
 
 
-def check(environment, artifacts, xwayland, inherited_marker, runtime):
+def check(environment, artifacts, inherited_marker, runtime):
     actual = subprocess.check_output(['gdbus', 'call', '--session', '--dest', 'org.nextspace.ValidationEnvironment',
         '--object-path', '/org/nextspace/ValidationEnvironment',
         '--method', 'org.nextspace.ValidationEnvironment.GetEnvironment'],
@@ -40,8 +40,7 @@ def check(environment, artifacts, xwayland, inherited_marker, runtime):
     assert value['XDG_RUNTIME_DIR'] == runtime, value
     assert (Path(runtime) / value['WAYLAND_DISPLAY']).is_socket(), value
     for name in ('XAUTHORITY', 'WAYLAND_SOCKET', 'NEXTSPACE_SHELL_SOCKET', 'GREETD_SOCK'): assert name not in value, value
-    if xwayland: assert value['DISPLAY'] == environment['DISPLAY'] and value['DISPLAY'] != ':999999'
-    else: assert 'DISPLAY' not in value, value
+    assert 'DISPLAY' not in value, value
     assert str(inherited_marker.resolve()) not in value['OPEN_FDS'], value
     (artifacts / 'activation/results.json').write_text(json.dumps(value, indent=2) + '\n')
     return int(value['PROBE_PID'])
