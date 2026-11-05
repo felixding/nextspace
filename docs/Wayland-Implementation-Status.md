@@ -49,8 +49,10 @@ transient busy-account result, and its hosted follow-up passes both ARM64 jobs.
 
 The vendored backend's retired X11 server, X11-dependent ART renderer, Cairo X11
 surfaces, X selection bridge and obsolete configure launchers are removed (56
-files). The obsolete Red Hat X11 RPM pipeline and old Debian/Ubuntu Xorg
-dependency lists are also removed. Configure now selects only Wayland/Cairo
+files). Twelve unused historical patches for those retired renderers are removed
+as well. The maintained Base and native GUI patch series remain. The obsolete
+Red Hat X11 RPM pipeline and old Debian/Ubuntu Xorg dependency lists are also
+removed. Configure now selects only Wayland/Cairo
 and requires their native libraries; it no longer probes X11 or falls back to another renderer. Backend and
 pasteboard builds pass with no direct X11 dependencies. Distribution Cairo/image
 libraries can still have transitive X11 dependencies. The initial local application

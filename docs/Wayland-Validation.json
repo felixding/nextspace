@@ -260,7 +260,8 @@
       "unchanged_review_matrix_diagnostics_passed": 2,
       "review_cases_per_diagnostic": 45
     },
-    "obsolete_explicit_x11_build_dependencies_removed": 8
+    "obsolete_explicit_x11_build_dependencies_removed": 8,
+    "unused_historical_backend_patch_files_removed": 12
   },
   "remaining": [
     "Physical display, input, modeset, hotplug and gamma validation",
