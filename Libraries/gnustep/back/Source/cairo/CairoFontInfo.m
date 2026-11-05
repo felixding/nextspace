@@ -464,6 +464,43 @@ static BOOL _cairo_extents_for_NSGlyph(cairo_scaled_font_t *scaled_font, NSGlyph
   free(cdata);
 }
 
+- (void)drawGlyphs:(const NSGlyph *)glyphs advances:(const NSSize *)advances
+           length:(int)length on:(cairo_t *)ct
+{
+  if (!advances || length <= 0) { [self drawGlyphs:glyphs length:length on:ct]; return; }
+  cairo_glyph_t *positions = cairo_glyph_allocate(length);
+  FT_Face face = cairo_ft_scaled_font_lock_face(_scaled);
+  if (!positions || !face) {
+    if (face) cairo_ft_scaled_font_unlock_face(_scaled);
+    cairo_glyph_free(positions);
+    [self drawGlyphs:glyphs length:length on:ct];
+    return;
+  }
+  double x, y;
+  cairo_get_current_point(ct, &x, &y);
+  int i, count = 0;
+  /* This backend's NSGlyph values are Unicode, as in drawGlyphs:length:on:.
+     AppKit owns advances; device hinting must not change logical text layout. */
+  for (i = 0; i < length; ++i) {
+    uint32_t character = glyphs[i];
+    NSSize advance = advances[i];
+    if (character >= 0xd800 && character <= 0xdbff && i + 1 < length &&
+        glyphs[i + 1] >= 0xdc00 && glyphs[i + 1] <= 0xdfff) {
+      character = 0x10000 + ((character - 0xd800) << 10) + glyphs[i + 1] - 0xdc00;
+      advance.width += advances[i + 1].width;
+      advance.height += advances[++i].height;
+    }
+    positions[count].index = FT_Get_Char_Index(face, character);
+    positions[count].x = x; positions[count++].y = y;
+    x += advance.width; y += advance.height;
+  }
+  cairo_ft_scaled_font_unlock_face(_scaled);
+  cairo_set_scaled_font(ct, _scaled);
+  cairo_show_glyphs(ct, positions, count);
+  cairo_move_to(ct, x, y);
+  cairo_glyph_free(positions);
+}
+
 - (void)drawGlyphs:(const NSGlyph *)glyphs length:(int)length on:(cairo_t *)ct
 {
   unichar ustr[length + 1];

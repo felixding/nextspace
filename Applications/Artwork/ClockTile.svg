@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Original Preferences clock tile</title>
+  <desc>Preserve the original clock face, date display and bevel geometry. Reconstruct the continuous metal gradients beneath the original four-bit ordered dithering.</desc>
+  <defs>
+    <linearGradient id="clock-tile-metal" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="64" y2="74">
+      <stop stop-color="#adacba"/>
+      <stop offset="1" stop-color="#4b4c5c"/>
+    </linearGradient>
+    <linearGradient id="clock-tile-right" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="63">
+      <stop stop-color="#706070"/>
+      <stop offset="1" stop-color="#222233"/>
+    </linearGradient>
+    <linearGradient id="clock-tile-bottom" gradientUnits="userSpaceOnUse" x1="2" y1="0" x2="63" y2="0">
+      <stop stop-color="#626070"/>
+      <stop offset="1" stop-color="#222233"/>
+    </linearGradient>
+    <linearGradient id="clock-tile-shadow" gradientUnits="userSpaceOnUse" x1="0" y1="25" x2="0" y2="61">
+      <stop stop-color="#8e8e9e"/>
+      <stop offset="1" stop-color="#373740"/>
+    </linearGradient>
+  <g id="clock-display-bezel">
+    <path d="M4 4H58V5H5V21H4Z" fill="#000"/>
+    <path d="M58 4H59V5H58ZM4 21H5V22H4Z" fill="#555"/>
+    <path d="M58 5H59V22H5V21H58Z" fill="#fff"/>
+    <path d="M5 5H58V21H5Z" fill="#22244b"/>
+  </g>
+  <g id="clock-paper-face">
+    <path d="M14 24H47V57H14Z" fill="#555"/>
+    <path d="M14 24H47V51Q47 54 44.5 56H10.5L13 53.5V51L14 50.1Z" fill="#fff"/>
+  </g>
+  <g id="clock-tile-original" shape-rendering="crispEdges">
+    <path d="M0 0H64V64H0Z" fill="#000"/>
+    <path d="M1 1H63V63H1Z" fill="url(#clock-tile-metal)"/>
+    <path d="M62 2H63V63H62Z" fill="url(#clock-tile-right)"/>
+    <path d="M2 62H63V63H2Z" fill="url(#clock-tile-bottom)"/>
+    <path d="M0 0H63.1L61.1 2H2V62.1L.1 64H0Z" fill="#fff"/>
+    <use href="#clock-display-bezel"/>
+    <path d="M47 25L54 39V61H16L14 59V58H47Z" fill="url(#clock-tile-shadow)"/>
+    <path d="M47 24.5L50 27.5V60H15.5L13.5 58H47Z" fill="#000"/>
+    <use href="#clock-paper-face"/>
+  </g>
+  </defs>
+  <use id="preview" href="#clock-tile-original"/>
+</svg>

@@ -47,6 +47,7 @@
   NSMutableArray *displayBoxList;
   DisplayBox     *selectedBox;
   CGFloat scaleFactor;
+  NSDictionary *nativePositions;
 }
 
 @property (readonly) NSImage *dockImage;

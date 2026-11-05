@@ -1,0 +1,298 @@
+diff --git a/Headers/Additions/GNUstepGUI/GSDisplayServer.h b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+index 07973f0..0dac111 100644
+--- a/Headers/Additions/GNUstepGUI/GSDisplayServer.h
++++ b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+@@ -55,6 +55,8 @@
+ #if !NO_GNUSTEP
+ APPKIT_EXPORT GSDisplayServer *GSServerForWindow(NSWindow *window);
+ APPKIT_EXPORT GSDisplayServer *GSCurrentServer(void);
++/* Explicit process argument, session backend, then stored application defaults. */
++APPKIT_EXPORT NSString *GSDisplayBackendName(void);
+ 
+ /* Display attributes */
+ APPKIT_EXPORT NSString *GSDisplayName;
+@@ -82,6 +84,8 @@ APPKIT_EXPORT_CLASS
+ - glPixelFormatClass;
+ 
+ - (BOOL) handlesWindowDecorations;
++/* Authoritative logical placement belongs to the window server. */
++- (BOOL) handlesWindowPlacement;
+ 
+ /* Drag and drop support. */
+ + (BOOL) addDragTypes: (NSArray*)types toWindow: (NSWindow *)win;
+@@ -117,6 +121,10 @@ APPKIT_EXPORT_CLASS
+ /* Screen capture */ 
+ - (NSImage *) contentsOfScreen: (int)screen inRect: (NSRect)rect;
+ 
++/* Per-window pixel density; independent of logical UI size and printer DPI. */
++- (CGFloat) backingScaleForWindow: (int)window;
++- (CGFloat) backingScaleForScreen: (int)screen;
++- (int) screenForWindow: (int)window;
+ @end
+ 
+ /* ----------------------------------------------------------------------- */
+diff --git a/Headers/AppKit/NSWindow.h b/Headers/AppKit/NSWindow.h
+index e5d9849..a628fae 100644
+--- a/Headers/AppKit/NSWindow.h
++++ b/Headers/AppKit/NSWindow.h
+@@ -881,6 +881,8 @@ PACKAGE_SCOPE
+ #else
+ - (CGFloat) backingScaleFactor;
+ #endif
++- (NSRect) convertRectToBacking: (NSRect)rect;
++- (NSRect) convertRectFromBacking: (NSRect)rect;
+ #endif
+ 
+ #if OS_API_VERSION(MAC_OS_X_VERSION_10_5, GS_API_LATEST)
+@@ -993,6 +995,9 @@ willPositionSheet: (NSWindow *)sheet
+ #endif
+ @end
+ 
++APPKIT_EXPORT NSString *NSBackingPropertyOldScaleFactorKey;
++APPKIT_EXPORT NSString *NSWindowDidChangeBackingPropertiesNotification;
++
+ /* Notifications */
+ APPKIT_EXPORT NSString *NSWindowDidBecomeKeyNotification;
+ APPKIT_EXPORT NSString *NSWindowDidBecomeMainNotification;
+diff --git a/Source/GSDisplayServer.m b/Source/GSDisplayServer.m
+index e5f4942..4f610dc 100644
+--- a/Source/GSDisplayServer.m
++++ b/Source/GSDisplayServer.m
+@@ -34,6 +34,8 @@
+ #import <Foundation/NSRunLoop.h>
+ #import <Foundation/NSSet.h>
+ #import <Foundation/NSGeometry.h>
++#import <Foundation/NSProcessInfo.h>
++#import <Foundation/NSUserDefaults.h>
+ 
+ #import "AppKit/NSApplication.h"
+ #import "AppKit/NSEvent.h"
+@@ -117,7 +119,20 @@ yet been created (for instance, if the window is deferred), it
+ 
+   </unit> */
+   
++NSString *GSDisplayBackendName(void)
++{
++  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
++  NSString *name = [[defaults volatileDomainForName: NSArgumentDomain] objectForKey: @"GSBackend"];
++  if (![name length]) name = [[[NSProcessInfo processInfo] environment] objectForKey: @"NEXTSPACE_GS_BACKEND"];
++  return [name length] ? name : [defaults stringForKey: @"GSBackend"];
++}
++
+ @implementation GSDisplayServer
++- (CGFloat) backingScaleForWindow: (int)window { return 1.0; }
++- (BOOL) handlesWindowPlacement { return NO; }
++- (CGFloat) backingScaleForScreen: (int)screen { return 1.0; }
++- (int) screenForWindow: (int)window { return -1; }
++
+ 
+ + (void) initialize
+ {
+diff --git a/Source/NSScreen.m b/Source/NSScreen.m
+index 77850e7..517af38 100644
+--- a/Source/NSScreen.m
++++ b/Source/NSScreen.m
+@@ -440,7 +440,7 @@ - (CGFloat) userSpaceScaleFactor
+ 
+ - (CGFloat) backingScaleFactor
+ {
+-  return 1.0;
++  return [GSCurrentServer() backingScaleForScreen: _screenNumber];
+ }
+ 
+ @end
+diff --git a/Source/NSWindow.m b/Source/NSWindow.m
+index 3e9c93e..48dc0c7 100644
+--- a/Source/NSWindow.m
++++ b/Source/NSWindow.m
+@@ -1903,6 +1903,7 @@ - (void) orderWindow: (NSWindowOrderingMode)place relativeTo: (NSInteger)otherWi
+          don't constrain if we are merely unhiding the window or if it's
+          already visible and is just being reordered. */
+       if ((_styleMask & NSTitledWindowMask)
++          && ![GSServerForWindow(self) handlesWindowPlacement]
+           && [NSApp isHidden] == NO
+           && _f.visible == NO)
+         {
+@@ -2370,7 +2371,8 @@ - (void) setFrame: (NSRect)frameRect display: (BOOL)flag
+ 
+   /* Windows need to be constrained when displayed or resized - but only
+      titled windows are constrained */
+-  if (_styleMask & NSTitledWindowMask)
++  if ((_styleMask & NSTitledWindowMask)
++      && ![GSServerForWindow(self) handlesWindowPlacement])
+     {
+       frameRect = [self constrainFrameRect: frameRect
+                                   toScreen: [self _screenForFrame: frameRect]];
+@@ -2825,6 +2827,15 @@ - (BOOL) hasDynamicDepthLimit
+ /** Returns the screen the window is on. */
+ - (NSScreen *) screen
+ {
++  int output = [GSServerForWindow(self) screenForWindow: _windowNum];
++  if (output >= 0)
++    {
++      NSScreen *screen;
++      for (screen in [NSScreen screens])
++        if ([[[screen deviceDescription] objectForKey: @"NSScreenNumber"] intValue] == output)
++          return screen;
++    }
++
+   // Only recompute the screen if the current screen
+   // doesn't contain the whole window.
+   // FIXME: Containing half the window would be enough
+@@ -2868,6 +2879,15 @@ - (void) applicationDidChangeScreenParameters: (NSNotification *)aNotif
+       return;
+     }
+ 
++  /* A placement-aware backend already reports the authoritative frame in
++     the new desktop coordinate system. Applying the screen delta again would
++     move the window after a scale or layout change. */
++  if ([GSServerForWindow(self) handlesWindowPlacement])
++    {
++      [self display];
++      return;
++    }
++
+   newScreenFrame = [_screen frame];
+   newFrame = _frame;
+   // Screen Y origin change.
+@@ -4678,10 +4698,14 @@ window that has been ordered out (and thus is logically invisible). We
+                 }
+               _lastDragOperationMask = NSDragOperationNone;
+               DESTROY(_lastDragView);
++              if ([dragInfo respondsToSelector:@selector(draggingExitProcessed:)])
++                [(id)dragInfo performSelector:@selector(draggingExitProcessed:) withObject:theEvent];
+               break;
+ 
+             case GSAppKitDraggingDrop:
++            {
+               NSDebugLLog(@"NSDragging", @"GSAppKitDraggingDrop");
++              BOOL dragSucceeded = NO;
+               dragInfo = [GSServerForWindow(self) dragInfo];
+               if (_lastDragView && _f.accepts_drag
+ 		  && _lastDragOperationMask != NSDragOperationNone)
+@@ -4700,6 +4724,7 @@ window that has been ordered out (and thus is logically invisible). We
+                       GSPerformVoidDragSelector(_lastDragView,
+                         @selector(concludeDragOperation:), dragInfo);
+                     }
++                  dragSucceeded = action != NO;
+                 }
+               _lastDragOperationMask = NSDragOperationNone;
+               DESTROY(_lastDragView);
+@@ -4711,9 +4736,10 @@ window that has been ordered out (and thus is logically invisible). We
+                            context: GSCurrentContext()
+                            subtype: GSAppKitDraggingFinished
+                            data1: [theEvent data1]
+-                           data2: 0];
++                           data2: dragSucceeded];
+               [dragInfo postDragEvent: e];
+               break;
++            }
+ 
+             case GSAppKitDraggingFinished:
+               _lastDragOperationMask = NSDragOperationNone;
+@@ -5975,7 +6001,56 @@ - (void)beginSheet:(NSWindow *)sheet
+ 
+ - (CGFloat) backingScaleFactor
+ {
+-  return 1.0;
++  return [GSServerForWindow(self) backingScaleForWindow: _windowNum];
++}
++
++- (NSRect) convertRectToBacking: (NSRect)rect
++{
++  CGFloat scale = [self backingScaleFactor];
++  return NSMakeRect(rect.origin.x * scale, rect.origin.y * scale,
++                    rect.size.width * scale, rect.size.height * scale);
++}
++
++- (NSRect) convertRectFromBacking: (NSRect)rect
++{
++  CGFloat scale = [self backingScaleFactor];
++  return NSMakeRect(rect.origin.x / scale, rect.origin.y / scale,
++                    rect.size.width / scale, rect.size.height / scale);
++}
++
++- (void) _backendBackingScaleDidChange: (CGFloat)oldScale
++{
++  [self _processResizeEvent];
++  /* Allocated view gstates must bind the replacement backing surface. */
++  [_wv _invalidateCoordinates];
++  [_wv setNeedsDisplay: YES];
++  [self displayIfNeeded];
++  [self flushWindow];
++  [[NSNotificationCenter defaultCenter]
++    postNotificationName: NSWindowDidChangeBackingPropertiesNotification
++    object: self userInfo: [NSDictionary dictionaryWithObject:
++      [NSNumber numberWithDouble: oldScale] forKey: NSBackingPropertyOldScaleFactorKey]];
++}
++
++- (void) _backendSetMiniaturized: (BOOL)minimized
++{
++  if (minimized)
++    {
++      [self miniaturize: nil];
++    }
++  else if (_f.is_miniaturized)
++    {
++      if (_counterpart != 0)
++        {
++          NSWindow *mini = GSWindowWithNumber(_counterpart);
++          GSRemoveIcon(mini);
++          [mini orderOut: self];
++        }
++      /* The server already restored the retained surface and owns focus. */
++      [self _didDeminiaturize: nil];
++      [self displayIfNeeded];
++      [self flushWindow];
++    }
+ }
+ 
+ + (NSInteger)windowNumberAtPoint:(NSPoint)point
+diff --git a/Source/externs.m b/Source/externs.m
+index fa0cc71..84e03ed 100644
+--- a/Source/externs.m
++++ b/Source/externs.m
+@@ -799,3 +799,6 @@
+   extern void __objc_gui_linking (void);
+   __objc_gui_linking ();
+ }
++
++APPKIT_DECLARE NSString *NSBackingPropertyOldScaleFactorKey = @"NSBackingPropertyOldScaleFactor";
++APPKIT_DECLARE NSString *NSWindowDidChangeBackingPropertiesNotification = @"NSWindowDidChangeBackingPropertiesNotification";
+diff --git a/Source/NSView.m b/Source/NSView.m
+--- a/Source/NSView.m
++++ b/Source/NSView.m
+@@ -61,6 +61,7 @@
+ #import "AppKit/NSClipView.h"
+ #import "AppKit/NSFont.h"
+ #import "AppKit/NSGraphics.h"
++#import "AppKit/NSGraphicsContext.h"
+ #import "AppKit/NSKeyValueBinding.h"
+ #import "AppKit/NSLayoutConstraint.h"
+ #import "AppKit/NSMenu.h"
+@@ -129,6 +130,11 @@
+   </unit>
+ */
+   
++/* Optional screen-backend alignment in the focused view's device transform. */
++@interface NSGraphicsContext (GSBackingPixelAlignment)
++- (BOOL) GSBackingAlignedRect: (NSRect)rect result: (NSRect *)result;
++@end
++
+ @implementation NSView
+ 
+ /*
+@@ -1681,6 +1687,13 @@
+ 
+ - (NSRect) centerScanRect: (NSRect)aRect
+ {
++  NSGraphicsContext *context = [NSGraphicsContext currentContext];
++  NSRect aligned;
++  if ([NSView focusView] == self
++      && [context respondsToSelector: @selector(GSBackingAlignedRect:result:)]
++      && [context GSBackingAlignedRect: aRect result: &aligned])
++    return aligned;
++
+   NSAffineTransform	*matrix;
+   CGFloat x_org;
+   CGFloat y_org;

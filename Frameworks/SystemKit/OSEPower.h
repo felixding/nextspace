@@ -51,6 +51,17 @@
 
 @end
 
+typedef NS_ENUM(NSUInteger, OSEPowerAction) {
+  OSEPowerOff,
+  OSEPowerReboot
+};
+
+@interface OSEPower (Session)
+/* A bounded logind request under the caller's normal policy authorization.
+   Call off the UI thread; success means logind accepted the request. */
++ (BOOL)requestAction:(OSEPowerAction)action error:(NSError **)error;
+@end
+
 //-------------------------------------------------------------------------------
 #pragma mark - Notifications
 //-------------------------------------------------------------------------------

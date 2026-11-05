@@ -1,0 +1,12 @@
+patches/gui-0_32_0-wayland-backing.patch
+patches/gui-0_32_0-session-pasteboard.patch
+patches/gui-0_32_0-wayland-images.patch
+patches/gui-0_32_0-wayland-icon-drag.patch
+patches/gui-0_32_0-wayland-primary-selection.patch
+patches/gui-0_32_0-wayland-text-input.patch
+patches/gui-0_32_0-wayland-work-area.patch
+patches/gui-0_32_0-wayland-zoom.patch
+patches/gui-0_32_0-wayland-fullscreen.patch
+patches/gui-0_32_0-wayland-color-wheel.patch
+patches/gui-0_32_0-wayland-color-pick.patch
+patches/gui-0_32_0-wayland-page-layout.patch

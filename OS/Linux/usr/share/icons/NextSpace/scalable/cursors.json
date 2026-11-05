@@ -1,0 +1,895 @@
+{
+  "version": 1,
+  "logical_size": 24,
+  "cursors": [
+    {
+      "name": "X_cursor",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "X_cursor",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "all-scroll",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "all-scroll",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "bd_double_arrow",
+      "aliases": [
+        "c7088f0f3e6c8088236ef8e1e3e70000",
+        "nwse-resize",
+        "size_fdiag"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "bd_double_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "bottom_left_corner",
+      "aliases": [
+        "sw-resize"
+      ],
+      "hotspot": [
+        6,
+        17
+      ],
+      "frames": [
+        {
+          "symbol": "bottom_left_corner",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "bottom_right_corner",
+      "aliases": [
+        "se-resize"
+      ],
+      "hotspot": [
+        17,
+        17
+      ],
+      "frames": [
+        {
+          "symbol": "bottom_right_corner",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "bottom_side",
+      "aliases": [
+        "s-resize"
+      ],
+      "hotspot": [
+        10,
+        17
+      ],
+      "frames": [
+        {
+          "symbol": "bottom_side",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "bottom_tee",
+      "aliases": [],
+      "hotspot": [
+        11,
+        15
+      ],
+      "frames": [
+        {
+          "symbol": "bottom_tee",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "context-menu",
+      "aliases": [],
+      "hotspot": [
+        4,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "context-menu",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "cross",
+      "aliases": [
+        "cross_reverse",
+        "crosshair",
+        "diamond_cross"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "cross",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "crossed_circle",
+      "aliases": [
+        "03b6e0fcb3499374a867c041f52298f0",
+        "not-allowed"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "crossed_circle",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "dnd-ask",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "dnd-ask",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "dnd-copy",
+      "aliases": [
+        "1081e37283d90000800003c07f3ef6bf",
+        "6407b0e94181790501fd1e167b474872",
+        "copy"
+      ],
+      "hotspot": [
+        4,
+        4
+      ],
+      "frames": [
+        {
+          "symbol": "dnd-copy",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "dnd-link",
+      "aliases": [
+        "alias"
+      ],
+      "hotspot": [
+        5,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "dnd-link",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "dnd-move",
+      "aliases": [],
+      "hotspot": [
+        7,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "dnd-move",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "dnd-no-drop",
+      "aliases": [
+        "no-drop"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "dnd-no-drop",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "dnd-none",
+      "aliases": [],
+      "hotspot": [
+        7,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "dnd-none",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "fd_double_arrow",
+      "aliases": [
+        "fcf1c3c7cd4491d801f1e1c78f100000",
+        "nesw-resize",
+        "size_bdiag"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "fd_double_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "grabbing",
+      "aliases": [
+        "fleur"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "grabbing",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "hand1",
+      "aliases": [
+        "grab"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "hand1",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "hand2",
+      "aliases": [
+        "9d800788f1b08800ae810202380a0822",
+        "e29285e634086352946a0e7090d73106",
+        "hand",
+        "pointer"
+      ],
+      "hotspot": [
+        8,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "hand2",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "left_ptr",
+      "aliases": [
+        "arrow",
+        "default",
+        "top_left_arrow"
+      ],
+      "hotspot": [
+        7,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "left_ptr",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "left_side",
+      "aliases": [
+        "w-resize"
+      ],
+      "hotspot": [
+        5,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "left_side",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "left_tee",
+      "aliases": [],
+      "hotspot": [
+        8,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "left_tee",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "ll_angle",
+      "aliases": [],
+      "hotspot": [
+        8,
+        15
+      ],
+      "frames": [
+        {
+          "symbol": "ll_angle",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "lr_angle",
+      "aliases": [],
+      "hotspot": [
+        15,
+        15
+      ],
+      "frames": [
+        {
+          "symbol": "lr_angle",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "move",
+      "aliases": [
+        "4498f0e0c1937ffe01fd06f973665830",
+        "9081237383d90e509aa00f00170e968f",
+        "size_all"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "move",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "pencil",
+      "aliases": [],
+      "hotspot": [
+        7,
+        18
+      ],
+      "frames": [
+        {
+          "symbol": "pencil",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "pirate",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "pirate",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "plus",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "plus",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "question_arrow",
+      "aliases": [
+        "5c6cd98b3f3ebcb1f9c7f1c204630408",
+        "d9ce0ab605698f320427677b458ad60b",
+        "help",
+        "left_ptr_help"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "question_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "right_ptr",
+      "aliases": [
+        "draft_large",
+        "draft_small"
+      ],
+      "hotspot": [
+        16,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "right_ptr",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "right_side",
+      "aliases": [
+        "e-resize"
+      ],
+      "hotspot": [
+        18,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "right_side",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "right_tee",
+      "aliases": [],
+      "hotspot": [
+        15,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "right_tee",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "sb_down_arrow",
+      "aliases": [],
+      "hotspot": [
+        10,
+        9
+      ],
+      "frames": [
+        {
+          "symbol": "sb_down_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "sb_h_double_arrow",
+      "aliases": [
+        "028006030e0e7ebffc7f7070c0600140",
+        "14fef782d02440884392942c11205230",
+        "col-resize",
+        "ew-resize",
+        "h_double_arrow",
+        "size_hor"
+      ],
+      "hotspot": [
+        10,
+        10
+      ],
+      "frames": [
+        {
+          "symbol": "sb_h_double_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "sb_left_arrow",
+      "aliases": [],
+      "hotspot": [
+        13,
+        10
+      ],
+      "frames": [
+        {
+          "symbol": "sb_left_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "sb_right_arrow",
+      "aliases": [],
+      "hotspot": [
+        8,
+        10
+      ],
+      "frames": [
+        {
+          "symbol": "sb_right_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "sb_up_arrow",
+      "aliases": [],
+      "hotspot": [
+        10,
+        13
+      ],
+      "frames": [
+        {
+          "symbol": "sb_up_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "sb_v_double_arrow",
+      "aliases": [
+        "00008160000006810000408080010102",
+        "2870a09082c103050810ffdffffe0204",
+        "double_arrow",
+        "ns-resize",
+        "row-resize",
+        "size_ver",
+        "v_double_arrow"
+      ],
+      "hotspot": [
+        10,
+        10
+      ],
+      "frames": [
+        {
+          "symbol": "sb_v_double_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "tcross",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "tcross",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "top_left_corner",
+      "aliases": [
+        "nw-resize"
+      ],
+      "hotspot": [
+        6,
+        6
+      ],
+      "frames": [
+        {
+          "symbol": "top_left_corner",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "top_right_corner",
+      "aliases": [
+        "ne-resize"
+      ],
+      "hotspot": [
+        17,
+        6
+      ],
+      "frames": [
+        {
+          "symbol": "top_right_corner",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "top_side",
+      "aliases": [
+        "n-resize"
+      ],
+      "hotspot": [
+        11,
+        5
+      ],
+      "frames": [
+        {
+          "symbol": "top_side",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "top_tee",
+      "aliases": [],
+      "hotspot": [
+        11,
+        8
+      ],
+      "frames": [
+        {
+          "symbol": "top_tee",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "ul_angle",
+      "aliases": [],
+      "hotspot": [
+        8,
+        8
+      ],
+      "frames": [
+        {
+          "symbol": "ul_angle",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "ur_angle",
+      "aliases": [],
+      "hotspot": [
+        15,
+        8
+      ],
+      "frames": [
+        {
+          "symbol": "ur_angle",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "vertical-text",
+      "aliases": [],
+      "hotspot": [
+        12,
+        12
+      ],
+      "frames": [
+        {
+          "symbol": "vertical-text",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "watch",
+      "aliases": [
+        "wait"
+      ],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "watch-1",
+          "duration_ms": 100
+        },
+        {
+          "symbol": "watch-2",
+          "duration_ms": 100
+        },
+        {
+          "symbol": "watch-3",
+          "duration_ms": 100
+        }
+      ]
+    },
+    {
+      "name": "wm_down_arrow",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "wm_down_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "wm_h_double_arrow",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "wm_h_double_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "wm_left_arrow",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "wm_left_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "wm_right_arrow",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "wm_right_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "wm_up_arrow",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "wm_up_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "wm_v_double_arrow",
+      "aliases": [],
+      "hotspot": [
+        11,
+        11
+      ],
+      "frames": [
+        {
+          "symbol": "wm_v_double_arrow",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "xterm",
+      "aliases": [
+        "text"
+      ],
+      "hotspot": [
+        11,
+        12
+      ],
+      "frames": [
+        {
+          "symbol": "xterm",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "zoom-in",
+      "aliases": [],
+      "hotspot": [
+        10,
+        10
+      ],
+      "frames": [
+        {
+          "symbol": "zoom-in",
+          "duration_ms": 50
+        }
+      ]
+    },
+    {
+      "name": "zoom-out",
+      "aliases": [],
+      "hotspot": [
+        10,
+        10
+      ],
+      "frames": [
+        {
+          "symbol": "zoom-out",
+          "duration_ms": 50
+        }
+      ]
+    }
+  ]
+}

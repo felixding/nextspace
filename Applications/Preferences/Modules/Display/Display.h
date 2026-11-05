@@ -23,7 +23,7 @@
 #import <AppKit/NSColorWell.h>
 #import <Preferences.h>
 
-@class OSEScreen;
+@class OSEScreen, NSPopUpButton, NSTextField;
 @class OSEDisplay;
 
 @interface DisplayPrefs : NSObject <PrefsModule>
@@ -42,6 +42,8 @@
   id rotationBtn;
   id reflectionBtn;
   NSColorWell *colorBtn;
+  NSPopUpButton *scaleBtn;
+  NSTextField *effectiveSize;
 
   NSImage *image;
   OSEScreen *systemScreen;

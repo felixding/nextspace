@@ -18,9 +18,6 @@
 #import <AppKit/NSScroller.h>
 #import <AppKit/NSWindow.h>
 
-#include <X11/Xutil.h>
-#import <GNUstepGUI/GSDisplayServer.h>
-
 #import "Controller.h"
 #import "Defaults.h"
 #import "TerminalWindow.h"
@@ -34,26 +31,6 @@ NSString *TerminalWindowSizeDidChangeNotification = @"TerminalWindowSizeDidChang
 
 #define CONTENT_H_BORDER 4
 #define CONTENT_V_BORDER 2
-
-// It's a hack to correctly represent window size in WM on resizing.
-// There's no NSWindow methods to set base_width and base_height hints.
-//
-// XSizeHints documentation says "base_width and base_height members define the desired size of the
-// window.". But WM use them to substract from window size to calculate windows size in resize
-// increments count.
-- (void)_baseSizeHack
-{
-  GSDisplayServer *xServer = GSCurrentServer();
-  Display *xDisplay = [xServer serverDevice];
-  Window _win = (Window)[xServer windowDevice:[win windowNumber]];
-  XSizeHints size_hints;
-  long supplied_return;
-
-  XGetWMNormalHints(xDisplay, _win, &size_hints, &supplied_return);
-  size_hints.flags |= PBaseSize;
-  size_hints.base_width = scrollerWidth + 1 + CONTENT_H_BORDER;
-  XSetWMNormalHints(xDisplay, _win, &size_hints);
-}
 
 - (void)calculateSizes
 {
@@ -342,11 +319,6 @@ NSString *TerminalWindowSizeDidChangeNotification = @"TerminalWindowSizeDidChang
   [[NSApp delegate] closeTerminalWindow:self];
 
   [self autorelease];
-}
-
-- (void)windowDidBecomeKey:(NSNotification *)aNotification
-{
-  [self _baseSizeHack];
 }
 
 - (BOOL)windowShouldClose:(id)sender

@@ -26,6 +26,9 @@
 
 #import <AppKit/AppKit.h>
 
+// Replace legacy Gorm bitmaps with bundle TIFFs, keyed by NSStringFromSize.
+void NXTSetBundleImages(NSView *view, NSDictionary *resourceNames);
+
 typedef enum {
   NXTDotsAtLeft = 0,
   NXTDotsAtCenter = 1,

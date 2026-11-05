@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Original GNUstep progress stripe phases. One repeating vector gradient avoids clipped-edge raster snapping. SPDX-License-Identifier: LGPL-2.1-or-later. -->
+  <defs>
+    <g id="progress-stripe-base">
+      <rect x="-24" width="72" height="24" fill="url(#progress-stripe-colors)" />
+    </g>
+    <symbol id="progress-stripes-1-design" viewBox="0 0 24 24">
+      <use href="#progress-stripe-base" transform="translate(-9)" />
+    </symbol>
+    <symbol id="progress-stripes-2-design" viewBox="0 0 24 24">
+      <use href="#progress-stripe-base" transform="translate(-5)" />
+    </symbol>
+    <symbol id="progress-stripes-3-design" viewBox="0 0 24 24">
+      <use href="#progress-stripe-base" transform="translate(-1)" />
+    </symbol>
+    <symbol id="progress-stripes-4-design" viewBox="0 0 24 24">
+      <use href="#progress-stripe-base" transform="translate(-9)" />
+    </symbol>
+    <symbol id="progress-stripes-5-design" viewBox="0 0 24 24">
+      <use href="#progress-stripe-base" transform="translate(-5)" />
+    </symbol>
+    <symbol id="progress-stripes-6-design" viewBox="0 0 24 24">
+      <use href="#progress-stripe-base" transform="translate(-1)" />
+    </symbol>
+    <linearGradient id="progress-stripe-colors" gradientUnits="userSpaceOnUse" x1=".25" y1=".25" x2="6.25" y2="6.25" spreadMethod="repeat">
+      <stop offset="0" stop-color="#000" />
+      <stop offset=".5" stop-color="#000" />
+      <stop offset=".5" stop-color="#999" />
+      <stop offset="1" stop-color="#999" />
+    </linearGradient>
+  </defs>
+  <use id="preview" href="#progress-stripes-1-design" />
+</svg>

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Foreground PAM locker; the supervisor supplies its private Wayland capability.
+set -eu
+exec /usr/bin/swaylock --config /dev/null --color 303030

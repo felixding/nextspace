@@ -40,45 +40,11 @@
 
 #define CGSTATE ((CairoGState *)gstate)
 
-#if BUILD_SERVER == SERVER_x11
-#  include "cairo/CairoGState.h"
-#  include "x11/XGServer.h"
-#  define _CAIRO_GSTATE_CLASSNAME CairoGState
-#  ifdef USE_GLITZ
-#    define _CAIRO_SURFACE_CLASSNAME XGCairoGlitzSurface
-#    include "cairo/XGCairoGlitzSurface.h"
-#  else
-#    define _CAIRO_SURFACE_CLASSNAME XGCairoXImageSurface
-#    include "cairo/XGCairoXImageSurface.h"
-// #    define _CAIRO_SURFACE_CLASSNAME XGCairoSurface
-// #    include "cairo/XGCairoSurface.h"
-// #    define _CAIRO_SURFACE_CLASSNAME XGCairoModernSurface
-// #    include "cairo/XGCairoModernSurface.h"
-#  endif /* USE_GLITZ */
-#  include "x11/XGServerWindow.h"
-#  include "x11/XWindowBuffer.h"
-#elif BUILD_SERVER == SERVER_win32
-#  include "cairo/Win32CairoGState.h"
-#  include <windows.h>
-#  include "win32/WIN32Server.h"
-#  include "win32/WIN32Geometry.h"
-#  define _CAIRO_GSTATE_CLASSNAME Win32CairoGState
-#  ifdef USE_GLITZ
-#    define _CAIRO_SURFACE_CLASSNAME Win32CairoGlitzSurface
-#    include "cairo/Win32CairoGlitzSurface.h"
-#  else
-#    define _CAIRO_SURFACE_CLASSNAME Win32CairoSurface
-#    include "cairo/Win32CairoSurface.h"
-#  endif /* USE_GLITZ */
-#elif BUILD_SERVER == SERVER_wayland
-#  include "wayland/WaylandServer.h"
-#  include "cairo/CairoGState.h"
-#  include "cairo/WaylandCairoShmSurface.h"
-#  define _CAIRO_GSTATE_CLASSNAME CairoGState
-#  define _CAIRO_SURFACE_CLASSNAME WaylandCairoShmSurface
-#else
-#  error Invalid server for Cairo backend : non implemented
-#endif /* BUILD_SERVER */
+#include "wayland/WaylandServer.h"
+#include "cairo/CairoGState.h"
+#include "cairo/WaylandCairoShmSurface.h"
+#define _CAIRO_GSTATE_CLASSNAME CairoGState
+#define _CAIRO_SURFACE_CLASSNAME WaylandCairoShmSurface
 
 @implementation CairoContext
 
@@ -105,6 +71,18 @@
   return YES;
 }
 
+- (BOOL) GSBackingAlignedRect: (NSRect)rect result: (NSRect *)result
+{
+  return [CGSTATE GSBackingAlignedRect:rect result:result];
+}
+
+- (BOOL) GSdrawImageRep: (NSImageRep *)rep fromRect: (NSRect)source
+                toRect: (NSRect)destination operation: (NSCompositingOperation)operation
+              fraction: (CGFloat)fraction
+{
+  return [CGSTATE GSdrawImageRep:rep fromRect:source toRect:destination operation:operation fraction:fraction];
+}
+
 - (id) initWithContextInfo: (NSDictionary *)info
 {
   self = [super initWithContextInfo: info];
@@ -124,77 +102,17 @@
 
 - (void) flushGraphics
 {
-  // FIXME: Why is this here? When is it called?
-  // Comments added 07/20/2013 to address the above question after
-  // further debugging cairo/MSwindows non-retained backing store type:
-  // This is called from NSWindow/flushWindow for the non-retained backing
-  // store case.  This code originally seems to have been added due to the 
-  // non-retained backing store type NOT showing up on XWindows/Cairo
-  // combination and added this XFlush call to handle this case.
-  
-  // For MSWindows a similar problem seems to occur. However, the only
-  // equivalent to XFlush on MSWindows is GdiFlush, which doesn't cause
-  // the window to re-display properly.  So, on MSWindows, the non-retained
-  // cairo backend surface is currently excluded from the build and we
-  // handle it as a buffered window expose event for now.
-  // FIXME:  Anyone know how this can be handled/fixed correctly...
-  
-#if BUILD_SERVER == SERVER_x11
-  XFlush([(XGServer *)server xDisplay]);
-#elif BUILD_SERVER == SERVER_win32
   CairoSurface *surface = nil;
-
   [CGSTATE GSCurrentSurface: &surface : NULL : NULL];
-  if ((surface != nil) && ([surface surface] != NULL))
-    {
-      // Non-retained backing store types currently unsupported on MSWindows...
-      // Currently handling such windows as buffered and invoking the handle
-      // expose event processing...
-      RECT    rect;
-      HWND    hwnd  = surface->gsDevice;
-      GetClientRect(hwnd, &rect);
-      NSRect  frame = MSWindowRectToGS((WIN32Server*)GSCurrentServer(), hwnd, rect);
-      [[self class] handleExposeRect: frame forDriver: surface];
-    }
-#endif
+  [surface handleExposeRect: NSMakeRect(0, 0, [surface size].width, [surface size].height)];
 }
-
 
 /* Private backend methods */
 + (void) handleExposeRect: (NSRect)rect forDriver: (void *)driver
 {
-#if BUILD_SERVER == SERVER_x11
-  if ([(id)driver isKindOfClass: [XWindowBuffer class]])
-    {
-      // For XGCairoXImageSurface
-      [(XWindowBuffer *)driver _exposeRect: rect];
-    }
-  else
-#endif
   if ([(id)driver isKindOfClass: [CairoSurface class]])
-    {
-      // For XGCairoModernSurface
-      [(CairoSurface *)driver handleExposeRect: rect];
-    }
+    [(CairoSurface *)driver handleExposeRect: rect];
 }
-
-#if BUILD_SERVER == SERVER_x11
-
-#ifdef XSHM
-
-+ (void) _gotShmCompletion: (Drawable)d
-{
-  [XWindowBuffer _gotShmCompletion: d];
-}
-
-- (void) gotShmCompletion: (Drawable)d
-{
-  [XWindowBuffer _gotShmCompletion: d];
-}
-
-#endif // XSHM
-
-#endif // BUILD_SERVER = SERVER_x11
 
 @end 
 
@@ -266,10 +184,14 @@
 
   NSPrintOperation *printOp = [NSPrintOperation currentOperation];
   NSPrintInfo *printInfo = [printOp printInfo];
+  contextType = [context_info objectForKey:
+                         NSGraphicsContextRepresentationFormatAttributeName];
 
   if (printInfo != nil)
     {
-      size = [printInfo paperSize];
+      BOOL exporting = [printOp isEPSOperation] ||
+        [contextType isEqual: NSGraphicsContextPDFFormat];
+      size = exporting ? boundingBox.size : [printInfo paperSize];
 
       // FIXME: This is confusing..
       // When an 8.5x11 page is set to landscape,
@@ -277,7 +199,7 @@
       // but gui also adds a 90 degree rotation as if it will
       // be drawing on a 8.5x11 page. So, swap 11x8.5 back to
       // 8.5x11 here.
-      if ([printInfo orientation] == NSLandscapeOrientation)
+      if (!exporting && [printInfo orientation] == NSLandscapeOrientation)
 	{
 	  size = NSMakeSize(size.height, size.width);
 	}
@@ -289,9 +211,6 @@
 		   NSStringFromSelector(_cmd)];
       return;
     }
-
-  contextType = [context_info objectForKey:
-			 NSGraphicsContextRepresentationFormatAttributeName];
 
   if (contextType)
     {

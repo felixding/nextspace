@@ -1,0 +1,13 @@
+{
+  "source": "Return.tiff",
+  "source_sha256": "f9f1ac0a4e431ac967be956aaf35bbeae9a59a29a4c10bbb627d18e0010d1751",
+  "png": "Return.png",
+  "png_sha256": "9d2e4999bf2bb766cc62a7ded25873b2649d54db2e51515f813201417b4f60a7",
+  "upstream": "gnustep-gui 0.32.0 Images/common_ret.tiff",
+  "upstream_sha256": "f9f1ac0a4e431ac967be956aaf35bbeae9a59a29a4c10bbb627d18e0010d1751",
+  "installed_original": "/Library/Images/common_ret.tiff",
+  "logical_size": [
+    15,
+    10
+  ]
+}

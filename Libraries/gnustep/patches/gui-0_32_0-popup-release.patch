@@ -1,0 +1,20 @@
+--- a/Source/NSMenuView.m
++++ b/Source/NSMenuView.m
+@@ -1881,6 +1881,17 @@
+    * We need to store this, because _highlightedItemIndex
+    * will not be valid after we removed this menu from the screen.
+    */
++  /* A fast popup release can arrive before the next periodic tracking tick.
++   * Use the release position rather than dispatching the previously highlighted
++   * item. The event keeps its position even if newer motion is already queued. */
++  if ([_attachedMenu _ownedByPopUp] && [event window] != nil
++      && (type == NSLeftMouseUp || type == NSRightMouseUp || type == NSOtherMouseUp))
++    {
++      NSPoint released = [[event window] convertBaseToScreen: [event locationInWindow]];
++      released = [_window convertScreenToBase: released];
++      [self setHighlightedItemIndex:
++        [self indexOfItemAtPoint: [self convertPoint: released fromView: nil]]];
++    }
+   indexOfActionToExecute = _highlightedItemIndex;
+ 
+   // remove transient menus. --------------------------------------------

@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" fill="none" stroke-linecap="butt">
+  <!-- Native vector title controls. SPDX-License-Identifier: GPL-2.0-or-later. -->
+  <defs>
+    <!-- Original recessed checkbox frame and beveled continuous check mark. -->
+    <g id="switch-frame">
+      <path d="M0 0H15V15H0Z" fill="#000"/>
+      <path d="M0 0H14V14H0Z" fill="#fff"/>
+      <path d="M1 1H13V13H1Z" fill="#aaa"/>
+      <path d="M13 1H14V14H1V13H13Z" fill="#555"/>
+    </g>
+    <g id="switch-check" color="#555">
+      <use href="../../../../../Applications/Artwork/CheckGlyphs.svg#checkbox-check"/>
+    </g>
+    <symbol id="common_SwitchOff" viewBox="0 0 15 15" data-logical-size="15.003418111688841 15.003418111688841" data-reconstructed="true">
+      <use href="#switch-frame"/>
+    </symbol>
+    <symbol id="common_SwitchOn" viewBox="0 0 15 15" data-logical-size="15.003418111688841 15.003418111688841" data-reconstructed="true">
+      <use href="#switch-frame"/>
+      <use href="#switch-check"/>
+    </symbol>
+    <!-- Original circular radio bevels, shared between off/on states. -->
+    <g id="radio-ring" fill="none" shape-rendering="crispEdges">
+      <path d="M3.00048673 12.86231110A7 7 0 1 1 12.86231110 3.00048673" stroke="#555" stroke-width="1"/>
+      <path d="M2.30570541 10.74575549A6.125 6.125 0 0 1 9.59487338 1.74438270" stroke="#555" stroke-width="1.25"/>
+      <path d="M1.74438270 9.59487338A6.125 6.125 0 0 1 9.59487338 1.74438270" stroke="#000" stroke-width=".75"/>
+      <path d="M14.07784835 5.10585900A7 7 0 0 1 4.00000000 13.56217783" stroke="#fff" stroke-width="1"/>
+    </g>
+    <symbol id="common_RadioOff" viewBox="0 0 16 15" data-logical-size="16.00364598580143 15.003418111688841" data-reconstructed="true">
+      <path d="M0 0H16V15H0Z" fill="#aaa"/>
+      <use href="#radio-ring"/>
+    </symbol>
+    <symbol id="common_RadioOn" viewBox="0 0 16 16" data-logical-size="16.00364598580143 16.00364598580143" data-reconstructed="true" shape-rendering="crispEdges">
+      <path d="M0 0H16V16H0Z" fill="#aaa"/>
+      <circle cx="8" cy="9" r="5" fill="#fff"/>
+      <use href="#radio-ring" transform="translate(0 1)"/>
+      <path d="M9.93005501 2.28873022A5.75 5.75 0 0 1 11.19602876 3.09524445" transform="translate(0 1)" fill="none" stroke="#555" stroke-width=".5"/>
+    </symbol>
+    <!-- Original recessed dimple: circular bevels share a transparent circular outline. -->
+    <symbol id="common_Dimple" viewBox="0 0 6 6" data-reconstructed="true" shape-rendering="crispEdges">
+      <circle cx="3" cy="3" r="3" fill="#555"/>
+      <path d="M0.41502815 4.52247185 A3 3 0 1 0 4.52247185 0.41502815 A3.25 3.25 0 0 0 0.41502815 4.52247185Z" fill="#000"/>
+      <path d="M1.43844719 5.56155281 A3 3 0 0 0 5.56155281 1.43844719 A3 3 0 0 0 1.43844719 5.56155281Z" fill="#555"/>
+      <path d="M2.46479367 5.95187300 A3 3 0 0 0 5.95187300 2.46479367 A2.5 2.5 0 0 0 2.46479367 5.95187300Z" fill="#aaa"/>
+      <path d="M3.26141099 5.98858901 A3 3 0 0 0 5.98858901 3.26141099 A2 2 0 0 0 3.26141099 5.98858901Z" fill="#fff"/>
+    </symbol>
+    <symbol id="common_DimpleHoriz" viewBox="0 0 6 6" data-reconstructed="true">
+      <use href="#common_Dimple" width="6" height="6"/>
+    </symbol>
+    <!-- Original triangular arrows: filled body and two-tone edge bevel. -->
+    <g id="scroller-arrow" shape-rendering="crispEdges">
+      <path d="M4.5 0 9 9H0Z" fill="currentColor"/>
+      <path d="M4.5 1 8.5 9H.5Z"/>
+    </g>
+    <!-- The selected RGB originals retain a faint down-arrow edge fragment. -->
+    <path id="scroller-down-fringe" d="M0 1H1V2H0Z" fill="#000" opacity=".0078431372549"/>
+    <symbol id="common_ArrowUp" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#scroller-arrow" fill="#000" color="#555"/>
+    </symbol>
+    <symbol id="common_ArrowDown" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#common_ArrowUp" width="9" height="9" transform="rotate(180 4.5 4.5)"/>
+      <use href="#scroller-down-fringe"/>
+    </symbol>
+    <symbol id="common_ArrowLeft" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#common_ArrowUp" width="9" height="9" transform="rotate(270 4.5 4.5)"/>
+    </symbol>
+    <symbol id="common_ArrowRight" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#common_ArrowUp" width="9" height="9" transform="rotate(90 4.5 4.5)"/>
+    </symbol>
+    <symbol id="common_ArrowUpH" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#scroller-arrow" fill="#555" color="#aaa"/>
+    </symbol>
+    <symbol id="common_ArrowDownH" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#common_ArrowUpH" width="9" height="9" transform="rotate(180 4.5 4.5)"/>
+      <use href="#scroller-down-fringe"/>
+    </symbol>
+    <symbol id="common_ArrowLeftH" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#common_ArrowUpH" width="9" height="9" transform="rotate(270 4.5 4.5)"/>
+    </symbol>
+    <symbol id="common_ArrowRightH" viewBox="0 0 9 9" data-reconstructed="true">
+      <use href="#common_ArrowUpH" width="9" height="9" transform="rotate(90 4.5 4.5)"/>
+    </symbol>
+    <!-- Original tile bevel dimensions and continuous fitted color gradients. -->
+    <linearGradient id="tile-face" gradientUnits="userSpaceOnUse" x1="2" y1="2" x2="57.53462174" y2="65.88189919">
+      <stop stop-color="rgb(67.0961711%,67.0961711%,72.2776974%)"/><stop offset="1" stop-color="rgb(33.8012145%,33.8012145%,40.2288385%)"/>
+    </linearGradient>
+    <linearGradient id="tile-right" gradientUnits="userSpaceOnUse" x1="62" y1="1" x2="62" y2="63">
+      <stop stop-color="rgb(34.9118311%,35.2417738%,38.2013034%)"/><stop offset="1" stop-color="rgb(13.1463599%,13.3477265%,16.3844018%)"/>
+    </linearGradient>
+    <linearGradient id="tile-bottom" gradientUnits="userSpaceOnUse" x1="2" y1="62" x2="63" y2="62">
+      <stop stop-color="rgb(34.9005610%,35.2553271%,38.1923248%)"/><stop offset="1" stop-color="rgb(13.1611555%,13.3464087%,16.4010535%)"/>
+    </linearGradient>
+    <symbol id="common_Tile" viewBox="0 0 64 64" data-reconstructed="true">
+      <path d="M0 0H64V64H0Z" fill="#000"/>
+      <path d="M0 0H63V63H1V64H0Z" fill="#fff"/>
+      <path d="M2 2H62V62H2Z" fill="url(#tile-face)"/>
+      <path d="M62 1H63V63H62Z" fill="url(#tile-right)"/>
+      <path d="M2 62H62V63H2Z" fill="url(#tile-bottom)"/>
+    </symbol>
+    <!-- Original miniature window: solid top and a recessed transparent opening. -->
+    <path id="title-miniaturize" d="M1 1H11V11H1Z M2 4V10H10V4Z"/>
+    <g id="common_Miniaturize" data-reconstructed="true" data-logical-size="12 12" shape-rendering="crispEdges" fill="#000">
+      <use href="#title-miniaturize"/>
+    </g>
+    <g id="common_MiniaturizeH" data-reconstructed="true" data-logical-size="12 12" shape-rendering="crispEdges" fill="#525252">
+      <path d="M0 0H12V12H0Z" fill="#fff"/>
+      <use href="#title-miniaturize"/>
+    </g>
+    <!-- Continuous diagonal bands preserve the original beveled X and broken arms. -->
+    <g id="title-close">
+      <path d="M1 1 2.5 1 11 9.5 11 11 9.5 11 1 2.5Z M11 2.5 2.5 11 1 11 1 9.5 9.5 1 11 1Z" fill="currentColor"/>
+      <path d="M1 1 1.75 1 11 10.25 11 11 10.25 11 1 1.75Z M11 1.75 1.75 11 1 11 1 10.25 10.25 1 11 1Z"/>
+    </g>
+    <g id="title-close-broken">
+      <path d="M1 1 2.5 1 4 2.5 4 4 2.5 4 1 2.5Z M11 2.5 9.5 4 8 4 8 2.5 9.5 1 11 1Z M8 8 9.5 8 11 9.5 11 11 9.5 11 8 9.5Z M4 9.5 2.5 11 1 11 1 9.5 2.5 8 4 8Z" fill="currentColor"/>
+      <path d="M1 1 1.75 1 4 3.25 4 4 3.25 4 1 1.75Z M11 1.75 8.75 4 8 4 8 3.25 10.25 1 11 1Z M8 8 8.75 8 11 10.25 11 11 10.25 11 8 8.75Z M4 8.75 1.75 11 1 11 1 10.25 3.25 8 4 8Z"/>
+    </g>
+    <g id="common_Close" data-reconstructed="true" data-logical-size="12 12" shape-rendering="crispEdges" fill="#000" color="#555">
+      <use href="#title-close"/>
+    </g>
+    <g id="common_CloseH" data-reconstructed="true" data-logical-size="12 12" shape-rendering="crispEdges" fill="#555" color="#aaa">
+      <path d="M0 0H12V12H0Z" fill="#fff"/>
+      <use href="#title-close"/>
+    </g>
+    <g id="common_CloseBroken" data-reconstructed="true" data-logical-size="12 12" shape-rendering="crispEdges" fill="#000" color="#555">
+      <use href="#title-close-broken"/>
+    </g>
+    <g id="common_CloseBrokenH" data-reconstructed="true" data-logical-size="12 12" shape-rendering="crispEdges" fill="#555" color="#aaa">
+      <path d="M0 0H12V12H0Z" fill="#fff"/>
+      <use href="#title-close-broken"/>
+    </g>
+  </defs>
+  <use id="preview" href="#common_Close"/>
+</svg>

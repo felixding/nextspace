@@ -1,0 +1,8 @@
+#!/bin/sh
+# The supervisor supplies this backend's private Wayland connection.
+set -eu
+bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export PATH="$bindir:${PATH:-/usr/local/bin:/usr/bin:/bin}"
+unset DISPLAY
+exec "$bindir/../libexec/nextspace-wayland/portal/xdg-desktop-portal-wlr" --replace \
+  --config "$bindir/../share/nextspace-wayland/portal/nextspace-wlr.conf"

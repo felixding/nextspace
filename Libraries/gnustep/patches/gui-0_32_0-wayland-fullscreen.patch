@@ -1,0 +1,163 @@
+diff --git a/Headers/Additions/GNUstepGUI/GSDisplayServer.h b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+--- a/Headers/Additions/GNUstepGUI/GSDisplayServer.h
++++ b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+@@ -177,6 +177,8 @@
+ - (void) setinputfocus: (int)win;
+ - (void) setalpha: (float)alpha : (int)win;
+ - (void) setShadow: (BOOL)hasShadow : (int)win;
++/* Return NO when native fullscreen is not supported. */
++- (BOOL) fullscreenwindow: (int)win : (BOOL)fullscreen;
+ 
+ - (NSPoint) mouselocation;
+ - (NSPoint) mouseLocationOnScreen: (int)aScreen window: (int *)win;
+diff --git a/Headers/AppKit/NSWindow.h b/Headers/AppKit/NSWindow.h
+--- a/Headers/AppKit/NSWindow.h
++++ b/Headers/AppKit/NSWindow.h
+@@ -780,6 +780,7 @@
+ - (void) setBackgroundColor: (NSColor*)color;
+ - (NSColor*) backgroundColor;
+ - (NSUInteger) styleMask;
++- (void) toggleFullScreen: (id)sender;
+ #if OS_API_VERSION(GS_API_MACOSX, GS_API_LATEST)
+ - (void) setHasShadow: (BOOL)hasShadow;
+ - (BOOL) hasShadow;
+diff --git a/Source/GSDisplayServer.m b/Source/GSDisplayServer.m
+--- a/Source/GSDisplayServer.m
++++ b/Source/GSDisplayServer.m
+@@ -850,6 +850,8 @@
+ }
+ 
+ /** Sets the window shadow */
++- (BOOL) fullscreenwindow: (int)win : (BOOL)fullscreen { return NO; }
++
+ - (void) setShadow: (BOOL)hasShadow : (int)win
+ {
+   //[self subclassResponsibility: _cmd];
+diff --git a/Source/GSStandardWindowDecorationView.m b/Source/GSStandardWindowDecorationView.m
+--- a/Source/GSStandardWindowDecorationView.m
++++ b/Source/GSStandardWindowDecorationView.m
+@@ -53,6 +53,12 @@
+ {
+   GSTheme *theme = [GSTheme theme];
+ 
++  if (style & NSFullScreenWindowMask)
++    {
++      *l = *r = *t = *b = 0.0;
++      return;
++    }
++
+   if (style
+     & (NSTitledWindowMask | NSClosableWindowMask
+       | NSMiniaturizableWindowMask | NSResizableWindowMask))
+@@ -94,6 +100,16 @@
+ - (void) updateRects
+ {
+   GSTheme *theme = [GSTheme theme];
++  NSUInteger style = [window styleMask];
++  if (style & NSFullScreenWindowMask) style = NSBorderlessWindowMask;
++  hasTitleBar = (style & (NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask)) != 0;
++  isTitled = (style & NSTitledWindowMask) != 0;
++  hasResizeBar = (style & NSResizableWindowMask) != 0;
++  hasCloseButton = (style & NSClosableWindowMask) != 0;
++  hasMiniaturizeButton = (style & NSMiniaturizableWindowMask) != 0;
++  [closeButton setHidden: !hasCloseButton];
++  [miniaturizeButton setHidden: !hasMiniaturizeButton];
++  titleBarRect = resizeBarRect = NSZeroRect;
+ 
+   if (hasTitleBar)
+     {
+@@ -184,9 +200,39 @@
+   [super dealloc];
+ }
+ 
++- (BOOL) _scaledScreenInContext: (NSGraphicsContext *)context
++{
++  return [window backingScaleFactor] != 1.0
++    && [(context ?: [window graphicsContext]) isDrawingToScreen];
++}
++
++- (void) displayRectIgnoringOpacity: (NSRect)rect
++                          inContext: (NSGraphicsContext *)context
++{
++  /* A frame repaint must rebuild its backing pixels rather than blend new
++     antialiased edges over the preceding title state. Redraw children too. */
++  if (!NSIsEmptyRect(rect) && [self _scaledScreenInContext: context]
++      && !NSContainsRect(contentRect, rect))
++    rect = [self bounds];
++  [super displayRectIgnoringOpacity: rect inContext: context];
++}
++
+ - (void) drawRect: (NSRect)rect
+ {
+-  [[GSTheme theme] drawWindowBorder: rect
++  if ([self _scaledScreenInContext: [NSGraphicsContext currentContext]]
++      && NSEqualRects(rect, [self bounds]))
++    {
++      CGFloat pixel = 1.0 / [window backingScaleFactor];
++      PSgsave();
++      PSinitclip();
++      NSColor *background = [window backgroundColor];
++      if ([window isOpaque]) background = [background colorWithAlphaComponent: 1.0];
++      [background set];
++      NSRectFillUsingOperation(NSInsetRect(rect, -pixel, -pixel), NSCompositeCopy);
++      PSgrestore();
++    }
++  if (([window styleMask] & NSFullScreenWindowMask) == 0)
++    [[GSTheme theme] drawWindowBorder: rect
+                    withFrame: [self bounds] 
+                    forStyleMask: [window styleMask]
+                    state: inputState
+diff --git a/Source/GSWindowDecorationView.m b/Source/GSWindowDecorationView.m
+--- a/Source/GSWindowDecorationView.m
++++ b/Source/GSWindowDecorationView.m
+@@ -444,9 +444,16 @@
+ {
+   if (NSIntersectsRect(rect, contentRect))
+     {
+-      // Since this is the outermost view, we have to clear the contentRect
+-      // in case the theme's window background is not opaque.
+-      NSRectFillUsingOperation(contentRect, NSCompositeClear);  
++      /* Opaque windows must retain opacity at rounded backing edges. Clearing
++         and repainting an antialiased clip would leave fractional alpha. */
++      if ([window isOpaque] && [window backingScaleFactor] != 1.0
++          && [[NSGraphicsContext currentContext] isDrawingToScreen])
++        {
++          [[window backgroundColor] set];
++          NSRectFillUsingOperation(contentRect, NSCompositeCopy);
++        }
++      else
++        NSRectFillUsingOperation(contentRect, NSCompositeClear);
+       [[GSTheme theme] drawWindowBackground: contentRect view: self];
+     }
+ }
+diff --git a/Source/NSWindow.m b/Source/NSWindow.m
+--- a/Source/NSWindow.m
++++ b/Source/NSWindow.m
+@@ -1375,6 +1375,27 @@
+                           filename: YES];
+         }
+     }
++}
++
++/* The backend applies only compositor-confirmed fullscreen state. Keep the
++   ordinary style bits so leaving fullscreen restores the original decoration. */
++- (void) _backendSetFullscreen: (BOOL)fullscreen
++{
++  if (((_styleMask & NSFullScreenWindowMask) != 0) == fullscreen) return;
++  if (fullscreen) _styleMask |= NSFullScreenWindowMask;
++  else _styleMask &= ~NSFullScreenWindowMask;
++  [_wv _invalidateCoordinates];
++  [_wv layout];
++  NSRect frame = _frame;
++  frame.origin = NSZeroPoint;
++  [_wv setFrame: frame];
++  [_wv setNeedsDisplay: YES];
++}
++
++- (void) toggleFullScreen: (id)sender
++{
++  [GSServerForWindow(self) fullscreenwindow: _windowNum
++    : (_styleMask & NSFullScreenWindowMask) == 0];
+ }
+ 
+ - (NSUInteger) styleMask

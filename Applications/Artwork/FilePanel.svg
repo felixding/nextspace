@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs>
+    <linearGradient id="panel-front" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#302749" />
+      <stop offset=".5" stop-color="#333344" />
+      <stop offset="1" stop-color="#222233" />
+    </linearGradient>
+    <linearGradient id="panel-metal" x1="0" y1="0" x2=".5" y2="1">
+      <stop stop-color="#8f8dac" />
+      <stop offset=".6" stop-color="#b1afce" />
+      <stop offset="1" stop-color="#b2c0be" />
+    </linearGradient>
+    <g id="panel-floppy">
+      <path d="M4 4H23V23H4Z" fill="#000" opacity=".3333333333333333" shape-rendering="crispEdges" />
+      <path d="M2 2H21L22 3V22H2Z" fill="url(#panel-front)" shape-rendering="crispEdges" />
+      <path d="M2 2H3V21H2Z" fill="#fff" />
+      <path d="M3 2H20V3H3Z" fill="#dddde8" />
+      <path d="M21 3H22V22H21Z M3 21H21V22H3Z" fill="#000" />
+      <path d="M2 2H3V3H2Z" fill="#bbaadd" />
+      <path d="M2 21H3V22H2Z" fill="#aabbcc" />
+      <path d="M5 3H6V8H5Z" fill="#000" />
+      <path d="M6 3H8V8H6Z" fill="#554477" />
+      <path d="M8 2H17V8H8Z" fill="#fff" />
+      <path d="M9 3H16V7H9Z" fill="url(#panel-metal)" />
+      <path d="M13 3H15V7H13Z" fill="#112222" />
+      <path d="M5 8H21V12H5Z" fill="#000" opacity=".23" />
+      <path d="M5 12H18L20 13V21H5Z" fill="#000" />
+      <path d="M6 12H18L19 13V21H6Z" fill="#bbaadd" />
+      <path d="M7 13H18V21H6V14Q6 13 7 13Z" fill="#fff" />
+    </g>
+    <path id="panel-arrow-shape" d="M10 13H15V17H18.5L12.5 23L6.5 17H10Z" />
+    <g id="panel-unmount-arrow" stroke-linejoin="miter" shape-rendering="crispEdges">
+      <use href="#panel-arrow-shape" fill="#000" stroke="#000" stroke-width="1" transform="translate(1 1)" shape-rendering="auto" />
+      <use href="#panel-arrow-shape" fill="#660011" stroke="#fff" stroke-width="2" />
+      <use href="#panel-arrow-shape" fill="#660011" />
+    </g>
+  </defs>
+  <symbol id="PanelMount" viewBox="0 0 24 24" data-logical-size="24 24" data-reconstructed="true" data-desktopkit-files="NXTPanelMount.tiff" data-theme-files="common_Mount.tiff">
+    <use href="#panel-floppy" />
+  </symbol>
+  <symbol id="PanelUnmount" viewBox="0 0 24 24" data-logical-size="24 24" data-reconstructed="true" data-desktopkit-files="NXTPanelUnmount.tiff" data-theme-files="common_Unmount.tiff">
+    <use href="#panel-floppy" />
+    <use href="#panel-unmount-arrow" />
+  </symbol>
+  <use id="preview" href="#PanelMount" />
+</svg>

@@ -50,6 +50,8 @@ struct selection_range {
   NSFileHandle *masterFDHandle;
 
   NSObject<TerminalParser> *terminalParser;
+  NSAttributedString *markedText;
+  NSRange markedSelection;
 
   NSFont *font;
   NSFont *boldFont;
@@ -187,6 +189,15 @@ struct selection_range {
 
 + (void)registerPasteboardTypes;
 
+@end
+
+@interface TerminalView (keyboard)
+- (void)insertText:(id)text;
+- (void)setMarkedText:(id)text selectedRange:(NSRange)range;
+- (void)unmarkText;
+- (BOOL)hasMarkedText;
+- (NSRange)markedRange;
+- (NSRect)firstRectForCharacterRange:(NSRange)range;
 @end
 
 @interface TerminalView (display) <TerminalScreen>

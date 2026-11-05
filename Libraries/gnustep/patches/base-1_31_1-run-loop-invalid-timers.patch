@@ -1,0 +1,19 @@
+--- a/Source/NSRunLoop.m
++++ b/Source/NSRunLoop.m
+@@ -924,9 +924,15 @@
+   i = GSIArrayCount(timers);
+   while (i-- > 0)
+     {
+-      if (timer == GSIArrayItemAtIndex(timers, i).obj)
++      NSTimer *existing = GSIArrayItemAtIndex(timers, i).obj;
++      if (timer == existing)
+         {
+           return;       /* Timer already present */
++        }
++      /* Inactive modes may not be polled between cancelled timers. */
++      if (timerInvalidated(existing))
++        {
++          GSIArrayRemoveItemAtIndex(timers, i);
+         }
+     }
+   /*

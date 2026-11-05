@@ -48,10 +48,13 @@
 #import <DesktopKit/NXTAlert.h>
 
 #import "Viewers/FileViewer.h"
-#import "WMNotificationCenter.h"
 #import "Processes/ProcessManager.h"
-#import "Workspace+WM.h"
+#import "WindowManager.h"
+#import "Session.h"
 #import "Controller+NSWorkspace.h"
+
+#undef _
+#define _(text) NSLocalizedString((text), nil)
 
 #define PosixExecutePermission (0111)
 
@@ -319,9 +322,7 @@ static NSLock *raceLock = nil;
     appInfo = [self _bundleInfoForApp:fullPath];
     if (appInfo) {
       [raceLock lock];
-      wLaunchingAppIconCreate([appInfo[@"WMName"] cString], [appInfo[@"WMClass"] cString],
-                              [appInfo[@"LaunchPath"] cString], point.x, point.y,
-                              [appInfo[@"IconPath"] cString]);
+      [WSCurrentWindowManager() beginApplicationLaunch:appInfo fromPoint:point];
       [raceLock unlock];
 
       if ([self launchApplication:fullPath] == NO) {
@@ -344,9 +345,7 @@ static NSLock *raceLock = nil;
     appInfo = [self _bundleInfoForApp:appName];
     if (appInfo) {
       [raceLock lock];
-      wLaunchingAppIconCreate([appInfo[@"WMName"] cString], [appInfo[@"WMClass"] cString],
-                              [appInfo[@"LaunchPath"] cString], point.x, point.y,
-                              [appInfo[@"IconPath"] cString]);
+      [WSCurrentWindowManager() beginApplicationLaunch:appInfo fromPoint:point];
       [raceLock unlock];
 
       if ([self openFile:fullPath withApplication:appName andDeactivate:YES] == NO) {
@@ -812,14 +811,7 @@ static NSLock *raceLock = nil;
 
 - (void)hideOtherApplications
 {
-  Window xWindow = (Window)[GSCurrentServer() windowDevice:[[NSApp keyWindow] windowNumber]];
-  NSDictionary *info =
-      @{@"WindowID" : [NSNumber numberWithUnsignedLong:xWindow], @"ApplicationName" : @"Workspace"};
-
-  [[NSDistributedNotificationCenter defaultCenter]
-      postNotificationName:CF_NOTIFICATION(WMShouldHideOthersNotification)
-                    object:@"GSWorkspaceNotification"
-                  userInfo:info];
+  [WSCurrentWindowManager() hideOtherApplications];
 }
 
 - (BOOL)launchApplication:(NSString *)appName
@@ -853,7 +845,7 @@ static NSLock *raceLock = nil;
 
 - (NSString *)fullPathForApplication:(NSString *)appName
 {
-  NSString *appPath;
+  NSString *appPath = nil;
   NSString *appExt;
   NSFileManager *fm;
   BOOL isDir;
@@ -1482,20 +1474,17 @@ static NSLock *raceLock = nil;
   NSTask *task = [aNotif object];
   int exitCode = [task terminationStatus];
   NSString *appCommand = [task launchPath];
-  WAppIcon *appicon;
 
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:NSTaskDidTerminateNotification
                                                 object:task];
 
-  appicon = wLaunchingAppIconForCommand(wDefaultScreen(), (char *)[appCommand cString]);
-  if (appicon) {
-    wLaunchingAppIconDestroy(wDefaultScreen(), appicon);
-  }
+  [WSCurrentWindowManager() endApplicationLaunch:appCommand];
   [_windowManagerCenter
       postNotificationName:NSWorkspaceDidTerminateApplicationNotification
                     object:self
-                  userInfo:@{@"NSApplicationName" : [appCommand lastPathComponent]}];
+                  userInfo:@{@"NSApplicationName" : [appCommand lastPathComponent],
+                    @"NSApplicationProcessIdentifier": @([task processIdentifier])}];
   // Update GSLaunchedApplications file state
   [[NSWorkspace sharedWorkspace] launchedApplications];
 
@@ -1530,7 +1519,7 @@ static NSLock *raceLock = nil;
      *	Try to contact a running application.
      */
     @try {
-      conn = [NSConnection connectionWithRegisteredName:port host:host];
+      conn = [NSConnection connectionWithRegisteredName:WSSessionServiceName(port) host:host];
       requestTimeout = [conn requestTimeout];
       [conn setRequestTimeout:5.0];
       replyTimeout = [conn replyTimeout];

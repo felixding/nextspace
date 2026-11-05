@@ -23,7 +23,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <X11/extensions/Xrandr.h>
 
 @class OSEScreen;
 
@@ -37,23 +36,14 @@ typedef struct _NXGammaValue NXGammaValue;
 // Physical device
 @interface OSEDisplay : NSObject
 {
-  Display *xDisplay;
+ @protected
   OSEScreen *screen;
-  XRRScreenResources *screen_resources;
-  RROutput output_id;
-
-  Connection connectionState;      // RandR connection state
-  NSMutableArray *allResolutions;  // width, height, rate
-
-  CGFloat dpiValue;  // calculated DPI
-
   NXGammaValue gammaValue;
   CGFloat gammaBrightness;
-
-  NSMutableDictionary *properties;
-
-  BOOL isMain;
-  // BOOL			isActive;
+ @private
+  NSDictionary *_descriptor;
+  NSData *_identity;
+  NSRect _logicalFrame, _hiddenLogicalFrame;
 }
 
 @property (readonly) NSString *outputName;  // LVDS, VGA, DVI, HDMI
@@ -62,10 +52,12 @@ typedef struct _NXGammaValue NXGammaValue;
 
 + (NSDictionary *)zeroResolution;
 
-- (id)initWithOutputInfo:(RROutput)output
-         screenResources:(XRRScreenResources *)scr_res
-                  screen:(OSEScreen *)scr
-                xDisplay:(Display *)x_display;
+/* Physical mode pixels, independent of frame's logical dimensions. */
+- (NSSize)modePixelSize;
+/* Numerator over 120; zero means the compositor has no exact output scale. */
+- (NSUInteger)scaleNumerator;
+- (CGFloat)scaleFactor;
+- (NSUInteger)transform;
 
 - (CGFloat)dpi;  // calculated from frame and phys. size
 
@@ -148,6 +140,5 @@ typedef struct _NXGammaValue NXGammaValue;
 
 // - (NSString *)model;    // EDID
 // - (CGFloat)gamma;       // EDID
-// - (NSArray *)rotations; // XRRRotations
 
 @end

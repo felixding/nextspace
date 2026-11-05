@@ -24,6 +24,19 @@
 #import "InfoPanel.h"
 #import "Controller.h"
 
+static NSImageView *creditImageView(id view)
+{
+  if ([view isKindOfClass:[NSImageView class]] &&
+      NSEqualSizes([[view image] size], NSMakeSize(128, 10))) {
+    return view;
+  }
+  for (id child in [view subviews]) {
+    NSImageView *credit = creditImageView(child);
+    if (credit != nil) return credit;
+  }
+  return nil;
+}
+
 @implementation InfoPanel : NSObject
 
 - (void)activatePanel
@@ -68,6 +81,18 @@
   machView.scrollingImage = [[NSImage alloc] initWithContentsOfFile:scrImagePath];
   [[panel contentView] replaceSubview:appIcon with:machView];
   [machView release];
+
+  // Gorm embeds a single bitmap; reload the bundled credit to retain its
+  // backing-density representations without changing the archived layout.
+  NSString *modelPath = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"gorm"];
+  if (modelPath != nil) {
+    NSImage *credit = [[NSImage alloc] initWithContentsOfFile:
+      [modelPath stringByAppendingPathComponent:@"DWG.tiff"]];
+    if (credit != nil) {
+      [creditImageView([panel contentView]) setImage:credit];
+      [credit release];
+    }
+  }
 }
 
 - (void)dealloc

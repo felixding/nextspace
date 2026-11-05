@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <pattern id="pause-red-stipple" patternUnits="userSpaceOnUse" width="4" height="4">
+      <path d="M0 0H1V1H0ZM2 0H3V1H2ZM1 1H2V2H1ZM3 1H4V2H3ZM0 2H1V3H0ZM2 2H3V3H2ZM3 3H4V4H3Z" fill="#db1616" fill-opacity=".9725490196" />
+      <path d="M1 0H2V1H1ZM3 0H4V1H3ZM0 1H1V2H0ZM2 1H3V2H2ZM1 2H2V3H1ZM3 2H4V3H3ZM0 3H3V4H0Z" fill="#da1616" fill-opacity=".7529411765" />
+    </pattern>
+    <clipPath id="pause-outer-circle">
+      <circle cx="24" cy="24" r="20.5" />
+    </clipPath>
+    <clipPath id="pause-mark">
+      <path d="M44.5 24A20.5 20.5 0 1 1 3.5 24A20.5 20.5 0 1 1 44.5 24ZM39.5 24A15.5 15.5 0 1 0 8.5 24A15.5 15.5 0 1 0 39.5 24Z" clip-rule="evenodd" />
+      <path d="M8.232233 36.232233L36.232233 8.232233L39.767767 11.767767L11.767767 39.767767Z" />
+    </clipPath>
+    <symbol id="TimeMonP" viewBox="0 0 48 48" data-file="TimeMonP.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g clip-path="url(#pause-outer-circle)">
+        <path d="M0 0H48V48H0Z" fill="url(#pause-red-stipple)" clip-path="url(#pause-mark)" />
+      </g>
+    </symbol>
+    <g id="timemon-rings" fill="none" stroke="#000" stroke-width="1">
+      <circle cx="24" cy="24" r="23.5" />
+      <circle cx="24" cy="24" r="17.5" />
+      <circle cx="24" cy="24" r="11.5" />
+      <path d="M24.5 0V24" />
+    </g>
+    <symbol id="TM-app" viewBox="0 0 48 48" data-files="TM-app.tiff English.lproj/TimeMon.gorm/TM-app.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <use href="#timemon-rings" />
+    </symbol>
+    <symbol id="TM-info" viewBox="0 0 50 50" data-files="TM-info.tiff English.lproj/TimeMon.gorm/TM-info.tiff" data-logical-size="50 50" data-reconstructed="true">
+      <circle cx="25" cy="25" r="23.5" fill="#fff" />
+      <path d="M25 25L25.000000 1.500000A23.5 23.5 0 0 1 35.393784 3.923491Z" fill="#f00" id="info-0-0" />
+      <path d="M25 25L35.393784 3.923491A23.5 23.5 0 0 1 45.652202 36.213231Z" fill="#00f97a" id="info-0-1" />
+      <path d="M25 25L45.652202 36.213231A23.5 23.5 0 0 1 37.453103 44.929130Z" fill="#ffcce5" id="info-0-2" />
+      <circle cx="25" cy="25" r="17.5" fill="#fff" />
+      <path d="M25 25L25.000000 7.500000A17.5 17.5 0 0 1 39.067495 14.590601Z" fill="#f00" id="info-1-0" />
+      <path d="M25 25L39.067495 14.590601A17.5 17.5 0 0 1 31.555615 41.225717Z" fill="#00f97a" id="info-1-1" />
+      <path d="M25 25L31.555615 41.225717A17.5 17.5 0 0 1 12.518117 37.265912Z" fill="#ffcce5" id="info-1-2" />
+      <circle cx="25" cy="25" r="11.5" fill="#fff" />
+      <path d="M25 25L25.000000 13.500000A11.5 11.5 0 0 1 36.054510 21.830170Z" fill="#f00" id="info-2-0" />
+      <path d="M25 25L36.054510 21.830170A11.5 11.5 0 0 1 36.394958 26.550786Z" fill="#00f97a" id="info-2-1" />
+      <path d="M25 25L36.394958 26.550786A11.5 11.5 0 0 1 28.649004 35.905722Z" fill="#ffcce5" id="info-2-2" />
+      <use href="#timemon-rings" transform="translate(1 1)" />
+    </symbol>
+  </defs>
+  <use id="preview" href="#TimeMonP" width="48" height="48" />
+</svg>

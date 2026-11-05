@@ -118,7 +118,10 @@
   if (savePanel) {
     NSWindow *keyWindow = [NSApp keyWindow];
 
-    [savePanel runModal];
+    if ([savePanel runModal] != NSOKButton) {
+      [savePanel release];
+      return;
+    }
     fileName = [savePanel filename];
     if (fileName && [fileName length] > 0) {
       NSString *pathExtension = [fileName pathExtension];
@@ -132,9 +135,7 @@
 
     for (ImageWindow *win in imageWindows) {
       if (win.window == keyWindow) {
-        // NSData *data = [win.image TIFFRepresentation];
-        NSBitmapImageRep *imgRep = [[win.image representations] objectAtIndex:0];
-        NSData *data = [imgRep representationUsingType:NSPNGFileType properties:nil];
+        NSData *data = [win.image TIFFRepresentation];
         if (data) {
           [data writeToFile:fileName atomically:NO];
         } else {

@@ -30,6 +30,7 @@
 #import <Preferences/Shelf/ShelfPrefs.h>
 
 #import "Finder.h"
+#import "WSImageResources.h"
 
 //=============================================================================
 // Custom text field
@@ -246,6 +247,12 @@
                         change:(NSDictionary *)change
                        context:(void *)context
 {
+  if (context != self || ![keyPath isEqualToString:@"isFinished"]) {
+    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    return;
+  }
+  if (![object isFinished]) return;
+  [object removeObserver:self forKeyPath:keyPath];
   NSDebugLLog(@"Finder", @"Finder operation was finished.");
   [self performSelectorOnMainThread:@selector(finishFind) withObject:nil waitUntilDone:YES];
 }
@@ -319,6 +326,8 @@
 
   // Find button
   [findButton setButtonType:NSMomentaryPushInButton];
+  WSSetButtonImages(findButton, [[NSBundle mainBundle] pathForResource:@"Finder" ofType:@"gorm"],
+                    @"find", @"stop");
   findButtonImage = [findButton image];
   [findButtonImage retain];
 

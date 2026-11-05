@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="review-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#183c79" />
+      <stop offset="1" stop-color="#9ec6db" />
+    </linearGradient>
+    <linearGradient id="review-water" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#647e9e" />
+      <stop offset="1" stop-color="#98aeb6" />
+    </linearGradient>
+    <clipPath id="review-glass">
+      <path d="M10.5 8H40.5V31H10.5Z" />
+    </clipPath>
+    <g id="review-landscape">
+      <path d="M10 8H41V32H10Z" fill="url(#review-sky)" />
+      <path d="M11 17L15 12L18 16L20 14L24 20H11Z" fill="#92b5ce" />
+      <path d="M11 17L15 12L16 15L14.7 14.2L13.5 16Z" fill="#d2dfeb" />
+      <path d="M10 21C16 20 17 16 20 18C23 20 24 17 27 18C31 21 35 18 41 21V26H10Z" fill="#526d94" />
+      <path d="M10 23C16 21 20 24 25 22C30 21 36 24 41 23V32H10Z" fill="url(#review-water)" />
+      <path d="M11 25H17M21 24.5H27M28 27H37M14 29H21M23 30H33" stroke="#b7c6ce" stroke-width=".4" />
+      <path d="M29 13C30 12 31 12 32 13C33 12.5 34 13 35 13.5" fill="none" stroke="#d9e3eb" stroke-width=".5" />
+    </g>
+    <symbol id="Review" viewBox="0 0 48 48" data-file="Resources/Review.tiff">
+      <use href="../Artwork/Monitor.svg#monitor" />
+      <g clip-path="url(#review-glass)">
+        <use href="#review-landscape" />
+      </g>
+    </symbol>
+    <g id="review-paper">
+      <path d="M45 5H46V46H5V45H45Z" fill="#000" opacity="0.3333333333333333" fill-rule="evenodd" />
+      <path d="M44 4H45V45H4V44H44Z" fill="#000" opacity="0.6666666666666666" fill-rule="evenodd" />
+      <path d="M2 2H44V44H2ZM3 3V43H43V3Z" fill="#000" opacity="0.3333333333333333" fill-rule="evenodd" />
+      <path d="M3 3H43V43H3Z" fill="#fff" />
+      <path d="M43 4H44V44H4V43H43Z" fill="#000" />
+      <path d="M43 3H44V4H43ZM3 43H4V44H3Z" fill="#000" opacity=".5" />
+    </g>
+    <linearGradient id="review-image-gradient" gradientUnits="userSpaceOnUse" x1="18" y1="20.5" x2="18" y2="43.5" color-interpolation="sRGB">
+      <stop offset="0.0" stop-color="#fff6f7" />
+      <stop offset="0.17391304347826086" stop-color="#e6d9e6" />
+      <stop offset="0.34782608695652173" stop-color="#ccaed1" />
+      <stop offset="0.5217391304347826" stop-color="#b37fbb" />
+      <stop offset="0.6956521739130435" stop-color="#914ca2" />
+      <stop offset="0.8695652173913043" stop-color="#552f5a" />
+      <stop offset="0.9130434782608695" stop-color="#3f2b54" />
+      <stop offset="0.9565217391304348" stop-color="#38193c" />
+      <stop offset="1.0" stop-color="#000908" />
+    </linearGradient>
+    <g id="review-image-panel">
+      <path d="M18 20H43V44H18Z" fill="url(#review-image-gradient)" />
+    </g>
+    <path id="TeXGyreTermes-Regular-G" d="M 709.0 336.0 L 709.0 354.0 L 454.0 354.0 L 454.0 336.0 C 497.0 333.0 509.0 330.0 521.0 322.0 C 536.0 313.0 542.0 290.0 542.0 247.0 L 542.0 85.0 C 542.0 53.0 481.0 26.0 409.0 26.0 C 246.0 26.0 146.0 140.0 146.0 326.0 C 146.0 420.0 174.0 511.0 218.0 560.0 C 262.0 609.0 324.0 636.0 392.0 636.0 C 448.0 636.0 497.0 617.0 536.0 581.0 C 566.0 553.0 582.0 526.0 607.0 465.0 L 630.0 465.0 L 622.0 676.0 L 600.0 676.0 C 594.0 657.0 576.0 643.0 555.0 643.0 C 545.0 643.0 529.0 646.0 511.0 653.0 C 466.0 668.0 420.0 676.0 375.0 676.0 C 175.0 676.0 32.0 529.0 32.0 325.0 C 32.0 227.0 59.0 152.0 115.0 93.0 C 182.0 24.0 278.0 -14.0 388.0 -14.0 C 474.0 -14.0 599.0 21.0 639.0 56.0 L 639.0 259.0 C 639.0 318.0 651.0 331.0 709.0 336.0 Z M 722.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-I" d="M 315.0 0.0 L 315.0 19.0 C 233.0 22.0 217.0 36.0 217.0 109.0 L 217.0 553.0 C 217.0 626.0 231.0 639.0 315.0 643.0 L 315.0 662.0 L 18.0 662.0 L 18.0 643.0 C 103.0 638.0 115.0 627.0 115.0 553.0 L 115.0 109.0 C 115.0 34.0 102.0 22.0 18.0 19.0 L 18.0 0.0 L 315.0 0.0 Z M 333.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-F" d="M 546.0 519.0 L 543.0 662.0 L 12.0 662.0 L 12.0 643.0 C 86.0 637.0 99.0 623.0 99.0 553.0 L 99.0 120.0 C 99.0 37.0 88.0 24.0 12.0 19.0 L 12.0 0.0 L 292.0 0.0 L 292.0 19.0 C 215.0 23.0 201.0 37.0 201.0 109.0 L 201.0 327.0 L 346.0 327.0 C 427.0 327.0 444.0 312.0 456.0 231.0 L 479.0 231.0 L 479.0 463.0 L 456.0 463.0 C 444.0 383.0 426.0 368.0 346.0 368.0 L 201.0 368.0 L 201.0 590.0 C 201.0 618.0 206.0 624.0 233.0 624.0 L 369.0 624.0 C 482.0 624.0 504.0 609.0 521.0 519.0 L 546.0 519.0 Z M 556.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-J" d="M 370.0 643.0 L 370.0 662.0 L 83.0 662.0 L 83.0 643.0 C 165.0 637.0 176.0 626.0 176.0 553.0 L 176.0 90.0 C 176.0 45.0 164.0 24.0 138.0 24.0 C 124.0 24.0 118.0 32.0 111.0 57.0 C 101.0 92.0 85.0 108.0 59.0 108.0 C 32.0 108.0 10.0 85.0 10.0 58.0 C 10.0 16.0 51.0 -14.0 109.0 -14.0 C 217.0 -14.0 278.0 58.0 278.0 183.0 L 278.0 553.0 C 278.0 626.0 289.0 637.0 370.0 643.0 Z M 389.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-P" d="M 542.0 481.0 C 542.0 523.0 528.0 561.0 501.0 590.0 C 461.0 634.0 374.0 662.0 280.0 662.0 L 16.0 662.0 L 16.0 643.0 C 90.0 635.0 100.0 625.0 100.0 553.0 L 100.0 120.0 C 100.0 36.0 92.0 26.0 16.0 19.0 L 16.0 0.0 L 296.0 0.0 L 296.0 19.0 C 217.0 22.0 202.0 36.0 202.0 109.0 L 202.0 291.0 C 228.0 289.0 245.0 288.0 271.0 288.0 C 349.0 288.0 403.0 298.0 446.0 322.0 C 506.0 354.0 542.0 415.0 542.0 481.0 Z M 433.0 475.0 C 433.0 378.0 374.0 328.0 259.0 328.0 C 239.0 328.0 225.0 329.0 202.0 331.0 L 202.0 591.0 C 202.0 618.0 209.0 625.0 236.0 625.0 C 371.0 625.0 433.0 578.0 433.0 475.0 Z M 556.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-E" d="M 597.0 169.0 L 569.0 169.0 C 519.0 61.0 476.0 37.0 333.0 37.0 L 306.0 37.0 C 258.0 37.0 218.0 41.0 209.0 48.0 C 203.0 52.0 201.0 61.0 201.0 80.0 L 201.0 327.0 L 355.0 327.0 C 437.0 327.0 452.0 314.0 465.0 231.0 L 488.0 231.0 L 488.0 463.0 L 465.0 463.0 C 452.0 381.0 436.0 368.0 355.0 368.0 L 201.0 368.0 L 201.0 590.0 C 201.0 618.0 207.0 624.0 234.0 624.0 L 369.0 624.0 C 482.0 624.0 504.0 609.0 521.0 519.0 L 546.0 519.0 L 543.0 662.0 L 12.0 662.0 L 12.0 643.0 C 86.0 637.0 99.0 624.0 99.0 553.0 L 99.0 109.0 C 99.0 38.0 85.0 24.0 12.0 19.0 L 12.0 0.0 L 552.0 0.0 L 597.0 169.0 Z M 611.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-N" d="M 707.0 643.0 L 707.0 662.0 L 472.0 662.0 L 472.0 643.0 C 510.0 640.0 524.0 636.0 539.0 627.0 C 559.0 613.0 568.0 577.0 568.0 515.0 L 568.0 178.0 L 183.0 662.0 L 12.0 662.0 L 12.0 643.0 C 55.0 643.0 69.0 635.0 109.0 588.0 L 109.0 147.0 C 109.0 44.0 95.0 25.0 12.0 19.0 L 12.0 0.0 L 247.0 0.0 L 247.0 19.0 C 170.0 23.0 153.0 46.0 153.0 147.0 L 153.0 539.0 L 595.0 -11.0 L 612.0 -11.0 L 612.0 515.0 C 612.0 575.0 622.0 612.0 641.0 625.0 C 655.0 635.0 669.0 639.0 707.0 643.0 Z M 722.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-T" d="M 593.0 492.0 L 587.0 662.0 L 23.0 662.0 L 17.0 492.0 L 41.0 492.0 C 65.0 602.0 88.0 620.0 200.0 620.0 L 254.0 620.0 L 254.0 120.0 C 254.0 35.0 243.0 24.0 160.0 19.0 L 160.0 0.0 L 452.0 0.0 L 452.0 19.0 C 370.0 23.0 356.0 36.0 356.0 109.0 L 356.0 620.0 L 410.0 620.0 C 524.0 620.0 546.0 602.0 569.0 492.0 L 593.0 492.0 Z M 611.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-X" d="M 704.0 0.0 L 704.0 19.0 C 651.0 25.0 636.0 35.0 593.0 93.0 L 401.0 367.0 L 547.0 549.0 C 612.0 627.0 632.0 639.0 696.0 643.0 L 696.0 662.0 L 458.0 662.0 L 458.0 643.0 C 512.0 641.0 528.0 634.0 528.0 611.0 C 528.0 596.0 517.0 578.0 488.0 542.0 L 375.0 404.0 L 333.0 463.0 C 272.0 548.0 248.0 591.0 248.0 613.0 C 248.0 633.0 263.0 641.0 296.0 642.0 L 324.0 643.0 L 324.0 662.0 L 22.0 662.0 L 22.0 643.0 C 87.0 640.0 105.0 625.0 203.0 486.0 L 312.0 326.0 L 155.0 133.0 C 66.0 27.0 61.0 23.0 10.0 19.0 L 10.0 0.0 L 243.0 0.0 L 243.0 19.0 C 185.0 23.0 167.0 31.0 167.0 54.0 C 167.0 69.0 182.0 94.0 219.0 140.0 L 338.0 288.0 L 433.0 148.0 C 466.0 99.0 484.0 65.0 484.0 50.0 C 484.0 32.0 468.0 22.0 434.0 21.0 C 430.0 21.0 419.0 20.0 407.0 19.0 L 407.0 0.0 L 704.0 0.0 Z M 722.0 0.0 " />
+    <path id="TeXGyreTermes-Regular-M" d="M 863.0 0.0 L 863.0 19.0 C 790.0 24.0 776.0 38.0 776.0 109.0 L 776.0 553.0 C 776.0 624.0 789.0 637.0 863.0 643.0 L 863.0 662.0 L 664.0 662.0 L 443.0 157.0 L 212.0 662.0 L 14.0 662.0 L 14.0 643.0 C 96.0 638.0 109.0 626.0 109.0 553.0 L 109.0 147.0 C 109.0 44.0 95.0 25.0 12.0 19.0 L 12.0 0.0 L 247.0 0.0 L 247.0 19.0 C 170.0 23.0 153.0 46.0 153.0 147.0 L 153.0 550.0 L 404.0 0.0 L 418.0 0.0 L 674.0 573.0 L 674.0 120.0 C 674.0 37.0 662.0 24.0 583.0 19.0 L 583.0 0.0 L 863.0 0.0 Z M 889.0 0.0 " />
+    <symbol id="GenericImage" viewBox="0 0 48 48" data-file="Resources/GenericImage.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-paper" />
+        <use href="#review-image-panel" />
+      </g>
+    </symbol>
+    <symbol id="GIFImage" viewBox="0 0 48 48" data-file="Resources/GIFImage.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-paper" />
+        <use href="#review-image-panel" />
+      </g>
+      <g id="review-label-GIF" fill="#000" transform="translate(10.51475 16.5) scale(0.0155 -0.0165)">
+        <use href="#TeXGyreTermes-Regular-G" x="0" />
+        <use href="#TeXGyreTermes-Regular-I" x="722.0" />
+        <use href="#TeXGyreTermes-Regular-F" x="1055.0" />
+      </g>
+    </symbol>
+    <symbol id="JPEGImage" viewBox="0 0 48 48" data-file="Resources/JPEGImage.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-paper" />
+        <use href="#review-image-panel" />
+      </g>
+      <g id="review-label-JPEG" fill="#000" transform="translate(4.276 16.5) scale(0.016 -0.0165)">
+        <use href="#TeXGyreTermes-Regular-J" x="0" />
+        <use href="#TeXGyreTermes-Regular-P" x="389.0" />
+        <use href="#TeXGyreTermes-Regular-E" x="945.0" />
+        <use href="#TeXGyreTermes-Regular-G" x="1556.0" />
+      </g>
+    </symbol>
+    <symbol id="PNGImage" viewBox="0 0 48 48" data-file="Resources/PNGImage.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-paper" />
+        <use href="#review-image-panel" />
+      </g>
+      <g id="review-label-PNG" fill="#000" transform="translate(7.0 16.5) scale(0.0165 -0.0165)">
+        <use href="#TeXGyreTermes-Regular-P" x="0" />
+        <use href="#TeXGyreTermes-Regular-N" x="556.0" />
+        <use href="#TeXGyreTermes-Regular-G" x="1278.0" />
+      </g>
+    </symbol>
+    <symbol id="TIFFImage" viewBox="0 0 48 48" data-file="Resources/TIFFImage.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-paper" />
+        <use href="#review-image-panel" />
+      </g>
+      <g id="review-label-TIFF" fill="#000">
+        <use href="#TeXGyreTermes-Regular-T" transform="translate(5 16.5) scale(.017 -.017)" />
+        <use href="#TeXGyreTermes-Regular-I" transform="translate(16 16.5) scale(.017 -.017)" />
+        <use href="#TeXGyreTermes-Regular-F" transform="translate(22 16.5) scale(.017 -.017)" />
+        <use href="#TeXGyreTermes-Regular-F" transform="translate(32 16.5) scale(.017 -.017)" />
+      </g>
+    </symbol>
+    <symbol id="XPMImage" viewBox="0 0 48 48" data-file="Resources/XPMImage.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-paper" />
+        <use href="#review-image-panel" />
+      </g>
+      <g id="review-label-XPM" fill="#000" transform="translate(5.1640000000000015 16.5) scale(0.016 -0.0165)">
+        <use href="#TeXGyreTermes-Regular-X" x="0" />
+        <use href="#TeXGyreTermes-Regular-P" x="722.0" />
+        <use href="#TeXGyreTermes-Regular-M" x="1278.0" />
+      </g>
+    </symbol>
+    <path id="review-torn-paper" d="M2 2H44V14.3L40.5 17H39L38.7 16H36.5L36 17.2L37.5 19.3L32.5 20L32 22.3L34 24.3V27L33 29.5L30 32L27.3 34V36.5L24 39L21.5 41V42.5L19.3 44H2Z" />
+    <path id="review-torn-face" d="M3 3H43V13.7L40 16H39L38.3 15H36V16.5L35 17.5L36.5 19L32 19L31 20.7V22.7L33 24.7V25.5L31.5 25L32 28.7L29 31.5L26 33V35.8L23.2 38.2L20 40.2V41.7L18.5 43H3Z" />
+    <mask id="review-torn-far-shadow" maskUnits="userSpaceOnUse" x="0" y="0" width="48" height="48">
+      <path d="M0 0H48V48H0Z" fill="#fff" />
+      <use href="#review-torn-paper" transform="translate(1 1)" fill="#000" />
+    </mask>
+    <clipPath id="review-torn-clip">
+      <use href="#review-torn-face" />
+    </clipPath>
+    <clipPath id="review-torn-border">
+      <path d="M3 3H48V48H3Z" />
+    </clipPath>
+    <symbol id="NotImageable" viewBox="0 0 48 48" data-file="Resources/NotImageable.tiff" data-logical-size="48 48" data-reconstructed="true">
+      <g opacity="0.9411764705882353">
+        <use href="#review-torn-paper" transform="translate(2 2)" fill="#000" opacity="0.3333333333333333" mask="url(#review-torn-far-shadow)" />
+        <use href="#review-torn-paper" transform="translate(1 1)" fill="#000" opacity="0.6666666666666666" />
+        <use href="#review-torn-paper" fill="#000" opacity="0.3333333333333333" />
+        <use href="#review-torn-paper" fill="#000" clip-path="url(#review-torn-border)" />
+        <use href="#review-torn-face" fill="#fff" />
+        <g clip-path="url(#review-torn-clip)">
+          <path d="M18 20H43V44H18Z" fill="url(#review-image-gradient)" />
+          <path d="M27 33L24 31.5L25.5 33" fill="none" stroke="#000" stroke-width=".45" />
+        </g>
+      </g>
+    </symbol>
+    <path id="review-page-frame" d="M1 1H9L12 4V12H1ZM2 2V11H11V4.5L8.5 2Z" fill-rule="evenodd" shape-rendering="crispEdges" />
+    <g id="review-page-arrow" shape-rendering="crispEdges">
+      <path d="M6 3H7L10.5 10H2.5Z" fill="#555" />
+      <path d="M6.5 3L10 10H3Z" fill="#000" />
+    </g>
+    <path id="review-page-highlight-arrow" d="M6 3H7L10.5 10H2.5Z" fill="#555" shape-rendering="crispEdges" />
+    <symbol id="PageUp" viewBox="0 0 13 13" data-file="Resources/PageUp.tiff" data-logical-size="13 13" data-reconstructed="true">
+      <use href="#review-page-frame" fill="#000" />
+      <use href="#review-page-arrow" />
+    </symbol>
+    <symbol id="PageDown" viewBox="0 0 13 13" data-file="Resources/PageDown.tiff" data-logical-size="13 13" data-reconstructed="true">
+      <use href="#review-page-frame" fill="#000" />
+      <use href="#review-page-arrow" transform="translate(0 13) scale(1 -1)" />
+    </symbol>
+    <symbol id="PageUpH" viewBox="0 0 13 13" data-file="Resources/PageUpH.tiff" data-logical-size="13 13" data-reconstructed="true">
+      <path d="M0 0H13V13H0Z" fill="#fff" />
+      <use href="#review-page-frame" fill="#555" />
+      <use href="#review-page-highlight-arrow" />
+    </symbol>
+    <symbol id="PageDownH" viewBox="0 0 13 13" data-file="Resources/PageDownH.tiff" data-logical-size="13 13" data-reconstructed="true">
+      <path d="M0 0H13V13H0Z" fill="#fff" />
+      <use href="#review-page-frame" fill="#555" />
+      <use href="#review-page-highlight-arrow" transform="translate(0 13) scale(1 -1)" />
+    </symbol>
+  </defs>
+  <use id="preview" href="#Review" width="48" height="48" />
+</svg>

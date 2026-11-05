@@ -1,0 +1,97 @@
+<!-- Terminal artwork: original glyph geometry and density-independent resources. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <g id="mach" fill="none" stroke="currentColor" stroke-width=".48" stroke-linecap="square" stroke-linejoin="round">
+      <path d="M0 4V0L2 2.3L4 0V4M6 4L8 0L10 4M7 2.5H9M16 .4C15.4 0 14.6 0 14 0C12.7 0 12 1 12 2C12 3 12.7 4 14 4C14.6 4 15.4 4 16 3.6M18 0V4M22 0V4M18 2H22" />
+    </g>
+    <symbol id="Terminal" viewBox="0 0 48 48" data-file="Resources/Terminal.tiff">
+      <use href="../Artwork/Monitor.svg#monitor" />
+      <g color="#c5e6ed">
+        <use href="#mach" x="14" y="9" />
+        <use href="#mach" x="14" y="15" />
+        <use href="#mach" x="14" y="21" />
+        <use href="#mach" x="14" y="27" />
+      </g>
+    </symbol>
+    <linearGradient id="mach-ink" gradientUnits="userSpaceOnUse" x1="0" y1="3.5" x2="0" y2="5.5">
+      <stop stop-color="#88ddcc" />
+      <stop offset=".5" stop-color="#88eecc" />
+      <stop offset="1" stop-color="#88ddcc" />
+    </linearGradient>
+    <path id="scroll-prompt" d="M1 3H1.75L3 4.25V4.75L1.75 6H1V5.25L2.7 4.5L1 3.75Z" />
+    <g id="mach-line" fill="url(#mach-ink)">
+      <use href="#scroll-prompt" />
+      <path d="M4 3H5V6H4ZM8 3H9V6H8ZM5 3 6.5 4.5 8 3V4L6.5 5.5 5 4Z" />
+      <path d="M12 3H13L15 6H14L12.5 4 11 6H10ZM11.5 4.75H13.5V5.5H11.5Z" />
+      <path d="M19 3H17L16 4V5L17 6H19V5H17V4H19Z" />
+      <path d="M20 3H21V4H23V3H24V6H23V5H21V6H20Z" />
+    </g>
+    <g id="output-line" fill="#ccccaa">
+      <use href="#scroll-prompt" />
+      <path fill-rule="evenodd" d="M6 3H8L9 4V5L8 6H6L5 5V4ZM6 4V5H8V4Z" />
+      <path d="M10 3H11V5H13V3H14V5L13 6H11L10 5Z" />
+      <path d="M15.5 3H19.5V4H18V6H17V4H15.5Z" />
+    </g>
+    <symbol id="ScrollingMach" viewBox="0 0 27 35" data-logical-size="27 35" data-reconstructed="true" data-files="Resources/ScrollingMach.tiff English.lproj/Info.gorm/ScrollingMach.tiff">
+      <path d="M0 0H27V35H0Z" fill="#333355" />
+      <use href="#mach-line" />
+      <use href="#mach-line" y="7" />
+      <use href="#mach-line" y="14" />
+      <use href="#mach-line" y="21" />
+      <use href="#mach-line" y="28" />
+    </symbol>
+    <symbol id="ScrollingOutput" viewBox="0 0 28 35" data-logical-size="28 35" data-reconstructed="true" data-files="Resources/ScrollingOutput.tiff English.lproj/Info.gorm/ScrollingOutput.tiff">
+      <path d="M0 0H28V35H0Z" fill="#001111" />
+      <use href="#output-line" />
+      <use href="#output-line" y="7" />
+      <use href="#output-line" y="14" />
+      <use href="#output-line" y="21" />
+      <use href="#output-line" y="28" />
+    </symbol>
+    <path id="footer-thin-D" fill-rule="evenodd" d="M0 7.85L0 1.15Q0 1 0.15 1L2.85 1Q3 1 3 1.15L3 1.85Q3 2 3.15 2L3.85 2Q4 2 4 2.15L4 6.85Q4 7 3.85 7L3.15 7Q3 7 3 7.15L3 7.85Q3 8 2.85 8L0.15 8Q0 8 0 7.85ZM1 6.85L1 2.15Q1 2 1.15 2L2.85 2Q3 2 3 2.15L3 6.85Q3 7 2.85 7L1.15 7Q1 7 1 6.85Z" />
+    <path id="footer-thin-E" d="M0 1H3V2H1V4H3V5H1V7H3V8H0Z" />
+    <path id="footer-thin-V" d="M0 5.85L0 1.15Q0 1 0.15 1L0.85 1Q1 1 1 1.15L1 4.85Q1 5 1.15 5L1.85 5Q2 5 2 4.85L2 1.15Q2 1 2.15 1L2.85 1Q3 1 3 1.15L3 4.85Q3 5 2.85 5L2.15 5Q2 5 2 5.15L2 7.85Q2 8 1.85 8L1.15 8Q1 8 1 7.85L1 6.15Q1 6 0.85 6L0.15 6Q0 6 0 5.85Z" />
+    <path id="footer-thin-L" d="M0 1H1V7H3V8H0Z" />
+    <path id="footer-thin-O" fill-rule="evenodd" d="M1 1.85L1 1.15Q1 1 1.15 1L2.85 1Q3 1 3 1.15L3 1.85Q3 2 3.15 2L3.85 2Q4 2 4 2.15L4 6.85Q4 7 3.85 7L3.15 7Q3 7 3 7.15L3 7.85Q3 8 2.85 8L1.15 8Q1 8 1 7.85L1 7.15Q1 7 0.85 7L0.15 7Q0 7 0 6.85L0 2.15Q0 2 0.15 2L0.85 2Q1 2 1 1.85ZM1 6.85L1 2.15Q1 2 1.15 2L2.85 2Q3 2 3 2.15L3 6.85Q3 7 2.85 7L1.15 7Q1 7 1 6.85Z" />
+    <path id="footer-thin-P" fill-rule="evenodd" d="M0 1H2.4Q3 1 3 1.6V4.4Q3 5 2.4 5H1V8H0ZM1 2V4H1.75Q2 4 2 3.75V2.25Q2 2 1.75 2Z" />
+    <path id="footer-thin-W" d="M0 4.85L0 1.15Q0 1 0.15 1L0.85 1Q1 1 1 1.15L1 4.85Q1 5 1.15 5L1.85 5Q2 5 2 4.85L2 1.15Q2 1 2.15 1L3.85 1Q4 1 4 1.15L4 4.85Q4 5 4.15 5L4.85 5Q5 5 5 4.85L5 1.15Q5 1 5.15 1L5.85 1Q6 1 6 1.15L6 4.85Q6 5 5.85 5L5.15 5Q5 5 5 5.15L5 7.85Q5 8 4.85 8L4.15 8Q4 8 4 7.85L4 6.15Q4 6 3.85 6L2.15 6Q2 6 2 6.15L2 7.85Q2 8 1.85 8L1.15 8Q1 8 1 7.85L1 5.15Q1 5 0.85 5L0.15 5Q0 5 0 4.85Z" />
+    <path id="footer-thin-I" d="M0 1H1V8H0Z" />
+    <path id="footer-thin-T" d="M0 1H3V2H2V8H1V2H0Z" />
+    <path id="footer-thin-H" d="M0 1H1V4H3V1H4V8H3V5H1V8H0Z" />
+    <path id="footer-bold-G" d="M6 2.8H4.3C4.3 1.9 4 1.4 3.1 1.4C1.8 1.4 1.7 2.7 1.7 4.5C1.7 6.5 1.9 7.6 3.1 7.6C3.8 7.6 4.6 7.1 4.6 6V5.6H3V4H6.2V6C6.2 7.9 5.3 9 3.1 9C.8 9 0 7.2 0 4.5C0 1.7 .8 0 3.1 0C5.1 0 6 1 6 2.8Z" />
+    <path id="footer-bold-N" d="M0 0H1.8L3.8 5.5V0H5.4V9H3.6L1.6 3.5V9H0Z" />
+    <path id="footer-bold-U" d="M0 0H1.7V6.4Q1.7 7.6 2.65 7.6Q3.6 7.6 3.6 6.4V0H5.3V6.4Q5.3 9 2.65 9Q0 9 0 6.4Z" />
+    <path id="footer-bold-S" d="M4.85 1.9H3.1C3.1 1.6 2.85 1.35 2.25 1.35C1.65 1.35 1.6 1.7 1.6 2.25C1.6 2.9 1.9 3.2 2.65 3.65L3.1 3.9C4.7 4.55 5.05 5.15 5.05 6.5C5.05 8.2 3.9 9 2.3 9C.7 9-.55 8.05-.55 6.8H1.5C1.5 7.2 1.9 7.4 2.45 7.4C3.05 7.4 3.2 7.2 3.2 6.6C3.2 5.9 3 5.65 2.1 5.2L1.6 4.95C.1 4.25-.55 3.65-.55 2.25C-.55 .75 .8 0 2.35 0C3.85 0 4.85 .8 4.85 1.9Z" stroke="currentColor" stroke-linejoin="round" stroke-width="0.16" />
+    <path id="footer-bold-T" d="M0 0H5.4V1.7H3.75V9H1.65V1.7H0Z" />
+    <path id="footer-bold-E" d="M0 0H4V1.6H1.5V3.5H3.8V5.1H1.5V7.4H4V9H0Z" />
+    <path id="footer-bold-P" fill-rule="evenodd" d="M0 0H2.35C3.95 0 4.6 .9 4.6 2.65C4.6 4.6 3.9 5.2 2.35 5.2H1.55V9H0ZM1.55 1.5V3.7H2.2C2.85 3.7 3.1 3.4 3.1 2.6C3.1 1.8 2.85 1.5 2.2 1.5Z" />
+    <g id="footer-lettering">
+      <use href="#footer-thin-D" x="0" />
+      <use href="#footer-thin-E" x="7" />
+      <use href="#footer-thin-V" x="12" />
+      <use href="#footer-thin-E" x="19" />
+      <use href="#footer-thin-L" x="25" />
+      <use href="#footer-thin-O" x="31" />
+      <use href="#footer-thin-P" x="38" />
+      <use href="#footer-thin-E" x="44" />
+      <use href="#footer-thin-D" x="50" />
+      <use href="#footer-thin-W" x="58" />
+      <use href="#footer-thin-I" x="67" />
+      <use href="#footer-thin-T" x="70" />
+      <use href="#footer-thin-H" x="77" />
+      <use href="#footer-bold-G" transform="matrix(0.910000 0 0 0.970000 85.490000 0.090000)" />
+      <use href="#footer-bold-N" transform="matrix(0.985000 0 0 1.000000 92.680000 -0.090000)" />
+      <use href="#footer-bold-U" transform="matrix(1.000000 0 0 1.000000 99.640000 0.000000)" />
+      <use href="#footer-bold-S" transform="matrix(0.707500 0 0 1.007500 106.640000 0.000000)" />
+      <use href="#footer-bold-T" transform="matrix(0.850000 0 0 1.015000 111.040000 -0.180000)" />
+      <use href="#footer-bold-E" transform="matrix(0.910000 0 0 1.000000 116.740000 -0.030000)" />
+      <use href="#footer-bold-P" transform="matrix(0.970000 0 0 1.007500 121.710000 0.000000)" />
+    </g>
+    <symbol id="DWG" viewBox="0 0 128 10" data-logical-size="128 10" data-reconstructed="true" data-files="Resources/DWG.tiff English.lproj/Info.gorm/DWG.tiff">
+      <path d="M0 0H128V10H0Z" fill="#aaa" color="#aaa" />
+      <use href="#footer-lettering" fill="#fff" x="1" y="1" color="#fff" />
+      <use href="#footer-lettering" fill="#000" color="#000" />
+    </symbol>
+  </defs>
+  <use id="preview" href="#Terminal" width="48" height="48" />
+</svg>

@@ -30,20 +30,10 @@ include $(GNUSTEP_MAKEFILES)/common.make
 include ../Version
 include ../config.make
 
-# The applications to be compiled
-TOOL_NAME = gpbs
-
-# The source files to be compiled
-gpbs_OBJC_FILES = gpbs.m
-
+# The native per-session pasteboard service
+TOOL_NAME = gpbs-wayland
+gpbs-wayland_OBJC_FILES = gpbs.m
 MAN1_PAGES = gpbs.1
-
-ifeq ($(BUILD_SERVER),x11)
-gpbs_OBJC_FILES += xpbs.m 
-ifeq ($(BACKEND_BUNDLE),yes)
-gpbs_C_FILES += xdnd.c
-endif
-endif
 
 -include GNUmakefile.preamble
 

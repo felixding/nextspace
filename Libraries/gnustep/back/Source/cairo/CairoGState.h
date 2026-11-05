@@ -30,6 +30,7 @@
 
 
 @class CairoSurface;
+@class NSImageRep;
 
 @interface CairoGState : GSGState
 {
@@ -42,6 +43,10 @@
 - (void) GSSetSurface: (CairoSurface *)surface : (int)x : (int)y;
 
 - (void) showPage;
+- (BOOL) GSBackingAlignedRect: (NSRect)rect result: (NSRect *)result;
+- (BOOL) GSdrawImageRep: (NSImageRep *)rep fromRect: (NSRect)source
+                toRect: (NSRect)destination operation: (NSCompositingOperation)operation
+              fraction: (CGFloat)fraction;
 @end
 
 #endif

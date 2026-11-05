@@ -22,6 +22,7 @@
 
 #import "ShelfPrefs.h"
 #import <SystemKit/OSEDefaults.h>
+#import "../../WSImageResources.h"
 
 static inline NSRect IncrementedRect(NSRect r)
 {
@@ -96,6 +97,10 @@ static inline NSRect IncrementedRect(NSRect r)
   NSRect shortLabelFrame;
   NSRect box2Frame;
   NSInteger rState;
+
+  NSString *images = [[NSBundle bundleForClass:[self class]] pathForResource:@"ShelfPrefs" ofType:@"gorm"];
+  WSSetViewImage(leftArr, images, @"sizerLeft");
+  WSSetViewImage(rightArr, images, @"sizerRight");
 
   // get the box and destroy the bogus window
   [box retain];

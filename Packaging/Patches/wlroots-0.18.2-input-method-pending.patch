@@ -1,0 +1,49 @@
+--- a/include/wlr/types/wlr_input_method_v2.h
++++ b/include/wlr/types/wlr_input_method_v2.h
+@@ -31,6 +31,15 @@
+ 	struct wlr_input_method_v2_delete_surrounding_text delete;
+ };
+ 
++/* Borrowed pending edits, valid only during events.commit_pending. Compositors
++ * can evaluate delayed commits against their own focus generation without
++ * replacing the protocol object's current state for a mismatched serial. */
++struct wlr_input_method_v2_commit_event {
++	struct wlr_input_method_v2 *input_method;
++	uint32_t serial;
++	const struct wlr_input_method_v2_state *state;
++};
++
+ struct wlr_input_method_v2 {
+ 	struct wl_resource *resource;
+ 
+@@ -56,6 +65,7 @@
+ 		struct wl_signal new_popup_surface; // struct wlr_input_popup_surface_v2
+ 		struct wl_signal grab_keyboard; // struct wlr_input_method_keyboard_grab_v2
+ 		struct wl_signal destroy; // struct wlr_input_method_v2
++		struct wl_signal commit_pending; // struct wlr_input_method_v2_commit_event
+ 	} events;
+ };
+ 
+--- a/types/wlr_input_method_v2.c
++++ b/types/wlr_input_method_v2.c
+@@ -81,6 +81,12 @@
+ 	if (!input_method) {
+ 		return;
+ 	}
++	struct wlr_input_method_v2_commit_event event = {
++		.input_method = input_method,
++		.serial = serial,
++		.state = &input_method->pending,
++	};
++	wl_signal_emit_mutable(&input_method->events.commit_pending, &event);
+ 	if (serial != input_method->current_serial) {
+ 		input_state_reset(&input_method->pending);
+ 		return;
+@@ -551,6 +557,7 @@
+ 	}
+ 	wl_list_init(&input_method->popup_surfaces);
+ 	wl_signal_init(&input_method->events.commit);
++	wl_signal_init(&input_method->events.commit_pending);
+ 	wl_signal_init(&input_method->events.new_popup_surface);
+ 	wl_signal_init(&input_method->events.grab_keyboard);
+ 	wl_signal_init(&input_method->events.destroy);

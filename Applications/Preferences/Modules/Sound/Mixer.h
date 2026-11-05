@@ -55,6 +55,7 @@
 - (id)initWithServer:(SNDServer *)server;
 - (id)window;
 
+- (void)setMode:(id)sender;
 - (void)reloadAppBrowser;
 - (void)updateDeviceList;
 - (void)updateProfileList;

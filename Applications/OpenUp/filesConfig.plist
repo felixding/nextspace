@@ -41,7 +41,7 @@
     }, 
     {
         Comments = "ZIP files, the standard on Windows 95/NT"; 
-        file_extension = .zip; 
+        file_extension = (.zip, .ZIP);
         wrapped_programs = (unzip); 
         command = "%%WRAPPED_PROGRAM_UNZIP%% -o %%FILE%%"; 
     }, 
@@ -54,8 +54,8 @@
     {
         Comments = "ARJ files, compression format on IBM PCs"; 
         file_extension = .arj; 
-        wrapped_programs = (unarj); 
-        command = "%%WRAPPED_PROGRAM_UNARJ%% e %%FILE%%"; 
+        wrapped_programs = (arj);
+        command = "%%WRAPPED_PROGRAM_ARJ%% e %%FILE%%";
     }, 
     {
         Comments = {

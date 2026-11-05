@@ -1,0 +1,81 @@
+--- a/Source/NSTextView.m
++++ b/Source/NSTextView.m
+@@ -5732,7 +5732,7 @@
+     NSEvent *currentEvent;
+     NSEvent *lastEvent = nil; /* Last non-periodic event. */
+     NSDate *distantPast = [NSDate distantPast];
+-    BOOL gettingPeriodic, gotPeriodic;
++    BOOL gettingPeriodic, gotPeriodic, mouseUp;
+ 
+     [self setSelectedRange: chosenRange  affinity: affinity  
+ 	  stillSelecting: YES];
+@@ -5758,8 +5758,9 @@
+ 			     inMode: NSEventTrackingRunLoopMode
+ 			     dequeue: YES];
+ 	  }
+-	if (currentEvent && [currentEvent type] == NSLeftMouseUp)
+-	  break;
++	mouseUp = currentEvent && [currentEvent type] == NSLeftMouseUp;
++	if (mouseUp)
++	  lastEvent = currentEvent;
+ 
+ 	/*
+ 	Automatic scrolling.
+@@ -5771,7 +5772,7 @@
+ 	periodic event (and we use the last non-periodic event to determine
+ 	how far). If no scrolling occurred, we stop the periodic events.
+ 	*/
+-	if (!gettingPeriodic)
++	if (!mouseUp && !gettingPeriodic)
+ 	  {
+ 	    if ([self autoscroll: lastEvent])
+ 	      {
+@@ -5781,7 +5782,7 @@
+ 		
+ 	      }
+ 	  }
+-	else if (gotPeriodic)
++	else if (!mouseUp && gotPeriodic)
+ 	  {
+ 	    if (![self autoscroll: lastEvent])
+ 	      {
+@@ -5840,11 +5841,13 @@
+ 	[self setSelectedRange: chosenRange  affinity: affinity
+ 	  stillSelecting: YES];
+ 
++	if (mouseUp)
++	  break;
+ 	currentEvent = [_window nextEventMatchingMask: mask
+ 			 untilDate: [NSDate distantFuture]
+ 			 inMode: NSEventTrackingRunLoopMode
+ 			 dequeue: YES];
+-      } while ([currentEvent type] != NSLeftMouseUp);
++      } while (YES);
+ 
+     if (gettingPeriodic)
+       {
+@@ -6363,8 +6366,11 @@
+         oldSelection = [[NSPasteboard pasteboardWithName: @"Selection"] 
+                            stringForType: NSStringPboardType];
+ 
+-        if (oldSelection != nil && 
+-            ![newSelection isEqualToString: oldSelection])
++        if ([newSelection isEqualToString: oldSelection])
++          {
++            return;
++          }
++        if (oldSelection != nil)
+           {
+             NSPasteboard *secondary;
+ 
+@@ -6373,10 +6379,6 @@
+                        owner: self];
+             [secondary setString: oldSelection
+                 forType: NSStringPboardType];
+-          }
+-        else
+-          {
+-            return;
+           }
+     }
+   else

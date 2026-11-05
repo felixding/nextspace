@@ -1,0 +1,6 @@
+libs-gui_NSApplication.patch
+libs-gui_NSPopUpButton.patch
+libs-gui_GSThemeDrawing.patch
+patches/gui-0_32_0-print-export.patch
+patches/gui-0_32_0-popup-release.patch
+patches/gui-0_32_0-scroll-copy.patch

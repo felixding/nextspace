@@ -41,9 +41,9 @@ cairo_OBJC_FILES = \
   ./fontconfig/FCFaceInfo.m \
   ./fontconfig/FCFontEnumerator.m \
   ./fontconfig/FCFontInfo.m \
-  XGCairoSurface.m \
-  XGCairoXImageSurface.m
-#   XGCairoModernSurface.m
+
+
+cairo_OBJC_FILES += WaylandCairoShmSurface.m
 
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/subproject.make

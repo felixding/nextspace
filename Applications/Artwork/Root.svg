@@ -1,0 +1,127 @@
+<!-- Original-style root computer, reconstructed as resolution-independent geometry. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="root-case" gradientUnits="userSpaceOnUse" x1="14.5" y1="14.5" x2="36" y2="36">
+      <stop stop-color="#e8f1f1"/>
+      <stop offset="1" stop-color="#7b7c7d"/>
+    </linearGradient>
+    <linearGradient id="root-bevel" gradientUnits="userSpaceOnUse" x1="0" y1="3" x2="0" y2="32">
+      <stop stop-color="#75718e"/>
+      <stop offset="1" stop-color="#454157"/>
+    </linearGradient>
+    <linearGradient id="root-lower-bevel" gradientUnits="userSpaceOnUse" x1="5" y1="31" x2="43" y2="31">
+      <stop stop-color="#797492"/>
+      <stop offset="1" stop-color="#454157"/>
+    </linearGradient>
+    <linearGradient id="root-side" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="32">
+      <stop stop-color="#434348"/>
+      <stop offset=".1" stop-color="#22202b"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <radialGradient id="root-glass" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1" gradientTransform="matrix(20 0 0 14 20 14.5)">
+      <stop offset="0.0" stop-color="#5a5181"/>
+      <stop offset="0.25" stop-color="#504779"/>
+      <stop offset="0.5" stop-color="#393358"/>
+      <stop offset="0.75" stop-color="#2b2640"/>
+      <stop offset="1.0" stop-color="#2a253e"/>
+    </radialGradient>
+    <linearGradient id="root-neck" gradientUnits="userSpaceOnUse" x1="12.5" y1="33" x2="32.5" y2="33">
+      <stop stop-color="#c3c8c8"/>
+      <stop offset=".05" stop-color="#d0d7d7"/>
+      <stop offset=".2" stop-color="#d0d7d7"/>
+      <stop offset=".4" stop-color="#abadb5"/>
+      <stop offset=".6" stop-color="#6d6b78"/>
+      <stop offset=".8" stop-color="#18171e"/>
+      <stop offset="1" stop-color="#6b6b70"/>
+    </linearGradient>
+    <linearGradient id="root-stand" gradientUnits="userSpaceOnUse" x1="13" y1="35" x2="37" y2="35">
+      <stop stop-color="#838686"/>
+      <stop offset=".125" stop-color="#838686"/>
+      <stop offset=".3" stop-color="#5c5c66"/>
+      <stop offset=".46" stop-color="#3e3d4c"/>
+      <stop offset=".625" stop-color="#44444e"/>
+      <stop offset=".8" stop-color="#7e8181"/>
+      <stop offset="1" stop-color="#6a6581"/>
+    </linearGradient>
+    <linearGradient id="root-top" gradientUnits="userSpaceOnUse" x1="0" y1="34.5" x2="0" y2="39.5">
+      <stop stop-color="#d9e1e2"/>
+      <stop offset=".8" stop-color="#9fa1a8"/>
+      <stop offset="1" stop-color="#9f9cae"/>
+    </linearGradient>
+    <linearGradient id="root-support" gradientUnits="userSpaceOnUse" x1="0" y1="34" x2="0" y2="39">
+      <stop stop-color="#56515f"/>
+      <stop offset=".4" stop-color="#787b7b"/>
+      <stop offset="1" stop-color="#a8a9b2"/>
+    </linearGradient>
+    <linearGradient id="root-left-bay" gradientUnits="userSpaceOnUse" x1="2.5" y1="41.5" x2="17.5" y2="56.5">
+      <stop stop-color="#dce3e4"/>
+      <stop offset=".48" stop-color="#d7dfdf"/>
+      <stop offset="1" stop-color="#b0b5b6"/>
+    </linearGradient>
+    <linearGradient id="root-right-bay" gradientUnits="userSpaceOnUse" x1="30.5" y1="41.5" x2="46.5" y2="57.5">
+      <stop stop-color="#b6bbbc"/>
+      <stop offset="1" stop-color="#5c5b5c"/>
+    </linearGradient>
+    <linearGradient id="root-chassis-side" gradientUnits="userSpaceOnUse" x1="0" y1="40" x2="0" y2="45">
+      <stop stop-color="#191820"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+    <linearGradient id="root-left-slot" gradientUnits="userSpaceOnUse" x1="3.5" y1="42" x2="27.5" y2="42">
+      <stop stop-color="#5d5977"/>
+      <stop offset="1" stop-color="#817d97"/>
+    </linearGradient>
+    <symbol id="root" viewBox="0 0 48 48" data-logical-size="48 48" data-reconstructed="true"
+      data-desktopkit-files="NXRoot.tiff" data-theme-files="common_Root_PC.tiff common_Root_Apple.tiff">
+      <path d="M0 39H46L47 40V48H0Z" fill="#000"/>
+      <path d="M6 33H41L47 40H0V39Z" fill="#aaa"/>
+      <path d="M6 34H40L46 40H1Z" fill="url(#root-top)"/>
+      <path d="M6 34H7L1 40H0V39Z" fill="#d9e1e2"/>
+      <path d="M7 35H8L3 40H2Z" fill="#fff"/>
+      <path d="M40 34H41L47 40H46Z" fill="#000" fill-opacity=".53"/>
+      <path d="M40 35H41L46 40H45Z" fill="#17161e"/>
+      <path d="M4 38.5 7.5 35H10.5V38.5Z" fill="url(#root-support)"/>
+      <path d="M36.5 34H40L44 39H39Z" fill="url(#root-support)"/>
+      <path d="M0 40H46V47H0Z" fill="#aaa"/>
+      <path d="M46 40H47V47H46Z" fill="url(#root-chassis-side)"/>
+      <path d="M1.5 41H28V47H1.5Z" fill="url(#root-left-bay)"/>
+      <path d="M30 41H45V47H30Z" fill="url(#root-right-bay)"/>
+      <path d="M1.5 47V40.5H45" fill="none" stroke="#fff" stroke-width="1"/>
+      <path d="M3 42H27.5V43H3Z" fill="url(#root-left-slot)"/>
+      <path d="M28 41H29V47H28Z" fill="#75708d"/>
+      <path d="M29 41H30V48H29Z" fill="#fff"/>
+      <path d="M2 43H28V44H2Z" fill="#fff"/>
+      <path d="M3 43H6V44H3Z" fill="#5d5977"/>
+      <path d="M4 43H6V44H4Z" fill="#00ff20"/>
+      <path d="M32 42H43V43H32Z" fill="#000"/>
+      <path d="M33 42H43V43H33Z" fill="#17161e"/>
+      <path d="M32 43H43V44H32Z" fill="#fff"/>
+      <path d="M37 43H39V44H37Z" fill="#272532"/>
+      <path d="M36 43H37V44H36Z" fill="#000"/>
+      <path d="M32 33H36L39 35H32Z" fill="#53525e"/>
+      <path d="M36 34H40L41 35H37Z" fill="#3d3a4e"/>
+      <path d="M12 32H33V35.5H12Z" fill="url(#root-neck)"/>
+      <path d="M9.5 35.5H38.5V39H9.5Z" fill="#272532"/>
+      <path d="M10.5 36 12.5 34.5H34.5L37.5 36Z" fill="url(#root-stand)"/>
+      <path d="M10 36H37V37H10Z" fill="#fff"/>
+      <path d="M10 37H38V38H10Z" fill="#aaa"/>
+      <path d="M10.5 37V36L12.5 34.5" fill="none" stroke="#fff" stroke-width="1.3"/>
+      <path d="M37 35H38L39 36V38H38V36H37Z" fill="#1a1921"/>
+      <path d="M36 35H37V36H38V38H37V36H36Z" fill="#6a6581"/>
+      <path d="M10 36H11V38H10Z" fill="#fff"/>
+      <path d="M10 38H11V39H10Z" fill="#706c88"/>
+      <path d="M11 38H12V39H11Z" fill="#47435b"/>
+      <path d="M38 38H39V39H38Z" fill="#47435b"/>
+      <path d="M5 0H42L44 2V32.5L42.5 33H4L3 31.5V2Z" fill="#aaa"/>
+      <path d="M43 2H44V33H5V32H43Z" fill="url(#root-side)"/>
+      <path d="M4 1H43V31.5H4Z" fill="url(#root-case)"/>
+      <path d="M4.5 31.5V2L5.5 1.5H41" fill="none" stroke="#fff" stroke-width="1"/>
+      <path d="M42 2H43V32H42Z" fill="url(#root-bevel)"/>
+      <path d="M5 31H43V32H5Z" fill="url(#root-lower-bevel)"/>
+      <path d="M9 6H39V28H9Z" fill="#000"/>
+      <path d="M10 7H38V27H10Z" fill="url(#root-glass)"/>
+      <path d="M9 27.5H38.5V7" fill="none" stroke="#fff" stroke-width="1"/>
+      <path d="M37 29H39V30H37Z" fill="#00ff20"/>
+    </symbol>
+  </defs>
+  <use id="preview" href="#root"/>
+</svg>

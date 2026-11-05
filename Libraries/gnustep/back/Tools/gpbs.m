@@ -32,6 +32,12 @@
 #include <GNUstepGUI/GSPasteboardServer.h>
 #include "config.h"
 
+#if BUILD_SERVER == SERVER_wayland
+#define SESSION_PBSNAME GSPasteboardServerName()
+#else
+#define SESSION_PBSNAME PBSNAME
+#endif
+
 #include <fcntl.h>
 #ifdef	HAVE_SYSLOG_H
 #include <syslog.h>
@@ -51,6 +57,9 @@
 
 static BOOL	is_daemon = NO;		/* Currently running as daemon.	 */
 static BOOL	auto_stop = NO;		/* Stop when all connections closed. */
+#if BUILD_SERVER == SERVER_wayland
+static volatile sig_atomic_t stop_requested = 0;
+#endif
 
 static NSMutableArray	*connections = nil;
 
@@ -575,7 +584,7 @@ NSMutableDictionary	*pasteboards = nil;
 	  isFile: (BOOL)flag
 	oldCount: (int)count;
 - (void) setHistory: (unsigned)length;
-- (NSArray*) typesAndChangeCount: (int*)count;
+- (bycopy NSArray*) typesAndChangeCount: (int*)count;
 
 @end
 
@@ -934,7 +943,7 @@ NSMutableDictionary	*pasteboards = nil;
     }
 }
 
-- (NSArray*) typesAndChangeCount: (int*)count
+- (bycopy NSArray*) typesAndChangeCount: (int*)count
 {
   PasteboardEntry *e = nil;
 
@@ -1074,6 +1083,14 @@ NSMutableDictionary	*pasteboards = nil;
 static void
 ihandler(int sig)
 {
+#if BUILD_SERVER == SERVER_wayland
+  if (sig == SIGTERM)
+    {
+      /* Let Foundation finish any defaults write before leaving its run loop. */
+      stop_requested = 1;
+      return;
+    }
+#endif
   static BOOL	beenHere = NO;
   BOOL		action;
   const char	*e;
@@ -1181,6 +1198,10 @@ init(int argc, char** argv, char **env)
   for (count = 0; count < NSIG; count++)
     {
       if (count == SIGABRT) continue;
+#if BUILD_SERVER == SERVER_wayland
+      /* Foundation may start its name server during the first registration. */
+      if (count == SIGCHLD) continue;
+#endif
 #ifdef	SIGPROF
       if (count == SIGPROF) continue;
 #endif
@@ -1241,6 +1262,10 @@ init(int argc, char** argv, char **env)
 int
 main(int argc, char** argv, char **env)
 {
+#if BUILD_SERVER == SERVER_wayland
+  /* Defaults initialization can start before init() installs the handlers. */
+  signal(SIGTERM, ihandler);
+#endif
   CREATE_AUTORELEASE_POOL(pool);
   NSString      *hostname;
 
@@ -1249,6 +1274,18 @@ main(int argc, char** argv, char **env)
 #endif
 
   init(argc, argv, env);
+
+#if BUILD_SERVER == SERVER_wayland
+  if (stop_requested)
+    {
+      RELEASE(pool);
+      return EXIT_SUCCESS;
+    }
+  if ([GSPasteboardServerName() isEqual:PBSNAME]) {
+    fprintf(stderr, "gpbs-wayland requires NEXTSPACE_SESSION_ID from the session launcher\n");
+    return EXIT_FAILURE;
+  }
+#endif
 
   // [NSObject enableDoubleReleaseCheck: YES];
 
@@ -1276,7 +1313,7 @@ main(int argc, char** argv, char **env)
   if ([hostname length] == 0
     ||  [[NSHost hostWithName: hostname] isEqual: [NSHost currentHost]] == YES)
     {
-      if ([conn registerName: PBSNAME] == NO)
+      if ([conn registerName: SESSION_PBSNAME] == NO)
         {
           NSLog(@"Unable to register with name server.");
           exit(EXIT_FAILURE);
@@ -1301,7 +1338,7 @@ main(int argc, char** argv, char **env)
         {
           NSString      *name = [a objectAtIndex: c];
 
-          name = [PBSNAME stringByAppendingFormat: @"-%@", name];
+          name = [SESSION_PBSNAME stringByAppendingFormat: @"-%@", name];
           if ([ns registerPort: port forName: name] == NO)
             {
             }
@@ -1312,7 +1349,7 @@ main(int argc, char** argv, char **env)
         {
           NSString      *name = [a objectAtIndex: c];
 
-          name = [PBSNAME stringByAppendingFormat: @"-%@", name];
+          name = [SESSION_PBSNAME stringByAppendingFormat: @"-%@", name];
           if ([ns registerPort: port forName: name] == NO)
             {
             }
@@ -1333,7 +1370,14 @@ main(int argc, char** argv, char **env)
 		      object: nil];
     }
 
+#if BUILD_SERVER == SERVER_wayland
+  NSRunLoop *loop = [NSRunLoop currentRunLoop];
+  while (!stop_requested)
+    [loop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+  [[NSUserDefaults standardUserDefaults] synchronize];
+#else
   [[NSRunLoop currentRunLoop] run];
+#endif
   RELEASE(server);
   RELEASE(pool);
   exit(EXIT_SUCCESS);

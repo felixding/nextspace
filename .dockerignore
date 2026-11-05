@@ -1,0 +1,12 @@
+.git
+.build
+**/obj
+**/.wayland-generated
+**/*.app
+**/*.bundle
+**/*.framework
+**/*.preferences
+**/autom4te.cache
+**/__pycache__
+wayland-results
+desktop-package-results

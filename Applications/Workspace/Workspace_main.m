@@ -19,76 +19,15 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 //
 
-#import <CoreFoundation/CFRunLoop.h>
 #import <AppKit/AppKit.h>
-
-#import <SystemKit/OSEScreen.h>
-#import <SystemKit/OSEDefaults.h>
-
 #import "Application.h"
-#import "Recycler.h"
-#import "Workspace+WM.h"
+#import "Session.h"
+#import "WSShellConnection.h"
+#include <unistd.h>
+#include <stdlib.h>
 
-#include "WM/wmcomposer.h"
-
-// Global - set in WM/event.c - WMRunLoop()
-CFRunLoopRef wm_runloop = NULL;
-
-//-----------------------------------------------------------------------------
-// Workspace X Window related utility functions
-//-----------------------------------------------------------------------------
-
-static BOOL _isWindowServerReady(void)
-{
-  Display *xdpy = XOpenDisplay(NULL);
-  BOOL ready = (xdpy == NULL ? NO : YES);
-
-  if (ready) {
-    XCloseDisplay(xdpy);
-  }
-
-  return ready;
-}
-
-static int CantManageScreen = 0;
-static int _wmRunningErrorHandler(Display *dpy, XErrorEvent *error)
-{
-  CantManageScreen = 1;
-  return -1;
-}
-
-static BOOL _isWindowManagerRunning(void)
-{
-  Display *xDisplay = NULL;
-  int xScreen = -1;
-  long event_mask;
-  XErrorHandler oldHandler;
-
-  oldHandler = XSetErrorHandler((XErrorHandler)_wmRunningErrorHandler);
-  event_mask = SubstructureRedirectMask;
-
-  xDisplay = XOpenDisplay(NULL);
-  xScreen = DefaultScreen(xDisplay);
-  XSelectInput(xDisplay, RootWindow(xDisplay, xScreen), event_mask);
-
-  XSync(xDisplay, False);
-  XSetErrorHandler(oldHandler);
-
-  if (CantManageScreen) {
-    XCloseDisplay(xDisplay);
-    return YES;
-  } else {
-    event_mask &= ~(SubstructureRedirectMask);
-    XSelectInput(xDisplay, RootWindow(xDisplay, xScreen), event_mask);
-    XSync(xDisplay, False);
-    XCloseDisplay(xDisplay);
-    return NO;
-  }
-}
-
-//-----------------------------------------------------------------------------
-// Workspace application GNUstep main function
-//-----------------------------------------------------------------------------
+WorkspaceExitCode ws_quit_code = WSLogoutOnQuit;
+int ws_shell_descriptor = -1;
 
 void WSUncaughtExceptionHandler(NSException *e)
 {
@@ -109,13 +48,11 @@ int WSApplicationMain(int argc, const char **argv)
   mainModelFile = [infoDict objectForKey:@"NSMainNibFile"];
   if (mainModelFile != nil && [mainModelFile isEqual:@""] == NO) {
     if ([NSBundle loadNibNamed:mainModelFile owner:NSApp] == NO) {
-      NSLog(_(@"Cannot load the main model file '%@'"), mainModelFile);
+      NSLog(NSLocalizedString(@"Cannot load the main model file '%@'", nil), mainModelFile);
     }
   }
 
   RECREATE_AUTORELEASE_POOL(pool);
-
-  wSetErrorHandler();
 
   [NSApp run];
 
@@ -126,79 +63,29 @@ int WSApplicationMain(int argc, const char **argv)
 
 int main(int argc, const char **argv)
 {
-  OSEDefaults *defs;
-
-  if (_isWindowServerReady() == NO) {
-    fprintf(stderr, "[Workspace] X Window server is not ready on display '%s'\n",
-            getenv("DISPLAY"));
-    exit(1);
+  NSAutoreleasePool *pool = [NSAutoreleasePool new];
+  NSString *backend = WSSessionBackendName();
+  if (![backend length] ||
+      [backend rangeOfString:@"wayland" options:NSCaseInsensitiveSearch].location == NSNotFound) {
+    fprintf(stderr, "[Workspace] This build requires the native Wayland backend.\n");
+    [pool drain]; return 1;
   }
-
-  if (_isWindowManagerRunning() == YES) {
-    fprintf(stderr, "[Workspace] Error: other window manager already running. Quitting...\n");
-    exit(1);
-  }
-
   fprintf(stderr, "=== Starting Workspace ===\n");
-  defs = [[OSEDefaults alloc] initDefaultsWithPath:NSUserDomainMask domain:@"Workspace"];
-  workspace_q = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-  if ([defs boolForKey:@"RestoreDisplayLayout"] != NO) {
-    dispatch_sync(workspace_q, ^{
-      // Restore display layout
-      OSEScreen *screen = [OSEScreen sharedScreen];
-      [screen applySavedDisplayLayout];
-    });
+  if ((ws_shell_descriptor = WSConsumeShellDescriptor()) < 0) {
+    fprintf(stderr, "[Workspace] A private session shell connection is required.\n");
+    [pool drain]; return 1;
   }
-  {
-    // DISPATCH_QUEUE_CONCURRENT is mandatory for CFRunLoop run.
-    dispatch_queue_t window_manager_q = dispatch_queue_create("ns.workspace.wm",
-                                                              DISPATCH_QUEUE_CONCURRENT);
-
-    //--- Initialize Window Manager
-    fprintf(stderr, "=== Initializing Window Manager ===\n");
-    dispatch_sync(window_manager_q, ^{
-      wInitialize(argc, (char **)argv);
-      wStartUp(True);
-
-      WSUpdateScreenInfo(wDefaultScreen());
-    });
-    fprintf(stderr, "=== Window Manager initialized! ===\n");
-
-    //--- Composer
-    if ([defs boolForKey:@"ComposerEnabled"] != NO) {
-      dispatch_queue_t composer_q = dispatch_queue_create("ns.workspace.composer", DISPATCH_QUEUE_CONCURRENT);
-      dispatch_async(composer_q, ^{
-        fprintf(stderr, "=== Initializing Composer ===\n");
-        if (wComposerInitialize() == True) {
-          fprintf(stderr, "=== Composer initialized ===\n");
-          wComposerRunLoop();
-          fprintf(stderr, "=== Composer completed it's execution ===\n");
-        } else {
-          fprintf(stderr, "=== Failed to initialize Composer ===\n");
-        }
-      });
-    }
-    [defs release];
-
-    // Start WM run loop V0 to catch events while V1 is warming up.
-    dispatch_async(window_manager_q, ^{
-      WMRunLoop_V0();
-    });
-    dispatch_async(window_manager_q, ^{
-      WMRunLoop_V1();
-    });
-  }
-
-  //--- Workspace (GNUstep) queue ---------------------------------------
   fprintf(stderr, "=== Workspace initialized! ===\n");
-  dispatch_sync(workspace_q, ^{
+  dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
     NSSetUncaughtExceptionHandler(WSUncaughtExceptionHandler);
-    WSApplicationMain(argc, argv);
+    @try { WSApplicationMain(argc, argv); }
+    @catch (NSException *exception) {
+      WSUncaughtExceptionHandler(exception);
+      ws_quit_code = (WorkspaceExitCode)1;
+    }
   });
   fprintf(stderr, "=== Workspace finished with exit code: %i ===\n", ws_quit_code);
-
-  wShutdown(WMExitMode);
-  fprintf(stderr, "=== Window Manager execution has been stopped ===\n");
-
+  if (ws_shell_descriptor >= 0) close(ws_shell_descriptor);
+  [pool drain];
   return ws_quit_code;
 }

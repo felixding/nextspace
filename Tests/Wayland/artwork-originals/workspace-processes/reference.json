@@ -1,0 +1,18 @@
+{
+  "logical": [
+    48,
+    48
+  ],
+  "occupied": [
+    3,
+    2,
+    46,
+    46
+  ],
+  "image": "Kill.png",
+  "image_sha256": "99d74fb1b36cc6200ba945e42fa8a2b575a521776593559a8a486c7106e93f18",
+  "source_gorm": "Applications/Workspace/Processes/English.lproj/AppProcessUI.gorm/objects.gorm",
+  "source_gorm_sha256": "5d1ba8af0c5731182275084c2592f6b0d02594b386ec498ca412c3798ff5074c",
+  "original_workspace_sha256": "eb258e1030674c3c3549cec27101d6985824a753fe9aada3bbecabb755339b82",
+  "reference": "Exported the actual original NSButtonCell image in a private native Wayland session; the separate 43-by-44 resource is not its logical canvas."
+}

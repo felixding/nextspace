@@ -1,0 +1,11 @@
+FROM nextspace-wayland-test
+RUN apt-get -qq update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    clang cmake git libbsd-dev uuid-dev libblocksruntime-dev libcups2-dev \
+    libavahi-compat-libdnssd-dev libdbus-1-dev libpam0g-dev procps \
+    libmagic-dev libudisks2-dev libupower-glib-dev libpulse-dev \
+    libxcomposite-dev libxdamage-dev libxrender-dev dbus-daemon dpkg-dev patchelf desktop-file-utils \
+    libpipewire-0.3-dev libinih-dev python3-dbus python3-gi unzip arj lhasa macutils \
+    xdg-desktop-portal=1.20.3+ds-1 pipewire=1.4.2-1 wireplumber=0.5.8-2 \
+    && rm -rf /var/lib/apt/lists/*
+COPY . .
+CMD ["sh", "Tests/Wayland/native-stack.sh"]

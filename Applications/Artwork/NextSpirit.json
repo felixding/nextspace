@@ -1,0 +1,543 @@
+{
+  "author": "Ga\u00ebl Elego\u00ebt (galgot)",
+  "source_pages": [
+    "http://galgot.free.fr/wordpress/?p=1380",
+    "http://galgot.free.fr/wordpress/?p=1410"
+  ],
+  "nextspace_permission_discussion": "https://github.com/trunkmaster/nextspace/discussions/385",
+  "usage": "Personal, non-commercial use; preserve both complete sets and their readmes. Broader release permission is unresolved.",
+  "files": {
+    "set1/DefaultApp.icns": "3152a9d42ca439c4a1b9aa02f041cb79f88bd2b448e9d2db85062f559c8ee113",
+    "set1/Disk02.icns": "4b001a545b92869cd639d6df749cc8842315b538132f29c94520847346190e11",
+    "set1/Disk03-CDplayer.icns": "1aafd6e208784f9a81872e2b84f727379aa82b2f815745b5763c9948e5b426d9",
+    "set1/Disk04-CDROM.icns": "a575f4aee953ce7fff2c356889bb7a370e0a7c0f569ad14d9aa2890e231acc08",
+    "set1/Disk04.icns": "72f355826addf2a078ee26e7476b67e9adb8afef1d2511cb83d30a2ac775fa59",
+    "set1/FileManager.icns": "8d6a50f6e682580fbefc241194bc9be03da35225561ab071edd4d5f849faf70f",
+    "set1/Folder-Original-Open.icns": "2257600558579f1fcbbbd15eea060244540f450a1ebbdca897f7b23433a122cd",
+    "set1/Folder-Original.icns": "92ea9088aec8abe22c86c5a29effb15202f314075b9d9a3362facd3f59c09524",
+    "set1/Folder01.icns": "3786751a5c59892eb7d05108e76a2f2aef3021e71849b5cfa322d305d8021f92",
+    "set1/Folder02.icns": "295d73e0e9137854c1d7a71343dc081ce70a2759b13e40948c756091eadb641d",
+    "set1/Folder03.icns": "91eb0fb775b456b0f2300d542528913190b4aec50899ee01da6d0cc93ffed5b7",
+    "set1/Home01.icns": "a067d1dbb27bab9d9f6f21f6a58f6333ea1e870403a031903e2f2bda3edee020",
+    "set1/Kill-App.icns": "e890a5aba930d5394864c3a2f113a9f2bbef0b0e21deb18dfa87b3e7758894cd",
+    "set1/Kill.icns": "f7a7699a746e8eef1a81a35f950777000bbc9c1b7663a9939ce1a67ac45cc0d0",
+    "set1/NeXTLogo-WOshadows.icns": "4d2f08fad0198a8f8fcacafa1d932d1173e6510d28ed573e773d76d98e931a6a",
+    "set1/PReVLogo-NewTypo.icns": "8d6e8047ca0f3db0e000d36a528d99dc41602a074c3b1d13911f024c1bd3df58",
+    "set1/Preferences.icns": "3e188de1dc79e0118a89a55b0d57ae130af1f75306ca02a76271dc0cbf7509da",
+    "set1/Term-Black.icns": "1143199cc0ea974e388f12ae0e0e9390b23cd9868a8a594a8d05679c339f972d",
+    "set1/Term-White.icns": "c51a4ae766f6b0b934c14af29b00b4da592a255c84deacaafbd5b32d6707afd5",
+    "set1/Untitled.icns": "07918dbdca5af2133e346a4be5a01abf7444be4a161bc79d1a9f1711c324e9c9",
+    "set1/UsersFolder.icns": "f49b256a88eb8b64f9aaeab48da3216398bd0f38292d875405b11f0f2e10b4b9",
+    "set2/Desktop-RETINA.icns": "fcdd3d7b2adeb2858b47493d4ca2ef4c36d42655ed9c021cc1df5462e89ecfe5",
+    "set2/DropBox-RETINA.icns": "9c685001a63bb467ff172ff94cc050b9d7bf4f597538a41399018a9795936554",
+    "set2/Folder-Application-RETINA.icns": "a0b9082f0369e108e3b26962e83d4418209884e841a5d9e389fe431eb8a73643",
+    "set2/Folder-Burnable-RETINA.icns": "a3bc3ac9dcb4b86bddda650bff95962479a11bbf43d9b6fd74b99d6241840959",
+    "set2/Folder-Developer-RETINA.icns": "3920dc5a54b7fe4047ea6dabc6ef5d8eec24a7ca13f28fd6b024bbfba47af672",
+    "set2/Folder-Documents-RETINA.icns": "b31b42c3ebe2f2361d2cb775530acc0139cb2f7fddf68fc6dd20c7d851d5823a",
+    "set2/Folder-Download-RETINA.icns": "1eb6bab1df01fe773e6624f9d4329bff8d27551871cc9d726c82249b0e677c36",
+    "set2/Folder-DropBox-RETINA.icns": "06e4ecebe981c176362a4a59579a0836ad37ad47ff0353280b090f268d6342b9",
+    "set2/Folder-Group-RETINA.icns": "01962f74d0e32b8ca575ad3a7e5abf9f4fa5cf87ff414ff802e03d2b92d87035",
+    "set2/Folder-Movies-RETINA.icns": "254d6619fef7b64eeff4c011dcb6572f8dd19157ec1eb6ca334272b0264a2694",
+    "set2/Folder-Music-RETINA.icns": "b2f2d77e7e9ecd41d4f4baff0d1fb21578cf8f7bef471ec60908910d9ae3fc87",
+    "set2/Folder-Pictures-RETINA.icns": "63848c875b0a8c2aed29d94a5379f9c36493dfcb7b29cd90384b7586305ed031",
+    "set2/Folder-Public-RETINA.icns": "85e7628c97069c0d01d99be43408558f37ac9fe42c97285af7a9e8616bb51ed0",
+    "set2/Folder-Server-RETINA.icns": "5ce8341ab41b5741961f9f38c116205d4688af68af1be80aa5fe0b08086e0f6a",
+    "set2/Folder-Sites-RETINA.icns": "7a0b15bb9ed2429067b5f52121b0a3d63ffd38a56be9f2056da4c52105907c21",
+    "set2/Folder-Smart-RETINA.icns": "43feaf0f9f473ce33526aac8fce7723acd5d340af60d5165b3ac4172a712aa66",
+    "set2/Folder-System-RETINA.icns": "cc2baa377847e3a3518f60c599fe7d65897deb7a94940f6d7231922cf7512b0f",
+    "set2/Folder-Users-RETINA.icns": "190d29e7c1451eeaf1f1196487eba989623cdfd97505936a39e284637cefd2c0",
+    "set2/Folder-Utilities-RETINA.icns": "87d5bbfdd02a9d3d4a97998f6026b55079ed38f7dc865f39ede85a5894aaefba",
+    "set2/Library-RETINA.icns": "02848710575a1a3056e1bf7555f2750dd31158d6352b1b5165ca98c1c5140004",
+    "set2/NeXTtv-RETINA.icns": "eee5bc292562661922f10b8c454d2c91a90b8f57ff383dcf75a02a282c804d8b",
+    "set2/Pictures-RETINA.icns": "f50d86282758f1dafdd193357b03f004319b5adaffaee4608f958e28a674b6fb",
+    "set2/Recycler-Full-RETINA.icns": "82e9d149e168f0cec836b846e0d972f109a804166acc44e821f008c01a016f2c",
+    "set2/Recycler-RETINA.icns": "525a77ea6a0e56e775044cabdc39a348e61cd63eae3acf2aa8d07fd09f4901ea",
+    "set2/SimpleNetworkStarter-RETINA.icns": "4c650553249e626f66548cf438bbccf6722ae26b3a82a0390724212da2ffdbe1",
+    "set2/Term-Black_with_logo-RETINA.icns": "f1559d3863808e04b6188a0b0a33476770794dbbbf163e5e02fdd0998a9ebd43",
+    "set2/www-RETINA.icns": "b04ae65ae6c89fa8e41147545f17b05b528075b7e5752f9a1bd4351395b490de",
+    "set1/README.txt": "160f8b2d2e2813e7173e35b88881f2e947c0cbcaef287e4cb16b84ae3d8aee7e",
+    "set2/README.txt": "12cd248fe489d9da620fc45e1291b336b7cca577137b5e81b4b2ebca933a43f3"
+  },
+  "folder_states": {
+    "closed": {
+      "source": "set1/Folder-Original.icns",
+      "pixels": 1024
+    },
+    "open": {
+      "source": "set1/Folder-Original-Open.icns",
+      "pixels": 1024
+    }
+  },
+  "archives": {
+    "NeXTSpirit-RETINA.dmg": {
+      "url": "http://galgot.free.fr/NeXTicons/NeXTSpirit-RETINA.dmg",
+      "sha256": "bd04f9ec446a44bf8d8ad5283d17aea4daf42ca10382fb72dd2b41b81a88ff46",
+      "bytes": 40082983
+    },
+    "NeXTSpirit-Set2-RETINA.dmg": {
+      "url": "http://galgot.free.fr/NeXTicons/NeXTSpirit-Set2-RETINA.dmg",
+      "sha256": "6091e1f19f96d6b9503ebc44e162fb24a8a0ac50d20a7b6519536270221f5be4",
+      "bytes": 59038775
+    }
+  },
+  "workspace_icons": {
+    "Home": {
+      "source": "set1/Home01.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "common_HomeDirectory.tiff"
+        ],
+        "theme": [
+          "common_HomeDirectory.tiff"
+        ],
+        "desktopkit": [
+          "NXHomeDirectory.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/common_HomeDirectory.tiff",
+        "Libraries/gnustep/nextspace-theme/Resources/ThemeImages/common_HomeDirectory.tiff",
+        "Frameworks/DesktopKit/Resources/Images/NXHomeDirectory.tiff"
+      ],
+      "role": "Home directory house in real Workspace file views."
+    },
+    "RecyclerEmpty": {
+      "source": "set2/Recycler-RETINA.icns",
+      "pixels": 1024,
+      "logical": [
+        64,
+        64
+      ],
+      "targets": {
+        "workspace": [
+          "recycler.tiff",
+          "recycler-1.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/recycler.tiff"
+      ],
+      "role": "Empty Recycler Dock icon and matching first animation pose; other poses remain separate.",
+      "content_bounds": [
+        7,
+        9,
+        56,
+        58
+      ]
+    },
+    "RecyclerFull": {
+      "source": "set2/Recycler-Full-RETINA.icns",
+      "pixels": 1024,
+      "logical": [
+        64,
+        64
+      ],
+      "targets": {
+        "workspace": [
+          "recyclerFull.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/recyclerFull.tiff"
+      ],
+      "role": "Occupied Recycler Dock icon; retain the existing item-count badge.",
+      "content_bounds": [
+        7,
+        9,
+        56,
+        58
+      ]
+    },
+    "DefaultApplication": {
+      "source": "set1/DefaultApp.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "common_UnknownApplication.tiff"
+        ],
+        "desktopkit": [
+          "NXApplication.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/common_UnknownApplication.tiff",
+        "Frameworks/DesktopKit/Resources/Images/NXApplication.tiff"
+      ],
+      "role": "Generic application monitor with windows. The separate green-question-mark unknown-application design is not replaced."
+    },
+    "UnknownApplication": {
+      "source": "set1/DefaultApp.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "desktopkit": [
+          "NXUnknownApplication.tiff"
+        ],
+        "theme": [
+          "common_UnknownApplication.tiff"
+        ]
+      },
+      "original_sources": [
+        "Frameworks/DesktopKit/Resources/Images/NXUnknownApplication.tiff",
+        "Libraries/gnustep/nextspace-theme/Resources/ThemeImages/common_UnknownApplication.tiff"
+      ],
+      "role": "Reconstructed original screen design on the unmodified NeXTSpirit monitor housing; personal preview only.",
+      "overlay_artwork": "MonitorScreens.svg",
+      "overlay_symbol": "question"
+    },
+    "UnixTool": {
+      "source": "set1/DefaultApp.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "desktopkit": [
+          "NXTool.tiff"
+        ],
+        "workspace": [
+          "common_UnknownTool.tiff"
+        ],
+        "theme": [
+          "common_UnknownTool.tiff"
+        ]
+      },
+      "original_sources": [
+        "Frameworks/DesktopKit/Resources/Images/NXTool.tiff",
+        "Applications/Workspace/Resources/common_UnknownTool.tiff",
+        "Libraries/gnustep/nextspace-theme/Resources/ThemeImages/common_UnknownTool.tiff"
+      ],
+      "role": "Reconstructed original screen design on the unmodified NeXTSpirit monitor housing; personal preview only.",
+      "overlay_artwork": "MonitorScreens.svg",
+      "overlay_symbol": "unix"
+    },
+    "VolumeDisk": {
+      "source": "set1/Disk04.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "HDD.fs.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/HDD.fs.tiff"
+      ],
+      "role": "Plain optical-disc design used for a mounted filesystem; highlighted/open state is a separate resource."
+    },
+    "CompactDisc": {
+      "source": "set1/Disk04-CDROM.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "CDROM.fs.tiff",
+          "CDROM.openfs.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/CDROM.fs.tiff",
+        "Applications/Workspace/Resources/CDROM.openfs.tiff"
+      ],
+      "role": "Compact-disc volume icon; original closed and open resources have identical artwork."
+    },
+    "KillApplication": {
+      "source": "set1/Kill-App.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "content_bounds": [
+        3,
+        2,
+        46,
+        46
+      ],
+      "targets": {
+        "workspace": [
+          "Kill.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/Kill.tiff",
+        "Applications/Workspace/Processes/English.lproj/AppProcessUI.gorm/Kill.tiff"
+      ],
+      "role": "Skull-and-crossbones in the Processes panel; preserve its original live 48-by-48 image canvas and occupied bounds."
+    },
+    "VolumeHighlighted": {
+      "source": "set1/Disk04.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "HDD.openfs.tiff"
+        ]
+      },
+      "overlay_artwork": "VolumeOverlays.svg",
+      "overlay_symbol": "highlight",
+      "original_sources": [
+        "Applications/Workspace/Resources/HDD.openfs.tiff"
+      ],
+      "role": "Original volume mark reconstructed over the untouched NeXTSpirit disc; personal preview only."
+    },
+    "VolumeNTFS": {
+      "source": "set1/Disk04.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "NTFS_HDD.fs.tiff"
+        ]
+      },
+      "overlay_artwork": "VolumeOverlays.svg",
+      "overlay_symbol": "ntfs",
+      "original_sources": [
+        "Applications/Workspace/Resources/NTFS_HDD.fs.tiff"
+      ],
+      "role": "Original volume mark reconstructed over the untouched NeXTSpirit disc; personal preview only."
+    },
+    "Bundle": {
+      "source": "set1/DefaultApp.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "bundle.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/bundle.tiff"
+      ],
+      "role": "Original bundle-window screen on the unmodified NeXTSpirit monitor housing; personal preview only.",
+      "overlay_artwork": "MonitorScreens.svg",
+      "overlay_symbol": "bundle"
+    },
+    "ComputeSize": {
+      "source": "set1/Folder-Original.icns",
+      "pixels": 1024,
+      "logical": [
+        61,
+        48
+      ],
+      "base_bounds": [
+        9,
+        1,
+        49,
+        46
+      ],
+      "content_bounds": [
+        10,
+        1,
+        57,
+        48
+      ],
+      "overlay_artwork": "Ruler.svg",
+      "overlay_symbol": "Ruler",
+      "opacity": 1,
+      "targets": {
+        "inspectors": [
+          "FileAttributesInspector.gorm/computeSize.tiff"
+        ]
+      }
+    },
+    "ComputeSizeDisabled": {
+      "source": "set1/Folder-Original.icns",
+      "pixels": 1024,
+      "logical": [
+        61,
+        48
+      ],
+      "base_bounds": [
+        9,
+        1,
+        49,
+        46
+      ],
+      "content_bounds": [
+        10,
+        1,
+        57,
+        48
+      ],
+      "overlay_artwork": "Ruler.svg",
+      "overlay_symbol": "Ruler",
+      "opacity": 0.403921568627451,
+      "targets": {
+        "inspectors": [
+          "FileAttributesInspector.gorm/computeSizeD.tiff"
+        ]
+      }
+    },
+    "HomeHover": {
+      "source": "set1/Home01.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "openHome.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/openHome.tiff"
+      ],
+      "role": "Original illuminated home-directory drag state with open entrance and chimney smoke.",
+      "overlay_artwork": "HomeStates.svg",
+      "overlay_symbol": "HomeHover"
+    },
+    "Neighbor": {
+      "source": "set1/Home01.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "neighbor.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/neighbor.tiff"
+      ],
+      "role": "Original two-house neighborhood with one foreground tree, closed state.",
+      "composition": "neighborhood",
+      "state": "closed"
+    },
+    "NeighborOpen": {
+      "source": "set1/Home01.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "workspace": [
+          "openNeighbor.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Workspace/Resources/openNeighbor.tiff"
+      ],
+      "role": "Original two-house neighborhood with one foreground tree, open state.",
+      "composition": "neighborhood",
+      "state": "open"
+    },
+    "PanelHome": {
+      "source": "set1/Home01.icns",
+      "pixels": 1024,
+      "logical": [
+        24,
+        24
+      ],
+      "targets": {
+        "desktopkit": [
+          "NXTPanelHome.tiff"
+        ],
+        "theme": [
+          "common_Home.tiff"
+        ]
+      },
+      "original_sources": [
+        "Libraries/gnustep/nextspace-theme/Resources/ThemeImages/common_Home.tiff"
+      ],
+      "role": "Original 24-point file-panel house, using unchanged high-resolution artist pixels in its original occupied bounds.",
+      "content_bounds": [
+        1,
+        2,
+        23,
+        23
+      ]
+    }
+  },
+  "application_icons": {
+    "Terminal": {
+      "source": "set1/Term-White.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "terminal": [
+          "Resources/Terminal.tiff",
+          "English.lproj/Info.gorm/Terminal.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Terminal/Resources/Terminal.tiff",
+        "Applications/Terminal/English.lproj/Info.gorm/Terminal.tiff"
+      ],
+      "role": "Application icon and Info-panel monitor; the light housing matches the original. Animation strips are separate."
+    },
+    "Preferences": {
+      "source": "set1/Preferences.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "preferences": [
+          "English.lproj/Preferences.tiff",
+          "English.lproj/InfoPanel.gorm/Preferences.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Preferences/English.lproj/Preferences.tiff",
+        "Applications/Preferences/English.lproj/InfoPanel.gorm/Preferences.tiff"
+      ],
+      "role": "Static Info-panel logo only; preserve the live desktop clock."
+    },
+    "Review": {
+      "source": "set1/DefaultApp.icns",
+      "pixels": 1024,
+      "logical": [
+        48,
+        48
+      ],
+      "targets": {
+        "review": [
+          "Resources/Review.tiff"
+        ]
+      },
+      "original_sources": [
+        "Applications/Review/Resources/Review.tiff"
+      ],
+      "role": "Original coastal photograph reconstructed from authored high-resolution photographic detail and SVG palette corrections on the unmodified NeXTSpirit monitor housing; original artwork by Serg Stoyan, 2005; personal preview only.",
+      "overlay_artwork": "ReviewScreen.svg",
+      "overlay_symbol": "review-screen"
+    }
+  }
+}

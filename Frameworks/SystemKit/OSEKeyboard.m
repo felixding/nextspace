@@ -21,9 +21,8 @@
 
 #import "OSEDefaults.h"
 #import "OSEKeyboard.h"
-
-#include <X11/XKBlib.h>
-#include <X11/extensions/XKBrules.h>
+#import "OSEWaylandInput.h"
+#include <math.h>
 
 NSString *OSEKeyboardInitialRepeat = @"KeyboardInitialKeyRepeat";
 NSString *OSEKeyboardRepeatRate = @"KeyboardRepeatRate";
@@ -51,7 +50,8 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
     initialRepeat = 0;
   if ((repeatRate = [defs integerForKey:OSEKeyboardRepeatRate]) < 0)
     repeatRate = 0;
-  [keyb setInitialRepeat:initialRepeat rate:repeatRate];
+  if ([defs objectForKey:OSEKeyboardInitialRepeat] || [defs objectForKey:OSEKeyboardRepeatRate])
+    [keyb setInitialRepeat:initialRepeat rate:repeatRate];
 
   // Layouts and Modifiers
   layouts = [defs objectForKey:OSEKeyboardLayouts];
@@ -176,83 +176,14 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
   return [dict autorelease];
 }
 
-// Return 'Display' must be closed by caller
-- (Display *)_getXkbVariables:(XkbRF_VarDefsRec *)var_defs
-                         file:(char **)rules_file
-{
-  Display *dpy;
-
-  dpy = XkbOpenDisplay(NULL, NULL, NULL, NULL, NULL, NULL);
-  if (!XkbRF_GetNamesProp(dpy, rules_file, var_defs) || !rules_file)
-    {
-      NSLog(@"OSEKeyboard: error reading XKB properties!");
-      XCloseDisplay(dpy);
-      return NULL;
-    }
-
-  return dpy;
-}
-
-- (BOOL)_applyServerConfig:(XkbRF_VarDefsRec *)xkb_vars
-                      file:(char *)file
-                forDisplay:(Display *)dpy
-{
-  XkbComponentNamesRec	rnames;
-  XkbRF_RulesPtr 	rules;
-  XkbDescPtr		xkb;
-
-  rules = XkbRF_Load("/usr/share/X11/xkb/rules/evdev", "C", True, True);
-  if (rules != NULL) {
-    XkbRF_GetComponents(rules, xkb_vars, &rnames);
-    xkb = XkbGetKeyboardByName(dpy, XkbUseCoreKbd, &rnames,
-                               XkbGBN_AllComponentsMask,
-                               XkbGBN_AllComponentsMask &
-                               (~XkbGBN_GeometryMask), True);
-    if (!xkb) {
-      NSLog(@"[OSEKeyboard] Fialed to load new keyboard description.");
-      return NO;
-    }
-  }
-  else {
-    NSLog(@"[OSEKeyboard] Failed to load XKB rules!");
-  }
-
-  XkbRF_SetNamesProp(dpy, file, xkb_vars);
-  XSync(dpy, False);
-
-  return YES;
-}
-
-// Returned value is converted to dictionary XkbRF_VarDefsRec structure.
+// Read the session compositor's keyboard configuration.
 - (NSDictionary *)_serverConfig
 {
-  Display 		*dpy;
-  char			*file = NULL;
-  XkbRF_VarDefsRec	vd;
-  NSMutableDictionary	*config;
-
-  dpy = [self _getXkbVariables:&vd file:&file];
-  if (dpy == NULL) {
-    return nil;
-  }
-  XCloseDisplay(dpy);
-  
-  // NSLog(@"OSEKeyboard Model: '%s'; Layouts: '%s'; Variants: '%s' Options: '%s' Rules file: %s",
-  //       vd.model, vd.layout, vd.variant, vd.options, file);
-
-  config = [NSMutableDictionary dictionary];
-  [config setObject:[NSString stringWithCString:(vd.layout != NULL) ? vd.layout : ""]
-             forKey:OSEKeyboardLayouts];
-  [config setObject:[NSString stringWithCString:(vd.variant != NULL) ? vd.variant : ""]
-             forKey:OSEKeyboardVariants];
-  [config setObject:[NSString stringWithCString:(vd.options != NULL) ? vd.options : ""]
-             forKey:OSEKeyboardOptions];
-  [config setObject:[NSString stringWithCString:(vd.model != NULL) ? vd.model : ""]
-             forKey:OSEKeyboardModel];
-  
-  // [config writeToFile:@"/Users/me/Library/OSEKeyboard" atomically:YES];
-  
-  return config;
+  NSDictionary *state = OSEWaylandInputSettings();
+  return [NSDictionary dictionaryWithObjectsAndKeys:[state objectForKey:@"model"] ?: @"pc105", OSEKeyboardModel,
+    [state objectForKey:@"layout"] ?: @"us", OSEKeyboardLayouts,
+    [state objectForKey:@"variant"] ?: @"", OSEKeyboardVariants,
+    [state objectForKey:@"options"] ?: @"", OSEKeyboardOptions, nil];
 }
 
 - (void)dealloc
@@ -284,60 +215,16 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
   return [[self _serverConfig] objectForKey:OSEKeyboardModel];
 }
 
-// TODO
 - (BOOL)setModel:(NSString *)name
 {
-  Display          *dpy;
-  char             *file = NULL;
-  XkbRF_VarDefsRec xkb_vars;
-  BOOL             success = NO;
-
-  dpy = [self _getXkbVariables:&xkb_vars file:&file];
-  if (dpy == NULL) {
-    return NO;
-  }
-  if (name) {
-    xkb_vars.model = strdup([name cString]);
-  }
-  success = [self _applyServerConfig:&xkb_vars file:file forDisplay:dpy];
-  XCloseDisplay(dpy);
-
-  return success;
+  return name && OSEChangeWaylandInputSettings(@"keyboard",
+    [NSDictionary dictionaryWithObject:name forKey:@"model"]);
 }
 
 - (void)setNumLockState:(NSInteger)state
 {
-  Display	*dpy = XOpenDisplay(NULL);
-  XkbDescPtr	xkb;
-  unsigned int	mask = 0;
-  char		*modifier_atom;
-  
-  xkb = XkbGetKeyboard(dpy, XkbAllComponentsMask, XkbUseCoreKbd);
-  if (!xkb || !xkb->names) {
-    return;
-  }
-    
-  for (int i = 0; i < XkbNumVirtualMods; i++) {
-    modifier_atom = XGetAtomName(xkb->dpy, xkb->names->vmods[i]);
-    if (modifier_atom != NULL && strcmp("NumLock", modifier_atom) == 0) {
-      XkbVirtualModsToReal(xkb, 1 << i, &mask);
-      break;
-    }
-  }
-  XkbFreeKeyboard(xkb, 0, True);
-  
-  if(mask == 0) {
-    return;
-  }
-
-  if (state > 0) {
-    XkbLockModifiers(dpy, XkbUseCoreKbd, mask, mask);
-  }
-  else {
-    XkbLockModifiers(dpy, XkbUseCoreKbd, mask, 0);
-  }
-  
-  XCloseDisplay(dpy);
+  OSEChangeWaylandInputSettings(@"keyboard", [NSDictionary dictionaryWithObject:
+    [NSNumber numberWithBool:state > 0] forKey:@"numlock"]);
 }
 
 //------------------------------------------------------------------------------
@@ -520,99 +407,45 @@ NSString *OSEKeyboardNumLockState = @"KeyboardNumLockState";
           variants:(NSArray *)variants
            options:(NSArray *)options
 {
-  Display          *dpy;
-  char             *file = NULL;
-  XkbRF_VarDefsRec xkb_vars;
-  BOOL             success = NO;
-
-  dpy = [self _getXkbVariables:&xkb_vars file:&file];
-  if (dpy == NULL) {
-    return NO;
-  }
-
-  if (layouts) {
-    xkb_vars.layout = strdup([[layouts componentsJoinedByString:@","] cString]);
-  }
-  if (variants) {
-    xkb_vars.variant = strdup([[variants componentsJoinedByString:@","] cString]);
-  }
-  if (options) {
-    xkb_vars.options = strdup([[options componentsJoinedByString:@","] cString]);
-  }
-  
-  success = [self _applyServerConfig:&xkb_vars file:NULL forDisplay:dpy];
-  XCloseDisplay(dpy);
-  
-  return success;
+  NSMutableDictionary *changes = [NSMutableDictionary dictionary];
+  if (layouts) [changes setObject:[layouts componentsJoinedByString:@","] forKey:@"layout"];
+  if (variants) [changes setObject:[variants componentsJoinedByString:@","] forKey:@"variant"];
+  if (options) [changes setObject:[options componentsJoinedByString:@","] forKey:@"options"];
+  return OSEChangeWaylandInputSettings(@"keyboard", changes);
 }
 
 //------------------------------------------------------------------------------
 // Initial Repeat and Repeat Rate
 //------------------------------------------------------------------------------
 
-- (void)_setXKBRepeat:(NSInteger)repeat rate:(NSInteger)rate
+- (void)_setRepeat:(NSInteger)repeat rate:(NSInteger)rate
 {
-  XkbDescPtr xkb = XkbAllocKeyboard();
-  Display    *dpy = XOpenDisplay(NULL);
-
-  if (!dpy) {
-    NSLog(@"Can't open Display! This program must be run in X Window.");
-    return;
-  }
-  if (!xkb) {
-    NSLog(@"No X11 XKB extension found!");
-    return;
-  }
-  
-  XkbGetControls(dpy, XkbRepeatKeysMask, xkb);
-  if (repeat) {
-    xkb->ctrls->repeat_delay = (int)repeat;
-  }
-  if (rate) {
-    xkb->ctrls->repeat_interval = (int)rate;
-  }
-  XkbSetControls(dpy, XkbRepeatKeysMask, xkb);
-  
-  XCloseDisplay(dpy);
-}
-- (XkbDescPtr)_xkbControls
-{
-  XkbDescPtr xkb = XkbAllocKeyboard();
-  Display    *dpy = XOpenDisplay(NULL);
-
-  if (!dpy) {
-    NSLog(@"Can't open Display! This program must be run in X Window.");
-    return NULL;
-  }
-  if (!xkb) {
-    NSLog(@"No X11 XKB extension found!");
-    return NULL;
-  }
-  XkbGetControls(dpy, XkbRepeatKeysMask, xkb);
-  XCloseDisplay(dpy);
-
-  return xkb;
+  NSMutableDictionary *changes = [NSMutableDictionary dictionary];
+  if (repeat > 0) [changes setObject:[NSNumber numberWithInteger:repeat] forKey:@"delay"];
+  if (rate > 0) [changes setObject:[NSNumber numberWithLong:lround(1000.0 / rate)] forKey:@"rate"];
+  OSEChangeWaylandInputSettings(@"keyboard", changes);
 }
 
 - (NSInteger)initialRepeat
 {
-  return [self _xkbControls]->ctrls->repeat_delay;
+  return [[OSEWaylandInputSettings() objectForKey:@"delay"] integerValue];
 }
 - (void)setInitialRepeat:(NSInteger)delay
 {
-  [self _setXKBRepeat:delay rate:0];
+  [self _setRepeat:delay rate:0];
 }
 - (NSInteger)repeatRate
 {
-  return [self _xkbControls]->ctrls->repeat_interval;
+  NSInteger rate = [[OSEWaylandInputSettings() objectForKey:@"rate"] integerValue];
+  return rate > 0 ? lround(1000.0 / rate) : 0;
 }
 - (void)setRepeatRate:(NSInteger)rate
 {
-  [self _setXKBRepeat:0 rate:rate];
+  [self _setRepeat:0 rate:rate];
 }
 - (void)setInitialRepeat:(NSInteger)delay rate:(NSInteger)rate
 {
-  [self _setXKBRepeat:delay rate:rate];
+  [self _setRepeat:delay rate:rate];
 }
 
 @end

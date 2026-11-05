@@ -129,6 +129,15 @@
 
 @implementation ImageWindow
 
+- (void)_setDisplayedImageSize:(NSSize)size
+{
+  [_displayImage setSize:size];
+  NSSize visible = _scrollView ? [_scrollView contentSize] : NSZeroSize;
+  [imageView setFrameSize:NSMakeSize(MAX(size.width, visible.width), MAX(size.height, visible.height))];
+  [imageView setImage:nil];
+  [imageView setImage:_displayImage];
+}
+
 - (BOOL)_displayRepresentationAtIndex:(NSUInteger)index
 {
   visibleRepIndex = index;
@@ -157,15 +166,7 @@
       double factor     = currentPercent / 100.0;
       NSSize scaledSize = NSMakeSize(round(_visibleRep.pixelsWide  * factor),
                                      round(_visibleRep.pixelsHigh * factor));
-      [_displayImage setSize:scaledSize];
-      [imageView setImage:_displayImage];
-
-      /* Sync imageView frame so centering stays correct */
-      NSSize visibleSize = [_scrollView contentSize];
-      NSSize frameSize;
-      frameSize.width  = MAX(scaledSize.width,  visibleSize.width);
-      frameSize.height = MAX(scaledSize.height, visibleSize.height);
-      [imageView setFrameSize:frameSize];
+      [self _setDisplayedImageSize:scaledSize];
     } else {
       return NO;
     }
@@ -334,14 +335,7 @@
       [_window display];
 
       /* Image already at 100% — just update the imageView frame for centering */
-      [_image setSize:imageSize];
-      NSSize visibleSize = [_scrollView contentSize];
-      NSSize frameSize;
-      frameSize.width  = MAX(imageSize.width,  visibleSize.width);
-      frameSize.height = MAX(imageSize.height, visibleSize.height);
-      [imageView setFrameSize:frameSize];
-      [imageView setImage:nil];
-      [imageView setImage:_image];
+      [self _setDisplayedImageSize:imageSize];
       [scalePopup selectItemWithTitle:@"100%"];
 
     } else {
@@ -406,16 +400,7 @@
   NSSize scaledSize = NSMakeSize(round(baseSize.width  * factor),
                                  round(baseSize.height * factor));
 
-  /* Update the image size */
-  [_image setSize:scaledSize];
-
-  /* Expand imageView to fill visible area so NSImageAlignCenter works */
-  NSSize frameSize;
-  frameSize.width  = MAX(scaledSize.width,  visibleSize.width);
-  frameSize.height = MAX(scaledSize.height, visibleSize.height);
-  [imageView setFrameSize:frameSize];
-  [imageView setImage:nil];
-  [imageView setImage:_image];
+  [self _setDisplayedImageSize:scaledSize];
 
   /* Update popup: remove old dynamic item, insert exact percentage */
   [self _removeDynamicPopupItemIfNeeded];
@@ -452,17 +437,7 @@
   NSSize scaledSize = NSMakeSize(round(baseSize.width  * factor),
                                  round(baseSize.height * factor));
 
-  /* Resize the image to the scaled size — NSImageView will stretch it */
-  [_image setSize:scaledSize];
-
-  /* Expand imageView to fill visible area so NSImageAlignCenter works */
-  NSSize visibleSize = [_scrollView contentSize];
-  NSSize frameSize;
-  frameSize.width  = MAX(scaledSize.width,  visibleSize.width);
-  frameSize.height = MAX(scaledSize.height, visibleSize.height);
-  [imageView setFrameSize:frameSize];
-  [imageView setImage:nil];   /* force redraw */
-  [imageView setImage:_image];
+  [self _setDisplayedImageSize:scaledSize];
 }
 
 - (void)zoomIn

@@ -51,7 +51,7 @@ CONFIG_SYSTEM_LIB_DIR += $(GRAPHIC_LFLAGS)
 # Flags for compiling as a bundle or library (if the system depends
 # on having libraries specified).
 #
-libgnustep-$(BACKEND_FULL)_BUNDLE_LIBS = $(GRAPHIC_LIBS) -lwraster
+libgnustep-$(BACKEND_FULL)_BUNDLE_LIBS = $(GRAPHIC_LIBS)
 
 ifeq ($(BACKEND_BUNDLE),)
 libgnustep-$(BACKEND_FULL)_LIBRARIES_DEPEND_UPON = \

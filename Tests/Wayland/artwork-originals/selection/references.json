@@ -1,0 +1,23 @@
+{
+  "cases": {
+    "MultipleSelection": {
+      "source": "Applications/Workspace/Resources/MultipleSelection.tiff",
+      "source_sha256": "ec3412a238afeadbdee89833345818b1cfac37ab14b110752a6f826d2853ba8e",
+      "png": "MultipleSelection.png",
+      "png_sha256": "e7f9eef4ac9e5f5be06fb2412b0c8ab9eaabac0932be0031340ebbf51dd1768e",
+      "equivalent_sources": {
+        "Libraries/gnustep/nextspace-theme/Resources/ThemeImages/common_MultipleSelection.tiff": "ec3412a238afeadbdee89833345818b1cfac37ab14b110752a6f826d2853ba8e"
+      },
+      "rgb_representation_index": 0
+    },
+    "SelectionHighlight": {
+      "source": "Applications/Workspace/Resources/hilite.tiff",
+      "source_sha256": "e8e599b6f178b1655d4f897205181e9d82d0878bf9945c2d9c6561abfac53ea3",
+      "png": "hilite.png",
+      "png_sha256": "62a5cf8cefb67bb857ae09b9ad683bab8c477052cfed466dbcca334e131ee187",
+      "equivalent_sources": {},
+      "rgb_representation_index": 1
+    }
+  },
+  "reference": "Native RGB-context image exports before reconstruction. Both complete retained NeXTSpirit sets were inspected; no matching seven-card/hand artwork is present."
+}

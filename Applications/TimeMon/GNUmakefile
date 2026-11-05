@@ -25,6 +25,7 @@ TimeMon_C_FILES = \
 TimeMon_RESOURCE_FILES = \
 	English.lproj/TimeMon.gorm \
 	TM-app.tiff \
+	TM-info.tiff \
 	TimeMonP.tiff \
 	README.rtf
 

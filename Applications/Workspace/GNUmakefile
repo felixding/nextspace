@@ -29,19 +29,27 @@ SUBPROJECTS = \
 	Preferences/Desktops
 
 $(APP_NAME)_OBJC_FILES = \
-	$(wildcard *.m) \
+	$(filter-out DisplayProfile.m ScreenCastChooser.m,$(wildcard *.m)) \
 	$(wildcard Viewers/*.m) \
 	$(wildcard Operations/*.m) \
 	$(wildcard Processes/*.m)
+
+NEXTSPACE_FRAMEWORKS_DIR ?= ../../Frameworks
+ADDITIONAL_INCLUDE_DIRS += -I$(NEXTSPACE_FRAMEWORKS_DIR)
+NEXTSPACE_SHELL_CLIENT = Workspace
+NEXTSPACE_PROTOCOLS_DIR ?= ../../Protocols
+include $(NEXTSPACE_PROTOCOLS_DIR)/shell-client.make
+TOOL_NAME = nextspace-display-profile nextspace-screencast-chooser
+nextspace-display-profile_OBJC_FILES = DisplayProfile.m WSShellConnection.m
+nextspace-display-profile_C_FILES = $(NEXTSPACE_SHELL_CODE)
+nextspace-display-profile_TOOL_LIBS = -lSystemKit -lgnustep-gui `pkg-config --libs wayland-client xkbcommon`
+nextspace-screencast-chooser_OBJC_FILES = ScreenCastChooser.m
+nextspace-screencast-chooser_TOOL_LIBS = -lgnustep-gui
 
 $(APP_NAME)_RESOURCE_FILES = \
 	$(wildcard Resources/*) \
 	Inspectors/Inspectors.bundle \
 	$(wildcard Processes/English.lproj)
-
-# Window manager
-WM_DIR = WM
-include GNUmakefile.WM
 
 $(APP_NAME)_LOCALIZED_RESOURCE_FILES = $(notdir $(wildcard English.lproj/*))
 
@@ -53,5 +61,6 @@ $(APP_NAME)_HEADER_FILES_INSTALL_DIR = $(GNUSTEP_SYSTEM_HEADERS)/Applications
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 include $(GNUSTEP_MAKEFILES)/application.make
+include $(GNUSTEP_MAKEFILES)/tool.make
 include $(GNUSTEP_MAKEFILES)/Instance/Shared/headers.make
 -include GNUmakefile.postamble

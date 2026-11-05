@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 15">
+<defs>
+<g id="resize-arrow" shape-rendering="crispEdges">
+  <path fill="#555" d="M0 7L6 4H7L1 7L7 10H6Z" />
+  <path fill="#000" d="M1 7L7 4V5L3 7Z" />
+  <path fill="#000" d="M1 7L7 10V9L3 7Z" />
+  <path fill="#000" d="M2 6H9V8H2Z" />
+</g>
+</defs>
+<symbol id="SizerRight" viewBox="0 0 9 15" data-logical-size="9 15" data-reconstructed="true" data-files="Preferences/Browser/English.lproj/BrowserPrefs.gorm/sizerRight.tiff Preferences/IconView/English.lproj/IconPrefs.gorm/sizerRight.tiff Preferences/Shelf/English.lproj/ShelfPrefs.gorm/sizerRight.tiff">
+<path fill="#aaa" d="M0 0H9V15H0Z" />
+<path fill="#000" d="M0 0H1V15H0Z" />
+<use href="#resize-arrow" />
+
+<path fill="#aaa" shape-rendering="crispEdges" d="M2 8H4V9Z" />
+</symbol>
+<symbol id="SizerLeft" viewBox="0 0 9 15" data-logical-size="9 15" data-reconstructed="true" data-files="Preferences/IconView/English.lproj/IconPrefs.gorm/sizerLeft.tiff Preferences/Shelf/English.lproj/ShelfPrefs.gorm/sizerLeft.tiff">
+<path fill="#aaa" d="M0 0H9V15H0Z" />
+<path fill="#000" d="M8 0H9V15H8Z" />
+<use href="#resize-arrow" transform="translate(9 0) scale(-1 1)" />
+</symbol>
+<use id="preview" href="#SizerRight" />
+</svg>

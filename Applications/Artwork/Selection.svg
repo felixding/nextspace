@@ -1,0 +1,70 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!--Original seven-card fan, hand and selection backdrop. SPDX-License-Identifier: GPL-2.0-or-later.-->
+  <ns0:defs>
+    <ns0:linearGradient id="pink" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#dd77ff" />
+      <ns0:stop offset="1" stop-color="#cc77ff" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="purple" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#9977ff" />
+      <ns0:stop offset="1" stop-color="#aa77ff" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#7799ff" />
+      <ns0:stop offset="1" stop-color="#8899ff" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#80ddff" />
+      <ns0:stop offset="1" stop-color="#88ccff" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="aqua" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#88ffee" />
+      <ns0:stop offset="1" stop-color="#77ffdd" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="green" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#77ffaa" />
+      <ns0:stop offset="1" stop-color="#88ff88" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="lime" x1="0" y1="0" x2="1" y2="1">
+      <ns0:stop stop-color="#99ff77" />
+      <ns0:stop offset=".6" stop-color="#88ff77" />
+      <ns0:stop offset="1" stop-color="#88ff88" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="hand-side" gradientUnits="userSpaceOnUse" x1="29" y1="37" x2="36" y2="33">
+      <ns0:stop stop-color="#eebb99" />
+      <ns0:stop offset=".55" stop-color="#aa8866" />
+      <ns0:stop offset="1" stop-color="#662211" />
+    </ns0:linearGradient>
+    <ns0:linearGradient id="rear-ink" gradientUnits="userSpaceOnUse" x1="33" y1="32" x2="40" y2="32">
+      <ns0:stop stop-color="#332222" />
+      <ns0:stop offset=".5" stop-color="#332222" />
+      <ns0:stop offset="1" stop-color="#662211" />
+    </ns0:linearGradient>
+    <ns0:clipPath id="hand-clip">
+      <ns0:use href="#rear-hand" />
+    </ns0:clipPath>
+    <ns0:symbol id="MultipleSelection" viewBox="0 0 48 48" data-logical-size="48 48" data-reconstructed="true" data-workspace-files="MultipleSelection.tiff" data-theme-files="common_MultipleSelection.tiff">
+      <ns0:g opacity=".9411764705882353">
+        <ns0:path id="rear-hand" d="M26.4 48 21.2 37.5 24.6 28.3 29 25.5 32.3 27.8Q34.4 26.8 36.1 26.6L39.7 24Q40.4 23.7 40.6 24.5L39.2 27Q39.1 27.9 40.2 28.6 40.8 29.2 39.7 30.2L38.2 32.1Q37.8 33.8 39 35.9L40.8 40Q41.4 43.7 41.2 48Z" fill="url(#rear-ink)" stroke="#332222" stroke-width=".8" />
+        <ns0:g stroke="#151918" stroke-width=".75" stroke-linejoin="miter">
+          <ns0:path id="card-pink" d="M3.5 16.8H24.3V37.6H3.5Z" fill="url(#pink)" />
+          <ns0:path id="card-purple" d="M7.6 9.2 27.1 16.5 19.7 36.2 .4 28.7Z" fill="url(#purple)" />
+          <ns0:path id="card-blue" d="M.8 17.8 15.6 4 29.7 19 14.9 33.1Z" fill="url(#blue)" />
+          <ns0:path id="card-cyan" d="M6.2 8.4 23.4 .8 30.8 18.2 13.6 25.3Z" fill="url(#cyan)" />
+          <ns0:path id="card-aqua" d="M14.7 3.6H34.8V23.7H14.7Z" fill="url(#aqua)" />
+          <ns0:path id="card-green" d="M25.1 1 42.4 8.5 34.8 26.1 17.4 18.6Z" fill="url(#green)" />
+          <ns0:path id="card-lime" d="M33.1 5 46.4 16.8 32.3 29.5 18.5 18.2Z" fill="url(#lime)" />
+        </ns0:g>
+        <ns0:path id="hand-shadow" d="M28.5 20.2Q30.1 20.2 30.3 22.8L30.3 29.7Q30.6 33.6 33.6 36.5 38.5 40.6 40 48H27L23.2 40Q20.3 38.4 20.8 35.1 21 33.3 22 33.2L24.3 35.8 24.1 28.7Q24.1 23.2 26.6 20.9Z" fill="#553311" stroke="#553311" stroke-width=".8" stroke-linejoin="round" />
+        <ns0:path id="palm-side" d="M31.5 34.5Q35 35.2 38.8 35L42 40V48H26Z" fill="url(#hand-side)" clip-path="url(#hand-clip)" />
+        <ns0:path id="hand-face" fill="#ffccaa" d="M27.5 48Q25.7 43.3 24.1 40.4L22.2 38.6Q21.1 36.7 22.1 34.6 22.5 34.1 22.9 34.8L24.4 37Q24.9 37.7 25 36.7L24.9 28Q25.1 24.9 27 22.4 27.5 21.3 28.5 21.1 29.7 21 29.7 22.4L29 30.7C29 32 30.2 33.8 32.4 35.5C33 37.8 34.7 40.2 35.5 42C37 44.3 38.8 46 40 47.4V48Z" />
+        <ns0:path id="finger-crease" d="M24.7 28.3 24.5 35.9" fill="none" stroke="#885533" stroke-width=".6" stroke-linecap="round" />
+      </ns0:g>
+    </ns0:symbol>
+    <ns0:symbol id="SelectionHighlight" viewBox="0 0 66 52" data-logical-size="66 52" data-reconstructed="true" data-workspace-files="hilite.tiff">
+      <ns0:rect width="66" height="52" fill="#aaa" />
+      <ns0:rect id="highlight-white" width="66" height="52" rx="7.5" fill="#fff" />
+    </ns0:symbol>
+  </ns0:defs>
+  <ns0:use id="preview" href="#MultipleSelection" width="48" height="48" />
+</ns0:svg>

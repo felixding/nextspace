@@ -27,6 +27,7 @@
 #import "FileAttributesInspector.h"
 #import "WMPopUp.h"
 #import "WMPermissions.h"
+#import "WSImageResources.h"
 
 #import <sys/types.h>
 #import <grp.h>
@@ -354,6 +355,9 @@ static id attributesInspector = nil;
   [permissionsView setTarget:self];
   [permissionsView setAction:@selector(changePerms:)];
 
+  WSSetButtonImages(computeSizeBtn,
+    [[NSBundle bundleForClass:[self class]] pathForResource:@"FileAttributesInspector" ofType:@"gorm"],
+    @"computeSize", @"computeSizeD");
   ASSIGN(computeSizeBtnImage, [computeSizeBtn image]);
   ASSIGN(computeSizeBtnAlternateImage, [computeSizeBtn alternateImage]);
 

@@ -1,0 +1,162 @@
+--- a/Source/NSPageLayout.m
++++ b/Source/NSPageLayout.m
+@@ -61,6 +61,128 @@
+ #import "GNUstepGUI/GSPrinting.h"
+ #import "GNUstepGUI/GSTheme.h"
+ 
++#import "AppKit/NSClipView.h"
++#import "AppKit/NSScrollView.h"
++#import "AppKit/NSScroller.h"
++#import "AppKit/NSScreen.h"
++
++/* Keep the original panel document intact when the logical work area shrinks. */
++@interface GSPageLayoutViewport : NSObject
++{
++  NSWindow *_window;
++  NSView *_document;
++  NSScrollView *_viewport;
++  NSRect _frame, _documentFrame;
++  NSSize _minimum;
++  NSUInteger _mask;
++  BOOL _autoresizes, _wrapped, _updating;
++}
++- (id)initWithWindow:(NSWindow *)window;
++- (void)update:(NSNotification *)notification;
++@end
++
++@implementation GSPageLayoutViewport
++- (id)initWithWindow:(NSWindow *)window
++{
++  if ((self = [super init])) {
++    _window = [window retain];
++    _document = [[window contentView] retain];
++    _frame = [window frame]; _documentFrame = [_document frame];
++    _minimum = [window minSize]; _mask = [_document autoresizingMask];
++    _autoresizes = [_document autoresizesSubviews];
++    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
++    [center addObserver:self selector:@selector(update:)
++      name:NSApplicationDidChangeScreenParametersNotification object:nil];
++    [center addObserver:self selector:@selector(update:)
++      name:NSWindowDidChangeScreenNotification object:window];
++    [center addObserver:self selector:@selector(update:)
++      name:NSWindowDidChangeBackingPropertiesNotification object:window];
++    [self update:nil];
++  }
++  return self;
++}
++- (void)restoreDocument
++{
++  if (!_wrapped) return;
++  [_viewport setDocumentView:nil];
++  [_window setContentView:_document];
++  [_window setMinSize:_minimum];
++  NSRect target = [_window frame];
++  CGFloat top = NSMaxY(target);
++  target.size = _frame.size;
++  target.origin.y = top - target.size.height;
++  NSRect available = [[_window screen] visibleFrame];
++  if (target.size.width <= available.size.width && target.size.height <= available.size.height) {
++    target.origin.x = MIN(MAX(target.origin.x,NSMinX(available)),NSMaxX(available)-target.size.width);
++    target.origin.y = MIN(MAX(target.origin.y,NSMinY(available)),NSMaxY(available)-target.size.height);
++  }
++  [_window setFrame:target display:NO];
++  [_document setFrame:_documentFrame];
++  [_document setAutoresizingMask:_mask];
++  [_document setAutoresizesSubviews:_autoresizes];
++  _wrapped = NO;
++}
++- (void)update:(NSNotification *)notification
++{
++  if (_updating) return;
++  _updating = YES;
++  NSRect available = [[_window screen] visibleFrame];
++  if (NSIsEmptyRect(available)) { _updating = NO; return; }
++  CGFloat bar = [NSScroller scrollerWidth];
++  BOOL horizontal = _frame.size.width > available.size.width;
++  BOOL vertical = _frame.size.height + (horizontal ? bar : 0) > available.size.height;
++  horizontal = _frame.size.width + (vertical ? bar : 0) > available.size.width;
++  vertical = _frame.size.height + (horizontal ? bar : 0) > available.size.height;
++  id responder = [[_window firstResponder] retain];
++  if (!horizontal && !vertical) {
++    [self restoreDocument];
++  } else {
++    BOOL first = !_wrapped;
++    if (!_viewport) {
++      _viewport = [[NSScrollView alloc] initWithFrame:_documentFrame];
++      [_viewport setBorderType:NSNoBorder];
++      [_viewport setBackgroundColor:[NSColor controlBackgroundColor]];
++    }
++    [_viewport setHasHorizontalScroller:horizontal];
++    [_viewport setHasVerticalScroller:vertical];
++    if (first) {
++      [_document setAutoresizesSubviews:NO];
++      [_document setAutoresizingMask:NSViewNotSizable];
++      [_window setContentView:_viewport];
++      [_viewport setDocumentView:_document];
++      _wrapped = YES;
++    }
++    NSRect target = [_window frame];
++    CGFloat top = NSMaxY(target);
++    target.size.width = MIN(_frame.size.width + (vertical ? bar : 0), available.size.width);
++    target.size.height = MIN(_frame.size.height + (horizontal ? bar : 0), available.size.height);
++    target.origin.x = MIN(MAX(target.origin.x,NSMinX(available)),NSMaxX(available)-target.size.width);
++    target.origin.y = MIN(MAX(top-target.size.height,NSMinY(available)),NSMaxY(available)-target.size.height);
++    [_window setMinSize:NSZeroSize];
++    if (!NSEqualRects([_window frame],target)) [_window setFrame:target display:YES];
++    [_document setFrame:_documentFrame];
++    if (first) {
++      NSClipView *clip = [_viewport contentView];
++      NSPoint origin = NSMakePoint(0, [_document isFlipped] ? 0 :
++        MAX(0,_documentFrame.size.height-[clip bounds].size.height));
++      [clip scrollToPoint:origin];
++      [_viewport reflectScrolledClipView:clip];
++    }
++  }
++  if ([responder isKindOfClass:[NSView class]] && [(NSView *)responder window] == _window)
++    [_window makeFirstResponder:responder];
++  [responder release];
++  _updating = NO;
++}
++- (void)dealloc
++{
++  [[NSNotificationCenter defaultCenter] removeObserver:self];
++  [self restoreDocument];
++  [_viewport release]; [_document release]; [_window release];
++  [super dealloc];
++}
++@end
++
+ static NSPageLayout *shared_instance;
+ 
+ 
+@@ -284,8 +406,9 @@
+   [_controller setPrintInfo: printInfo];
+   [_controller readPrintInfo];
+ 
+-  result = [NSApp runModalForWindow: self];
+-  [self orderOut: self];
++  GSPageLayoutViewport *viewport = [[GSPageLayoutViewport alloc] initWithWindow:self];
++  @try { result = [NSApp runModalForWindow: self]; }
++  @finally { [self orderOut:self]; [viewport release]; }
+   return result;
+ }
+ 
+@@ -298,13 +421,11 @@
+   [_controller setPrintInfo: printInfo];
+   [_controller readPrintInfo];
+ 
+-  [NSApp beginSheet: self
+-     modalForWindow: docWindow
+-      modalDelegate: delegate
+-     didEndSelector: didEndSelector
+-        contextInfo: contextInfo];
+-
+-  [self orderOut: self];
++  GSPageLayoutViewport *viewport = [[GSPageLayoutViewport alloc] initWithWindow:self];
++  @try {
++    [NSApp beginSheet:self modalForWindow:docWindow modalDelegate:delegate
++      didEndSelector:didEndSelector contextInfo:contextInfo];
++  } @finally { [self orderOut:self]; [viewport release]; }
+ }
+ 
+ //

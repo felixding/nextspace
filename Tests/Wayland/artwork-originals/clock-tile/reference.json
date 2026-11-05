@@ -1,0 +1,55 @@
+{
+  "source": "Applications/Preferences/English.lproj/ClockViewTile.tiff",
+  "source_sha256": "0bd441fc1cc891f0798596d38c435a787f79407c8efd62ef750fb2dbaad90c64",
+  "png": "ClockViewTile.png",
+  "png_sha256": "5dbb725ef80cb95d40e1201202c7287f132089beaf471f5906f8e0323fb3f0cd",
+  "logical": [
+    64,
+    64
+  ],
+  "source_metal_quantization_step": 17,
+  "flat_colors": [
+    [
+      255,
+      255,
+      255
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      34,
+      36,
+      75
+    ]
+  ],
+  "metal_regions": {
+    "top": [
+      3,
+      2,
+      61,
+      4
+    ],
+    "left": [
+      3,
+      24,
+      11,
+      60
+    ],
+    "right": [
+      55,
+      24,
+      62,
+      60
+    ],
+    "bottom": [
+      3,
+      61,
+      61,
+      62
+    ]
+  },
+  "gradient_mean_channel_tolerance": 4
+}

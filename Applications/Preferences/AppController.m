@@ -24,6 +24,7 @@
 #import <SystemKit/OSEMouse.h>
 #import <SystemKit/OSEScreen.h>
 #import <DesktopKit/NXTClockView.h>
+#import <DesktopKit/Utilities.h>
 
 #import "AppController.h"
 
@@ -83,10 +84,7 @@
     [OSEKeyboard configureWithDefaults:defs];
 
     // NSLog(@"Configuring Mouse...");
-    OSEMouse *mouse = [OSEMouse new];
-    [mouse setAcceleration:[defs integerForKey:OSEMouseAcceleration]
-                 threshold:[defs integerForKey:OSEMouseThreshold]];
-    [mouse release];
+    [OSEMouse configureWithDefaults:defs];
 
     // NSLog(@"Configuring Desktop background...");
     OSEScreen *screen = [OSEScreen new];
@@ -142,6 +140,8 @@
       NSLog (@"Failed to load InfoPanel.nib");
       return;
     }
+    NXTSetBundleImages([infoPanel contentView],
+      @{NSStringFromSize(NSMakeSize(48, 48)) : @"Preferences"});
    [infoPanel center];
   }
  [infoPanel makeKeyAndOrderFront:nil];

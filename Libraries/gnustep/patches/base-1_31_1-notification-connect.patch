@@ -1,0 +1,74 @@
+--- a/Source/NSDistributedNotificationCenter.m
++++ b/Source/NSDistributedNotificationCenter.m
+@@ -599,6 +599,7 @@
+ {
+   if (_remote == nil)
+     {
++      id		remote = nil;
+       NSString		*host = nil;
+       NSString		*service = nil;
+       NSString		*description = nil;
+@@ -697,16 +698,16 @@
+ 	  	      format: @"Unknown center type - %@", _type];
+ 	}
+ 
+-      _remote = [NSConnection rootProxyForConnectionWithRegisteredName: service
++      remote = [NSConnection rootProxyForConnectionWithRegisteredName: service
+ 								  host: host
+ 						       usingNameServer: ns];
+-      if (_remote == nil && alternate != nil)
++      if (remote == nil && alternate != nil)
+ 	{
+-	  _remote = [NSConnection rootProxyForConnectionWithRegisteredName:
++	  remote = [NSConnection rootProxyForConnectionWithRegisteredName:
+ 	    alternate host: @"*" usingNameServer: ns];
+ 	}
+ 
+-      if (_remote == nil)
++      if (remote == nil)
+ 	{
+ 	  NSString	*cmd = nil;
+ 	  NSArray	*args = nil;
+@@ -758,18 +759,18 @@
+ 	  [NSTask launchedTaskWithLaunchPath: cmd arguments: args];
+ 
+ 	  limit = [NSDate dateWithTimeIntervalSinceNow: 10.0];
+-	  while (_remote == nil && [limit timeIntervalSinceNow] > 0)
++	  while (remote == nil && [limit timeIntervalSinceNow] > 0)
+ 	    {
+               NSAutoreleasePool	*pool = [NSAutoreleasePool new];
+ 
+               [NSThread sleepForTimeInterval: 0.05];
+-	      _remote = [NSConnection
++	      remote = [NSConnection
+ 		rootProxyForConnectionWithRegisteredName: service
+ 		host: host usingNameServer: ns];
+-              [_remote retain];
++              [remote retain];
+               [pool drain];
+ 	    }
+-	  if (_remote == nil)
++	  if (remote == nil)
+ 	    {
+ 	      [NSException raise: NSInternalInconsistencyException
+ 			  format: @"unable to contact GDNC server -\n"
+@@ -779,8 +780,18 @@
+ 	}
+       else
+         {
+-          [_remote retain];
++          [remote retain];
+         }
++
++      /* Name lookup can dispatch a nested connection attempt. Publish only
++       * after resolution, and keep a connection established by that attempt.
++       */
++      if (_remote != nil)
++        {
++          [remote release];
++          return;
++        }
++      _remote = remote;
+ 
+       c = [_remote connectionForProxy];
+       [_remote setProtocolForProxy: p];

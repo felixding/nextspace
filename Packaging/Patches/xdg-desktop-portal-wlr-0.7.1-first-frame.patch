@@ -1,0 +1,37 @@
+--- a/include/screencast_common.h
++++ b/include/screencast_common.h
+@@ -156,6 +156,7 @@
+ 	uint32_t refcount;
+ 	struct xdpw_screencast_context *ctx;
+ 	bool initialized;
++	bool frame_received;
+ 	struct xdpw_frame current_frame;
+ 	enum xdpw_frame_state frame_state;
+ 	struct wl_list buffer_list;
+--- a/src/screencast/wlr_screencast.c
++++ b/src/screencast/wlr_screencast.c
+@@ -175,7 +175,15 @@
+ 	}
+ 
+ 	cast->current_frame.damage_count = 0;
+-	zwlr_screencopy_frame_v1_copy_with_damage(frame, cast->current_frame.xdpw_buffer->buffer);
++	/* Damage belongs to the Wayland client/output, not this new stream. */
++	if (cast->frame_received) {
++		zwlr_screencopy_frame_v1_copy_with_damage(frame, cast->current_frame.xdpw_buffer->buffer);
++	} else {
++		cast->current_frame.damage_count = 1;
++		cast->current_frame.damage[0] = (struct xdpw_frame_damage){
++			0, 0, cast->current_frame.xdpw_buffer->width, cast->current_frame.xdpw_buffer->height};
++		zwlr_screencopy_frame_v1_copy(frame, cast->current_frame.xdpw_buffer->buffer);
++	}
+ 	logprint(TRACE, "wlroots: frame copied");
+ 
+ 	fps_limit_measure_start(&cast->fps_limit, cast->framerate);
+@@ -224,6 +229,7 @@
+ 	logprint(TRACE, "wlroots: timestamp %"PRIu64":%"PRIu32, cast->current_frame.tv_sec, cast->current_frame.tv_nsec);
+ 
+ 	cast->frame_state = XDPW_FRAME_STATE_SUCCESS;
++	cast->frame_received = true;
+ 
+ 	xdpw_wlr_frame_finish(cast);
+ }

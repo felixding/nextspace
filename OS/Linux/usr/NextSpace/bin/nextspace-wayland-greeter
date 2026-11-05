@@ -1,0 +1,13 @@
+#!/bin/sh
+# greetd owns PAM/VT; the shared supervisor owns the greeter's display processes.
+set -eu
+if [ "$(id -u)" -eq 0 ] || [ -z "${GREETD_SOCK:-}" ]; then
+  echo "The native greeter requires an unprivileged greetd session." >&2
+  exit 1
+fi
+bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export PATH="$bindir:${PATH:-/usr/local/bin:/usr/bin:/bin}" XDG_SESSION_CLASS=greeter
+if [ "$#" -eq 0 ]; then
+  set -- --greeter-profile "$bindir/nextspace-display-profile" -- /usr/NextSpace/Apps/Login.app/Login -GSTheme NextSpace
+fi
+exec "$bindir/nextspace-session" --private-bus "$@"

@@ -34,10 +34,7 @@
 {
   NSUserDefaults *gsDefaults;
   OSEDefaults *nxDefaults;
-  NSMutableDictionary *wmDefaults;
-  NSString *wmDefaultsPath;
 
-  NSInteger acceleration;
   NSInteger	threshold;
   NSInteger	doubleClickTime;
   NSInteger	wheelScrollLines;
@@ -46,6 +43,18 @@
   NSInteger	menuButtonEvent;
 }
 
+// Logical interaction settings for toolkit views; no native input mutation.
++ (NSInteger)dragThreshold;
++ (NSTimeInterval)doubleClickInterval;
++ (void)configureWithDefaults:(OSEDefaults *)defaults;
+
+/* Native pointer speed uses libinput's normalized -1..1 range. The retained
+   ratio argument affects no device; setAcceleration:threshold: changes only
+   the logical toolkit drag threshold. */
+- (BOOL)usesNativeInputSettings;
+- (double)normalizedAcceleration;
+- (NSUInteger)accelerationProfile;
+- (BOOL)setNormalizedAcceleration:(double)speed profile:(NSUInteger)profile;
 - (NSInteger)acceleration;
 - (NSInteger)accelerationThreshold;
 - (void)setAcceleration:(NSInteger)speed threshold:(NSInteger)pixels;
@@ -73,6 +82,8 @@
 @end
 
 extern NSString *OSEMouseAcceleration;
+extern NSString *OSEMouseWaylandAcceleration;
+extern NSString *OSEMouseWaylandProfile;
 extern NSString *OSEMouseThreshold;
 extern NSString *OSEMouseDoubleClickTime;
 extern NSString *OSEMouseWheelScroll;

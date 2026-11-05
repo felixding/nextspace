@@ -1,0 +1,68 @@
+diff --git a/Headers/Additions/GNUstepGUI/GSDisplayServer.h b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+--- a/Headers/Additions/GNUstepGUI/GSDisplayServer.h
++++ b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+@@ -148,6 +148,9 @@
+ - (void) windowbacking: (NSBackingStoreType)type : (int)win;
+ - (void) titlewindow: (NSString *)window_title : (int)win;
+ - (void) miniwindow: (int)win;
++/* Return NO/-1 when the backend does not manage native window zoom. */
++- (BOOL) zoomwindow: (int)win;
++- (NSInteger) zoomstate: (int)win;
+ - (BOOL) hideApplication: (int)win;
+ - (BOOL) appOwnsMiniwindow;
+ - (void) setWindowdevice: (int)win forContext: (NSGraphicsContext *)ctxt;
+diff --git a/Source/GSDisplayServer.m b/Source/GSDisplayServer.m
+--- a/Source/GSDisplayServer.m
++++ b/Source/GSDisplayServer.m
+@@ -616,6 +616,9 @@
+ {
+   [self subclassResponsibility: _cmd];
+ }
++
++- (BOOL) zoomwindow: (int)win { return NO; }
++- (NSInteger) zoomstate: (int)win { return -1; }
+ 
+ /** Ask the window manager to hide all the application windows for us. 
+     Return whether they have been hidden. */
+diff --git a/Source/NSWindow.m b/Source/NSWindow.m
+--- a/Source/NSWindow.m
++++ b/Source/NSWindow.m
+@@ -5398,6 +5398,9 @@
+  */
+ - (BOOL) isZoomed
+ {
++  NSInteger state = [GSServerForWindow(self) zoomstate: _windowNum];
++  if (state >= 0) return state != 0;
++
+   NSRect maxRect = [[self screen] visibleFrame];
+ 
+   if ([_delegate respondsToSelector: @selector(windowWillUseStandardFrame:defaultFrame:)])
+@@ -5437,6 +5440,10 @@
+ */
+ - (void) zoom: (id)sender
+ {
++  GSDisplayServer *server = GSServerForWindow(self);
++  NSInteger nativeState = [server zoomstate: _windowNum];
++  if (nativeState > 0 && [server zoomwindow: _windowNum]) return;
++
+   NSRect maxRect = [[self screen] visibleFrame];
+ 
+   if ([_delegate respondsToSelector: @selector(windowWillUseStandardFrame:defaultFrame:)])
+@@ -5451,7 +5458,7 @@
+   maxRect = [self constrainFrameRect: maxRect toScreen: [self screen]];
+ 
+   // Compare the new frame with the current one
+-  if ((fabs(NSMaxX(maxRect) - NSMaxX(_frame)) < DIST)
++  if (nativeState < 0 && (fabs(NSMaxX(maxRect) - NSMaxX(_frame)) < DIST)
+     && (fabs(NSMaxY(maxRect) - NSMaxY(_frame)) < DIST)
+     && (fabs(NSMinX(maxRect) - NSMinX(_frame)) < DIST)
+     && (fabs(NSMinY(maxRect) - NSMinY(_frame)) < DIST))
+@@ -5483,6 +5490,8 @@
+     {
+       [self saveFrameUsingName: _autosaveName];
+     }
++
++  if ([server zoomwindow: _windowNum]) return;
+ 
+   [self setFrame: maxRect display: YES];
+ }

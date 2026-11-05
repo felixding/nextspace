@@ -35,6 +35,7 @@ $(FRAMEWORK_NAME)_HEADER_FILES = \
 	\
 	OSEScreen.h \
 	OSEDisplay.h \
+	OSESessionSettings.h \
 	\
 	OSEBusConnection.h \
 	OSEBusMessage.h \

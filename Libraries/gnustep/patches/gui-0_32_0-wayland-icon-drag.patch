@@ -1,0 +1,48 @@
+--- a/Headers/Additions/GNUstepGUI/GSDisplayServer.h
++++ b/Headers/Additions/GNUstepGUI/GSDisplayServer.h
+@@ -86,6 +86,9 @@
+ - (BOOL) handlesWindowDecorations;
+ /* Authoritative logical placement belongs to the window server. */
+ - (BOOL) handlesWindowPlacement;
++
++/* Return YES after handling native icon tracking, including a plain click. */
++- (BOOL) dragIconWindow: (int)window event: (NSEvent *)event;
+ 
+ /* Drag and drop support. */
+ + (BOOL) addDragTypes: (NSArray*)types toWindow: (NSWindow *)win;
+--- a/Source/GSDisplayServer.m
++++ b/Source/GSDisplayServer.m
+@@ -288,6 +288,11 @@
+ - glPixelFormatClass
+ {
+   return nil;
++}
++
++- (BOOL) dragIconWindow: (int)window event: (NSEvent *)event
++{
++  return NO;
+ }
+ 
+ /** Returns YES if the backend handles window decorations and NO
+--- a/Source/NSApplication.m
++++ b/Source/NSApplication.m
+@@ -641,6 +641,8 @@
+     }
+   else
+     {
++      if ([GSServerForWindow(_window) dragIconWindow: [_window windowNumber]
++                                              event: theEvent]) return;
+       NSPoint	lastLocation;
+       NSPoint	location;
+       NSUInteger eventMask = NSLeftMouseDownMask | NSLeftMouseUpMask
+--- a/Source/NSWindow.m
++++ b/Source/NSWindow.m
+@@ -548,6 +548,8 @@
+     }
+   else
+     {
++      if ([GSServerForWindow(_window) dragIconWindow: [_window windowNumber]
++                                              event: theEvent]) return;
+       NSPoint lastLocation;
+       NSPoint location;
+       NSUInteger eventMask = NSLeftMouseDownMask | NSLeftMouseUpMask

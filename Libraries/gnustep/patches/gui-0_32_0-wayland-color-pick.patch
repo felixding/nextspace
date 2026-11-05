@@ -1,0 +1,25 @@
+--- a/Source/NSColorPanel.m
++++ b/Source/NSColorPanel.m
+@@ -58,6 +58,10 @@
+ #import "GNUstepGUI/GSDisplayServer.h"
+ 
+ #import "GSGuiPrivate.h"
++
++@interface GSDisplayServer (GSInteractiveColorPick)
++- (BOOL) GSpickScreenColor: (NSColorPanel *)panel;
++@end
+ 
+ #define MAX_ALPHA_VALUE 100.0
+ static NSLock *_gs_gui_color_panel_lock = nil;
+@@ -358,6 +362,11 @@
+   NSEvent *currentEvent;
+   NSCursor *cursor;
+ 
++  GSDisplayServer *server = GSCurrentServer();
++  if ([server respondsToSelector: @selector(GSpickScreenColor:)]
++      && [server GSpickScreenColor: self])
++    return;
++
+   [self _captureMouse: self];
+ 
+   /**

@@ -1,0 +1,100 @@
+{
+  "logical": [
+    255,
+    80
+  ],
+  "cases": {
+    "Dutch": {
+      "source": "Frameworks/DesktopKit/Dutch.lproj/clockbits.tiff",
+      "source_sha256": "44d2d2a409d457285db81de32c6fe33a927b1d1d0696c328157b88f58ff279a4",
+      "png": "Dutch.png",
+      "png_sha256": "8b68d95a212c33bb9b6107ca6a53d359f2e7e74134912d0a4b08031855fcc3e9"
+    },
+    "English": {
+      "source": "Frameworks/DesktopKit/English.lproj/clockbits.tiff",
+      "source_sha256": "33ac51b1ec85d03ba7e46e2eb3da188680f136d0e2e7eeca622d461fa784f58d",
+      "png": "English.png",
+      "png_sha256": "a228667bc44c6c06e8a8c89a31965d620a42f2bf125644ef2f63293e0b91c750"
+    },
+    "French": {
+      "source": "Frameworks/DesktopKit/French.lproj/clockbits.tiff",
+      "source_sha256": "121801152aef6c2fbf642a7a15b9fab8e45aef2263d12c2db3dffa94904bb358",
+      "png": "French.png",
+      "png_sha256": "19e5cd203b6e6aadbc1cc37b9ccefbd59da147accd3e214edad1b604ec8d28a5"
+    },
+    "German": {
+      "source": "Frameworks/DesktopKit/German.lproj/clockbits.tiff",
+      "source_sha256": "6de6976aced26940c747e4c1144063f4b0d4ea1fd62b04db99cd61ee5831ccff",
+      "png": "German.png",
+      "png_sha256": "16aa9bc6ab2b2cd236e12c6aa8011d62545b2796be6fc4ac772bc41e88b67b0b"
+    },
+    "Hungarian": {
+      "source": "Frameworks/DesktopKit/Hungarian.lproj/clockbits.tiff",
+      "source_sha256": "2a8219e28f8de95a5012b16f2f52d3e91cb9f195e54b169730fba3c380a13b71",
+      "png": "Hungarian.png",
+      "png_sha256": "8ba3e428a29fa462e341a5b43e9f91f80832fff04ba9ea5f970b12bffdec28b9"
+    },
+    "Italian": {
+      "source": "Frameworks/DesktopKit/Italian.lproj/clockbits.tiff",
+      "source_sha256": "9e8871d26a4f2e81bc80a3308a1d890b07a1f5099f7eb3121995b2d2b77b7c87",
+      "png": "Italian.png",
+      "png_sha256": "66c367ae8adc2de86dc76635d6173137fcec910a3a954e266284123c4681aa97"
+    },
+    "Russian": {
+      "source": "Frameworks/DesktopKit/Russian.lproj/clockbits.tiff",
+      "source_sha256": "4f57e6c0596b77cbb0007de826bc1651219bceccab3cffccd8d982675a11011d",
+      "png": "Russian.png",
+      "png_sha256": "ed2edf1d790dc52eef0c12822dd313d267acb3adabdec82c656651a10b8a5a7f"
+    },
+    "Slovak": {
+      "source": "Frameworks/DesktopKit/Slovak.lproj/clockbits.tiff",
+      "source_sha256": "dd6718e4851d5a2cff99e0fbf8c2b003e3c0abc654f68c450cb7a491505c4fea",
+      "png": "Slovak.png",
+      "png_sha256": "ae9ed97ebe57b4442171acfc2e29cbc3fae0ccec624d8e300a717999b62fd300"
+    },
+    "Spanish": {
+      "source": "Frameworks/DesktopKit/Spanish.lproj/clockbits.tiff",
+      "source_sha256": "ec4e5bfa354b651d22234d607210df74345283fb707e2bab2e3a2107f144f16b",
+      "png": "Spanish.png",
+      "png_sha256": "37e657e7fbeceeb00659db85ecd160c2f72bb7472c6e03a07aa8c00d012ad267"
+    },
+    "Ukrainian": {
+      "source": "Frameworks/DesktopKit/Ukrainian.lproj/clockbits.tiff",
+      "source_sha256": "0adfbe528910e0ab8317d28f048dd6d9ba33e329cffed19b3012a6f2c2ac3cb6",
+      "png": "Ukrainian.png",
+      "png_sha256": "45cd0dc2b1ddf11ac59cf3a505f40bbb4f6e2e46074bdb0fb415b9671fe0b533"
+    }
+  },
+  "rejected_substitute_font_controls": {
+    "substitute-weekday": {
+      "png": "substitute-weekday.png",
+      "png_sha256": "093767b772a2411423edc0a06b1d73665e203e09659f7dcfaaa9443f8118a1d9",
+      "box": [
+        0,
+        9,
+        19,
+        15
+      ]
+    },
+    "substitute-italic": {
+      "png": "substitute-italic.png",
+      "png_sha256": "f1123a9006919503ad70a30fe0133229955b8eb6c53c1582c0fa6ec04cc2cd98",
+      "box": [
+        40,
+        8,
+        62,
+        14
+      ]
+    },
+    "substitute-day": {
+      "png": "substitute-day.png",
+      "png_sha256": "cf1538a788cd55f4fbebb11aa5e89598b3255280ecf542dc43e5c04863112b09",
+      "box": [
+        76,
+        49,
+        88,
+        66
+      ]
+    }
+  }
+}

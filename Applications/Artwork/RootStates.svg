@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <g id="root-hover-flash" fill="#ffff00">
+      <path d="M23.575 -0.521L22.905 -0.519L21.580 15.646L25.020 15.634Z" />
+      <path d="M22.975 32.982L23.645 32.978L25.030 16.150L21.410 16.170Z" />
+      <path d="M4.281 16.510L4.299 16.950L22.425 16.994L22.335 14.906Z" />
+      <path d="M42.119 17.025L42.141 16.575L24.111 14.861L24.009 17.039Z" />
+      <path d="M11.511 6.518L11.049 7.082L22.418 17.300L23.762 15.660Z" />
+      <path d="M34.919 25.733L35.281 25.267L23.756 15.507L22.604 16.993Z" />
+      <path d="M36.933 6.088L36.567 5.612L22.265 15.778L23.455 17.322Z" />
+      <path d="M-2.512 32.496L0.512 36.504L23.615 16.813L22.765 15.687Z" />
+    </g>
+  </defs>
+  <symbol id="RootOpen" viewBox="0 0 48 48" data-logical-size="48 48" data-reconstructed="true" data-workspace-files="openRoot.tiff">
+    <use href="Root.svg#root" />
+    <use href="#root-hover-flash" />
+  </symbol>
+  <use id="preview" href="#RootOpen" />
+</svg>

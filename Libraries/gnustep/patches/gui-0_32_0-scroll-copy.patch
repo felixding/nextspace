@@ -1,0 +1,73 @@
+--- a/Source/NSClipView.m
++++ b/Source/NSClipView.m
+@@ -55,36 +55,17 @@
+  */
+ static inline NSRect integralRect (NSRect rect, NSView *view)
+ {
+-  NSRect output;
+-  int rounded;
+-  
+-  output = [view convertRect: rect  toView: nil];
+-
+-  rounded = (int)(output.origin.x);
+-  if ((CGFloat)rounded != output.origin.x)
+-    {
+-      output.origin.x = rounded + 1;
+-    }
+-
+-  rounded = (int)(output.origin.y);
+-  if ((CGFloat)rounded != output.origin.y)
+-    {
+-      output.origin.y = rounded + 1;
+-    }
+-  
+-  rounded = (int)(NSMaxX (output));
+-  if ((CGFloat)rounded != NSMaxX (output))
+-    {
+-      output.size.width = rounded - output.origin.x;
+-    }
+-  
+-  rounded = (int)(NSMaxY (output));
+-  if ((CGFloat)rounded != NSMaxY (output))
+-    {
+-      output.size.height = rounded - output.origin.y;
+-    }
+-
+-  return [view convertRect: output  fromView: nil];
++  NSRect output = [view convertRect: rect toView: nil];
++  CGFloat scale = [[view window] backingScaleFactor];
++  CGFloat x = ceil(NSMinX(output) * scale) / scale;
++  CGFloat y = ceil(NSMinY(output) * scale) / scale;
++  CGFloat maxX = floor(NSMaxX(output) * scale) / scale;
++  CGFloat maxY = floor(NSMaxY(output) * scale) / scale;
++
++  if (maxX <= x || maxY <= y)
++    return NSZeroRect;
++  output = NSMakeRect(x, y, maxX - x, maxY - y);
++  return [view convertRect: output fromView: nil];
+ }
+ 
+ 
+@@ -259,7 +240,21 @@
+       return;
+     }
+       
+-  if (_copiesOnScroll && _window && [_window gState])
++  /* A fractional backing-pixel translation resamples retained pixels. Copying
++     them back cannot recover the original image, so use the existing redraw
++     path while keeping the requested logical scroll position unchanged. */
++  NSSize delta = [self convertSize: NSMakeSize(aPoint.x - originalBounds.origin.x,
++                                             aPoint.y - originalBounds.origin.y)
++                          toView: nil];
++  CGFloat scale = [_window backingScaleFactor];
++  CGFloat dx = delta.width * scale, dy = delta.height * scale;
++  BOOL integralMove = fabs(dx - round(dx)) < 1e-7 && fabs(dy - round(dy)) < 1e-7;
++
++  /* Filtered redraws can round differently from translated pixels at fractional
++     scales. Redraw instead of mixing these with retained content. */
++  BOOL integralScale = fabs(scale - round(scale)) < 1e-7;
++
++  if (_copiesOnScroll && _window && [_window gState] && integralMove && integralScale)
+     {
+       /* Copy the portion of the view that is common before and after
+          scrolling.  Then, document view needs to redraw the remaining

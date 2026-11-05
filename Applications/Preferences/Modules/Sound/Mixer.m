@@ -97,8 +97,7 @@ static NSLock *browserLock = nil;
   selectedApp = nil;
   browserLock = [NSLock new];
   [appBrowser loadColumnZero];
-  [self updateDeviceList];
-  [self browserClick:appBrowser];
+  [self setMode:modeButton];
 }
 
 - (id)window
@@ -147,7 +146,8 @@ static NSLock *browserLock = nil;
   }
 
   if ([[modeButton selectedItem] tag] == PlaybackMode) {
-    [devicePortBtn selectItemWithTitle:[[soundServer defaultOutput] activePort]];
+    SNDDevice *device = [soundServer defaultOutput];
+    [devicePortBtn selectItemWithTitle:[device activePort] ?: [device name]];
   }
 
   [self updateDeviceControls];

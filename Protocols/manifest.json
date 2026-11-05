@@ -1,0 +1,157 @@
+{
+  "schema": 1,
+  "wlroots": {
+    "version": "0.18.2",
+    "debian_package": "0.18.2-3",
+    "source": "https://deb.debian.org/debian/pool/main/w/wlroots/wlroots_0.18.2.orig.tar.bz2",
+    "sha256": "a28061f7778f28f7be377fd4d6f0ebd58cb2a63b52460e9fde28e2ab43e80cab",
+    "patches": [
+      {
+        "path": "Packaging/Patches/wlroots-0.18.2-input-method-pending.patch",
+        "sha256": "f93549133b1daad467a217a936ebc6c0e9617341739d5da9ac39d4981d180b1b"
+      }
+    ]
+  },
+  "gnustep_gui": {
+    "tag": "gui-0_32_0",
+    "commit": "4c1687d2b404f271ce7806dcb80a5b24b5284432",
+    "sha256": "ffe6f59a130bfe36bcf1e6f8683c6543819f1a09f85c4c609056cd27c6e659ac"
+  },
+  "gnustep_backend": {
+    "source": "https://github.com/gnustep/libs-back",
+    "commit": "d378734ea82e2900b8e1f7882fd5a0d19919849e",
+    "files": "Wayland server, cursor, keyboard, output, input, drag and Cairo shared-memory foundation; locally adapted",
+    "license": "LGPL-2.0-or-later"
+  },
+  "protocols": [
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/fractional-scale-v1.xml",
+      "sha256": "5941de5d28f427ecdadddc8623a6f6af0a30b0ab4726847236ba7a7652b81316",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/viewporter.xml",
+      "sha256": "dcb12279a03746301fe490aaed4b38a403485a925abfce2ccfceb644e104fe71",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/wlr-layer-shell-unstable-v1.xml",
+      "sha256": "0211238170dfc14e21efd13b801eca60b92a656a424f61bb3a858e46086a4460",
+      "source": "gnustep/libs-back at d378734ea82e2900b8e1f7882fd5a0d19919849e"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/xdg-output-unstable-v1.xml",
+      "sha256": "363d547c3eefe8959160cac903ff90b311d4b183005557d73640d9df2cfd7f79",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/xdg-shell.xml",
+      "sha256": "9d9e27038ca722f159a361293f8c6cd270dab907ab52de5b8ecfbb8d6b9651c2",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/nextspace-application-v1.xml",
+      "sha256": "68e2b3e45a4ba8c1d8a42a9058ab1bb7d410ef2d6962a48dc122beeec766739a",
+      "source": "NEXTSPACE application extension versions 1-8",
+      "license": "MIT"
+    },
+    {
+      "path": "Protocols/nextspace-shell-v1.xml",
+      "sha256": "ac6b726c54b75ba5bac452bab79975a4b1c374317c01edcee53c2c7b6f18fe0f",
+      "source": "NEXTSPACE shell extension versions 1-17",
+      "license": "MIT"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/xdg-activation-v1.xml",
+      "sha256": "d8418be2d5738d50aff788bef1c7574f33f26659aa045447ff2ef9b78c58fe01",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/primary-selection-unstable-v1.xml",
+      "sha256": "d568482ba84df6e531698b1f531810860995ca24d69495427fe43aee6017f52c",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/text-input-unstable-v3.xml",
+      "sha256": "49048087a67011a8840bca889cd2b0ba374382be1ed54ec98adf7837fdca1982",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Protocols/input-method-unstable-v2.xml",
+      "sha256": "99414dbad9458e71aa1fa01bc45f94ca6685787bfcb4d98948f72c1b45b60703",
+      "source": "wlroots 0.18.2"
+    },
+    {
+      "path": "Protocols/virtual-keyboard-unstable-v1.xml",
+      "sha256": "7ad7870003ecd592cae47dc19d277a609b7f18fd7b7be012623cf3225a7294f5",
+      "source": "wlroots 0.18.2"
+    },
+    {
+      "path": "Libraries/gnustep/back/Source/wayland/protocols/xdg-decoration-unstable-v1.xml",
+      "sha256": "73101094eedd2295ac48972a2562d6f99881fee68f3d4d403675837434ab7c70",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Protocols/ext-session-lock-v1.xml",
+      "sha256": "a05df7d95c5e523e457037b3a149484e8064828cda66971f3c7caeb87d597a81",
+      "source": "wayland-protocols 1.44 (Debian 1.44-1)"
+    },
+    {
+      "path": "Protocols/wlr-screencopy-unstable-v1.xml",
+      "sha256": "0f50f6187965b02782a12ba346ad950d6031454f6af6e1ac5b341a279ef16d56",
+      "source": "wlroots 0.18.2 protocol/wlr-screencopy-unstable-v1.xml"
+    }
+  ],
+  "desktop_portal": {
+    "version": "0.7.1",
+    "source": "https://codeload.github.com/emersion/xdg-desktop-portal-wlr/tar.gz/refs/tags/v0.7.1",
+    "sha256": "4bddc236aa9d1a2b33e7f0bef09a8712ded51e8bc335a2b6c8cd1d088863e676",
+    "patches": [
+      {
+        "path": "Packaging/Patches/xdg-desktop-portal-wlr-0.7.1-shm.patch",
+        "sha256": "47194e5f12041ab38cde7ec5e031ee80f507e8e0e4b1cab6e5cacd678b740ef3"
+      },
+      {
+        "path": "Packaging/Patches/xdg-desktop-portal-wlr-0.7.1-session-close.patch",
+        "sha256": "b53f7ab36794e744ded0cbffd48c023ea1f65107bd83f44934131308bfa6e0b3"
+      },
+      {
+        "path": "Packaging/Patches/xdg-desktop-portal-wlr-0.7.1-session-reply.patch",
+        "sha256": "0db8aedb4fa459c46972b40f0639a300d44eb6d8886b7df095fdca0df2e36e22"
+      },
+      {
+        "path": "Packaging/Patches/xdg-desktop-portal-wlr-0.7.1-uri-size.patch",
+        "sha256": "49daed3c48d333883f4e98dc340febcb96dfdb1853be6d20acf48e7d75f8200a"
+      },
+      {
+        "path": "Packaging/Patches/xdg-desktop-portal-wlr-0.7.1-first-frame.patch",
+        "sha256": "dfbb5df83cce920bb2c53d7469bd8d082f4e64c7bdd3a2774b1c8b8b33af13cd"
+      }
+    ],
+    "license": "MIT",
+    "supported_interfaces": [
+      "org.freedesktop.impl.portal.ScreenCast"
+    ]
+  },
+  "macutils": {
+    "version": "2.0b3-17",
+    "archives": [
+      {
+        "name": "macutils_2.0b3.orig.tar.gz",
+        "source": "https://deb.debian.org/debian/pool/main/m/macutils/macutils_2.0b3.orig.tar.gz",
+        "sha256": "43970ae3c82bc5a9f125a27d980d422b886b9e2cb322f7bf36685197c77781ef"
+      },
+      {
+        "name": "macutils_2.0b3-17.debian.tar.xz",
+        "source": "https://deb.debian.org/debian/pool/main/m/macutils/macutils_2.0b3-17.debian.tar.xz",
+        "sha256": "f8fdb2cef1a8379cf149d980225bb0b4f2fc3a8bff9a9b90f7e6882ca359b452"
+      }
+    ],
+    "patches": [
+      {
+        "path": "Packaging/Patches/macutils-unsigned-crc-polynomial.patch",
+        "sha256": "e77d29b22d82e1bf9d63db6128d3aecc93bc3320ed13c87a13fca2c9cfce56a8"
+      }
+    ]
+  }
+}

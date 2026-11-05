@@ -14,6 +14,7 @@
 #import <Foundation/NSFileManager.h>
 #import <AppKit/NSApplication.h>
 #import <DesktopKit/NXTAlert.h>
+#import <DesktopKit/Utilities.h>
 
 #import "Controller.h"
 #import "Document.h"
@@ -174,6 +175,9 @@
           NSBeep ();
           return;
         }
+      NXTSetBundleImages([infoPanel contentView], [NSDictionary dictionaryWithObjectsAndKeys:
+        @"Edit", NSStringFromSize(NSMakeSize(48, 48)),
+        @"EditTitle", NSStringFromSize(NSMakeSize(232, 56)), nil]);
       [infoPanel center];
     }
   [infoPanel makeKeyAndOrderFront:nil];

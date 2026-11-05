@@ -30,7 +30,6 @@ Preferences
 #
 Login_RESOURCE_FILES = \
 	Resources/Login.gorm \
-	Resources/ConsoleLog.gorm \
 	Resources/loginwindow.tiff \
 	Resources/Login \
 	Resources/Login.user \
@@ -43,6 +42,7 @@ Login_RESOURCE_FILES = \
 Login_HEADER_FILES = \
 Controller.h \
 LoginWindow.h
+Login_HEADER_FILES += GreetdClient.h GreetdSession.h
 
 #
 # Class files
@@ -50,7 +50,8 @@ LoginWindow.h
 Login_OBJC_FILES = \
 Controller.m \
 LoginWindow.m \
-UserSession.m
+GreetdClient.m \
+GreetdSession.m
 
 #
 # Other sources
@@ -58,10 +59,14 @@ UserSession.m
 Login_OBJC_FILES += \
 Login_main.m 
 
+TOOL_NAME = nextspace-session-hook
+nextspace-session-hook_OBJC_FILES = SessionHook.m
+
 #
 # Makefiles
 #
 -include GNUmakefile.preamble
 include $(GNUSTEP_MAKEFILES)/aggregate.make
 include $(GNUSTEP_MAKEFILES)/application.make
+include $(GNUSTEP_MAKEFILES)/tool.make
 -include GNUmakefile.postamble

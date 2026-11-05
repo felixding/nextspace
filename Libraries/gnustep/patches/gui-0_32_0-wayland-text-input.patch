@@ -1,0 +1,127 @@
+--- a/Source/NSTextView.m
++++ b/Source/NSTextView.m
+@@ -2104,18 +2104,29 @@
+   return _markedRange;
+ }
+ 
+-- (void) setMarkedText: (id)aString 
++- (void) setMarkedText: (id)aString
+          selectedRange: (NSRange)selRange
+ {
+-  NSAttributedString *as;
+-
+-  _markedRange = selRange;
+-
+-  as = [[NSAttributedString alloc] initWithString: aString
+-                                   attributes: [self markedTextAttributes]];
+-  [self replaceCharactersInRange: selRange
+-        withAttributedString: as];
+-  DESTROY(as);
++  NSString *string = [aString isKindOfClass: [NSAttributedString class]]
++    ? [aString string] : aString;
++  NSRange replacement = [self hasMarkedText] ? _markedRange : [self selectedRange];
++  if (![self isEditable] || string == nil || replacement.location == NSNotFound
++      || NSMaxRange(replacement) > [_textStorage length])
++    return;
++  if (![self shouldChangeTextInRange: replacement replacementString: string])
++    return;
++
++  [self unmarkText];
++  NSAttributedString *marked = AUTORELEASE([[NSAttributedString alloc]
++    initWithString: string attributes: [self markedTextAttributes]]);
++  [self replaceCharactersInRange: replacement withAttributedString: marked];
++  _markedRange = [string length] ? NSMakeRange(replacement.location, [string length])
++    : NSMakeRange(NSNotFound, 0);
++  NSUInteger location = selRange.location == NSNotFound ? [string length]
++    : MIN(selRange.location, [string length]);
++  [self setSelectedRange: NSMakeRange(replacement.location + location,
++    MIN(selRange.length, [string length] - location))];
++  [self didChangeText];
+ }
+ 
+ - (BOOL) hasMarkedText
+@@ -2128,8 +2139,9 @@
+   if (![self hasMarkedText])
+     return;
+     
+-  [_textStorage setAttributes: _layoutManager->_typingAttributes 
+-                range: _markedRange];
++  if (NSMaxRange(_markedRange) <= [_textStorage length])
++    [_textStorage setAttributes: _layoutManager->_typingAttributes
++                  range: _markedRange];
+   _markedRange = NSMakeRange(NSNotFound, 0);
+ }
+ 
+@@ -2158,10 +2170,15 @@
+ 		      inTextContainer: _textContainer
+ 		      rectCount: &rectCount];
+ 
++  NSRect rect = rectCount ? rects[0] : _insertionPointRect;
+   if (rectCount)
+-    return rects[0];
+-  else
+-    return NSZeroRect;
++    {
++      rect.origin.x += _textContainerOrigin.x;
++      rect.origin.y += _textContainerOrigin.y;
++    }
++  rect = [self convertRect: rect toView: nil];
++  rect.origin = [[self window] convertBaseToScreen: rect.origin];
++  return rect;
+ }
+ 
+ /* Unlike NSResponder, we should _not_ send the selector down the responder
+@@ -2199,7 +2216,7 @@
+ */
+ - (void) insertText: (id)insertString
+ {
+-  NSRange insertRange = [self rangeForUserTextChange];
++  NSRange insertRange = [self hasMarkedText] ? _markedRange : [self rangeForUserTextChange];
+   NSString *string;
+   BOOL isAttributed;
+ 
+@@ -2226,6 +2243,8 @@
+     {
+       return;
+     }
++
++  [self unmarkText];
+ 
+   if (_tf.is_rich_text)
+     {
+--- a/Source/NSWindow.m
++++ b/Source/NSWindow.m
+@@ -3723,6 +3723,11 @@
+       _firstResponder = self;
+       [_firstResponder becomeFirstResponder];
+     }
++
++  /* Input methods also need programmatic responder changes, before a key arrives. */
++  GSDisplayServer *server = GSCurrentServer();
++  if ([server respondsToSelector: @selector(textInputClientDidChange)])
++    [server performSelector: @selector(textInputClientDidChange)];
+ 
+   return YES;
+ }
+--- a/Source/NSAttributedString.m
++++ b/Source/NSAttributedString.m
+@@ -1572,11 +1572,14 @@
+       NSCharacterSet *newSet = [descriptor objectForKey: NSFontCharacterSetAttribute];
+       if ([newSet characterIsMember: uchar])
+         {
+-          NSString *fName = [descriptor objectForKey: NSFontFamilyAttribute];
+- 
+-          ASSIGN(lastFont, fName);
+-          ASSIGN(lastSet, newSet);
+-          return [self _substituteFontWithName: fName font: baseFont];
++          NSString *fName = [descriptor objectForKey: NSFontNameAttribute];
++          NSFont *candidate = fName ? [self _substituteFontWithName: fName font: baseFont] : nil;
++          if ([[candidate coveredCharacterSet] characterIsMember: uchar])
++            {
++              ASSIGN(lastFont, fName);
++              ASSIGN(lastSet, newSet);
++              return candidate;
++            }
+         }
+     }
+ 

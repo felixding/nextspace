@@ -23,7 +23,6 @@
 #import <AppKit/NSNibLoading.h>
 #import <AppKit/NSScrollView.h>
 #import <AppKit/NSScroller.h>
-#import <AppKit/NSAffineTransform.h>
 #import <AppKit/NSButton.h>
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSPopUpButton.h>
@@ -32,6 +31,7 @@
 #import <DesktopKit/NXTNumericField.h>
 
 #import "Mouse.h"
+#include <math.h>
 
 static NSBundle                 *bundle = nil;
 static NSUserDefaults           *defaults = nil;
@@ -65,7 +65,6 @@ static NSMutableDictionary      *domain = nil;
 
   if (view) {
     [view release];
-    [handImage release];
   }
   
   [super dealloc];
@@ -85,7 +84,14 @@ static NSMutableDictionary      *domain = nil;
   //       [mouse acceleration], [mouse accelerationThreshold]);
 
   // Mouse speed
-  [speedMtrx selectCellWithTag:[mouse acceleration]];
+  if ([mouse usesNativeInputSettings]) {
+    NSArray *cells = [speedMtrx cells];
+    NSUInteger index = (NSUInteger)lround(([mouse normalizedAcceleration] + 1) * ([cells count] - 1) / 2);
+    if (index < [cells count]) [speedMtrx selectCellWithTag:[[cells objectAtIndex:index] tag]];
+    [speedMtrx setToolTip:@"Pointer speed uses libinput acceleration. Existing X11 ratios are kept separately."];
+    [tresholdSlider setToolTip:@"Movement in logical points before a drag begins."];
+    [tresholdField setToolTip:@"Movement in logical points before a drag begins."];
+  } else [speedMtrx selectCellWithTag:[mouse acceleration]];
 
   // Double-Click Delay
   [doubleClickMtrx selectCellWithTag:[mouse doubleClickTime]];
@@ -105,7 +111,6 @@ static NSMutableDictionary      *domain = nil;
   // Menu Button
   for (id c in [menuMtrx cells])
     [c setRefusesFirstResponder:YES];
-  handImage = [[handImageView image] copy];
   
   [menuMtrx selectCellWithTag:[mouse isMenuButtonEnabled]];
   if ([mouse menuButton] == NSLeftMouseDown)
@@ -148,7 +153,13 @@ static NSMutableDictionary      *domain = nil;
 //
 - (void)speedMtrxClicked:(id)sender
 {
-  [mouse setAcceleration:[[sender selectedCell] tag] threshold:0];
+  if ([mouse usesNativeInputSettings]) {
+    NSArray *cells = [speedMtrx cells];
+    NSUInteger index = [cells indexOfObject:[sender selectedCell]];
+    if (index == NSNotFound) return;
+    double speed = [cells count] > 1 ? 2.0 * index / ([cells count] - 1) - 1 : 0;
+    if (![mouse setNormalizedAcceleration:speed profile:[mouse accelerationProfile]]) NSBeep();
+  } else [mouse setAcceleration:[[sender selectedCell] tag] threshold:0];
   [mouse saveToDefaults];
 }
 - (void)doubleClickMtrxClicked:(id)sender
@@ -178,38 +189,16 @@ static NSMutableDictionary      *domain = nil;
   [mouse saveToDefaults];
 }
 
-- (NSImage *)_flipImage:(NSImage *)sourceImage
-{
-  NSBitmapImageRep  *rep;
-  NSImage           *img;
-  NSAffineTransform *transform = [NSAffineTransform transform];
-
-  rep = [NSBitmapImageRep
-          imageRepWithData:[sourceImage TIFFRepresentation]];
-  img = [[NSImage alloc]
-          initWithSize:NSMakeSize(rep.pixelsWide, rep.pixelsHigh)];
-  
-  [img lockFocus];
-  [transform translateXBy:rep.pixelsWide yBy:0];
-  [transform scaleXBy:-1 yBy:1];
-  [transform concat];
-  [rep drawInRect:NSMakeRect(0, 0, rep.pixelsWide, rep.pixelsHigh)];
-  [img unlockFocus];
-
-  return [img autorelease];
-}
 - (void)setMenuButtonHand:(id)sender
 {
   NSEventType button;
   NSLog(@"Button sender state %li", [sender state]);
-  if (sender == menuRightBtn && [sender state] == NSOnState)
-    {
-      [handImageView setImage:handImage];
-    }
-  if (sender == menuLeftBtn && [sender state] == NSOnState)
-    {
-      [handImageView setImage:[self _flipImage:[handImageView image]]];
-    }
+  NSString *name = sender == menuLeftBtn ? @"lefthand" : @"righthand";
+  // Use the original Gorm artwork for both hands; repeated selection is stable.
+  NSString *directory = [bundle pathForResource:@"Mouse" ofType:@"gorm"];
+  NSString *path = [directory stringByAppendingPathComponent:[name stringByAppendingPathExtension:@"tiff"]];
+  NSImage *hand = path ? [[[NSImage alloc] initWithContentsOfFile:path] autorelease] : nil;
+  if (hand) [handImageView setImage:hand];
   [sender setState:NSOnState];
   [(sender == menuLeftBtn) ? menuRightBtn : menuLeftBtn setState:NSOffState];
 

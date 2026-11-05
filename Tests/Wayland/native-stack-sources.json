@@ -1,0 +1,39 @@
+{
+  "dispatch": {
+    "repository": "apple/swift-corelibs-libdispatch",
+    "version": "5.9.2",
+    "revision": "2053307c15ce83a68fa50e1c97012c4b6961d6d2",
+    "sha256": "4bbcca5964e6c035aa0afda42f86be496f8bdcc683cd0686f3535e584b06bfdb"
+  },
+  "corefoundation": {
+    "repository": "trunkmaster/apple-corefoundation",
+    "version": "5.9.2",
+    "revision": "921016a22e8c0a84758a1cf83fbf47855c54bfc9",
+    "sha256": "1b0840431c2ff7fd93632693ff6c144f41040c8ee53fe65897fcaf75d5870bdf"
+  },
+  "robin-map": {
+    "repository": "Tessil/robin-map",
+    "version": "1.2.1",
+    "revision": "d37a41003bfbc7e12e34601f93c18ca2ff6d7c07",
+    "sha256": "69d302f3d530d422f82f10d257db03d97c40fab1919946bfc4bc33c2811b47e5"
+  },
+  "objc": {
+    "repository": "gnustep/libobjc2",
+    "version": "2.2.1",
+    "revision": "dd9128adfe983c31f9ebd8242717b4352d741fbf",
+    "sha256": "9b009af14dd897035f76f02f8e506d083ed74e2aac3096274b43b681e94d4c75"
+  },
+  "make": {
+    "repository": "gnustep/tools-make",
+    "version": "2.9.2",
+    "revision": "d0fae65d7815e7151a571fd75fb8743b4b920046",
+    "sha256": "8d191eb2860094fc50078011ef758191afb14b83e71a30184394786bd58cca72"
+  },
+  "base": {
+    "repository": "gnustep/libs-base",
+    "version": "1.31.1",
+    "revision": "b1bfc5bbb404769e95db6944ec0ccfe59c24f3b5",
+    "commit": "6307e474dd39e36eb2c5f6ee15ade8b51e337970",
+    "sha256": "862f742d47c186777d6945cbb8088645e59f653aee2e73a8ebb836aa9da646e7"
+  }
+}
