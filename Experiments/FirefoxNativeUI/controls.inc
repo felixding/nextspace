@@ -16,6 +16,7 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int frontend_requested;
+static int text_command_reporting;
 static unsigned widget_pointer_capabilities;
 static pid_t widget_pid;
 static uint64_t next_widget;
@@ -44,6 +45,7 @@ static int prepare_text_image(void *);
 static struct NXSResponse *sync_text_widget(struct Widget *);
 static void remove_text_watch(void);
 static int dispatch_text_key(void *,void *,void *);
+static int text_modifier_event(const void *);
 static void *text_pointer_frame(void *);
 static uint32_t text_pointer_post(void *,void *,void *,void *,int *,void *,void *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
@@ -361,7 +363,11 @@ static uint32_t input_post(void *node,void *visitor) {
     unsigned message=*(const uint16_t *)((char *)event+18);
     /* Accelerators and navigation may never produce keypress. Take their
      * default action after DOM keydown listeners, before engine commands. */
-    if(message==4&&*status!=1) {
+    if((message==3||message==4)&&*status!=1&&text_modifier_event(event)) {
+      /* Flags changes are not empty text insertions. Preserve Gecko's own
+       * modifier default action after informing the native responder. */
+      dispatch_text_key(node,event,NULL);
+    } else if(message==4&&*status!=1) {
       unsigned code=*(uint32_t *)((char *)event+200),modifiers=widget_modifiers(event);
       if((modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))||code==8||code==9||code==46||(code>=33&&code<=40))
         if(dispatch_text_key(node,event,NULL))*status=1;
@@ -465,5 +471,6 @@ static void prepare_widget_metrics(void) {
   prepare_range_bindings(response);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
+  text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

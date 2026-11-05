@@ -266,6 +266,32 @@ Seven lifecycle checks cover closing a window while held, retaining the first
 window's model, editing after explicitly focusing its address field and typing
 after held helper loss. Automatic keyboard focus restoration is not established.
 The shared backing tests preserve old clients/loaders and legacy images.
-Clipboard/application commands, undo availability, resize-image parity, IME,
+Undo availability, resize-image parity, IME,
 accessibility, scaling and the remaining browser controls/menus/dialogs still
 require work. See [frontend qualification](frontend-qualification.json).
+
+Native Copy, Cut and Paste now call Gecko's existing text-control command
+callback. The callback finds the element's registered controller, checks its
+availability and executes it. This preserves the URL bar's custom copy/cut
+controller, including complete-URL formatting, and the webpage editor's trusted
+clipboard events, cancellation, validation and undo transactions. NativeUI's
+existing menu and editor choose the selector; the adapter contains no shortcut
+table, URL formatter or clipboard implementation. Only the adapter is rebuilt.
+
+Modifier keys use Gecko's existing key-name classifier and NativeUI's existing
+modifier event. AppKit receives `flagsChanged`, rather than an empty text
+insertion that could delete the current selection. Gecko retains its modifier
+default actions, including standalone Alt menu activation.
+
+`check-text-commands.py` runs against an owned `--hold` frontend fixture. It
+requires that fixture's port and browser PID, its directory, the native
+pasteboard probe, native TextEdit, backend name and an output directory. Its 77
+checks cover physical modifier transitions, real native-application clipboard
+roundtrips, the actual URL-bar controller, webpage clipboard events and
+cancellation, custom clipboard data, password/read-only fields, maxlength,
+engine undo and frame removal during paste. A focused native application must
+import the browser's Wayland selection: reading unfocused shared GPBS storage
+alone can return stale data. Input checks wait for browser DOM delivery instead
+of treating compositor acknowledgment as completed application processing.
+See [command evidence](text-command-qualification.json) and the
+[source audit](text-command-source-audit.json).

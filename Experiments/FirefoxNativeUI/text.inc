@@ -1,6 +1,7 @@
 /* Native field model and Gecko transactions. No text editor is implemented here. */
 #include "pinned-text.h"
 #include "frontend.inc"
+#include "commands.inc"
 struct GeckoError {uint32_t result,padding;uint64_t extra;};
 _Static_assert(sizeof(struct GeckoError)==16,"Pinned release ErrorResult ABI");
 struct TextModel {char *value;uint32_t start,end;int editable;};
@@ -199,7 +200,10 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
   if(!w||w->id!=edit->control||w->kind!=(int)edit->kind)return 0;
   transaction->edit=edit;transaction->attempted=1;
   uint32_t result=0;
-  if(!command||!strcmp(command,"insertText:")||!strcmp(command,"yank:")) {
+  if(application_text_command(transaction->node,command)) {
+    /* The existing controller may dispatch asynchronous paste or application
+     * callbacks. Never perform a second edit in the native helper. */
+  } else if(!command||!strcmp(command,"insertText:")||!strcmp(command,"yank:")) {
     uint32_t length=0;uint16_t *data=text_utf16(replacement,&length);if(!data)return 0;
     struct GeckoString value={.data=data,.length=length,.flags=1};
     result=((uint32_t (*)(void *,const void *,void *))(base+NXS_GECKO_TEXT_INSERT_ACTION_OFFSET))(transaction->editor,&value,NULL);
@@ -285,11 +289,12 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   if(!prepare_text_image(frame))goto release_editor;
   struct Widget *w=widget_for_node(node);if(!w)goto release_editor;
   struct TextModel before={0};if(!text_model(node,&before))goto release_editor;
+  int modifier=text_modifier_event(event);
   char *text=key_text(event);if(!text){free(before.value);goto release_editor;}
   size_t length=strlen(text),size=sizeof(struct NXSControlInputRequest)+2*length;
   struct NXSControlInputRequest *request=calloc(1,size);if(!request){free(text);free(before.value);goto release_editor;}
   *request=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=8,.process=identity(),
-    .kind=w->kind,.control=w->id,.type=NXS_KEY_DOWN,.modifiers=widget_modifiers(event),
+    .kind=w->kind,.control=w->id,.type=modifier?NXS_KEY_MODIFIERS:NXS_KEY_DOWN,.modifiers=widget_modifiers(event),
     .key=logical_key(*(uint32_t *)((char *)event+200)),.repeat=!!*((uint8_t *)event+223),.text_size=length,.unmodified_size=length};
   memcpy(request+1,text,length);memcpy((char *)(request+1)+length,text,length);free(text);
   struct TextTransaction transaction={.node=node,.editor=editor,.before=before.value};
@@ -297,7 +302,15 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   struct NXSResponse *response=exchange_bytes(request,size);
   text_transaction=NULL;free(request);free(before.value);
   int handled=response?response->parts[3].x:transaction.attempted?NXS_INPUT_HANDLED:0;
-  if(response&&!transaction.attempted) {
+  if(response&&!modifier&&!transaction.attempted&&text_command_reporting) {
+    struct NXSControlRequest get={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=21,.process=identity(),.kind=w->kind,.control=w->id};
+    response=exchange_bytes(&get,sizeof(get));
+    if(response&&response->parts[3].x==1&&response->size>=sizeof(*response)&&response->size<=sizeof(*response)+256) {
+      size_t bytes=response->size-sizeof(*response);char selector[257];memcpy(selector,response+1,bytes);selector[bytes]=0;
+      transaction.attempted=application_text_command(node,selector);
+    }
+  }
+  if(response&&!modifier&&!transaction.attempted) {
     w=widget_for_node(node);
     if(w) {
       struct NXSControlRequest get={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=18,.process=identity(),.kind=w->kind,.control=w->id};
@@ -312,6 +325,7 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS)advance_focus(node,handled);
   ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_RELEASE_OFFSET))(editor);
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);
+  if(modifier)return 0;
   if(handled!=NXS_INPUT_UNHANDLED&&*(const uint32_t *)((char *)event+200)!=13) {
     ((void (*)(void *,int,void *))(base+NXS_GECKO_TEXT_PREVENT_DEFAULT_OFFSET))(event,1,NULL);
   }

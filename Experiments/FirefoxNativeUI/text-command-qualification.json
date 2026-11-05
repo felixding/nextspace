@@ -1,0 +1,338 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "a36035cc",
+  "status": "Partial native browser integration on one pinned Firefox build. Copy, Cut and Paste reuse native selectors and existing Gecko controllers; full browser and non-GNUstep scope remains unfinished.",
+  "firefox_and_appkit_rebuilt": false,
+  "native_provider_loader_shim_rebuilt": false,
+  "adapter_rebuilt": true,
+  "environment": {
+    "hashes": {
+      "firefox_adapter": "444ab3d069e545f593679cd020a9e80c097fc4674fcd0e51e516cda4a05e7a34",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "provider": "f3ceaa01f28007b709989b280b464d95fa9abed72b31c2e2ec6f448f306f9272",
+      "shim": "bf66398a7c20ea70ccc61ed0f021cac45830ff8cc2a5f8ebd96db72e69f39d59",
+      "loader": "7a8b22d9895dadb60ae9aecf5d30cf5aa5eec494746c55cb4c72895553cc84f4",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "renderers": [
+      {
+        "pid": 2094,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "packages": 1050
+  },
+  "command_checks": {
+    "count": 77,
+    "physical_modifier_checks": 36,
+    "cases": [
+      "owned-browser",
+      "frontend-modifier-Alt-down",
+      "frontend-modifier-Alt-up",
+      "frontend-modifier-Alt-no-edit-events",
+      "frontend-modifier-Control-down",
+      "frontend-modifier-Control-up",
+      "frontend-modifier-Control-no-edit-events",
+      "frontend-modifier-Shift-down",
+      "frontend-modifier-Shift-up",
+      "frontend-modifier-Shift-no-edit-events",
+      "frontend-modifier-Super-down",
+      "frontend-modifier-Super-up",
+      "frontend-modifier-Super-no-edit-events",
+      "normal-modifier-Alt-down",
+      "normal-modifier-Alt-up",
+      "normal-modifier-Alt-no-edit-events",
+      "normal-modifier-Control-down",
+      "normal-modifier-Control-up",
+      "normal-modifier-Control-no-edit-events",
+      "normal-modifier-Shift-down",
+      "normal-modifier-Shift-up",
+      "normal-modifier-Shift-no-edit-events",
+      "normal-modifier-Super-down",
+      "normal-modifier-Super-up",
+      "normal-modifier-Super-no-edit-events",
+      "password-modifier-Alt-down",
+      "password-modifier-Alt-up",
+      "password-modifier-Alt-no-edit-events",
+      "password-modifier-Control-down",
+      "password-modifier-Control-up",
+      "password-modifier-Control-no-edit-events",
+      "password-modifier-Shift-down",
+      "password-modifier-Shift-up",
+      "password-modifier-Shift-no-edit-events",
+      "password-modifier-Super-down",
+      "password-modifier-Super-up",
+      "password-modifier-Super-no-edit-events",
+      "real-native-application-copy",
+      "native-to-frontend-paste",
+      "frontend-application-copy-controller",
+      "frontend-copy-preserves-selection",
+      "frontend-formatted-system-clipboard",
+      "frontend-native-application-roundtrip",
+      "frontend-application-cut-controller",
+      "frontend-cut-selection",
+      "frontend-paste-after-cut",
+      "web-copy-preserves-selection",
+      "web-trusted-copy-event",
+      "web-cut-state",
+      "web-trusted-cut-events",
+      "web-paste-state",
+      "web-trusted-paste-events",
+      "paste-keeps-engine-undo",
+      "cut-keeps-engine-undo",
+      "cancel-keydown",
+      "cancel-keydown-no-input",
+      "cancel-paste",
+      "cancel-paste-no-input",
+      "cancel-paste-beforeinput",
+      "cancel-paste-beforeinput-no-input",
+      "cancel-cut-cut",
+      "cancel-cut-cut-no-input",
+      "cancel-cut-beforeinput",
+      "cancel-cut-beforeinput-no-input",
+      "custom-copy-data-goes-through-gecko",
+      "paste-retains-engine-maxlength",
+      "readonly-cut-blocked",
+      "readonly-paste-blocked",
+      "readonly-copy-allowed",
+      "secure-copy-blocked",
+      "secure-copy-preserves-clipboard",
+      "secure-cut-blocked",
+      "secure-cut-preserves-clipboard",
+      "secure-paste-allowed",
+      "paste-beforeinput-script-model",
+      "paste-handler-removes-frame",
+      "remaining-field-usable-after-frame-removal"
+    ],
+    "actual_native_application_roundtrip": true,
+    "application_url_formatting": true,
+    "webpage_trusted_clipboard_events": true,
+    "webpage_cancellation_and_custom_data": true,
+    "engine_cut_and_paste_undo": true
+  },
+  "modifier_negative": {
+    "before": {
+      "value": "Copy me",
+      "start": 0,
+      "end": 7,
+      "commands": []
+    },
+    "after_alt_down": {
+      "value": "",
+      "start": 0,
+      "end": 0,
+      "commands": []
+    },
+    "raw_evidence": ".build/native-ui/firefox-command-evidence/modifier-negative.json",
+    "adapter_sha256": "05658e55b21ea2d4dbcfe8380f5902b4bc7159a7195d508e12d11a4cf1a52a03"
+  },
+  "frontend_regressions": {
+    "checks": 59,
+    "lifecycle_checks": 7,
+    "created": 108,
+    "destroyed": 100,
+    "reclaimed_with_intentionally_killed_helper": 8
+  },
+  "web_regressions": {
+    "checks": 241,
+    "sandbox": [
+      {
+        "pid": 2487,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 2694,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "native_created": 776,
+    "native_destroyed": 770,
+    "renderer_crash": {
+      "pid": 2487,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": "FallbackXY",
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.25043950600002063,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    }
+  },
+  "cleanup": {
+    "cohorts": [
+      {
+        "name": "firefox-command-probe",
+        "owned_pids": [
+          14180,
+          14186,
+          14189,
+          14183
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-5g-probe",
+        "owned_pids": [
+          989,
+          995,
+          998,
+          992
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-modifiers-probe",
+        "owned_pids": [
+          1334,
+          1341,
+          1342,
+          1337
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-commands-qualified",
+        "owned_pids": [
+          1960,
+          1967,
+          1968,
+          1963
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -9,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-commands-web-qualified",
+        "owned_pids": [
+          2346,
+          2352,
+          2355
+        ],
+        "cleanup": null
+      }
+    ],
+    "recorded_pids": [
+      989,
+      992,
+      995,
+      998,
+      1334,
+      1337,
+      1341,
+      1342,
+      1698,
+      1724,
+      1750,
+      1783,
+      1894,
+      1911,
+      1932,
+      1960,
+      1963,
+      1967,
+      1968,
+      2270,
+      2346,
+      2352,
+      2355,
+      14180,
+      14183,
+      14186,
+      14189
+    ],
+    "live": [],
+    "control_sockets_removed": true,
+    "backend_alias_removed": true,
+    "native_apps": [
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/native-clipboard-app-cleanup.json",
+        "pid": 1698,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/commands-09/native-app-cleanup.json",
+        "pid": 1932,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/commands/native-app-cleanup.json",
+        "pid": 1724,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/commands-05/native-app-cleanup.json",
+        "pid": 1783,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/commands-07/native-app-cleanup.json",
+        "pid": 1894,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/commands-02/native-app-cleanup.json",
+        "pid": 1750,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-modifiers-probe/commands-08/native-app-cleanup.json",
+        "pid": 1911,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-commands-qualified/commands/native-app-cleanup.json",
+        "pid": 2270,
+        "exit": -15
+      }
+    ]
+  },
+  "source_audit": "text-command-source-audit.json",
+  "raw_evidence": [
+    ".build/native-ui/firefox-command-source/",
+    ".build/native-ui/firefox-command-evidence/"
+  ],
+  "remaining": [
+    "Command availability and undo/redo delegation beyond the qualified clipboard actions",
+    "Paste when the helper has no native pasteboard string, other clipboard formats and clipboard-owner lifecycle",
+    "Automatic focus restoration and complete resize-image parity",
+    "IME, accessibility and scaling",
+    "Other browser controls, detached menus and dialogs",
+    "Other exact browser and derivative builds; GTK/Qt/KDE applications"
+  ]
+}

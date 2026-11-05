@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-06",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/CommandList.inc",
+      "sha256": "13b06b9e85f1f25090c4514d09a9578fed67aec4c3d1c0dd8612abbb8c2f3665"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/WidgetEventImpl.cpp",
+      "sha256": "134f35cc2fa8705022d6bc74fed76cd068fff6bd477681e4a05d9ada84ee72ca"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.cpp",
+      "sha256": "c2609d0b8f2f559611408a6c048679c405e97677e0764e10948e72c12ac5c653"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.cpp",
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/TextEvents.h",
+      "sha256": "850a0f9a7d4c6ae7c27c068a19be262a785fd03e024b43abd7ed81e0eddd48f4"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/EventForwards.h",
+      "sha256": "cc14a8207ac5c7b18ae29ad2471471a45fd2b765a8342988e46e68b12c6f9fde"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/nsXULControllers.cpp",
+      "sha256": "9c9b7f2ca56605a10c03b03c82712a250166b0f11c58cec8dd114b0d66736a78"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/nsIController.idl",
+      "sha256": "591c3ef89b3a424349f5c4204f5c4e2cd6bfde8c73fbb99c9a57a93c75dc0b31"
+    }
+  ],
+  "packaged_source": {
+    "archive": "usr/lib/firefox-esr/browser/omni.ja",
+    "entry": "chrome/browser/content/browser/urlbar/UrlbarInput.mjs",
+    "sha256": "5e64dfbfd6cfb85f2d206d3fcd9624809fea5dce158d149d1243ac62d873f468"
+  },
+  "compiled": {
+    "command_callback": "TextControlState.cpp DoCommandCallback at 0x58c5a78; data is the real TextControlElement, guarded first 20 bytes",
+    "command_names": "WidgetKeyboardEvent::GetCommandStr at 0x6a67864; guarded first 20 bytes and actual results for Copy=5, Cut=6, Paste=24",
+    "modifier_classification": "WidgetKeyboardEvent::GetModifierForKeyName at 0x6a65f94; guarded first 20 bytes",
+    "key_name": "WidgetKeyboardEvent mKeyNameIndex is uint16_t at +220; guarded ldrh/strh copy at 0x4849be0"
+  },
+  "findings": [
+    "Gecko's actual text-control command callback performs controller lookup, availability checks and execution. Calling the editor directly would bypass the address field's custom copy/cut controller.",
+    "The packaged URL-bar controller formats complete URL copies, including protocol restoration and encoding, and owns its cut input-event behavior. Preserve it rather than implementing URL formatting or substituting generic EditorBase clipboard methods.",
+    "NativeUI's existing native menu/key interpreter supplies selectors through its text command capability and edit proposal. The adapter maps only semantic copy/cut/paste commands; no shortcut bindings, controls or clipboard content are copied.",
+    "Pure modifier presses were sent as empty keyDown text and deleted a selection. Use Gecko's own modifier classifier and the existing NXS_KEY_MODIFIERS event so actual AppKit receives flagsChanged. Keep the browser's modifier default action.",
+    "Physical compositor input is asynchronous. Test barriers observe the expected DOM keyup; acknowledge from the compositor alone does not prove browser processing.",
+    "A standalone Alt release activates Firefox's existing menu. Independent cases restore it with real Escape input and observe its inactive state, then focus the actual browser or address field.",
+    "Unfocused shared GPBS storage is not the current Wayland selection. A real focused native application imports the browser's formatted clipboard and provides the required cross-application evidence."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/firefox-command-source/",
+    ".build/native-ui/firefox-command-evidence/"
+  ]
+}
