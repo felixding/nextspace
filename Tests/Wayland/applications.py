@@ -2,6 +2,8 @@
 import shlex
 import subprocess
 import json
+import sys
+from pathlib import Path
 
 
 def run(command, env, artifacts, programs, until):
@@ -63,10 +65,14 @@ def run(command, env, artifacts, programs, until):
             ready, typed = directory / "ready", directory / "typed"
             ready.unlink(missing_ok=True); typed.unlink(missing_ok=True)
             shell = directory / "shell.sh"
+            acknowledge_output = shlex.join([sys.executable,
+                str(Path(__file__).with_name('terminal_output.py').resolve()),
+                '--ack', str((directory / 'output-ack.json').resolve())])
             shell.write_text("#!/bin/sh\ni=0\nwhile [ $i -lt 400 ]; do\n"
                 "  printf '%04d native retained text\\n' \"$i\"\n  i=$((i + 1))\ndone\n"
                 f"touch {shlex.quote(str(ready.resolve()))}\n"
                 "while IFS= read -r line; do\n"
+                f"  {acknowledge_output} || exit 1\n"
                 f"  printf '%s\\n' \"$line\" >> {shlex.quote(str(typed.resolve()))}\n"
                 "done\n")
             shell.chmod(0o700)
@@ -130,10 +136,10 @@ def run(command, env, artifacts, programs, until):
                 until(ready.exists, "PTY output ready")
                 type_text("wayland\n")
                 until(lambda: typed.exists() and "wayland" in typed.read_text(), "native Terminal input reaches PTY")
+                # Copy is asynchronous; keep its sentinel until publication instead
+                # of clearing valid data and resending menu actions on every poll.
+                shortcut(30); copy_selection()
                 def terminal_text():
-                    # PTY echo can still arrive after the shell consumes input;
-                    # Terminal clears selection on output, so select after it settles.
-                    shortcut(30); copy_selection()
                     text = copied_text()
                     return text if text and "0399 native retained text" in text else None
                 baseline = until(terminal_text, "Terminal scrollback copied")

@@ -516,7 +516,7 @@ fifteen-second deadline. The 79,916-byte capsule is
 `arm64-failure-stacks-v1-evidence.tar.gz`, SHA-256
 `a45acf7351dc06749da9d91639b41d48299860f8a396352e263c69bad34813f0`;
 all 43 payload files and an independent extracted replay verify. Hosted
-confirmation of this diagnostic setup is pending. Installed desktop privileges
+native confirmation is recorded below. Installed desktop privileges
 and the existing Lima guest are unchanged.
 
 Native job `126962483723` in run `41941298449` confirms real stack capture and
@@ -531,8 +531,33 @@ strict package collector passes. The full debugger preflight also passes. The
 1,467,505-byte capsule is `arm64-mapped-library-v1-evidence.tar.gz`, SHA-256
 `508b3af2811d09c1f40d9662cf6843acdcc453ca5c14ae133236d0f2d6a393f7`;
 all 37 payload files and an independent extracted audit verify. Fresh hosted
-qualification of the inventory fix is pending. This establishes the evidence
+package qualification of the inventory fix is pending. This establishes the
 collection failure's cause, not the earlier application timeouts' causes.
+
+Native job `126988330119` in run `41949047214` confirms non-ELF exclusion,
+real-library retention and debugger stacks, bringing the recorded native total
+to nine. All 4,406 captured source-root inputs match `017b788f`; documentation
+and workflow files are outside that manifest's scope. Its package job instead
+times out during upgraded Terminal scrollback copy, before final library
+collection and removal. The saved clipboard contains the fresh `pending`
+sentinel; the real application stack is inside menu-key highlighting.
+
+Local controls establish a synchronization problem: Select All can execute while
+PTY output is still arriving, which clears selection before Copy. Removing
+retries alone also fails. A gated original control erases fourteen completed
+copies but eventually passes; it does not reproduce the exact hosted failure.
+The corrected fixture waits for a genuine cursor-position response after the
+shell consumes typed input, then issues Select All/Copy once and polls without
+rewriting the clipboard. Echo, exact typed text, all 400 lines, the five density
+and scrolling assertions, and original deadlines are preserved. Observed and
+uninstrumented SDK controls pass ten density cases; their TTY settings restore,
+and the trace proves output acknowledgement precedes selection and copying.
+The 10,528,908-byte capsule is
+`arm64-terminal-output-barrier-v1-evidence.tar.gz`, SHA-256
+`4e774919cc445d9bf777fc7fa09828798579646d1607bd7f306c2283dad956fb`;
+all 23 payload files and a fresh extracted replay verify. Hosted confirmation
+is pending. Production binaries are unchanged; the exact historical hosted
+interleaving and the earlier Review timeout remain unestablished.
 
 The newest native run next exposes a desktop fixture consuming an asynchronous
 count-2 broadcast as the reply to a count-4 request. The real Workspace probe

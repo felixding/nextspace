@@ -1006,7 +1006,13 @@ failure without weakening behavior assertions or deadlines.
   actual odd-size buffer extents and identical logical clicks at all five densities.
   Their test windows omit toolkit frames to make the coordinate comparison explicit.
 - On the complete runtime, type into Terminal's PTY, select/copy 400 lines of
-  scrollback and retain those contents across all five densities. Open a plain-text
+  scrollback and retain those contents across all five densities. The owned shell
+  waits for a genuine cursor-position report before publishing its typed marker;
+  this proves Terminal parsed the preceding output and echo. `terminal_output.py`
+  consumes the response without echo and restores the original TTY settings.
+  Issue Select All/Copy once after that barrier, then poll without resetting the
+  clipboard. The original content assertions and deadlines remain unchanged.
+  Open a plain-text
   document in TextEdit, replace its contents, save it and change density without
   altering the saved text. Open a known PNG in Review and verify all four quadrant
   colors and native buffer extents through the density matrix.
