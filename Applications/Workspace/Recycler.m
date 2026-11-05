@@ -28,7 +28,7 @@
 #import <SystemKit/OSEDefaults.h>
 
 #import "Controller.h"
-#import "RecyclerIcon.h"
+#import "RecyclerIconView.h"
 #import "Recycler.h"
 #import "WindowManager.h"
 #import <Viewers/PathIcon.h>

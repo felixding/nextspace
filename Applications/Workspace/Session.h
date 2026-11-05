@@ -3,34 +3,24 @@
 #ifndef WORKSPACE_SESSION_H
 #define WORKSPACE_SESSION_H
 #include <dispatch/dispatch.h>
-#include <CoreFoundation/CFRunLoop.h>
-
-extern dispatch_queue_t workspace_q;
-extern CFRunLoopRef wm_runloop;
 
 typedef enum WorkspaceExitCode {
   WSLogoutOnQuit = 0,
-  WSPowerOffOnQuit = 129  /* ShutdownExitCode in Login/Controller.h */
+  WSPowerOffOnQuit = 129
 } WorkspaceExitCode;
 extern WorkspaceExitCode ws_quit_code;
 extern int ws_shell_descriptor;
 
 #ifdef __OBJC__
-#import <Foundation/NSString.h>
-#import <Foundation/NSUserDefaults.h>
-/* The X11 build also supports the original, unpatched GUI library. */
-extern NSString *GSSessionServiceName(NSString *name) __attribute__((weak));
-extern NSString *GSDisplayBackendName(void) __attribute__((weak));
+#import <GNUstepGUI/GSDisplayServer.h>
+#import <GNUstepGUI/GSPasteboardServer.h>
 static inline NSString *WSSessionServiceName(NSString *name)
 {
-  return GSSessionServiceName ? GSSessionServiceName(name) : name;
+  return GSSessionServiceName(name);
 }
 static inline NSString *WSSessionBackendName(void)
 {
-  return GSDisplayBackendName ? GSDisplayBackendName() : [[NSUserDefaults standardUserDefaults] stringForKey:@"GSBackend"];
+  return GSDisplayBackendName();
 }
-BOOL WSStartX11Session(int argc, const char **argv);
-void WSPrepareX11Application(void);
-void WSFinishX11Session(void);
 #endif
 #endif

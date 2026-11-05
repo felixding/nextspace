@@ -289,8 +289,7 @@ APPKIT_EXPORT NSString *NSShellCommandFileType;
 // --- [NSWorkspace _workspaceApplication]
 - (NSDictionary *)activeApplication;
 
-// Return not only GNUstep application but also registered X11 applications.
-// Such application record has separate field @"IsXWindowApplication" set to @"YES".
+// Return registered GNUstep and other native toolkit applications.
 // --- [NSWorkspace _workspaceApplication]
 - (NSArray *)launchedApplications;
 

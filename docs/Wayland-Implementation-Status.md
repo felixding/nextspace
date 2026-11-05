@@ -3,7 +3,7 @@
 The compact [validation summary](Wayland-Validation.json) records the evidence
 digests, supported target and remaining gates for review.
 
-Current target (user scope change, 2026-10-30): native Wayland only. X11/Xwayland compatibility, fallback packages and their tests are outside the deliverable. Earlier compatibility results below are historical evidence. Native Workspace excludes the embedded Window Maker; upstream wlroots builds with Xwayland and the X11 backend disabled.
+Current target (user scope change, 2026-10-30): native Wayland only. X11/Xwayland compatibility, fallback packages and their tests are outside the deliverable. Earlier compatibility results below are historical evidence. Native Workspace no longer contains the embedded Window Maker; upstream wlroots builds with Xwayland and the X11 backend disabled.
 
 Current execution priority (2026-11-04) is ARM64/aarch64 on Debian 13, native
 ARM64 CI and the existing Lima guest. Intel/AMD qualification is deferred.
@@ -15,8 +15,8 @@ SystemKit now implements the native display model directly in `OSEScreen` and
 Xlib calls are removed, along with the direct Xrandr/xkbfile/Xcursor links and
 the xkbfile build dependency. The existing gamma, output transaction, native
 Workspace, Preferences and archive workflow checks pass locally. Existing probes
-use the public native models. Its native ARM64 job passes in run `41980717134`
-at `3a2243f7`; that run's package job is still in progress.
+use the public native models. Both ARM64 jobs pass in run `41980717134`
+at `3a2243f7`, including cold build, offline source replay and package upgrade.
 
 Login now contains only its existing unprivileged greetd/Wayland path. The old
 root PAM/Xorg session controller, X11 panel animations and root Login service
@@ -31,9 +31,26 @@ excludes its independently changing running-program title indicator; the native
 frame-control checks already cover that indicator. Hosted confirmation of these
 application and fixture changes is pending.
 
-The latest full hosted qualification is run `41966391978` at `225292aa`: both
-native and desktop-packages pass. Eleven full native runs and sixteen full package
-lifecycle runs preceded the SystemKit cleanup. Details below preserve the sequence of earlier
+Workspace now has one native build and session path. Its X11 session, adapter,
+notification bridge, legacy Recycler integration and embedded Window Maker
+sources are removed. It requires the pinned GUI session/backend APIs and no
+longer carries a fallback for unpatched GUI libraries. The existing Workspace,
+Preferences, OpenUp and Dock suite passes with all 155 copied build inputs
+matching current source; the binary has no direct X11 links or removed-adapter
+imports. Its existing startup guard now checks the native-only rejection message.
+Hosted qualification of this Workspace cleanup is pending.
+
+Seven unchanged original title-font and application-hint reference files are
+retained under `Tests/Wayland/fixtures/title-reference/originals`, with their
+original paths, revisions, licenses and hashes. The generated original renderer
+is byte-identical and still compiles; existing reference pixel/font verification
+passes. These inputs are not part of the desktop runtime. The retired window
+manager's other sources and build hooks are removed.
+
+The latest full hosted qualification is run `41980717134` at `3a2243f7`: both
+native and desktop-packages pass. Twelve full native runs and seventeen full
+package lifecycle runs are recorded before the application/fixture and Workspace
+cleanups above. Details below preserve the sequence of earlier
 failures and follow-ups; hardware and unpaced keyboard-stress gates remain open.
 
 Hosted ARM64 run `41900653577` at `a866a80b` completes the full native suite

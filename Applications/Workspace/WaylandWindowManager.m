@@ -6,7 +6,7 @@
 #import "WSShellConnection.h"
 #import "Session.h"
 #import "Recycler.h"
-#import "RecyclerIcon.h"
+#import "RecyclerIconView.h"
 #import "WSIconTileView.h"
 #import "WSDockSettings.h"
 #import <SystemKit/OSESessionSettings.h>

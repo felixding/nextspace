@@ -23,19 +23,7 @@
 
 APP_WRAPPER = Workspace.app
 APP_WRAPPER_INSTALLED = $(DESTDIR)/$(GNUSTEP_SYSTEM_APPS)/$(APP_WRAPPER)
-WM_RESOURCES = $(APP_WRAPPER_INSTALLED)/Resources/WM/
 SHARED = obj
-ifndef CMAKE
-	CMAKE=cmake
-endif
-
-ifneq ($(NEXTSPACE_BUILD_WAYLAND),1)
-before-all::
-	@ echo "Preparing WM..."
-	@ cd $(WM_DIR)/cmake; ${CMAKE} . -DCMAKE_C_COMPILER=clang
-
-endif
-
 after-all::
 	@ echo " Copying Viewers bundles into the app wrapper ..."
 	@ find Viewers -iname '*.viewer' -exec cp -r '{}' $(APP_WRAPPER)/Resources ';'
@@ -44,13 +32,6 @@ after-all::
 	@ echo " Copying Tools into the app wrapper..."
 	@ cp "Tools/FileMover/$(SHARED)/FileMover.tool" $(APP_WRAPPER)/Resources
 	@ cp "Tools/Sizer/$(SHARED)/Sizer.tool" $(APP_WRAPPER)/Resources
-
-after-clean::
-	@ rm -rf $(WM_DIR)/cmake/CMakeFiles
-	@ rm -f $(WM_DIR)/cmake/CMakeCache.txt
-	@ rm -f $(WM_DIR)/cmake/Makefile
-	@ rm -f $(WM_DIR)/cmake/cmake_install.cmake
-	@ rm -f $(WM_DIR)/config.h
 
 before-install::
 	@ mkdir -p $(APP_WRAPPER_INSTALLED)

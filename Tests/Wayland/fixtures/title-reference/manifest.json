@@ -1,8 +1,8 @@
 {
   "format": 1,
   "sources": {
-    "Applications/Workspace/WM/misc.c": "921912df38237e369b4b4dffc2ae3e3c375b193cf41db87c9d3e33bdc57c6815",
-    "Applications/Workspace/WM/core/wfont.c": "a21b18db6d4520036971c9dad2995cea8f0f20aa3b73684b400b6dd7bff78519"
+    "Tests/Wayland/fixtures/title-reference/originals/misc.c": "921912df38237e369b4b4dffc2ae3e3c375b193cf41db87c9d3e33bdc57c6815",
+    "Tests/Wayland/fixtures/title-reference/originals/core/wfont.c": "a21b18db6d4520036971c9dad2995cea8f0f20aa3b73684b400b6dd7bff78519"
   },
   "files": {
     "glyph-df1eaffa1350265b.png": "328ac1a8779ceb9a5fd8d8c100559726e4d28666f1cfd15477c6ae37ed79a2b5",

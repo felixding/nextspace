@@ -82,9 +82,9 @@ build_runtime_applications()
   render_nextspirit_artwork inspectors "$build/apps/Workspace/Inspectors/English.lproj"
   (
     cd "$build/apps/Workspace"
-    stage Workspace-build make -j"${JOBS:-4}" NEXTSPACE_BUILD_WAYLAND=1 NEXTSPACE_PROTOCOLS_DIR="$repo/Protocols"
+    stage Workspace-build make -j"${JOBS:-4}" NEXTSPACE_PROTOCOLS_DIR="$repo/Protocols"
     if [ -n "${NEXTSPACE_STAGE_ROOT:-}" ]; then
-      runtime_install Workspace make install NEXTSPACE_BUILD_WAYLAND=1 NEXTSPACE_PROTOCOLS_DIR="$repo/Protocols"
+      runtime_install Workspace make install NEXTSPACE_PROTOCOLS_DIR="$repo/Protocols"
     fi
   )
   for app in Terminal TextEdit Review TimeMon Preferences OpenUp Login; do

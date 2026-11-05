@@ -14,8 +14,8 @@ from PIL import Image
 from title_reference import TITLES, LIMITS, PROFILES, effective_pattern, font_signature, key, sha
 
 def reference_source(repo):
-    paths = (repo / "Applications/Workspace/WM/misc.c",
-             repo / "Applications/Workspace/WM/core/wfont.c")
+    paths = (repo / "Tests/Wayland/fixtures/title-reference/originals/misc.c",
+             repo / "Tests/Wayland/fixtures/title-reference/originals/core/wfont.c")
     misc, font = (path.read_text() for path in paths)
     notices = "\n".join(text[:text.index("*/") + 2] for text in (misc, font))
     headers = r'''
@@ -84,7 +84,7 @@ def generate(repo, output):
         work = Path(temporary)
         reference = work / "reference"
         flags = subprocess.check_output(["pkg-config", "--cflags", "--libs", "xft", "x11"], text=True).split()
-        subprocess.run(["cc", "-std=c11", "-I" + str(repo / "Applications/Workspace/WM/core"),
+        subprocess.run(["cc", "-std=c11", "-I" + str(repo / "Tests/Wayland/fixtures/title-reference/originals/core"),
                         str(reference_c), "-o", str(reference), *flags], check=True)
         read, write = os.pipe()
         with (work / "xvfb.log").open("w") as log:

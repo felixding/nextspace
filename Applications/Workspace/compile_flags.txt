@@ -34,8 +34,6 @@
 -I/Users/me/Library/Headers
 -I/Developer/Headers
 -I/usr/NextSpace/include
--IWM
--IWM/core
 -I/usr/include/freetype2
 -I/usr/include/libpng16
 -I/usr/include/harfbuzz

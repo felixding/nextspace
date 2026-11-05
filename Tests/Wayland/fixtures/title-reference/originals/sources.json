@@ -1,0 +1,35 @@
+{
+  "revision": "82bd01c41de288499ce45da1083e34f0b07c8c98",
+  "purpose": "Original title metrics/pixels and application-level semantics reference; not part of the desktop runtime",
+  "files": {
+    "misc.c": {
+      "original_path": "Applications/Workspace/WM/misc.c",
+      "sha256": "921912df38237e369b4b4dffc2ae3e3c375b193cf41db87c9d3e33bdc57c6815"
+    },
+    "core/wfont.c": {
+      "original_path": "Applications/Workspace/WM/core/wfont.c",
+      "sha256": "a21b18db6d4520036971c9dad2995cea8f0f20aa3b73684b400b6dd7bff78519"
+    },
+    "GNUstep.h": {
+      "original_path": "Applications/Workspace/WM/GNUstep.h",
+      "sha256": "851c88eda5a5400eca4ce2b9f068c5b3046b8b76b8ca583f7b5aba70504625ab"
+    },
+    "core/wfont.h": {
+      "original_path": "Applications/Workspace/WM/core/wfont.h",
+      "sha256": "b92233708dbb4e1c0b7ac1119f539bc6524cadcc97d4832d975d0ccb9bf96d94"
+    },
+    "core/wcolor.h": {
+      "original_path": "Applications/Workspace/WM/core/wcolor.h",
+      "sha256": "494224fd280d915fc99b8449ac994d5e2d664b52a758e1a5a13a9dacc05e2441"
+    },
+    "core/wscreen.h": {
+      "original_path": "Applications/Workspace/WM/core/wscreen.h",
+      "sha256": "90760767907e1834dc2b4dfacaca4982aa08c21264d3dd1cadbb5e9041bca1bd"
+    },
+    "core/whashtable.h": {
+      "original_path": "Applications/Workspace/WM/core/whashtable.h",
+      "sha256": "42537cc26e37add19667b7de46da7a5dbedfb84fd0867bc08f62056df3ffa211"
+    }
+  },
+  "generated_reference_source_sha256": "8a5c923b983c6a2af04405f755aaad711b932d60cdd76cbe2015863fa6ac42b9"
+}

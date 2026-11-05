@@ -402,12 +402,6 @@ compatibility tests. `-A` omits owned placement; `-1` advertises surface version
 SIGINT/SIGTERM shut down clients and the display cleanly.
 `-d` enables wlroots diagnostics.
 
-`-x` starts a managed rootless Xwayland server with one wlroots XWM/selection
-bridge. Its shell global is restricted to that connection. `x-display` reports
-the actual display only when ready. Native and legacy windows share window
-policy; legacy buffers retain their existing pixel density. Clipboard persistence,
-primary selection and the wider desktop transfer matrix still require qualification.
-
 ### Text input and the input method
 
 Text-input-v3 is public. Input-method-v2 and virtual-keyboard-v1 are visible only

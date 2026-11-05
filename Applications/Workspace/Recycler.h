@@ -25,7 +25,7 @@
 #import <DesktopKit/NXTIconBadge.h>
 #import <SystemKit/OSEFileSystemMonitor.h>
 
-#import "RecyclerIcon.h"
+#import "RecyclerIconView.h"
 
 @class PathIcon;
 

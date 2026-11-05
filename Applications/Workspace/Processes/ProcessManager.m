@@ -264,10 +264,8 @@ static NSMutableOrderedSet *applicationPIDs(NSDictionary *info)
       kill([pid intValue], signal);
     }
 
-    // X11 app: In normal running mode it is tracked by Window Wanager.
-    // WM sends notification on app terminate. When Workspace is quiting we need to generate such
-    // notification because Window Manager preparing to quit.
-    // GNUstep app: send notification to remove app from list
+    // During Workspace shutdown, publish termination locally instead of waiting
+    // for the application's tracking connection to close.
     if ([appInfo[@"IsXWindowApplication"] isEqualToString:@"NO"] && _workspaceQuitting == YES) {
       notif = [NSNotification notificationWithName:NSWorkspaceDidTerminateApplicationNotification
                                             object:@"ProcessManager"

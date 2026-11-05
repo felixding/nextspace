@@ -106,9 +106,9 @@ def run(compositor, workspace, probe, artifacts, client=None, gui_probe=None, di
                 executable=str(Path(f"/proc/{shell.pid}/exe").resolve()), libraries=libraries), indent=2) + "\n")
 
         try:
-            rejected = subprocess.run([workspace, "-GSBackend", "libgnustep-x11"],
+            rejected = subprocess.run([workspace, "-GSBackend", "unsupported"],
                 env=dict(env, XDG_SESSION_TYPE="wayland"), capture_output=True, timeout=10)
-            assert rejected.returncode == 1 and b"embedded X11 window manager" in rejected.stderr
+            assert rejected.returncode == 1 and b"requires the native Wayland backend" in rejected.stderr
             assert select.select([server.stdout], [], [], 10)[0], "No compositor socket"
             line = server.stdout.readline().strip()
             assert line.startswith("WAYLAND_DISPLAY="), line

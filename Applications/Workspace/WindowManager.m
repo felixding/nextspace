@@ -21,14 +21,8 @@ NSDictionary *WSDefaultDesktopShortcuts(void)
 
 id<WSWindowManager> WSCurrentWindowManager(void)
 {
-#ifdef NEXTSPACE_BUILD_WAYLAND
   Class adapter = [GSCurrentServer() isKindOfClass:NSClassFromString(@"WaylandServer")] ?
     NSClassFromString(@"WSWaylandWindowManager") : Nil;
-#else
-  extern Class WSX11WindowManagerClass(void);
-  Class adapter = [GSCurrentServer() isKindOfClass:NSClassFromString(@"XGServer")] ?
-    WSX11WindowManagerClass() : Nil;
-#endif
   if (!adapter) [NSException raise:NSInternalInconsistencyException
     format:@"Workspace has no window-manager adapter for %@", [GSCurrentServer() class]];
   static id<WSWindowManager> manager;

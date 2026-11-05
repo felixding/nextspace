@@ -32,7 +32,3 @@
 }
 - (id)initWithFrame:(NSRect)frame recycler:(Recycler *)owner;
 @end
-
-@interface RecyclerIcon : NSWindow
-
-@end

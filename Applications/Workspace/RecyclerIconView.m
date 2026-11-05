@@ -21,7 +21,7 @@
 
 /* Shared Recycler artwork and file operations. SPDX-License-Identifier: GPL-2.0-or-later */
 #import <GNUstepGUI/GSDisplayServer.h>
-#import "RecyclerIcon.h"
+#import "RecyclerIconView.h"
 #import "Recycler.h"
 #import "Processes/ProcessManager.h"
 
