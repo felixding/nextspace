@@ -27,7 +27,7 @@
       "job": 127324632072,
       "conclusion": "success"
     },
-    "obsolete_x11_workflow_files_removed": 4,
+    "obsolete_x11_workflow_files_removed": 5,
     "runtime_and_native_fixtures_unchanged_since_qualified_artifacts": true
   },
   "package_artifact_audit": {

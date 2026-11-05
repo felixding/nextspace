@@ -9,7 +9,7 @@ compatibility results in this evidence history are outside the current scope.
 
 Automatic pull-request and master CI runs the `Wayland ARM64` workflow on
 Debian 13/aarch64, including native backend and desktop package lifecycle checks.
-The former X11 source and RPM workflows are removed.
+The former GitHub X11 source/RPM workflows and CircleCI Fedora build are removed.
 Each uploaded artifact contains a tar archive that preserves Linux filename case,
 private fixture permissions and literal symlinks. The native archive retains logs
 and test results; the desktop archive also includes its package build inputs.
@@ -1330,7 +1330,7 @@ Preferences saved its modifier changes, while the test restored only the live
 compositor state. The session correctly reapplied those saved modifiers. The test
 now restores the actual controls before testing desktop shortcuts, checks the
 compositor's authoritative desktop and waits for Workspace's notification.
-The corrected Workspace/Preferences/OpenUp workflow and default X11 lifecycle pass.
+The corrected Workspace/Preferences/OpenUp workflow passes on native Wayland.
 
 `login_auth.py` checks the production Foundation greetd transport against a
 synthetic root peer. Its 16 cases cover fragmented framing, all PAM message

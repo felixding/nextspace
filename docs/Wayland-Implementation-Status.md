@@ -52,8 +52,9 @@ its old root PAM/Xorg path is removed. Terminal's X11 resize hints and direct
 X11 links are gone. Workspace has one native build/session path, with its embedded
 Window Maker, X11 adapter, notification bridge and compatibility fallback removed.
 
-Four X11 workflows and their badges, X11-only runners, fallback-package checks
-and optional Xwayland test branches are removed. Twenty obsolete source-build,
+Four GitHub X11 workflows and their badges, the obsolete CircleCI Fedora build,
+X11-only runners, fallback-package checks and optional Xwayland test branches are
+removed. Twenty obsolete source-build,
 installer and Xorg setup/session files are also removed. The maintained builder,
 dependency pins, patches, asset generators, native session entry and user-hook
 runner remain. Existing native scenarios validate this cleanup; no X11 coverage
