@@ -1,10 +1,12 @@
 /* Blink element/model and event bindings only. Native controls stay in the
  * separately loaded UI provider. Exact Chromium build; GPL-2.0-or-later. */
 #include "pinned-forms.h"
+#include "../../Libraries/NativeUI/NativeUI.h"
 struct NativeForm {
   struct NativeForm *next;
   void *node;
-  int kind,enabled,state,painted;
+  uint64_t control;
+  int kind,enabled,state,painted,input_owned;
   struct Rect rect;
   char *title;
   double actions_before;
@@ -14,9 +16,14 @@ struct SizeI {int width,height;};
 struct MouseDispatchResult {void *event;int result;};
 static struct NativeForm *native_forms,*active_form,*click_form;
 static __thread void *native_parent;
+static __thread void *form_key_node,*form_key_event;
+static uint64_t next_form_control;
+static __thread uint64_t form_key_control;
 static int form_click_allowed;
 static uint64_t form_click_time;
 static int forms_available;
+static int forms_input_enabled;
+static unsigned forms_input_capabilities;
 static struct SizeI form_sizes[4];
 static int (*original_checkbox)(void*,const void*,const void*,const void*,const void*,const struct Rect*);
 static int (*original_radio)(void*,const void*,const void*,const void*,const void*,const struct Rect*);
@@ -38,9 +45,12 @@ static struct NativeForm *find_form(const void *node) {
   for(struct NativeForm *f=native_forms;f;f=f->next)if(f->node==node)return f;
   return NULL;
 }
+static struct NativeForm *bind_input_form(void *node);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
-    struct NativeForm *f=find_form(node);if(f&&f->painted)return f;
+    struct NativeForm *f=find_form(node);
+    if(!f&&forms_input_enabled)f=bind_input_form(node);
+    if(f&&(f->painted||f->input_owned))return f;
     node=((void *(*)(void *))(base+0xdd0e0ac))(node);
   }
   return NULL;
@@ -59,18 +69,14 @@ static int form_state(void *node,int kind) {
 /* String data conversion is application-model transport, not UI rendering.
  * This build's String return is one pointer; StringImpl stores characters
  * inline after its three 32-bit fields. Release through Chromium's destructor. */
-static char *form_title(void *node) {
-  void *string=input_element(node)?((void *(*)(void *))(base+0xefa5dc0))(node):
-    ((void *(*)(void *,void *))(base+0xddf7648))(node,NULL);
-  if(!string)return strdup("");
-  uint32_t length=*(const uint32_t *)((const char *)string+4),flags=*(const uint32_t *)((const char *)string+8);
+static char *encode_text(const void *data,uint32_t length,int latin1) {
   char *result=length<=65536?malloc((size_t)length*4+1):NULL;
   size_t used=0;
   for(uint32_t i=0;result&&i<length;i++) {
     uint32_t c;
-    if(flags&1)c=((const unsigned char *)string)[12+i];
+    if(latin1)c=((const unsigned char *)data)[i];
     else {
-      const uint16_t *text=(const uint16_t *)((const char *)string+12);c=text[i];
+      const uint16_t *text=data;c=text[i];
       if(c>=0xd800&&c<=0xdbff&&i+1<length&&text[i+1]>=0xdc00&&text[i+1]<=0xdfff) {
         c=0x10000+((c-0xd800)<<10)+(text[++i]-0xdc00);
       } else if(c>=0xd800&&c<=0xdfff)c=0xfffd;
@@ -83,6 +89,17 @@ static char *form_title(void *node) {
     if(used>65536){free(result);result=NULL;break;}
   }
   if(result)result[used]=0;
+  return result;
+}
+static char *string_text(const void *string) {
+  if(!string)return strdup("");
+  return encode_text((const char *)string+12,*(const uint32_t *)((const char *)string+4),
+    *(const uint32_t *)((const char *)string+8)&1);
+}
+static char *form_title(void *node) {
+  void *string=input_element(node)?((void *(*)(void *))(base+0xefa5dc0))(node):
+    ((void *(*)(void *,void *))(base+0xddf7648))(node,NULL);
+  char *result=string_text(string);
   ((void (*)(void *))(base+0x7246038))(&string);
   return result;
 }
@@ -91,7 +108,7 @@ static struct NXSResponse *form_request(struct NativeForm *form,int operation,do
   size_t size=sizeof(struct NXSControlRequest)+title_size;
   struct NXSControlRequest *req=calloc(1,size);if(!req)return NULL;
   *req=(struct NXSControlRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
-    .process=identity(),.kind=form->kind,.control=(uintptr_t)form->node,.text_size=title_size,
+    .process=identity(),.kind=form->kind,.control=form->control,.text_size=title_size,
     .width=form->rect.width,.height=form->rect.height,.minimum=0,.maximum=1,.value=form->state,
     .x=x,.y=y,.enabled=form->enabled,.state=form->state,.modifiers=modifiers};
   if(title_size)memcpy(req+1,form->title,title_size);
@@ -101,16 +118,18 @@ static void invalidate_form(struct NativeForm *form) {
   void *layout=decode_member((const char *)form->node+48);
   if(layout)((void (*)(void *,int))(base+0xe55f5f8))(layout,3); /* Chromium kStyle. */
 }
+static struct NXSResponse *sync_form_focus(struct NativeForm *,struct NXSResponse *);
 static int paint_form(int kind,void *self,const void *element,const void *document,const void *style,const void *info,const struct Rect *rect) {
   struct NativeForm *form=find_form(element);
   if(form)form->painted=0;
   if(rect->width<1||rect->height<1)return 0;
   char *title=kind==1?form_title((void *)element):strdup("");
   if(!title)return 1;
-  if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->next=native_forms;native_forms=form;}
+  if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   free(form->title);form->title=title;form->kind=kind;form->rect=*rect;
   form->enabled=form_enabled(form->node);form->state=form_state(form->node,kind);
   struct NXSResponse *response=form_request(form,1,0,0,0);
+  response=sync_form_focus(form,response);
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
      sizeof(*response)+(size_t)response->stride*response->height!=response->size){form->painted=0;return 1;}
   struct NXSResponse header=*response;
@@ -208,7 +227,19 @@ static int dom_dispatch(void *dispatcher) {
       if(!allowed){note("native form cancelled activation");return 3;}
     }
   }
-  return original_dom_dispatch(dispatcher);
+  void *previous_node=form_key_node,*previous_event=form_key_event;
+  uint64_t previous_control=form_key_control;
+  struct NativeForm *keyboard_form=NULL;
+  if(forms_input_enabled&&(*(const unsigned short *)((const char *)event+32)&0x100)&&
+     (same_atom(atom,0x123a55d8)||same_atom(atom,0x123a55e0)||same_atom(atom,0x123a55e8)))
+    keyboard_form=form_ancestor(node);
+  form_key_node=keyboard_form?keyboard_form->node:NULL;
+  form_key_event=keyboard_form?event:NULL;
+  form_key_control=keyboard_form?keyboard_form->control:0;
+  int result=original_dom_dispatch(dispatcher);
+  form_key_node=previous_node;form_key_event=previous_event;
+  form_key_control=previous_control;
+  return result;
 }
 static void element_detach(void *node,int reattach) {
   struct NativeForm **cursor=&native_forms;
@@ -221,6 +252,7 @@ static void element_detach(void *node,int reattach) {
   }
   original_element_detach(node,reattach);
 }
+#include "forms-input.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
  {NXS_RADIO_OFFSET,nxs_radio_bytes,paint_radio,(void **)&original_radio},
@@ -234,5 +266,7 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));}
-static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));}
+static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+  (!forms_input_enabled||prepare_form_input());}
+static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
+  if(forms_input_enabled)activate_form_input();}

@@ -273,11 +273,17 @@ __attribute__((constructor)) static void initialize(void) {
   native_thickness=metrics->parts[0].width;
   const char *forms=getenv("NEXTSPACE_CHROMIUM_FORMS");
   forms_available=forms&&!strcmp(forms,"1")&&metrics->parts[0].height;
+  if(isfinite(metrics->parts[4].width)&&metrics->parts[4].width>=0&&metrics->parts[4].width<=3)
+    forms_input_capabilities=(unsigned)metrics->parts[4].width;
+  const char *input=getenv("NEXTSPACE_CHROMIUM_INPUT");
+  forms_input_enabled=forms_available&&input&&!strcmp(input,"1")&&
+    (forms_input_capabilities&(NXS_INPUT_FOCUS|NXS_INPUT_KEYBOARD))==(NXS_INPUT_FOCUS|NXS_INPUT_KEYBOARD);
   for(int kind=2;kind<=3;kind++) {
     double width=metrics->parts[kind-1].width,height=metrics->parts[kind-1].height;
     if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>256||height>256)forms_available=0;
     else form_sizes[kind]=(struct SizeI){ceil(width),ceil(height)};
   }
+  forms_input_enabled=forms_input_enabled&&forms_available;
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};
@@ -289,4 +295,5 @@ __attribute__((constructor)) static void initialize(void) {
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
   if(forms_available){activate_forms();note("experimental native forms enabled");}
+  if(forms_input_enabled)note("experimental native form focus/keyboard enabled");
 }

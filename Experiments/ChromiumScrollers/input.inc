@@ -216,6 +216,20 @@ static int prepare_detours(struct Detour *detours,size_t count) {
         int64_t relative=(int64_t)(instruction&0x3ffffffu)<<38;relative>>=36;
         uintptr_t address=pc+relative;if(address>=(uintptr_t)target&&address<(uintptr_t)target+20)return 0;
         jump(&out,address);terminal=1;break;
+      } else if((instruction&0xff000010u)==0x54000000u||
+                (instruction&0x7e000000u)==0x34000000u||
+                (instruction&0x7e000000u)==0x36000000u) {
+        /* Invert the original condition over an absolute jump. Keep the
+         * condition/register test intact; no engine behavior is reimplemented. */
+        int test_bit=(instruction&0x7e000000u)==0x36000000u;
+        if((instruction&0xff000010u)==0x54000000u&&(instruction&15)>=14)return 0;
+        uint32_t mask=test_bit?0x3fff:0x7ffff,sign=test_bit?0x2000:0x40000;
+        int64_t relative=((int64_t)(((instruction>>5)&mask)^sign)-sign)*4;
+        uintptr_t address=pc+relative;
+        if(address>=(uintptr_t)target&&address<(uintptr_t)target+20)return 0;
+        uint32_t inverted=instruction^((instruction&0xff000010u)==0x54000000u?1u:0x01000000u);
+        *out++=(inverted&~(mask<<5))|(6u<<5);
+        jump(&out,address);
       } else {
         if((instruction&0x7c000000u)==0x14000000u||(instruction&0xff000010u)==0x54000000u||(instruction&0x7e000000u)==0x34000000u||(instruction&0x7e000000u)==0x36000000u||(instruction&0x3b000000u)==0x18000000u)return 0;
         *out++=instruction;

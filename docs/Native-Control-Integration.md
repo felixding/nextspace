@@ -103,8 +103,9 @@ The first Blink bindings now connect standard push buttons, checkboxes and radio
 buttons in the same pinned Chromium experiment. They reuse this provider through
 its public C ABI for metrics, pixels and mouse tracking. Fourteen native pixel
 comparisons, nineteen browser assertions and independent native-action traces
-pass, including cancellation and destruction during tracking. Keyboard, focus,
-label activation and broader layout coverage are still incomplete. The new types
+pass, including cancellation and destruction during tracking. The optional
+focus/keyboard integration below adds another part of the contract. Label
+activation and broader layout coverage are still incomplete. The new types
 are not connected to GTK/Qt or other browser families. Steps 3-5 and the full
 application matrix remain open; this experiment is not globally activated.
 
@@ -116,10 +117,20 @@ client work unchanged with the extended provider, and the new loader accepts the
 older provider without advertising unavailable input methods. No key bindings or
 focus artwork were copied into the bridge.
 
-Chromium's actual focus/default-keyboard routing still needs to consume this
-handoff. Page cancellation must run before native input, native actions must
-drive the real DOM activation pipeline, and the engine must not produce a second
-activation for a key sequence already owned by the native control. Native focus
-requests must operate on the engine's real focus model. Radio-group context,
-default buttons and command/menu models also need native integration; adding
-copied Space/Enter/arrow rules to a bridge would not satisfy the requirement.
+The pinned Chromium adapter now consumes that handoff with the separate opt-in
+`NEXTSPACE_CHROMIUM_INPUT=1`. Page cancellation runs before native input; native
+actions invoke Chromium's trusted DOM activation pipeline, preserving form
+submission and checkbox rollback. Native next/previous focus requests call the
+engine's actual focus controller. The bridge translates logical keys and state;
+it defines no Space/Enter/arrow bindings and draws no focus ring. Distinct native
+object identities prevent a detached/reinserted DOM object from inheriting an
+old gesture.
+
+The private fixture passes 62 focus/keyboard/pixel assertions. Native traces
+independently witness twelve keyboard actions, three mouse actions and both
+focus-navigation requests. The existing 33 mouse checks pass with the input
+handoff enabled. This establishes only the tested buttons, checkboxes and radio
+buttons in the pinned binary. Native activation animation, radio-group keyboard
+context, default buttons, command/menu models, IME, accessibility and other
+engine/frontend integrations remain open. See
+[`input-qualification.json`](../Experiments/ChromiumScrollers/input-qualification.json).

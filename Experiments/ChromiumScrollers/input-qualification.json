@@ -1,0 +1,236 @@
+{
+  "date": "2026-11-05",
+  "status": "opt-in focus and keyboard prototype for standard controls in one pinned Chromium; full integration remains incomplete",
+  "chromium": {
+    "package": "156.0.8078.79-1~deb13u1 ARM64",
+    "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "source_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "rebuilt": false
+  },
+  "environment": {
+    "distribution": "Debian 13 ARM64",
+    "nextspace": "native106",
+    "display": "private headless Wayland/Pixman",
+    "scale": 1,
+    "viewport": [
+      868,
+      571
+    ],
+    "all_observed_renderers_seccomp": 2,
+    "all_observed_renderers_no_new_privileges": 1,
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "installed_session_activated": false,
+    "owned_test_processes_cleaned_up": true
+  },
+  "separation": {
+    "interface": "optional focus/key extension to NativeUI C ABI 1",
+    "native_controls": "installed AppKit NSButton, NSSwitchButton and NSRadioButton",
+    "bridge": "application focus/model, event representation, trusted DOM activation and pixel transport only",
+    "control_implementations_copied": false,
+    "widget_key_bindings_copied": false,
+    "focus_artwork_copied": false,
+    "UI_library_rebuilt": false,
+    "provider_changed_for_this_step": false
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "fe709a0dd4ca8126169a591014162c2d0efa2f4f650046d94643efe044929dfd",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "3f56df23283f9239ae393768fca0277e11037fead9a6a7ead98495faf219f07e",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "97b62afffbff0da766927a02855a873a338cea8e1ce9539da127517113bb8daa"
+  },
+  "checks": {
+    "focus_keyboard_assertions": 62,
+    "native_pixel_comparisons": 23,
+    "native_outline_checks": 8,
+    "browser_behavior_assertions": 31,
+    "native_trace": {
+      "passed": true,
+      "native_actions": {
+        "1": 5,
+        "2": 5,
+        "3": 5
+      },
+      "keyboard_actions": 12,
+      "mouse_actions": 3,
+      "next_focus_requests": 1,
+      "previous_focus_requests": 1,
+      "key_events": 35,
+      "presses": 3,
+      "releases": 3
+    },
+    "existing_mouse_assertions_input_enabled": 33,
+    "existing_mouse_assertions_input_disabled": 33,
+    "mouse_native_trace_input_enabled": {
+      "native_actions": {
+        "1": 6,
+        "2": 6,
+        "3": 4
+      },
+      "presses": 19,
+      "releases": 19,
+      "cancelled_gestures": 3,
+      "passed": true
+    },
+    "mouse_native_trace_input_disabled": {
+      "native_actions": {
+        "1": 6,
+        "2": 6,
+        "3": 4
+      },
+      "presses": 19,
+      "releases": 19,
+      "cancelled_gestures": 3,
+      "passed": true
+    },
+    "scrollbar_pixel_regressions": 8
+  },
+  "source_sha256": {
+    "hook.c": "35cc6d708a5aeeed30885b4e18d42795583ad6fe006685186741c9de74b9d29b",
+    "input.inc": "1fe0eab22e93a5bf98f1a52b084697d0dabe4de5c0ba025a92b7b0dbf4590667",
+    "forms.inc": "347aad4b2e461519f41aeb0a2e0b08acb42428d7b2af4e9e7164e5751cb1e38b",
+    "forms-input.inc": "f74dad9ff7ecc2bb663c23de85b7a0a52b2a4526b08cb88342afd088eebc8ea0",
+    "pinned-form-input.h": "83d385bf4935ee57b666633a9ef9837870acd987bf1da948bfe835cfcd29b339",
+    "pinned-forms.h": "b810e391b07737ff19e1e70f3ed1b6ac77a5cf74b8feb35962a0df39f0ed40d6",
+    "protocol.h": "0e7ecc8a378cb398fa9b51c67ffce0c9b0d5e999ec6878f0a4a078cf183809a6",
+    "native_controls.py": "0c95f59ac25652fb8d0a2aa79f2bbb8d1c2180bb2768e2affe8781bb666a5c8f",
+    "helper.py": "4369f419bbc9ff33c772888a7c9b8c6a692c6d53478a0eb8f5f6c85790725f88",
+    "native-control-reference.py": "ed1507bd564e37e95fb124e981d277e1b316908279910fe12377525f7439c552",
+    "check-form-input.py": "69057ab10795d7c7c7d293b25f4d6caa09c1155c2ade7df5fe2517276448fee4",
+    "check-form-input-trace.py": "5baa2af43ca042eeee7634e7d0f70e4a49ad23c002a9cfd9da1d3cc7956b25db",
+    "check-forms.py": "15e8efea64f92b3307828b494c14d11719df8b5e4502b1435b1c0079466129f5"
+  },
+  "public_header_sha256": "eeaedacbe9dcfc6a9f815621562dc726b92afede5835abbe07915f40c5bf815f",
+  "pinned_source_receipts": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/page/focus_controller.h",
+      "sha256": "381379ced796f967951124ab6dbb7acb37d28fbd88bef5e8a8233ac298df799f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/page/focus_controller.cc",
+      "sha256": "c477d0f389f5fbe4158c4aa75d584d8aebacca1b9f12e1e4db2cad9b3f631d59"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/events/event_dispatcher.cc",
+      "sha256": "ff6815eabe56c34ee47ff02a812daa8d4222494e0779639c20d2d715dba130a0"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/keyboard_event_manager.h",
+      "sha256": "e6dea73bc05fb8057533af01a5a946ebf1a15669d8f83b4496de38dd53e6db1b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/public/common/input/web_keyboard_event.h",
+      "sha256": "c2f8d67c253f032a81f0798f961fbffd8a930467d3a09711b8193f745d5378f0"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/events/keyboard_event.h",
+      "sha256": "88a97d0a5d1795d0d15d9f16433a2e3de5adec17586f951137f6d973026f5b57"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/events/keyboard_event.cc",
+      "sha256": "ace306c55d174e639414b35a0f1568832f7f57fac519a6345eea03a5ac3c1b7a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/keyboard_event_manager.cc",
+      "sha256": "d5fac75f50fd6c0e07c566003b3bdc2f02a9c463cd1ff0527603144c10a99ede"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/events/simulated_click_options.h",
+      "sha256": "ebd50b2bc193d465541cfb37c244db97d8cd78e603d917a8bdc0e098b51213d0"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/events/event.h",
+      "sha256": "0180e657d1ae9167ec3797635ecbf3c7541dcbff41e01d2bf5e8bd2a1e947d15"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/public/common/input/web_input_event.h",
+      "sha256": "9663b2b2ce23b69f26cb9f3c077a17b903d893953000113437f476fc2d93016b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/user_action_element_set.h",
+      "sha256": "665ffd9a5256cdbc795001afc41d2cf941c4ccd2f972c00d089b165a71c9c1a9"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/tree_scope.h",
+      "sha256": "86bd01f3a10edcb467c4cf25f2df00f5ef9d392efa0d1bec693f37cac9014700"
+    }
+  ],
+  "evidence": {
+    ".build/native-ui/chromium-input-qualified/button-focused.png": "1de5ebd0aac1e5cb21b1d55cbbbeed00dd826ac2662241d6d3f56fc150c45c4b",
+    ".build/native-ui/chromium-input-qualified/button-pressed.png": "9401fff5fe12927cd976312288da111bb09fcf149a09f2acebd6259c8c1ca105",
+    ".build/native-ui/chromium-input-qualified/cancelled-checkbox.png": "64acb0639dbf2dfdb275d97554fb396dfb1b45992f4fcf6bee01e379e5e4ca9f",
+    ".build/native-ui/chromium-input-qualified/cancelled-focused.png": "1f87edb5c1e9104385a2c8ba772087a374c7fc79255508360640af23401c0e3c",
+    ".build/native-ui/chromium-input-qualified/check-focused.png": "3c248b9378d30900017b1cd1fbf5d59af23a1bb387b56fc1d09e3435d9455a24",
+    ".build/native-ui/chromium-input-qualified/check-pressed.png": "75d88b11d806b72195fb61cf4bde85027b7ac62dba36d2fb4eadedd36c07d769",
+    ".build/native-ui/chromium-input-qualified/cleanup.json": "1c2675c88b4bdc1dce22a4b5b35d4c8ce3fa73eec8bfa945828304ad8dc66dce",
+    ".build/native-ui/chromium-input-qualified/environment.json": "1db9d72b4f2a0891db6d434ea666b967531ccc8b5c1731872338f2cd56d0e1d9",
+    ".build/native-ui/chromium-input-qualified/input-button-focused.png": "5e6e638a4bd00301e183f1baff7d67307af71bbd1f723b212aea3f67b0fe9960",
+    ".build/native-ui/chromium-input-qualified/input-disabled/button-pressed.png": "73438fadf168f582790eaba19acf7f062ddce064a51adca2c27d3c6ae357807c",
+    ".build/native-ui/chromium-input-qualified/input-disabled/check-pressed.png": "4448c254b0f8a0503fde579040bba89f971d1b7469379e67af5c3f9fe1b3a278",
+    ".build/native-ui/chromium-input-qualified/input-disabled/native-actions.json": "8e9a7c705cebfb6f5841b68f58859c6c97a439f1bd7d93599a307fe9c0b7861f",
+    ".build/native-ui/chromium-input-qualified/input-disabled/native-helper.jsonl": "9d13fce73487cf20e53329bebc72f7a1373ad386bf1ff559eea3375b20101958",
+    ".build/native-ui/chromium-input-qualified/input-disabled/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/native-ui/chromium-input-qualified/input-disabled/radio-a-pressed.png": "463447ec5974cf4e9f9e2b96d0fa23f8e915edd7cf2593c2da0ee51c4b270704",
+    ".build/native-ui/chromium-input-qualified/input-disabled/results.json": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17",
+    ".build/native-ui/chromium-input-qualified/large-focused.png": "de9cf53c39792d5158c92b4f36f409b48e3af058715ee97c2081eae9e27971a4",
+    ".build/native-ui/chromium-input-qualified/mixed-focused.png": "a0b4e9244b93a9ffd667cfc1c2ec9bf37fb3c93f6eeafd29ce83e8624a469294",
+    ".build/native-ui/chromium-input-qualified/mouse/button-pressed.png": "9401fff5fe12927cd976312288da111bb09fcf149a09f2acebd6259c8c1ca105",
+    ".build/native-ui/chromium-input-qualified/mouse/check-pressed.png": "75d88b11d806b72195fb61cf4bde85027b7ac62dba36d2fb4eadedd36c07d769",
+    ".build/native-ui/chromium-input-qualified/mouse/native-actions.json": "8e9a7c705cebfb6f5841b68f58859c6c97a439f1bd7d93599a307fe9c0b7861f",
+    ".build/native-ui/chromium-input-qualified/mouse/native-helper-full.jsonl": "60310861080b7c26d8723eef108ccdcec94a9d7819eacc0101a625bc204d3877",
+    ".build/native-ui/chromium-input-qualified/mouse/native-helper.jsonl": "c0b54e6930f9fabcea9ec7e2ed750b59148de60a95fea56752c6cb08de2357cb",
+    ".build/native-ui/chromium-input-qualified/mouse/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/native-ui/chromium-input-qualified/mouse/radio-a-pressed.png": "d91633887ed9835aa28cc0a80b3222e2d83e7f9b357015f14b092699e1b6f77e",
+    ".build/native-ui/chromium-input-qualified/mouse/results.json": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17",
+    ".build/native-ui/chromium-input-qualified/native-actions.json": "458af289b7c447802331638783b7c900e46bb6982d3f50afd3336a88d2fe8127",
+    ".build/native-ui/chromium-input-qualified/native-helper.jsonl": "d59957acfa079f696bdf4204bb7dd486254cf83d81f8f08a16e9e0b4a78234ac",
+    ".build/native-ui/chromium-input-qualified/native-hook.log": "1b5eded8217ca068cf6f5d2c6fb29064b7089ad54b5b7d4a174b34fe438f215c",
+    ".build/native-ui/chromium-input-qualified/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/native-ui/chromium-input-qualified/radio-a-focused.png": "f0f6fa7c316c44bddf5ef1d260090b0874bfd6ba83ac7201f2bc644f3bf6a603",
+    ".build/native-ui/chromium-input-qualified/radio-a-pressed.png": "d91633887ed9835aa28cc0a80b3222e2d83e7f9b357015f14b092699e1b6f77e",
+    ".build/native-ui/chromium-input-qualified/radio-b-focused.png": "aebfcf437a647b3c72fea7eb6ef29c6f87262a60bf37bf76911bdf60d2261756",
+    ".build/native-ui/chromium-input-qualified/results.json": "3ed3d7cbc81eb9a5975961547ba0ca824266dfbf7f5dcea7108e327b85fc4301",
+    ".build/native-ui/chromium-input-qualified/scrollbars/empty.png": "d755c76d49703dc1b6c637c6c38e151500c820b414c9cc5314555be177192f67",
+    ".build/native-ui/chromium-input-qualified/scrollbars/fitting-again.png": "330670de19b8c0b763c86ebb88c8517ee26e250d2031ef49e7d032d16b616a0f",
+    ".build/native-ui/chromium-input-qualified/scrollbars/fitting.png": "330670de19b8c0b763c86ebb88c8517ee26e250d2031ef49e7d032d16b616a0f",
+    ".build/native-ui/chromium-input-qualified/scrollbars/overflowing.png": "23304e152d8d3b0692d2213dfb4a64281debe6e16923dcc5bd618d9a2c2953ae",
+    ".build/native-ui/chromium-input-qualified/scrollbars/results.json": "70a7d088253e2c4cfaa35326d8153fe1cce6c6c49e829c7b6d05107bdbc6bfd1",
+    ".build/native-ui/chromium-input-references/button-pressed.png": "a9a2ab463f12ce292caf631c1bed13957e93e423b3dae996c0fe341b8349aaa5",
+    ".build/native-ui/chromium-input-references/button.png": "16ad87e6b768d41807c7e4e059568b6ef15325f9d1745900372e79f80ad4afff",
+    ".build/native-ui/chromium-input-references/cancelled-pressed.png": "6a759b08d2a479ea5c7a53234f614540af771eb102458b4b5b77a9188c4e4733",
+    ".build/native-ui/chromium-input-references/cancelled.png": "1f3d1cb6529e45f860a30eee3c96e6d01b63985f22b654e8f56e967af08e8b65",
+    ".build/native-ui/chromium-input-references/check-pressed.png": "cbc502b9ba6e811f2b5a65f671c8703df90cea7bb937efcf20fc6dc56003d915",
+    ".build/native-ui/chromium-input-references/check.png": "c7f3a29ac85e651ce963d7c8e3dd795071cf82b4dcfa897c2ffa75340d022340",
+    ".build/native-ui/chromium-input-references/disabled-check.png": "059b924294f907fedf21d533adc12444d0e82ed95e387f8066750bc6d602efbc",
+    ".build/native-ui/chromium-input-references/disabled-radio.png": "ce4557eb7719be6ff232879281de66e0adf957b9acacd718fed40a85eab704a8",
+    ".build/native-ui/chromium-input-references/disabled.png": "958d16ca94c8cb79bff9ac0f4b60ad37373615d47b73195082e820149c7ce055",
+    ".build/native-ui/chromium-input-references/input-button-pressed.png": "271e9a9746c5e6d0c682aea366a28484372470cfa11e5140ed1ec1330579c089",
+    ".build/native-ui/chromium-input-references/input-button.png": "2af5d121b9b76c8534f53c3faf422fde19341d5b8ae87fd86b9eb8fb58ec0b6b",
+    ".build/native-ui/chromium-input-references/large-pressed.png": "8f018dbdd6831908babef392b82da46206c3489e73171e13bb67a8d0c18d90eb",
+    ".build/native-ui/chromium-input-references/large.png": "d5507e98c34bdebb1d838e6d6c13fc09b37de5ebe4da7d2b80ea5b07231338bf",
+    ".build/native-ui/chromium-input-references/mixed-pressed.png": "c7f3a29ac85e651ce963d7c8e3dd795071cf82b4dcfa897c2ffa75340d022340",
+    ".build/native-ui/chromium-input-references/mixed.png": "cbc502b9ba6e811f2b5a65f671c8703df90cea7bb937efcf20fc6dc56003d915",
+    ".build/native-ui/chromium-input-references/radio-a-pressed.png": "f34ffc40e5a5b6f6817dcb76e3e1dc1060091f5596a716053075f39ed7a71e1a",
+    ".build/native-ui/chromium-input-references/radio-a.png": "a66e7dbcc0d51bf48e280676debed1cdebd362e33417d072a26b3d095f49610e",
+    ".build/native-ui/chromium-input-references/radio-b-pressed.png": "f34ffc40e5a5b6f6817dcb76e3e1dc1060091f5596a716053075f39ed7a71e1a",
+    ".build/native-ui/chromium-input-references/radio-b.png": "a66e7dbcc0d51bf48e280676debed1cdebd362e33417d072a26b3d095f49610e",
+    ".build/native-ui/chromium-input-references/results.json": "4d9083e27f3c5ffdf3e7fcadfeac74026724519882f2d04a5f717b27d5890c8c",
+    ".build/foreign-scrollbars/chromium-prototype/forms-controls.json": "058217ecbc1a91a055d01456496a7abec947bc857e39a0d67028fa8a6bdc36d6",
+    ".build/foreign-scrollbars/chromium-prototype/form-references-2/results.json": "4d9083e27f3c5ffdf3e7fcadfeac74026724519882f2d04a5f717b27d5890c8c",
+    ".build/foreign-scrollbars/chromium-prototype/source/forms/focus-sources.json": "f73cbae145050c76a2ce88b3e0bf28042ffb5c65011000f81b3b21f2b553c70d",
+    ".build/foreign-scrollbars/chromium-prototype/source/forms/keyboard-sources.json": "3734d9b7ee1fda956cf84268d428baed953c8d4b344b6ecfc813480549eb7cca",
+    ".build/foreign-scrollbars/chromium-prototype/source/forms/focus-model-sources.json": "09ad1691fe20698377c2131b565bdb6b67efa751925fd9dd7b96724e50af9898"
+  },
+  "remaining": [
+    "offscreen native keyboard activation animation",
+    "native radio-group keyboard context and arrow policy",
+    "default-button, key-equivalent and command/menu models",
+    "IME, text editing, accessibility, touch and key-repeat qualification",
+    "label activation, author-styled/rich controls and broader layout",
+    "cross-process frames, helper failure recovery, hardware GPU and HiDPI",
+    "browser frontend controls and other Chromium/Chrome/Vivaldi/Firefox builds and derivatives",
+    "GTK/Qt full regression after provider separation",
+    "previously observed intermittent legacy probe shutdown timeout"
+  ]
+}

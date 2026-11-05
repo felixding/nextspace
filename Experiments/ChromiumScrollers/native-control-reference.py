@@ -12,6 +12,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
 parser.add_argument('--controls', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--focus', action='store_true', help='Use the real first-responder state for enabled controls')
 args, _ = parser.parse_known_args()
 args.output.mkdir(parents=True, exist_ok=True)
 native = C.CDLL(str(args.library))
@@ -37,6 +38,9 @@ for item in json.loads(args.controls.read_text()):
         config = ControlConfig(C.sizeof(ControlConfig), item['width'], item['height'],
                                0, 1, item['state'], item['enabled'], item['state'], 0, title)
         assert native.nxs_control_sync(pointer, C.byref(config))
+        if args.focus and item['enabled']:
+            assert api.input_capabilities & 1
+            assert native.nxs_control_focus(pointer, 1)
         image = save_image()
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],

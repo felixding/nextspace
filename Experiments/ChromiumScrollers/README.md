@@ -174,8 +174,9 @@ JSON describes each fixture control with `id`, `kind`, `width`, `height`, `title
 checks with an explicitly owned agent-browser session and a fresh fixture, and
 validate the helper log from that run with `check-form-trace.py`.
 
-This qualifies the fixture's standard mouse path only. Native focus, keyboard,
-label activation, accessibility, touch, arbitrary fonts/automatic button sizing,
+That qualification covers the fixture's standard mouse path. The optional
+focus/keyboard integration below extends it. Label activation, accessibility,
+touch, arbitrary fonts/automatic button sizing,
 rich button content, author-styled controls, CSS zoom/transforms, cross-process
 frames and HiDPI remain open. Titles containing NUL or exceeding 64 KiB currently
 fall back. Browser chrome and Chrome, Vivaldi, Firefox and derivatives have no
@@ -185,8 +186,44 @@ the installed NEXTSPACE session is unchanged.
 The helper now advertises optional provider input capabilities and accepts
 first-responder focus and key events over the generic-control transport.
 `check-control-input.py` verifies these round trips for buttons, checkboxes,
-radios and sliders; native AppKit interprets the keys. The pinned browser's
-focus/default-keyboard routing has not been connected to those messages yet.
+radios and sliders; native AppKit interprets the keys.
 The existing 33 mouse/pixel checks, native-action trace and eight scrollbar
 pixel checks still pass with the extended provider. Provider-level input and
 ABI compatibility evidence is in `Libraries/NativeUI/input-qualification.json`.
+
+## Optional native focus and keyboard binding
+
+Set both `NEXTSPACE_CHROMIUM_FORMS=1` and `NEXTSPACE_CHROMIUM_INPUT=1` to connect
+the same pinned browser's standard buttons, checkboxes and radio buttons to the
+provider's optional input API. It requires both advertised input capabilities;
+an older provider retains the prior mouse-only path. Neither flag is enabled
+in the installed NEXTSPACE session.
+
+`forms-input.inc` translates the browser's focus state, logical key data and
+control model into the public NativeUI contract. AppKit's real responder
+interprets the keys and draws focus. A native action calls Chromium's existing
+trusted activation pipeline after page keyboard listeners have had the chance
+to cancel the event. Chromium owns its real form submission, checkbox rollback
+and radio-group data model. The provider's next/previous requests call the
+browser's real focus controller; the bridge carries no copied tab order or key
+bindings. Blink's second widget keyboard handler and focus outline are suppressed
+for the native control. Removed objects have distinct native identities, so
+reinserting a DOM object cannot revive its cancelled gesture.
+
+`check-form-input.py` passed 62 assertions on the same ARM64/native106 setup:
+normal, focused and pressed native pixels; native focus without an additional
+browser outline; trusted keyboard actions and model changes; focus traversal;
+event cancellation and rollback; untrusted keys; removal/reinsertion; real HTML
+form submission; and creation/focus/activation of new controls. The independent
+`check-form-input-trace.py` witnesses twelve native keyboard actions and three
+native mouse actions, plus next/previous native focus requests. The existing
+33 mouse checks also pass with native focus enabled; supply
+`check-forms.py --pressed-references` with focused native references for that
+configuration. `native-control-reference.py --focus` generates them directly
+through the public library ABI. See [input-qualification.json](input-qualification.json).
+
+This remains partial integration of one exact binary. Offscreen native keyboard
+activation animation, native radio-group keyboard context, default buttons and
+key equivalents, IME, accessibility and the other controls/frontends are still
+open. AppKit and Chromium were not rebuilt. Changing appearance or widget key
+behavior belongs in the UI library; this bridge remains a consumer of it.

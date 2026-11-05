@@ -11,6 +11,7 @@ parser.add_argument('--session', required=True)
 parser.add_argument('--cdp', required=True)
 parser.add_argument('--controls', type=Path, required=True)
 parser.add_argument('--references', type=Path, required=True)
+parser.add_argument('--pressed-references', type=Path, help='Optional focused native press images')
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -24,8 +25,8 @@ def evaluate(expression):
     return json.loads(browser('eval', expression))
 
 def reset():
-    evaluate('location.reload(); true')
-    browser('wait', '--fn', 'document.readyState === "complete" && !!window.events')
+    evaluate('window.__nxsReloadPending=true; location.reload(); true')
+    browser('wait', '--fn', 'document.readyState === "complete" && !!window.events && !window.__nxsReloadPending')
     evaluate('events = []; true')
 
 def check(name, condition, **data):
@@ -49,7 +50,8 @@ def types(identifier):
 
 def compare(identifier, suffix, screenshot):
     item = controls[identifier]
-    reference = Image.open(args.references / (identifier + suffix + '.png')).convert('RGBA')
+    directory = args.pressed_references if suffix and args.pressed_references else args.references
+    reference = Image.open(directory / (identifier + suffix + '.png')).convert('RGBA')
     expected = Image.new('RGBA', reference.size, 'white')
     expected.alpha_composite(reference)
     bounds = item['x'], item['y'], item['x'] + item['width'], item['y'] + item['height']

@@ -57,8 +57,9 @@ runs. `tracking` reports this busy state, and destruction returns zero until
 dispatch returns. Keyboard input to an unfocused/disabled control, or during
 another native input dispatch, is rejected. Text and IME editing, default-button
 command models, key equivalents, offscreen keyboard activation animation and
-application focus traversal still need their
-broader integration contracts.
+application focus traversal still need their broader integration contracts.
+The pinned Chromium experiment now applies next/previous requests through its
+real focus controller; other application integrations remain open.
 
 The input function pointers are appended to ABI version 1. The loader validates
 the original `NXS_NATIVE_UI_CORE_SIZE` prefix and checks the advertised structure
@@ -67,7 +68,7 @@ controls and report no input capabilities. An older loader/client can also use
 the new provider unchanged. This preserves the separation while the API grows.
 
 This is an initial implementation of the shared host, not full browser support.
-Text editing, engine/frontend focus and keyboard routing, IME, accessibility,
+Text editing, broader engine/frontend focus and keyboard routing, IME, accessibility,
 menus, lists/trees, tabs, popup controls,
 progress animation
 and engine/frontend adapters for the new control types remain to implement.
@@ -109,8 +110,11 @@ saved pre-extension binaries. These checks passed on the same private ARM64
 setup, including 30 unchanged scrollbar comparisons. The helper transport also
 passes native focus/key round trips for all four types. The existing Chromium
 mouse fixture still passes 33 checks and its native action trace; eight scrollbar
-pixel checks pass. This does not qualify Chromium keyboard routing, which remains
-to connect. See `input-qualification.json` and `.build/native-ui/input-*`.
+pixel checks pass. See `input-qualification.json` and `.build/native-ui/input-*`.
+The later optional Chromium focus/keyboard binding passes 62 browser assertions
+and independent native-action traces using this unchanged provider. Its narrower
+browser qualification and remaining gaps are recorded separately in
+[`Experiments/ChromiumScrollers/input-qualification.json`](../../Experiments/ChromiumScrollers/input-qualification.json).
 
 `--baseline DIRECTORY` adds byte-for-byte comparisons against the prior
 `libnextspace-native-scroller.so.1`, using the same executable and both scrollbar
