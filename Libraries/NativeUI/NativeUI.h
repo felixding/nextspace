@@ -36,6 +36,7 @@ typedef void (*NXSControlChanged)(void *context, int event, const NXSControlStat
 
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
 enum NXSEventCapability { NXS_EVENTS = 1 };
+enum NXSRangeCapability { NXS_RANGE_STEP = 1 };
 enum NXSKeyType { NXS_KEY_DOWN, NXS_KEY_UP, NXS_KEY_MODIFIERS };
 enum NXSKey {
   NXS_KEY_TEXT, NXS_KEY_ENTER, NXS_KEY_TAB, NXS_KEY_BACKSPACE, NXS_KEY_DELETE,
@@ -82,6 +83,7 @@ typedef struct {
   /* Optional native event-loop extension; timing and invalidation stay native. */
   double (*dispatch_events)(double maximum_wait);
   int (*control_needs_display)(NXSControl *);
+  int (*control_set_step)(NXSControl *, double);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -108,6 +110,10 @@ unsigned nxs_native_ui_event_capabilities(void);
  * when none is available. This does not advance or draw controls itself. */
 double nxs_native_ui_dispatch_events(double maximum_wait);
 int nxs_control_needs_display(NXSControl *control);
+unsigned nxs_control_range_capabilities(void);
+/* Positive data quantum; zero denotes a continuous range. The provider maps
+ * small discrete domains to native slider ticks; widget behavior stays native. */
+int nxs_control_set_step(NXSControl *control, double step);
 
 #ifdef __cplusplus
 }

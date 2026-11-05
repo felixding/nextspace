@@ -27,6 +27,7 @@ static int input_form_kind(void *node) {
   char *type=atom?string_text(*(void *const *)atom):NULL;
   if(!type)return 0;
   int kind=!strcmp(type,"checkbox")?NXS_CHECKBOX:!strcmp(type,"radio")?NXS_RADIO:
+    (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
   free(type);return kind;
 }
@@ -43,6 +44,7 @@ static struct NativeForm *bind_input_form(void *node) {
   form->node=node;form->control=++next_form_control;form->kind=kind;form->title=title;form->input_owned=1;
   form->rect=(struct Rect){lroundf(box.x),lroundf(box.y),lroundf(box.width),lroundf(box.height)};
   form->enabled=form_enabled(node);form->state=form_state(node,kind);
+  if(kind==NXS_SLIDER&&!sync_slider_model(form)){free(form->title);free(form);return NULL;}
   form->next=native_forms;native_forms=form;
   if(log_fd>=0)dprintf(log_fd,"%d native form bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)form->control,kind);
   form_request(form,1,0,0,0);
@@ -146,6 +148,7 @@ static int default_form_key(void *node,void *event) {
   free(key);
   if(!text||!unmodified){free(text);free(unmodified);*flags|=0x40;return 1;}
   form->enabled=1;form->state=form_state(node,form->kind);
+  if(form->kind==NXS_SLIDER&&!sync_slider_model(form)){free(text);free(unmodified);*flags|=0x40;return 1;}
   struct NXSResponse *response=sync_form_focus(form,form_request(form,1,0,0,0));
   double before=response?response->parts[0].width:0;
   if(response)response=form_input_request(form,8,0,modifier?NXS_KEY_MODIFIERS:down?NXS_KEY_DOWN:NXS_KEY_UP,
@@ -161,7 +164,8 @@ static int default_form_key(void *node,void *event) {
   if(action) {
     /* Native action, real trusted application activation. Chrome retains
      * preactivation, event cancellation, form submission and model rollback. */
-    ((void (*)(void *,const void *,int))(base+0xdd1402c))(node,event,1);
+    if(form->kind==NXS_SLIDER)apply_slider_value(form,response,3);
+    else ((void (*)(void *,const void *,int))(base+0xdd1402c))(node,event,1);
     *flags|=0x40;
     note("native keyboard action applied");
   }
@@ -170,7 +174,7 @@ static int default_form_key(void *node,void *event) {
 static void button_default(void *node,void *event)
 {if(!default_form_key(node,event))original_button_default(node,event);}
 static void input_default(void *node,void *event)
-{if(!default_form_key(node,event))original_input_default(node,event);}
+{if(!slider_mouse_default(node,event)&&!default_form_key(node,event))original_input_default(node,event);}
 static struct Detour form_input_detours[]={
  {NXS_ELEMENT_FOCUS_OFFSET,nxs_element_focus_bytes,element_focus,(void **)&original_element_focus},
  {NXS_BUTTON_DEFAULT_OFFSET,nxs_button_default_bytes,button_default,(void **)&original_button_default},

@@ -6,13 +6,14 @@ import json
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
 parser.add_argument('--controls', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--focus', action='store_true', help='Use the real first-responder state for enabled controls')
+parser.add_argument('--keys', action='store_true', help='Record actual native slider key results')
 args, _ = parser.parse_known_args()
 args.output.mkdir(parents=True, exist_ok=True)
 native = C.CDLL(str(args.library))
@@ -39,6 +40,8 @@ for item in json.loads(args.controls.read_text()):
                                item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
                                item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
+        if 'step' in item:
+            assert api.range_capabilities and native.nxs_control_set_step(pointer,item['step'])
         if args.focus and item['enabled'] and item['kind'] != 5:
             assert api.input_capabilities & 1
             assert native.nxs_control_focus(pointer, 1)
@@ -48,6 +51,15 @@ for item in json.loads(args.controls.read_text()):
                             preferred=[preferred.width, preferred.height]))
         if item['enabled'] and item['kind'] != 5:
             native.nxs_control_track(pointer, item['width'] / 2, item['height'] / 2, 0)
+        if args.keys and item['enabled'] and item['kind']==4:
+            assert native.nxs_control_sync(pointer,C.byref(config))
+            assert native.nxs_control_focus(pointer,1)
+            values=[]
+            for name,key in [('ArrowRight',7),('Home',10),('End',11),('PageDown',13)]:
+                event=KeyEvent(C.sizeof(KeyEvent),0,0,key,0,b'',b'')
+                native.nxs_control_key(pointer,C.byref(event))
+                values.append(dict(key=name,value=native.nxs_control_state(pointer).value))
+            results[-1]['keys']=values
     finally:
         assert native.nxs_control_destroy(pointer)
 (args.output / 'results.json').write_text(json.dumps(results, indent=2) + '\n')

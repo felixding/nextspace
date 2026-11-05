@@ -16,7 +16,8 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_focus=nxs_gnustep_control_focus,.control_focused=nxs_gnustep_control_focused,
     .control_key=nxs_gnustep_control_key,
     .dispatch_events=nxs_host_dispatch_events,
-    .control_needs_display=nxs_gnustep_control_needs_display
+    .control_needs_display=nxs_gnustep_control_needs_display,
+    .control_set_step=nxs_gnustep_control_set_step
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

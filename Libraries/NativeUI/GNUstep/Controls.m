@@ -11,7 +11,18 @@ struct NXSControl {
   id target;
   NXSControlChanged changed;
   void *context;
+  double step;
 };
+static void slider_model(NXSControl *control)
+{
+  NSSlider *view=(NSSlider *)control->view;
+  double intervals=control->step>0?([view maxValue]-[view minValue])/control->step:0;
+  /* Dense domains retain the native continuous presentation. Small domains
+   * use the existing native tick/snap implementation, including its keys. */
+  NSInteger ticks=isfinite(intervals)&&intervals>=1&&intervals<=63?(NSInteger)llround(intervals)+1:0;
+  [view setNumberOfTickMarks:ticks];[view setAllowsTickMarkValuesOnly:ticks>1];
+  [view setDoubleValue:[view doubleValue]];
+}
 @interface NXSControlAction : NSObject { @public NXSControl *control; }
 - (void)changed:(id)sender;
 @end
@@ -87,7 +98,9 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     [(NSControl *)control->view setEnabled:control->enabled];
     if(control->kind==NXS_SLIDER) {
       NSSlider *view=(NSSlider *)control->view;
+      [view setAllowsTickMarkValuesOnly:NO];
       [view setMinValue:config->minimum];[view setMaxValue:config->maximum];[view setDoubleValue:config->value];
+      slider_model(control);
     } else {
       NSButton *view=(NSButton *)control->view;
       [view setTitle:title];[view setAllowsMixedState:control->kind==NXS_CHECKBOX&&config->state==-1];
@@ -128,3 +141,9 @@ int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
 {return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_key(control->host,event):NXS_INPUT_UNHANDLED;}
 int nxs_gnustep_control_needs_display(NXSControl *control)
 {return control?nxs_host_needs_display(control->host):0;}
+int nxs_gnustep_control_set_step(NXSControl *control,double step)
+{
+  if(!control||control->kind!=NXS_SLIDER||!isfinite(step)||step<0)return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  control->step=step;slider_model(control);[pool drain];return 1;
+}

@@ -292,3 +292,37 @@ by the native binding. See
 [`Libraries/NativeUI/animation-qualification.json`](../../Libraries/NativeUI/animation-qualification.json)
 for exact sources and evidence. Only integration libraries were rebuilt; the
 installed AppKit library and Chromium executable were unchanged.
+
+## Optional native sliders
+
+Add `NEXTSPACE_CHROMIUM_SLIDERS=1` alongside the forms/input flags and open
+`test-sliders.html` in the same pinned binary. This requires the provider's
+optional event and range-step capabilities. It connects standard HTML range
+controls to actual `NSSlider` instances, including horizontal/vertical output,
+native focus, keyboard input and continuous mouse tracking.
+
+`forms-sliders.inc` reads the engine's own range model and invokes its existing
+decimal setter, validation, serialization and trusted input/change dispatch.
+The helper transports native values; it defines no slider tracking, knob
+geometry, artwork or key bindings. Small discrete domains configure the native
+slider's existing tick-mark properties through the independent provider API.
+Dense domains use native continuous input followed by engine data validation.
+Native actions wake the renderer through the existing event handoff, so a held
+pointer can update the DOM before release. Page cancellation, removal and
+reinserted-control identities are respected.
+
+The initial fixture passes 50 assertions, including nine complete normal/focused
+images and sixteen key results compared with independent native-provider
+references, live drag updates, outside-control clamping, one change event on
+release, cancellation, disabled controls, untrusted keys and callback removal.
+Only the provider/integration libraries were rebuilt. The underlying AppKit and
+Chromium executable were unchanged. See
+[`slider-qualification.json`](slider-qualification.json) for exact evidence.
+
+This is partial HTML slider support for one pinned build at 100% scale.
+Constant-value domains are excluded because the installed `NSSliderCell`'s knob
+geometry divides by the range width; that needs a fix in the UI library itself.
+Automatic metrics/layout, arbitrary step bases and dense-step rounding, dynamic
+style/model combinations, touch, accessibility, HiDPI and other browser/frontends
+remain unqualified. Existing early progress/scrollbar fallback observations
+remain unresolved. This does not complete the all-controls requirement.

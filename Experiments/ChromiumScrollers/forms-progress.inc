@@ -37,8 +37,8 @@ static void *watch_native_forms(void *unused) {
   return NULL;
 }
 static int refresh_form_watch(void) {
-  if(!forms_animation_enabled)return 1;
-  int needed=0;double generation=0;
+  if(!forms_animation_enabled&&!forms_sliders_enabled)return 1;
+  int needed=active_form&&active_form->kind==NXS_SLIDER;double generation=needed?active_form->generation:0;
   for(struct NativeForm *f=native_forms;f;f=f->next)
     if(f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted){needed=1;generation=fmax(generation,f->generation);}
   pthread_mutex_lock(&form_watch.mutex);
@@ -59,14 +59,19 @@ static int refresh_form_watch(void) {
   return usable;
 }
 static void form_native_work(void *controller) {
-  if(!forms_animation_enabled)return;
+  if(!forms_animation_enabled&&!forms_sliders_enabled)return;
   pthread_mutex_lock(&form_watch.mutex);
   int ready=form_watch.running&&form_watch.pending&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
   if(ready)form_watch.pending=0;
   pthread_mutex_unlock(&form_watch.mutex);
   if(!ready)return;
+  if(active_form&&active_form->kind==NXS_SLIDER){
+    struct NativeForm *slider=active_form;
+    struct NXSResponse *response=form_request(slider,5,0,0,0);
+    apply_slider_value(slider,response,2);
+  }
   for(struct NativeForm *f=native_forms;f;f=f->next){
-    if(f->kind!=NXS_PROGRESS||!f->indeterminate||!f->painted)continue;
+    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&f->kind==NXS_SLIDER)))continue;
     void *layout=decode_member((const char *)f->node+48);if(!layout)continue;
     invalidate_form(f);
     void *view=((void *(*)(const void *))(base+0xe11b43c))(layout);

@@ -289,6 +289,8 @@ __attribute__((constructor)) static void initialize(void) {
   forms_progress_enabled=forms_available&&progress&&!strcmp(progress,"1");
   const char *animation=getenv("NEXTSPACE_CHROMIUM_ANIMATION");
   forms_animation_enabled=forms_progress_enabled&&animation&&!strcmp(animation,"1")&&metrics->parts[4].height==1;
+  const char *sliders=getenv("NEXTSPACE_CHROMIUM_SLIDERS");
+  forms_sliders_enabled=forms_input_enabled&&sliders&&!strcmp(sliders,"1")&&metrics->parts[4].height==1&&metrics->parts[5].width==1;
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};
@@ -303,4 +305,5 @@ __attribute__((constructor)) static void initialize(void) {
   if(forms_input_enabled)note("experimental native form focus/keyboard enabled");
   if(forms_progress_enabled)note("experimental native determinate progress enabled");
   if(forms_animation_enabled)note("experimental native event invalidation enabled");
+  if(forms_sliders_enabled)note("experimental native sliders enabled");
 }

@@ -20,6 +20,7 @@ parser.add_argument('--previous-provider', type=Path, help='Pre-extension Native
 parser.add_argument('--previous-client', type=Path, help='Pre-extension native-controls-probe to run unchanged')
 parser.add_argument('--previous-loader', type=Path, help='Previous loader directory for the unchanged client/provider-swap check')
 parser.add_argument('--previous-event-provider', type=Path, help='Provider predating optional event dispatch')
+parser.add_argument('--previous-range-provider', type=Path, help='Provider predating optional slider step configuration')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -41,6 +42,27 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         line = compositor.stdout.readline().strip()
         assert line.startswith('WAYLAND_DISPLAY='), line
         environment['WAYLAND_DISPLAY'] = line.split('=', 1)[1]
+        def bounded_probe(arguments, client_env, label, timeout=10):
+            # Wait for this probe's exit, independently of pipe descriptors a
+            # native service could inherit. Preserve output in regular files.
+            with tempfile.TemporaryFile(mode='w+') as out, tempfile.TemporaryFile(mode='w+') as err:
+                child = subprocess.Popen(arguments, env=client_env, stdout=out, stderr=err, text=True)
+                try:
+                    child.wait(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    evidence = args.output / (label + '-timeout.txt')
+                    with evidence.open('w') as trace:
+                        trace.write(f'live probe pid={child.pid} arguments={arguments!r}\n')
+                        trace.flush()
+                        try:
+                            subprocess.run(['sudo', '-n', 'gdb', '-q', '-batch', '-ex', 'thread apply all bt', '-p', str(child.pid)],
+                                           stdout=trace, stderr=trace, timeout=8)
+                        except subprocess.TimeoutExpired:
+                            trace.write('Backtrace collection timed out\n')
+                    child.kill(); child.wait()
+                    raise AssertionError(f'Probe timeout; evidence: {evidence}')
+                out.seek(0); err.seek(0)
+                return child.returncode, out.read(), err.read()
         def held_probe(binary, arguments, hold, label):
             with (args.output / (label + '.stderr')).open('w') as errors:
                 probe = subprocess.Popen([str(binary)] + arguments + backend,
@@ -60,7 +82,22 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                     windows = command('windows')
                     assert not any(window['buffer_width'] > 0 for window in windows), windows
                     probe.stdin.write('\n'); probe.stdin.flush()
-                output, _ = probe.communicate(timeout=20)
+                try:
+                    probe.stdin.close()
+                    probe.wait(timeout=20)
+                    os.set_blocking(probe.stdout.fileno(), False)
+                    output = probe.stdout.read() or ''
+                except subprocess.TimeoutExpired:
+                    evidence=args.output/(label+'-timeout.txt')
+                    with evidence.open('w') as trace:
+                        trace.write(f'live probe pid={probe.pid}\n');trace.flush()
+                        try:subprocess.run(['sudo','-n','gdb','-q','-batch','-ex','thread apply all bt','-p',str(probe.pid)],stdout=trace,stderr=trace,timeout=8)
+                        except subprocess.TimeoutExpired:trace.write('Backtrace collection timed out\n')
+                    probe.kill();probe.wait()
+                    os.set_blocking(probe.stdout.fileno(),False)
+                    output=probe.stdout.read() or ''
+                    (args.output/(label+'.stdout')).write_text(output)
+                    raise AssertionError(f'Native probe timeout; evidence: {evidence}')
                 (args.output / (label + '.stdout')).write_text(output)
                 assert probe.returncode == 0, (probe.returncode, (args.output / (label + '.stderr')).read_text())
                 return output
@@ -75,8 +112,9 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
             scale = 1.5 if path.stem.endswith('-150') else 1
             image = Image.frombytes('RGBA', (round(128 * scale), round(24 * scale)), path.read_bytes(), 'raw', 'BGRA')
             image.save(path.with_suffix('.png'))
-        legacy = subprocess.run([str(args.build / 'native-scroller-probe'), '--track'] + backend,
-                                env=environment, text=True, capture_output=True, timeout=15)
+        code, stdout, stderr = bounded_probe([str(args.build / 'native-scroller-probe'), '--track'] + backend,
+                                            environment, 'legacy-tracking', timeout=15)
+        legacy = subprocess.CompletedProcess([],code,stdout,stderr)
         (args.output / 'legacy.stdout').write_text(legacy.stdout)
         (args.output / 'legacy.stderr').write_text(legacy.stderr)
         assert legacy.returncode == 0, (legacy.returncode, legacy.stderr)
@@ -85,6 +123,15 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         input_output = held_probe(args.build / 'native-ui/native-input-probe', [str(args.output)],
                                   'NXS_NATIVE_UI_INPUT_HOLD', 'input')
         checks['native_input'] = json.loads(input_output)
+        range_result=subprocess.run([str(args.build/'native-ui/native-range-probe')]+backend,
+            env=environment,text=True,capture_output=True,timeout=10)
+        assert range_result.returncode==0,(range_result.returncode,range_result.stderr)
+        checks['native_range']=json.loads(range_result.stdout)
+        if args.previous_range_provider:
+            previous=subprocess.run([str(args.build/'native-ui/native-range-probe'),'--expect-no-step']+backend,
+                env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_range_provider.resolve())),text=True,capture_output=True,timeout=10)
+            assert previous.returncode==0,(previous.returncode,previous.stderr)
+            checks['previous_provider_accepted_without_range_extension']=json.loads(previous.stdout)
         for path in args.output.glob('input-kind-*.argb'):
             Image.frombytes('RGBA', (128, 24), path.read_bytes(), 'raw', 'BGRA').save(path.with_suffix('.png'))
         animation_output = held_probe(args.build / 'native-ui/native-animation-probe', [str(args.output)],
@@ -149,22 +196,8 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         if args.baseline:
             comparisons = []
             def render(arguments, client_env, label):
-                child = subprocess.Popen(arguments, env=client_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                try:
-                    stdout, stderr = child.communicate(timeout=10)
-                except subprocess.TimeoutExpired:
-                    evidence = args.output / (label + '-timeout.txt')
-                    with evidence.open('w') as trace:
-                        trace.write(f'live probe pid={child.pid} arguments={arguments!r}\n')
-                        trace.flush()
-                        try:
-                            subprocess.run(['sudo', '-n', 'gdb', '-q', '-batch', '-ex', 'thread apply all bt', '-p', str(child.pid)],
-                                           stdout=trace, stderr=trace, timeout=8)
-                        except subprocess.TimeoutExpired:
-                            trace.write('Backtrace collection timed out\n')
-                    child.kill(); child.communicate()
-                    raise AssertionError(f'Probe shutdown timeout; evidence: {evidence}')
-                assert child.returncode == 0, (child.returncode, stderr)
+                code, stdout, stderr = bounded_probe(arguments, client_env, label)
+                assert code == 0, (code, stderr)
                 return json.loads(stdout)
             for horizontal in (False, True):
                 for scale in (1, 1.25, 1.5, 1.75, 2):

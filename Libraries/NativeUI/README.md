@@ -61,7 +61,7 @@ application focus traversal still need their broader integration contracts.
 The pinned Chromium experiment now applies next/previous requests through its
 real focus controller; other application integrations remain open.
 
-The input and event function pointers are appended to ABI version 1. The loader validates
+The input, event and range function pointers are appended to ABI version 1. The loader validates
 the original `NXS_NATIVE_UI_CORE_SIZE` prefix and checks the advertised structure
 size before reading optional fields. Older providers keep their original
 controls and report no input capabilities. An older loader/client can also use
@@ -138,10 +138,10 @@ of supplying a fixed width. Staged-library controls and tracking checks passed.
 Full GTK/Qt package regression and the broader browser/control qualification
 remain required before activation outside the private test environment.
 
-A later repeat run timed out during one legacy probe's shutdown after writing
-its bitmap. The next complete run passed; the original timeout remains an open
-lifecycle issue. The verifier now captures a live backtrace if it recurs rather
-than treating that run as passed.
+A later repeat run timed out after a legacy probe wrote its bitmap. The next
+complete run passed; the timeout's cause remains unconfirmed. The later slider
+verification below distinguishes waiting for captured output from waiting for
+the probe to exit and retains backtrace capture on exit timeouts.
 
 ## Native events and animation
 
@@ -175,3 +175,29 @@ API. See [`animation-qualification.json`](animation-qualification.json).
 This covers progress animation in the qualified setup. Offscreen native keyboard
 activation animation, other widgets' animation/invalidation contracts and the
 broader engine/frontend matrix remain open.
+
+## Native slider data
+
+The optional `nxs_control_range_capabilities()` / `nxs_control_set_step()`
+extension adds the application's data quantum without replacing native input
+rules. Zero means continuous. The provider configures `NSSlider`'s existing tick
+marks and tick-only values for domains with 2–64 discrete values; denser domains
+retain its continuous presentation. AppKit still draws the ticks/knob and
+interprets every mouse/key event. The application validates and serializes the
+returned number using its own data model. There is no second snapping, drawing
+or keyboard implementation in the bridge.
+
+The extension is appended after the event methods (ABI 1, 200 bytes on ARM64).
+Older providers advertise no range capability. The direct range probe checks
+coarse native keys, dense continuous input, range changes and invalid arguments;
+the old provider/client compatibility checks and 30 scrollbar comparisons pass.
+`--previous-range-provider` verifies a saved provider predating this extension.
+The pinned Chromium slider binding and its narrower qualification are recorded
+in [`slider-qualification.json`](../../Experiments/ChromiumScrollers/slider-qualification.json).
+
+Three earlier verification attempts timed out while collecting probe output.
+One diagnostic found the target already terminated; that evidence does not
+establish a live control deadlock. The harness now waits for the probe's actual
+exit independently of inherited output descriptors, and captures a backtrace
+on an actual exit timeout. The subsequent complete run passed. The original
+timeouts' exact cause remains unconfirmed.

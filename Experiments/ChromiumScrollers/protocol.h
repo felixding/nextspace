@@ -44,4 +44,13 @@ struct NXSControlInputRequest {
   uint32_t type, modifiers, key, repeat, unmodified_size;
   int32_t focused;
 };
+/* Optional operation 10: slider data quantum. Bootstrap part 5.width and
+ * generic response part 5.width advertise range capabilities; part 5.x is
+ * the configured quantum. The original 104-byte request stays unchanged. */
+struct NXSControlStepRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  double step;
+};
 #endif

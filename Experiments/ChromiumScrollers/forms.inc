@@ -9,7 +9,7 @@ struct NativeForm {
   int kind,enabled,state,painted,input_owned,indeterminate;
   struct Rect rect;
   char *title;
-  double actions_before,value,generation;
+  double actions_before,actions_seen,value,generation,minimum,maximum,step;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
@@ -25,6 +25,7 @@ static int forms_available;
 static int forms_input_enabled;
 static int forms_progress_enabled;
 static int forms_animation_enabled;
+static int forms_sliders_enabled;
 static unsigned forms_input_capabilities;
 static struct SizeI form_sizes[4];
 static int (*original_checkbox)(void*,const void*,const void*,const void*,const void*,const struct Rect*);
@@ -49,6 +50,9 @@ static struct NativeForm *find_form(const void *node) {
 }
 static struct NativeForm *bind_input_form(void *node);
 static int refresh_form_watch(void);
+static int sync_slider_model(struct NativeForm *);
+static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
+static int slider_mouse_default(void *,void *);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -112,11 +116,18 @@ static struct NXSResponse *form_request(struct NativeForm *form,int operation,do
   struct NXSControlRequest *req=calloc(1,size);if(!req)return NULL;
   *req=(struct NXSControlRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=form->kind,.control=form->control,.text_size=title_size,
-    .width=form->rect.width,.height=form->rect.height,.minimum=0,.maximum=1,
-    .value=form->kind==NXS_PROGRESS?form->value:form->state,
+    .width=form->rect.width,.height=form->rect.height,
+    .minimum=form->kind==NXS_SLIDER?form->minimum:0,.maximum=form->kind==NXS_SLIDER?form->maximum:1,
+    .value=(form->kind==NXS_PROGRESS||form->kind==NXS_SLIDER)?form->value:form->state,
     .x=x,.y=y,.enabled=form->enabled,.state=form->state,.indeterminate=form->indeterminate,.modifiers=modifiers};
   if(title_size)memcpy(req+1,form->title,title_size);
-  struct NXSResponse *response=exchange_bytes(req,size);free(req);return response;
+  struct NXSResponse *response=exchange_bytes(req,size);free(req);
+  if(operation==1&&form->kind==NXS_SLIDER&&response&&response->parts[5].x!=form->step){
+    struct NXSControlStepRequest step={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=10,
+      .process=identity(),.kind=NXS_SLIDER,.control=form->control,.step=form->step};
+    response=exchange_bytes(&step,sizeof(step));
+  }
+  return response;
 }
 static void invalidate_form(struct NativeForm *form) {
   void *layout=decode_member((const char *)form->node+48);
@@ -132,6 +143,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   free(form->title);form->title=title;form->kind=kind;form->rect=*rect;
   form->enabled=kind==NXS_PROGRESS?1:form_enabled(form->node);form->state=form_state(form->node,kind);
+  if(kind==NXS_SLIDER&&!sync_slider_model(form))return 1;
   if(kind==NXS_PROGRESS){
     double position=((double (*)(const void *))(base+0xe7bb2e8))(element);
     form->indeterminate=position==-1;form->value=form->indeterminate?0:position;
@@ -203,12 +215,61 @@ static void finish_form(double x,double y,unsigned modifiers) {
     response=form_request(form,5,0,0,0);
   }
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
+  if(form->kind==NXS_SLIDER){
+    void *node=form->node;uint64_t control=form->control;click_form=NULL;
+    apply_slider_value(form,response,2);
+    form=find_form(node);if(form&&form->control==control)invalidate_form(form);
+    refresh_form_watch();return;
+  }
   form_click_time=0;invalidate_form(form);
 }
 static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,const void *type,const void *event,
     const void *last,void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up) {
   uintptr_t atom=*(const uintptr_t *)type;
   unsigned modifiers=event_modifiers(event);
+  int slider_up=active_form&&active_form->kind==NXS_SLIDER&&same_atom(atom,0x123a5608)&&*(const int *)((const char *)event+120)==0;
+  void *slider_node=slider_up?active_form->node:NULL;
+  uint64_t slider_control=slider_up?active_form->control:0;
+  struct NativeForm *slider=NULL;
+  if(forms_sliders_enabled&&same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0){
+    void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
+    slider=form_ancestor(node);
+    if(slider&&slider->kind!=NXS_SLIDER)slider=NULL;
+  }
+  int slider_move=active_form&&active_form->kind==NXS_SLIDER&&same_atom(atom,0x123a5600);
+  if(slider||slider_move||slider_up){
+    if(!slider)slider=active_form;
+    void *node=slider->node;uint64_t control=slider->control;
+    struct FloatPoint point=form_point(slider,event);
+    if(slider_up)finish_form(point.x,point.y,modifiers);
+    struct MouseDispatchResult result=original_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up);
+    slider=find_form(node);
+    if(!slider||slider->control!=control)return result;
+    unsigned flags=result.event?*(const unsigned short *)((char *)result.event+32):0;
+    if(slider_up){
+      if(slider->node==slider_node&&slider->control==slider_control)
+        ((void (*)(void *))(base+0xefb27ac))(slider->node);
+    } else if((flags&0x100)&&!(flags&0x20)&&form_enabled(slider->node)){
+      if(slider_move){
+        struct NXSResponse *r=form_request(slider,3,point.x,point.y,modifiers);
+        apply_slider_value(slider,r,2);
+      } else if(sync_slider_model(slider)){
+        if(active_form)finish_form(-1,-1,0);
+        /* Finishing the prior control can synchronously run application input
+         * handlers. Revalidate this binding before touching it again. */
+        slider=find_form(node);
+        if(!slider||slider->control!=control||!sync_slider_model(slider))return result;
+        click_form=NULL;slider->enabled=1;
+        struct NXSResponse *r=sync_form_focus(slider,form_request(slider,1,0,0,0));
+        if(r){
+          slider->actions_before=slider->actions_seen=r->parts[0].width;
+          r=form_request(slider,2,point.x,point.y,modifiers);
+          if(r&&r->parts[0].y){active_form=slider;refresh_form_watch();invalidate_form(slider);}
+        }
+      }
+    }
+    return result;
+  }
   if(same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0) {
     if(active_form)finish_form(-1,-1,0);
     click_form=NULL;
@@ -270,6 +331,7 @@ static void element_detach(void *node,int reattach) {
   original_element_detach(node,reattach);
 }
 #include "forms-input.inc"
+#include "forms-sliders.inc"
 #include "forms-progress.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
@@ -286,7 +348,9 @@ static struct Detour form_detours[]={
 };
 static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||prepare_form_input())&&
-  (!forms_progress_enabled||prepare_detours(&progress_detour,1));}
+  (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
+  (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)));}
 static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
-  if(forms_progress_enabled)activate_detours(&progress_detour,1);}
+  if(forms_progress_enabled)activate_detours(&progress_detour,1);
+  if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));}

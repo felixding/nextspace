@@ -25,7 +25,7 @@ required integration surfaces differ:
 | Surface | Required integration | Current evidence |
 | --- | --- | --- |
 | GTK and Qt widgets | Toolkit object/layout/input adapters | Existing adapters cover scrollbars only. |
-| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio integration and determinate progress binding. |
+| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented or binary qualified. |

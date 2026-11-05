@@ -69,3 +69,7 @@ double nxs_native_ui_dispatch_events(double maximum_wait)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,dispatch_events)?p->dispatch_events(maximum_wait):-1;}
 int nxs_control_needs_display(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_needs_display)?p->control_needs_display(c):0;}
+unsigned nxs_control_range_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_step)?NXS_RANGE_STEP:0;}
+int nxs_control_set_step(NXSControl *c,double step)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_step)?p->control_set_step(c,step):0;}

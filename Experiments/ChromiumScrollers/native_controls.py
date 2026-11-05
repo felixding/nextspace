@@ -22,6 +22,8 @@ class ControlInputRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7] + [
         ('type', C.c_uint32), ('modifiers', C.c_uint32), ('key', C.c_uint32),
         ('repeat', C.c_uint32), ('unmodified_size', C.c_uint32), ('focused', C.c_int32)]
+class ControlStepRequest(C.Structure):
+    _fields_ = ControlRequest._fields_[:7]+[('step',C.c_double)]
 
 class KeyEvent(C.Structure):
     _fields_ = [('size', C.c_uint32), ('type', C.c_uint32), ('modifiers', C.c_uint32),
@@ -64,6 +66,13 @@ class NativeControlServer:
         self.input_capabilities = 0
         self.event_capabilities, self.event_deadline = 0, -1
         self.generations = {}
+        self.range_capabilities=0
+        if hasattr(native,'nxs_control_range_capabilities'):
+            native.nxs_control_range_capabilities.argtypes=[]
+            native.nxs_control_range_capabilities.restype=C.c_uint
+            self.range_capabilities=native.nxs_control_range_capabilities()
+            native.nxs_control_set_step.argtypes=[C.c_void_p,C.c_double]
+            native.nxs_control_set_step.restype=C.c_int
         if hasattr(native, 'nxs_control_input_capabilities'):
             native.nxs_control_input_capabilities.argtypes = []
             native.nxs_control_input_capabilities.restype = C.c_uint
@@ -117,6 +126,8 @@ class NativeControlServer:
         if state['destroy']:
             return
         state['actions'] += 1
+        process=state['key'][0]
+        self.generations[process]=self.generations.get(process,0)+1
         self.log('native-form-action', process=state['key'][0], control=state['key'][1],
                  kind=state['key'][2], action=event, count=state['actions'],
                  value=native_state.contents.value, state=native_state.contents.state)
@@ -132,8 +143,10 @@ class NativeControlServer:
         response.parts[4].x = self.generations.get(req.process, 0)
         response.parts[4].y = self.event_deadline
         response.parts[4].width = self.event_capabilities
+        response.parts[5].width = self.range_capabilities
         data = b''
         if state:
+            response.parts[5].x=state.get('step',0)
             current = self.native.nxs_control_state(state['native'])
             response.parts[0].x = current.value
             response.parts[0].y = self._tracking(state)
@@ -153,6 +166,17 @@ class NativeControlServer:
         self.send(client, response, data)
 
     def message(self, client, data):
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==10:
+            if len(data)!=C.sizeof(ControlStepRequest):return
+            req=ControlStepRequest.from_buffer_copy(data)
+            if req.magic!=MAGIC or req.text_size:return
+            state=self.controls.get((req.process,req.control,req.kind))
+            if state and not state['destroy'] and self.range_capabilities and self.native.nxs_control_set_step(state['native'],req.step):
+                state['step']=req.step
+                self.log('native-slider-step',process=req.process,control=req.control,step=req.step)
+                self._respond(client,req,state,pixels=True)
+            else:self._respond(client,req)
+            return
         if len(data) >= 8 and int.from_bytes(data[4:8], 'little') in (7, 8):
             self.input_message(client, data)
             return

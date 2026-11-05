@@ -23,3 +23,4 @@ int nxs_gnustep_control_focused(NXSControl *);
 int nxs_gnustep_control_key(NXSControl *,const NXSKeyEvent *);
 double nxs_host_dispatch_events(double);
 int nxs_gnustep_control_needs_display(NXSControl *);
+int nxs_gnustep_control_set_step(NXSControl *,double);

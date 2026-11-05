@@ -55,6 +55,7 @@ def run(library,path):
             if forms:
                 result.parts[4].width=forms.input_capabilities
                 result.parts[4].height=forms.event_capabilities
+                result.parts[5].width=forms.range_capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):
