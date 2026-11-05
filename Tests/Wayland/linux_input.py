@@ -23,6 +23,7 @@ from integration import until
 
 def inject(paths):
     from evdev import InputDevice, UInput, ecodes as e
+    import os
     sources, devices, pressed = [], {}, set()
     try:
         for kind, path in zip(('keyboard', 'pointer'), paths):
@@ -31,7 +32,7 @@ def inject(paths):
             devices[kind] = UInput.from_device(source, name='NEXTSPACE validation ' + kind)
         assert set(devices) == {'keyboard', 'pointer'}
         subprocess.run(['udevadm', 'settle'], check=True)
-        print(json.dumps(dict(event='ready', devices={name: device.device.path for name, device in devices.items()},
+        print(json.dumps(dict(event='ready', pid=os.getpid(), devices={name: device.device.path for name, device in devices.items()},
             sources=[dict(path=source.path, name=source.name, capabilities=source.capabilities()) for source in sources])), flush=True)
         for line in sys.stdin:
             request = json.loads(line)
