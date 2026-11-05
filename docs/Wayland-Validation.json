@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-04",
+  "as_of": "2026-11-05",
   "status": "ARM software preview; full plan incomplete",
   "target": {
     "distribution": "Debian 13",
@@ -113,8 +113,8 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41907855298",
-    "latest_completed_result": "Both native and desktop package lifecycle jobs passed at44c12258.",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41931331899",
+    "latest_completed_result": "Both native and desktop package lifecycle jobs passed at 5418015a; debugger setup changes await hosted confirmation.",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -143,7 +143,9 @@
       41907855298,
       41912596427,
       41914460977,
-      41917570942
+      41917570942,
+      41926347690,
+      41931331899
     ],
     "hosted_native_suite_passed": true,
     "latest_native_failure": "Prior desktop-broadcast fixture failure fixed; four Workspace run-loop modes now pass in hosted native job126847207604.",
@@ -222,9 +224,9 @@
       "hosted_confirmation_run": 41903395108,
       "hosted_confirmation_job": 126831487488
     },
-    "hosted_native_qualified_run": "https://github.com/felixding/nextspace/actions/runs/41900653577",
-    "hosted_native_qualified_head": "a866a80bd91ea5035c9f149fb5960bd38e59c23f",
-    "hosted_native_qualified_job": 126821839504,
+    "hosted_native_qualified_run": 41931331899,
+    "hosted_native_qualified_head": "5418015a8bf82c2bf840e85882a64ad2e63bf983",
+    "hosted_native_qualified_job": 126928679473,
     "hosted_native_raw_archive": {
       "bytes": 201287036,
       "sha256": "88efb817660cc1d05bff699cba392560bfa15bc4bdc7201bfdd3555e0896a2af",
@@ -238,7 +240,7 @@
       "supervisor_modes": 6,
       "physical_gpu_qualified": false
     },
-    "current_compiled_product_inputs_match_qualified_native": false,
+    "current_compiled_product_inputs_match_qualified_native": true,
     "latest_validation_fixtures_hosted_pending": true,
     "shell_desktop_completion_fixture": {
       "failed_run": 41903395108,
@@ -304,19 +306,20 @@
       41912596427,
       41914460977,
       41917570942,
-      41926347690
+      41926347690,
+      41931331899
     ],
     "latest_hosted_native_qualification": {
-      "run": 41926347690,
-      "head": "4825ed8fadb15743f8913b8c79ad5850a44cdc6f",
-      "job": 126911639144,
+      "run": 41931331899,
+      "head": "5418015a8bf82c2bf840e85882a64ad2e63bf983",
+      "job": 126928679473,
       "passed": true,
-      "artifact_id": 13370906698,
-      "bytes": 201590771,
-      "sha256": "d43816343f12538e1a7cf4936ea4b72567983492012fc34fb8fea6407cd7c2da",
-      "regular_files": 8394,
+      "artifact_id": 13373372067,
+      "bytes": 201164592,
+      "sha256": "622e83db5cfdc9b69f021bf08f60be0f2f2e8db312293b47ed9d8778456afed4",
+      "regular_files": 8402,
       "literal_links": 410,
-      "json_files_validated": 1280,
+      "json_files_validated": 1291,
       "jsonl_files_retained": 164,
       "combined_application_records": 147,
       "textedit_printing_cases": 24,
@@ -326,7 +329,11 @@
       "clipboard_transfers": 20,
       "installed_pinned_wlroots_confirmed": true,
       "physical_gpu_qualified": false,
-      "full_plan_complete": false
+      "full_plan_complete": false,
+      "captured_inputs": 4405,
+      "matched_inputs": 4405,
+      "pointer_button_cases": 80,
+      "public_pointer_events": 240
     },
     "native_comparator_clipboard": {
       "toolkits": [
@@ -361,7 +368,7 @@
       "hosted_confirmation_pending": false,
       "hosted_confirmation_run": 41917570942
     },
-    "current_product_change_since_qualification": "Applications/Compositor/src/main.c: constrain xdg_popup.reposition with the existing initial-placement helper; installed Lima packages are unchanged.",
+    "current_product_change_since_qualification": "None; the current follow-up changes test diagnostics and CI container setup.",
     "native_comparator_popup_reposition": {
       "root_cause": "Popup reposition requests bypass initial-placement output constraints",
       "gtk_protocol_trace_captured": true,
@@ -450,8 +457,66 @@
       "sha256": "2a3f91adac1d0abfb67fda66d16269e5046404d1a1a040ae4a84b418f20d58bf",
       "payload_files_verified": 333,
       "extracted_portable_audit_passed": true,
-      "hosted_confirmation_pending": true,
-      "desktop_packages_or_lima_updated": false
+      "hosted_confirmation_pending": false,
+      "desktop_packages_or_lima_updated": false,
+      "hosted_confirmation_run": 41931331899,
+      "hosted_confirmation_job": 126928679473,
+      "hosted_button_cases": 80,
+      "hosted_public_pointer_events": 240
+    },
+    "latest_hosted_package_qualification": {
+      "passed": true,
+      "run": 41931331899,
+      "job": 126928679925,
+      "head": "5418015a8bf82c2bf840e85882a64ad2e63bf983",
+      "completed_at": "2026-11-05T00:00:52Z",
+      "full_lifecycle_pass_in_log": true,
+      "all_workflow_steps_success": true,
+      "log_bytes": 540420,
+      "log_sha256": "9fb2a5d37b650c14b1d244b6e7ff2e474f575bb9f3c53efdf3b1134674688b1d",
+      "artifact": {
+        "id": 13374568096,
+        "bytes": 1023350511,
+        "sha256": "03b0097d37fd59ff88d2bbd7f33a5a385acbdb183284c0d0b7f1b2af20520d6c",
+        "raw_downloaded": false
+      },
+      "current_backend_fix_in_revision": true,
+      "full_plan_complete": false
+    },
+    "terminal_copy_repeat": {
+      "archive": "arm64-terminal-copy-repeat-v1-evidence.tar.gz",
+      "bytes": 47771597,
+      "sha256": "d3426ae79430e76784621960586677186871f22cfe98f03767739820d2d1e32c",
+      "payload_files_verified": 2388,
+      "passed": true,
+      "sessions": 20,
+      "terminal_density_cases": 100,
+      "combined_result_records": 260,
+      "exact_scrollback_lines_per_session": 400,
+      "original_fixture_and_deadlines_unchanged": true,
+      "runtime_backend_verified": true,
+      "scroll_and_return_image_pairs": 100,
+      "historical_upgrade_context_replayed": false,
+      "historical_timeout_root_cause_proven": false,
+      "product_patch_promoted": false,
+      "full_plan_complete": false
+    },
+    "failure_stack_capture": {
+      "archive": "arm64-failure-stacks-v1-evidence.tar.gz",
+      "bytes": 79916,
+      "sha256": "a45acf7351dc06749da9d91639b41d48299860f8a396352e263c69bad34813f0",
+      "payload_files_verified": 43,
+      "passed": true,
+      "denied_attachment_recorded": true,
+      "real_stack_with_container_capability": true,
+      "debugger_detached": true,
+      "exited_child_not_attached": true,
+      "private_pid_namespaces": true,
+      "historical_clipboard_observation_missing": true,
+      "historical_timeout_root_cause_proven": false,
+      "installed_desktop_changed": false,
+      "full_plan_complete": false,
+      "hosted_confirmation_pending": true
     }
   },
   "evidence_locations": {
@@ -461,8 +526,9 @@
     "portable_vm": ".build/wayland-macbook/"
   },
   "remaining": [
-    "Confirm the latest backend mouse-event fix in hosted ARM64 CI",
+    "Confirm test-container failure stack capture in hosted ARM64 CI",
     "Intermittent large-TIFF Review density timeout; original deadlines pass in focused and full-application follow-ups but cause remains unestablished",
+    "Earlier upgraded Terminal copy timeout; current lifecycle and fresh-session checks pass but historical cause remains unestablished",
     "Physical display, input, modeset, hotplug and gamma validation",
     "Supported physical suspend/resume and VT cycles",
     "Physical frame timing and hardware-specific performance thresholds",

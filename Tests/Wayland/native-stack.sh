@@ -9,6 +9,7 @@ mkdir -p "$build"
 build=$(CDPATH= cd -- "$build" && pwd)
 . "$repo/Packaging/Sources/native-foundation.sh"
 sh "$repo/Tests/Wayland/build.sh"
+python3 "$repo/Tests/Wayland/process_failure.py" --artifacts "$build/results/process-failure"
 python3 "$repo/Tests/Wayland/name_server_lock.py" --probe "$build/fixture/obj/NameServerLockProbe" \
   --artifacts "$build/results/name-server-lock"
 python3 "$repo/Packaging/Sources/build-capture.py" --repo "$repo" --build "$build/capture" \

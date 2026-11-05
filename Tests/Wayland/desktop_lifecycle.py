@@ -13,6 +13,7 @@ from integration import run as native, until
 from package_lifecycle import snapshot
 from workspace import run as workspace
 from greeter_profile import run as greeter
+from process_failure import run as process_failure
 
 NAMES = ('nextspace-runtime', 'nextspace-session-wayland', 'nextspace-wayland-compositor')
 PREFIX = Path('/usr/NextSpace')
@@ -91,6 +92,7 @@ def run(first, second, probes, artifacts):
     if PREFIX.exists():
         raise RuntimeError('The consumer must start without an installed NEXTSPACE prefix')
     artifacts.mkdir(parents=True)
+    process_failure(artifacts / 'process-failure')
     validation = {}
     source = Path(__file__).parent
     for path in sorted(source.rglob('*')):

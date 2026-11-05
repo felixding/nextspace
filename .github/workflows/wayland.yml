@@ -20,7 +20,7 @@ jobs:
       - name: Build and exercise desktop backends
         run: |
           mkdir -p wayland-results
-          docker run --init --name nextspace-wayland-test -v "$PWD/wayland-results:/results" \
+          docker run --init --cap-add=SYS_PTRACE --name nextspace-wayland-test -v "$PWD/wayland-results:/results" \
             -e NEXTSPACE_WAYLAND_BUILD_DIR=/results nextspace-native-stack-test
       - name: Preserve Linux result paths and permissions
         if: always()

@@ -22,7 +22,7 @@ cleanup()
   fi
 }
 trap cleanup EXIT
-docker create --init --name "$name" -v "$repo:/src:ro" -v "$output:/results" \
+docker create --init --cap-add=SYS_PTRACE --name "$name" -v "$repo:/src:ro" -v "$output:/results" \
   -e NEXTSPACE_PACKAGE_TEST_DISPOSABLE=1 -e FIRST="$first" -e SECOND="$second" \
   debian:trixie-slim@sha256:62bd423aeee912639ca8ee681c2b762cb3e25137e0a92b20be455898a9f034ad sh -c '
     set -eu

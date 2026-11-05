@@ -4,6 +4,7 @@ from io import BytesIO
 import json
 import os
 from pathlib import Path
+import re
 import select
 import shutil
 import socket
@@ -49,13 +50,20 @@ def capture_process_failure(process, artifacts, name):
             state['runtime'] = process_runtime(process.pid)
         except OSError:
             pass
-        if shutil.which('gdb'):
-            with (artifacts/(name+'-backtrace.log')).open('w') as log:
+        debugger = dict(available=bool(shutil.which('gdb')), backtrace_collected=False)
+        state['debugger'] = debugger
+        if debugger['available']:
+            path = artifacts/(name+'-backtrace.log')
+            with path.open('w') as log:
                 try:
-                    subprocess.run(['gdb','--batch','--nx','-p',str(process.pid),
+                    result = subprocess.run(['gdb','--batch','--nx',
+                        '-iex','set debuginfod enabled off','-p',str(process.pid),
                         '-ex','thread apply all bt'],stdout=log,stderr=log,timeout=15)
+                    debugger['returncode'] = result.returncode
                 except subprocess.TimeoutExpired:
+                    debugger['timed_out'] = True
                     log.write('\nDebugger timed out.\n')
+            debugger['backtrace_collected'] = bool(re.search(r'^#0\s', path.read_text(), re.MULTILINE))
     (artifacts/(name+'.json')).write_text(json.dumps(state,indent=2)+'\n')
 
 

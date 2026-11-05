@@ -46,8 +46,16 @@ Its 201,590,771-byte ZIP has SHA-256
 audit confirms twenty popup cases and twenty exact clipboard transfers. The
 1,928,040-byte compact audit is `arm64-hosted-partial-popup-v1-evidence.tar.gz`,
 SHA-256 `a4e54c760cb4388ba742d716daea666fcb94c6167c06d1b4cb41571757934c91`;
-all 1,459 payload files and both extracted audits pass. Its package job remains
-in progress.
+all 1,459 payload files and both extracted audits pass. Its package job also
+passes. A seventh native job, `126928679473` in run `41931331899` at `5418015a`,
+confirms the AppKit mouse-button fix below. Its independently verified archive
+contains 8,402 regular files and 410 literal links, including two pointer matrices
+with eighty cases and 240 public events. All 4,405 captured source inputs match
+that revision. Its package job also passes, bringing the recorded total to
+fourteen full package lifecycle successes. The 1,949,207-byte compact native audit
+is `arm64-hosted-pointer-buttons-v1-evidence.tar.gz`, SHA-256
+`ebb3a68892be54fe284bd7ea40571565b19c1201af6c799916a9164d4633373f`;
+all 1,475 payload files and an independent extracted audit verify.
 
 The completion audit finds that native GTK/Qt comparisons cover density and
 pointer input but omit their clipboard transfers. The same probes and integration
@@ -488,6 +496,28 @@ its cause remains open; behavior and deadlines are unchanged. The 9,980,538-byte
 capsule is `arm64-terminal-copy-observation-v1-evidence.tar.gz`, SHA-256
 `8e9385fdb4c90765f120d52d16f9a97c23e52c8c8f72b12472dac6dedf6b2133`;
 all 523 payload files and an independent extracted audit verify.
+
+A later bounded Terminal diagnostic completes twenty fresh sessions and one
+hundred density cases with the unchanged fixture and deadlines. Independent
+replay verifies exact typed text, all 400 scrollback lines per session and one
+hundred identical scroll-and-return image pairs. The 47,771,597-byte capsule is
+`arm64-terminal-copy-repeat-v1-evidence.tar.gz`, SHA-256
+`d3426ae79430e76784621960586677186871f22cfe98f03767739820d2d1e32c`.
+This does not replay the historical upgrade context or establish its failure cause.
+
+The original failure also lacks a usable stack: GDB attachment is denied in the
+package container, while the native test image does not install GDB. Disposable
+native and package consumer containers now install GDB and add `SYS_PTRACE`
+inside their private PID namespaces. A regression requires a live child stack,
+detachment and correct handling of an exited child. Real denied-attachment and
+capability-enabled controls pass. Failure JSON reports whether a stack was
+collected; debugger startup disables debuginfod requests and retains the existing
+fifteen-second deadline. The 79,916-byte capsule is
+`arm64-failure-stacks-v1-evidence.tar.gz`, SHA-256
+`a45acf7351dc06749da9d91639b41d48299860f8a396352e263c69bad34813f0`;
+all 43 payload files and an independent extracted replay verify. Hosted
+confirmation of this diagnostic setup is pending. Installed desktop privileges
+and the existing Lima guest are unchanged.
 
 The newest native run next exposes a desktop fixture consuming an asynchronous
 count-2 broadcast as the reply to a count-4 request. The real Workspace probe

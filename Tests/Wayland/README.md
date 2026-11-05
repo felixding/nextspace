@@ -14,6 +14,14 @@ Each uploaded artifact contains a tar archive that preserves Linux filename case
 private fixture permissions and literal symlinks. The native archive retains logs
 and test results; the desktop archive also includes its package build inputs.
 
+Native and package consumer containers include GDB and add only `SYS_PTRACE`
+for failure diagnostics inside their private PID namespaces. `process_failure.py`
+requires a real stack from an owned live child, verifies the debugger detaches
+and checks that an exited child is not attached. Failure JSON distinguishes a
+collected stack from a missing debugger, denied attachment or debugger timeout.
+The diagnostic retains its fifteen-second deadline and disables debuginfod
+network requests. This does not alter installed desktop privileges.
+
 ## Reproduce on Linux or Docker
 
 ```sh
@@ -534,7 +542,7 @@ Terminal, TextEdit, Review and TimeMon inside another disposable container:
 
 ```sh
 docker build -f Tests/Wayland/Dockerfile.native-stack -t nextspace-native-stack-test .
-docker run --rm --init -v "$PWD/wayland-native-results:/results" \
+docker run --rm --init --cap-add=SYS_PTRACE -v "$PWD/wayland-native-results:/results" \
   -e NEXTSPACE_WAYLAND_BUILD_DIR=/results nextspace-native-stack-test
 ```
 
