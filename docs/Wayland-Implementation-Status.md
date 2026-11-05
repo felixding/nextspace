@@ -133,6 +133,19 @@ comparison. Late input requests do not count missed display frames, and these
 records establish no cause or isolated RAM effect. Docker and its running services
 remain unchanged. Independent extracted replay passes for both retained capsules.
 
+A bounded diagnostic identifies a repeatable benchmark-driver pause: a generation-1
+garbage collection overlaps 28.733ms of one 29.167ms send/acknowledgment interval.
+This is measured wall time, not CPU attribution or an explanation for every stall.
+Moving producer collection before each phase and disabling automatic collection
+only during timing removes all recorded GC overlap. The desktop, input events,
+deadlines and cleanup assertions remain unchanged. A fresh five-trial matrix then
+completes 75 phases and 24,000 requests, with all 7,200 observed scroll events,
+7,184 verified native buffer states and 16 coalesced states. Integrity and cleanup
+pass, but 16 requests exceed the original timing limit (maximum 130.644ms).
+The result remains unqualified. All trials and earlier failures are retained,
+with no replacements; independent extracted replay passes. The corrected producer
+and replay tools remain in the evidence capsules for future refinement.
+
 The remaining full-plan gates are controlled performance qualification, physical
 display/input, modeset/hotplug/gamma,
 physical suspend/resume and VT cycles, hardware latency/CPU/buffer-memory

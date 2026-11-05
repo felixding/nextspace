@@ -1201,11 +1201,12 @@ coalesces before AppKit deactivation, including modal and tracking run loops.
 | 3–4 | Native Workspace without Window Maker, shell reconnect, window levels/hide/shade/miniaturization, Dock/IconYard/desktops and real file operations; Display/Screen transaction controls and timeout rollback; native bundled applications, printing/readback, original-referenced artwork and keyboard accessibility | Physical gamma, input devices and mixed-monitor interaction |
 | 5–6 | Native-only session/backend packages, private bus and user-service environment, real systemd/greetd/PAM login/logout and hooks, lock/power software checks, portals/PipeWire capture, cold build/offline rebuild, clean installation/live upgrade/removal, independent package audit and repeated ARM headless CPU/memory/latency comparisons | Supported physical suspend/resume, VT/GPU validation, physical frame timing and hardware performance thresholds, artwork redistribution permission and release/default promotion |
 
-The native105/native106 product cohort passes cold build, offline replay and an
+The earlier native105/native106 product cohort passed cold build, offline replay and an
 independently audited uninterrupted installation/live-upgrade/removal lifecycle:
-six packages, 170 ARM64 ELFs and 510 successful result reports. The existing Lima
-guest runs native106 and passes the installed system-login/logout cycle. Earlier
-native100 component evidence covers thirty real-server device-volume/mute actions
+six packages, 170 ARM64 ELFs and 510 successful result reports. The existing 2 GiB
+Lima guest now runs the audited `0496e814` ci2 packages and passes the unchanged
+installed system-login/logout cycle. Earlier native100 component evidence covers
+thirty real-server device-volume/mute actions
 and thirty per-application playback/recording volume/mute actions at five densities.
 The headless performance comparison covers three repetitions per Wayland package
 version and two observer-off controls, with 120 phases and 38,400 offered inputs.
