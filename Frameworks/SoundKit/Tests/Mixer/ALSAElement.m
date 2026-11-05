@@ -21,7 +21,6 @@
 // #import "ALSA.h"
 #import "ALSACard.h"
 #import "ALSAElement.h"
-#import <X11/Xlib.h>
 
 @implementation ALSAElement
 

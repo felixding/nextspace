@@ -4,8 +4,7 @@ RUN apt-get -qq update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no
     meson ninja-build python3 python3-pil gdb gnustep-make libgnustep-gui-dev libgnustep-base-dev hwdata \
     libwlroots-0.18-dev=0.18.2-3 wayland-protocols=1.44-1 \
     libwayland-dev libxkbcommon-dev libsystemd-dev liblcms2-dev libcairo2-dev libpango1.0-dev libfontconfig-dev fontconfig \
-    libfreetype-dev libffi-dev libxt-dev libxft-dev libxrandr-dev libxfixes-dev \
-    libxcursor-dev libxmu-dev libxinerama-dev libgl-dev libwraster-dev \
+    libfreetype-dev libffi-dev libgl-dev \
     libtiff-dev libjpeg-dev libpng-dev libgif-dev libmagickcore-dev libicu-dev librsvg2-bin poppler-utils ghostscript \
     libxml2-dev libxslt1-dev libgnutls28-dev libgmp-dev libavahi-client-dev libcurl4-gnutls-dev \
     fonts-dejavu-core fonts-noto-cjk xcursor-themes dbus-daemon dbus-bin passwd swaylock=1.8.2-1 \
