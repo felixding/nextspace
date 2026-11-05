@@ -105,16 +105,16 @@
   "ci": {
     "configured_runner": "ubuntu-24.04-arm",
     "fresh_debian_dependency_resolution_passed": true,
-    "hosted_run_verified": false,
+    "hosted_run_verified": true,
     "hosted_run_observed": true,
     "initial_native_job": "https://github.com/felixding/nextspace/actions/runs/41849763527/job/126642616560",
     "initial_native_failure": "Private staging directory prevents disposable PAM user execution; artifact collection lacks access to fixture homes.",
     "permission_fixes_reproduced_on_linux": true,
-    "hosted_fix_confirmation_pending": true,
+    "hosted_fix_confirmation_pending": false,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41949047214",
-    "latest_completed_result": "Native passed at 017b788f; package failed at upgraded Terminal scrollback copy before final library collection and removal. The output barrier passes local controls and awaits hosted qualification.",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41957255179",
+    "latest_completed_result": "Native and desktop-packages passed at 1f225782, including the Terminal output barrier, final runtime-library collection and package removal.",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -145,7 +145,8 @@
       41914460977,
       41917570942,
       41926347690,
-      41931331899
+      41931331899,
+      41957255179
     ],
     "hosted_native_suite_passed": true,
     "latest_native_failure": "Prior desktop-broadcast fixture failure fixed; four Workspace run-loop modes now pass in hosted native job126847207604.",
@@ -157,19 +158,21 @@
       "antialias_font_preservation_cases": 3,
       "application_records_passed": 147,
       "textedit_printing_cases_passed": 24,
-      "full_native_suite_passed": false
+      "full_native_suite_passed": true,
+      "hosted_confirmation_run": 41957255179
     },
     "supervisor_exit_path_reporting": {
       "local_modes_passed": 6,
       "compositor_and_bus_loss_diagnostics_verified": true,
-      "current_runtime_source_postdates_qualified_package": true,
+      "current_runtime_source_postdates_qualified_package": false,
       "hosted_startup_cause_established": false,
       "compositor_nonreaped_signal_status_verified": true,
       "failure_observation_maximum_ms": 50,
       "installed_launcher_client_protocol_trace_verified": true,
       "compositor_broker_receive_error_reporting": true,
       "hosted_compositor_sigsegv_observed": true,
-      "hosted_diagnostics_package_lifecycle_passed": true
+      "hosted_diagnostics_package_lifecycle_passed": true,
+      "hosted_confirmation_run": 41957255179
     },
     "text_input_complete_records": {
       "failed_run": 41887399009,
@@ -224,16 +227,16 @@
       "hosted_confirmation_run": 41903395108,
       "hosted_confirmation_job": 126831487488
     },
-    "hosted_native_qualified_run": 41949047214,
-    "hosted_native_qualified_head": "017b788f5339b0ea3e01a3dbae6869fc51f6d81e",
-    "hosted_native_qualified_job": 126988330119,
+    "hosted_native_qualified_run": 41957255179,
+    "hosted_native_qualified_head": "1f2257829c7d9e2eabe3fc669b2761adff60bdd4",
+    "hosted_native_qualified_job": 127015014877,
     "hosted_native_raw_archive": {
-      "bytes": 201081848,
-      "sha256": "eb22ad7b53ebfae27cabc719df39e9da6cbce80d4b5ae2b4f388f79c59055eef",
-      "regular_files": 8401,
+      "bytes": 201114125,
+      "sha256": "a0f30eafbff6a483139f55017e9a1b5c3370e123fb7c761435a7ec0ab776aac0",
+      "regular_files": 8433,
       "literal_links": 410,
       "metadata_records": 1295,
-      "captured_inputs": 4406,
+      "captured_inputs": 4407,
       "current_non_test_inputs_matched": 3814,
       "combined_application_records": 147,
       "textedit_printing_cases": 24,
@@ -242,7 +245,7 @@
       "source_scope": "Named roots in Tests/Wayland/source-manifest.py; docs and .github excluded"
     },
     "current_compiled_product_inputs_match_qualified_native": true,
-    "latest_validation_fixtures_hosted_pending": true,
+    "latest_validation_fixtures_hosted_pending": false,
     "shell_desktop_completion_fixture": {
       "failed_run": 41903395108,
       "existing_completion_event_used": true,
@@ -310,17 +313,18 @@
       41926347690,
       41931331899,
       41941298449,
-      41949047214
+      41949047214,
+      41957255179
     ],
     "latest_hosted_native_qualification": {
-      "run": 41949047214,
-      "head": "017b788f5339b0ea3e01a3dbae6869fc51f6d81e",
-      "job": 126988330119,
+      "run": 41957255179,
+      "head": "1f2257829c7d9e2eabe3fc669b2761adff60bdd4",
+      "job": 127015014877,
       "passed": true,
-      "artifact_id": 13381410918,
-      "bytes": 201081848,
-      "sha256": "eb22ad7b53ebfae27cabc719df39e9da6cbce80d4b5ae2b4f388f79c59055eef",
-      "regular_files": 8401,
+      "artifact_id": 13384522896,
+      "bytes": 201114125,
+      "sha256": "a0f30eafbff6a483139f55017e9a1b5c3370e123fb7c761435a7ec0ab776aac0",
+      "regular_files": 8433,
       "literal_links": 410,
       "json_files_validated": 1295,
       "jsonl_files_retained": 164,
@@ -333,15 +337,19 @@
       "installed_pinned_wlroots_confirmed": true,
       "physical_gpu_qualified": false,
       "full_plan_complete": false,
-      "captured_inputs": 4406,
-      "matched_inputs": 4406,
+      "captured_inputs": 4407,
+      "matched_inputs": 4407,
       "pointer_button_cases": 80,
       "public_pointer_events": 240,
       "real_failure_stack_verified": true,
       "mapped_non_elf_exclusion_verified": true,
       "real_shared_library_retention_verified": true,
-      "compact_archive": "arm64-hosted-mapped-library-v1-evidence.tar.gz",
-      "compact_sha256": "bf038d172d1335e1b62048b5a48d6b5f886cae059ca4a8ecda5757a27964f043"
+      "compact_archive": "arm64-hosted-terminal-output-barrier-v1-evidence.tar.gz",
+      "compact_sha256": "caf1c9fd3c52f2043d5ae4d25cc651eacec98f05ad76709823be697983819f60",
+      "terminal_output_barrier_verified": true,
+      "tty_restored": true,
+      "terminal_scrollback_lines": 400,
+      "terminal_density_cases": 5
     },
     "native_comparator_clipboard": {
       "toolkits": [
@@ -474,21 +482,21 @@
     },
     "latest_hosted_package_qualification": {
       "passed": true,
-      "run": 41931331899,
-      "job": 126928679925,
-      "head": "5418015a8bf82c2bf840e85882a64ad2e63bf983",
-      "completed_at": "2026-11-05T00:00:52Z",
+      "run": 41957255179,
+      "job": 127015014568,
+      "head": "1f2257829c7d9e2eabe3fc669b2761adff60bdd4",
+      "completed_at": "2026-11-05T03:35:58Z",
       "full_lifecycle_pass_in_log": true,
       "all_workflow_steps_success": true,
-      "log_bytes": 540420,
-      "log_sha256": "9fb2a5d37b650c14b1d244b6e7ff2e474f575bb9f3c53efdf3b1134674688b1d",
+      "log_bytes": 546745,
+      "log_sha256": "36e13198756fd4691b2eda85fa32961afe96e625bb1e4b9057127cb3d608b1ab",
       "artifact": {
-        "id": 13374568096,
-        "bytes": 1023350511,
-        "sha256": "03b0097d37fd59ff88d2bbd7f33a5a385acbdb183284c0d0b7f1b2af20520d6c",
+        "id": 13386310582,
+        "bytes": 1023609673,
+        "sha256": "9f2e08b92918ae3301699153826cea345f25a825246b9daa78fb0335a6410f09",
         "raw_downloaded": false
       },
-      "current_backend_fix_in_revision": true,
+      "evidence_scope": "Completed job, exact revision, full logged lifecycle pass and artifact identity; raw package payload not independently extracted by this audit.",
       "full_plan_complete": false
     },
     "terminal_copy_repeat": {
@@ -529,7 +537,8 @@
       "hosted_native_run": 41941298449,
       "hosted_native_job": 126962483723,
       "package_preflight_passed": true,
-      "package_full_lifecycle_passed": false
+      "package_full_lifecycle_passed": true,
+      "package_confirmation_run": 41957255179
     },
     "runtime_library_classification": {
       "failed_run": 41941298449,
@@ -549,13 +558,16 @@
       "real_external_elf_libraries": 6,
       "unchanged_strict_collector_passed": true,
       "full_debugger_preflight_passed": true,
-      "hosted_followup_pending": true,
+      "hosted_followup_pending": false,
       "product_runtime_changed": false,
       "historical_terminal_timeout_cause_established": false,
       "full_plan_complete": false,
       "hosted_native_confirmed": true,
       "hosted_native_run": 41949047214,
-      "hosted_package_followup_failed_before_collector": true
+      "hosted_package_followup_failed_before_collector": true,
+      "hosted_package_confirmed": true,
+      "hosted_package_run": 41957255179,
+      "hosted_package_job": 127015014568
     },
     "terminal_output_barrier": {
       "failed_hosted_run": 41949047214,
@@ -578,9 +590,16 @@
       "all_400_lines_preserved": true,
       "exact_typed_text": true,
       "original_deadlines_preserved": true,
-      "hosted_confirmation_pending": true,
+      "hosted_confirmation_pending": false,
       "production_binaries_changed": false,
-      "full_plan_complete": false
+      "full_plan_complete": false,
+      "hosted_native_confirmed": true,
+      "hosted_native_run": 41957255179,
+      "hosted_native_job": 127015014877,
+      "hosted_package_confirmation_pending": false,
+      "hosted_package_confirmed": true,
+      "hosted_package_run": 41957255179,
+      "hosted_package_job": 127015014568
     }
   },
   "evidence_locations": {
@@ -590,19 +609,16 @@
     "portable_vm": ".build/wayland-macbook/"
   },
   "remaining": [
-    "Confirm ELF runtime-library inventory fix in hosted ARM64 CI",
-    "Intermittent large-TIFF Review density timeout; original deadlines pass in focused and full-application follow-ups but cause remains unestablished",
-    "Earlier upgraded Terminal copy timeout; current lifecycle and fresh-session checks pass but historical cause remains unestablished",
     "Physical display, input, modeset, hotplug and gamma validation",
     "Supported physical suspend/resume and VT cycles",
     "Physical frame timing and hardware-specific performance thresholds",
     "Unpaced synthetic keyboard-burst loss; complete scheduling bottleneck remains unestablished",
     "MacBook execution confirmation",
-    "Artwork permission for unrestricted release",
     "Release/default promotion after qualification"
   ],
   "deferred": [
-    "Intel/AMD hardware qualification"
+    "Intel/AMD hardware qualification",
+    "Artwork permission for unrestricted release"
   ],
   "physical_gpu_qualified": false,
   "full_plan_complete": false,
@@ -707,5 +723,9 @@
     "sha256": "f246e517005f3a28bf8922eefcd982eeb7d0311738058f90e37a00413f2849ed",
     "return_method": "VT_ACTIVATE ioctl; keyboard Ctrl-Alt-F1 activates the original console"
   },
-  "overall_progress_percent_estimate": 94
+  "overall_progress_percent_estimate": 94,
+  "historical_diagnostic_limitations": [
+    "Earlier large-TIFF Review density timeout was not reproduced under the original deadlines; focused and full hosted follow-ups pass, but the original cause remains unestablished.",
+    "Exact historical upgraded Terminal-copy interleavings remain unestablished; a local output/selection race was observed, and the output acknowledgement passes local controls and both full hosted jobs at 1f225782."
+  ]
 }

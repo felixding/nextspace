@@ -10,6 +10,11 @@ ARM64 CI and the existing Lima guest. Intel/AMD qualification is deferred.
 Physical hardware and unrestricted artwork redistribution remain release gates;
 they do not block ARM implementation and personal-use validation.
 
+The latest full hosted qualification is run `41957255179` at `1f225782`: both
+native and desktop-packages pass. Ten full native runs and fifteen full package
+lifecycle runs are recorded. Details below preserve the sequence of earlier
+failures and follow-ups; hardware and unpaced keyboard-stress gates remain open.
+
 Hosted ARM64 run `41900653577` at `a866a80b` completes the full native suite
 in one uninterrupted job: 147 combined application records, 24 TextEdit printing
 cases, twelve toolkit printing suites, Workspace, six supervisor modes, native
@@ -531,7 +536,8 @@ strict package collector passes. The full debugger preflight also passes. The
 1,467,505-byte capsule is `arm64-mapped-library-v1-evidence.tar.gz`, SHA-256
 `508b3af2811d09c1f40d9662cf6843acdcc453ca5c14ae133236d0f2d6a393f7`;
 all 37 payload files and an independent extracted audit verify. Fresh hosted
-package qualification of the inventory fix is pending. This establishes the
+package qualification of the inventory fix was pending at that point;
+run `41957255179` subsequently passes the full lifecycle. This establishes the
 collection failure's cause, not the earlier application timeouts' causes.
 
 Native job `126988330119` in run `41949047214` confirms non-ELF exclusion,
@@ -555,9 +561,29 @@ and the trace proves output acknowledgement precedes selection and copying.
 The 10,528,908-byte capsule is
 `arm64-terminal-output-barrier-v1-evidence.tar.gz`, SHA-256
 `4e774919cc445d9bf777fc7fa09828798579646d1607bd7f306c2283dad956fb`;
-all 23 payload files and a fresh extracted replay verify. Hosted confirmation
-is pending. Production binaries are unchanged; the exact historical hosted
-interleaving and the earlier Review timeout remain unestablished.
+all 23 payload files and a fresh extracted replay verify. Production binaries
+are unchanged; the exact historical hosted interleaving and the earlier Review
+timeout remain unestablished.
+
+Native job `127015014877` in run `41957255179` confirms the output barrier,
+including the actual cursor response, restored TTY settings, exact input,
+all 400 scrollback lines and five Terminal density cases. All 4,407 captured
+source-root inputs match `1f225782`; documentation and workflows are outside
+that manifest's scope. This is the tenth recorded full native pass. Its compact
+1,953,907-byte capsule is
+`arm64-hosted-terminal-output-barrier-v1-evidence.tar.gz`, SHA-256
+`caf1c9fd3c52f2043d5ae4d25cc651eacec98f05ad76709823be697983819f60`;
+all 1,487 payload files and a fresh extracted replay verify. Package job
+`127015014568` also completes successfully in that run, bringing recorded full
+package lifecycle successes to fifteen. Its audit verifies the exact revision,
+all successful steps, the full lifecycle pass in the 546,745-byte job log and
+artifact identity. The log SHA-256 is
+`36e13198756fd4691b2eda85fa32961afe96e625bb1e4b9057127cb3d608b1ab`.
+The package payload from this run was not independently extracted; the earlier
+native105/native106 package-payload audit remains separately recorded. Both
+the runtime-library inventory and Terminal output-barrier follow-ups now have
+full hosted package confirmation. Physical qualification and the unpaced
+keyboard stress loss remain open.
 
 The newest native run next exposes a desktop fixture consuming an asynchronous
 count-2 broadcast as the reply to a count-4 request. The real Workspace probe
