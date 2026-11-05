@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-11-05",
-  "status": "ARM software preview; full plan incomplete",
+  "as_of": "2026-11-06",
+  "status": "Current ARM64 software preview installed; controlled timing and full plan incomplete",
   "target": {
     "distribution": "Debian 13",
     "architecture": "aarch64",
@@ -17,17 +17,18 @@
   "ci": {
     "workflow": ".github/workflows/wayland.yml",
     "runner": "ubuntu-24.04-arm",
-    "run": "https://github.com/felixding/nextspace/actions/runs/42038175351",
-    "head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
+    "run": "https://github.com/felixding/nextspace/actions/runs/42050392096",
+    "head": "00fe1e7c4c5fab48aefbb030e49bd6064b471d7f",
     "native": {
-      "job": 127281682907,
+      "job": 127324631317,
       "conclusion": "success"
     },
     "desktop_packages": {
-      "job": 127281682588,
+      "job": 127324632072,
       "conclusion": "success"
     },
-    "obsolete_x11_workflow_files_removed": 4
+    "obsolete_x11_workflow_files_removed": 4,
+    "runtime_and_native_fixtures_unchanged_since_qualified_artifacts": true
   },
   "package_artifact_audit": {
     "archive": ".build/evidence/components/arm64-current-packages-0496e814-evidence.tar.gz",
@@ -50,24 +51,29 @@
     "independent_extracted_replay": true
   },
   "system_login_evidence": {
-    "archive": ".build/evidence/components/arm64-current-runtime-0496e814-v1-evidence.tar.gz",
-    "bytes": 2211498,
-    "sha256": "35d0a3ccf1aa0b64dfb9b7b0ce57228002a9bd41d5bbecaabcbb5607aa8a3450",
+    "archive": ".build/evidence/components/arm64-installed-current-0496e814-v1-evidence.tar.gz",
+    "bytes": 3406978,
+    "sha256": "76edda9386b777aba086bf2129bd2350e95ec8fb6d89db1f82ec08a6cae2a06d",
     "head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
+    "run": 42038175351,
     "package_version": "0.1.0~ci2",
-    "environment": "Lima virtual DRM; private read-only runtime mounts",
+    "environment": "Installed global runtime on Lima virtual DRM; 2 GiB RAM; no private runtime binds",
     "passed": true,
     "pam_login_cancelled_and_confirmed_logout_hooks_and_regreet": true,
     "actual_process_hashes": {
       "authenticated": 64,
-      "returned_greeter": 19
+      "returned_greeter": 25
     },
-    "installed_native106_and_global_package_database_preserved": true,
-    "useful_guest_runtime_and_probes_retained": true,
-    "duplicate_transports_and_session_captures_removed": true,
+    "installed_regular_payload_files_verified": 4396,
+    "installed_literal_symlinks_verified": 120,
+    "preserved_configuration_files": 5,
+    "rollback_native106_debs_and_configs_retained": true,
+    "useful_private_reference_runtime_and_probes_retained": true,
+    "service_accounts_configuration_and_vt_cleanup_passed": true,
+    "initial_root_permissions_setup_attempt_retained_and_excluded": true,
     "independent_extracted_replay": true,
     "physical_gpu_qualified": false,
-    "run": 42038175351
+    "performance_qualification_inferred": false
   },
   "input_reader_attribution": {
     "archive": ".build/evidence/components/arm64-input-reader-thread-v1-evidence.tar.gz",
@@ -191,6 +197,58 @@
       "native_scroll_states_verified": 7198,
       "coalesced_states": 2,
       "injector_cpu_uses_actual_python_pid": true
+    },
+    "current_runtime_virtual_drm": {
+      "4g": {
+        "archive": ".build/evidence/components/arm64-vz-performance-native-only-4g-v1-evidence.tar.gz",
+        "bytes": 4757696,
+        "sha256": "bc8e0632f6b170ff0dd95ad228c0bf555281886a40dfb7c6d2e27950e9a2e02c",
+        "runtime_head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
+        "guest_memory_gib": 4,
+        "global_runtime_during_measurement": "0.1.0~native106",
+        "private_measured_runtime": "0.1.0~ci2",
+        "trials": 5,
+        "phases": 75,
+        "offered_inputs": 24000,
+        "observed_scroll_events": 7200,
+        "native_buffer_states_verified": 7179,
+        "coalesced_states": 21,
+        "measurement_integrity_and_cleanup_passed": true,
+        "input_requests_late_by_more_than_one_60hz_period": 10,
+        "maximum_producer_lateness_ms": 88.34731433307752,
+        "steady_rate_comparison_qualified": false,
+        "replacement_attempts": 0,
+        "workload_and_thresholds_unchanged": true,
+        "docker_services_preserved": true,
+        "independent_extracted_replay": true,
+        "causal_explanation_or_isolated_ram_effect_established": false,
+        "physical_qualified": false
+      },
+      "2g": {
+        "archive": ".build/evidence/components/arm64-vz-performance-native-only-2g-v1-evidence.tar.gz",
+        "bytes": 4532061,
+        "sha256": "e131639e633b0f578941f4636ede837fdae8a9c53f15d9b615035b0b1d445b5e",
+        "runtime_head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
+        "guest_memory_gib": 2,
+        "global_runtime_during_measurement": "0.1.0~native106",
+        "private_measured_runtime": "0.1.0~ci2",
+        "trials": 5,
+        "phases": 75,
+        "offered_inputs": 24000,
+        "observed_scroll_events": 7200,
+        "native_buffer_states_verified": 7200,
+        "coalesced_states": 0,
+        "measurement_integrity_and_cleanup_passed": true,
+        "input_requests_late_by_more_than_one_60hz_period": 79,
+        "maximum_producer_lateness_ms": 224.12220300003582,
+        "steady_rate_comparison_qualified": false,
+        "replacement_attempts": 0,
+        "workload_and_thresholds_unchanged": true,
+        "docker_services_preserved": true,
+        "independent_extracted_replay": true,
+        "causal_explanation_or_isolated_ram_effect_established": false,
+        "physical_qualified": false
+      }
     }
   },
   "installed_virtual_vt": {
@@ -261,9 +319,13 @@
       "review_cases_per_diagnostic": 45
     },
     "obsolete_explicit_x11_build_dependencies_removed": 8,
-    "unused_historical_backend_patch_files_removed": 12
+    "unused_historical_backend_patch_files_removed": 12,
+    "unused_xvfb_server_removed_from_development_vm": true,
+    "development_vm_xorg_xwayland_xvfb_executables_absent": true,
+    "development_vm_memory_matches_existing_2gib_macbook_preview": true
   },
   "remaining": [
+    "Controlled virtual-DRM performance qualification on the current ARM64 runtime",
     "Physical display, input, modeset, hotplug and gamma validation",
     "Supported physical suspend/resume and VT cycles",
     "Physical frame timing, CPU and buffer-memory comparisons with hardware-specific thresholds",
@@ -289,5 +351,25 @@
   },
   "overall_progress_percent_estimate": 94,
   "physical_gpu_qualified": false,
-  "full_plan_complete": false
+  "full_plan_complete": false,
+  "isolated_system_login_evidence": {
+    "archive": ".build/evidence/components/arm64-current-runtime-0496e814-v1-evidence.tar.gz",
+    "bytes": 2211498,
+    "sha256": "35d0a3ccf1aa0b64dfb9b7b0ce57228002a9bd41d5bbecaabcbb5607aa8a3450",
+    "head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
+    "package_version": "0.1.0~ci2",
+    "environment": "Lima virtual DRM; private read-only runtime mounts",
+    "passed": true,
+    "pam_login_cancelled_and_confirmed_logout_hooks_and_regreet": true,
+    "actual_process_hashes": {
+      "authenticated": 64,
+      "returned_greeter": 19
+    },
+    "installed_native106_and_global_package_database_preserved": true,
+    "useful_guest_runtime_and_probes_retained": true,
+    "duplicate_transports_and_session_captures_removed": true,
+    "independent_extracted_replay": true,
+    "physical_gpu_qualified": false,
+    "run": 42038175351
+  }
 }

@@ -1,7 +1,7 @@
 # NEXTSPACE Wayland rewrite plan
 
 - Date: 2026-10-27
-- Status: Implementation in progress. Both ARM64 CI jobs pass at `d33dff61`; cleaned-up ci2 packages pass isolated Lima login/logout validation. Physical qualification and the extreme keyboard-burst limit remain open; see [verified status](Wayland-Implementation-Status.md).
+- Status: Implementation in progress. Both ARM64 CI jobs pass at `00fe1e7c`; audited ci2 packages are installed and pass the canonical Lima login/logout cycle at 2 GiB RAM. Controlled timing, physical qualification and the extreme keyboard-burst limit remain open; see [verified status](Wayland-Implementation-Status.md).
 - Scope updated 2026-10-30 at the user's request: native Wayland only. X11 sessions, Xwayland compatibility, fallback packages and their validation are excluded. Historical X11 references below describe migration boundaries rather than continuing compatibility requirements.
 - Accessibility scope clarified 2026-11-03: preserve existing keyboard accessibility. Adding screen-reader support is excluded at the user's request.
 - Execution priority updated 2026-11-04: focus on Debian 13 ARM64/aarch64, native ARM64 CI and the existing Lima guest. Intel/AMD qualification is deferred. Physical hardware and unrestricted artwork redistribution gates do not block continued ARM implementation or personal-use validation.

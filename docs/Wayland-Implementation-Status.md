@@ -8,13 +8,15 @@ artifact digests and qualification boundaries. The full plan remains incomplete.
 
 ## Current ARM64 qualification
 
-Both full ARM64 jobs pass at `0496e814` in
-[run 42038175351](https://github.com/felixding/nextspace/actions/runs/42038175351).
+Both full ARM64 jobs pass at `00fe1e7c` in
+[run 42050392096](https://github.com/felixding/nextspace/actions/runs/42050392096).
 The native job builds and exercises the toolkit, compositor, applications,
 transfers, input methods, portals and session supervisor. The package job covers
 cold build, network-disabled source replay, installation, live upgrade and removal.
-These results include the native-backend removal and removal of obsolete explicit
-X11 development dependencies. No X11 test cases were added.
+These results include the native-backend removal, obsolete explicit X11 development
+dependencies and unused historical backend patches. Production runtime sources and
+native fixtures are unchanged from the independently audited `0496e814` artifacts.
+No X11 test cases were added.
 
 The current package artifacts are independently inspected: six ARM64 DEBs, all
 payload hashes and literal symlinks, 170 ELF headers, and both retained source
@@ -22,14 +24,25 @@ archives. The 4,209 desktop and 721 compositor input entries match their receipt
 and the exact committed Git blobs. The ci1 and ci2 source maps agree. An independent
 extracted replay passes. This inspection does not infer physical hardware behavior.
 
-The current ci2 packages also pass the existing isolated Lima PAM cycle:
-authentication, Workspace, Preferences, TimeMon, cancelled and confirmed logout,
-user hooks and return to a rendered greeter. All 64 authenticated-session and
-19 returned-greeter process/library hashes match the current package payloads.
-Private read-only mounts preserve the installed native106 desktop, package
-database and service configuration. An independent extracted replay verifies the
-retained session evidence. The useful guest prefix, packages and probes remain;
-verified duplicate transports and temporary session captures are removed.
+The audited ci2 packages are now installed in the 2 GiB Debian 13 development VM.
+The installation verifies 4,396 regular payload files and 120 literal symlinks,
+while preserving five configuration files. The prior native106 DEBs and configuration
+backups remain available for rollback. Xorg, Xwayland and Xvfb are absent; the unused
+Xvfb server was removed without removing shared libraries or stopping Docker.
+
+The existing canonical PAM cycle passes against this installed runtime, with no
+private runtime binds: ordinary test-account authentication, Workspace, Preferences,
+TimeMon, cancelled and confirmed logout, user hooks and return to a rendered greeter.
+All 64 authenticated-session and 25 returned-greeter process/library hashes match
+package payloads. Service, account, configuration and VT cleanup pass. An initial
+operator setup attempt used a root-only ancestor directory, preventing test-user
+captures. Its failure is retained and excluded; correcting directory permissions
+allows the unchanged fixture to pass. Independent extracted replay verifies the
+retained installation and session evidence.
+
+The earlier isolated ci2 PAM cycle and its 83 actual process/library hashes remain
+retained separately. That cycle preserved native106 while testing private read-only
+runtime mounts. The reusable private prefix, packages and probes remain available.
 
 ## Native-only cleanup
 
@@ -107,7 +120,20 @@ observations establish no cause for the historical stall. The actual-injector PI
 is now included in the existing helper's ready message; event handling is unchanged.
 Independent extracted replay passes for both retained diagnostic capsules.
 
-The remaining full-plan gates are physical display/input, modeset/hotplug/gamma,
+Two complete matrices also exercise the current `0496e814` runtime, each with
+75 phases and 24,000 requests. On the 4 GiB source VM, all 7,200 observed scroll events,
+7,179 native buffer states and 21 coalesced states pass integrity and cleanup checks;
+ten requests exceed one 60Hz period of producer lateness (maximum 88.347ms).
+After a clean reboot at the existing 2 GiB MacBook preview setting and removal of
+unused Xvfb, all 7,200 native buffer states pass with no coalescing, but 79 requests
+are late (maximum 224.122ms). Both matrices retain all five trials, unchanged
+workloads/criteria and no replacements. They remain unqualified for a steady-rate
+comparison. Late input requests do not count missed display frames, and these
+records establish no cause or isolated RAM effect. Docker and its running services
+remain unchanged. Independent extracted replay passes for both retained capsules.
+
+The remaining full-plan gates are controlled performance qualification, physical
+display/input, modeset/hotplug/gamma,
 physical suspend/resume and VT cycles, hardware latency/CPU/buffer-memory
 comparisons, the extreme synthetic keyboard-burst limit, MacBook execution
 confirmation and release/default promotion. Intel/AMD qualification and artwork
