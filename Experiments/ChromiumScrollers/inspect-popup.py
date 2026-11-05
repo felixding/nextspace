@@ -23,4 +23,5 @@ with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as connection:
     state=query(5);rectangle=query(12).parts[6]
     print(json.dumps(dict(process=model['process'],control=model['control'],value=state.parts[0].x,
         actions=state.parts[0].width,tracking=bool(state.parts[0].y),visible=state.parts[6].width>0,
-        highlighted=state.parts[5].y,item_rect={key:getattr(rectangle,key) for key in ('x','y','width','height')})))
+        highlighted=state.parts[5].y,menu_frame={key:getattr(state.parts[6],key) for key in ('x','y','width','height')},
+        item_rect={key:getattr(rectangle,key) for key in ('x','y','width','height')})))

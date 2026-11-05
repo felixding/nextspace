@@ -201,3 +201,10 @@ input latency, browser window parenting/global coordinates and broader layout,
 accessibility, frontend and build coverage remain open. The disabled native
 image test uses explicit CSS opacity 1; default disabled presentation is not
 qualified. See the [select qualification](../Experiments/ChromiumScrollers/popup-qualification.json).
+
+Native invalidations now wake sandboxed renderers through an optional descriptor
+transport using the same UI library. Active subscriptions follow real sender
+lifetimes across PID namespaces and shared connections. Initial native drawing
+also finishes before helper readiness, addressing a reproduced cold-resource
+RPC timeout. The broader input, appearance and application requirements above
+remain open. See the [notification qualification](../Experiments/ChromiumScrollers/notification-qualification.json).

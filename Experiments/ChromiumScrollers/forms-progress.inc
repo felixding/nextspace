@@ -6,9 +6,29 @@ static struct {
   pthread_cond_t condition;
   pthread_t thread,owner;
   void *controller;
-  int running,started,pending;
+  int running,started,pending,wake_fd,failed;
   double generation;
-} form_watch={.mutex=PTHREAD_MUTEX_INITIALIZER,.condition=PTHREAD_COND_INITIALIZER};
+} form_watch={.mutex=PTHREAD_MUTEX_INITIALIZER,.condition=PTHREAD_COND_INITIALIZER,.wake_fd=-1};
+static void wake_form_watch(void)
+{
+  if(form_watch.wake_fd>=0){uint64_t one=1;ssize_t result;
+    do result=write(form_watch.wake_fd,&one,sizeof(one));while(result<0&&errno==EINTR);}
+  pthread_cond_signal(&form_watch.condition);
+}
+static void close_form_notifier(void)
+{
+  if(form_watch.wake_fd<0)return;
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
+  exchange_bytes(&request,sizeof(request));close(form_watch.wake_fd);form_watch.wake_fd=-1;
+}
+static void fail_form_watch(void)
+{
+  pthread_mutex_lock(&form_watch.mutex);
+  if(form_watch.running){form_watch.failed=1;form_watch.pending=1;
+    ((void (*)(void *))(base+0xa2e11e0))(form_watch.controller);}
+  pthread_mutex_unlock(&form_watch.mutex);
+  note("native invalidation transport closed");
+}
 static void *watch_native_forms(void *unused) {
   for(;;){
     pthread_mutex_lock(&form_watch.mutex);int running=form_watch.running;pthread_mutex_unlock(&form_watch.mutex);
@@ -23,7 +43,7 @@ static void *watch_native_forms(void *unused) {
        * owning renderer thread when its existing work loop wakes. */
       ((void (*)(void *))(base+0xa2e11e0))(form_watch.controller);
     }
-    if(form_watch.running){
+    if(form_watch.running&&form_watch.wake_fd<0){
       /* Bound transport recovery waits, not widget animation intervals. The
        * next animation deadline comes only from the native UI run loop. */
       delay=!isfinite(delay)||delay<0?1:fmin(1,fmax(.001,delay));
@@ -33,6 +53,17 @@ static void *watch_native_forms(void *unused) {
       pthread_cond_timedwait(&form_watch.condition,&form_watch.mutex,&until);
     }
     pthread_mutex_unlock(&form_watch.mutex);
+    if(form_watch.wake_fd>=0){
+      /* The helper signals actual native invalidations. Do not wait for a
+       * guessed widget period or hold the shared request channel while idle.
+       * Observe channel shutdown without consuming another renderer's reply. */
+      struct pollfd descriptors[]={{.fd=form_watch.wake_fd,.events=POLLIN},{.fd=channel,.events=POLLRDHUP}};
+      int result;do result=poll(descriptors,2,-1);while(result<0&&errno==EINTR);
+      if(result<0||(descriptors[0].revents&(POLLERR|POLLHUP|POLLNVAL))||
+         (descriptors[1].revents&(POLLERR|POLLHUP|POLLRDHUP|POLLNVAL))){fail_form_watch();break;}
+      if(descriptors[0].revents&POLLIN){uint64_t count;ssize_t bytes;
+        do bytes=read(form_watch.wake_fd,&count,sizeof(count));while(bytes<0&&errno==EINTR);}
+    }
   }
   return NULL;
 }
@@ -42,29 +73,51 @@ static int refresh_form_watch(void) {
   for(struct NativeForm *f=native_forms;f;f=f->next)
     if((f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted)||(f->kind==NXS_POPUP&&f->popup_open)){needed=1;generation=fmax(generation,f->generation);}
   pthread_mutex_lock(&form_watch.mutex);
+  if(form_watch.failed)needed=0;
   if(needed&&!form_watch.started){
     if(!current_controller){pthread_mutex_unlock(&form_watch.mutex);return 0;}
     form_watch.controller=current_controller;form_watch.owner=pthread_self();
     form_watch.running=1;form_watch.generation=generation;
+    if(forms_notifications_enabled){
+      int descriptor=eventfd(0,EFD_CLOEXEC|EFD_NONBLOCK);
+      if(descriptor>=0){
+        struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=15,
+          .process=identity(),.value=generation};
+        struct NXSResponse *response=exchange_bytes_descriptor(&request,sizeof(request),descriptor);
+        if(response&&response->parts[3].x==1){form_watch.wake_fd=descriptor;note("native invalidation descriptor registered");}
+        else close(descriptor);
+      }
+    }
     form_watch.started=!pthread_create(&form_watch.thread,NULL,watch_native_forms,NULL);
-    if(!form_watch.started)form_watch.running=0;
+    if(!form_watch.started){form_watch.running=0;close_form_notifier();}
   }
   int join=!needed&&form_watch.started;
   if(join){form_watch.running=0;form_watch.pending=0;}
-  pthread_cond_signal(&form_watch.condition);
+  if(join)wake_form_watch();
+  else if(form_watch.wake_fd<0)pthread_cond_signal(&form_watch.condition);
   pthread_t thread=form_watch.thread;
   int usable=!needed||form_watch.started;
   pthread_mutex_unlock(&form_watch.mutex);
-  if(join){pthread_join(thread,NULL);pthread_mutex_lock(&form_watch.mutex);form_watch.started=0;pthread_mutex_unlock(&form_watch.mutex);}
+  if(join){pthread_join(thread,NULL);pthread_mutex_lock(&form_watch.mutex);form_watch.started=0;close_form_notifier();pthread_mutex_unlock(&form_watch.mutex);}
   return usable;
 }
 static void form_native_work(void *controller) {
   if(!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled)return;
   pthread_mutex_lock(&form_watch.mutex);
   int ready=form_watch.running&&form_watch.pending&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
+  int failed=form_watch.failed;
   if(ready)form_watch.pending=0;
   pthread_mutex_unlock(&form_watch.mutex);
   if(!ready)return;
+  if(failed){
+    if(active_form)finish_form(-10000,-10000,0);
+    for(;;){struct NativeForm *popup=native_forms;
+      while(popup&&!(popup->kind==NXS_POPUP&&popup->popup_open))popup=popup->next;
+      if(!popup)break;
+      popup->popup_open=0;popup_engine_closed(popup->popup_engine);
+    }
+    refresh_form_watch();return;
+  }
   if(active_form&&active_form->kind==NXS_SLIDER){
     struct NativeForm *slider=active_form;
     struct NXSResponse *response=form_request(slider,5,0,0,0);

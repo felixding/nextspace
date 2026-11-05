@@ -2,6 +2,10 @@
 import ctypes as C
 import itertools
 import math
+import os
+import fcntl
+import time
+from pathlib import Path
 
 MAGIC = 0x4e585549
 
@@ -74,6 +78,7 @@ class NativeControlServer:
         self.input_capabilities = 0
         self.event_capabilities, self.event_deadline = 0, -1
         self.generations = {}
+        self.notifiers = {}
         self.range_capabilities=0
         self.popup_capabilities=0
         self.popup_open_capabilities=0
@@ -128,6 +133,76 @@ class NativeControlServer:
             native.nxs_native_ui_dispatch_events.restype = C.c_double
             native.nxs_control_needs_display.argtypes = [C.c_void_p]
             native.nxs_control_needs_display.restype = C.c_int
+        self.notification_capabilities=int(bool(self.event_capabilities and self.source_capabilities and hasattr(os,'pidfd_open')))
+
+    def remove_notifier(self,process):
+        entry=self.notifiers.pop(process,None)
+        if entry:
+            assert self.native.nxs_native_ui_source_destroy(entry['source'])
+            os.close(entry['lifetime']);os.close(entry['descriptor'])
+
+    def notification_fds(self):return [entry['lifetime'] for entry in self.notifiers.values()]
+
+    def owner_exited(self,descriptor):
+        for process,entry in list(self.notifiers.items()):
+            if entry['lifetime']==descriptor:
+                self.remove_notifier(process)
+                for state in self.controls.values():
+                    if state['key'][0]==process:self.destroy_later(state)
+                self.log('native-notifier-owner-exit',process=process,active=len(self.notifiers))
+                break
+
+    def signal(self,process):
+        notifier=self.notifiers.get(process)
+        if notifier:
+            try:os.eventfd_write(notifier['descriptor'],1)
+            except BlockingIOError:pass # Already readable: invalidations coalesce.
+
+    def invalidate(self,process):
+        self.generations[process]=self.generations.get(process,0)+1
+        self.signal(process)
+
+    def notification_message(self,client,req,descriptors,sender_pid):
+        accepted=0
+        previous=self.notifiers.get(req.process)
+        owned=not previous or (previous['client'] is client and previous['pid']==sender_pid)
+        if req.kind==0 and req.control==0 and not req.text_size and owned:
+            if req.operation==16 and not descriptors:
+                self.remove_notifier(req.process)
+                accepted=1
+            elif (req.operation==15 and self.notification_capabilities and sender_pid and sender_pid>0 and len(descriptors)==1 and
+                  math.isfinite(req.value) and 0<=req.value<=self.generations.get(req.process,0)):
+                descriptor=descriptors[0]
+                try:
+                    # Only write to a caller-owned, nonblocking eventfd. Never
+                    # accept a file/socket or change its shared descriptor flags.
+                    info=dict(line.split(':',1) for line in Path('/proc/self/fdinfo/'+str(descriptor)).read_text().splitlines() if ':' in line)
+                    identity=int(info['eventfd-id'])
+                    valid=(os.readlink('/proc/self/fd/'+str(descriptor))=='anon_inode:[eventfd]' and
+                        fcntl.fcntl(descriptor,fcntl.F_GETFL)&os.O_NONBLOCK and int(info['eventfd-semaphore'])==0 and
+                        all(process==req.process or entry['identity']!=identity for process,entry in self.notifiers.items()))
+                    if valid:
+                        # Kernel credentials identify the real sender even when
+                        # sandboxed renderers all see namespace-local PID 1.
+                        # pidfd readiness also covers crashes while the shared
+                        # browser connection remains open in other processes.
+                        lifetime=os.pidfd_open(sender_pid,0)
+                        source=self.native.nxs_native_ui_source_create(lifetime)
+                        if not source:os.close(lifetime);raise OSError('Cannot watch notification owner')
+                        try:duplicate=os.dup(descriptor)
+                        except OSError:
+                            self.native.nxs_native_ui_source_destroy(source);os.close(lifetime);raise
+                        self.remove_notifier(req.process)
+                        self.notifiers[req.process]=dict(descriptor=duplicate,identity=identity,client=client,
+                            pid=sender_pid,lifetime=lifetime,source=source)
+                        accepted=1
+                        # Cover the race between the renderer's generation
+                        # snapshot and registration without polling or timers.
+                        if self.generations.get(req.process,0)>req.value:self.signal(req.process)
+                except (OSError,KeyError,ValueError):pass
+        self.log('native-notifier',process=req.process,operation=req.operation,accepted=accepted,
+                 active=len(self.notifiers))
+        self._respond(client,req,input_result=accepted)
 
     def dispatch_events(self,maximum_wait=0):
         if not self.event_capabilities:
@@ -139,17 +214,23 @@ class NativeControlServer:
                 if visible!=state.get('popup_visible',False):
                     state['popup_visible']=visible
                     process,control,kind=state['key']
-                    self.generations[process]=self.generations.get(process,0)+1
+                    self.invalidate(process)
                     self.log('native-popup-visibility',process=process,control=control,visible=visible,generation=self.generations[process])
             if state['destroy'] or state.get('invalidated'):
                 continue
             if self.native.nxs_control_needs_display(state['native']):
                 state['invalidated'] = True
                 process, control, kind = state['key']
-                self.generations[process] = self.generations.get(process, 0) + 1
+                self.invalidate(process)
                 self.log('native-form-invalidation', process=process, control=control, kind=kind,
                          generation=self.generations[process])
         return self.event_deadline
+
+    def prepare(self):
+        # AppKit loads shared fonts/images lazily on its first draw. Finish
+        # those native draws before publishing the service, rather than make
+        # an application's first paint wait inside a bounded RPC.
+        for kind in range(1,7 if self.popup_capabilities else 6):self.preferred(kind)
 
     def preferred(self, kind):
         if kind not in self.metric_cache:
@@ -161,6 +242,8 @@ class NativeControlServer:
                 self.native.nxs_control_sync(pointer, C.byref(config))
                 size = self.native.nxs_control_size(pointer)
                 self.metric_cache[kind] = size.width, size.height
+                if not self.native.nxs_control_draw(pointer,1).pixels:
+                    raise RuntimeError('Native control preparation failed')
             finally:
                 self.native.nxs_control_destroy(pointer)
         return self.metric_cache[kind]
@@ -171,10 +254,11 @@ class NativeControlServer:
             return
         state['actions'] += 1
         process=state['key'][0]
-        self.generations[process]=self.generations.get(process,0)+1
+        timestamp=time.monotonic_ns()
+        self.invalidate(process)
         self.log('native-form-action', process=state['key'][0], control=state['key'][1],
                  kind=state['key'][2], action=event, count=state['actions'],
-                 value=native_state.contents.value, state=native_state.contents.state)
+                 value=native_state.contents.value, state=native_state.contents.state,monotonic_ns=timestamp)
 
     def _tracking(self, state):
         return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
@@ -215,7 +299,8 @@ class NativeControlServer:
                     state['invalidated'] = False
         self.send(client, response, data)
 
-    def message(self, client, data):
+    def message(self, client, data, descriptors=(),sender_pid=None):
+        if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little')!=15):return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==11:
             self.popup_message(client,data)
             return
@@ -240,6 +325,9 @@ class NativeControlServer:
             return
         if not all(math.isfinite(x) for x in (req.x, req.y)):
             self._respond(client, req)
+            return
+        if req.operation in (15,16):
+            self.notification_message(client,req,descriptors,sender_pid)
             return
         if req.operation == 9:
             self.dispatch_events()
@@ -394,12 +482,19 @@ class NativeControlServer:
         self.log('native-form-release', process=state['key'][0], control=state['key'][1], kind=state['key'][2], actions=state['actions'])
 
     def disconnect(self, client):
+        for process,entry in list(self.notifiers.items()):
+            if entry['client'] is client:
+                self.remove_notifier(process)
+                self.log('native-notifier-disconnect',process=process,active=len(self.notifiers))
         for state in self.controls.values():
             if state['client'] is client:
-                state['destroy'] = True
-                if self._tracking(state):
-                    self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
-                    self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
+                self.destroy_later(state)
+
+    def destroy_later(self,state):
+        state['destroy']=True
+        if self._tracking(state):
+            self.native.nxs_control_send(state['native'],0,-1,-1,0)
+            self.native.nxs_control_send(state['native'],1,-1,-1,0)
 
     def cleanup(self):
         for key, state in list(self.controls.items()):
@@ -412,5 +507,6 @@ class NativeControlServer:
                 del self.contexts[state['context']]
 
     def close(self):
+        for process in list(self.notifiers):self.remove_notifier(process)
         for state in self.controls.values():
             self.native.nxs_control_destroy(state['native'])

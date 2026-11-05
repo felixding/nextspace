@@ -19,8 +19,11 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/un.h>
+#include <sys/eventfd.h>
+#include <poll.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
 
 struct Rect {int x,y,width,height;};
 struct Flags {float color[4],width,miter;uint32_t bits;float hdr;void *objects[5];};
@@ -54,7 +57,7 @@ static uint32_t identity(void) {
   return process_cookie;
 }
 
-static struct NXSResponse *exchange_bytes(void *request,size_t request_size) {
+static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t request_size,int descriptor_to_send) {
   if(channel<0||!shared)return NULL;
   if(!packet){packet_capacity=1024*1024;packet=malloc(packet_capacity);}
   if(!packet)return NULL;
@@ -63,7 +66,16 @@ static struct NXSResponse *exchange_bytes(void *request,size_t request_size) {
   else if(locked)return NULL;
   uint32_t magic=*(const uint32_t *)request,sequence=++shared->sequence;
   memcpy((char *)request+28,&sequence,4);
-  ssize_t bytes=send(channel,request,request_size,MSG_NOSIGNAL);
+  ssize_t bytes;
+  if(descriptor_to_send>=0) {
+    struct iovec buffer={.iov_base=request,.iov_len=request_size};
+    char ancillary[CMSG_SPACE(sizeof(int))];memset(ancillary,0,sizeof(ancillary));
+    struct msghdr message={.msg_iov=&buffer,.msg_iovlen=1,.msg_control=ancillary,.msg_controllen=sizeof(ancillary)};
+    struct cmsghdr *control=CMSG_FIRSTHDR(&message);
+    control->cmsg_level=SOL_SOCKET;control->cmsg_type=SCM_RIGHTS;control->cmsg_len=CMSG_LEN(sizeof(int));
+    memcpy(CMSG_DATA(control),&descriptor_to_send,sizeof(int));
+    bytes=sendmsg(channel,&message,MSG_NOSIGNAL);
+  } else bytes=send(channel,request,request_size,MSG_NOSIGNAL);
   struct NXSResponse *response=(struct NXSResponse *)packet;
   if(bytes==(ssize_t)request_size) {
     for(;;) {
@@ -105,6 +117,8 @@ static struct NXSResponse *exchange_bytes(void *request,size_t request_size) {
   if(bytes<(ssize_t)sizeof(*response)||response->magic!=magic||response->size!=bytes)return NULL;
   return response;
 }
+static struct NXSResponse *exchange_bytes(void *request,size_t request_size)
+{return exchange_bytes_descriptor(request,request_size,-1);}
 static struct NXSResponse *exchange(struct NXSRequest req){return exchange_bytes(&req,sizeof(req));}
 
 static struct NXSResponse *query(const void *bar,int layer,float value,int override_value) {
@@ -285,6 +299,7 @@ __attribute__((constructor)) static void initialize(void) {
     else form_sizes[kind]=(struct SizeI){ceil(width),ceil(height)};
   }
   forms_input_enabled=forms_input_enabled&&forms_available;
+  forms_notifications_enabled=metrics->parts[6].x==1;
   const char *progress=getenv("NEXTSPACE_CHROMIUM_PROGRESS");
   forms_progress_enabled=forms_available&&progress&&!strcmp(progress,"1");
   const char *animation=getenv("NEXTSPACE_CHROMIUM_ANIMATION");

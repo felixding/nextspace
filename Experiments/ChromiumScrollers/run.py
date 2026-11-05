@@ -61,7 +61,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
          (args.log_directory / 'chromium.stderr').open('w') as browser_errors:
         try:
             helper = subprocess.Popen(helper_command, env=environment, stdout=helper_log, stderr=helper_errors)
-            deadline = time.monotonic() + 10
+            deadline = time.monotonic() + 30
             while not endpoint.exists() and helper.poll() is None and time.monotonic() < deadline:
                 time.sleep(.02)
             if not endpoint.exists() or helper.poll() is not None:

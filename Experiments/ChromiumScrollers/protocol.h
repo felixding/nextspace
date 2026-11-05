@@ -69,4 +69,12 @@ struct NXSControlPopupRequest {
   uint32_t text_size,reserved,count;
   int32_t selected;
 };
+/* Optional invalidation notifications, bootstrap part 6.x. Operation 15 uses
+ * the ordinary 104-byte control request (kind/control zero, value = last seen
+ * process generation) and one SCM_RIGHTS nonblocking eventfd. Operation 16
+ * unregisters it. The helper uses kernel SCM_CREDENTIALS and pidfd readiness
+ * to release an active subscription if its sender dies without unregistering.
+ * Part 3.x reports acceptance. Native invalidations make this
+ * descriptor readable; the renderer then queries operation 9 and schedules
+ * its own UI thread. No widget timer or unsolicited shared-channel reply. */
 #endif

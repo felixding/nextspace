@@ -363,9 +363,39 @@ This remains partial support for one exact binary at 100% scale, with no browser
 or underlying UI-library rebuild. Live model replacement while open currently
 rejects stale actions rather than updating the displayed menu. Default disabled
 opacity, automatic metrics/layout, styled selects/listboxes, physical auxiliary
-window input latency, browser window parenting and compositor-global anchor
+window input across focus changes, browser window parenting and compositor-global anchor
 agreement after moving/resizing, multiple outputs/scales, touch and full
-accessibility remain unfinished. The renderer's existing deadline watcher can
-delay auxiliary-window actions when there is no native timer; descriptor-based
-invalidation notification is still needed. No browser frontend or derivative
+accessibility remain unfinished. No browser frontend or derivative
 coverage follows from this fixture. See [`popup-qualification.json`](popup-qualification.json).
+
+## Native invalidation notifications
+
+The helper now signals a renderer-owned eventfd when the native UI invalidates
+a view, changes a popup's visibility or sends an action. The renderer waits for
+descriptor readiness and schedules its existing UI thread; idle watchers no
+longer poll a native deadline to discover those changes. This is transport for
+all bound controls, with no widget timer, drawing or key rules in the bridge.
+The optional operations 15/16 leave existing request structures and the public
+NativeUI ABI unchanged. An older helper retains the prior deadline handoff.
+
+Registration covers changes since the renderer's last generation snapshot.
+Notifications coalesce and remain isolated by process. The helper validates
+nonblocking eventfds, keeps its own reference, and closes it on replacement,
+unregister or disconnect. Kernel sender credentials and pidfd readiness track
+active subscribers even when sandboxed renderers report PID 1 or share a
+request connection. A killed subscriber's native form controls are destroyed.
+This does not yet provide process-lifetime cleanup for all idle/native-scrollbar
+objects when no notification subscription exists.
+
+The helper also completes initial draws through the actual native controls and
+scrollbar API before binding its service socket. This moves AppKit's first
+font/image initialization out of bounded application paint RPCs. A reproduced
+progress-resource lookup timeout and first-frame fallback led to this change;
+earlier fallback reports with unconfirmed triggers remain separate open issues.
+No underlying UI library or browser was rebuilt for this work.
+
+The transport suite includes isolation, registration races, saturated counters,
+descriptor cleanup and abrupt owner death with a shared connection still open.
+Real native menu-window clicks have separate helper/renderer timestamp traces.
+See [`notification-qualification.json`](notification-qualification.json) for
+the measured results and remaining scope.

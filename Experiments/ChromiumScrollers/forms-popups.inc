@@ -118,6 +118,7 @@ static void popup_after_input(struct NativeForm *form,struct NXSResponse *respon
   int visible=response->parts[6].width>0;
   int action=response->parts[0].width>form->actions_seen;
   int selection=(int)response->parts[0].x;
+  double action_count=response->parts[0].width;
   form->actions_seen=response->parts[0].width;
   if(visible&&!form->popup_open) {
     /* Run the real menu-list lifecycle (:open, observers, accessibility
@@ -139,7 +140,13 @@ static void popup_after_input(struct NativeForm *form,struct NXSResponse *respon
       /* Selection validation, trusted input/change events and the application
        * model update are Chromium's real implementation. Stale models cannot
        * select a replacement DOM option. */
-      if(valid)((void (*)(void *,int))(base+0xe1030e4))(node,index);
+      if(valid){
+        ((void (*)(void *,int))(base+0xe1030e4))(node,index);
+        if(log_fd>=0){struct timespec now;clock_gettime(CLOCK_MONOTONIC,&now);
+          dprintf(log_fd,"%d native popup action applied process=%u control=%llu actions=%.0f time_ns=%llu\n",
+            getpid(),identity(),(unsigned long long)control,action_count,
+            (unsigned long long)now.tv_sec*1000000000ull+now.tv_nsec);}
+      }
       else note("native popup stale model action discarded");
     }
   }

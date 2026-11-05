@@ -272,3 +272,12 @@ in AppKit's resource lookup; the saved backtrace establishes that location, not
 the underlying cause. A later complete compatibility/transport run passed.
 See the original [`popup-qualification.json`](popup-qualification.json) and the
 new [select qualification](../../Experiments/ChromiumScrollers/popup-qualification.json).
+
+The browser helper now prepares its actual native controls before publishing
+the service socket, so initial AppKit image/font loading happens before paint
+RPCs. Its optional invalidation transport wakes renderer-owned descriptors
+instead of polling; this uses the existing native view/action state and source
+API without changing the public NativeUI ABI or control implementations.
+Active subscriber lifetime is tracked using kernel credentials and pidfds.
+The separate [notification qualification](../../Experiments/ChromiumScrollers/notification-qualification.json)
+records native-window delivery, resource preparation and cleanup checks.

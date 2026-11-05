@@ -34,6 +34,7 @@ static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled;
+static int forms_notifications_enabled;
 static __thread const void *popup_mouse_event;
 static unsigned forms_input_capabilities;
 static struct SizeI form_sizes[4];

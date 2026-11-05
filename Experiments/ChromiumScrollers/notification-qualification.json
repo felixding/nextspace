@@ -1,0 +1,170 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "ac092f53bdf2fa435d95f0fb9d968a65dc206b1e",
+  "status": "experimental descriptor-based invalidation and native service readiness for the pinned Chromium build; complete native browser/application integration remains open",
+  "architecture": {
+    "UI_implementation": "unchanged installed GNUstep/AppKit controls through the independent NativeUI C API",
+    "UI_library_rebuilt": false,
+    "NativeUI_provider_rebuilt": false,
+    "chromium_rebuilt": false,
+    "public_NativeUI_ABI_changed": false,
+    "control_implementations_copied": false,
+    "widget_timers_or_key_rules_copied": false,
+    "notification_transport": "optional operations 15/16 with renderer-owned nonblocking eventfd; kernel SCM_CREDENTIALS and pidfd lifetime readiness",
+    "owning_renderer_thread": "actual Chromium ScheduleWork and existing UI work loop",
+    "idle_polling": "none while the descriptor subscription is active; prior deadline handoff retained for older helpers"
+  },
+  "startup": {
+    "change": "complete initial real control/scroller draws before binding service socket",
+    "reason": "reproduced first native progress image lookup exceeded bounded paint RPC timeout",
+    "private_helper_preparation_seconds": 1.4946092829923145,
+    "underlying_resource_lookup_algorithm_changed": false,
+    "first_progress_checks": 20,
+    "other_historical_initial_frame_reports": "not all earlier unconfirmed scrollbar/progress fallback triggers have been reproduced"
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "d2ca3d7bf714ab3e1118101d8bb3245918b9cc6ebc29db4410678bd62ba8c9cc",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055"
+    },
+    "renderers": [
+      {
+        "pid": 51396,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 51407,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 51408,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "helper_ready": {
+      "event": "ready",
+      "socket": "/var/tmp/nextspace-chromium-prototype/runtime/native.sock",
+      "request_size": 64,
+      "response_size": 248,
+      "preparation_seconds": 1.4946092829923145
+    }
+  },
+  "qualification": {
+    "browser_assertions": 261,
+    "browser_select_assertions": 29,
+    "existing_browser_regressions": [
+      {
+        "case": "sliders",
+        "passed": 50
+      },
+      {
+        "case": "input",
+        "passed": 62
+      },
+      {
+        "case": "mouse",
+        "passed": 33
+      },
+      {
+        "case": "progress",
+        "passed": 20
+      },
+      {
+        "case": "animation",
+        "passed": 59
+      },
+      {
+        "case": "scrollbars",
+        "passed": 8
+      }
+    ],
+    "notification_transport_assertions": 26,
+    "popup_transport_assertions": 20,
+    "old_helper_animation_assertions": 59,
+    "physical_native_window_actions": {
+      "passed": true,
+      "native_window_actions": [
+        {
+          "value": 1.0,
+          "milliseconds": 15.811613
+        },
+        {
+          "value": 2.0,
+          "milliseconds": 4.737051
+        },
+        {
+          "value": 0.0,
+          "milliseconds": 4.297964
+        }
+      ],
+      "maximum_milliseconds": 15.811613,
+      "notifiers_released": true
+    },
+    "helper_loss": {
+      "changes": [],
+      "open": false,
+      "value": "a"
+    },
+    "unchanged_NativeUI_binaries_match_prior_qualification": true,
+    "prior_legacy_scrollbar_comparisons": "30 from ac092f53, not rerun in this turn; exact provider/loader hashes remain identical"
+  },
+  "remaining": [
+    "Default disabled-control UA styling still modifies native output",
+    "Live model replacement in an open select remains incomplete",
+    "Browser menu window parenting and compositor-global coordinate alignment across movement/outputs/scales",
+    "Pointer focus refresh when a menu maps under a stationary cursor was not qualified; a click before a fresh motion missed the native window during an earlier sample",
+    "Process-lifetime cleanup for idle/native-scrollbar objects without an active notification subscription remains open",
+    "Only three final physical-window action timing samples; no broad performance claim",
+    "Text editing, application menus, browser frontend controls, touch, IME, accessibility and broader layout/build matrix",
+    "Firefox/Gecko, derivatives and remaining GTK/Qt/non-GNUstep application integration"
+  ],
+  "source_receipts": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/GSThemeDrawing.m",
+      "sha256": "8f8a5a4632a0052515ad2519b860af81ea8a3c141c589880fa507481952a67df",
+      "used_for": "first progress draw initializes native images through NSImage"
+    }
+  ],
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "c5ae062e153aaf637c06c50d5c088bfc950f533e1bf9cabb0c67ea979bc7d629",
+    "Experiments/ChromiumScrollers/forms-popups.inc": "d298f462147d668189d50322b35c7d836e0c83fe9432d606926992c5cfa9a7be",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "947664e16119318c665f7e765d6830b5bba73a30ccd20bb6bd366bfa2fc66434",
+    "Experiments/ChromiumScrollers/forms.inc": "147d93056f830f3158c0a2cb0274ef8fd92e0e63792009171dc76fadf495be57",
+    "Experiments/ChromiumScrollers/helper.py": "211ab58c92db59cb1113af615a64f461d32c71522ced4cb1f232af69c3cb0b89",
+    "Experiments/ChromiumScrollers/hook.c": "8a96a6bc99f42923f96ac069b953c30fb1f45e3a607aefd773dee5776789d8ce",
+    "Experiments/ChromiumScrollers/inspect-popup.py": "f22430a02fdf518d2d169df57fd1d266714bdcd9d3a1a889e01bfff67f54329a",
+    "Experiments/ChromiumScrollers/native_controls.py": "21ca6508a99d32f714d1ae110ce013ecc4f2e9f7361764b30b584e6c7a53e431",
+    "Experiments/ChromiumScrollers/protocol.h": "ac3bbc2b7a0a6e93bf8ba71eae1c6b8779b077ab889645165c9f162863261bd3",
+    "Experiments/ChromiumScrollers/run.py": "5fd21176d952d8c892750f1414b4558266dcdfbb5d9330472e89a0c78e5046eb",
+    "Libraries/NativeUI/README.md": "f15be7e9a85bb5a2ab080a36927339d5e7cbe182094e53e2cb53101dff9b5b01",
+    "Tests/NativeUI/run.py": "5cb038db5902e4c72224870a6f7a41e68e36571a2cedb37bf529a8b30d6c90cd",
+    "docs/Native-Control-Integration.md": "19b1a6d0bdc4d390cb77ef834f5d14161f69aa6c9d410bf037b287fc17869d9c",
+    "Experiments/ChromiumScrollers/check-control-notifications.py": "8551dea2ef134778aa34e517addd49b3ed6c614c5f076060e51ebbd7af98ad1d",
+    "Experiments/ChromiumScrollers/check-notification-trace.py": "bcf9b7f7c1a6c404af67eda5cf984c4e017a831be4f9d32e170731b71798fe07"
+  },
+  "evidence_sha256": {
+    ".build/native-ui/notifications-browser/prepared-select/results.json": "9944443ad208150947fe6ba97dbb852576c2121a3f662b3f9fb432ecdadbbb4d",
+    ".build/native-ui/notifications-browser/prepared-select/limitations.json": "4dd74424967e75d969aa08b03299a54480188a8e887da46acdb722b1ab87b699",
+    ".build/native-ui/notifications-browser/prepared-progress/results.json": "7390c86b3f8ff0607aa7463c2b86d02e3c9c3025c1b07519b6e3913fb323fff5",
+    ".build/native-ui/notifications-browser/prepared-regressions/summary.json": "11ab10b4ae18f6f0832c9aa185a59f0dc2b534f8796849c5f233457388ee4e88",
+    ".build/native-ui/notifications-browser/provider/results.json": "ed74a015fcaaa808bbb8b6bebc92dfefe92e2fa22e9fdb2a72984cb152c95587",
+    ".build/native-ui/notifications-browser/provider/helper.jsonl": "4204da2e1f923572e34a26ef20f33d7df105d0a880af1c1d74b62850a5c601f8",
+    ".build/native-ui/notifications-browser/legacy-helper-animation/results.json": "2d225c35d2afe9813a480027c4ffaf79fba7d60166b0b7f57fd6b25e8bea7e88",
+    ".build/native-ui/notifications-browser/prepared-physical-helper.jsonl": "1714f8cda4d6ea1c5db5bd7bd7fa748924cadecb89f6099576388272dc2bfd27",
+    ".build/native-ui/notifications-browser/prepared-physical-hook.log": "bac3e2aaad6573ae32cd08855acc24a404675935e6afb5115a738777c4176343",
+    ".build/native-ui/notifications-browser/prepared-physical-trace.json": "bde8e1aac48c77f5c9c9cbca9043115d9b17d904624329b53b6fe3ec67678b04",
+    ".build/native-ui/notifications-browser/prepared-physical-windows.txt": "81e129389819c83969826f3efd5f6ac10b927a212158472f0554cb3fe1d73546",
+    ".build/native-ui/notifications-browser/helper-loss.json": "3934210fe7fd1f7571bd63dff3ceffc2ca9801c95d2edb6804d47e3e2a519315",
+    ".build/native-ui/notifications-browser/notification-environment.json": "bf255691404ca79b4facd0ee4a4c3b369bddb4dc2e3d4d476f12ae0bea88c33a",
+    ".build/native-ui/notifications-browser/notification-cleanup.json": "63825dbeb0379daf4ba1fc70b336caf28ddd5c30c94a82c3527a2611d86bd04d",
+    ".build/native-ui/notifications-browser/resource-timeout/helper-timeout.txt": "c499ae19435652432b6df2792e49c9e3e7768b8c838fd92c8e4d41acfafed1e3",
+    ".build/native-ui/notifications-browser/regressions/progress/results.json": "c70907157cbfd9d4b9c2af9241f86f97061242b8e537e898521bff5c75e7e3a3"
+  }
+}

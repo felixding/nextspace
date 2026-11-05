@@ -235,14 +235,15 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                 helper=subprocess.Popen([sys.executable,str(scripts/'helper.py'),'--library',str((args.build/'libnextspace-native-scroller.so.1').resolve()),
                     '--socket',str(endpoint)]+backend,env=environment,stdout=out,stderr=err)
             try:
-                deadline=time.monotonic()+10
+                deadline=time.monotonic()+30
                 while not endpoint.exists():
                     assert helper.poll() is None and time.monotonic()<deadline,'Native helper startup'
                     time.sleep(.01)
-                for name in ['transport','input','animation']:
+                for name in ['transport','input','animation','notifications']:
                     output=args.output/('transport-'+name)
                     if name=='input':output=output.with_suffix('.json')
-                    probe=subprocess.run([sys.executable,str(scripts/('check-control-'+name+'.py')),'--socket',str(endpoint),'--output',str(output)],
+                    extra=['--helper-pid',str(helper.pid)] if name=='notifications' else []
+                    probe=subprocess.run([sys.executable,str(scripts/('check-control-'+name+'.py')),'--socket',str(endpoint),'--output',str(output)]+extra,
                         env=environment,text=True,capture_output=True,timeout=20)
                     (args.output/('transport-'+name+'.stdout')).write_text(probe.stdout)
                     assert probe.returncode==0,(name,probe.stdout,probe.stderr)

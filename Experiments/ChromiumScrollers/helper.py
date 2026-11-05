@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Experimental renderer transport to the independent native UI provider."""
-import argparse,array,ctypes as C,fcntl,itertools,json,os,select,socket
+import argparse,array,ctypes as C,fcntl,itertools,json,os,select,socket,struct,time
 from pathlib import Path
 from native_controls import MAGIC as CONTROL_MAGIC, NativeControlServer
 class Request(C.Structure):
@@ -28,6 +28,7 @@ def send_response(client,response,data=b''):
     finally:os.close(descriptor)
 
 def run(library,path):
+    started=time.monotonic()
     native=C.CDLL(str(library));native.nxs_scroller_create.argtypes=[C.c_int,Changed,Pump,C.c_void_p];native.nxs_scroller_create.restype=C.c_void_p
     native.nxs_scroller_width.argtypes=[];native.nxs_scroller_width.restype=C.c_double
     native.nxs_scroller_sync.argtypes=[C.c_void_p]+[C.c_double]*7+[C.c_int]
@@ -37,7 +38,7 @@ def run(library,path):
     native.nxs_scroller_tracking.argtypes=[C.c_void_p];native.nxs_scroller_tracking.restype=C.c_int
     native.nxs_scroller_track.argtypes=[C.c_void_p,C.c_double,C.c_double,C.c_uint]
     native.nxs_scroller_send.argtypes=[C.c_void_p,C.c_int,C.c_double,C.c_double,C.c_uint]
-    server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET);server.bind(str(path));os.chmod(path,0o600);server.listen(20)
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET)
     clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={}
     def add_source(connection):
         if forms and forms.source_capabilities:
@@ -66,6 +67,7 @@ def run(library,path):
                 result.parts[5].width=forms.range_capabilities
                 result.parts[6].width=forms.popup_capabilities
                 result.parts[6].height=forms.popup_open_capabilities
+                result.parts[6].x=forms.notification_capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):
@@ -77,10 +79,11 @@ def run(library,path):
             result.width=bitmap.width;result.height=bitmap.height;result.stride=bitmap.stride
             data=C.string_at(bitmap.pixels,bitmap.stride*bitmap.height)
         send_response(client,result,data)
-    def message(client,data):
+    def message(client,data,descriptors,sender_pid):
         if len(data)>=4 and int.from_bytes(data[:4],'little')==CONTROL_MAGIC:
-            if forms:forms.message(client,data)
+            if forms:forms.message(client,data,descriptors,sender_pid)
             return
+        if descriptors:return
         if len(data)!=C.sizeof(Request):return
         req=Request.from_buffer_copy(data)
         if req.magic!=0x4e585343:return
@@ -118,13 +121,27 @@ def run(library,path):
         if sources:timeout=0
         if native_wait>=0:
             timeout=native_wait if timeout is None else min(timeout,native_wait)
-        ready,_,_=select.select([server]+clients,[],[],timeout)
+        ready,_,_=select.select([server]+clients+(forms.notification_fds() if forms else []),[],[],timeout)
         for client in ready:
+            if isinstance(client,int):
+                forms.owner_exited(client);continue
             if client is server:
-                connection,_=server.accept();clients.append(connection);add_source(connection);continue
+                connection,_=server.accept()
+                if forms and forms.notification_capabilities:connection.setsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED,1)
+                clients.append(connection);add_source(connection);continue
             try:
-                data=client.recv(128*1024)
-                if data:message(client,data);continue
+                data,ancillary,flags,_=client.recvmsg(128*1024,socket.CMSG_SPACE(4*4)+socket.CMSG_SPACE(12),socket.MSG_CMSG_CLOEXEC)
+                descriptors=[];sender_pid=None
+                for level,kind,payload in ancillary:
+                    if level==socket.SOL_SOCKET and kind==socket.SCM_RIGHTS:
+                        values=array.array('i');values.frombytes(payload[:len(payload)//values.itemsize*values.itemsize]);descriptors.extend(values)
+                    elif level==socket.SOL_SOCKET and kind==socket.SCM_CREDENTIALS and len(payload)>=12:
+                        sender_pid=struct.unpack('3i',payload[:12])[0]
+                try:
+                    if data and not flags&(socket.MSG_TRUNC|socket.MSG_CTRUNC):message(client,data,descriptors,sender_pid)
+                finally:
+                    for descriptor in descriptors:os.close(descriptor)
+                if data:continue
             except (BrokenPipeError,ConnectionResetError):pass
             for state in controls.values():
                 if state['client'] is client:
@@ -143,8 +160,17 @@ def run(library,path):
     if hasattr(native,'nxs_control_create'):
         forms=NativeControlServer(native,Bitmap,Response,Pump,dispatch,pending,send_response,
                                   lambda: not pending and active is None and forms.active is None,log)
-        add_source(server)
-    log('ready',socket=str(path),request_size=C.sizeof(Request),response_size=C.sizeof(Response))
+        forms.prepare()
+    for horizontal in (0,1):
+        pointer=native.nxs_scroller_create(horizontal,Changed(),Pump(),None)
+        if not pointer:raise RuntimeError('Native scroller preparation failed')
+        try:
+            native.nxs_scroller_sync(pointer,128,0,100,20,1,20,0,1)
+            if not native.nxs_scroller_draw(pointer,1).pixels:raise RuntimeError('Native scroller drawing failed')
+        finally:native.nxs_scroller_destroy(pointer)
+    server.bind(str(path));os.chmod(path,0o600);server.listen(20)
+    add_source(server)
+    log('ready',socket=str(path),request_size=C.sizeof(Request),response_size=C.sizeof(Response),preparation_seconds=time.monotonic()-started)
     try:
         while True:
             dispatch(None)
