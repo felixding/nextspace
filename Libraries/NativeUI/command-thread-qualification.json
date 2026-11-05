@@ -1,0 +1,363 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "3a53b09e",
+  "status": "Qualified callback thread ownership for the shared Chromium/Firefox transport. Detached native application menus and complete browser/toolkit integration remain unfinished.",
+  "reproduction": {
+    "baseline": {
+      "passed": false,
+      "command_callbacks": 2,
+      "edit_callbacks": 1,
+      "wrong_thread_callbacks": 3,
+      "worker_edit_registration": 1,
+      "worker_command_registration": 1,
+      "worker_unregister": 1,
+      "owner_unregister": 1
+    },
+    "current": {
+      "passed": true,
+      "command_callbacks": 2,
+      "edit_callbacks": 1,
+      "wrong_thread_callbacks": 0,
+      "worker_edit_registration": 0,
+      "worker_command_registration": 0,
+      "worker_unregister": 0,
+      "owner_unregister": 1
+    },
+    "method": "The fake peer queues native validation, execution and pre-edit packets while a background thread waits for ordinary RPC replies. The owner then issues an RPC and consumes any queued callback. It also tests attempted callback replacement and unregistration by a worker."
+  },
+  "implementation": [
+    "Only the registering UI thread polls and dispatches the callback endpoint. Worker RPCs keep their ordinary shared-socket behavior.",
+    "A thread-local marker gates callback descriptor access. An atomic process marker preserves process identity and fork handling.",
+    "Only the owner can replace callbacks or unregister; owner cleanup remains supported after callback peer loss. Existing nested-RPC unlock/relock and serial draining remain unchanged."
+  ],
+  "public_wire_and_provider_abi_unchanged": true,
+  "only_small_browser_adapters_rebuilt": true,
+  "environment": {
+    "hashes": {
+      "chromium_adapter": "6c394c0bfdd1edbada6cbb770002b76d1612d5fde972ae33d60aa94da969c1f7",
+      "firefox_adapter": "6d3eefd9dcb85ba4a783a0294889b3bff3a6dea8cf5e0b71c0873cd34e48ee8b",
+      "provider": "56689f430d1cd195195a1263eda97dd8141f9b2a3b91b685feb44ca6aedd7536",
+      "shim": "1648848dbc2e7c0413986a76a557fd8f51faa6527717d96552f15e772a65832b",
+      "loader": "6bfc0d99101365f90e24cc8bf1a516b97261c62b95bfe75be49364365ac448b9",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "owned_browser_pids": {
+      "chromium": [
+        10267,
+        10288,
+        10289,
+        10291,
+        10331,
+        10332,
+        10335,
+        10351,
+        10379,
+        10392,
+        11038,
+        11049,
+        11050
+      ],
+      "firefox": [
+        10268,
+        10460,
+        10463,
+        10491,
+        10498,
+        10526,
+        10566,
+        10573,
+        10580,
+        10591,
+        10617
+      ]
+    },
+    "renderers": {
+      "chromium": [
+        {
+          "pid": 10379,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 10392,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 11038,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 10491,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 10526,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 10573,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 10580,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 10591,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 10617,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "packages": 1050
+  },
+  "tests": {
+    "chromium_commands": {
+      "assertions": 44,
+      "passed": 44,
+      "evidence": ".build/native-ui/command-owner-evidence/chromium-commands/results.json"
+    },
+    "firefox_commands": {
+      "assertions": 83,
+      "passed": 83,
+      "evidence": ".build/native-ui/command-owner-evidence/firefox/commands/results.json"
+    },
+    "chromium_recovery": {
+      "assertions": 4,
+      "passed": 4,
+      "evidence": ".build/native-ui/command-owner-evidence/chromium/lifecycle-results.json"
+    },
+    "real_helper_transport": {
+      "native_pre_edit_ipc": true,
+      "proposals": 7,
+      "nested_reads": 14,
+      "nested_mutations_rejected": 7,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true,
+      "native_application_command_ipc": true,
+      "application_command_validation": true,
+      "command_nested_reads_and_mutation_rejection": true,
+      "command_peer_loss_veto": true,
+      "command_expiry_veto": true,
+      "command_frame_destruction": true,
+      "command_idle_after_expiry_and_destroy": true,
+      "late_command_before_current_edit_decision": true
+    }
+  },
+  "cleanup": {
+    "processes": [
+      {
+        "pid": 10248,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10249,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10254,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10255,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10256,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10257,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10261,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10262,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10267,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10268,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10288,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10289,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10291,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10331,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10332,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10335,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10351,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10379,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10392,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10460,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10463,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10491,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10498,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10526,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10566,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10573,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10580,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10591,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10617,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 10719,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11038,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11049,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11050,
+        "state": null,
+        "stopped": true
+      }
+    ],
+    "sockets": [
+      {
+        "path": "/var/tmp/nextspace-native-ui/command-owner-chromium/control.sock",
+        "exists": false
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/command-owner-firefox/control.sock",
+        "exists": false
+      }
+    ],
+    "private_alias_removed": true
+  },
+  "owned_automation_session_and_forwarding_closed": true,
+  "source_hashes": {
+    "Libraries/NativeUI/Bridge/Transport.inc": "7a10e7d0d8650f8acbc41068133101553200cb51da56992f4d555b23a5fd3c27",
+    "Tests/NativeUI/command-thread-probe.c": "c49acdafa5ce4f9fbbb40d169b652c090f872ce8ae451217322d0e8c48985c66",
+    "Tests/NativeUI/run.py": "67c73a353441bf6a1143889c1f7fe2aec1196e260160483fa4c73b1ff84fb100"
+  },
+  "baseline_transport_sha256": "39c4cb34eecb7588d12b0b162e7c2b20d9f2e42bf2595cd65ffd1b47d3d8b3d3",
+  "raw_evidence": ".build/native-ui/command-owner-evidence",
+  "remaining": [
+    "Native menu-model binding, detached application menu windows and idle owner-loop command dispatch.",
+    "Native Undo/Redo availability through actual application controllers.",
+    "Clipboard formats and owner/focus lifetimes, IME, accessibility and scaling.",
+    "Remaining browser controls/dialogs, derivative builds, GTK/Qt/KDE bindings."
+  ]
+}

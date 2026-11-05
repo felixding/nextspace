@@ -187,6 +187,11 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-probe')]+backend,
             environment,'command-filter',timeout=15)
         assert code==0,(code,stderr);checks['native_command_filter']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-thread-probe')],
+            environment,'command-thread',timeout=10)
+        (args.output/'command-thread.stdout').write_text(stdout)
+        (args.output/'command-thread.stderr').write_text(stderr)
+        assert code==0,(code,stderr);checks['native_command_thread']=json.loads(stdout)
         if args.previous_command_filter_provider:
             code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-probe'),'--expect-no-command-filter']+backend,
                 dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_command_filter_provider.resolve())),

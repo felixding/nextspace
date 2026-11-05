@@ -45,6 +45,24 @@ removal. A valid older command reply is also drained by serial when a newer
 edit decision is pending. The channel supplies no key bindings, controller algorithms or widget
 implementation. Existing edit messages and decision layouts remain unchanged.
 
+The callback endpoint belongs to the UI thread that registered it. Background
+invalidation polling shares the request socket but leaves command/edit packets
+queued for that owner. Only the owner may replace callbacks or unregister the
+endpoint; it can still unregister after peer loss. A thread-local ownership
+marker prevents workers from consulting or consuming the callback descriptor,
+and the process identity check retains fork recovery. Nested RPCs still release
+and reacquire the shared request mutex around the owner's callback.
+`native-command-thread-probe` tests validation, execution and pre-edit delivery
+while worker requests are outstanding, plus rejected worker registration and
+unregistration. The preceding transport executes all three callbacks on the
+worker; the current transport executes them on the registering thread.
+See [ownership qualification](../command-thread-qualification.json).
+
+This does not yet provide detached application menus or dispatch their idle
+commands. Those require native menu-model binding and owner-loop integration;
+the existing browser adapters currently supply command transactions during
+field input.
+
 These are internal source includes, not a stable engine plugin ABI. Every
 consumer must audit its own binary, signatures, layouts and lifecycle. Sharing
 this machinery does not establish coverage for another engine or browser build.

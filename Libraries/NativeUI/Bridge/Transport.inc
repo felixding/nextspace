@@ -20,10 +20,17 @@ static int channel=-1;
 static __thread unsigned char *packet;
 static __thread size_t packet_capacity;
 static int native_edit_channel=-1;
-static pid_t native_edit_pid;
+static _Atomic pid_t native_edit_pid;
+static __thread int native_edit_owner_thread;
 static int (*native_edit_handler)(const struct NXSNativeTextEdit *,const char *,const char *);
 static int (*native_command_handler)(const struct NXSNativeCommand *,const char *);
 static pid_t native_command_pid;
+/* Invalidation workers share this process and request socket, but application
+ * models and their native command/edit callbacks belong to the registering UI
+ * thread. Workers must leave callback packets queued for that owner. */
+static int native_callback_owner(void) {
+  return native_edit_owner_thread&&native_edit_pid==getpid();
+}
 static int dispatch_native_edit(int *owns_mutex) {
   size_t capacity=sizeof(struct NXSNativeTextEdit)+65536+256;
   unsigned char *data=malloc(capacity+2);if(!data)return 0;
@@ -104,7 +111,7 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
   struct NXSResponse *response=(struct NXSResponse *)packet;
   if(bytes==(ssize_t)request_size) {
     for(;;) {
-      if(native_edit_channel>=0&&native_edit_pid==getpid()) {
+      if(native_callback_owner()&&native_edit_channel>=0) {
         struct pollfd ready[2]={{channel,POLLIN,0},{native_edit_channel,POLLIN,0}};
         int result;do result=poll(ready,2,2000);while(result<0&&errno==EINTR);
         if(result<=0){bytes=-1;break;}
@@ -179,23 +186,29 @@ static int bridge_connect(const char *socket_path) {
 
 static int __attribute__((unused)) native_text_filter_register(int (*handler)(const struct NXSNativeTextEdit *,const char *,const char *)) {
   uint32_t process=identity();if(!process||!handler)return 0;
-  if(native_edit_channel>=0&&native_edit_pid==getpid()){native_edit_handler=handler;return 1;}
+  if(native_edit_pid==getpid()&&!native_callback_owner())return 0;
+  if(native_edit_channel>=0&&native_edit_pid==getpid()) {
+    native_edit_handler=handler;return 1;
+  }
   int endpoints[2];if(socketpair(AF_UNIX,SOCK_SEQPACKET|SOCK_CLOEXEC,0,endpoints))return 0;
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=19,.process=process};
   struct NXSResponse *response=exchange_bytes_descriptor(&request,sizeof(request),endpoints[1]);
   close(endpoints[1]);
   if(!response||response->parts[3].x!=1){close(endpoints[0]);return 0;}
-  native_edit_channel=endpoints[0];native_edit_pid=getpid();native_edit_handler=handler;native_command_pid=0;return 1;
+  native_edit_handler=handler;native_command_pid=0;native_edit_channel=endpoints[0];
+  native_edit_owner_thread=1;native_edit_pid=getpid();return 1;
 }
 static int __attribute__((unused)) native_text_filter_unregister(void) {
-  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=20,.process=identity()};
+  uint32_t process=identity();if(!native_callback_owner())return 0;
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=20,.process=process};
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   int accepted=response&&response->parts[3].x==1;
   if(native_edit_channel>=0)close(native_edit_channel);
-  native_edit_channel=-1;native_edit_handler=NULL;native_command_pid=0;native_command_handler=NULL;return accepted;
+  native_edit_channel=-1;native_edit_handler=NULL;native_command_pid=0;native_command_handler=NULL;
+  native_edit_owner_thread=0;native_edit_pid=0;return accepted;
 }
 static int __attribute__((unused)) native_command_filter_register(int (*handler)(const struct NXSNativeCommand *,const char *)) {
-  uint32_t process=identity();if(!handler||native_edit_channel<0||native_edit_pid!=getpid())return 0;
+  uint32_t process=identity();if(!handler||!native_callback_owner()||native_edit_channel<0)return 0;
   if(native_command_pid==getpid()){native_command_handler=handler;return 1;}
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=23,.process=process,.state=1};
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
