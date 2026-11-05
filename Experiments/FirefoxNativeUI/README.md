@@ -121,8 +121,8 @@ dimensions releases native ownership. The bridge contains no button artwork,
 title layout or tracking/key rules. Native actions retain Gecko's real trusted
 click, submission, reset and cancellation paths.
 
-Use `--buttons` instead of `--controls` to reproduce this fixture. It passes 38
-checks, including 17 complete native-image comparisons, dynamic Unicode titles,
+Use `--buttons` instead of `--controls` to reproduce this fixture. It passes 54
+checks, including 33 complete native-image comparisons, dynamic Unicode titles,
 resizing, held-pointer cancellation, form semantics, style/size fallback,
 focus-handler replacement, actual cached-page and tab restoration. The runner
 also verifies renderer-crash cleanup and mouse/key actions after helper loss.
@@ -130,9 +130,23 @@ It records renderer sandbox status while processes are live, since navigation
 can retire a renderer before the final census. All 40 checkbox/radio and 21
 progress checks pass with the button hooks enabled.
 
-This qualification uses fixed integer CSS dimensions at scale 1 in the pinned
-ARM64 binary. Native preferred/intrinsic button sizing, default-button policy,
-rich-content HTML `<button>`, scaled output and browser application interfaces
+Native preferred/intrinsic sizing now uses the actual button cell's measured
+size through the existing C API. Gecko retains its shrink-to-fit, box sizing and
+constraint pipeline; the bridge supplies native metrics at its existing
+intrinsic/auto-size boundaries. Tests cover automatic sizes for normal,
+disabled, localized default, Unicode and empty titles, title changes, native
+font metrics, basic flex/grid, min/max-content and explicit min/max constraints.
+The reference generator independently asks the native provider for its preferred
+size; its 34 previous fixed-size images remain byte-for-byte identical.
+
+Measurement can precede first reflow. A measurement-only binding does not own
+input until a complete native image is prepared at the live frame size. The
+mouse/key entry path also prepares this image before a first paint. The initial
+sizing run exposed and corrected that handoff in the held-pointer test.
+
+This qualification uses horizontal scale 1 in the pinned ARM64 binary.
+Default-button policy, rich-content HTML `<button>`, scaled/vertical output,
+broader CSS/layout combinations and browser application interfaces
 remain open. The actual UI library, loader and provider are unchanged. See
 [`button-source-audit.json`](button-source-audit.json) and
 [`button-qualification.json`](button-qualification.json) for the exact boundaries

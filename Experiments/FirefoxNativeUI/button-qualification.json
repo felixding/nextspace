@@ -5,11 +5,12 @@
     "native_control": "Existing actual GNUstep NSButton in the unchanged NativeUI provider",
     "bridge": "Gecko model and display-list adapter; shared transport/input/lifetime remain in existing code",
     "recompiled": "Only the optional C adapter, never Firefox or the native UI library",
-    "native_title": "Actual engine label model rendered by NSButton; no adapter title layout"
+    "native_title": "Actual engine label model rendered by NSButton; no adapter title layout",
+    "native_sizing": "Actual NSButtonCell cellSize through the existing public C API, integrated into original Gecko intrinsic/auto-size boundaries. Explicit CSS and constraints remain with Gecko."
   },
   "qualification": {
-    "browser_checks": 38,
-    "independent_full_native_image_comparisons": 17,
+    "browser_checks": 54,
+    "independent_full_native_image_comparisons": 33,
     "checks": [
       {
         "case": "owned-fixture",
@@ -91,6 +92,214 @@
         "reference_size": [
           160,
           28
+        ]
+      },
+      {
+        "case": "native-pixels-auto-button",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          90,
+          20
+        ],
+        "reference_size": [
+          90,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-submit",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          72,
+          20
+        ],
+        "reference_size": [
+          72,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-reset",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          74,
+          20
+        ],
+        "reference_size": [
+          74,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-disabled",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          83,
+          20
+        ],
+        "reference_size": [
+          83,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-default-submit",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          92,
+          20
+        ],
+        "reference_size": [
+          92,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-default-reset",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          48,
+          20
+        ],
+        "reference_size": [
+          48,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-updated-title",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          85,
+          20
+        ],
+        "reference_size": [
+          85,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-auto-unicode-title",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          79,
+          23
+        ],
+        "reference_size": [
+          79,
+          23
+        ]
+      },
+      {
+        "case": "native-pixels-auto-empty-title",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          18,
+          20
+        ],
+        "reference_size": [
+          18,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-native-font-metrics",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          90,
+          20
+        ],
+        "reference_size": [
+          90,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-flex-native-intrinsic",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          90,
+          20
+        ],
+        "reference_size": [
+          90,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-grid-native-intrinsic",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          90,
+          20
+        ],
+        "reference_size": [
+          90,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-min-content-native-intrinsic",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          90,
+          20
+        ],
+        "reference_size": [
+          90,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-max-content-native-intrinsic",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          90,
+          20
+        ],
+        "reference_size": [
+          90,
+          20
+        ]
+      },
+      {
+        "case": "native-pixels-css-min-size",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          120,
+          30
+        ],
+        "reference_size": [
+          120,
+          30
+        ]
+      },
+      {
+        "case": "native-pixels-css-max-size",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          70,
+          18
+        ],
+        "reference_size": [
+          70,
+          18
         ]
       },
       {
@@ -319,28 +528,28 @@
     ],
     "sandbox": [
       {
-        "pid": 68555,
+        "pid": 69962,
         "seccomp": 2,
         "no_new_privs": 1
       },
       {
-        "pid": 68718,
+        "pid": 70123,
         "seccomp": 2,
         "no_new_privs": 1
       }
     ],
-    "native_created": 108,
-    "native_explicitly_destroyed": 102,
+    "native_created": 164,
+    "native_explicitly_destroyed": 158,
     "helper_loss": {
       "helper_exit": -9,
       "value": 2,
       "engine_action": "Activated",
-      "elapsed_seconds": 0.22696208099659998,
+      "elapsed_seconds": 0.19067387499671895,
       "native_objects_reclaimed_by_helper_exit": 6,
       "mouse_and_key_retained": true
     },
     "renderer_crash": {
-      "pid": 68555,
+      "pid": 69962,
       "seccomp": 2,
       "no_new_privs": 1,
       "native_objects_released": 6,
@@ -352,18 +561,18 @@
       "checkbox_radio": {
         "passed": 40,
         "all_passed": true,
-        "native_created": 106,
-        "native_destroyed": 100,
+        "native_created": 101,
+        "native_destroyed": 95,
         "helper_loss": {
           "helper_exit": -9,
           "value": true,
           "engine_action": "Activated",
-          "elapsed_seconds": 0.2842943279974861,
+          "elapsed_seconds": 0.2294793210021453,
           "native_objects_reclaimed_by_helper_exit": 6,
           "mouse_and_key_retained": true
         },
         "renderer_crash": {
-          "pid": 68924,
+          "pid": 70343,
           "seccomp": 2,
           "no_new_privs": 1,
           "native_objects_released": 6,
@@ -371,12 +580,12 @@
         },
         "sandbox": [
           {
-            "pid": 68924,
+            "pid": 70343,
             "seccomp": 2,
             "no_new_privs": 1
           },
           {
-            "pid": 69073,
+            "pid": 70501,
             "seccomp": 2,
             "no_new_privs": 1
           }
@@ -391,23 +600,63 @@
           "helper_exit": -9,
           "value": 0.61,
           "engine_action": "Activated",
-          "elapsed_seconds": 0.10936546699667815,
+          "elapsed_seconds": 0.10122931099613197,
           "native_objects_reclaimed_by_helper_exit": 0,
           "mouse_and_key_retained": false
         },
         "renderer_crash": null,
         "sandbox": [
           {
-            "pid": 69293,
+            "pid": 70723,
             "seccomp": 2,
             "no_new_privs": 1
           }
         ]
       }
+    },
+    "fixed_native_reference_regressions": {
+      "compared": 34,
+      "all_identical": true,
+      "files": [
+        "references/default-submit.png",
+        "references/unicode.png",
+        "references/default-submit-pressed.png",
+        "references/unicode-pressed.png",
+        "references/updated-pressed.png",
+        "references/resized.png",
+        "references/reset-pressed.png",
+        "references/default-reset-pressed.png",
+        "references/reset.png",
+        "references/disabled.png",
+        "references/submit.png",
+        "references/submit-pressed.png",
+        "references/button-pressed.png",
+        "references/default-reset.png",
+        "references/updated.png",
+        "references/resized-pressed.png",
+        "references/button.png",
+        "focused-references/default-submit.png",
+        "focused-references/unicode.png",
+        "focused-references/default-submit-pressed.png",
+        "focused-references/unicode-pressed.png",
+        "focused-references/updated-pressed.png",
+        "focused-references/resized.png",
+        "focused-references/reset-pressed.png",
+        "focused-references/default-reset-pressed.png",
+        "focused-references/reset.png",
+        "focused-references/disabled.png",
+        "focused-references/submit.png",
+        "focused-references/submit-pressed.png",
+        "focused-references/button-pressed.png",
+        "focused-references/default-reset.png",
+        "focused-references/updated.png",
+        "focused-references/resized-pressed.png",
+        "focused-references/button.png"
+      ]
     }
   },
   "runtime_sha256": {
-    "/var/tmp/nextspace-firefox-prototype/buttons-hook.so": "f625bca77a64761b67ea3f90c9507b9058a514f44e082cd6535dd9897b053f42",
+    "/var/tmp/nextspace-firefox-prototype/button-size-hook.so": "0c904c8187d56cda11b76b140009312983fd4c177a1dafd3bea822c90e5671e2",
     "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
     "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055",
     "firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
@@ -415,41 +664,46 @@
   },
   "environment": {
     "runtime_sha256": {
-      "/var/tmp/nextspace-firefox-prototype/buttons-hook.so": "f625bca77a64761b67ea3f90c9507b9058a514f44e082cd6535dd9897b053f42",
+      "/var/tmp/nextspace-firefox-prototype/button-size-hook.so": "0c904c8187d56cda11b76b140009312983fd4c177a1dafd3bea822c90e5671e2",
       "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
       "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055"
     },
     "package_inventory_unchanged": true,
     "package_count": 1051,
-    "test_ports": {
-      "2829": "closed"
-    },
-    "private_backend_alias_removed": true,
-    "owned_fixture_processes_exited": true
+    "owned_fixture_processes_exited": true,
+    "marionette_port_closed": true,
+    "private_backend_alias_removed": true
   },
   "source_sha256": {
     "Experiments/FirefoxNativeUI/hook.c": "8707683e8ea06d3c71e6ad33b76d37158d1aa97ec4b9c9ce8833e436923ce4c6",
-    "Experiments/FirefoxNativeUI/controls.inc": "3baf3e56c3712656b5f3293488470f44f9840bca69f5e52e90b3bd145ab6dca1",
-    "Experiments/FirefoxNativeUI/buttons.inc": "884ede5382304499488b60f8844a718f34ff548ba275bffc67138cdf9e1561f2",
+    "Experiments/FirefoxNativeUI/controls.inc": "5cf08bc26bab05312fc5c13a58ab1ec438e92dfc00cf30c5ad1bfc8a4521e43a",
+    "Experiments/FirefoxNativeUI/buttons.inc": "bd83dbb5b1674cf4eca29713920d70f9ac3680c1631249a7a01b6637191418e3",
     "Experiments/FirefoxNativeUI/pinned-input.h": "f91d2c53e4fe8841574e8a6143ad753ba180997fc96a5cf519efd80467247b75",
+    "Experiments/FirefoxNativeUI/pinned-button-size.h": "43960013d1947cac15b8348ddb0fb33e20d7b610246cfcdd8c5beb588f8eadd7",
     "Experiments/FirefoxNativeUI/run-fixture.py": "dd210a36b2bb4517977d3aac91a0c3b4c3103f8714ee0f82f83003e288764cd8",
-    "Experiments/FirefoxNativeUI/check-buttons.py": "c74c14ea457fca41e40dd8ab2171c3d3f6d8fe2a5762e93962a5245aca48a7f9",
+    "Experiments/FirefoxNativeUI/check-buttons.py": "6149a2262fbe2852ce1561e91719f48ff09787548ef4354b9bff15172176932e",
     "Experiments/FirefoxNativeUI/test-buttons.html": "efa52559cbc229774036e18048562c3b1fa46ba0cdc58ae4c90138161264e77f",
-    "Experiments/FirefoxNativeUI/button-controls.json": "f9ec501e460655a49af2320330d4da9612f211eafeb4fc1c98578fb715b44671"
+    "Experiments/FirefoxNativeUI/button-controls.json": "121c897cb5700031bb82ba3cd2af7f762d0a99d9e3a87fd72fbba8e403d0924c",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "f7de0c2a3411b5371fa0a8f8f9362c752dba6cd31db5a695637c6103fe4360a1"
   },
   "source_audit": "button-source-audit.json",
   "limitations": [
     "Exact pinned unchanged ARM64 Firefox ESR build only; other releases and derivatives need separate audits.",
-    "Only fixed integer CSS button sizes at horizontal scale 1; native preferred/intrinsic sizing and scaled output remain open.",
+    "Native automatic and fixed sizes are qualified only at horizontal scale 1; scaled/vertical output and broader layout/CSS combinations remain open.",
     "Only input type button, submit and reset; ordinary HTML button rich content remains on its engine path.",
     "Native default-button policy, radio-group arrow navigation, other control kinds, menus, text editing/IME, accessibility and whole browser interfaces remain open.",
     "Failure restores the whole engine control; engine fallback is not counted as native support.",
     "No global activation or package installation."
   ],
   "raw_evidence": [
-    ".build/firefox-native-ui/buttons-final/",
-    ".build/firefox-native-ui/buttons-controls-regression/",
-    ".build/firefox-native-ui/buttons-progress-regression/",
-    ".build/firefox-native-ui/buttons-environment.json"
+    ".build/firefox-native-ui/button-size-01/",
+    ".build/firefox-native-ui/button-size-02/",
+    ".build/firefox-native-ui/button-size-controls/",
+    ".build/firefox-native-ui/button-size-progress/",
+    ".build/firefox-native-ui/button-size-environment.json",
+    ".build/firefox-native-ui/button-size-reference-regressions.json"
+  ],
+  "diagnostics": [
+    "The first sizing run passed all new metric/image checks, then exposed a held-pointer failure before first paint: the measurement-only binding had not acquired input ownership. Mouse/key entry now prepares a full live-frame snapshot; all 54 button checks pass afterward."
   ]
 }

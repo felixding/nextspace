@@ -29,9 +29,37 @@
     {
       "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/xpcom/string/nsStringFlags.h",
       "sha256": "368b60d5d275a6317cd214299749aca255ef1d751129a63da3f5e2f7b9301755"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsContainerFrame.cpp",
+      "sha256": "184753625402aa5da090f39c771fdff3d0c0a82b840358ec6820d71cf1ee737f"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsContainerFrame.h",
+      "sha256": "19013cf869e13307a66a1b42ba74ab32f307827763973e3721e10167421ebf84"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.cpp",
+      "sha256": "b5e257715d6e59815c06df5273c0b258d4606054a615dffc55ec9b798c4ec6ac"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.h",
+      "sha256": "0c35e704c757776e016bd2638caae3cdc5bf3e85984215b63c1365cf2c568f7e"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsBlockFrame.cpp",
+      "sha256": "0e297b0b72b91a95cee0c4a0c200c8337a98dc42182e79b4b1f8a09591422c61"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/ReflowInput.h",
+      "sha256": "1ad0fce0380f21a876b4ad8191c73d5084c2ac9f1412c1ead9ecb28c71486f86"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/WritingModes.h",
+      "sha256": "48bea0e1d81ff0ab4bf7b154d421a15b1de84f8ab14582670849f88121ac3d8c"
     }
   ],
-  "guards": "Existing exact ELF build ID and launcher full-file hashes; pinned-input.h verifies both additional display-list prologues before any detour activates.",
+  "guards": "Existing exact ELF build ID and launcher full-file hashes; pinned-input.h and pinned-button-size.h verify four additional display-list/sizing prologues before any detour activates.",
   "interfaces": {
     "input_button": {
       "input_types": {
@@ -74,7 +102,40 @@
       "signature": "void(this, nsDisplayListBuilder*, const nsDisplayListSet&)",
       "ownership": "Within this exact input-button frame, suppress only the text frame whose content is its anonymous label node, and only after caching the complete actual NSButton snapshot. All other block/text frames retain their original builders."
     },
-    "geometry_input_lifetime": "Reuse input-source-audit.json frame rectangle union, trusted click, focus traversal, native responder input and frame/cache/process ownership interfaces; no new control implementation."
+    "geometry_input_lifetime": "Reuse input-source-audit.json frame rectangle union, trusted click, focus traversal, native responder input and frame/cache/process ownership interfaces; no new control implementation.",
+    "sizing": {
+      "native_metric": "Existing NXSResponse.parts[1] from nxs_control_size, supplied by actual NSButtonCell cellSize; outward pixel rounding followed by app-unit conversion.",
+      "intrinsic": {
+        "function": "nsBlockFrame::IntrinsicISize(const IntrinsicSizeInput&, IntrinsicISizeType)",
+        "address": "0x6e08f18",
+        "return_value": "nscoord content inline size; native cell width minus engine-provided border/padding"
+      },
+      "offsets": {
+        "function": "nsIFrame::IntrinsicISizeOffsets(nscoord percentageBasis)",
+        "address": "0x6e83058",
+        "default_percentage_basis": 1073741823,
+        "abi": "12-byte padding/border/margin ints in x0 and w1"
+      },
+      "auto": {
+        "function": "nsContainerFrame::ComputeAutoSize",
+        "address": "0x6e2ca98",
+        "abi": "8-byte LogicalSize in x0, inline size low 32 bits, block size high 32 bits",
+        "arguments": [
+          "x0 frame",
+          "x1 SizeComputationInput",
+          "w2 WritingMode",
+          "x3 containing block size reference",
+          "w4 available inline size",
+          "x5 margin size reference",
+          "x6 border/padding size reference",
+          "x7 StyleSizeOverrides",
+          "stack ComputeSizeFlags, low byte"
+        ]
+      },
+      "ownership": "Retain the original auto inline/shrink-to-fit calculation and full nsIFrame::ComputeSize constraint pipeline. Substitute native intrinsic width and automatic block size, using the supplied engine border/padding. No native font measurement, content insets or CSS constraint solver copied.",
+      "first_reflow": "Bind the semantic button model with a minimal measurement viewport before first reflow; keep input ownership disabled until a complete native snapshot at the live frame size is prepared. Mouse/key entry prepares that snapshot even before first paint.",
+      "writing_mode": "Pinned frame writing mode byte at 108, vertical bit 1; native sizing currently horizontal scale 1 only."
+    }
   },
-  "qualification": "Fixed integer CSS sizes, horizontal scale 1, input button/submit/reset only. HTML button rich content, intrinsic sizing, default-button policy and full browser interfaces remain open."
+  "qualification": "Horizontal scale 1; fixed and native auto sizes, value/default/Unicode/empty titles, native font metrics, basic flex/grid and min/max-content, explicit CSS min/max. HTML button rich content, default-button policy, vertical/scaled output and full browser interfaces remain open."
 }

@@ -3,6 +3,7 @@
 import argparse
 import ctypes as C
 import json
+import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
@@ -30,7 +31,7 @@ for item in json.loads(args.controls.read_text()):
         return image
     def release(_):
         save_image('-pressed')
-        native.nxs_control_send(pointer, 1, item['width'] / 2, item['height'] / 2, 0)
+        native.nxs_control_send(pointer, 1, config.width / 2, config.height / 2, 0)
     pump = Pump(release)
     pointer = native.nxs_control_create(item['kind'], ControlChanged(), pump, None)
     assert pointer
@@ -40,6 +41,10 @@ for item in json.loads(args.controls.read_text()):
                                item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
                                item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
+        if item.get('preferred_size'):
+            preferred = native.nxs_control_size(pointer)
+            config.width, config.height = math.ceil(preferred.width), math.ceil(preferred.height)
+            assert native.nxs_control_sync(pointer, C.byref(config))
         if item['kind']==6:
             model=item['items'];titles=[entry['title'].encode('utf-8') for entry in model]
             entries=(PopupItem*len(model))(*[PopupItem(C.sizeof(PopupItem),title,
@@ -65,7 +70,7 @@ for item in json.loads(args.controls.read_text()):
             results[-1]['native_item_rects']=rectangles
             assert native.nxs_control_popup_open(pointer,0)
         if item['enabled'] and item['kind'] not in (5,6):
-            native.nxs_control_track(pointer, item['width'] / 2, item['height'] / 2, 0)
+            native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))
             assert native.nxs_control_focus(pointer,1)

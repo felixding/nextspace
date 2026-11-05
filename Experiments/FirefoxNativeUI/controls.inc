@@ -21,6 +21,7 @@ static __thread int metric_probe;
 static void reset_widget_process(void);
 static char *utf8_text(const uint16_t *,uint32_t);
 static int prepare_button_image(void *);
+static struct Widget *bind_input_widget(void *);
 static int native_button_frame(const void *);
 static int button_cache_update(struct Widget *,const struct NXSResponse *);
 static int button_cache_available(const struct Widget *);
@@ -130,11 +131,15 @@ static struct Widget *bind_widget(void *frame) {
   if(!native||!ensure_widget_lifetime())return NULL;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
   double width=rectangle[2]/60.,height=rectangle[3]/60.;
+  /* A native button can be measured before its first reflow. This viewport
+   * only hosts the model probe; the provider's cellSize supplies the metrics. */
+  if(kind==NXS_BUTTON&&(width<1||height<1))width=height=1;
   if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return NULL;
   struct Widget *w=calloc(1,sizeof(*w));if(!w)return NULL;
   w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
   w->width=width;w->height=height;w->next=widgets;widgets=w;
   w->painted=widget_sync(w)!=NULL;
+  if(kind==NXS_BUTTON)w->painted=0;
   if(log_fd>=0)dprintf(log_fd,"%d native-widget bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)w->id,w->kind);
   return w;
 }
@@ -229,7 +234,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   if(down_node&&*status!=1) {
     /* Focus handlers may destroy/reconstruct the original frame. Retain only
      * the semantic node across Gecko's dispatch, then obtain its live frame. */
-    struct Widget *w=bind_widget(*(void **)((char *)down_node+96));
+    struct Widget *w=bind_input_widget(*(void **)((char *)down_node+96));
     if(w&&w->painted&&!active_widget) {
       struct NXSResponse *response=widget_sync(w);
       if(response&&response->parts[2].x) {
@@ -289,6 +294,8 @@ static uint32_t input_post(void *node,void *visitor) {
   unsigned message=*(const uint16_t *)((char *)event+18);
   struct Widget *w=widget_for_node(node);
   if(!w&&node_kind(node))w=bind_widget(*(void **)((char *)node+96));
+  if(node_kind(node)==NXS_BUTTON&&message>=2&&message<=4)
+    w=bind_input_widget(*(void **)((char *)node+96));
   int *status=(int *)((char *)visitor+24);
   if(!w||!w->painted||message<2||message>4||!(*(uint8_t *)((char *)event+48)&1)||*status==1||!widget_focused(w))
     return original_input_post(node,visitor);

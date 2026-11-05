@@ -5,6 +5,14 @@ _Static_assert(sizeof(struct GeckoString)==16,"Pinned Gecko substring layout");
 static __thread void *label_owner;
 static void (*original_block_display)(void *,void *,const void *);
 static void (*original_text_display)(void *,void *,const void *);
+#include "pinned-button-size.h"
+struct LogicalSizeI {int inline_size,block_size;};
+struct IntrinsicOffsetsI {int padding,border,margin;};
+_Static_assert(sizeof(struct LogicalSizeI)==8,"Pinned Gecko logical size ABI");
+_Static_assert(sizeof(struct IntrinsicOffsetsI)==12,"Pinned Gecko intrinsic offsets ABI");
+static struct LogicalSizeI (*original_button_auto_size)(void *,const void *,unsigned,
+  const void *,int,const void *,const struct LogicalSizeI *,const void *,unsigned);
+static int (*original_button_intrinsic)(void *,const void *,unsigned);
 static int native_button_frame(const void *frame) {
   if(!buttons_enabled||!frame||*(const uintptr_t *)frame!=base+0xa10bd38+16||frame_kind(frame)!=NXS_BUTTON)return 0;
   const void *style=*(void *const *)((const char *)frame+32);
@@ -21,6 +29,37 @@ static char *button_title(const struct Widget *w) {
   ((void (*)(void *,void *))(base+0x6eedb5c))(w->frame,&label);
   char *result=utf8_text(label.data,label.length);
   ((void (*)(void *))(base+0x3826f2c))(&label);
+  return result;
+}
+static int button_preferred(void *frame,struct LogicalSizeI *size) {
+  float scale=frame_scale(frame);
+  if(!native_button_frame(frame)||!isfinite(scale)||fabsf(scale-1)>0.000001f||
+     (*((const unsigned char *)frame+108)&1))return 0;
+  struct Widget *w=bind_widget(frame);if(!w)return 0;
+  struct NXSResponse *response=widget_sync(w);if(!response)return 0;
+  double width=response->parts[1].width,height=response->parts[1].height;
+  if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return 0;
+  *size=(struct LogicalSizeI){ceil(width)*60,ceil(height)*60};
+  return 1;
+}
+/* Gecko owns shrink-to-fit, explicit sizes, min/max, flex/grid and box sizing.
+ * Supply native cell metrics at its existing intrinsic/auto-size boundaries;
+ * ask its own offset accessor for the content-to-border-box conversion. */
+static int button_intrinsic(void *frame,const void *input,unsigned type) {
+  struct LogicalSizeI preferred;
+  if(!button_preferred(frame,&preferred))return original_button_intrinsic(frame,input,type);
+  struct IntrinsicOffsetsI offsets=((struct IntrinsicOffsetsI (*)(void *,int))(base+0x6e83058))(frame,0x3fffffff);
+  int content=preferred.inline_size-offsets.border-offsets.padding;
+  return content>0?content:0;
+}
+static struct LogicalSizeI button_auto_size(void *frame,const void *input,unsigned mode,
+    const void *cb,int available,const void *margin,const struct LogicalSizeI *border_padding,
+    const void *overrides,unsigned flags) {
+  struct LogicalSizeI result=original_button_auto_size(frame,input,mode,cb,available,margin,border_padding,overrides,flags),preferred;
+  if(!(mode&1)&&button_preferred(frame,&preferred)) {
+    int content=preferred.block_size-border_padding->block_size;
+    result.block_size=content>0?content:0;
+  }
   return result;
 }
 static int button_cache_update(struct Widget *w,const struct NXSResponse *response) {
@@ -55,7 +94,12 @@ static int prepare_button_image(void *frame) {
   if(!response||!button_cache_available(w)) {
     release_button_frame(frame);return 0;
   }
-  w->button_label_owned=1;return 1;
+  w->button_label_owned=1;w->painted=1;return 1;
+}
+static struct Widget *bind_input_widget(void *frame) {
+  if(frame_kind(frame)==NXS_BUTTON)
+    return prepare_button_image(frame)?widget_for_frame(frame):NULL;
+  return bind_widget(frame);
 }
 static void block_display(void *frame,void *builder,const void *lists) {
   void *previous=label_owner;
@@ -68,5 +112,7 @@ static void text_display(void *frame,void *builder,const void *lists) {
 }
 static struct Detour button_detours[]={
   {NXS_GECKO_BLOCK_DISPLAY_OFFSET,gecko_block_display_bytes,block_display,(void **)&original_block_display},
-  {NXS_GECKO_TEXT_DISPLAY_OFFSET,gecko_text_display_bytes,text_display,(void **)&original_text_display}
+  {NXS_GECKO_TEXT_DISPLAY_OFFSET,gecko_text_display_bytes,text_display,(void **)&original_text_display},
+  {NXS_GECKO_BUTTON_AUTO_SIZE_OFFSET,gecko_button_auto_size_bytes,button_auto_size,(void **)&original_button_auto_size},
+  {NXS_GECKO_BUTTON_INTRINSIC_OFFSET,gecko_button_intrinsic_bytes,button_intrinsic,(void **)&original_button_intrinsic}
 };

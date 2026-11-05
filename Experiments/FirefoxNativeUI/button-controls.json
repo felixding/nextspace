@@ -79,5 +79,113 @@
     "title": "Native button",
     "enabled": 1,
     "state": 0
+  },
+  {
+    "id": "auto-button",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Native button",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-submit",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Send form",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-reset",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Reset form",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-disabled",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Unavailable",
+    "enabled": 0,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-default-submit",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Submit Query",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-default-reset",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Reset",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-updated",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "Updated title",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-unicode",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "日本語Café",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "auto-empty",
+    "kind": 1,
+    "width": 1,
+    "height": 1,
+    "title": "",
+    "enabled": 1,
+    "state": 0,
+    "preferred_size": true
+  },
+  {
+    "id": "min-size",
+    "kind": 1,
+    "width": 120,
+    "height": 30,
+    "title": "Native button",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "max-size",
+    "kind": 1,
+    "width": 70,
+    "height": 18,
+    "title": "Native button",
+    "enabled": 1,
+    "state": 0
   }
 ]
