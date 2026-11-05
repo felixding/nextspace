@@ -80,6 +80,12 @@ lack a standard widget contract; the policy for forcibly replacing these is a
 separate user decision.
 
 There is currently no implemented universal adapter satisfying the requirement.
+The shared provider and helper now expose actual GNUstep single-line text and
+password editors, including native Emacs commands, Cut/Copy/Paste menu routing,
+selection and caret invalidation. This foundation is qualified separately in
+[`Libraries/NativeUI/text-qualification.json`](../Libraries/NativeUI/text-qualification.json).
+Webpage and browser address-bar text bindings remain unimplemented; provider
+and transport checks cannot establish browser text integration.
 A shared host avoids duplicating the native components; coverage still requires
 toolkit, engine and application-frontend adapters. Verify representative GTK and
 Qt/KDE applications as well as browsers. A scrollbar or individual-control test

@@ -19,9 +19,10 @@ enum { NXS_SHIFT = 1, NXS_ALT = 2, NXS_CONTROL = 4, NXS_SUPER = 8 };
 enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
-  NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP
+  NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
+  NXS_TEXTFIELD, NXS_PASSWORD
 };
-enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED };
+enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 typedef struct {
   uint32_t size;
   double width, height, minimum, maximum, value;
@@ -62,6 +63,21 @@ typedef struct {
   /* NUL-terminated UTF-8. NULL text is empty; NULL unmodified_text uses text. */
   const char *text, *unmodified_text;
 } NXSKeyEvent;
+enum NXSTextCapability { NXS_TEXT_EDITING = 1 };
+#define NXS_TEXT_NO_SELECTION UINT64_MAX
+/* Selection and marked ranges use native NSString/UTF16 code units. A model
+ * with NO_SELECTION leaves initial selection to the native responder. */
+typedef struct {
+  uint32_t size;
+  const char *text;
+  uint64_t selection_start, selection_length;
+  int editable;
+} NXSTextModel;
+typedef struct {
+  uint32_t size;
+  uint64_t selection_start, selection_length, marked_start, marked_length;
+  int editing, editable, secure;
+} NXSTextState;
 
 /* The provider owns all native objects, metrics, drawing and interaction.
  * Consumers own application models and translate events through this C ABI.
@@ -103,6 +119,8 @@ typedef struct {
   NXSEventSource *(*event_source_create)(int descriptor);
   int (*event_source_destroy)(NXSEventSource *);
   int (*control_popup_open)(NXSControl *, int);
+  int (*control_text_sync)(NXSControl *, const NXSTextModel *);
+  size_t (*control_text_get)(NXSControl *, char *, size_t, NXSTextState *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -154,6 +172,14 @@ unsigned nxs_control_popup_open_capabilities(void);
 /* Change popup visibility through the native control's methods, without
  * assuming a keyboard binding. Busy native tracking rejects this request. */
 int nxs_control_popup_open(NXSControl *, int open);
+unsigned nxs_control_text_capabilities(void);
+/* Application model updates do not emit user-edit events. Native editing
+ * emits NXS_TEXT_CHANGED; the application reads the actual native text/range.
+ * NXS_ACTIVATE retains the text field's native action (for example Return). */
+int nxs_control_text_sync(NXSControl *, const NXSTextModel *);
+/* Returns required UTF8 buffer bytes including NUL, or 0 on failure. A NULL
+ * or insufficient buffer does not copy partial text. State is optional. */
+size_t nxs_control_text_get(NXSControl *, char *buffer, size_t capacity, NXSTextState *);
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,19 @@ class ControlStepRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7]+[('step',C.c_double)]
 class ControlPopupRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7]+[('count',C.c_uint32),('selected',C.c_int32)]
+class ControlTextRequest(C.Structure):
+    _fields_ = ControlRequest._fields_[:7]+[('selection_start',C.c_uint64),
+        ('selection_length',C.c_uint64),('editable',C.c_int32),('padding',C.c_uint32)]
+class TextModel(C.Structure):
+    _fields_ = [('size',C.c_uint32),('text',C.c_char_p),('selection_start',C.c_uint64),
+        ('selection_length',C.c_uint64),('editable',C.c_int)]
+class TextState(C.Structure):
+    _fields_ = [('size',C.c_uint32),('selection_start',C.c_uint64),('selection_length',C.c_uint64),
+        ('marked_start',C.c_uint64),('marked_length',C.c_uint64),('editing',C.c_int),
+        ('editable',C.c_int),('secure',C.c_int)]
+class TextResponse(C.Structure):
+    _fields_ = [('text_size',C.c_uint32),('flags',C.c_uint32),('selection_start',C.c_uint64),
+        ('selection_length',C.c_uint64),('marked_start',C.c_uint64),('marked_length',C.c_uint64)]
 class PopupItem(C.Structure):
     _fields_ = [('size',C.c_uint32),('title',C.c_char_p),('enabled',C.c_int),('separator',C.c_int)]
 class ControlRect(C.Structure):
@@ -82,6 +95,15 @@ class NativeControlServer:
         self.range_capabilities=0
         self.popup_capabilities=0
         self.popup_open_capabilities=0
+        self.text_capabilities=0
+        if hasattr(native,'nxs_control_text_capabilities'):
+            native.nxs_control_text_capabilities.argtypes=[]
+            native.nxs_control_text_capabilities.restype=C.c_uint
+            self.text_capabilities=native.nxs_control_text_capabilities()
+            native.nxs_control_text_sync.argtypes=[C.c_void_p,C.POINTER(TextModel)]
+            native.nxs_control_text_sync.restype=C.c_int
+            native.nxs_control_text_get.argtypes=[C.c_void_p,C.c_void_p,C.c_size_t,C.POINTER(TextState)]
+            native.nxs_control_text_get.restype=C.c_size_t
         if hasattr(native,'nxs_control_popup_open_capabilities'):
             native.nxs_control_popup_open_capabilities.argtypes=[]
             native.nxs_control_popup_open_capabilities.restype=C.c_uint
@@ -230,7 +252,9 @@ class NativeControlServer:
         # AppKit loads shared fonts/images lazily on its first draw. Finish
         # those native draws before publishing the service, rather than make
         # an application's first paint wait inside a bounded RPC.
-        for kind in range(1,7 if self.popup_capabilities else 6):self.preferred(kind)
+        kinds=list(range(1,7 if self.popup_capabilities else 6))
+        if self.text_capabilities:kinds.extend((7,8))
+        for kind in kinds:self.preferred(kind)
 
     def preferred(self, kind):
         if kind not in self.metric_cache:
@@ -253,6 +277,8 @@ class NativeControlServer:
         if state['destroy']:
             return
         state['actions'] += 1
+        state['edits']=state.get('edits',0)+int(event==3)
+        state['activations']=state.get('activations',0)+int(event==1)
         process=state['key'][0]
         timestamp=time.monotonic_ns()
         self.invalidate(process)
@@ -263,7 +289,7 @@ class NativeControlServer:
     def _tracking(self, state):
         return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
 
-    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None):
+    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None, payload=b''):
         response = self.response_type()
         response.magic, response.reserved = MAGIC, req.reserved
         response.parts[3].x = input_result
@@ -273,7 +299,7 @@ class NativeControlServer:
         response.parts[4].width = self.event_capabilities
         response.parts[5].width = self.range_capabilities
         response.parts[5].height = self.popup_capabilities
-        data = b''
+        data = payload
         if state:
             response.parts[5].x=state.get('step',0)
             current = self.native.nxs_control_state(state['native'])
@@ -284,6 +310,9 @@ class NativeControlServer:
             preferred = self.native.nxs_control_size(state['native'])
             response.parts[1].width, response.parts[1].height = preferred.width, preferred.height
             response.parts[2].x = current.enabled
+            if req.kind in (7,8):
+                response.parts[2].width=state.get('edits',0)
+                response.parts[2].height=state.get('activations',0)
             if self.input_capabilities & 1:
                 response.parts[3].y = self.native.nxs_control_focused(state['native'])
             if req.kind==6 and self.popup_capabilities:
@@ -301,6 +330,9 @@ class NativeControlServer:
 
     def message(self, client, data, descriptors=(),sender_pid=None):
         if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little')!=15):return
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==17:
+            self.text_message(client,data)
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==11:
             self.popup_message(client,data)
             return
@@ -339,7 +371,9 @@ class NativeControlServer:
             self._respond(client, req)
             return
         if req.operation == 1:
-            if not 1 <= req.kind <= 6 or (req.kind==6 and not self.popup_capabilities) or not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value)):
+            if (not 1 <= req.kind <= 8 or (req.kind==6 and not self.popup_capabilities) or
+                (req.kind in (7,8) and not self.text_capabilities) or
+                not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value))):
                 self._respond(client, req)
                 return
             if not 1 <= req.width <= 8192 or not 1 <= req.height <= 8192 or req.width * req.height > 8 * 1024 * 1024:
@@ -382,6 +416,18 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==18 and req.kind in (7,8) and self.text_capabilities and not req.text_size:
+                current=TextState(size=C.sizeof(TextState))
+                required=self.native.nxs_control_text_get(state['native'],None,0,C.byref(current))
+                if not 0<required<=32*1024*1024-C.sizeof(TextResponse):
+                    self._respond(client,req);return
+                buffer=C.create_string_buffer(required)
+                actual=self.native.nxs_control_text_get(state['native'],buffer,required,C.byref(current))
+                if actual!=required:self._respond(client,req);return
+                info=TextResponse(required-1,bool(current.editing)|bool(current.editable)<<1|bool(current.secure)<<2,
+                    current.selection_start,current.selection_length,current.marked_start,current.marked_length)
+                self._respond(client,req,state,input_result=1,payload=bytes(info)+buffer.raw[:-1])
+                return
             if req.operation==14 and req.kind==6 and self.popup_open_capabilities:
                 accepted=self.native.nxs_control_popup_open(state['native'],req.state)
                 self._respond(client,req,state,input_result=accepted)
@@ -411,6 +457,22 @@ class NativeControlServer:
                     self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
         self._respond(client, req, state)
+
+    def text_message(self,client,data):
+        if len(data)<C.sizeof(ControlTextRequest):return
+        req=ControlTextRequest.from_buffer_copy(data)
+        if req.magic!=MAGIC or req.kind not in (7,8) or req.text_size!=len(data)-C.sizeof(req) or req.text_size>65536:
+            self._respond(client,req);return
+        state=self.controls.get((req.process,req.control,req.kind))
+        if not state or state['destroy'] or not self.text_capabilities:
+            self._respond(client,req);return
+        text=data[C.sizeof(req):]
+        try:text.decode('utf-8')
+        except UnicodeDecodeError:self._respond(client,req);return
+        if b'\0' in text:self._respond(client,req);return
+        model=TextModel(C.sizeof(TextModel),text,req.selection_start,req.selection_length,req.editable)
+        accepted=self.native.nxs_control_text_sync(state['native'],C.byref(model))
+        self._respond(client,req,state,input_result=accepted,pixels=bool(accepted))
 
     def popup_message(self,client,data):
         if len(data)<C.sizeof(ControlPopupRequest):return

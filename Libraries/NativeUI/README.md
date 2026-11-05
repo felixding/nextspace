@@ -11,7 +11,7 @@ The bridge and the underlying UI implementation are separate libraries:
 - `libnextspace-native-ui.so.1` loads a provider and forwards the C API. It has no
   GNUstep, GTK or Qt dependency and implements no controls.
 - `libnextspace-native-ui-gnustep.so.1` binds that API to the installed GNUstep
-  controls. It creates ordinary `NSButton`, `NSSlider`, `NSProgressIndicator` and
+  controls. It creates ordinary `NSTextField`, `NSSecureTextField`, `NSButton`, `NSSlider`, `NSProgressIndicator` and
   `NSScroller` objects and calls their drawing and input methods. The shared
   view host supplies offscreen backing and event dispatch, with no control
   drawing, geometry or tracking algorithms.
@@ -28,7 +28,7 @@ The C loader rejects an absent, incompatible or incomplete provider. Its error
 is available through `nxs_native_ui_error()`; it does not emulate a control.
 
 The API supports native push buttons, checkboxes, radio buttons, sliders,
-progress indicators, popup buttons/menus and the existing scrollbar contract. Normal/disabled state,
+progress indicators, popup buttons/menus, single-line text/password fields and the existing scrollbar contract. Normal/disabled state,
 model updates, native preferred metrics, bitmap output and synchronous mouse
 tracking are exposed. The application owns its data model; the native control
 owns its actual input loop. The event pump services application/transport events
@@ -61,23 +61,69 @@ provider continues to own the widget's keyboard behavior.
 Keyboard dispatch also owns the native control's stack while its action callback
 runs. `tracking` reports this busy state, and destruction returns zero until
 dispatch returns. Keyboard input to an unfocused/disabled control, or during
-another native input dispatch, is rejected. Text and IME editing, default-button
-command models, key equivalents, offscreen keyboard activation animation and
+another native input dispatch, is rejected. Browser text/IME integration, default-button
+command models, application menu integration, offscreen keyboard activation animation and
 application focus traversal still need their broader integration contracts.
 The pinned Chromium experiment now applies next/previous requests through its
 real focus controller; other application integrations remain open.
 
-The optional input, event, range, popup and descriptor-source functions extend ABI version 1. The loader validates
+The optional input, event, range, popup, text and descriptor-source functions extend ABI version 1. The loader validates
 the original `NXS_NATIVE_UI_CORE_SIZE` prefix and checks the advertised structure
 size before reading optional fields. Older providers keep their original
 controls and report no input capabilities. An older loader/client can also use
 the new provider unchanged. This preserves the separation while the API grows.
 
 This is an initial implementation of the shared host, not full browser support.
-Text editing, broader engine/frontend focus and keyboard routing, IME, accessibility,
+Browser text editing, broader engine/frontend focus and keyboard routing, IME, accessibility,
 general application menus, lists/trees, tabs,
 and engine/frontend adapters for the new control types remain to implement.
 The provider ABI is under development until that broader contract is qualified.
+
+## Native text editor foundation
+
+`NXS_TEXTFIELD` and `NXS_PASSWORD` create the installed `NSTextField` and
+`NSSecureTextField` with their actual native field editors. Query
+`nxs_control_text_capabilities()` first. `nxs_control_text_sync()` supplies a
+NUL-terminated UTF-8 application value, editability and selection in native
+NSString/UTF-16 units. `NXS_TEXT_NO_SELECTION` leaves selection to the editor.
+An unchanged value does not reset editing. Synchronization emits no user edits
+and is rejected during native dispatch, preventing a model update from aborting
+the editing operation currently on the stack.
+
+`nxs_control_text_get()` returns the required UTF-8 buffer size including NUL,
+and optionally reads the actual selected/marked ranges and editor state. A small
+buffer is left empty rather than receiving a partial UTF-8 string. The caller
+owns the copied value, including password values needed by its application
+model; transport diagnostics omit all text payloads. `NXS_TEXT_CHANGED` comes
+from the native editor's change notification. Native Return invokes the existing
+`NXS_ACTIVATE` callback; native Tab/backtab requests the application's focus order.
+
+The provider uses the existing native editor menu for Cut, Copy and Paste.
+`NSMenu performKeyEquivalent:` owns shortcut matching and validation, and
+AppKit resolves its nil-target actions through the logical native key window.
+No shortcut table or editing/clipboard implementation is copied. The actual
+native caret timer invalidates its existing backing; the host exports that
+invalidation and reads the native pixels. Text field backing stays unmapped.
+Current text snapshots require the backing scale itself; other requested scales
+return an empty bitmap rather than resampling text.
+
+The private ARM64 tests verify plain/password selection, deletion, Unicode,
+Control+A/E, Alt+C/V and Alt+X, password copy protection, native Return,
+read-only/disabled state, caret pixel changes and deferred destruction. Thirty-nine
+helper transport checks include four complete images compared with direct
+native-provider references. The existing Chromium input fixture passes 62
+checks and Firefox range fixture passes 57 checks with the new provider.
+Old clients/loaders and a provider without the optional text extension also
+pass compatibility checks; all 30 legacy scrollbar images are unchanged.
+See [text qualification](text-qualification.json) and
+[source audit](text-source-audit.json).
+
+This does not yet connect webpage or URL-bar text fields. Engine edits must
+retain beforeinput cancellation, trusted events, validation, selection, undo,
+composition and application command behavior. Multiline/rich text, IME, undo
+menu routing, other scales, mouse text selection, drag/drop and accessibility
+still require integration and qualification. Browser adapters must consume the
+shared editor rather than reproducing its behavior.
 
 ## Build and checks
 

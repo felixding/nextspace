@@ -10,6 +10,10 @@ import subprocess
 import tempfile
 import time
 import sys
+import uuid
+from contextlib import ExitStack
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'Wayland'))
+from gnustep import pasteboard_storage
 from PIL import Image
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -17,6 +21,7 @@ parser.add_argument('--build', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--compositor', default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--backend')
+parser.add_argument('--pasteboard-server',type=Path,default=Path('/Library/bin/gpbs-wayland'))
 parser.add_argument('--baseline', type=Path, help='Directory containing the previous legacy shared library')
 parser.add_argument('--previous-provider', type=Path, help='Pre-extension NativeUI provider to test ABI compatibility')
 parser.add_argument('--previous-client', type=Path, help='Pre-extension native-controls-probe to run unchanged')
@@ -25,12 +30,14 @@ parser.add_argument('--previous-event-provider', type=Path, help='Provider preda
 parser.add_argument('--previous-range-provider', type=Path, help='Provider predating optional slider step configuration')
 parser.add_argument('--previous-popup-provider', type=Path, help='Provider predating optional popup/menu configuration')
 parser.add_argument('--previous-popup-open-provider',type=Path,help='Popup provider predating optional explicit open/close')
+parser.add_argument('--previous-text-provider',type=Path,help='Provider predating optional native text editing')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
 with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
-    environment = dict(os.environ, XDG_RUNTIME_DIR=runtime, WLR_BACKENDS='headless', WLR_RENDERER='pixman')
+    environment = dict(os.environ, XDG_RUNTIME_DIR=runtime, WLR_BACKENDS='headless', WLR_RENDERER='pixman',
+                       NEXTSPACE_SESSION_ID='native-ui-'+uuid.uuid4().hex)
     for name in ('DISPLAY', 'WAYLAND_DISPLAY', 'WAYLAND_SOCKET', 'LD_PRELOAD', 'NEXTSPACE_NATIVE_UI_PROVIDER'):
         environment.pop(name, None)
     parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
@@ -42,11 +49,14 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
     def command(text):
         parent.sendall(text.encode())
         return json.loads(parent.recv(65536))
+    services=ExitStack()
     try:
         assert select.select([compositor.stdout], [], [], 10)[0], 'Compositor startup'
         line = compositor.stdout.readline().strip()
         assert line.startswith('WAYLAND_DISPLAY='), line
         environment['WAYLAND_DISPLAY'] = line.split('=', 1)[1]
+        services.enter_context(pasteboard_storage(args.pasteboard_server,
+            args.build/'native-ui/native-pasteboard-probe',environment,args.output))
         def bounded_probe(arguments, client_env, label, timeout=10):
             # Wait for this probe's exit, independently of pipe descriptors a
             # native service could inherit. Preserve output in regular files.
@@ -142,6 +152,16 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         input_output = held_probe(args.build / 'native-ui/native-input-probe', [str(args.output)],
                                   'NXS_NATIVE_UI_INPUT_HOLD', 'input')
         checks['native_input'] = json.loads(input_output)
+        text_output=held_probe(args.build/'native-ui/native-text-probe',[str(args.output)],
+                                'NXS_NATIVE_UI_TEXT_HOLD','text')
+        checks['native_text']=json.loads(text_output)
+        if args.previous_text_provider:
+            previous=subprocess.run([str(args.build/'native-ui/native-text-probe'),'--expect-no-text']+backend,
+                env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_provider.resolve())),text=True,capture_output=True,timeout=10)
+            assert previous.returncode==0,(previous.returncode,previous.stderr)
+            checks['previous_provider_accepted_without_text_extension']=json.loads(previous.stdout)
+        for path in args.output.glob('text-*.argb'):
+            Image.frombytes('RGBA',(180,24),path.read_bytes(),'raw','BGRA').save(path.with_suffix('.png'))
         range_result=subprocess.run([str(args.build/'native-ui/native-range-probe')]+backend,
             env=environment,text=True,capture_output=True,timeout=10)
         assert range_result.returncode==0,(range_result.returncode,range_result.stderr)
@@ -252,6 +272,10 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                 popup=held_probe(Path(sys.executable),[str(scripts/'check-control-popup.py'),'--socket',str(endpoint),
                     '--output',str(output),'--references',str(args.output),'--helper-pid',str(helper.pid)],'NXS_NATIVE_UI_POPUP_HOLD','popup-transport')
                 checks['transport_popup']=json.loads(popup)
+                text=held_probe(Path(sys.executable),[str(scripts/'check-control-text.py'),'--socket',str(endpoint),
+                    '--output',str(args.output/'transport-text'),'--references',str(args.output)],
+                    'NXS_NATIVE_UI_TEXT_HOLD','text-transport')
+                checks['transport_text']=json.loads(text)
             finally:
                 if sys.exc_info()[0] is not None and helper.poll() is None:
                     with (args.output/'helper-timeout.txt').open('w') as trace:
@@ -283,7 +307,9 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         (args.output / 'results.json').write_text(json.dumps(checks, indent=2) + '\n')
         print(json.dumps(checks))
     finally:
-        if compositor.poll() is None:
-            command('quit')
-        compositor.wait(timeout=5)
-        parent.close()
+        try:services.close()
+        finally:
+            if compositor.poll() is None:
+                command('quit')
+            compositor.wait(timeout=5)
+            parent.close()

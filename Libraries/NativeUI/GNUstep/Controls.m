@@ -4,6 +4,7 @@
 #include "Provider.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 struct NXSControl {
   int kind,enabled;
   NSView *view;
@@ -12,7 +13,11 @@ struct NXSControl {
   NXSControlChanged changed;
   void *context;
   double step;
+  NSRange text_selection;
+  BOOL text_selection_pending,destroying;
 };
+static int text_control(NXSControl *control)
+{return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD);}
 static void slider_model(NXSControl *control)
 {
   NSSlider *view=(NSSlider *)control->view;
@@ -26,6 +31,8 @@ static void slider_model(NXSControl *control)
 @interface NXSControlAction : NSObject { @public NXSControl *control; }
 - (void)changed:(id)sender;
 - (void)willPopUp:(NSNotification *)notification;
+- (void)controlTextDidChange:(NSNotification *)notification;
+- (void)controlTextDidEndEditing:(NSNotification *)notification;
 @end
 @implementation NXSControlAction
 - (void)changed:(id)sender
@@ -36,17 +43,33 @@ static void slider_model(NXSControl *control)
 }
 - (void)willPopUp:(NSNotification *)notification
 {nxs_host_bind_input_window(control->host,[[(NSPopUpButton *)control->view menu] window]);}
+- (void)controlTextDidChange:(NSNotification *)notification
+{
+  [control->view setNeedsDisplay:YES];
+  if(control->changed) {
+    NXSControlState state=nxs_gnustep_control_state(control);
+    control->changed(control->context,NXS_TEXT_CHANGED,&state);
+  }
+}
+- (void)controlTextDidEndEditing:(NSNotification *)notification
+{
+  NSText *editor=[[notification userInfo] objectForKey:@"NSFieldEditor"];
+  if(editor)control->text_selection=[editor selectedRange];
+}
 @end
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_POPUP)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_PASSWORD)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_POPUP) {
+  if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD) {
+    view=kind==NXS_PASSWORD?[[NSSecureTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)]:
+      [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)];
+  } else if(kind==NXS_POPUP) {
     view=[[NSPopUpButton alloc] initWithFrame:NSMakeRect(0,0,120,24) pullsDown:NO];
     [(NSPopUpButton *)view setAutoenablesItems:NO];
   } else if(kind==NXS_SLIDER) {
@@ -65,9 +88,11 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   control->host=nxs_host_create(view,pump,context);control->view=view;[view release];
   if(!control->host){free(control);[pool drain];return NULL;}
   control->kind=kind;control->enabled=1;control->changed=changed;control->context=context;
+  control->text_selection=NSMakeRange(NSNotFound,0);
   if(kind!=NXS_PROGRESS) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
     [(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];
+    if(text_control(control))[(NSTextField *)view setDelegate:(id)target];
     if(kind==NXS_POPUP)[[NSNotificationCenter defaultCenter] addObserver:target
       selector:@selector(willPopUp:) name:NSPopUpButtonWillPopUpNotification object:view];
   }
@@ -76,13 +101,16 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
 int nxs_gnustep_control_destroy(NXSControl *control)
 {
   if(!control)return 1;
+  if(control->destroying)return 0;
+  control->destroying=YES;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(control->kind==NXS_POPUP) {
-    if(nxs_host_tracking(control->host)){[pool drain];return 0;}
+    if(nxs_host_tracking(control->host)){control->destroying=NO;[pool drain];return 0;}
     [(NSPopUpButtonCell *)[(NSPopUpButton *)control->view cell] dismissPopUp];
   }
   NSView *view=[control->view retain];
-  if(!nxs_host_destroy(control->host)){[view release];[pool drain];return 0;}
+  if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
+  if(text_control(control))[(NSTextField *)view setDelegate:nil];
   if(control->kind==NXS_POPUP)[[NSNotificationCenter defaultCenter] removeObserver:control->target];
   if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
   [view release];
@@ -121,7 +149,7 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
       if(![[[view menu] window] isVisible]&&config->value!=[view indexOfSelectedItem]&&
          config->value>=-1&&config->value<[view numberOfItems]&&floor(config->value)==config->value)
         [view selectItemAtIndex:(NSInteger)config->value];
-    } else {
+    } else if(!text_control(control)) {
       NSButton *view=(NSButton *)control->view;
       [view setTitle:title];[view setAllowsMixedState:control->kind==NXS_CHECKBOX&&config->state==-1];
       [view setState:config->state];
@@ -135,7 +163,7 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
   if(!control)return state;
   state.enabled=control->enabled;state.tracking=nxs_host_tracking(control->host);
   if(control->kind==NXS_PROGRESS)state.value=[(NSProgressIndicator *)control->view doubleValue];
-  else {
+  else if(!text_control(control)) {
     state.value=control->kind==NXS_POPUP?[(NSPopUpButton *)control->view indexOfSelectedItem]:[(NSControl *)control->view doubleValue];
     if(control->kind!=NXS_SLIDER&&control->kind!=NXS_POPUP)state.state=[(NSButton *)control->view state];
   }
@@ -154,7 +182,16 @@ void nxs_gnustep_control_track(NXSControl *control,double x,double y,unsigned mo
 void nxs_gnustep_control_send(NXSControl *control,int event,double x,double y,unsigned modifiers)
 {if(control)nxs_host_send(control->host,event,x,y,modifiers);}
 int nxs_gnustep_control_focus(NXSControl *control,int focused)
-{return control&&(!focused||(control->enabled&&control->kind!=NXS_PROGRESS))?nxs_host_focus(control->host,focused):0;}
+{
+  if(!control||(focused&&(!control->enabled||control->kind==NXS_PROGRESS)))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  int accepted=nxs_host_focus(control->host,focused);
+  if(accepted&&focused&&text_control(control)&&control->text_selection_pending) {
+    [[(NSTextField *)control->view currentEditor] setSelectedRange:control->text_selection];
+    control->text_selection_pending=NO;
+  }
+  [pool drain];return accepted;
+}
 int nxs_gnustep_control_focused(NXSControl *control)
 {return control?nxs_host_focused(control->host):0;}
 int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
@@ -232,4 +269,47 @@ int nxs_gnustep_control_popup_open(NXSControl *control,int open)
     if(![[[view menu] window] isVisible])[cell attachPopUpWithFrame:[view bounds] inView:view];
   } else [cell dismissPopUp];
   [pool drain];return 1;
+}
+
+/* Text data and selection are native NSString/NSText state. Editing, key
+ * interpretation, layout, selection painting and secure rendering stay native. */
+int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
+{
+  if(!text_control(control)||!model||model->size<sizeof(*model)||control->destroying||
+     nxs_host_tracking(control->host))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSString *text=model->text?[NSString stringWithUTF8String:model->text]:@"";
+  if(!text||(model->selection_start!=NXS_TEXT_NO_SELECTION&&
+     (model->selection_start>[text length]||model->selection_length>[text length]-model->selection_start))) {
+    [pool drain];return 0;
+  }
+  NSTextField *view=(NSTextField *)control->view;
+  NSString *current=[view currentEditor]?[[view currentEditor] string]:[view stringValue];
+  if(![current isEqualToString:text])[view setStringValue:text];
+  [view setEditable:!!model->editable];
+  control->text_selection=model->selection_start==NXS_TEXT_NO_SELECTION?NSMakeRange(NSNotFound,0):
+    NSMakeRange(model->selection_start,model->selection_length);
+  NSText *editor=[view currentEditor];
+  control->text_selection_pending=!editor&&control->text_selection.location!=NSNotFound;
+  if(editor&&control->text_selection.location!=NSNotFound&&
+     !NSEqualRanges([editor selectedRange],control->text_selection))
+    [editor setSelectedRange:control->text_selection];
+  [view setNeedsDisplay:YES];[pool drain];return 1;
+}
+size_t nxs_gnustep_control_text_get(NXSControl *control,char *buffer,size_t capacity,NXSTextState *state)
+{
+  if(!text_control(control)||(state&&state->size<sizeof(*state)))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSTextField *view=(NSTextField *)control->view;NSTextView *editor=(NSTextView *)[view currentEditor];
+  NSString *text=editor?[editor string]:[view stringValue];
+  const char *utf8=[text UTF8String];size_t required=utf8?strlen(utf8)+1:0;
+  if(editor)control->text_selection=[editor selectedRange];
+  NSRange marked=editor&&[editor hasMarkedText]?[editor markedRange]:NSMakeRange(NSNotFound,0);
+  if(state)*state=(NXSTextState){.size=sizeof(*state),
+    .selection_start=control->text_selection.location==NSNotFound?NXS_TEXT_NO_SELECTION:control->text_selection.location,
+    .selection_length=control->text_selection.length,
+    .marked_start=marked.location==NSNotFound?NXS_TEXT_NO_SELECTION:marked.location,.marked_length=marked.length,
+    .editing=editor!=nil,.editable=[view isEditable],.secure=control->kind==NXS_PASSWORD};
+  if(buffer&&capacity){if(required&&capacity>=required)memcpy(buffer,utf8,required);else buffer[0]=0;}
+  [pool drain];return required;
 }

@@ -79,6 +79,9 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 - (void)dispatchNativeEvent:(NSEvent *)event to:(NSResponder *)responder;
 @end
 @implementation NXSApplication
+/* AppKit resolves nil-target menu actions through the embedding application's
+ * logical key window, without ordering a private backing window on screen. */
+- (NSWindow *)keyWindow {return focused?focused->window:[super keyWindow];}
 - (void)dispatchNativeEvent:(NSEvent *)event to:(NSResponder *)responder
 {
   /* NSCell expects the initiating event to be NSApp.currentEvent, just as
@@ -89,7 +92,13 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
   @try {
     switch([event type]) {
       case NSLeftMouseDown:[responder mouseDown:event];break;
-      case NSKeyDown:[responder keyDown:event];break;
+      case NSKeyDown:
+        /* Reuse the editor's native command menu, including its key equivalents
+         * and validation. Do not maintain an embedding-specific shortcut table. */
+        if(!([responder isKindOfClass:[NSView class]]&&
+             [[(NSView *)responder menu] performKeyEquivalent:event]))
+          [responder keyDown:event];
+        break;
       case NSKeyUp:[responder keyUp:event];break;
       case NSFlagsChanged:[responder flagsChanged:event];break;
       default:break;
@@ -126,13 +135,18 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 @end
 @implementation NXSBackingWindow
 - (NSPoint)mouseLocationOutsideOfEventStream {return control->pointer;}
+/* The embedding application supplies activation; a private backing window
+ * must never acquire OS focus merely to activate its native field editor. */
+- (BOOL)isKeyWindow {return control&&focused==control;}
 /* NSCell flushes its backing window during tracking. Its pixels belong to the
  * embedding widget; never submit this private window to the compositor. */
-- (void)flushWindow {}
-- (void)flushWindowIfNeeded {}
+- (void)flushWindow {[control->view setNeedsDisplay:YES];}
+- (void)flushWindowIfNeeded {[control->view setNeedsDisplay:YES];}
 /* The application owns its focus order. Export the native window's requests. */
 - (void)selectNextKeyView:(id)sender {control->key_result=NXS_INPUT_NEXT;}
 - (void)selectPreviousKeyView:(id)sender {control->key_result=NXS_INPUT_PREVIOUS;}
+- (void)selectKeyViewFollowingView:(NSView *)view {control->key_result=NXS_INPUT_NEXT;}
+- (void)selectKeyViewPrecedingView:(NSView *)view {control->key_result=NXS_INPUT_PREVIOUS;}
 @end
 
 static NSUInteger flags(unsigned modifiers)
@@ -186,7 +200,8 @@ NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
    * unmapped backend window cannot acknowledge moves; its stale frame would
    * otherwise anchor native menus at the old screen position. */
   NXSBackingWindow *window=[[NXSBackingWindow alloc] initWithContentRect:[view bounds]
-    styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
+    styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered
+    defer:![view isKindOfClass:[NSTextField class]]];
   window->control=host;host->window=window;
   [window setReleasedWhenClosed:NO];
   NXSInputFallback *fallback=[NXSInputFallback new];fallback->control=host;
@@ -258,8 +273,14 @@ double nxs_host_dispatch_events(double maximum_wait)
   if(dispatched==1024)next=0;
   [pool drain];return next;
 }
+static int view_needs_display(NSView *view)
+{
+  if([view needsDisplay])return 1;
+  for(NSView *child in [view subviews])if(view_needs_display(child))return 1;
+  return 0;
+}
 int nxs_host_needs_display(NXSViewHost *host)
-{return host&&[host->view needsDisplay];}
+{return host&&view_needs_display(host->view);}
 NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 {
   NXSBitmap result = {0};
@@ -268,6 +289,18 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   NSSize size = [control->view frame].size;
   int width = (int)floor(size.width * scale + .5), height = (int)floor(size.height * scale + .5);
   if (width < 1 || height < 1 || (size_t)width * height > 8 * 1024 * 1024) { [pool drain]; return result; }
+  NSBitmapImageRep *bitmap;
+  if([control->view isKindOfClass:[NSTextField class]]) {
+    /* AppKit's recursive display restores the window's gstate even with an
+     * explicit image context. Render/read the real native backing instead.
+     * Its field editor, selection and caret remain wholly native. */
+    if(fabs(scale-[control->window backingScaleFactor])>0.000001){[pool drain];return result;}
+    [control->view displayRectIgnoringOpacity:[control->view bounds]];
+    [control->view lockFocus];
+    bitmap=[[NSBitmapImageRep alloc] initWithFocusedViewRect:[control->view bounds]];
+    [control->view unlockFocus];[control->view setNeedsDisplay:NO];
+    if([bitmap pixelsWide]!=width||[bitmap pixelsHigh]!=height){[bitmap release];[pool drain];return result;}
+  } else {
   NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
   [image lockFocus];
   NSAffineTransform *transform = [NSAffineTransform transform];
@@ -281,8 +314,9 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   [control->view setNeedsDisplay:NO];
   [NSGraphicsContext saveGraphicsState];
   [transform invert]; [transform concat];
-  NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0,0,width,height)];
+  bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0,0,width,height)];
   [NSGraphicsContext restoreGraphicsState]; [image unlockFocus]; [image release];
+  }
   [control->bitmap release]; control->bitmap = bitmap;
   unsigned char *pixels = realloc(control->pixels, (size_t)width * height * 4);
   if (pixels) {
@@ -336,26 +370,39 @@ void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned
 int nxs_host_tracking(NXSViewHost *host){return host&&(host->tracking||host->dispatch_depth);}
 
 int nxs_host_focused(NXSViewHost *host)
-{return host&&focused==host&&[host->window firstResponder]==host->view;}
+{
+  if(!host||focused!=host)return 0;
+  NSResponder *responder=[host->window firstResponder];
+  return responder==host->view||([host->view isKindOfClass:[NSControl class]]&&
+    [(NSControl *)host->view currentEditor]==responder);
+}
 int nxs_host_focus(NXSViewHost *host,int focus)
 {
   if(!host)return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   int accepted=1;
+  NXSViewHost *previous=focused;
+  host->dispatch_depth++;
+  if(previous&&previous!=host)previous->dispatch_depth++;
   if(focus) {
     if(![host->view acceptsFirstResponder])accepted=0;
     else {
-      NXSViewHost *previous=focused;
       if(previous&&previous!=host&&![previous->window makeFirstResponder:nil])accepted=0;
       else if(![host->window makeFirstResponder:host->view]) {
         accepted=0;
         if(previous)[previous->window makeFirstResponder:previous->view];
-      } else focused=host;
+      } else {
+        focused=host;
+        NSResponder *responder=[host->window firstResponder];
+        if([responder respondsToSelector:@selector(becomeKeyWindow)])[(id)responder becomeKeyWindow];
+      }
     }
   } else if(focused==host) {
     accepted=[host->window makeFirstResponder:nil];
     if(accepted)focused=NULL;
   }
+  if(previous&&previous!=host)previous->dispatch_depth--;
+  host->dispatch_depth--;
   [pool drain];return accepted;
 }
 

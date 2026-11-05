@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-05",
+  "native_gui_source_base": "4c1687d2b404f271ce7806dcb80a5b24b5284432",
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTextField.m",
+      "sha256": "a22a3b655b339494bf9fa953ef9797e7baed3055ac2cf225a1183c6b90e29bfe"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTextFieldCell.m",
+      "sha256": "3f9b829fc845cbfd9fbde4240f343844194d07577cba3ff9bc98052d16585cd3"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTextView.m",
+      "sha256": "12a42c4318c418d25ab4c275a869ad98d6c6d4950b72a2c73d8fb00f45736854"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTextView_actions.m",
+      "sha256": "2e27c0d135e9275dad563d33e08043e273d55b33d8ed46d751caa5262448cd26"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSSecureTextField.m",
+      "sha256": "84aa6576cc57e078d42fa78f3ffbb4c3d9ab36371c3f8333d591603eb73c8f4b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenu.m",
+      "sha256": "db15ecc3067c18bea86a64e071b721ffb8a50b76189ed999e6bb99c50add0b3a"
+    }
+  ],
+  "boundaries": [
+    {
+      "source": "NSTextField.m / NSTextFieldCell.m",
+      "behavior": "Existing field-editor construction, string/selection state, notifications, Return and native window Tab/backtab requests"
+    },
+    {
+      "source": "NSTextView.m",
+      "behavior": "Native editing, UTF-16 selection, default Cut/Copy/Paste menu, validation, caret timer and painting"
+    },
+    {
+      "source": "NSSecureTextField.m",
+      "behavior": "Native secure field editor, masking and writeSelectionToPasteboard restriction"
+    },
+    {
+      "source": "NSMenu.m",
+      "behavior": "Existing key-equivalent matching, auto-enabling and action dispatch"
+    },
+    {
+      "source": "NSApplication.m",
+      "behavior": "Nil-target action resolution through key-window first responder; receipt in .build/native-ui/keyboard-source/sources.json"
+    }
+  ],
+  "findings": [
+    "Field construction alone does not route application menu shortcuts: direct keyDown inserted literal c for Alt+C before native default-menu dispatch was connected.",
+    "Recursive view display restores backing-window graphics state even with an explicit image context. Focused editor images were blank until native backing drawing/readback was used.",
+    "Actual text editor selection, caret and rendering work with unmapped backing. Logical key-window routing does not acquire compositor focus.",
+    "Browser event/model integration remains separate; this checkpoint establishes no browser text adapter."
+  ]
+}

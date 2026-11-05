@@ -69,6 +69,25 @@ struct NXSControlPopupRequest {
   uint32_t text_size,reserved,count;
   int32_t selected;
 };
+/* Optional text editing, bootstrap part 6.y. Operation 17 synchronizes a
+ * UTF-8 value and native UTF-16 selection, without emitting a user edit.
+ * Operation 18 uses the ordinary request and returns NXSTextResponse followed
+ * by text_size UTF-8 bytes, with no bitmap and no terminating NUL. Never log
+ * text payloads. Existing focus/key/input operations also apply to kinds 7/8.
+ * Generic part 2.width/height report text edit/activation counts respectively.
+ * UINT64_MAX leaves selection to the native editor (or denotes no range). */
+struct NXSControlTextRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  uint64_t selection_start,selection_length;
+  int32_t editable;
+  uint32_t padding;
+};
+struct NXSTextResponse {
+  uint32_t text_size,flags; /* flags: editing=1, editable=2, secure=4 */
+  uint64_t selection_start,selection_length,marked_start,marked_length;
+};
 /* Optional invalidation notifications, bootstrap part 6.x. Operation 15 uses
  * the ordinary 104-byte control request (kind/control zero, value = last seen
  * process generation) and one SCM_RIGHTS nonblocking eventfd. Operation 16

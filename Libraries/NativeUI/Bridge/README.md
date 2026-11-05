@@ -14,6 +14,15 @@ RPC as the original Chromium adapter. `AArch64Detours.inc` supplies its guarded
 instruction relocation and hook installation. Consumers supply their binary
 base, memory-protection operation and log function.
 
+The optional text transport advertises capabilities in bootstrap part 6.y.
+Kinds 7/8 are native text/password fields. Operation 17 transfers UTF-8 model
+data, editability and UTF-16 selection; operation 18 reads the real editor value
+and ranges using the explicit `NXSTextResponse` payload. Focus and key requests
+reuse operations 7/8, and native changes/Return are counted separately in generic
+part 2.width/height. Existing message layouts stay unchanged. Text payloads are
+excluded from diagnostics. This is an editor transport foundation; browser
+engine/frontend model and input adapters remain to implement.
+
 These are internal source includes, not a stable engine plugin ABI. Every
 consumer must audit its own binary, signatures, layouts and lifecycle. Sharing
 this machinery does not establish coverage for another engine or browser build.

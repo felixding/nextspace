@@ -1,0 +1,282 @@
+{
+  "date": "2026-11-05",
+  "status": "Native single-line text/password editor provider and shared browser helper transport foundation; webpage and URL-bar text integration incomplete.",
+  "implementation": {
+    "controls": [
+      "NSTextField",
+      "NSSecureTextField"
+    ],
+    "menu": "Existing native NSTextView defaultMenu, NSMenu performKeyEquivalent and native responder-chain actions",
+    "clipboard": "Installed gpbs-wayland with the existing per-session test helper",
+    "caret": "Native field-editor timer, drawing and invalidation",
+    "duplicate_widget_or_shortcut_implementations": false,
+    "app_or_ui_library_rebuilt": false,
+    "compiled": "Provider, C loader, legacy forwarding shim and probes in an isolated build",
+    "abi": {
+      "version": 1,
+      "previous_api_bytes_arm64": 256,
+      "current_api_bytes_arm64": 272,
+      "optional_append_only": true
+    }
+  },
+  "provider": {
+    "native_text_controls": 2,
+    "selection_replace": true,
+    "delete": true,
+    "unicode": true,
+    "read_only": true,
+    "disabled": true,
+    "native_navigation": true,
+    "deferred_destruction": true,
+    "emacs_control_a_e": true,
+    "alt_copy_paste": true,
+    "secure_copy_blocked": true,
+    "native_return_action": true,
+    "native_caret_invalidation_and_pixels": true
+  },
+  "transport_checks": [
+    {
+      "case": "text-created",
+      "passed": true
+    },
+    {
+      "case": "text-model",
+      "passed": true
+    },
+    {
+      "case": "text-native-pixels",
+      "passed": true
+    },
+    {
+      "case": "text-focus",
+      "passed": true
+    },
+    {
+      "case": "text-native-focused-pixels",
+      "passed": true
+    },
+    {
+      "case": "text-selection-replace",
+      "passed": true
+    },
+    {
+      "case": "text-tab",
+      "passed": true
+    },
+    {
+      "case": "text-backtab",
+      "passed": true
+    },
+    {
+      "case": "text-utf16-unicode",
+      "passed": true
+    },
+    {
+      "case": "emacs-control-a",
+      "passed": true
+    },
+    {
+      "case": "emacs-control-e",
+      "passed": true
+    },
+    {
+      "case": "native-alt-copy-paste",
+      "passed": true
+    },
+    {
+      "case": "native-alt-cut",
+      "passed": true
+    },
+    {
+      "case": "text-return-activation",
+      "passed": true
+    },
+    {
+      "case": "text-read-only",
+      "passed": true
+    },
+    {
+      "case": "text-reject-invalid-text",
+      "passed": true
+    },
+    {
+      "case": "text-reject-invalid-text",
+      "passed": true
+    },
+    {
+      "case": "text-reject-invalid-range",
+      "passed": true
+    },
+    {
+      "case": "text-disabled-focus",
+      "passed": true
+    },
+    {
+      "case": "text-disabled-key",
+      "passed": true
+    },
+    {
+      "case": "text-destroyed",
+      "passed": true
+    },
+    {
+      "case": "password-created",
+      "passed": true
+    },
+    {
+      "case": "password-model",
+      "passed": true
+    },
+    {
+      "case": "password-native-pixels",
+      "passed": true
+    },
+    {
+      "case": "password-focus",
+      "passed": true
+    },
+    {
+      "case": "password-native-focused-pixels",
+      "passed": true
+    },
+    {
+      "case": "password-selection-replace",
+      "passed": true
+    },
+    {
+      "case": "password-tab",
+      "passed": true
+    },
+    {
+      "case": "password-backtab",
+      "passed": true
+    },
+    {
+      "case": "password-utf16-unicode",
+      "passed": true
+    },
+    {
+      "case": "secure-copy-keeps-previous-clipboard",
+      "passed": true
+    },
+    {
+      "case": "password-return-activation",
+      "passed": true
+    },
+    {
+      "case": "password-read-only",
+      "passed": true
+    },
+    {
+      "case": "password-reject-invalid-text",
+      "passed": true
+    },
+    {
+      "case": "password-reject-invalid-text",
+      "passed": true
+    },
+    {
+      "case": "password-reject-invalid-range",
+      "passed": true
+    },
+    {
+      "case": "password-disabled-focus",
+      "passed": true
+    },
+    {
+      "case": "password-disabled-key",
+      "passed": true
+    },
+    {
+      "case": "password-destroyed",
+      "passed": true
+    }
+  ],
+  "compatibility": {
+    "previous_provider_accepted_without_text_extension": {
+      "previous_provider_without_text": true
+    },
+    "previous_client_unchanged_with_new_provider": true,
+    "previous_loader_and_client_unchanged_with_new_provider": true,
+    "loader_has_no_ui_toolkit_dependency": true,
+    "provider_internals_not_exported": true,
+    "wrong_provider_abi_rejected": true,
+    "alternate_provider_same_client_and_native_behavior": true
+  },
+  "regressions": {
+    "legacy_scrollbar_images": 30,
+    "provider_and_helper": "Existing mouse, input, range, popup, animation and notification suites passed; complete record in .build/native-ui/text-probe-10/results.json",
+    "chromium_input_checks": 62,
+    "firefox_range_checks": 57,
+    "firefox_sandbox": [
+      {
+        "pid": 80149,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 80310,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox_renderer_crash": {
+      "pid": 80149,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "firefox_helper_loss": {
+      "helper_exit": -9,
+      "value": 50,
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.30012256201007403,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    }
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-native-ui/text-build/native-ui/libnextspace-native-ui.so.1": "59b52fde7cacb545d77453ddb9faffae6fe8f8e698798e13005f1abc5d737117",
+      "/var/tmp/nextspace-native-ui/text-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3416998641d5fc5f8faf7c4ee95c7f55d332e489e1cf5284d152fadf22636eea",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "839ddaaf5dd009cf2fcf7639aa1a193ba04955894839f615d882cdf18ae2a84d",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055"
+    },
+    "owned_processes_exited": true,
+    "package_count": 1051
+  },
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "c78656d1ecb55cad179619b0674383f5ee5c026138e254aa4f2cdf2b285c0761",
+    "Libraries/NativeUI/Loader.c": "69fdcc36eecd1fe42bb7e4af2d8504d0f0e5e56ca51535f99139c9760605a745",
+    "Libraries/NativeUI/GNUstep/Controls.m": "0acb82c8b2b89745180e7faf64a4d0ab4ea6c54a4a6607776352e9daaeaf7752",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "529314f94eea2aa61478bc2e2b7cf3e37ed72a083faadad0c7edb764735b82a8",
+    "Libraries/NativeUI/GNUstep/Provider.m": "98343804cc2c28fb2a34cbfeb14404e89701525aceecc4e4d2f465983255f1e3",
+    "Libraries/NativeUI/GNUstep/Provider.h": "6de984b135f009cb01fc188d38f4138a796320d4804df4563b6ca602eb889df5",
+    "Libraries/NativeUI/Bridge/Protocol.h": "f2b3c7b1564178f9b94e17d27a2aa44f5f1e1765b1994af765487c664bbd2adf",
+    "Libraries/NativeUI/CMakeLists.txt": "33d6df65c3ec4d3dc1881d1459a619969c6b7378d7beb5fed6d9d21f0e17dc33",
+    "Tests/NativeUI/text-probe.c": "6e9133fd5c9fec6818ca3435cd6608dde95e5b29de7c384562137e0b2c0a2763",
+    "Tests/NativeUI/run.py": "3dca64fd7f97985008ad24c3aca67c770fa61a56f890e392bfab1e7d3b171c58",
+    "Experiments/ChromiumScrollers/native_controls.py": "8520ef23f9d2e8469157b0c93b47ea6b9093466398d92e4775bd799e23b18d41",
+    "Experiments/ChromiumScrollers/helper.py": "1a281d78ec55bfe5312a99151d886e6f6fed8fa3cf3afff21a213b9c094ba52b",
+    "Experiments/ChromiumScrollers/check-control-text.py": "1af996c1666001d84c4df18387d471d4f8a547f173187adeb17d8760db84e6bb"
+  },
+  "evidence": [
+    ".build/native-ui/text-probe-10/",
+    ".build/native-ui/text-source/",
+    ".build/native-ui/text-chromium/",
+    ".build/native-ui/text-firefox-ranges-02/"
+  ],
+  "limitations": [
+    "No browser text adapters: webpage fields and address bars remain engine/frontend work.",
+    "Single-line plain/password fields at native backing scale 1; other requested snapshot scales return empty output.",
+    "Multiline/rich text, IME, undo menu routing, mouse selection, drag/drop and accessibility remain unqualified.",
+    "Engine edits must retain beforeinput cancellation, trusted events, validation, selection, composition and undo. Assigning editor contents to a DOM value is insufficient.",
+    "Only listed Ctrl+A/E and Alt+C/V/X commands are qualified; complete Emacs/application shortcut coverage is not established.",
+    "Full detached application menus, browser frontend adapters, other binaries/derivatives and GTK/Qt/KDE integration remain open.",
+    "Chromium launch retained sandbox flags; live Chromium sandbox status was not collected in this run. Firefox runtime flags are recorded."
+  ]
+}
