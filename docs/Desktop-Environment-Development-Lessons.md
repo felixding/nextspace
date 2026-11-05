@@ -3,7 +3,7 @@
 - Recorded: 2026-11-05.
 - Purpose: carry the decisions and engineering lessons from the NEXTSPACE Wayland/HiDPI rewrite into future desktop-environment projects, including faithful recreations of an existing desktop experience.
 - Scope: reusable engineering knowledge. Each future project defines its own reference desktop, release and UX specification.
-- Source snapshot: NEXTSPACE `1f2257829c7d9e2eabe3fc669b2761adff60bdd4` on `codex/wayland-hidpi-arm64`.
+- Source snapshot: NEXTSPACE `4ca9560df218acc5e7983557de49a1570cf889df` on `codex/wayland-hidpi-arm64`.
 - This is a handoff document. It does not select or start a new desktop project, and the NEXTSPACE rewrite is not fully qualified.
 
 ## What carries over, and what needs a new decision
@@ -135,6 +135,8 @@ A requested injection period does not establish the actual rate. In one schedule
 
 Unpaced synthetic keyboard bursts lost input in the two-vCPU guest. Captures establish evdev overflow and a small queue boundary in that environment; they do not establish the complete scheduling bottleneck or a product fix. Paced tests passing does not explain the failing burst. Keep that distinction when reusing the test harness.
 
+Record the actual reader thread before interpreting scheduler traces. A later capture identifies the compositor main thread and observes 68 input records arriving during a 4.268ms read gap, including 2.633ms when the reader is runnable but waiting for a CPU. A temporary nice-5 change still loses input and is restored after the trial. This counterexample rejects that priority change as a sufficient fix; it does not establish the causes of every earlier failure or justify a production scheduling policy.
+
 ## Development, delivery and cleanup
 
 Use disposable headless containers for fast repeatable tests and a persistent ARM Linux guest for installed-session work. Lima is a development tool. Production packaging should install the desktop on the chosen Linux target without requiring Lima.
@@ -147,7 +149,9 @@ When a build or test is live, observe the same process or job until authoritativ
 
 ## Evidence boundary at handoff
 
-At the recorded source snapshot, `1f225782`, the native and package lifecycle jobs passed in [run 41957255179](https://github.com/felixding/nextspace/actions/runs/41957255179). The native audit includes real debugger stacks, non-ELF resource exclusion and the Terminal output acknowledgement, including the actual cursor response, restored TTY, exact input and all 400 scrollback lines. The package audit verifies the completed job, exact revision, full logged lifecycle pass and artifact identity; it does not independently extract that run's package payload.
+At the recorded source snapshot, `4ca9560d`, both full ARM64 jobs pass in [run 41994425337](https://github.com/felixding/nextspace/actions/runs/41994425337). The obsolete X11 runtime paths, workflows and compatibility tests are removed. Independently inspected B9 package artifacts match every payload hash, literal symlink and committed source input. Those packages also pass an isolated Lima PAM/login/logout cycle, with 83 actual process/library hashes verified across authentication and return to the greeter. Their maintained runtime inputs are unchanged through the recorded source snapshot; the installed guest desktop remains preserved.
+
+Earlier debugger, clipboard, rendering and performance evidence remains in the [historical validation record](history/Wayland-Validation-1f225782.json). Keep each result attached to its recorded runtime rather than treating every earlier pass as current qualification.
 
 These results qualify the recorded NEXTSPACE scope. A future project needs its own implementation, visual references and verification. Consult the [implementation status](Wayland-Implementation-Status.md) and [validation summary](Wayland-Validation.json) for continuing NEXTSPACE qualification rather than treating this reusable document as a live progress report.
 
