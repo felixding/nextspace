@@ -181,3 +181,12 @@ frames and HiDPI remain open. Titles containing NUL or exceeding 64 KiB currentl
 fall back. Browser chrome and Chrome, Vivaldi, Firefox and derivatives have no
 qualified form bindings. Closing the private browser removes the memory patches;
 the installed NEXTSPACE session is unchanged.
+
+The helper now advertises optional provider input capabilities and accepts
+first-responder focus and key events over the generic-control transport.
+`check-control-input.py` verifies these round trips for buttons, checkboxes,
+radios and sliders; native AppKit interprets the keys. The pinned browser's
+focus/default-keyboard routing has not been connected to those messages yet.
+The existing 33 mouse/pixel checks, native-action trace and eight scrollbar
+pixel checks still pass with the extended provider. Provider-level input and
+ABI compatibility evidence is in `Libraries/NativeUI/input-qualification.json`.

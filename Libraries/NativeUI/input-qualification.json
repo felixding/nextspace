@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-05",
+  "status": "provider/transport input foundation; application focus and keyboard integration incomplete",
+  "environment": {
+    "system": "Debian 13 ARM64, NEXTSPACE native106",
+    "display": "private headless Wayland/Pixman",
+    "packages_unchanged": true,
+    "all_observed_chromium_renderers_seccomp": 2
+  },
+  "implementation": {
+    "controls": "installed NSButton and NSSlider responders",
+    "key_binding_algorithms_copied": false,
+    "focus_artwork_copied": false,
+    "ABI": 1,
+    "input_extension": "append-only optional fields with size and capability checks",
+    "chromium_rebuilt": false,
+    "underlying_AppKit_rebuilt": false,
+    "provider_and_loader_rebuilt": true
+  },
+  "checks": {
+    "native_input": {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    "native_focus_image_changes": 3,
+    "helper_input_round_trips": [
+      {
+        "kind": 1,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 2,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 3,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 4,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      }
+    ],
+    "unchanged_legacy_scrollbar_images": 30,
+    "previous_provider_accepted": {
+      "previous_provider_input_extension_absent": true
+    },
+    "previous_client_new_loader": true,
+    "previous_loader_and_client_new_provider": true,
+    "no_mapped_private_window": true,
+    "wrong_ABI_rejected": true,
+    "provider_internals_hidden": true,
+    "loader_without_toolkit_dependency": true,
+    "chromium_existing_mouse_fixture": 33,
+    "chromium_scrollbar_images": 8
+  },
+  "binary_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "a6e3010bf0b901ca0699d4b39c1f518e0b1d4571e2fecdfef8bc64b3951e0c12",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "3f56df23283f9239ae393768fca0277e11037fead9a6a7ead98495faf219f07e",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "97b62afffbff0da766927a02855a873a338cea8e1ce9539da127517113bb8daa",
+    "/var/tmp/nextspace-native-ui/input-baseline/libnextspace-native-ui.so.1": "9512ea033e1f25213d0b875ab0ac17cfcdacc877188745f8b4ebe75b3b7a9b82",
+    "/var/tmp/nextspace-native-ui/input-baseline/libnextspace-native-ui-gnustep.so.1": "60d05c9d2376c987b2a521d60e6bf664eeaf53a2722d57654cc2af907288e536",
+    "/var/tmp/nextspace-native-ui/input-baseline/native-controls-probe": "01374d5b536ae8f82dcde863a646ded7ed1741907ab228ee7f3322a2460fc8ef",
+    "/tmp/nextspace-left-scrollbars/package-v13/build/libnextspace-native-scroller.so.1": "5a11964eeb514900fdd7d706b370f419543f4ebc9896bf68c9d8e560584f6042"
+  },
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "eeaedacbe9dcfc6a9f815621562dc726b92afede5835abbe07915f40c5bf815f",
+    "Libraries/NativeUI/Loader.c": "013486b997f8a6c9336e4f3ad94b8791b6157fd85ead020171e680546229e2d9",
+    "Libraries/NativeUI/GNUstep/Provider.h": "8fff42f228fe97fb5ac279449df95b915c93127638c4856996cc67e7f390de92",
+    "Libraries/NativeUI/GNUstep/Provider.m": "fd59bf4603feeb9d68769767e03d13c2933a35bd7bab477a61c5e469a0f544ec",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "546fc93a990fa58ef3c547a47241a6951155e5108dcaca0f33314dc6bfc8429f",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "4a903152265c9bce219b1cb5d850d0b80ca637a63269ba6ed2e1d5ab1f8126fa",
+    "Libraries/NativeUI/GNUstep/Controls.m": "860d4331b10be15386651753e2ec29dda71a5de76d65e0f510aef0588809247c",
+    "Tests/NativeUI/input-probe.c": "94f15b50e42f14daef198c68ee2262f54b9e3952790851e9986c3d36cafbebc5",
+    "Tests/NativeUI/run.py": "97490785949b210aea313b2710479707d53a084ab40c1c63136b97330dc3fc64",
+    "Experiments/ChromiumScrollers/native_controls.py": "0c95f59ac25652fb8d0a2aa79f2bbb8d1c2180bb2768e2affe8781bb666a5c8f",
+    "Experiments/ChromiumScrollers/helper.py": "4369f419bbc9ff33c772888a7c9b8c6a692c6d53478a0eb8f5f6c85790725f88",
+    "Experiments/ChromiumScrollers/protocol.h": "0e7ecc8a378cb398fa9b51c67ffce0c9b0d5e999ec6878f0a4a078cf183809a6",
+    "Experiments/ChromiumScrollers/check-control-input.py": "bdd233b6d552c50baa9dfba585fa2bcac25066f8849f77431c78a38b4d0d215b"
+  },
+  "evidence_sha256": {
+    ".build/native-ui/input-qualified/results.json": "7febb1a3a9959544a1bf6d8cdcda5d5d16cb69ce2abea3c44305f83539defef7",
+    ".build/native-ui/input-qualified/input.stdout": "d7eed2d9f735af363b66091c36bdad90bce63f256466a81162f058899cf4a266",
+    ".build/native-ui/input-qualified/input-kind-1-focused.png": "e8c55fd51a4e512242eba16fb6401afb03b24c672d10b526d5a6a4bb69c903f4",
+    ".build/native-ui/input-qualified/input-kind-2-focused.png": "229e42c367c539cd8e3089b52d8ba9953ca6c56d5cf190f7dcc54badf7090596",
+    ".build/native-ui/input-qualified/input-kind-3-focused.png": "14c1ea8d0c4af8c53e5fde17c0fc3c7df3044c492696128b30181b051eb5b125",
+    ".build/native-ui/input-transport-final.json": "651a7b4599a1a93f607bb838533886fcda690884dd92340a65fe925bf9c251aa",
+    ".build/native-ui/input-browser-qualified/results.json": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17",
+    ".build/native-ui/input-browser-qualified/native-actions.json": "8e9a7c705cebfb6f5841b68f58859c6c97a439f1bd7d93599a307fe9c0b7861f",
+    ".build/native-ui/input-browser-qualified/native-helper.jsonl": "fc8da60a24f60f21b90fccc3aedd13d51ca5eaa307d3c74ddd606381a9380000",
+    ".build/native-ui/input-scrollbar-qualified/results.json": "70a7d088253e2c4cfaa35326d8153fe1cce6c6c49e829c7b6d05107bdbc6bfd1",
+    ".build/native-ui/input-environment-qualified.json": "43abe9f7454029d9b2409eb962aec35daffa495882fb221d9c3e5538982c8dd2",
+    ".build/native-ui/keyboard-source/sources.json": "d5881dfe0895bcc68fc635865d0ad7aa2fcb502388e95ab96a7181e582dd84ab"
+  },
+  "remaining": [
+    "route actual application focus/default keyboard events through this API",
+    "preserve page cancellation and app-model activation without a duplicate widget handler",
+    "connect native navigation requests to actual engine focus models and radio-group context",
+    "default buttons, key equivalents and command/menu models",
+    "offscreen keyboard activation animation",
+    "text input, selection, IME and accessibility",
+    "all remaining controls and browser/frontend families",
+    "physical GPU/HiDPI, cross-process frames and crash recovery",
+    "GTK/Qt full regression after provider separation"
+  ],
+  "previous_provider_source_commit": "6ad473f0"
+}

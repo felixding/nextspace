@@ -107,3 +107,19 @@ pass, including cancellation and destruction during tracking. Keyboard, focus,
 label activation and broader layout coverage are still incomplete. The new types
 are not connected to GTK/Qt or other browser families. Steps 3-5 and the full
 application matrix remain open; this experiment is not globally activated.
+
+The shared provider now also exposes native first-responder focus and logical
+keyboard events through an optional ABI extension. Native button/checkbox/radio
+Space activation, slider keys, focus-ring drawing, focus transfer and navigation
+requests pass direct provider checks and helper round trips. The old loader and
+client work unchanged with the extended provider, and the new loader accepts the
+older provider without advertising unavailable input methods. No key bindings or
+focus artwork were copied into the bridge.
+
+Chromium's actual focus/default-keyboard routing still needs to consume this
+handoff. Page cancellation must run before native input, native actions must
+drive the real DOM activation pipeline, and the engine must not produce a second
+activation for a key sequence already owned by the native control. Native focus
+requests must operate on the engine's real focus model. Radio-group context,
+default buttons and command/menu models also need native integration; adding
+copied Space/Enter/arrow rules to a bridge would not satisfy the requirement.

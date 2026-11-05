@@ -18,6 +18,16 @@ class ControlConfig(C.Structure):
                 ('minimum', C.c_double), ('maximum', C.c_double), ('value', C.c_double),
                 ('enabled', C.c_int), ('state', C.c_int), ('indeterminate', C.c_int), ('title', C.c_char_p)]
 
+class ControlInputRequest(C.Structure):
+    _fields_ = ControlRequest._fields_[:7] + [
+        ('type', C.c_uint32), ('modifiers', C.c_uint32), ('key', C.c_uint32),
+        ('repeat', C.c_uint32), ('unmodified_size', C.c_uint32), ('focused', C.c_int32)]
+
+class KeyEvent(C.Structure):
+    _fields_ = [('size', C.c_uint32), ('type', C.c_uint32), ('modifiers', C.c_uint32),
+                ('key', C.c_uint32), ('repeat', C.c_uint32),
+                ('text', C.c_char_p), ('unmodified_text', C.c_char_p)]
+
 class ControlState(C.Structure):
     _fields_ = [('size', C.c_uint32), ('value', C.c_double), ('state', C.c_int),
                 ('enabled', C.c_int), ('tracking', C.c_int)]
@@ -51,6 +61,17 @@ class NativeControlServer:
         native.nxs_control_draw.restype = bitmap_type
         native.nxs_control_track.argtypes = [C.c_void_p, C.c_double, C.c_double, C.c_uint]
         native.nxs_control_send.argtypes = [C.c_void_p, C.c_int, C.c_double, C.c_double, C.c_uint]
+        self.input_capabilities = 0
+        if hasattr(native, 'nxs_control_input_capabilities'):
+            native.nxs_control_input_capabilities.argtypes = []
+            native.nxs_control_input_capabilities.restype = C.c_uint
+            self.input_capabilities = native.nxs_control_input_capabilities()
+            native.nxs_control_focus.argtypes = [C.c_void_p, C.c_int]
+            native.nxs_control_focus.restype = C.c_int
+            native.nxs_control_focused.argtypes = [C.c_void_p]
+            native.nxs_control_focused.restype = C.c_int
+            native.nxs_control_key.argtypes = [C.c_void_p, C.POINTER(KeyEvent)]
+            native.nxs_control_key.restype = C.c_int
 
     def preferred(self, kind):
         if kind not in self.metric_cache:
@@ -78,9 +99,11 @@ class NativeControlServer:
     def _tracking(self, state):
         return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
 
-    def _respond(self, client, req, state=None, pixels=False):
+    def _respond(self, client, req, state=None, pixels=False, input_result=0):
         response = self.response_type()
         response.magic, response.reserved = MAGIC, req.reserved
+        response.parts[3].x = input_result
+        response.parts[3].width = self.input_capabilities
         data = b''
         if state:
             current = self.native.nxs_control_state(state['native'])
@@ -91,6 +114,8 @@ class NativeControlServer:
             preferred = self.native.nxs_control_size(state['native'])
             response.parts[1].width, response.parts[1].height = preferred.width, preferred.height
             response.parts[2].x = current.enabled
+            if self.input_capabilities & 1:
+                response.parts[3].y = self.native.nxs_control_focused(state['native'])
             if pixels:
                 bitmap = self.native.nxs_control_draw(state['native'], 1)
                 if bitmap.pixels:
@@ -99,6 +124,9 @@ class NativeControlServer:
         self.send(client, response, data)
 
     def message(self, client, data):
+        if len(data) >= 8 and int.from_bytes(data[4:8], 'little') in (7, 8):
+            self.input_message(client, data)
+            return
         if len(data) < C.sizeof(ControlRequest):
             return
         req = ControlRequest.from_buffer_copy(data)
@@ -159,6 +187,40 @@ class NativeControlServer:
                     self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
         self._respond(client, req, state)
+
+    def input_message(self, client, data):
+        if len(data) < C.sizeof(ControlInputRequest):
+            return
+        req = ControlInputRequest.from_buffer_copy(data)
+        if req.magic != MAGIC or req.text_size + req.unmodified_size != len(data) - C.sizeof(req):
+            return
+        state = self.controls.get((req.process, req.control, req.kind))
+        if not state or state['destroy'] or req.text_size + req.unmodified_size > 65536:
+            self._respond(client, req)
+            return
+        result = 0
+        if req.operation == 7 and self.input_capabilities & 1:
+            result = self.native.nxs_control_focus(state['native'], req.focused)
+            self.log('native-form-focus', process=req.process, control=req.control, kind=req.kind,
+                     focused=self.native.nxs_control_focused(state['native']), accepted=result)
+        elif req.operation == 8 and self.input_capabilities & 2:
+            payload = data[C.sizeof(req):]
+            text, unmodified = payload[:req.text_size], payload[req.text_size:]
+            if b'\0' in payload:
+                self._respond(client, req, state)
+                return
+            try:
+                text.decode('utf-8'); unmodified.decode('utf-8')
+            except UnicodeDecodeError:
+                self._respond(client, req, state)
+                return
+            event = KeyEvent(C.sizeof(KeyEvent), req.type, req.modifiers, req.key, req.repeat,
+                             text, unmodified if req.unmodified_size else None)
+            result = self.native.nxs_control_key(state['native'], C.byref(event))
+            # Text is deliberately excluded from the diagnostic log.
+            self.log('native-form-key', process=req.process, control=req.control, kind=req.kind,
+                     type=req.type, result=result, actions=state['actions'])
+        self._respond(client, req, state, input_result=result)
 
     def track(self, state, x, y, modifiers):
         if state['destroy']:

@@ -16,6 +16,9 @@ parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--compositor', default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--backend')
 parser.add_argument('--baseline', type=Path, help='Directory containing the previous legacy shared library')
+parser.add_argument('--previous-provider', type=Path, help='Pre-extension NativeUI provider to test ABI compatibility')
+parser.add_argument('--previous-client', type=Path, help='Pre-extension native-controls-probe to run unchanged')
+parser.add_argument('--previous-loader', type=Path, help='Previous loader directory for the unchanged client/provider-swap check')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -37,23 +40,27 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         line = compositor.stdout.readline().strip()
         assert line.startswith('WAYLAND_DISPLAY='), line
         environment['WAYLAND_DISPLAY'] = line.split('=', 1)[1]
-        with (args.output / 'controls.stderr').open('w') as errors:
-            probe = subprocess.Popen([str(args.build / 'native-ui/native-controls-probe'), str(args.output)] + backend,
-                                     env=dict(environment, NXS_NATIVE_UI_PROBE_HOLD='1'), text=True,
-                                     stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors)
-        try:
-            assert select.select([probe.stdout], [], [], 15)[0], 'Native host startup'
-            first = probe.stdout.readline()
-            assert json.loads(first)['event'] == 'host-live', first
-            windows = command('windows')
-            assert not any(window['buffer_width'] > 0 for window in windows), windows
-            probe.stdin.write('\n'); probe.stdin.flush()
-            output, _ = probe.communicate(timeout=20)
-            (args.output / 'controls.stdout').write_text(output)
-            assert probe.returncode == 0, (probe.returncode, (args.output / 'controls.stderr').read_text())
-        finally:
-            if probe.poll() is None:
-                probe.kill(); probe.wait()
+        def held_probe(binary, arguments, hold, label):
+            with (args.output / (label + '.stderr')).open('w') as errors:
+                probe = subprocess.Popen([str(binary)] + arguments + backend,
+                                         env=dict(environment, **{hold: '1'}), text=True,
+                                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors)
+            try:
+                assert select.select([probe.stdout], [], [], 15)[0], 'Native host startup'
+                first = probe.stdout.readline()
+                assert json.loads(first)['event'] == 'host-live', (first, (args.output / (label + '.stderr')).read_text())
+                windows = command('windows')
+                assert not any(window['buffer_width'] > 0 for window in windows), windows
+                probe.stdin.write('\n'); probe.stdin.flush()
+                output, _ = probe.communicate(timeout=20)
+                (args.output / (label + '.stdout')).write_text(output)
+                assert probe.returncode == 0, (probe.returncode, (args.output / (label + '.stderr')).read_text())
+                return output
+            finally:
+                if probe.poll() is None:
+                    probe.kill(); probe.wait()
+        output = held_probe(args.build / 'native-ui/native-controls-probe', [str(args.output)],
+                            'NXS_NATIVE_UI_PROBE_HOLD', 'controls')
         records = [json.loads(line) for line in output.splitlines() if line.startswith('{')]
         assert len(records) == 5, records
         for path in args.output.glob('kind-*.argb'):
@@ -67,6 +74,34 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         assert legacy.returncode == 0, (legacy.returncode, legacy.stderr)
         native_tracking = json.loads(legacy.stdout)
         checks = dict(controls=records, legacy_tracking=native_tracking, no_mapped_backing_window=True)
+        input_output = held_probe(args.build / 'native-ui/native-input-probe', [str(args.output)],
+                                  'NXS_NATIVE_UI_INPUT_HOLD', 'input')
+        checks['native_input'] = json.loads(input_output)
+        for path in args.output.glob('input-kind-*.argb'):
+            Image.frombytes('RGBA', (128, 24), path.read_bytes(), 'raw', 'BGRA').save(path.with_suffix('.png'))
+        if args.previous_provider:
+            previous = subprocess.run([str(args.build / 'native-ui/native-input-probe'), '--expect-no-input'] + backend,
+                env=dict(environment, NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_provider.resolve())),
+                text=True, capture_output=True, timeout=10)
+            assert previous.returncode == 0, (previous.returncode, previous.stderr)
+            checks['previous_provider_accepted_without_input_extension'] = json.loads(previous.stdout)
+        if args.previous_client:
+            destination = args.output / 'previous-client'
+            destination.mkdir(exist_ok=True)
+            previous = subprocess.run([str(args.previous_client.resolve()), str(destination)] + backend,
+                env=dict(environment, LD_LIBRARY_PATH=str((args.build / 'native-ui').resolve())),
+                text=True, capture_output=True, timeout=20)
+            assert previous.returncode == 0, (previous.returncode, previous.stderr)
+            assert len([line for line in previous.stdout.splitlines() if line.startswith('{')]) == 5
+            checks['previous_client_unchanged_with_new_provider'] = True
+            if args.previous_loader:
+                previous = subprocess.run([str(args.previous_client.resolve()), str(destination)] + backend,
+                    env=dict(environment, LD_LIBRARY_PATH=str(args.previous_loader.resolve()),
+                             NEXTSPACE_NATIVE_UI_PROVIDER=str((args.build / 'native-ui/libnextspace-native-ui-gnustep.so.1').resolve())),
+                    text=True, capture_output=True, timeout=20)
+                assert previous.returncode == 0, (previous.returncode, previous.stderr)
+                assert len([line for line in previous.stdout.splitlines() if line.startswith('{')]) == 5
+                checks['previous_loader_and_client_unchanged_with_new_provider'] = True
         # Load the same clients through an independently selected provider.
         sources = Path(__file__).resolve().parent
         headers = sources.parents[1] / 'Libraries/NativeUI'

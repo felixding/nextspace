@@ -115,3 +115,9 @@ void nxs_gnustep_control_track(NXSControl *control,double x,double y,unsigned mo
 {if(control&&control->enabled&&control->kind!=NXS_PROGRESS)nxs_host_track(control->host,x,y,modifiers);}
 void nxs_gnustep_control_send(NXSControl *control,int event,double x,double y,unsigned modifiers)
 {if(control)nxs_host_send(control->host,event,x,y,modifiers);}
+int nxs_gnustep_control_focus(NXSControl *control,int focused)
+{return control&&(!focused||(control->enabled&&control->kind!=NXS_PROGRESS))?nxs_host_focus(control->host,focused):0;}
+int nxs_gnustep_control_focused(NXSControl *control)
+{return control?nxs_host_focused(control->host):0;}
+int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
+{return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_key(control->host,event):NXS_INPUT_UNHANDLED;}

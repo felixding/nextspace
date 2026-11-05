@@ -2,6 +2,7 @@
 #ifndef NEXTSPACE_NATIVE_UI_H
 #define NEXTSPACE_NATIVE_UI_H
 #include <stdint.h>
+#include <stddef.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,6 +34,21 @@ typedef struct {
 } NXSControlState;
 typedef void (*NXSControlChanged)(void *context, int event, const NXSControlState *state);
 
+enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
+enum NXSKeyType { NXS_KEY_DOWN, NXS_KEY_UP, NXS_KEY_MODIFIERS };
+enum NXSKey {
+  NXS_KEY_TEXT, NXS_KEY_ENTER, NXS_KEY_TAB, NXS_KEY_BACKSPACE, NXS_KEY_DELETE,
+  NXS_KEY_ESCAPE, NXS_KEY_LEFT, NXS_KEY_RIGHT, NXS_KEY_UP_ARROW, NXS_KEY_DOWN_ARROW,
+  NXS_KEY_HOME, NXS_KEY_END, NXS_KEY_PAGE_UP, NXS_KEY_PAGE_DOWN, NXS_KEY_INSERT,
+  NXS_KEY_F1 = 32, NXS_KEY_F24 = NXS_KEY_F1 + 23
+};
+enum NXSInputResult { NXS_INPUT_UNHANDLED, NXS_INPUT_HANDLED, NXS_INPUT_NEXT, NXS_INPUT_PREVIOUS };
+typedef struct {
+  uint32_t size, type, modifiers, key, repeat;
+  /* NUL-terminated UTF-8. NULL text is empty; NULL unmodified_text uses text. */
+  const char *text, *unmodified_text;
+} NXSKeyEvent;
+
 /* The provider owns all native objects, metrics, drawing and interaction.
  * Consumers own application models and translate events through this C ABI.
  * Coordinates are logical units from the top-left of the returned bitmap.
@@ -58,7 +74,12 @@ typedef struct {
   NXSBitmap (*control_draw)(NXSControl *, double);
   void (*control_track)(NXSControl *, double, double, unsigned);
   void (*control_send)(NXSControl *, int, double, double, unsigned);
+  /* Optional append-only input extension. Check size before reading fields. */
+  int (*control_focus)(NXSControl *, int);
+  int (*control_focused)(NXSControl *);
+  int (*control_key)(NXSControl *, const NXSKeyEvent *);
 } NXSNativeUIAPI;
+#define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
 /* Loader API. The GNUstep provider is the default. An alternate provider may
  * implement nxs_native_ui_provider(version) and be selected by
@@ -73,6 +94,10 @@ NXSSize nxs_control_size(NXSControl *control);
 NXSBitmap nxs_control_draw(NXSControl *control, double scale);
 void nxs_control_track(NXSControl *control, double x, double y, unsigned modifiers);
 void nxs_control_send(NXSControl *control, int event, double x, double y, unsigned modifiers);
+unsigned nxs_control_input_capabilities(void);
+int nxs_control_focus(NXSControl *control, int focused);
+int nxs_control_focused(NXSControl *control);
+int nxs_control_key(NXSControl *control, const NXSKeyEvent *event);
 
 #ifdef __cplusplus
 }

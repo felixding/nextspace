@@ -53,6 +53,7 @@ def run(library,path):
         if req.operation==7:
             result.parts[0].height=bool(forms)
             if forms:
+                result.parts[4].width=forms.input_capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):

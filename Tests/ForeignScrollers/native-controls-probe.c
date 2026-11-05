@@ -29,7 +29,7 @@ int main(int argc,char **argv)
   assert(argc>1);const char *directory=argv[1];
   const NXSNativeUIAPI *api=nxs_native_ui_api();
   if(!api){fprintf(stderr,"%s\n",nxs_native_ui_error());return 1;}
-  assert(api->version==NXS_NATIVE_UI_ABI&&api->size>=sizeof(*api));
+  assert(api->version==NXS_NATIVE_UI_ABI&&api->size>=NXS_NATIVE_UI_CORE_SIZE);
   assert(!nxs_control_create(100,changed,pump,NULL));
   for(int kind=NXS_BUTTON;kind<=NXS_PROGRESS;kind++) {
     struct Probe p={0};p.control=nxs_control_create(kind,changed,pump,&p);assert(p.control);

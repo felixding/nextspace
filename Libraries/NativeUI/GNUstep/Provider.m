@@ -12,7 +12,9 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_create=nxs_gnustep_control_create,.control_destroy=nxs_gnustep_control_destroy,
     .control_sync=nxs_gnustep_control_sync,.control_state=nxs_gnustep_control_state,
     .control_size=nxs_gnustep_control_size,.control_draw=nxs_gnustep_control_draw,
-    .control_track=nxs_gnustep_control_track,.control_send=nxs_gnustep_control_send
+    .control_track=nxs_gnustep_control_track,.control_send=nxs_gnustep_control_send,
+    .control_focus=nxs_gnustep_control_focus,.control_focused=nxs_gnustep_control_focused,
+    .control_key=nxs_gnustep_control_key
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

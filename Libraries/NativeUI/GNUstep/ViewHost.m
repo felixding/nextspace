@@ -13,22 +13,34 @@ struct NXSViewHost {
   unsigned modifiers;
   NSPoint pointer;
   BOOL release_queued;
+  unsigned dispatch_depth;
+  int key_result;
+  NSResponder *fallback;
 };
-static NXSViewHost *active;
+static NXSViewHost *active,*focused;
 /* The native control owns the tracking loop. While it waits, dispatch the embedding
  * toolkit so real pointer events and its other windows remain responsive. */
 @interface NXSApplication : NSApplication
-- (void)trackView:(NSView *)view event:(NSEvent *)event;
+- (void)dispatchNativeEvent:(NSEvent *)event to:(NSResponder *)responder;
 @end
 @implementation NXSApplication
-- (void)trackView:(NSView *)view event:(NSEvent *)event
+- (void)dispatchNativeEvent:(NSEvent *)event to:(NSResponder *)responder
 {
   /* NSCell expects the initiating event to be NSApp.currentEvent, just as
    * when AppKit dispatches a real mouseDown. */
   NSEvent *previous=[_current_event retain];
   [_current_event release];_current_event=[event retain];
-  @try {[view mouseDown:event];}
-  @finally {[_current_event release];_current_event=previous;}
+  [responder retain];
+  @try {
+    switch([event type]) {
+      case NSLeftMouseDown:[responder mouseDown:event];break;
+      case NSKeyDown:[responder keyDown:event];break;
+      case NSKeyUp:[responder keyUp:event];break;
+      case NSFlagsChanged:[responder flagsChanged:event];break;
+      default:break;
+    }
+  }
+  @finally {[responder release];[_current_event release];_current_event=previous;}
 }
 - (NSEvent *)nextEventMatchingMask:(NSUInteger)mask untilDate:(NSDate *)limit
                            inMode:(NSString *)mode dequeue:(BOOL)dequeue
@@ -45,6 +57,16 @@ static NXSViewHost *active;
 }
 @end
 
+/* Unhandled keys return to the embedding application. Native responders and
+ * NSWindow still interpret the key; the host supplies no key-binding rules. */
+@interface NXSInputFallback : NSResponder { @public NXSViewHost *control; }
+@end
+@implementation NXSInputFallback
+- (void)keyDown:(NSEvent *)event {control->key_result=NXS_INPUT_UNHANDLED;}
+- (void)keyUp:(NSEvent *)event {control->key_result=NXS_INPUT_UNHANDLED;}
+- (void)flagsChanged:(NSEvent *)event {control->key_result=NXS_INPUT_UNHANDLED;}
+@end
+
 @interface NXSBackingWindow : NSWindow { @public NXSViewHost *control; }
 @end
 @implementation NXSBackingWindow
@@ -53,6 +75,9 @@ static NXSViewHost *active;
  * embedding widget; never submit this private window to the compositor. */
 - (void)flushWindow {}
 - (void)flushWindowIfNeeded {}
+/* The application owns its focus order. Export the native window's requests. */
+- (void)selectNextKeyView:(id)sender {control->key_result=NXS_INPUT_NEXT;}
+- (void)selectPreviousKeyView:(id)sender {control->key_result=NXS_INPUT_PREVIOUS;}
 @end
 
 static NSUInteger flags(unsigned modifiers)
@@ -106,15 +131,19 @@ NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
     styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
   window->control=host;host->window=window;
   [window setReleasedWhenClosed:NO];
+  NXSInputFallback *fallback=[NXSInputFallback new];fallback->control=host;
+  host->fallback=fallback;[window setNextResponder:fallback];
   [[window contentView] addSubview:view];
   return host;
 }
 int nxs_host_destroy(NXSViewHost *host)
 {
   if(!host)return 1;
-  if(host->tracking)return 0;
+  if(host->tracking||host->dispatch_depth)return 0;
+  if(focused==host&&!nxs_host_focus(host,0))return 0;
   [host->view removeFromSuperview];
   [host->window close];[host->window release];[host->view release];
+  [host->fallback release];
   [host->bitmap release];free(host->pixels);free(host);
   return 1;
 }
@@ -173,7 +202,7 @@ void nxs_host_track(NXSViewHost *control, double x, double y, unsigned modifiers
   if([control->view needsDisplay])nxs_host_draw(control,1);
   active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;
   NSEvent *event=mouse(control,NSLeftMouseDown,x,y,modifiers);control->pointer=[event locationInWindow];
-  @try { [(NXSApplication *)NSApp trackView:control->view event:event]; }
+  @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:control->view]; }
   @finally { control->tracking = NO; active = NULL; }
   [pool drain];
 }
@@ -195,4 +224,74 @@ void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned
   [pool drain];
 }
 
-int nxs_host_tracking(NXSViewHost *host){return host&&host->tracking;}
+int nxs_host_tracking(NXSViewHost *host){return host&&(host->tracking||host->dispatch_depth);}
+
+int nxs_host_focused(NXSViewHost *host)
+{return host&&focused==host&&[host->window firstResponder]==host->view;}
+int nxs_host_focus(NXSViewHost *host,int focus)
+{
+  if(!host)return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  int accepted=1;
+  if(focus) {
+    if(![host->view acceptsFirstResponder])accepted=0;
+    else {
+      NXSViewHost *previous=focused;
+      if(previous&&previous!=host&&![previous->window makeFirstResponder:nil])accepted=0;
+      else if(![host->window makeFirstResponder:host->view]) {
+        accepted=0;
+        if(previous)[previous->window makeFirstResponder:previous->view];
+      } else focused=host;
+    }
+  } else if(focused==host) {
+    accepted=[host->window makeFirstResponder:nil];
+    if(accepted)focused=NULL;
+  }
+  [pool drain];return accepted;
+}
+
+static NSString *key_characters(const NXSKeyEvent *event,BOOL unmodified)
+{
+  unichar key=0;
+  switch(event->key) {
+    case NXS_KEY_TEXT: {
+      const char *text=unmodified&&event->unmodified_text?event->unmodified_text:event->text;
+      return text?[NSString stringWithUTF8String:text]:@"";
+    }
+    case NXS_KEY_ENTER:key=NSCarriageReturnCharacter;break;
+    case NXS_KEY_TAB:key=NSTabCharacter;break;
+    case NXS_KEY_BACKSPACE:key=NSDeleteCharacter;break;
+    case NXS_KEY_DELETE:key=NSDeleteFunctionKey;break;
+    case NXS_KEY_ESCAPE:key=0x1b;break;
+    case NXS_KEY_LEFT:key=NSLeftArrowFunctionKey;break;
+    case NXS_KEY_RIGHT:key=NSRightArrowFunctionKey;break;
+    case NXS_KEY_UP_ARROW:key=NSUpArrowFunctionKey;break;
+    case NXS_KEY_DOWN_ARROW:key=NSDownArrowFunctionKey;break;
+    case NXS_KEY_HOME:key=NSHomeFunctionKey;break;
+    case NXS_KEY_END:key=NSEndFunctionKey;break;
+    case NXS_KEY_PAGE_UP:key=NSPageUpFunctionKey;break;
+    case NXS_KEY_PAGE_DOWN:key=NSPageDownFunctionKey;break;
+    case NXS_KEY_INSERT:key=NSInsertFunctionKey;break;
+    default:if(event->key>=NXS_KEY_F1&&event->key<=NXS_KEY_F24)key=NSF1FunctionKey+event->key-NXS_KEY_F1;
+  }
+  return key?[NSString stringWithCharacters:&key length:1]:nil;
+}
+int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *input)
+{
+  if(!host||!input||input->size<sizeof(*input)||input->type>NXS_KEY_MODIFIERS||
+     active||!nxs_host_focused(host))return NXS_INPUT_UNHANDLED;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSString *text=key_characters(input,NO),*unmodified=key_characters(input,YES);
+  if(!text||!unmodified){[pool drain];return NXS_INPUT_UNHANDLED;}
+  if([host->view needsDisplay])nxs_host_draw(host,1);
+  NSUInteger modifiers=flags(input->modifiers);
+  if(input->key>=NXS_KEY_LEFT)modifiers|=NSFunctionKeyMask;
+  NSEvent *event=[NSEvent keyEventWithType:input->type==NXS_KEY_DOWN?NSKeyDown:input->type==NXS_KEY_UP?NSKeyUp:NSFlagsChanged
+    location:NSZeroPoint modifierFlags:modifiers timestamp:[NSDate timeIntervalSinceReferenceDate]
+    windowNumber:[host->window windowNumber] context:nil characters:text
+    charactersIgnoringModifiers:unmodified isARepeat:!!input->repeat keyCode:0];
+  host->key_result=NXS_INPUT_HANDLED;host->dispatch_depth++;active=host;
+  @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:[host->window firstResponder]];}
+  @finally {host->dispatch_depth--;active=NULL;}
+  int result=host->key_result;[pool drain];return result;
+}

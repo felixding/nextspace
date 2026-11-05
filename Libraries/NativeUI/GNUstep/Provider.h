@@ -18,3 +18,6 @@ NXSSize nxs_gnustep_control_size(NXSControl *);
 NXSBitmap nxs_gnustep_control_draw(NXSControl *,double);
 void nxs_gnustep_control_track(NXSControl *,double,double,unsigned);
 void nxs_gnustep_control_send(NXSControl *,int,double,double,unsigned);
+int nxs_gnustep_control_focus(NXSControl *,int);
+int nxs_gnustep_control_focused(NXSControl *);
+int nxs_gnustep_control_key(NXSControl *,const NXSKeyEvent *);

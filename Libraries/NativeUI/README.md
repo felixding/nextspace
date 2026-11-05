@@ -34,8 +34,41 @@ the top-left of the returned bitmap; the provider handles its UI library's nativ
 coordinate system. `control_destroy` returns zero during active native
 tracking; forward release, allow tracking to return, then destroy the control.
 
+The optional input extension exposes first-responder focus and keyboard events
+for the button, checkbox, radio and slider controls. Query
+`nxs_control_input_capabilities()` before using it. `nxs_control_focus` asks the
+native window/control to accept or resign focus; `nxs_control_focused` reads that
+native state. The provider draws its own focus ring. It does not replace one
+with bridge artwork.
+
+`nxs_control_key` translates the public logical key/UTF-8 data into a native
+event and calls the actual responder with `NSApp.currentEvent` set. The native
+control defines activation, slider movement and key bindings. Unhandled events
+return `NXS_INPUT_UNHANDLED`. The native window's next/previous focus requests
+return `NXS_INPUT_NEXT` or `NXS_INPUT_PREVIOUS`; the application supplies its
+focus order and applies that request to its own model. No native key-binding or
+slider-step algorithm is copied into this API. Physical modifier translation
+uses the same UI-library preferences as mouse tracking.
+Unhandled input goes back to application command routing, while the native
+provider continues to own the widget's keyboard behavior.
+
+Keyboard dispatch also owns the native control's stack while its action callback
+runs. `tracking` reports this busy state, and destruction returns zero until
+dispatch returns. Keyboard input to an unfocused/disabled control, or during
+another native input dispatch, is rejected. Text and IME editing, default-button
+command models, key equivalents, offscreen keyboard activation animation and
+application focus traversal still need their
+broader integration contracts.
+
+The input function pointers are appended to ABI version 1. The loader validates
+the original `NXS_NATIVE_UI_CORE_SIZE` prefix and checks the advertised structure
+size before reading optional fields. Older providers keep their original
+controls and report no input capabilities. An older loader/client can also use
+the new provider unchanged. This preserves the separation while the API grows.
+
 This is an initial implementation of the shared host, not full browser support.
-Text editing, focus/IME, accessibility, menus, lists/trees, tabs, popup controls,
+Text editing, engine/frontend focus and keyboard routing, IME, accessibility,
+menus, lists/trees, tabs, popup controls,
 progress animation
 and engine/frontend adapters for the new control types remain to implement.
 The provider ABI is under development until that broader contract is qualified.
@@ -66,6 +99,18 @@ safe deferred destruction. It also checks that private backing windows never
 map, that the C loader has no UI toolkit dependency, that provider internals are
 not exported, and that selecting a relay provider preserves the same native
 behavior in the unchanged test client. An incompatible provider ABI is rejected.
+
+The input probe additionally checks native Space actions, slider arrow/Home/End
+actions, focus transfer, actual focus-ring image changes, next/previous focus
+requests, disabled/unfocused input and safe destruction during keyboard
+callbacks. `--previous-provider`, `--previous-client` and `--previous-loader`
+can verify both directions of the optional-extension compatibility contract using
+saved pre-extension binaries. These checks passed on the same private ARM64
+setup, including 30 unchanged scrollbar comparisons. The helper transport also
+passes native focus/key round trips for all four types. The existing Chromium
+mouse fixture still passes 33 checks and its native action trace; eight scrollbar
+pixel checks pass. This does not qualify Chromium keyboard routing, which remains
+to connect. See `input-qualification.json` and `.build/native-ui/input-*`.
 
 `--baseline DIRECTORY` adds byte-for-byte comparisons against the prior
 `libnextspace-native-scroller.so.1`, using the same executable and both scrollbar

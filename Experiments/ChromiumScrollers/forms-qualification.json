@@ -85,5 +85,6 @@
     "text fields, sliders, progress, menus, popups, lists and tabs in applications",
     "browser chrome and Chrome/Vivaldi/Firefox/derivative bindings",
     "GTK/Qt full regression following provider separation"
-  ]
+  ],
+  "tested_source_commit": "e957a68b"
 }

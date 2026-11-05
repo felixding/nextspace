@@ -10,8 +10,8 @@ parser.add_argument('--log', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 args = parser.parse_args()
 rows = [json.loads(line) for line in args.log.read_text().splitlines()]
-# The independent RPC probe has its own explicit process identity.
-rows = [row for row in rows if row.get('process') != 0x54455354]
+# The independent RPC probes have their own explicit process identities.
+rows = [row for row in rows if row.get('process') not in (0x54455354, 0x494e5054)]
 actions = [row for row in rows if row['event'] == 'native-form-action']
 presses = [row for row in rows if row['event'] == 'native-form-press']
 releases = [row for row in rows if row['event'] == 'native-form-release']

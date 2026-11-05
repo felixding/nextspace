@@ -17,7 +17,7 @@ static void load_provider(void)
   const NXSNativeUIAPI *(*provider)(uint32_t)=dlsym(library,"nxs_native_ui_provider");
   if(!provider){snprintf(error,sizeof(error),"Native UI provider has no ABI entry point");return;}
   const NXSNativeUIAPI *candidate=provider(NXS_NATIVE_UI_ABI);
-  if(!candidate||candidate->version!=NXS_NATIVE_UI_ABI||candidate->size<sizeof(NXSNativeUIAPI)) {
+  if(!candidate||candidate->version!=NXS_NATIVE_UI_ABI||candidate->size<NXS_NATIVE_UI_CORE_SIZE) {
     snprintf(error,sizeof(error),"Unsupported native UI provider ABI");return;
   }
   if(!candidate->scroller_create||!candidate->scroller_destroy||!candidate->scroller_width||
@@ -50,3 +50,16 @@ void nxs_control_track(NXSControl *c,double x,double y,unsigned m)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_track(c,x,y,m);}
 void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_send(c,event,x,y,m);}
+#define HAS_INPUT(p, field) ((p) && (p)->size >= offsetof(NXSNativeUIAPI, field)+sizeof((p)->field) && (p)->field)
+unsigned nxs_control_input_capabilities(void)
+{
+  const NXSNativeUIAPI *p=nxs_native_ui_api();
+  return (HAS_INPUT(p,control_focus)&&HAS_INPUT(p,control_focused)?NXS_INPUT_FOCUS:0) |
+    (HAS_INPUT(p,control_key)?NXS_INPUT_KEYBOARD:0);
+}
+int nxs_control_focus(NXSControl *c,int focused)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_focus)?p->control_focus(c,focused):0;}
+int nxs_control_focused(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_focused)?p->control_focused(c):0;}
+int nxs_control_key(NXSControl *c,const NXSKeyEvent *event)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_key)?p->control_key(c,event):NXS_INPUT_UNHANDLED;}

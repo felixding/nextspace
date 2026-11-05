@@ -30,4 +30,15 @@ struct NXSControlRequest {
   int32_t enabled, state, indeterminate;
   uint32_t modifiers;
 };
+/* Optional input extension, advertised by bootstrap part 4.width.
+ * Operations 7 focus, 8 key. UTF-8 text then unmodified text follow this
+ * header. Response part 3: input result, focused, supported capabilities.
+ * Key/type/modifier values are the public NativeUI C ABI values. */
+struct NXSControlInputRequest {
+  uint32_t magic, operation, process, kind;
+  uint64_t control;
+  uint32_t text_size, reserved;
+  uint32_t type, modifiers, key, repeat, unmodified_size;
+  int32_t focused;
+};
 #endif
