@@ -25,7 +25,7 @@ required integration surfaces differ:
 | Surface | Required integration | Current evidence |
 | --- | --- | --- |
 | GTK and Qt widgets | Toolkit object/layout/input adapters | Existing adapters cover scrollbars only. |
-| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars and partial standard button/checkbox/radio integration. |
+| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio integration and determinate progress binding. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented or binary qualified. |
@@ -134,3 +134,19 @@ buttons in the pinned binary. Native activation animation, radio-group keyboard
 context, default buttons, command/menu models, IME, accessibility and other
 engine/frontend integrations remain open. See
 [`input-qualification.json`](../Experiments/ChromiumScrollers/input-qualification.json).
+
+The same provider's existing `NSProgressIndicator` now supplies determinate HTML
+progress bars in the pinned experiment with `NEXTSPACE_CHROMIUM_PROGRESS=1`.
+Chromium's actual `HTMLProgressElement::position()` supplies its validated
+value/max ratio; the bridge adds no parsing, clamping or native artwork. Progress
+objects are excluded from button tracking and focus ownership, preserving their
+ordinary read-only DOM click behavior. Twenty fixture checks cover whole native
+images, model changes, resize, replacement, reinsertion and reload. The provider
+and the UI library were unchanged for this binding.
+
+Indeterminate progress remains on the browser path until native animation timers
+and invalidation are connected. One early initial-frame screenshot also showed
+browser artwork in the first determinate bar; model invalidation corrected it,
+and later fresh runs passed, but its cause remains unresolved. The diagnostics
+and initial-frame test preserve that gap. See
+[`progress-qualification.json`](../Experiments/ChromiumScrollers/progress-qualification.json).

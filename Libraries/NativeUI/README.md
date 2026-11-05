@@ -115,6 +115,12 @@ The later optional Chromium focus/keyboard binding passes 62 browser assertions
 and independent native-action traces using this unchanged provider. Its narrower
 browser qualification and remaining gaps are recorded separately in
 [`Experiments/ChromiumScrollers/input-qualification.json`](../../Experiments/ChromiumScrollers/input-qualification.json).
+The provider's existing determinate `NSProgressIndicator` is also connected to
+that pinned browser's HTML progress model. This required no provider or UI-library
+change; its pixels and resize/model behavior pass 20 browser checks. That partial
+binding, its unresolved early initial-frame fallback and the remaining native
+animation work are recorded in
+[`progress-qualification.json`](../../Experiments/ChromiumScrollers/progress-qualification.json).
 
 `--baseline DIRECTORY` adds byte-for-byte comparisons against the prior
 `libnextspace-native-scroller.so.1`, using the same executable and both scrollbar

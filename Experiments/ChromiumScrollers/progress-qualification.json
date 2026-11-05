@@ -1,0 +1,190 @@
+{
+  "date": "2026-11-05",
+  "status": "opt-in determinate progress binding in one pinned Chromium; initial fallback and full integration remain unresolved",
+  "base_commit": "851631b5",
+  "chromium": {
+    "package": "156.0.8078.79-1~deb13u1 ARM64",
+    "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "source_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "rebuilt": false
+  },
+  "environment": {
+    "distribution": "Debian 13 ARM64",
+    "nextspace": "native106",
+    "display": "private headless Wayland/Pixman",
+    "scale": 1,
+    "viewport": [
+      868,
+      571
+    ],
+    "renderers_seccomp": 2,
+    "renderers_no_new_privileges": 1,
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "installed_session_activated": false,
+    "owned_test_processes_cleaned_up": true
+  },
+  "separation": {
+    "interface": "existing NativeUI C ABI 1",
+    "control": "installed AppKit NSProgressIndicator",
+    "browser_model": "actual HTMLProgressElement::position(), including HTML validation/defaults/clamping",
+    "bridge": "model, geometry and pixel transport; progress excluded from button/input ownership",
+    "control_implementations_copied": false,
+    "provider_changed": false,
+    "UI_library_changed": false,
+    "UI_library_rebuilt": false
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "5498c51eed8f71408660f740604cb5bbddd81951ecde1105278fb74b75629803",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "3f56df23283f9239ae393768fca0277e11037fead9a6a7ead98495faf219f07e",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "97b62afffbff0da766927a02855a873a338cea8e1ce9539da127517113bb8daa"
+  },
+  "checks": {
+    "final_assertions": 20,
+    "native_pixel_comparisons": 16,
+    "browser_behavior_assertions": 4,
+    "native_trace": {
+      "passed": true,
+      "created": 18,
+      "destroyed": 10,
+      "current_document_controls": 8,
+      "model_updates": 22,
+      "native_actions": 0,
+      "native_input_requests": 0
+    },
+    "progress_passes_with_input_enabled": true,
+    "progress_passes_with_input_disabled": true,
+    "scrollbar_pixel_regressions": 8,
+    "existing_input_assertions": 62,
+    "existing_mouse_assertions": 33,
+    "regression_build_note": "Input/mouse checks preceded the final progress element-type guard and diagnostic limit. Their routing was unchanged by those edits.",
+    "native_input_trace": {
+      "passed": true,
+      "native_actions": {
+        "1": 5,
+        "2": 5,
+        "3": 5
+      },
+      "keyboard_actions": 12,
+      "mouse_actions": 3,
+      "next_focus_requests": 1,
+      "previous_focus_requests": 1,
+      "key_events": 35,
+      "presses": 3,
+      "releases": 3
+    },
+    "native_mouse_trace": {
+      "native_actions": {
+        "1": 6,
+        "2": 6,
+        "3": 4
+      },
+      "presses": 19,
+      "releases": 19,
+      "cancelled_gestures": 3,
+      "passed": true
+    }
+  },
+  "open_initial_frame_issue": {
+    "status": "unresolved",
+    "observed": "The first zero-value progress bar used browser artwork in one early startup screenshot; a value update produced exact native pixels.",
+    "evidence": [
+      ".build/native-ui/chromium-progress/initial.png",
+      ".build/native-ui/chromium-progress/zero-updated.png"
+    ],
+    "later_evidence": "Three later progress suites, including fresh helper startup and reload checks, passed. This does not explain the original failure.",
+    "root_cause": "unknown"
+  },
+  "source_sha256": {
+    "forms.inc": "1d6726fdc53e358729c10add9c297198376a87fdca9e2991b2db077d9700d205",
+    "forms-input.inc": "f3282d5b5d4c9f00fb5d257422aadf0fab02e8109d53eb4bdb24f527c90440cd",
+    "forms-progress.inc": "b8f8f70918236ea25532bbdd0028c898a20d4a9a70ed2a5ff66b2051717abbe7",
+    "hook.c": "0b464af3f1e901aea6967c7fbe3d0d17a95ba640a8ce4f9ceb314b9cbc7d81d9",
+    "pinned-progress.h": "b49d27bb426e8c8eb7d079bc1b3e2f155de071775c77f4b716d7e57543eb103c",
+    "native_controls.py": "fef3979da939ebe4f477ab8e2343377a41a8a958c33d8495d19d5d63d632c5c2",
+    "native-control-reference.py": "ca456c8f69d27378958a91db3ebef7d6ea704152b89378c442ff7cdbf41f5bd3",
+    "check-progress.py": "a7010c77e1e60aa25a1e1f61eb1453fc09765a211ebe57a36a01a268a11e2c7e",
+    "check-progress-trace.py": "d2d60511cc7c1991cb65076fa8f0962576332e4e1cc9a67cfa33c2f436c65af2",
+    "test-progress.html": "acd39d8254b91f3e222fe6503875dbd92abcbabffde47ce5d04286418d588b37",
+    "protocol.h": "0e7ecc8a378cb398fa9b51c67ffce0c9b0d5e999ec6878f0a4a078cf183809a6",
+    "helper.py": "4369f419bbc9ff33c772888a7c9b8c6a692c6d53478a0eb8f5f6c85790725f88"
+  },
+  "pinned_source_receipts": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/theme_painter_default.cc",
+      "sha256": "1ef50eae3d648a0d488dbb1b8a7d62ea3f658a92ded8741eab6de909437c9ab7"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/html_progress_element.cc",
+      "sha256": "3dfd1f7799446ff4bbe8de40fd8d0e3c0156c8d49789d8012816b6778afbbf6e"
+    }
+  ],
+  "evidence": {
+    ".build/native-ui/chromium-progress/final/cleanup.json": "1c2675c88b4bdc1dce22a4b5b35d4c8ce3fa73eec8bfa945828304ad8dc66dce",
+    ".build/native-ui/chromium-progress/final/determinate-restored.png": "ce8891ff9f351f0001065717e3a0063afae06608ecdf42d7cc298fab7c6fbd1f",
+    ".build/native-ui/chromium-progress/final/environment.json": "2035eb3d9a149c2b2b39391a6b81b8aab3288c33fd8a44ea82224342f862ed82",
+    ".build/native-ui/chromium-progress/final/initial-clamped.png": "079c6ff72416a5c49264b4dc748fa47dd3a74cbe44f0328ed855094903d739ae",
+    ".build/native-ui/chromium-progress/final/initial-default-max.png": "14f1abecf051f73b6edf5410ac57b4165355c1e1510d84b694613a27e255daec",
+    ".build/native-ui/chromium-progress/final/initial-full.png": "079c6ff72416a5c49264b4dc748fa47dd3a74cbe44f0328ed855094903d739ae",
+    ".build/native-ui/chromium-progress/final/initial-invalid-max.png": "14f1abecf051f73b6edf5410ac57b4165355c1e1510d84b694613a27e255daec",
+    ".build/native-ui/chromium-progress/final/initial-invalid-value.png": "14f1abecf051f73b6edf5410ac57b4165355c1e1510d84b694613a27e255daec",
+    ".build/native-ui/chromium-progress/final/initial-negative.png": "079c6ff72416a5c49264b4dc748fa47dd3a74cbe44f0328ed855094903d739ae",
+    ".build/native-ui/chromium-progress/final/initial-partial.png": "9552af1dcae31a0d109a9668bfa1548dce9e99ed1cba1f80a0abc4e019a028d6",
+    ".build/native-ui/chromium-progress/final/initial-zero.png": "2d245fbafe5768fab320cc42fb835d3f6afa81e6efffd0f497237f9af4353595",
+    ".build/native-ui/chromium-progress/final/maximum-update.png": "890950a2432d203d48c9644a1bbe33cf3cdc8d7d0fb81f504e1e07b7ad69ea2e",
+    ".build/native-ui/chromium-progress/final/native-helper.jsonl": "73b49fb782b25f55167f6d05fa6a284ab67c6415a5c0ad276c76098b203532bc",
+    ".build/native-ui/chromium-progress/final/native-hook.log": "37aab78904ac691069733f97e1a0f429f9d75db3e34a6038f85228fefad5236d",
+    ".build/native-ui/chromium-progress/final/native-models.json": "b74823ee2662eeed9e46c65f9812cfdaefd08eb8c2ba4aec48729e46b39a1367",
+    ".build/native-ui/chromium-progress/final/native-new-element.png": "f7e89f90e7600d30eb0be230df15a0e61d681842df3772959f8eeb84eeb00b16",
+    ".build/native-ui/chromium-progress/final/native-reinsert.png": "23713d728afcfb6559225d915bc658d6fd753d2ddea24cf816211b62a760838d",
+    ".build/native-ui/chromium-progress/final/native-resize.png": "23713d728afcfb6559225d915bc658d6fd753d2ddea24cf816211b62a760838d",
+    ".build/native-ui/chromium-progress/final/reload-first-control.png": "15413b08eab4880332269ab449e1b47d9e44c7c0a5613db09bdbddff194bc706",
+    ".build/native-ui/chromium-progress/final/reload-value.png": "6e7023da33b3434e2c1de1749816c2bfb3619e892ff76a0ad14a8604075cbd11",
+    ".build/native-ui/chromium-progress/final/results.json": "7390c86b3f8ff0607aa7463c2b86d02e3c9c3025c1b07519b6e3913fb323fff5",
+    ".build/native-ui/chromium-progress/final/scrollbars/empty.png": "d755c76d49703dc1b6c637c6c38e151500c820b414c9cc5314555be177192f67",
+    ".build/native-ui/chromium-progress/final/scrollbars/fitting-again.png": "330670de19b8c0b763c86ebb88c8517ee26e250d2031ef49e7d032d16b616a0f",
+    ".build/native-ui/chromium-progress/final/scrollbars/fitting.png": "330670de19b8c0b763c86ebb88c8517ee26e250d2031ef49e7d032d16b616a0f",
+    ".build/native-ui/chromium-progress/final/scrollbars/overflowing.png": "23304e152d8d3b0692d2213dfb4a64281debe6e16923dcc5bd618d9a2c2953ae",
+    ".build/native-ui/chromium-progress/final/scrollbars/results.json": "70a7d088253e2c4cfaa35326d8153fe1cce6c6c49e829c7b6d05107bdbc6bfd1",
+    ".build/native-ui/chromium-progress/final/value-update.png": "6663fabc5f923a36364b207418583389a98cca467c6f5a82e0cacbb72e26eca6",
+    ".build/native-ui/chromium-progress/progress-references/clamped.png": "44d58ec9648b5f46d89a48dc4fb99b0bcae96c999bda74fb0e4eeb6feb5cff7e",
+    ".build/native-ui/chromium-progress/progress-references/default-max.png": "000c4159d4744ad65955715fe358231a68ed82faabeef00fa71f88de5f4f4e62",
+    ".build/native-ui/chromium-progress/progress-references/full.png": "44d58ec9648b5f46d89a48dc4fb99b0bcae96c999bda74fb0e4eeb6feb5cff7e",
+    ".build/native-ui/chromium-progress/progress-references/invalid-max.png": "000c4159d4744ad65955715fe358231a68ed82faabeef00fa71f88de5f4f4e62",
+    ".build/native-ui/chromium-progress/progress-references/invalid-value.png": "56d450df175ac8a95d1d3b660e7bc335b0e309ce64ebbd8b64e88595280d4cfb",
+    ".build/native-ui/chromium-progress/progress-references/negative.png": "56d450df175ac8a95d1d3b660e7bc335b0e309ce64ebbd8b64e88595280d4cfb",
+    ".build/native-ui/chromium-progress/progress-references/new.png": "000c4159d4744ad65955715fe358231a68ed82faabeef00fa71f88de5f4f4e62",
+    ".build/native-ui/chromium-progress/progress-references/partial-61.png": "9635182cb811f89fa3fda0ec0ad660f5e7dabe40fb4a355d14c022f0f3d1b122",
+    ".build/native-ui/chromium-progress/progress-references/partial-80.png": "c2a91844f52ebc169ea85726540c1071ced69a6fd245a249322421f04d3f525d",
+    ".build/native-ui/chromium-progress/progress-references/partial.png": "9c9c04e3e13c354ba6177e05b150156ee22fb5eea9402d0050d416e68acdacc9",
+    ".build/native-ui/chromium-progress/progress-references/resized.png": "f2e863652f735ae0a813d013edd6a433485c1f56bf1260fc0950a8d9cdf40fbb",
+    ".build/native-ui/chromium-progress/progress-references/results.json": "7ec22735927c2956e2dcee27b977541a2b8427a07f1eae3fa2f83622bd35fff6",
+    ".build/native-ui/chromium-progress/progress-references/zero.png": "56d450df175ac8a95d1d3b660e7bc335b0e309ce64ebbd8b64e88595280d4cfb",
+    ".build/native-ui/chromium-progress/initial.png": "8516cac2e7397fcae3cba6fa852341789da08d6de17a20e36209e48b1c32264c",
+    ".build/native-ui/chromium-progress/zero-updated.png": "781de7152a1dcae332970115c89760247a7fc23df231309cb2dea540a3a23eaa",
+    ".build/native-ui/chromium-progress/initial-diagnostic.png": "ec712087e700f48a5ffce522ca82934054ae30663a0a9fbf0767426b62d703b4",
+    ".build/native-ui/chromium-progress/controls-all.json": "a3b27b37ecf62ecff25a62a0d5cc82fb2b0a609dd86620d1572db9b67852590c",
+    ".build/native-ui/chromium-progress/controls.json": "af902101c0759654e5863a7850811a587151f77ca2566142196cd578573a2960",
+    ".build/native-ui/chromium-progress/reference-controls.json": "ae95dd1e51e499ef35598a80765bb26cb267aa3ebdc5cf98cbf45f73fd0362fe",
+    ".build/native-ui/chromium-progress/qualified/native-helper.jsonl": "561e4b58245d8653d63457b6aaad13753e1ba9de7a53d334f0971011fdef5497",
+    ".build/native-ui/chromium-progress/qualified/native-models.json": "b74823ee2662eeed9e46c65f9812cfdaefd08eb8c2ba4aec48729e46b39a1367",
+    ".build/native-ui/chromium-progress/qualified/results.json": "7390c86b3f8ff0607aa7463c2b86d02e3c9c3025c1b07519b6e3913fb323fff5",
+    ".build/native-ui/chromium-progress/qualified/input-regression/results.json": "3ed3d7cbc81eb9a5975961547ba0ca824266dfbf7f5dcea7108e327b85fc4301",
+    ".build/native-ui/chromium-progress/qualified/input-regression/native-actions.json": "458af289b7c447802331638783b7c900e46bb6982d3f50afd3336a88d2fe8127",
+    ".build/native-ui/chromium-progress/qualified/input-regression/native-helper.jsonl": "57d8322887dcb25614d69b020bb4e6c2d8270d0059b99a30f9a131f54c999e58",
+    ".build/native-ui/chromium-progress/qualified/mouse-regression/results.json": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17",
+    ".build/native-ui/chromium-progress/qualified/mouse-regression/native-actions.json": "8e9a7c705cebfb6f5841b68f58859c6c97a439f1bd7d93599a307fe9c0b7861f",
+    ".build/native-ui/chromium-progress/qualified/mouse-regression/native-helper.jsonl": "a3d17d78fa3631d3a22b1f3d609baeeeb48aa9d206b617e631f5e6be2dc0ac15",
+    ".build/foreign-scrollbars/chromium-prototype/source/forms/progress-sources.json": "46d8077fb7d5479f211d8683332d3ae3826e79321ea0fec9f19a3d65d2c604a7"
+  },
+  "remaining": [
+    "unresolved early initial-frame browser-artwork fallback",
+    "native indeterminate progress animation timers and invalidation",
+    "custom appearance, RTL/vertical writing, CSS transforms/zoom, HiDPI, hardware GPU and accessibility",
+    "native slider bindings, text editing, menus and remaining control types",
+    "all browser frontends and Chromium/Chrome/Vivaldi/Firefox builds and derivatives beyond the pinned experiment",
+    "helper failure recovery, broader application lifecycle and prior legacy shutdown timeout"
+  ]
+}

@@ -72,14 +72,14 @@ static void element_focus(void *node,int focused,int type,int blur) {
   original_element_focus(node,focused,type,blur);
   struct NativeForm *form=find_form(node);
   if(!form&&form_focused(node))form=bind_input_form(node);
-  if(form&&(form->painted||form->input_owned)) {
+  if(form&&form->kind!=NXS_PROGRESS&&(form->painted||form->input_owned)) {
     form_input_request(form,7,form_focused(node),0,0,NULL,NULL,0,0);
     invalidate_form(form);
   }
 }
 static int focus_ring(void *self,const void *node,const void *style) {
   struct NativeForm *form=find_form(node);
-  if(form&&form->painted)return 0; /* NativeUI draws this control's own focus. */
+  if(form&&form->kind!=NXS_PROGRESS&&form->painted)return 0; /* NativeUI draws this control's own focus. */
   return original_focus_ring(self,node,style);
 }
 static unsigned logical_key(const char *key) {

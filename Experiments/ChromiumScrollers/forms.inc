@@ -9,7 +9,7 @@ struct NativeForm {
   int kind,enabled,state,painted,input_owned;
   struct Rect rect;
   char *title;
-  double actions_before;
+  double actions_before,value;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
@@ -23,6 +23,7 @@ static int form_click_allowed;
 static uint64_t form_click_time;
 static int forms_available;
 static int forms_input_enabled;
+static int forms_progress_enabled;
 static unsigned forms_input_capabilities;
 static struct SizeI form_sizes[4];
 static int (*original_checkbox)(void*,const void*,const void*,const void*,const void*,const struct Rect*);
@@ -50,7 +51,7 @@ static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
     if(!f&&forms_input_enabled)f=bind_input_form(node);
-    if(f&&(f->painted||f->input_owned))return f;
+    if(f&&f->kind!=NXS_PROGRESS&&(f->painted||f->input_owned))return f;
     node=((void *(*)(void *))(base+0xdd0e0ac))(node);
   }
   return NULL;
@@ -109,7 +110,8 @@ static struct NXSResponse *form_request(struct NativeForm *form,int operation,do
   struct NXSControlRequest *req=calloc(1,size);if(!req)return NULL;
   *req=(struct NXSControlRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=form->kind,.control=form->control,.text_size=title_size,
-    .width=form->rect.width,.height=form->rect.height,.minimum=0,.maximum=1,.value=form->state,
+    .width=form->rect.width,.height=form->rect.height,.minimum=0,.maximum=1,
+    .value=form->kind==NXS_PROGRESS?form->value:form->state,
     .x=x,.y=y,.enabled=form->enabled,.state=form->state,.modifiers=modifiers};
   if(title_size)memcpy(req+1,form->title,title_size);
   struct NXSResponse *response=exchange_bytes(req,size);free(req);return response;
@@ -127,15 +129,23 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   if(!title)return 1;
   if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   free(form->title);form->title=title;form->kind=kind;form->rect=*rect;
-  form->enabled=form_enabled(form->node);form->state=form_state(form->node,kind);
+  form->enabled=kind==NXS_PROGRESS?1:form_enabled(form->node);form->state=form_state(form->node,kind);
+  if(kind==NXS_PROGRESS)form->value=((double (*)(const void *))(base+0xe7bb2e8))(element);
   struct NXSResponse *response=form_request(form,1,0,0,0);
-  response=sync_form_focus(form,response);
+  if(kind!=NXS_PROGRESS)response=sync_form_focus(form,response);
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
-     sizeof(*response)+(size_t)response->stride*response->height!=response->size){form->painted=0;return 1;}
+     sizeof(*response)+(size_t)response->stride*response->height!=response->size){
+    if(log_fd>=0)dprintf(log_fd,"%d native bitmap unavailable kind=%d id=%llu response=%p errno=%d\n",
+      getpid(),kind,(unsigned long long)form->control,(void *)response,response?0:errno);
+    form->painted=0;return 1;
+  }
   struct NXSResponse header=*response;
   uint32_t *pixels=malloc((size_t)header.stride*header.height);if(!pixels){form->painted=0;return 1;}
   memcpy(pixels,response+1,(size_t)header.stride*header.height);
   void *canvas=*(void **)*(void **)info;
+  static __thread unsigned progress_paints;
+  if(kind==NXS_PROGRESS&&progress_paints++<32&&log_fd>=0)dprintf(log_fd,"%d progress paint id=%llu value=%.8g rect=%d,%d,%d,%d canvas=%p\n",
+    getpid(),(unsigned long long)form->control,form->value,rect->x,rect->y,rect->width,rect->height,canvas);
   if(canvas)draw_native_bitmap(canvas,pixels,header.width,rect->x,rect->y,0,0,header.width,header.height);
   free(pixels);form->painted=!!canvas;
   return canvas?0:1;
@@ -253,6 +263,7 @@ static void element_detach(void *node,int reattach) {
   original_element_detach(node,reattach);
 }
 #include "forms-input.inc"
+#include "forms-progress.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
  {NXS_RADIO_OFFSET,nxs_radio_bytes,paint_radio,(void **)&original_radio},
@@ -267,6 +278,8 @@ static struct Detour form_detours[]={
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
 static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
-  (!forms_input_enabled||prepare_form_input());}
+  (!forms_input_enabled||prepare_form_input())&&
+  (!forms_progress_enabled||prepare_detours(&progress_detour,1));}
 static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
-  if(forms_input_enabled)activate_form_input();}
+  if(forms_input_enabled)activate_form_input();
+  if(forms_progress_enabled)activate_detours(&progress_detour,1);}

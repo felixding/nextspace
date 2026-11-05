@@ -173,6 +173,13 @@ class NativeControlServer:
             if not self.native.nxs_control_sync(state['native'], C.byref(config)):
                 self._respond(client, req)
                 return
+            if req.kind == 5:
+                current = self.native.nxs_control_state(state['native'])
+                model = req.width, req.height, current.value
+                if state.get('progress_model') != model:
+                    state['progress_model'] = model
+                    self.log('native-progress-model', process=req.process, control=req.control,
+                             width=req.width, height=req.height, value=current.value)
             self._respond(client, req, state, pixels=True)
             return
         if state:
@@ -245,6 +252,8 @@ class NativeControlServer:
     def cleanup(self):
         for key, state in list(self.controls.items()):
             if state['destroy'] and self.native.nxs_control_destroy(state['native']):
+                if key[2] == 5:
+                    self.log('native-progress-destroy', process=key[0], control=key[1])
                 del self.controls[key]
                 del self.contexts[state['context']]
 

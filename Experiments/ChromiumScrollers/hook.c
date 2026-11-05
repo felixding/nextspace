@@ -284,6 +284,8 @@ __attribute__((constructor)) static void initialize(void) {
     else form_sizes[kind]=(struct SizeI){ceil(width),ceil(height)};
   }
   forms_input_enabled=forms_input_enabled&&forms_available;
+  const char *progress=getenv("NEXTSPACE_CHROMIUM_PROGRESS");
+  forms_progress_enabled=forms_available&&progress&&!strcmp(progress,"1");
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};
@@ -296,4 +298,5 @@ __attribute__((constructor)) static void initialize(void) {
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
   if(forms_available){activate_forms();note("experimental native forms enabled");}
   if(forms_input_enabled)note("experimental native form focus/keyboard enabled");
+  if(forms_progress_enabled)note("experimental native determinate progress enabled");
 }

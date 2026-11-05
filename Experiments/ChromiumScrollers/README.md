@@ -227,3 +227,33 @@ activation animation, native radio-group keyboard context, default buttons and
 key equivalents, IME, accessibility and the other controls/frontends are still
 open. AppKit and Chromium were not rebuilt. Changing appearance or widget key
 behavior belongs in the UI library; this bridge remains a consumer of it.
+
+## Determinate progress indicators
+
+Set `NEXTSPACE_CHROMIUM_FORMS=1 NEXTSPACE_CHROMIUM_PROGRESS=1` for the additional
+determinate progress binding, and open `test-progress.html`. It works with or
+without `NEXTSPACE_CHROMIUM_INPUT=1`. The guarded hook accepts actual
+`HTMLProgressElement` objects and reads their existing `position()` method.
+Chromium owns HTML value/max validation; the shared NativeUI provider's existing
+`NSProgressIndicator` draws the full control. There is no copied progress widget
+or browser-specific artwork. These display-only objects do not enter the button
+mouse/focus pipeline, so a normal trusted DOM click still reaches the page.
+
+`check-progress.py` passes 20 assertions, including 16 whole native image
+comparisons. They cover initial values and HTML defaults/clamping, value/max
+updates, resize, reinsertion, replacement and reload. References come directly
+from `native-control-reference.py`, whose fixture records can now specify
+`minimum`, `maximum`, `value` and `indeterminate`. The independent native trace
+verifies 18 real progress objects, 22 model updates, 10 destructions and eight
+current-document objects, with no native button/key action requests. Existing
+62 input and 33 mouse checks also passed while developing this binding.
+
+An early initial frame showed Chromium artwork in the first bar; changing its
+value corrected it. Later fresh starts and reloads passed, but the original
+fallback remains unexplained. The first-frame checker does not reload or mutate
+controls before checking them, and bitmap/canvas diagnostics remain in the hook.
+Indeterminate animation is still Chromium's implementation; it must be connected
+to the real UI library timer/invalidation model before being called native.
+See [progress-qualification.json](progress-qualification.json) for the exact
+evidence and remaining limits. Chromium, the provider and the UI library were
+not rebuilt for this binding; only the preload library was compiled.

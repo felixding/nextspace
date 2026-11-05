@@ -36,16 +36,17 @@ for item in json.loads(args.controls.read_text()):
     try:
         title = item['title'].encode('utf-8')
         config = ControlConfig(C.sizeof(ControlConfig), item['width'], item['height'],
-                               0, 1, item['state'], item['enabled'], item['state'], 0, title)
+                               item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
+                               item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
-        if args.focus and item['enabled']:
+        if args.focus and item['enabled'] and item['kind'] != 5:
             assert api.input_capabilities & 1
             assert native.nxs_control_focus(pointer, 1)
         image = save_image()
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],
                             preferred=[preferred.width, preferred.height]))
-        if item['enabled']:
+        if item['enabled'] and item['kind'] != 5:
             native.nxs_control_track(pointer, item['width'] / 2, item['height'] / 2, 0)
     finally:
         assert native.nxs_control_destroy(pointer)

@@ -1,0 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native progress model transport</title>
+<style>
+  body { margin: 24px; background: white; color: black; font: 16px sans-serif; }
+  .row { display: flex; align-items: center; gap: 20px; height: 46px; }
+  .row label { width: 170px; }
+  progress { display: block; width: 240px; height: 24px; margin: 0; }
+</style>
+<h1>Standard HTML progress</h1>
+<div class="row"><label for="zero">Empty</label><progress id="zero" value="0" max="100"></progress></div>
+<div class="row"><label for="partial">Partial</label><progress id="partial" value="30" max="100"></progress></div>
+<div class="row"><label for="full">Full</label><progress id="full" value="100" max="100"></progress></div>
+<div class="row"><label for="clamped">Beyond maximum</label><progress id="clamped" value="200" max="100"></progress></div>
+<div class="row"><label for="negative">Below zero</label><progress id="negative" value="-5" max="100"></progress></div>
+<div class="row"><label for="default-max">Default maximum</label><progress id="default-max" value="0.5"></progress></div>
+<div class="row"><label for="invalid-max">Invalid maximum</label><progress id="invalid-max" value="0.5" max="0"></progress></div>
+<div class="row"><label for="invalid-value">Invalid value</label><progress id="invalid-value" value="invalid" max="100"></progress></div>
+<div class="row"><label for="indeterminate">Indeterminate</label><progress id="indeterminate"></progress></div>
+<script>
+  window.events=[];
+  for(const type of ['click','input','change','keydown','keyup'])
+    document.addEventListener(type,e=>events.push({type,id:e.target.id,trusted:e.isTrusted}));
+</script>
