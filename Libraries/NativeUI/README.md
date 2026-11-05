@@ -290,3 +290,13 @@ native control. See the [Firefox experiment](../../Experiments/FirefoxNativeUI)
 for its exact binary pin, 21 passing checks, remaining controls/frontend work
 and the 261 Chromium regressions after extraction. Generic-control scaled
 transport and broader Firefox integration remain open.
+
+
+The optional Gecko checkbox/radio binding now also uses the existing `NSButton`
+provider for preferred metrics, focus, tracking and key interpretation. Forty
+browser checks and fifteen independent native images cover that partial input
+binding, with actual engine actions and frame/page/process lifetime cleanup.
+This adds no UI-library or provider implementation; the underlying native
+binaries retain their earlier hashes. See the
+[Gecko input qualification](../../Experiments/FirefoxNativeUI/input-qualification.json)
+for the remaining radio-group, scale and full-browser integration work.

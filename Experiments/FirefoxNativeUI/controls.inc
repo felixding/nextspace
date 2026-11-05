@@ -1,0 +1,339 @@
+/* Gecko model/event adapter only. NSButton owns checkbox/radio rendering,
+ * focus, tracking and key interpretation in the independent NativeUI host. */
+#include "pinned-input.h"
+struct Widget {
+  struct Widget *next;
+  void *frame,*node;
+  uint64_t id;
+  int kind,painted;
+  double width,height,actions;
+};
+struct PointI {int x,y;};
+struct RelativeTo {void *frame;int viewport;};
+static int widgets_enabled,widget_notifier=-1;
+static pid_t widget_pid;
+static uint64_t next_widget;
+static struct Widget *widgets,*active_widget;
+static struct {void *event,*node;int allowed;} click_gate;
+static double preferred_width[4],preferred_height[4];
+static __thread int metric_probe;
+static void reset_widget_process(void);
+static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
+static int (*original_default_size)(void *);
+static int (*original_intrinsic)(void *,const void *,int);
+static uint32_t (*original_input_post)(void *,void *);
+static uint32_t (*original_post_event)(void *,void *,void *,void *,int *,void *);
+static uint32_t (*original_click_events)(void *,void *,void *,int *,void *,void *);
+static void (*original_frame_destroy)(void *,void *);
+static void (*original_freeze)(void *,int);
+static void (*original_active)(void *,int);
+
+static int node_kind(const void *node) {
+  if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
+  unsigned type=*((const unsigned char *)node+144);
+  return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:0;
+}
+static int frame_kind(const void *frame) {
+  return frame?node_kind(*(void *const *)((const char *)frame+24)):0;
+}
+static struct Widget *widget_for_node(const void *node) {
+  reset_widget_process();
+  for(struct Widget *w=widgets;w;w=w->next)if(w->node==node)return w;
+  return NULL;
+}
+static struct Widget *widget_for_frame(const void *frame) {
+  reset_widget_process();
+  for(struct Widget *w=widgets;w;w=w->next)if(w->frame==frame)return w;
+  return NULL;
+}
+static int widget_focused(const struct Widget *w) {
+  void *manager=*(void **)(base+0xa439c38);
+  return manager&&*(void **)((char *)manager+128)==w->node;
+}
+static void invalidate_widget(struct Widget *w) {
+  ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,1);
+}
+static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
+  uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_CHECKBOX?4:5);
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
+    .process=identity(),.kind=w->kind,.control=w->id,.width=w->width,.height=w->height,
+    .maximum=1,.state=(w->kind==NXS_CHECKBOX&&(state&64))?-1:!!(state&32),
+    .enabled=!(state&16),.x=x,.y=y,.modifiers=modifiers};
+  return exchange_bytes(&request,sizeof(request));
+}
+static struct NXSResponse *widget_sync(struct Widget *w) {
+  struct NXSResponse *response=widget_request(w,1,0,0,0);
+  if(!response)return NULL;
+  int focused=widget_focused(w);
+  if(!!response->parts[3].y!=focused) {
+    struct NXSControlInputRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=7,
+      .process=identity(),.kind=w->kind,.control=w->id,.focused=focused};
+    response=exchange_bytes(&request,sizeof(request));
+    if(!response)return NULL;
+    response=widget_request(w,1,0,0,0);
+  }
+  return response;
+}
+static void drain_widget_notifier(void) {
+  if(widget_notifier>=0){uint64_t count;while(read(widget_notifier,&count,sizeof(count))==sizeof(count)){};}
+}
+static void reset_widget_process(void) {
+  if(widget_pid!=getpid()) {
+    while(widgets){struct Widget *next=widgets->next;free(widgets);widgets=next;}
+    active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
+    if(widget_notifier>=0)close(widget_notifier);
+    widget_notifier=-1;widget_pid=getpid();
+  }
+}
+static int ensure_widget_lifetime(void) {
+  reset_widget_process();
+  if(widget_notifier>=0)return 1;
+  int descriptor=eventfd(0,EFD_CLOEXEC|EFD_NONBLOCK);if(descriptor<0)return 0;
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=15,.process=identity()};
+  struct NXSResponse *response=exchange_bytes_descriptor(&request,sizeof(request),descriptor);
+  if(!response||response->parts[3].x!=1){close(descriptor);return 0;}
+  widget_notifier=descriptor;note("Gecko native object lifetime descriptor registered");return 1;
+}
+static float frame_scale(const void *frame) {
+  const void *context=*(void *const *)((const char *)frame+40),*style=*(void *const *)((const char *)frame+32);
+  int units=*(const int *)((const char *)context+200);
+  return units>0?(60.f/units)*(*(const float *)((const char *)style+228)):0;
+}
+/* nsRect is returned indirectly in x8 in this binary. Forward to Gecko's
+ * existing frame-rectangle union; do not duplicate frame/transform geometry. */
+__attribute__((naked)) static void engine_frame_rect(void *function,void *frame,void *output) {
+  __asm__("mov x16,x0\nmov x0,x1\nmov x8,x2\nmov w2,wzr\nbr x16");
+}
+static struct Widget *bind_widget(void *frame) {
+  struct Widget *existing=widget_for_frame(frame);if(existing)return existing;
+  int kind=frame_kind(frame);if(!widgets_enabled||!kind)return NULL;
+  float scale=frame_scale(frame);if(!isfinite(scale)||fabsf(scale-1)>0.000001f)return NULL;
+  metric_probe=1;int native=original_intrinsic(frame,NULL,0);metric_probe=0;
+  if(!native||!ensure_widget_lifetime())return NULL;
+  int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
+  double width=rectangle[2]/60.,height=rectangle[3]/60.;
+  if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return NULL;
+  struct Widget *w=calloc(1,sizeof(*w));if(!w)return NULL;
+  w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
+  w->width=width;w->height=height;w->next=widgets;widgets=w;
+  w->painted=widget_sync(w)!=NULL;
+  if(log_fd>=0)dprintf(log_fd,"%d native-widget bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)w->id,w->kind);
+  return w;
+}
+static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
+  int kind=frame_kind(frame);
+  if(!widgets_enabled||!kind||appearance!=(unsigned)(kind==NXS_CHECKBOX?4:5)||fabsf(frame_scale(frame)-1)>0.000001f)
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
+  const void *context=*(void *const *)((const char *)frame+40);
+  double units=*(const int *)((const char *)context+200);
+  struct RectF area=((struct RectF (*)(const void *,double,const void *))(base+0x6db633c))(rect,units,target);
+  if(!isfinite(area.width)||!isfinite(area.height)||area.width<1||area.height<1||area.width>8192||area.height>8192)
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
+  struct Widget *w=widget_for_frame(frame);
+  if(!w) {
+    if(!ensure_widget_lifetime())return original_draw_target(self,target,frame,appearance,rect,overflow);
+    w=calloc(1,sizeof(*w));if(!w)return original_draw_target(self,target,frame,appearance,rect,overflow);
+    w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
+    w->next=widgets;widgets=w;
+  }
+  w->width=area.width;w->height=area.height;
+  struct NXSResponse *response=widget_sync(w);w->painted=0;
+  if(!response||response->width!=lround(area.width)||response->height!=lround(area.height)||response->stride!=response->width*4||
+     sizeof(*response)+(size_t)response->stride*response->height!=response->size)
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
+  draw_bitmap(target,&area,(const uint32_t *)(response+1),response->width,response->height);w->painted=1;
+  drain_widget_notifier();
+  if(log_fd>=0)dprintf(log_fd,"%d native-widget id=%llu kind=%d frame=%p rect=%.0f,%.0f %.0fx%.0f\n",getpid(),(unsigned long long)w->id,w->kind,frame,area.x,area.y,area.width,area.height);
+  return 1;
+}
+/* Preserve Gecko's CSS/style/zoom sizing path, substituting the provider's
+ * preferred width or height. No square-control or artwork geometry is copied. */
+static int default_size(void *frame) {
+  int original=original_default_size(frame),kind=frame_kind(frame);
+  if(metric_probe||!kind)return original;
+  metric_probe=1;int native=original_intrinsic(frame,NULL,0);metric_probe=0;
+  if(!native)return original;
+  float engine_pref=((float (*)(void *))(base+0x6a60be0))(NULL);
+  return engine_pref>0?lround(original*preferred_height[kind]/engine_pref):original;
+}
+static int intrinsic_size(void *frame,const void *input,int type) {
+  if(metric_probe)return original_intrinsic(frame,input,type);
+  metric_probe=1;int original=original_intrinsic(frame,input,type);metric_probe=0;
+  int kind=frame_kind(frame);if(!original||!kind)return original;
+  float engine_pref=((float (*)(void *))(base+0x6a60be0))(NULL);
+  return engine_pref>0?lround(original*preferred_width[kind]/engine_pref):original;
+}
+static unsigned widget_modifiers(const void *event) {
+  unsigned flags=*(const uint16_t *)((const char *)event+144);
+  return ((flags&0x200)?NXS_SHIFT:0)|((flags&1)?NXS_ALT:0)|((flags&8)?NXS_CONTROL:0)|((flags&0x40)?NXS_SUPER:0);
+}
+static struct PointI widget_point(struct Widget *w,const void *event) {
+  return ((struct PointI (*)(const void *,struct RelativeTo))(base+0x6da35a8))(event,(struct RelativeTo){w->frame,0});
+}
+static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,const void *event) {
+  struct PointI point=widget_point(w,event);
+  return widget_request(w,operation,point.x/60.,point.y/60.,widget_modifiers(event));
+}
+static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
+  unsigned message=*(const uint16_t *)((const char *)event+18);
+  int trusted=*(const uint8_t *)((const char *)event+48)&1;
+  void *down_node=NULL;
+  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(frame)) {
+    down_node=*(void **)((char *)frame+24);
+    ((unsigned (*)(void *))(base+0x3b9f0e4))(down_node);
+  }
+  if(trusted&&active_widget&&(message==13||message==14)) {
+    struct Widget *w=active_widget;
+    if(message==13) {pointer_request(w,3,event);invalidate_widget(w);}
+    else if(*(const int16_t *)((const char *)event+152)==0) {
+      active_widget=NULL;
+      struct NXSResponse *response=pointer_request(w,4,event);
+      /* Wait for native tracking completion, not a guessed widget interval. */
+      for(int i=0;response&&response->parts[0].y&&i<100;i++) {
+        struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);response=widget_request(w,5,0,0,0);
+      }
+      click_gate.event=event;click_gate.node=w->node;
+      click_gate.allowed=response&&!response->parts[0].y&&response->parts[0].width>w->actions;
+      invalidate_widget(w);
+    }
+  }
+  uint32_t result=original_post_event(self,context,event,frame,status,override);
+  if(down_node&&*status!=1) {
+    /* Focus handlers may destroy/reconstruct the original frame. Retain only
+     * the semantic node across Gecko's dispatch, then obtain its live frame. */
+    struct Widget *w=bind_widget(*(void **)((char *)down_node+96));
+    if(w&&w->painted&&!active_widget) {
+      struct NXSResponse *response=widget_sync(w);
+      if(response&&response->parts[2].x) {
+        w->actions=response->parts[0].width;
+        response=pointer_request(w,2,event);
+        if(response){active_widget=w;invalidate_widget(w);}
+      }
+    }
+  }
+  if(down_node)((unsigned (*)(void *))(base+0x47ba6b8))(down_node);
+  if(click_gate.event==event)memset(&click_gate,0,sizeof(click_gate));
+  return result;
+}
+static uint32_t click_events(void *self,void *shell,void *event,int *status,void *target,void *override) {
+  if(click_gate.event==event&&click_gate.node==target&&!click_gate.allowed){note("native Gecko gesture cancelled activation");return 0;}
+  return original_click_events(self,shell,event,status,target,override);
+}
+static unsigned logical_key(unsigned code) {
+  switch(code) {
+    case 13:return NXS_KEY_ENTER;case 9:return NXS_KEY_TAB;case 8:return NXS_KEY_BACKSPACE;
+    case 46:return NXS_KEY_DELETE;case 27:return NXS_KEY_ESCAPE;
+    case 37:return NXS_KEY_LEFT;case 39:return NXS_KEY_RIGHT;case 38:return NXS_KEY_UP_ARROW;case 40:return NXS_KEY_DOWN_ARROW;
+    case 36:return NXS_KEY_HOME;case 35:return NXS_KEY_END;case 33:return NXS_KEY_PAGE_UP;case 34:return NXS_KEY_PAGE_DOWN;case 45:return NXS_KEY_INSERT;
+  }
+  return code>=112&&code<=135?NXS_KEY_F1+code-112:NXS_KEY_TEXT;
+}
+static char *key_text(const void *event) {
+  const uint16_t *text=*(const uint16_t *const *)((const char *)event+160);
+  uint32_t length=*(const uint32_t *)((const char *)event+168);
+  if(length>16384||(!text&&length))return NULL;
+  if(!length&&*(const uint32_t *)((const char *)event+200)==32)return strdup(" ");
+  char *result=malloc(length*3+1);if(!result)return NULL;size_t used=0;
+  for(uint32_t i=0;i<length;i++) {
+    uint32_t c=text[i];
+    if(c>=0xd800&&c<=0xdbff&&i+1<length&&text[i+1]>=0xdc00&&text[i+1]<=0xdfff){c=0x10000+((c-0xd800)<<10)+(text[++i]-0xdc00);}
+    else if(c>=0xd800&&c<=0xdfff)c=0xfffd;
+    if(!c){free(result);return NULL;}
+    if(c<0x80)result[used++]=c;
+    else if(c<0x800){result[used++]=0xc0|(c>>6);result[used++]=0x80|(c&63);}
+    else if(c<0x10000){result[used++]=0xe0|(c>>12);result[used++]=0x80|((c>>6)&63);result[used++]=0x80|(c&63);}
+    else {result[used++]=0xf0|(c>>18);result[used++]=0x80|((c>>12)&63);result[used++]=0x80|((c>>6)&63);result[used++]=0x80|(c&63);}
+  }
+  result[used]=0;return result;
+}
+static int advance_focus(void *node,int result) {
+  void *manager=*(void **)(base+0xa439c38),*focused=NULL;if(!manager)return 0;
+  uint32_t status=((uint32_t (*)(void *,void *,void *,unsigned,unsigned,void **))(base+0x4873490))
+    (manager,NULL,node,result==NXS_INPUT_NEXT?1:2,1u<<13,&focused);
+  if(focused)((unsigned (*)(void *))(base+0x47ba6b8))(focused);
+  return !(status&0x80000000u);
+}
+static uint32_t input_post(void *node,void *visitor) {
+  void *event=*(void **)((char *)visitor+8);
+  unsigned message=*(const uint16_t *)((char *)event+18);
+  struct Widget *w=widget_for_node(node);
+  if(!w&&node_kind(node))w=bind_widget(*(void **)((char *)node+96));
+  int *status=(int *)((char *)visitor+24);
+  if(!w||!w->painted||message<2||message>4||!(*(uint8_t *)((char *)event+48)&1)||*status==1||!widget_focused(w))
+    return original_input_post(node,visitor);
+  if(message==2)return 0; /* Native keyDown/keyUp, not the engine keypress widget implementation. */
+  struct NXSResponse *response=widget_sync(w);
+  if(!response||!response->parts[2].x)return original_input_post(node,visitor);
+  double actions=response->parts[0].width;
+  char *text=key_text(event);if(!text)return original_input_post(node,visitor);
+  size_t length=strlen(text),size=sizeof(struct NXSControlInputRequest)+2*length;
+  struct NXSControlInputRequest *request=calloc(1,size);if(!request){free(text);return original_input_post(node,visitor);}
+  *request=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=8,.process=identity(),
+    .kind=w->kind,.control=w->id,.type=message==4?NXS_KEY_DOWN:NXS_KEY_UP,
+    .modifiers=widget_modifiers(event),.key=logical_key(*(uint32_t *)((char *)event+200)),
+    .repeat=!!*((uint8_t *)event+223),.text_size=length,.unmodified_size=length};
+  memcpy(request+1,text,length);memcpy((char *)(request+1)+length,text,length);
+  response=exchange_bytes(request,size);free(request);free(text);
+  if(!response)return original_input_post(node,visitor);
+  int handled=response->parts[3].x,activate=response->parts[0].width>actions;
+  invalidate_widget(w);drain_widget_notifier();
+  if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS) {
+    if(advance_focus(node,handled))*status=1;
+  } else if(handled==NXS_INPUT_HANDLED)*status=1;
+  if(activate) {
+    note("native Gecko keyboard action invokes real engine click");
+    ((uint32_t (*)(void *,int,void *))(base+0x58ce09c))(node,1,*(void **)visitor);
+  }
+  return 0;
+}
+static void forget_widget(struct Widget **cursor) {
+  struct Widget *w=*cursor;
+  if(active_widget==w)active_widget=NULL;
+  widget_request(w,6,0,0,0);*cursor=w->next;free(w);
+  if(!widgets&&widget_notifier>=0) {
+    struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
+    exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
+  }
+}
+static void frame_destroy(void *frame,void *context) {
+  reset_widget_process();
+  struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
+  if(*cursor)forget_widget(cursor);
+  original_frame_destroy(frame,context);
+}
+static void release_shell_widgets(void *shell) {
+  reset_widget_process();void *context=*(void **)((char *)shell+120);
+  struct Widget **cursor=&widgets;
+  while(*cursor) {
+    if(*(void **)((char *)(*cursor)->frame+40)==context)forget_widget(cursor);
+    else cursor=&(*cursor)->next;
+  }
+}
+static void freeze_shell(void *shell,int children) {
+  release_shell_widgets(shell);original_freeze(shell,children);
+}
+static void active_shell(void *shell,int active) {
+  if(!active)release_shell_widgets(shell);
+  original_active(shell,active);
+}
+static struct Detour widget_detours[]={
+  {NXS_GECKO_DRAW_TARGET_OFFSET,gecko_draw_target_bytes,draw_widget,(void **)&original_draw_target},
+  {NXS_GECKO_DEFAULT_SIZE_OFFSET,gecko_default_size_bytes,default_size,(void **)&original_default_size},
+  {NXS_GECKO_INTRINSIC_OFFSET,gecko_intrinsic_bytes,intrinsic_size,(void **)&original_intrinsic},
+  {NXS_GECKO_INPUT_POST_OFFSET,gecko_input_post_bytes,input_post,(void **)&original_input_post},
+  {NXS_GECKO_POST_EVENT_OFFSET,gecko_post_event_bytes,post_event,(void **)&original_post_event},
+  {NXS_GECKO_CLICK_EVENTS_OFFSET,gecko_click_events_bytes,click_events,(void **)&original_click_events},
+  {NXS_GECKO_FRAME_DESTROY_OFFSET,gecko_frame_destroy_bytes,frame_destroy,(void **)&original_frame_destroy},
+  {NXS_GECKO_FREEZE_OFFSET,gecko_freeze_bytes,freeze_shell,(void **)&original_freeze},
+  {NXS_GECKO_ACTIVE_OFFSET,gecko_active_bytes,active_shell,(void **)&original_active}
+};
+static void prepare_widget_metrics(void) {
+  struct NXSResponse *response=exchange((struct NXSRequest){.magic=NXS_CHROMIUM_MAGIC,.operation=7,.process=identity()});
+  if(!response||response->parts[4].width!=3||response->parts[6].x!=1)return;
+  for(int kind=2;kind<=3;kind++) {
+    double width=response->parts[kind-1].width,height=response->parts[kind-1].height;
+    if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>256||height>256)return;
+    preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
+  }
+  widgets_enabled=1;
+}

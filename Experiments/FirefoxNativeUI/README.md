@@ -4,7 +4,7 @@ This is the Gecko side of the browser-first
 [native application integration](../../docs/Native-Control-Integration.md).
 The goal includes complete browser interfaces and other non-GNUstep apps.
 
-The first optional binding renders determinate HTML progress indicators through
+The optional progress binding renders determinate HTML progress indicators through
 actual GNUstep `NSProgressIndicator` objects in the existing NativeUI provider.
 Gecko supplies its validated `HTMLProgressElement::Position()` and device-pixel
 rectangle. Its existing display-item fallback supplies the DrawTarget. The
@@ -27,13 +27,32 @@ records the matching sources, debug archive and interfaces. Firefox and AppKit
 are never recompiled. No package was installed, and the package inventory is
 unchanged. GTK3 runtime libraries were extracted into the private test root.
 
-The current qualification is deliberately limited: determinate progress at
-100% scale, using the ordinary horizontal test fixture. Other scales retain
-Gecko's rendering until scaled native transport is connected. Indeterminate
-animation, RTL/vertical progress, other controls, menus, editing, IME,
-accessibility, browser application interfaces and derivatives remain open.
-Author-styled controls retain their engine path. This is not full native
-Firefox support and is not activated outside the private test session.
+The first interactive binding adds actual native checkbox and radio controls.
+The provider supplies distinct preferred sizes, drawing, first-responder focus,
+mouse tracking and key interpretation. Gecko retains its real click dispatch,
+trusted input/change events, cancellation, radio-group data model and document
+focus order. Native activation gates the engine action; no tracking or widget
+key rules are copied. Controls can bind before the first paint. Focus handlers
+may replace frames, so the bridge retains the semantic node across original
+dispatch and then obtains its live frame.
+
+Frame destruction, page freezing and inactive tabs release the native bindings.
+Restored cached pages rebind to new native objects without disabling the
+back/forward cache. The existing helper's descriptor registration and kernel
+process watch also release controls when their renderer crashes, even while a
+parent process retains the shared request socket. The helper now logs generic
+control destruction as well as progress/popup destruction.
+
+Qualification remains limited to this exact ARM64 build and scale 1 horizontal
+fixtures. Other scales retain Gecko's rendering until scaled native transport
+is connected. Native radio-group arrow navigation is still open: the provider
+currently hosts individual radio buttons rather than a native group container.
+The tested radio-group data changes use real engine mouse/Space activation.
+Indeterminate animation, other controls, menus, editing, IME, accessibility,
+browser application interfaces and derivatives remain open.
+The progress fixture retains its author-styled engine path; broader styled
+interactive controls remain unqualified. This is not full native Firefox support
+and is not activated outside the private test session.
 
 ## Reproduce the private fixture
 
@@ -63,6 +82,13 @@ public native C API, runs 21 browser checks, verifies renderer sandbox status
 and checks balanced native object lifetime. It also kills its helper and checks
 that the existing browser model and ordinary button action remain usable.
 It stops its processes and removes the temporary profile in `finally`.
+Add `--controls` to that command and use the newly built hook to run the optional
+checkbox/radio fixture; it enables `NEXTSPACE_FIREFOX_INPUT=1` for that owned
+Firefox only. The control run adds 40 checks, 15 independent native image
+comparisons, actual back/forward-cache and tab restoration, renderer-crash
+cleanup and mouse/key behavior after helper loss. It rejects an occupied test
+port and verifies each Marionette session belongs to the owned Firefox PID.
+Sessions are explicitly deleted before another client attaches.
 `marionette.py` implements only the standard sequential protocol for this owned
 fixture; agent-browser currently supports Chromium/CDP, so it cannot drive this
 Firefox test.
@@ -74,3 +100,12 @@ extraction are recorded in [`progress-qualification.json`](progress-qualificatio
 Raw screenshots, native traces and results are under
 `.build/firefox-native-ui/qualified-final/` and
 `.build/firefox-native-ui/chromium-regressions/`.
+
+
+The interactive binding's matching source/ABI audit is recorded in
+[`input-source-audit.json`](input-source-audit.json); its runtime evidence and
+remaining gaps are in [`input-qualification.json`](input-qualification.json).
+The final control run created 107 native objects: 101 had explicit destruction
+records (including six released after renderer death), and the remaining six
+were reclaimed with the intentionally killed helper process. The native loader,
+provider and installed package inventory remained unchanged.

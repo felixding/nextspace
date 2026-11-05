@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Gecko native checkbox and radio transport</title>
+<style>
+body { background:white; color:black; margin:24px; font:16px sans-serif; }
+.row { height:42px; display:flex; align-items:center; gap:20px; }
+input { margin:0; }
+</style>
+<form id="form">
+<div class="row"><input id="check" type="checkbox"><label for="check">Checkbox</label></div>
+<div class="row"><input id="checked" type="checkbox" checked><label for="checked">Checked</label></div>
+<div class="row"><input id="mixed" type="checkbox"><label for="mixed">Mixed</label></div>
+<div class="row"><input id="disabled" type="checkbox" disabled><label for="disabled">Disabled</label></div>
+<div class="row"><input id="radio" type="radio" name="group"><label for="radio">Radio</label></div>
+<div class="row"><input id="selected" type="radio" name="group" checked><label for="selected">Selected</label></div>
+<button id="ordinary" type="button" onclick="this.textContent='Activated'">Ordinary engine action</button>
+</form>
+<script>
+document.getElementById('mixed').indeterminate=true;
+window.events=[];window.cacheShows=[];
+addEventListener("pageshow",event=>cacheShows.push(event.persisted));
+for(let input of document.querySelectorAll('input')) {
+  for(let type of ['click','input','change','keydown','keyup','keypress'])
+    input.addEventListener(type,event=>events.push({id:input.id,type,key:event.key,trusted:event.isTrusted,checked:input.checked}));
+}
+</script>

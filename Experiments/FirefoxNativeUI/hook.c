@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <sys/eventfd.h>
+#include <time.h>
+#include "../../Libraries/NativeUI/NativeUI.h"
 static uintptr_t base;
 static int log_fd=-1,installed;
 static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),message);}
@@ -32,6 +35,26 @@ typedef int (*WebRenderPaint)(void *,void *,void *,void *,void *,void *,unsigned
 static ProgressPaint original_progress;
 static WebRenderPaint original_webrender;
 
+static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pixels,int width,int height) {
+  typedef void (*FillRect)(void *,const struct RectF *,const struct ColorPattern *,const struct DrawOptions *);
+  FillRect fill=(FillRect)(*(uintptr_t **)target)[27];
+  struct ColorPattern pattern={.vptr=base+0x9e21210+16};
+  struct DrawOptions options={.alpha=1,.composition=1,.antialias=0};
+  for(int y=0;y<height;y++)for(int x=0;x<width;) {
+    uint32_t color=pixels[y*width+x];int end=x+1;
+    while(end<width&&pixels[y*width+end]==color)end++;
+    if(color>>24) {
+      float alpha=(color>>24)/255.f;
+      pattern.red=((color>>16)&255)/(255.f*alpha);
+      pattern.green=((color>>8)&255)/(255.f*alpha);
+      pattern.blue=(color&255)/(255.f*alpha);pattern.alpha=alpha;
+      struct RectF run={rect->x+x,rect->y+y,end-x,1};fill(target,&run,&pattern,&options);
+    }
+    x=end;
+  }
+}
+#include "controls.inc"
+
 /* Frame/content and model access are audited against this libxul, including
  * Gecko's own FromNode tag/namespace check. NativeUI has no DOM knowledge. */
 static double progress_position(void *frame) {
@@ -43,7 +66,9 @@ static double progress_position(void *frame) {
   return ((double (*)(const void *))(base+0x589f280))(content);
 }
 static int eligible(void *frame,unsigned appearance) {
-  if(appearance!=9||channel<0)return 0;
+  if(channel<0)return 0;
+  if(widgets_enabled&&(appearance==4||appearance==5)&&frame_kind(frame))return 1;
+  if(appearance!=9)return 0;
   double position=progress_position(frame);
   return isfinite(position)&&position>=0&&position<=1;
 }
@@ -79,23 +104,7 @@ static void progress(void *self,void *frame,void *target,const struct RectF *rec
    * after each snapshot; no frame-pointer cache can outlive a Gecko frame. */
   request.operation=6;exchange_bytes(&request,sizeof(request));
   if(!pixels)goto fallback;
-  typedef void (*FillRect)(void *,const struct RectF *,const struct ColorPattern *,const struct DrawOptions *);
-  FillRect fill=(FillRect)(*(uintptr_t **)target)[27];
-  struct ColorPattern pattern={.vptr=base+0x9e21210+16};
-  struct DrawOptions options={.alpha=1,.composition=1,.antialias=0};
-  for(int y=0;y<height;y++)for(int x=0;x<width;) {
-    uint32_t color=pixels[y*width+x];int end=x+1;
-    while(end<width&&pixels[y*width+end]==color)end++;
-    if(color>>24) {
-      float alpha=(color>>24)/255.f;
-      pattern.red=((color>>16)&255)/(255.f*alpha);
-      pattern.green=((color>>8)&255)/(255.f*alpha);
-      pattern.blue=(color&255)/(255.f*alpha);pattern.alpha=alpha;
-      struct RectF run={rect->x+x,rect->y+y,end-x,1};fill(target,&run,&pattern,&options);
-    }
-    x=end;
-  }
-  free(pixels);
+  draw_bitmap(target,rect,pixels,width,height);free(pixels);
   if(log_fd>=0)dprintf(log_fd,"%d native-progress frame=%p value=%.17g rect=%.0f,%.0f %dx%d\n",getpid(),frame,value,rect->x,rect->y,width,height);
   return;
 fallback:
@@ -129,7 +138,10 @@ static void install(void) {
      memcmp((void *)(base+0x6a7782c),(unsigned char[]){0x00,0x0f,0x40,0xf9},4)||
      memcmp((void *)(base+0x589f280),(unsigned char[]){0x5f,0x24,0x03,0xd5,0x00,0x10,0x7e,0x1e},8)||
      !prepare_detours(detours,sizeof(detours)/sizeof(*detours))) {note("Gecko layout/instruction guard failed; unchanged");return;}
-  activate_detours(detours,sizeof(detours)/sizeof(*detours));installed=1;
+  if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
+  activate_detours(detours,sizeof(detours)/sizeof(*detours));
+  if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
+  installed=1;
   note("exact-build Gecko native progress adapter installed");
 }
 void *dlopen(const char *path,int flags) {
@@ -144,5 +156,7 @@ __attribute__((constructor)) static void initialize(void) {
   if(!endpoint)return;
   if(log)log_fd=open(log,O_WRONLY|O_CREAT|O_APPEND|O_CLOEXEC,0600);
   if(!bridge_connect(endpoint))return;
+  const char *input=getenv("NEXTSPACE_FIREFOX_INPUT");
+  if(input&&!strcmp(input,"1"))prepare_widget_metrics();
   note("Firefox native transport connected before sandbox");install();
 }

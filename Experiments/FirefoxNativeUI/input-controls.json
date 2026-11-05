@@ -1,0 +1,74 @@
+[
+  {
+    "id": "check",
+    "kind": 2,
+    "state": 0,
+    "enabled": 1,
+    "width": 19,
+    "height": 16,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0
+  },
+  {
+    "id": "checked",
+    "kind": 2,
+    "state": 1,
+    "enabled": 1,
+    "width": 19,
+    "height": 16,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0
+  },
+  {
+    "id": "mixed",
+    "kind": 2,
+    "state": -1,
+    "enabled": 1,
+    "width": 19,
+    "height": 16,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0
+  },
+  {
+    "id": "disabled",
+    "kind": 2,
+    "state": 0,
+    "enabled": 0,
+    "width": 19,
+    "height": 16,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0
+  },
+  {
+    "id": "radio",
+    "kind": 3,
+    "state": 0,
+    "enabled": 1,
+    "width": 20,
+    "height": 16,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0
+  },
+  {
+    "id": "selected",
+    "kind": 3,
+    "state": 1,
+    "enabled": 1,
+    "width": 20,
+    "height": 16,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0
+  }
+]

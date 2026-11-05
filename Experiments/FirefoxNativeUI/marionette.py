@@ -5,9 +5,13 @@ import json,socket
 class Marionette:
     def __init__(self,port):
         self.connection=socket.create_connection(('127.0.0.1',port),timeout=20)
-        self.sequence=0;self.greeting=self.receive()
-        assert self.greeting.get('applicationType')=='gecko',self.greeting
-        assert self.greeting.get('marionetteProtocol')==3,self.greeting
+        self.sequence=0;self.has_session=False
+        try:
+            self.greeting=self.receive()
+            assert self.greeting.get('applicationType')=='gecko',self.greeting
+            assert self.greeting.get('marionetteProtocol')==3,self.greeting
+        except BaseException:
+            self.connection.close();raise
     def receive(self):
         length=b''
         while True:
@@ -30,5 +34,10 @@ class Marionette:
         kind,sequence,error,result=self.receive()
         assert kind==1 and sequence==self.sequence
         if error:raise RuntimeError(json.dumps(error))
+        if name=='WebDriver:NewSession':self.has_session=True
+        elif name=='WebDriver:DeleteSession':self.has_session=False
         return result
-    def close(self):self.connection.close()
+    def close(self):
+        try:
+            if self.has_session:self.command('WebDriver:DeleteSession')
+        finally:self.connection.close()

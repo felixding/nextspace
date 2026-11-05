@@ -1,0 +1,596 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "c8d6053c",
+  "status": "experimental native checkbox/radio input for the exact pinned Firefox binary; full native browser integration incomplete",
+  "architecture": {
+    "UI_implementation": "actual GNUstep NSButton instances in the existing NativeUI provider",
+    "UI_library_rebuilt": false,
+    "NativeUI_provider_rebuilt": false,
+    "Firefox_rebuilt": false,
+    "public_NativeUI_ABI_changed": false,
+    "control_implementations_copied": false,
+    "widget_tracking_or_key_rules_copied": false,
+    "input": "The real native control accepts/interprets the gesture/key. Its callback gates or invokes actual Gecko click dispatch and document focus traversal.",
+    "metrics": "Query the independent provider per kind; round out its preferred dimensions and retain Gecko CSS/style/zoom sizing.",
+    "ownership": "Bind a unique native object to a live frame and semantic input node; retain the node across original mouse/focus dispatch and obtain its current frame afterward.",
+    "lifetime": "Release on frame destruction, page freeze/inactivity; rebind on restored pages; existing eventfd plus kernel credentials/pidfd cleanup on renderer death."
+  },
+  "qualification": {
+    "browser_checks": 40,
+    "independent_native_image_comparisons": 15,
+    "checks": [
+      {
+        "case": "owned-fixture",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-check-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-checked-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-mixed-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-disabled-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-radio-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          20,
+          16
+        ],
+        "reference_size": [
+          20,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-selected-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          20,
+          16
+        ],
+        "reference_size": [
+          20,
+          16
+        ]
+      },
+      {
+        "case": "mouse-engine-model",
+        "passed": true
+      },
+      {
+        "case": "trusted-input-change",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-mouse-checked",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-check-focused",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-key-engine-action",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-keyboard-checked",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "second-key-exactly-one-toggle",
+        "passed": true
+      },
+      {
+        "case": "native-next-focus",
+        "passed": true
+      },
+      {
+        "case": "native-previous-focus",
+        "passed": true
+      },
+      {
+        "case": "page-cancels-native-key",
+        "passed": true
+      },
+      {
+        "case": "untrusted-key-no-native-action",
+        "passed": true
+      },
+      {
+        "case": "engine-cancels-click-model",
+        "passed": true
+      },
+      {
+        "case": "focus-handler-replaces-frame-safely",
+        "passed": true
+      },
+      {
+        "case": "engine-radio-group",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-radio-selected",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          20,
+          16
+        ],
+        "reference_size": [
+          20,
+          16
+        ]
+      },
+      {
+        "case": "native-pixels-radio-group-cleared",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          20,
+          16
+        ],
+        "reference_size": [
+          20,
+          16
+        ]
+      },
+      {
+        "case": "disabled-no-engine-edit",
+        "passed": true
+      },
+      {
+        "case": "mixed-engine-activation",
+        "passed": true
+      },
+      {
+        "case": "native-key-radio-group",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-held-mouse",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "native-drag-cancel",
+        "passed": true
+      },
+      {
+        "case": "remove-during-tracking",
+        "passed": true
+      },
+      {
+        "case": "reinsert-new-native-object",
+        "passed": true
+      },
+      {
+        "case": "replace-before-key",
+        "passed": true
+      },
+      {
+        "case": "ordinary-engine-action",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-reload-check",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "other-tab-active",
+        "passed": true
+      },
+      {
+        "case": "reactivated-native-engine-action",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-tab-reactivated",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      },
+      {
+        "case": "navigation-away",
+        "passed": true
+      },
+      {
+        "case": "actual-bfcache-restore",
+        "passed": true
+      },
+      {
+        "case": "restored-native-engine-action",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-bfcache-restored",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          19,
+          16
+        ],
+        "reference_size": [
+          19,
+          16
+        ]
+      }
+    ],
+    "native_created": 107,
+    "native_explicitly_destroyed": 101,
+    "renderer_crash": {
+      "pid": 61558,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": true,
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.33545986900571734,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    },
+    "native_actions_by_kind": {
+      "2": 9,
+      "3": 2
+    },
+    "native_focus_directions": [
+      2,
+      3
+    ],
+    "renderers": [
+      {
+        "pid": 61558,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 61767,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "progress_regression_checks": 21,
+    "progress_checks": [
+      {
+        "case": "owned-fixture",
+        "passed": true
+      },
+      {
+        "case": "initial-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "initial-empty",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "initial-full",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "author-styled-path-preserved",
+        "passed": true
+      },
+      {
+        "case": "trusted-read-only-click",
+        "passed": true
+      },
+      {
+        "case": "value-update",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "normalized-engine-value",
+        "passed": true
+      },
+      {
+        "case": "maximum-update",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "engine-clamped-value",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "engine-negative-value",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "indeterminate-engine-model",
+        "passed": true
+      },
+      {
+        "case": "determinate-restored",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "resize",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          322,
+          19
+        ],
+        "reference_size": [
+          322,
+          19
+        ]
+      },
+      {
+        "case": "remove-reinsert",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          322,
+          19
+        ],
+        "reference_size": [
+          322,
+          19
+        ]
+      },
+      {
+        "case": "new-engine-element",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          322,
+          19
+        ],
+        "reference_size": [
+          322,
+          19
+        ]
+      },
+      {
+        "case": "updates-do-not-edit-model",
+        "passed": true
+      },
+      {
+        "case": "ordinary-engine-action",
+        "passed": true
+      },
+      {
+        "case": "reload-initial-control",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "reload-full-control",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "navigation-away",
+        "passed": true
+      }
+    ],
+    "progress_native_created": 45,
+    "progress_native_destroyed": 45
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-firefox-prototype/input-hook.so": "0f8a11637059d5a8062d4f36d6e6d8d1e79a15017501a8df11a36399efe0575b",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055",
+    "firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-firefox-prototype/input-hook.so": "0f8a11637059d5a8062d4f36d6e6d8d1e79a15017501a8df11a36399efe0575b",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055"
+    },
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "test_ports_closed": true,
+    "private_backend_alias_removed": true
+  },
+  "test_runner": "Private compositor/profile/helper with standard Marionette. Assert owned PID and free port; explicitly delete sessions. Helper-loss and verified owned-descendant renderer-crash injection are confined to the fixture.",
+  "limitations": [
+    "Only the pinned ARM64 Firefox ESR executable and libxul are accepted.",
+    "Only scale 1 horizontal fixtures are qualified; scaled native transport and broader layout remain open.",
+    "The native provider currently hosts individual radio buttons. Native radio-group arrow navigation remains open; mouse/Space preserve the actual engine group data model.",
+    "Other controls, menus, text editing/IME, accessibility, browser/front-end interfaces and derivatives remain open.",
+    "No global installation or activation.",
+    "The first full interaction run exposed cached frames retaining native bindings; release on freeze/inactivity now passes actual cache/tab restoration.",
+    "The expanded failure test exposed an asynchronous Marionette session-close race and a runner cleanup name collision; sessions now delete explicitly and the owned compositor was cleaned up."
+  ],
+  "raw_evidence": [
+    ".build/firefox-native-ui/input-final-checked/",
+    ".build/firefox-native-ui/input-progress-final/",
+    ".build/firefox-native-ui/input-environment.json"
+  ],
+  "source_audit": "input-source-audit.json"
+}

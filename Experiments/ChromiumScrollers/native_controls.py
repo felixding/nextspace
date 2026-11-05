@@ -503,6 +503,8 @@ class NativeControlServer:
                     self.log('native-progress-destroy', process=key[0], control=key[1])
                 elif key[2]==6:
                     self.log('native-popup-destroy',process=key[0],control=key[1])
+                else:
+                    self.log('native-form-destroy',process=key[0],control=key[1],kind=key[2])
                 del self.controls[key]
                 del self.contexts[state['context']]
 

@@ -1,0 +1,178 @@
+{
+  "date": "2026-11-05",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.cpp",
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLButtonElement.cpp",
+      "sha256": "6975b1efee2ae57a16ba0697d2ecc0a55b6cc618d08bb2f01c0d4f630d1aee8d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/EventStateManager.cpp",
+      "sha256": "dc1e2b4ce9d1b1957f4490156410e1767a828782197e72c9fe16fa0636e91f1e"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/EventDispatcher.h",
+      "sha256": "abe70a68f2555fe076d365ad8e3787c4dd5eacfacb1550dbd52ea218fba57585"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/EventDispatcher.cpp",
+      "sha256": "890ac940cc6acde3eb1a87581ccacbfffca3d3470e463a62e48a606be844ae64"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/BasicEvents.h",
+      "sha256": "9e6eb3f12ec6e1f14899345a0d7a3aa2b68971446dec602e1584213ca8b71ad9"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/MouseEvents.h",
+      "sha256": "606cbdfa4bcf33abff12a2dc5e3f9398ef0cb721c212256a67c5309be6f712e8"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/TextEvents.h",
+      "sha256": "850a0f9a7d4c6ae7c27c068a19be262a785fd03e024b43abd7ed81e0eddd48f4"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsCheckboxRadioFrame.cpp",
+      "sha256": "85b9b46cd554f7397f2452582483ddb28ab0562ab15edd5a095c1b7cb5ca9896"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsContentUtils.cpp",
+      "sha256": "9be942120adc809801e4c26de15e786c390baad8d385c29193c4ddf5721d14f0"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/nsGenericHTMLElement.cpp",
+      "sha256": "c9a878dc04a3d8741d1e0412ada7ddd1d12f4df852cc84d214161eaa342ef742"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/EventMessageList.h",
+      "sha256": "38480d75e91a2fed7f6c69eeaa13d8818d6142c874a2ce45c58fc75ade76f8fa"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/EventForwards.h",
+      "sha256": "cc14a8207ac5c7b18ae29ad2471471a45fd2b765a8342988e46e68b12c6f9fde"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsFocusManager.h",
+      "sha256": "4966f3e98d6cdd348140ab468c10a53ba6a8007d4fec34c531e36e1f3d7c6859"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsFocusManager.cpp",
+      "sha256": "a7440084f34b102c0b1634aa46980a6a5d334f20c2d2b3cd002bdfd68e608d4e"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/interfaces/base/nsIFocusManager.idl",
+      "sha256": "6dccaee09bf7ce9bfda2edebaeec6d07de322c0d9cd7c66e4b70ba0eb8cb094a"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/nsIFormControl.h",
+      "sha256": "ee0f8bee96f0f31b6a3215dca63d702b80f6654ab23d48e158defd71097b1d12"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/nsLayoutUtils.h",
+      "sha256": "cda5171ea8383332e5cb288df77fe9ebf668141af81a0561047f77b960a1823a"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/RelativeTo.h",
+      "sha256": "18a5af5345f70c44f0a8203d5e8cb51a1a55f0a52ee0ab0324f377b7acc9918b"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShell.cpp",
+      "sha256": "ed828332158b15815aa400b160b64eac30cac1b9e83a02e7e12c2b2710af0353"
+    }
+  ],
+  "guards": "The shared ELF build-ID guard and pinned-input.h prologues are checked before activating any interactive detour. The launch fixture also checks the complete executable and libxul SHA256.",
+  "interfaces": {
+    "HTML_input": {
+      "primary_vtable": "0xa00fc30",
+      "address_point": 16,
+      "control_type_offset": 144,
+      "checkbox_type": 130,
+      "radio_type": 141,
+      "primary_frame_offset": 96
+    },
+    "frame": {
+      "content": 24,
+      "computed_style": 32,
+      "pres_context": 40,
+      "style_zoom": 228,
+      "context_app_units_per_device_pixel": 200
+    },
+    "frame_geometry": {
+      "function": "nsLayoutUtils::GetAllInFlowRectsUnion",
+      "address": "0x6daae5c",
+      "indirect_nsRect_result_register": "x8",
+      "coordinate_function": "nsLayoutUtils::GetEventCoordinatesRelativeTo",
+      "coordinate_address": "0x6da35a8",
+      "relative_to_layout_viewport": 0
+    },
+    "sizing": {
+      "default_size": "0x6eee6bc",
+      "intrinsic_inline_size": "0x6eee7c4",
+      "engine_pref": "0x6a60be0",
+      "native_metrics": "Bootstrap parts 1 and 2; round out to device pixels; preserve Gecko style and zoom conversion"
+    },
+    "appearance": {
+      "checkbox": 4,
+      "radio": 5,
+      "evidence": "Pinned DoDrawWidgetBackground jump table at 0x12bc2dc and the PaintCheckboxControl/PaintRadioControl call sites"
+    },
+    "state": {
+      "function": "nsNativeTheme::GetContentState",
+      "address": "0x6a7dc9c",
+      "checked": 32,
+      "indeterminate": 64,
+      "disabled": 16,
+      "evidence": "Pinned SetCheckedInternal/SetIndeterminate instructions plus disabled and state image comparisons through the actual public native ABI"
+    },
+    "keyboard": {
+      "input_post": "0x588e070",
+      "visitor_event": 8,
+      "visitor_status": 24,
+      "consume_no_default": 1,
+      "event_message": 18,
+      "trusted_flags": 48,
+      "modifiers": 144,
+      "key_value_data": 160,
+      "key_value_length": 168,
+      "key_code": 200,
+      "repeat": 223,
+      "real_engine_click": "0x58ce09c"
+    },
+    "mouse": {
+      "post_event": "0x56cf6dc",
+      "click_events": "0x56d35c0",
+      "button_offset": 152,
+      "move_message": 13,
+      "up_message": 14,
+      "down_message": 15,
+      "node_addref": "0x3b9f0e4",
+      "node_release": "0x47ba6b8",
+      "ownership": "Retain the semantic node across original dispatch; focus callbacks may destroy the original frame"
+    },
+    "focus": {
+      "manager_static": "0xa439c38",
+      "focused_element": 128,
+      "move_focus": "0x4873490",
+      "forward": 1,
+      "backward": 2,
+      "by_key": 8192
+    },
+    "lifetime": {
+      "frame_destroy": "0x6e7763c",
+      "shell_freeze": "0x6d640ec",
+      "shell_active": "0x6d65e48",
+      "shell_pres_context": 120,
+      "freeze_signature": "void(bool)",
+      "active_signature": "void(bool)",
+      "process_exit": "Existing renderer-owned eventfd registration and kernel SCM_CREDENTIALS/pidfd watch in the shared helper"
+    }
+  },
+  "limitations": [
+    "Exact ARM64 build only; scale 1 horizontal fixtures qualified.",
+    "Standalone native radio controls own their key interpretation; native radio-group arrow navigation remains open.",
+    "Other native controls and browser application interfaces remain open."
+  ]
+}

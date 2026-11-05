@@ -43,7 +43,7 @@ required integration surfaces differ:
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has an experimental determinate progress binding using the shared native provider. Other controls, animation, input and scaled output remain open. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress and native checkbox/radio drawing/input through the shared provider. Other controls, scaled output, animation, radio-group arrow navigation and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
@@ -224,3 +224,18 @@ extraction. This qualifies only determinate progress at the tested 100% scale on
 the pinned Firefox binary. Other Firefox controls and application interfaces,
 scaled native transport, animation, broader input/accessibility and derivatives
 remain required. See [Firefox qualification](../Experiments/FirefoxNativeUI/progress-qualification.json).
+
+
+The optional Gecko checkbox/radio binding now uses actual native `NSButton`
+objects for metrics, drawing, focus, tracking and key interpretation. Native
+callbacks invoke Gecko's real trusted click path and document focus traversal.
+Frame destruction, inactive tabs, cached-page freezing and renderer process
+exit release native bindings; restored pages bind again without disabling
+Firefox's cache. Forty checks and fifteen native-image comparisons pass,
+including trusted model events, cancelled actions, early input, tab/cache
+restoration, a frame replaced by its focus handler, renderer crash cleanup and
+continued mouse/key actions after helper loss. The previous 21 native progress
+checks also pass with interactive hooks enabled. The UI library/provider remain
+unchanged, and the helper only gains generic destruction trace records. Radio
+group arrow navigation, other controls and full browser application interfaces
+remain open. See [interactive Gecko qualification](../Experiments/FirefoxNativeUI/input-qualification.json).
