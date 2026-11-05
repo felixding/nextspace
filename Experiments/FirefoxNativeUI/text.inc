@@ -1,5 +1,6 @@
 /* Native field model and Gecko transactions. No text editor is implemented here. */
 #include "pinned-text.h"
+#include "frontend.inc"
 struct GeckoError {uint32_t result,padding;uint64_t extra;};
 _Static_assert(sizeof(struct GeckoError)==16,"Pinned release ErrorResult ABI");
 struct TextModel {char *value;uint32_t start,end;int editable;};
@@ -21,6 +22,7 @@ static void clear_text_error(struct GeckoError *error)
 {((void (*)(void *))(base+NXS_GECKO_TEXT_CLEAR_ERROR_OFFSET))(error);}
 static int native_text_frame(const void *frame) {
   if(!texts_enabled||!frame||*(const uintptr_t *)frame!=base+0xa10b810+16||!text_kind(frame_kind(frame)))return 0;
+  if(frontend_text_frame(frame))return 1;
   const void *style=*(void *const *)((const char *)frame+32),*display=*(void *const *)((const char *)style+80);
   return ((int (*)(const void *,const void *,void *))(base+NXS_GECKO_TEXT_IS_THEMED_OFFSET))(frame,display,NULL);
 }
@@ -79,7 +81,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
     size_t length=strlen(model.value);
     int same=native&&state.text_size==length&&native->size==sizeof(*native)+sizeof(state)+length&&
       !memcmp((char *)(native+1)+sizeof(state),model.value,length)&&!!(state.flags&2)==!!model.editable&&
-      widget_focused(w)&&native->parts[2].x&&w->width==w->button_width&&w->height==w->button_height;
+      widget_focused(w)&&native->parts[2].x&&w->width==w->text_width&&w->height==w->text_height;
     if(same) {
       struct NXSResponse *response=widget_request(w,5,0,0,0);
       if(!response||!button_cache_update(w,response))response=NULL;
@@ -154,7 +156,7 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
           struct PointI point=widget_point(w,event);w->range_x=point.x/60.;w->range_y=point.y/60.;
           response=pointer_request(w,2,event);
           if(response&&response->parts[0].y) {
-            w->text_tracking=1;active_widget=w;
+            w->text_tracking=1;w->text_width=w->width;w->text_height=w->height;active_widget=w;
             ((void (*)(void *,int))(base+NXS_GECKO_TEXT_STOP_DRAG_OFFSET))(self,1);
             ((void (*)(void *,unsigned,void *))(base+NXS_GECKO_TEXT_CAPTURE_OFFSET))(node,1,NULL);
             echo_native_selection(w);invalidate_widget(w);
@@ -223,8 +225,10 @@ static int prepare_text_image(void *frame) {
   struct Widget *w=bind_widget(frame);if(!w)goto release;
   int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
   double width=rect[2]/60.,height=rect[3]/60.;
-  if(width<1||height<1||width>8192||height>8192||width!=floor(width)||height!=floor(height))goto release;
+  if(width<1||height<1||width>8192||height>8192||
+     (!frontend_text_frame(frame)&&(width!=floor(width)||height!=floor(height))))goto release;
   w->width=width;w->height=height;
+  if(frontend_text_frame(frame)&&log_fd>=0)dprintf(log_fd,"%d native-frontend-geometry id=%llu size=%.17g,%.17g\n",getpid(),(unsigned long long)w->id,width,height);
   if(!ensure_text_watch()||!native_text_filter_register(native_text_proposal)||!sync_text_widget(w))goto release;
   w->text_owned=1;w->painted=1;return 1;
  release: {
@@ -237,7 +241,10 @@ static void text_scroll_display(void *frame,void *builder,const void *lists) {
   if(prepare_text_image(frame)) {
     /* Use the existing background display item for the complete native field.
      * Its native editor now owns contents, clipping, selection and caret. */
-    ((void (*)(void *,void *,const void *))(base+NXS_GECKO_TEXT_DISPLAY_BACKGROUND_OFFSET))(frame,builder,lists);return;
+    void *previous=frontend_background_frame;
+    if(frontend_text_frame(frame))frontend_background_frame=frame;
+    ((void (*)(void *,void *,const void *))(base+NXS_GECKO_TEXT_DISPLAY_BACKGROUND_OFFSET))(frame,builder,lists);
+    frontend_background_frame=previous;return;
   }
   struct Widget *w=widget_for_frame(frame);if(w&&text_kind(w->kind))w->text_owned=0;
   original_text_scroll_display(frame,builder,lists);

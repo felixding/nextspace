@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "5d223e83",
+  "status": "Partial native Firefox address editor on one exact build. Clipboard/application commands and full browser/non-GNUstep scope remain unfinished.",
+  "firefox_and_appkit_rebuilt": false,
+  "small_adapter_and_native_provider_rebuilt": true,
+  "environment": {
+    "hashes": {
+      "chromium_adapter": "4389180a6bbf9fd13a710489cdfc7100b4e9c7a7483f18b4f69c5912f0f06b84",
+      "firefox_adapter": "a7fcd72b3d187a6d09bd7c2b264a8d52c42fe34ef6fa7cc0ecafc53a203c641a",
+      "shim": "bf66398a7c20ea70ccc61ed0f021cac45830ff8cc2a5f8ebd96db72e69f39d59",
+      "loader": "7a8b22d9895dadb60ae9aecf5d30cf5aa5eec494746c55cb4c72895553cc84f4",
+      "provider": "f3ceaa01f28007b709989b280b464d95fa9abed72b31c2e2ec6f448f306f9272",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "renderers": [
+      {
+        "pid": 13276,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 13285,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 13941,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "api": {
+      "version": 1,
+      "size": 296,
+      "input_capabilities": 3,
+      "pointer_capabilities": 1
+    },
+    "packages": 1050
+  },
+  "frontend": {
+    "checks": 59,
+    "complete_native_images": 13,
+    "native_key_cases": 9,
+    "native_pointer_cases": 16,
+    "native_tracking_checks": 16,
+    "trusted_edit_events": true,
+    "cancel_beforeinput": true,
+    "lifecycle_checks": 7,
+    "lifecycle": [
+      {
+        "case": "owned-browser",
+        "passed": true
+      },
+      {
+        "case": "held-native-range",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 3
+        }
+      },
+      {
+        "case": "close-releases-native-editor",
+        "passed": true,
+        "native_press": {
+          "event": "native-form-press",
+          "process": 563262040,
+          "control": 12,
+          "kind": 7,
+          "x": 3.216666666666667,
+          "y": 11.5,
+          "click_count": 1
+        }
+      },
+      {
+        "case": "first-window-model-retained",
+        "passed": true,
+        "state": {
+          "value": "First",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "first-window-address-editor-still-usable",
+        "passed": true,
+        "state": {
+          "value": "FirstX",
+          "start": 6,
+          "end": 6
+        }
+      },
+      {
+        "case": "held-native-range",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 3
+        }
+      },
+      {
+        "case": "typing-after-held-helper-loss",
+        "passed": true,
+        "state": {
+          "value": "Xha beta",
+          "start": 1,
+          "end": 1
+        },
+        "helper": 12278,
+        "native_press": {
+          "event": "native-form-press",
+          "process": 563262040,
+          "control": 4,
+          "kind": 7,
+          "x": 3.216666666666667,
+          "y": 11.5,
+          "click_count": 1
+        }
+      }
+    ]
+  },
+  "native_backing": {
+    "probe": {
+      "native_cases": 6,
+      "identical_redraws": 30,
+      "selection_retained": true
+    },
+    "previous_provider_reproduces_bug": {
+      "code": -6,
+      "stdout": "",
+      "stderr": "unstable native backing kind=7 width=739.36666666666667 redraw=1\nnative-backing-probe: /workspace/Tests/NativeUI/backing-probe.c:23: int main(void): Assertion `!memcmp(reference,next.pixels,bytes)' failed.\n"
+    },
+    "native_bitmap_rounding": true
+  },
+  "compatibility": {
+    "previous_loader_and_client": true,
+    "previous_input_client": {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    "previous_text_client": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "unchanged_legacy_pixel_cases": 30
+  },
+  "web_regressions": {
+    "firefox": 241,
+    "firefox_sandbox": [
+      {
+        "pid": 12903,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 13112,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox_native_created": 776,
+    "firefox_native_destroyed": 770,
+    "firefox_renderer_crash": {
+      "pid": 12903,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "firefox_helper_loss": {
+      "helper_exit": -9,
+      "value": "FallbackXY",
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.2391923279992625,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    },
+    "chromium": {
+      "progress": 20,
+      "input": 62,
+      "animation": 59,
+      "pointers": 100,
+      "text": 44,
+      "sliders": 50
+    },
+    "chromium_total": 335,
+    "chromium_address_existing": 43
+  },
+  "cleanup": {
+    "cohorts": [
+      "/var/tmp/nextspace-native-ui/firefox-frontend-probe",
+      "/var/tmp/nextspace-native-ui/firefox-frontend-01",
+      "/var/tmp/nextspace-native-ui/firefox-frontend-02",
+      "/var/tmp/nextspace-native-ui/firefox-frontend-03",
+      "/var/tmp/nextspace-native-ui/firefox-frontend-04",
+      "/var/tmp/nextspace-native-ui/firefox-frontend-final",
+      "/var/tmp/nextspace-native-ui/firefox-frontend-qualified",
+      "/var/tmp/nextspace-native-ui/chromium-frontend-provider"
+    ],
+    "recorded_pids": [
+      9277,
+      9280,
+      9283,
+      9286,
+      9646,
+      9649,
+      9653,
+      9654,
+      10030,
+      10033,
+      10037,
+      10038,
+      10424,
+      10427,
+      10431,
+      10432,
+      11240,
+      11243,
+      11246,
+      11247,
+      11748,
+      11753,
+      11754,
+      12272,
+      12275,
+      12278,
+      12279,
+      12764,
+      12771,
+      12772,
+      13189,
+      13192,
+      13196,
+      13199,
+      13343,
+      13346,
+      13350,
+      13351
+    ],
+    "live": [],
+    "backend_alias_removed": true,
+    "control_sockets_removed": true
+  },
+  "source_audit": "frontend-source-audit.json",
+  "raw_evidence": [
+    ".build/native-ui/firefox-frontend-evidence/",
+    ".build/native-ui/firefox-frontend-source/",
+    ".build/native-ui/chromium-frontend-provider/"
+  ],
+  "remaining": [
+    "Native clipboard/application command delegation and undo/command availability",
+    "Automatic focus restoration and complete resize-image parity",
+    "IME, accessibility and scaling",
+    "Other browser controls, detached menus and dialogs",
+    "Other exact browser/derivative builds and GTK/Qt/KDE applications"
+  ]
+}

@@ -94,7 +94,7 @@ for item in json.loads(args.controls.read_text()):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))
-            assert native.nxs_control_focus(pointer,1)
+            assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1)
             values=[]
             for name,key in [('ArrowRight',7),('Home',10),('End',11),('PageDown',13)]:
                 event=KeyEvent(C.sizeof(KeyEvent),0,0,key,0,b'',b'')
@@ -102,7 +102,7 @@ for item in json.loads(args.controls.read_text()):
                 values.append(dict(key=name,value=native.nxs_control_state(pointer).value))
             results[-1]['keys']=values
         if args.keys and item['enabled'] and item['kind'] in (7,8) and item.get('editable',1):
-            assert native.nxs_control_focus(pointer,1)
+            assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1)
             values=[]
             for name,key,text,modifiers in [('Control+a',0,b'a',4),('Control+e',0,b'e',4),
                 ('Control+b',0,b'b',4),('Control+f',0,b'f',4),('Backspace',3,b'',0),
@@ -130,7 +130,7 @@ for item in json.loads(args.controls.read_text()):
             values=[]
             cases=[('left',3,3,0),('near',10,10,0),('middle',25,25,0),
                 ('right',175,175,0),('forward',3,25,0),('reverse',30,3,0),
-                ('outside-right',3,210,0),('outside-left',30,-20,0),('shift-left',3,3,1),('shift-right',30,30,1)]
+                ('outside-right',3,config.width+30,0),('outside-left',30,-20,0),('shift-left',3,3,1),('shift-right',30,30,1)]
             cases=[(*entry,1) for entry in cases]
             if 'pointer_cases' in item:
                 cases=[(entry['name'],entry['x'],entry['end_x'],entry.get('modifiers',0),entry.get('click_count',1)) for entry in item['pointer_cases']]

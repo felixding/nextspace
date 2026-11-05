@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-06",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "status": "Source and compiled audit of the optional parent-process native text display-item binding. Other frontend controls remain unfinished.",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/toolkit/xre/nsAppRunner.cpp",
+      "sha256": "f525e7ee64e7fc345bbbf5337c77a8deb61265b174da7c4558cedfba82b85665"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/src/nsITheme.h",
+      "sha256": "488b472cc637fb5d2595fd27f335aa83b574e14c4be5ba48262a6e61efadc751"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/painting/nsDisplayList.h",
+      "sha256": "32fb43b630810d1c6d6a7e9e52b2a37e05a380353c071963719a4e7bcf966021"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/thebes/gfxContext.h",
+      "sha256": "b6369ec9eb1bf671193e249963e215c967f72b7f6aef2e78ee2035d40aca17bc"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.cpp",
+      "sha256": "b5e257715d6e59815c06df5273c0b258d4606054a615dffc55ec9b798c4ec6ac"
+    }
+  ],
+  "compiled": {
+    "process_role": "XRE_IsParentProcess 0x7546c5c, guarded first 20 bytes; evaluate at use time",
+    "themed_predicate": "nsIFrame::IsThemed 0x47c1bfc, original text guard plus frontend detour",
+    "paint": "nsDisplayThemedBackground::Paint 0x6fe2358, guarded first 20 bytes",
+    "webrender": "nsDisplayThemedBackground::CreateWebRenderCommands 0x6fe2464, guarded first 20 bytes",
+    "context_target": "Theme::DrawWidgetBackground wrapper 0x6a5fbac, guarded load of gfxContext::mDT at +216",
+    "style_frame": "Real virtual StyleFrame slot +160 in both compiled display-item methods",
+    "background_rectangle": "Actual mBackgroundRect at +120 in compiled Paint; existing NSRectToSnappedRect 0x6db633c supplies device geometry",
+    "transparency": "Pinned nsITheme.h defines eOpaque=0; native field bitmap is opaque"
+  },
+  "findings": [
+    "The actual address element is a plain HTML input in chrome://browser/content/browser.xhtml with appearance:none, transparent background and fractional bounds. It does not require an XUL text-editor implementation.",
+    "The frontend can use a GTK nsITheme implementation distinct from the webpage Theme entry point. Hooking the existing Theme draw method alone did not paint the parent field.",
+    "Only during the owned frame background display-list build does the adapter request the existing themed-background carrier. Paint and WebRender decisions are bound at that display item and call the shared native bitmap transport. No CSS, font, border, editor or hit-test geometry is copied.",
+    "The actual NSTextField editor, pointer loop and original Gecko insertion/deletion actions are reused. Canonical values/selections and trusted DOM events stay with Gecko.",
+    "The packaged urlbar-searchbar.css uses remotecontrol plus a repeating-linear-gradient for the stripes and the robot. They are the automation indicator, not a renderer fallback.",
+    "Native offscreen fractional edges accumulated alpha between repeated readbacks. An integral native parent backing and native background clear fixes repeated redraw drift; actual native bitmap readback determines pixel rounding, including half units.",
+    "A separate resize-history probe still differed from a fresh native control along one clip edge. This checkpoint does not qualify post-resize image parity or automatic keyboard focus restoration."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/firefox-frontend-source/",
+    ".build/native-ui/firefox-frontend-evidence/"
+  ]
+}

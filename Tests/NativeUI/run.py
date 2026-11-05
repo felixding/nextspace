@@ -157,6 +157,9 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         input_output = held_probe(args.build / 'native-ui/native-input-probe', [str(args.output)],
                                   'NXS_NATIVE_UI_INPUT_HOLD', 'input')
         checks['native_input'] = json.loads(input_output)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-backing-probe')]+backend,
+            environment,'backing',timeout=15)
+        assert code==0,(code,stderr);checks['native_backing']=json.loads(stdout)
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-mouse-probe')]+backend,
             environment,'mouse',timeout=15)
         assert code==0,(code,stderr);checks['native_mouse']=json.loads(stdout)

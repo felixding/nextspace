@@ -138,7 +138,7 @@ The optional [pinned Firefox adapter](../../Experiments/FirefoxNativeUI/text-qua
 now connects plain/password webpage fields. The optional
 [Chromium binding](../../Experiments/ChromiumScrollers/text-qualification.json)
 also connects their complete drawing and native keys to real Blink transactions.
-Chromium mouse/clipboard/IME and browser URL-bar fields remain open. Engine edits must
+Web-editor clipboard/IME and broader frontend command integration remain open. Engine edits must
 retain beforeinput cancellation, trusted events, validation, selection, undo,
 composition and application command behavior. Multiline/rich text, IME, undo
 menu routing, other scales, drag/drop and accessibility
@@ -173,6 +173,20 @@ accepts operation 22 using the existing request layout, with the count in
 The pinned Chromium address field, Blink plain/password fields and Gecko
 plain/password fields consume this extension. Other builds, frontends and
 controls still require qualification. See [click-count evidence](click-count-qualification.json).
+
+Fractional text bounds require an integral native backing, while preserving the
+actual view's logical bounds. Before recursive text display, the host clears
+the covered backing through AppKit; otherwise repeated native draws accumulate
+alpha at the fractional edge. The actual native bitmap readback supplies pixel
+dimensions, including half-unit rounding. No border or editor is drawn by the
+host. `native-backing-probe` checks 30 identical redraws across six plain/secure,
+integer/fractional cases. The previous provider reproduces the edge drift.
+
+The optional pinned Firefox frontend binding also consumes these same editors.
+Its address-field qualification covers complete native images, native keys,
+pointer selection and real engine edit events. Clipboard/application commands,
+automatic focus restoration, resize-image parity and broader browser UI remain
+open. See [frontend evidence](../../Experiments/FirefoxNativeUI/frontend-qualification.json).
 
 ### Native proposals before an edit
 

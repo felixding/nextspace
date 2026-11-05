@@ -10,10 +10,12 @@ struct Widget {
   uint32_t *button_pixels;int button_width,button_height,button_label_owned;
   double range_step,range_x,range_y;int range_tracking,range_keypress;
   int text_owned,text_tracking;
+  double text_width,text_height;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
+static int frontend_requested;
 static unsigned widget_pointer_capabilities;
 static pid_t widget_pid;
 static uint64_t next_widget;
@@ -37,6 +39,7 @@ static void range_key_action(void *,const struct NXSResponse *,int);
 static struct NXSResponse *range_end(struct Widget *);
 static void prepare_range_bindings(const struct NXSResponse *);
 static int native_text_frame(const void *);
+static int frontend_text_frame(const void *);
 static int prepare_text_image(void *);
 static struct NXSResponse *sync_text_widget(struct Widget *);
 static void remove_text_watch(void);
@@ -173,6 +176,17 @@ static struct Widget *bind_widget(void *frame) {
   if(log_fd>=0)dprintf(log_fd,"%d native-widget bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)w->id,w->kind);
   return w;
 }
+static int draw_text_image(void *target,void *frame,const struct RectF *area) {
+  struct Widget *w=widget_for_frame(frame);
+  if(!w||!w->text_owned||!button_cache_available(w))return 0;
+  /* Parent frames may have fractional bounds. Native readback owns pixel
+   * rounding; transport its actual bitmap without scaling or rounding it again. */
+  if(!frontend_text_frame(frame)&&
+     (w->button_width!=lround(area->width)||w->button_height!=lround(area->height)))return 0;
+  draw_bitmap(target,area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
+  if(log_fd>=0)dprintf(log_fd,"%d native-text id=%llu kind=%d size=%dx%d\n",getpid(),(unsigned long long)w->id,w->kind,w->button_width,w->button_height);
+  return 1;
+}
 static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
   int kind=frame_kind(frame);
   int is_text=kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;
@@ -197,11 +211,7 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
   }
   w->width=area.width;w->height=area.height;
   if(is_text) {
-    if(w->text_owned&&button_cache_available(w)&&w->button_width==lround(area.width)&&w->button_height==lround(area.height)) {
-      draw_bitmap(target,&area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
-      if(log_fd>=0)dprintf(log_fd,"%d native-text id=%llu kind=%d size=%dx%d\n",getpid(),(unsigned long long)w->id,kind,w->button_width,w->button_height);
-      return 1;
-    }
+    if(draw_text_image(target,frame,&area))return 1;
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   }
   if(kind==NXS_BUTTON) {
@@ -455,4 +465,5 @@ static void prepare_widget_metrics(void) {
   prepare_range_bindings(response);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
+  const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

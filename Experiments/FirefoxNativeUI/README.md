@@ -239,3 +239,33 @@ references, verifies the helper received each real click count, and retains the
 existing DOM/transaction, renderer-crash and helper-loss checks. This extension
 rebuilds the small provider/loader and adapter; Firefox and AppKit stay unchanged.
 See [click-count evidence](../../Libraries/NativeUI/click-count-qualification.json).
+
+`NEXTSPACE_FIREFOX_FRONTEND=1`, together with the input/text flags, adds an
+optional parent-process text binding. Firefox's address field is an ordinary
+HTML text input with `appearance:none`, a transparent background and fractional
+bounds. The adapter retains its application model, listeners and commands. It
+uses Gecko's existing display item to carry the complete native field bitmap;
+the display-item boundary avoids the frontend's separate GTK painting path.
+No browser CSS or control implementation is copied. Gecko's real process-role
+function is evaluated at use time because child initialization can follow
+libxul loading. Web fields retain their existing eligibility rules.
+
+`run-frontend-fixture.py` creates a private compositor, profile, pasteboard and
+native helper. It requires the pinned Firefox, native library, adapter, backend
+and capture probe paths; `--library-path` accepts the extracted runtime library
+directories. The default run invokes `check-frontend.py` and cleans up; `--hold`
+keeps its owned control socket open for `check-frontend-lifecycle.py`. Only the
+test profile receives `--remote-allow-system-access` for Marionette chrome
+inspection. The surrounding red stripes/robot are Firefox's packaged automation
+indicator, not an adapter-generated control or rendering fallback.
+
+The retained address-field run passes 59 assertions, including 13 complete
+native bitmap comparisons, nine editing commands, 16 pointer ranges and their
+actual native tracking records, trusted insertion and beforeinput cancellation.
+Seven lifecycle checks cover closing a window while held, retaining the first
+window's model, editing after explicitly focusing its address field and typing
+after held helper loss. Automatic keyboard focus restoration is not established.
+The shared backing tests preserve old clients/loaders and legacy images.
+Clipboard/application commands, undo availability, resize-image parity, IME,
+accessibility, scaling and the remaining browser controls/menus/dialogs still
+require work. See [frontend qualification](frontend-qualification.json).

@@ -227,7 +227,10 @@ int nxs_host_destroy(NXSViewHost *host)
 void nxs_host_resize(NXSViewHost *host,NSSize size)
 {
   if(!host||NSEqualSizes([host->view frame].size,size))return;
-  [host->view setFrameSize:size];[host->window setContentSize:size];
+  /* The backing covers complete device pixels; the actual native view keeps
+   * its logical fractional bounds. Its parent must cover the antialiased edge. */
+  [host->window setContentSize:NSMakeSize(ceil(size.width),ceil(size.height))];
+  [host->view setFrameSize:size];
 }
 int nxs_host_set_screen_origin(NXSViewHost *host,double x,double y)
 {
@@ -298,11 +301,18 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
      * explicit image context. Render/read the real native backing instead.
      * Its field editor, selection and caret remain wholly native. */
     if(fabs(scale-[control->window backingScaleFactor])>0.000001){[pool drain];return result;}
+    NSView *backing=[control->window contentView];
+    [backing lockFocus];
+    [[NSColor controlBackgroundColor] set];
+    NSRectFill(NSIntegralRect([control->view frame]));
+    [backing unlockFocus];
     [control->view displayRectIgnoringOpacity:[control->view bounds]];
     [control->view lockFocus];
     bitmap=[[NSBitmapImageRep alloc] initWithFocusedViewRect:[control->view bounds]];
     [control->view unlockFocus];[control->view setNeedsDisplay:NO];
-    if([bitmap pixelsWide]!=width||[bitmap pixelsHigh]!=height){[bitmap release];[pool drain];return result;}
+    /* Native readback defines pixel rounding, including exact half units. */
+    width=[bitmap pixelsWide];height=[bitmap pixelsHigh];
+    if(width<1||height<1||(size_t)width*height>8*1024*1024){[bitmap release];[pool drain];return result;}
   } else {
   NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
   [image lockFocus];
