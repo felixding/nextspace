@@ -21,6 +21,10 @@ and checks that an exited child is not attached. Failure JSON distinguishes a
 collected stack from a missing debugger, denied attachment or debugger timeout.
 The diagnostic retains its fifteen-second deadline and disables debuginfod
 network requests. This does not alter installed desktop privileges.
+Its runtime inventory checks ELF headers before classifying mapped library-like
+paths. The regression keeps the loader cache and a non-ELF `.so` file mapped,
+excludes both from library evidence and retains real shared libraries. The package
+collector's strict ELF assertion remains unchanged.
 
 ## Reproduce on Linux or Docker
 

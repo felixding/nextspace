@@ -16,9 +16,15 @@ import uuid
 
 def process_runtime(pid):
     process = Path('/proc') / str(pid)
-    libraries = sorted({line.split()[-1] for line in (process/'maps').read_text().splitlines()
+    candidates = sorted({line.split()[-1] for line in (process/'maps').read_text().splitlines()
         if line.split()[-1].startswith('/') and
            ('.so' in line.split()[-1] or 'libgnustep-' in line.split()[-1])})
+    libraries = []
+    for path in candidates:
+        # The loader also maps non-ELF data such as /etc/ld.so.cache.
+        with Path(path).open('rb') as image:
+            if image.read(4) == b'\x7fELF':
+                libraries.append(path)
     return dict(pid=pid, executable=str((process/'exe').resolve()), libraries=libraries)
 
 

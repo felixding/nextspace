@@ -113,8 +113,8 @@
     "hosted_fix_confirmation_pending": true,
     "legacy_x11_workflows_removed": 4,
     "hosted_permission_fixes_confirmed": true,
-    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41931331899",
-    "latest_completed_result": "Both native and desktop package lifecycle jobs passed at 5418015a; debugger setup changes await hosted confirmation.",
+    "latest_completed_run": "https://github.com/felixding/nextspace/actions/runs/41941298449",
+    "latest_completed_result": "Native passed at a9bcfe57; package failed in late evidence collection at /etc/ld.so.cache before final removal. ELF inventory fix passes local controls and awaits fresh hosted qualification.",
     "hosted_title_references_confirmed": true,
     "hosted_package_lifecycle_passed": true,
     "hosted_package_run": "https://github.com/felixding/nextspace/actions/runs/41863138262",
@@ -224,9 +224,9 @@
       "hosted_confirmation_run": 41903395108,
       "hosted_confirmation_job": 126831487488
     },
-    "hosted_native_qualified_run": 41931331899,
-    "hosted_native_qualified_head": "5418015a8bf82c2bf840e85882a64ad2e63bf983",
-    "hosted_native_qualified_job": 126928679473,
+    "hosted_native_qualified_run": 41941298449,
+    "hosted_native_qualified_head": "a9bcfe5771463a3bb9f7b8bcb41ad95f8b07810c",
+    "hosted_native_qualified_job": 126962483723,
     "hosted_native_raw_archive": {
       "bytes": 201287036,
       "sha256": "88efb817660cc1d05bff699cba392560bfa15bc4bdc7201bfdd3555e0896a2af",
@@ -307,19 +307,20 @@
       41914460977,
       41917570942,
       41926347690,
-      41931331899
+      41931331899,
+      41941298449
     ],
     "latest_hosted_native_qualification": {
-      "run": 41931331899,
-      "head": "5418015a8bf82c2bf840e85882a64ad2e63bf983",
-      "job": 126928679473,
+      "run": 41941298449,
+      "head": "a9bcfe5771463a3bb9f7b8bcb41ad95f8b07810c",
+      "job": 126962483723,
       "passed": true,
-      "artifact_id": 13373372067,
-      "bytes": 201164592,
-      "sha256": "622e83db5cfdc9b69f021bf08f60be0f2f2e8db312293b47ed9d8778456afed4",
-      "regular_files": 8402,
+      "artifact_id": 13378670471,
+      "bytes": 201157600,
+      "sha256": "fba2825fe656abc463433c41455f89a73fd328feacc49fcf4208c596caffe31e",
+      "regular_files": 8399,
       "literal_links": 410,
-      "json_files_validated": 1291,
+      "json_files_validated": 1292,
       "jsonl_files_retained": 164,
       "combined_application_records": 147,
       "textedit_printing_cases": 24,
@@ -330,10 +331,11 @@
       "installed_pinned_wlroots_confirmed": true,
       "physical_gpu_qualified": false,
       "full_plan_complete": false,
-      "captured_inputs": 4405,
-      "matched_inputs": 4405,
+      "captured_inputs": 4406,
+      "matched_inputs": 4406,
       "pointer_button_cases": 80,
-      "public_pointer_events": 240
+      "public_pointer_events": 240,
+      "real_failure_stack_verified": true
     },
     "native_comparator_clipboard": {
       "toolkits": [
@@ -368,7 +370,7 @@
       "hosted_confirmation_pending": false,
       "hosted_confirmation_run": 41917570942
     },
-    "current_product_change_since_qualification": "None; the current follow-up changes test diagnostics and CI container setup.",
+    "current_product_change_since_qualification": "None; follow-up changes runtime evidence classification and its regression fixtures.",
     "native_comparator_popup_reposition": {
       "root_cause": "Popup reposition requests bypass initial-placement output constraints",
       "gtk_protocol_trace_captured": true,
@@ -516,7 +518,35 @@
       "historical_timeout_root_cause_proven": false,
       "installed_desktop_changed": false,
       "full_plan_complete": false,
-      "hosted_confirmation_pending": true
+      "hosted_confirmation_pending": false,
+      "hosted_native_passed": true,
+      "hosted_native_run": 41941298449,
+      "hosted_native_job": 126962483723,
+      "package_preflight_passed": true,
+      "package_full_lifecycle_passed": false
+    },
+    "runtime_library_classification": {
+      "failed_run": 41941298449,
+      "failed_job": 126962484039,
+      "failed_phase": "capture_libraries after installed/upgraded workflows, before removal",
+      "loader_cache_in_actual_snapshot": true,
+      "elf_headers_checked": true,
+      "strict_collector_unchanged": true,
+      "archive": "arm64-mapped-library-v1-evidence.tar.gz",
+      "bytes": 1467505,
+      "sha256": "508b3af2811d09c1f40d9662cf6843acdcc453ca5c14ae133236d0f2d6a393f7",
+      "payload_files_verified": 37,
+      "passed": true,
+      "package_evidence_root_cause_established": true,
+      "original_detector_rejected": true,
+      "mapped_non_elf_resources_excluded": true,
+      "real_external_elf_libraries": 6,
+      "unchanged_strict_collector_passed": true,
+      "full_debugger_preflight_passed": true,
+      "hosted_followup_pending": true,
+      "product_runtime_changed": false,
+      "historical_terminal_timeout_cause_established": false,
+      "full_plan_complete": false
     }
   },
   "evidence_locations": {
@@ -526,7 +556,7 @@
     "portable_vm": ".build/wayland-macbook/"
   },
   "remaining": [
-    "Confirm test-container failure stack capture in hosted ARM64 CI",
+    "Confirm ELF runtime-library inventory fix in hosted ARM64 CI",
     "Intermittent large-TIFF Review density timeout; original deadlines pass in focused and full-application follow-ups but cause remains unestablished",
     "Earlier upgraded Terminal copy timeout; current lifecycle and fresh-session checks pass but historical cause remains unestablished",
     "Physical display, input, modeset, hotplug and gamma validation",

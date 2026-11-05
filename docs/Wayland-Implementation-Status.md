@@ -519,6 +519,21 @@ all 43 payload files and an independent extracted replay verify. Hosted
 confirmation of this diagnostic setup is pending. Installed desktop privileges
 and the existing Lima guest are unchanged.
 
+Native job `126962483723` in run `41941298449` confirms real stack capture and
+passes the full suite, bringing the recorded native total to eight. The package
+job reaches evidence collection after the installed/upgraded workflows, then
+rejects `/etc/ld.so.cache` as non-ELF; final removal does not run. The early
+diagnostic snapshot captured the loader cache, whose filename passed the old
+`.so` substring filter. Runtime inventories now check ELF headers. A deterministic
+control maps both that cache and a non-ELF `.so` resource: the original detector
+is rejected, the fixed detector retains the real libraries, and the unchanged
+strict package collector passes. The full debugger preflight also passes. The
+1,467,505-byte capsule is `arm64-mapped-library-v1-evidence.tar.gz`, SHA-256
+`508b3af2811d09c1f40d9662cf6843acdcc453ca5c14ae133236d0f2d6a393f7`;
+all 37 payload files and an independent extracted audit verify. Fresh hosted
+qualification of the inventory fix is pending. This establishes the evidence
+collection failure's cause, not the earlier application timeouts' causes.
+
 The newest native run next exposes a desktop fixture consuming an asynchronous
 count-2 broadcast as the reply to a count-4 request. The real Workspace probe
 already emits a separate completion event. The fixture now waits for that event
