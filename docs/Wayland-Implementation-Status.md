@@ -57,6 +57,15 @@ is byte-identical and still compiles; existing reference pixel/font verification
 passes. These inputs are not part of the desktop runtime. The retired window
 manager's other sources and build hooks are removed.
 
+The obsolete numbered source-build scripts and source-tree installers are also
+removed. They selected ART/X11 or an unpatched GUI and had no callers in the
+maintained native pipeline. The shared Debian builder, dependency pins, patches,
+asset generators and framework/application helpers remain the single supported
+source path. The source-build guide now points only to that path. No new checks
+for the retired builders are added. The unused Xorg session entry, Xresources,
+`startx` setup and Raspberry Pi Xorg-mode snippets are removed with those scripts;
+the native Wayland entry and user-hook runner remain.
+
 The latest full hosted qualification is run `41980717134` at `3a2243f7`: both
 native and desktop-packages pass. Twelve full native runs and seventeen full
 package lifecycle runs are recorded before the application/fixture and Workspace

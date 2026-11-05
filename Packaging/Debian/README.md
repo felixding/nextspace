@@ -4,7 +4,7 @@ The current target is native Wayland on Debian 13 ARM64. `build-desktop.py` prod
 three packages: `nextspace-runtime`, `nextspace-session-wayland` and
 `nextspace-wayland-compositor`. It builds the pinned toolkit, frameworks and
 eight applications through the shared helpers in `Packaging/Sources`.
-Native Workspace excludes the embedded Window Maker. The pinned wlroots build
+Native Workspace no longer contains the embedded Window Maker. The pinned wlroots build
 disables Xwayland and the X11 backend; no X11 session package is produced.
 
 CI uses native `ubuntu-24.04-arm` runners. Build the two disposable test images

@@ -1,7 +1,0 @@
-[Desktop Entry]
-Name=NEXTSPACE (X11)
-Comment=NEXTSPACE desktop
-Exec=/usr/NextSpace/bin/nextspace-x11-session
-TryExec=/usr/NextSpace/bin/nextspace-x11-session
-Type=Application
-DesktopNames=NEXTSPACE
