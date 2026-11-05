@@ -1,0 +1,83 @@
+[
+  {
+    "id": "button",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Native button",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "submit",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Send form",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "reset",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Reset form",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "disabled",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Unavailable",
+    "enabled": 0,
+    "state": 0
+  },
+  {
+    "id": "default-submit",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Submit Query",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "default-reset",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Reset",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "updated",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "Updated title",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "unicode",
+    "kind": 1,
+    "width": 160,
+    "height": 28,
+    "title": "日本語Café",
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "resized",
+    "kind": 1,
+    "width": 240,
+    "height": 32,
+    "title": "Native button",
+    "enabled": 1,
+    "state": 0
+  }
+]

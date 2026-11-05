@@ -67,7 +67,7 @@ static double progress_position(void *frame) {
 }
 static int eligible(void *frame,unsigned appearance) {
   if(channel<0)return 0;
-  if(widgets_enabled&&(appearance==4||appearance==5)&&frame_kind(frame))return 1;
+  if(widgets_enabled&&(appearance==4||appearance==5||(buttons_enabled&&appearance==10))&&frame_kind(frame))return 1;
   if(appearance!=9)return 0;
   double position=progress_position(frame);
   return isfinite(position)&&position>=0&&position<=1;
@@ -139,8 +139,10 @@ static void install(void) {
      memcmp((void *)(base+0x589f280),(unsigned char[]){0x5f,0x24,0x03,0xd5,0x00,0x10,0x7e,0x1e},8)||
      !prepare_detours(detours,sizeof(detours)/sizeof(*detours))) {note("Gecko layout/instruction guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
+  if(buttons_enabled&&!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours))){note("Gecko button guard failed; unchanged");return;}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
+  if(buttons_enabled){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note("native Gecko input buttons installed");}
   installed=1;
   note("exact-build Gecko native progress adapter installed");
 }

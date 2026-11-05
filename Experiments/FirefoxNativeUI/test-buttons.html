@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>Gecko native input button transport</title>
+<style>
+body { margin:24px; color:black; background:white; font:16px sans-serif; }
+.row { margin:16px 0; }
+input[type=button],input[type=submit],input[type=reset] { box-sizing:border-box; width:160px; height:28px; }
+</style>
+<form id="form">
+<div class="row"><input id="button" type="button" value="Native button" onclick="window.actions++"></div>
+<div class="row"><input id="submit" type="submit" value="Send form"></div>
+<div class="row"><input id="reset" type="reset" value="Reset form"></div>
+<div class="row"><input id="disabled" type="button" disabled value="Unavailable"></div>
+<div class="row"><input id="default-submit" type="submit"></div>
+<div class="row"><input id="default-reset" type="reset"></div>
+<div class="row"><input id="text" name="message" value="Original"></div>
+</form>
+<button id="ordinary" type="button" onclick="this.textContent='Activated'">Ordinary engine action</button>
+<script>
+window.actions=0;window.events=[];window.submissions=[];window.resets=0;
+window.cacheShows=[];addEventListener('pageshow',event=>cacheShows.push(event.persisted));
+for(let element of document.querySelectorAll('input')) for(let type of ['click','keydown','keyup','input','change'])
+  element.addEventListener(type,event=>events.push({id:element.id,type,key:event.key,trusted:event.isTrusted}));
+form.addEventListener('submit',event=>{event.preventDefault();submissions.push({trusted:event.isTrusted,submitter:event.submitter?.id,message:new FormData(form).get('message')});});
+form.addEventListener('reset',()=>resets++);
+</script>

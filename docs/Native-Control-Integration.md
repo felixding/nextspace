@@ -43,7 +43,7 @@ required integration surfaces differ:
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress and native checkbox/radio drawing/input through the shared provider. Other controls, scaled output, animation, radio-group arrow navigation and broader input remain open. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio drawing/input and input push/submit/reset buttons through the shared provider. Other controls, native button intrinsic sizing, scaled output, animation, radio-group arrow navigation and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
@@ -239,3 +239,18 @@ checks also pass with interactive hooks enabled. The UI library/provider remain
 unchanged, and the helper only gains generic destruction trace records. Radio
 group arrow navigation, other controls and full browser application interfaces
 remain open. See [interactive Gecko qualification](../Experiments/FirefoxNativeUI/input-qualification.json).
+
+The pinned Gecko adapter additionally binds input push/submit/reset buttons to
+the existing native `NSButton`, including its title drawing and interaction.
+It uses the engine's real label accessor for localized defaults and suppresses
+only the anonymous engine label after a complete native image is available.
+Failed preparation restores the whole engine control, and unsupported style or
+fractional size changes release native ownership. Thirty-eight checks pass,
+including seventeen complete native images, trusted form submission/reset,
+cancellation, Unicode titles, resizing, cache/tab restoration, renderer-crash
+cleanup and continued input after helper loss. The forty checkbox/radio and
+twenty-one progress checks pass with these hooks enabled. The UI library and
+provider are unchanged. Fixed integer CSS sizes at scale 1 are qualified;
+native button intrinsic sizing, default-button policy, HTML `<button>` rich
+content and whole browser interfaces remain open. See
+[input-button qualification](../Experiments/FirefoxNativeUI/button-qualification.json).

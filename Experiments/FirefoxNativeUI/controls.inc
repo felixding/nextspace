@@ -1,4 +1,4 @@
-/* Gecko model/event adapter only. NSButton owns checkbox/radio rendering,
+/* Gecko model/event adapter only. NSButton owns button/checkbox/radio rendering,
  * focus, tracking and key interpretation in the independent NativeUI host. */
 #include "pinned-input.h"
 struct Widget {
@@ -7,10 +7,11 @@ struct Widget {
   uint64_t id;
   int kind,painted;
   double width,height,actions;
+  uint32_t *button_pixels;int button_width,button_height,button_label_owned;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
-static int widgets_enabled,widget_notifier=-1;
+static int widgets_enabled,buttons_enabled,widget_notifier=-1;
 static pid_t widget_pid;
 static uint64_t next_widget;
 static struct Widget *widgets,*active_widget;
@@ -18,6 +19,12 @@ static struct {void *event,*node;int allowed;} click_gate;
 static double preferred_width[4],preferred_height[4];
 static __thread int metric_probe;
 static void reset_widget_process(void);
+static char *utf8_text(const uint16_t *,uint32_t);
+static int prepare_button_image(void *);
+static int native_button_frame(const void *);
+static int button_cache_update(struct Widget *,const struct NXSResponse *);
+static int button_cache_available(const struct Widget *);
+static char *button_title(const struct Widget *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
 static int (*original_default_size)(void *);
 static int (*original_intrinsic)(void *,const void *,int);
@@ -31,7 +38,8 @@ static void (*original_active)(void *,int);
 static int node_kind(const void *node) {
   if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
   unsigned type=*((const unsigned char *)node+144);
-  return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:0;
+  return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
+    buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:0;
 }
 static int frame_kind(const void *frame) {
   return frame?node_kind(*(void *const *)((const char *)frame+24)):0;
@@ -54,12 +62,19 @@ static void invalidate_widget(struct Widget *w) {
   ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,1);
 }
 static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
-  uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_CHECKBOX?4:5);
+  uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_CHECKBOX?4:5);
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=w->kind,.control=w->id,.width=w->width,.height=w->height,
     .maximum=1,.state=(w->kind==NXS_CHECKBOX&&(state&64))?-1:!!(state&32),
     .enabled=!(state&16),.x=x,.y=y,.modifiers=modifiers};
-  return exchange_bytes(&request,sizeof(request));
+  char *title=w->kind==NXS_BUTTON&&operation==1?button_title(w):NULL;
+  if(w->kind==NXS_BUTTON&&operation==1&&!title)return NULL;
+  size_t length=title?strlen(title):0;
+  request.text_size=length;
+  size_t size=sizeof(request)+length;unsigned char *data=malloc(size);
+  if(!data){free(title);return NULL;}
+  memcpy(data,&request,sizeof(request));if(length)memcpy(data+sizeof(request),title,length);
+  struct NXSResponse *response=exchange_bytes(data,size);free(data);free(title);return response;
 }
 static struct NXSResponse *widget_sync(struct Widget *w) {
   struct NXSResponse *response=widget_request(w,1,0,0,0);
@@ -72,6 +87,7 @@ static struct NXSResponse *widget_sync(struct Widget *w) {
     if(!response)return NULL;
     response=widget_request(w,1,0,0,0);
   }
+  if(response&&w->kind==NXS_BUTTON&&!button_cache_update(w,response))return NULL;
   return response;
 }
 static void drain_widget_notifier(void) {
@@ -79,7 +95,7 @@ static void drain_widget_notifier(void) {
 }
 static void reset_widget_process(void) {
   if(widget_pid!=getpid()) {
-    while(widgets){struct Widget *next=widgets->next;free(widgets);widgets=next;}
+    while(widgets){struct Widget *next=widgets->next;free(widgets->button_pixels);free(widgets);widgets=next;}
     active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
     if(widget_notifier>=0)close(widget_notifier);
     widget_notifier=-1;widget_pid=getpid();
@@ -108,7 +124,9 @@ static struct Widget *bind_widget(void *frame) {
   struct Widget *existing=widget_for_frame(frame);if(existing)return existing;
   int kind=frame_kind(frame);if(!widgets_enabled||!kind)return NULL;
   float scale=frame_scale(frame);if(!isfinite(scale)||fabsf(scale-1)>0.000001f)return NULL;
-  metric_probe=1;int native=original_intrinsic(frame,NULL,0);metric_probe=0;
+  int native;
+  if(kind==NXS_BUTTON)native=native_button_frame(frame);
+  else {metric_probe=1;native=original_intrinsic(frame,NULL,0);metric_probe=0;}
   if(!native||!ensure_widget_lifetime())return NULL;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
   double width=rectangle[2]/60.,height=rectangle[3]/60.;
@@ -122,7 +140,7 @@ static struct Widget *bind_widget(void *frame) {
 }
 static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
   int kind=frame_kind(frame);
-  if(!widgets_enabled||!kind||appearance!=(unsigned)(kind==NXS_CHECKBOX?4:5)||fabsf(frame_scale(frame)-1)>0.000001f)
+  if(!widgets_enabled||!kind||appearance!=(unsigned)(kind==NXS_BUTTON?10:kind==NXS_CHECKBOX?4:5)||fabsf(frame_scale(frame)-1)>0.000001f)
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   const void *context=*(void *const *)((const char *)frame+40);
   double units=*(const int *)((const char *)context+200);
@@ -137,6 +155,16 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
     w->next=widgets;widgets=w;
   }
   w->width=area.width;w->height=area.height;
+  if(kind==NXS_BUTTON) {
+    if(!w->button_label_owned)return original_draw_target(self,target,frame,appearance,rect,overflow);
+    widget_sync(w);
+    if(button_cache_available(w)&&w->button_width==lround(area.width)&&w->button_height==lround(area.height)) {
+      draw_bitmap(target,&area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
+      if(log_fd>=0)dprintf(log_fd,"%d native-button id=%llu frame=%p size=%dx%d\n",getpid(),(unsigned long long)w->id,frame,w->button_width,w->button_height);
+      return 1;
+    }
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
+  }
   struct NXSResponse *response=widget_sync(w);w->painted=0;
   if(!response||response->width!=lround(area.width)||response->height!=lround(area.height)||response->stride!=response->width*4||
      sizeof(*response)+(size_t)response->stride*response->height!=response->size)
@@ -228,11 +256,8 @@ static unsigned logical_key(unsigned code) {
   }
   return code>=112&&code<=135?NXS_KEY_F1+code-112:NXS_KEY_TEXT;
 }
-static char *key_text(const void *event) {
-  const uint16_t *text=*(const uint16_t *const *)((const char *)event+160);
-  uint32_t length=*(const uint32_t *)((const char *)event+168);
+static char *utf8_text(const uint16_t *text,uint32_t length) {
   if(length>16384||(!text&&length))return NULL;
-  if(!length&&*(const uint32_t *)((const char *)event+200)==32)return strdup(" ");
   char *result=malloc(length*3+1);if(!result)return NULL;size_t used=0;
   for(uint32_t i=0;i<length;i++) {
     uint32_t c=text[i];
@@ -245,6 +270,12 @@ static char *key_text(const void *event) {
     else {result[used++]=0xf0|(c>>18);result[used++]=0x80|((c>>12)&63);result[used++]=0x80|((c>>6)&63);result[used++]=0x80|(c&63);}
   }
   result[used]=0;return result;
+}
+static char *key_text(const void *event) {
+  const uint16_t *text=*(const uint16_t *const *)((const char *)event+160);
+  uint32_t length=*(const uint32_t *)((const char *)event+168);
+  if(!length&&*(const uint32_t *)((const char *)event+200)==32)return strdup(" ");
+  return utf8_text(text,length);
 }
 static int advance_focus(void *node,int result) {
   void *manager=*(void **)(base+0xa439c38),*focused=NULL;if(!manager)return 0;
@@ -289,7 +320,7 @@ static uint32_t input_post(void *node,void *visitor) {
 static void forget_widget(struct Widget **cursor) {
   struct Widget *w=*cursor;
   if(active_widget==w)active_widget=NULL;
-  widget_request(w,6,0,0,0);*cursor=w->next;free(w);
+  widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w);
   if(!widgets&&widget_notifier>=0) {
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
     exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
@@ -316,6 +347,7 @@ static void active_shell(void *shell,int active) {
   if(!active)release_shell_widgets(shell);
   original_active(shell,active);
 }
+#include "buttons.inc"
 static struct Detour widget_detours[]={
   {NXS_GECKO_DRAW_TARGET_OFFSET,gecko_draw_target_bytes,draw_widget,(void **)&original_draw_target},
   {NXS_GECKO_DEFAULT_SIZE_OFFSET,gecko_default_size_bytes,default_size,(void **)&original_default_size},
@@ -336,4 +368,5 @@ static void prepare_widget_metrics(void) {
     preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
   }
   widgets_enabled=1;
+  const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
 }

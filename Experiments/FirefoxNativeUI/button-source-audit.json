@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-05",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "related_audits": [
+    "source-audit.json",
+    "input-source-audit.json"
+  ],
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/ButtonControlFrame.cpp",
+      "sha256": "f183426911121396ac60adff3b5856e882f7cec9d5f6b70b00228a6ac0abcc53"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/ButtonControlFrame.h",
+      "sha256": "e743a71a06e4e0678b7b2787a3ad63788438c1a2a82dd0cc7b979ff129ba234b"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/InputButtonControlFrame.cpp",
+      "sha256": "57e9845b55f37c6df47d1e21262323e07f10f17b8f9618926331767deb657de7"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/xpcom/string/nsTSubstring.h",
+      "sha256": "c795362156f419cf42c005b1d238b0614d80ebd63aba5b440db3ef8767d4d4d1"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/xpcom/string/nsTString.h",
+      "sha256": "87660352a05d2cee80e378d4798b702e6e1acd7be9003c5aa7fe4a7782c0fe19"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/xpcom/string/nsStringFlags.h",
+      "sha256": "368b60d5d275a6317cd214299749aca255ef1d751129a63da3f5e2f7b9301755"
+    }
+  ],
+  "guards": "Existing exact ELF build ID and launcher full-file hashes; pinned-input.h verifies both additional display-list prologues before any detour activates.",
+  "interfaces": {
+    "input_button": {
+      "input_types": {
+        "button": 129,
+        "reset": 136,
+        "submit": 143
+      },
+      "input_vtable": "0xa00fc30",
+      "frame_vtable": "0xa10bd38",
+      "address_point": 16,
+      "anonymous_label_node_offset": 200
+    },
+    "appearance": {
+      "button": 10,
+      "toolbarbutton": 31,
+      "evidence": "Pinned DoDrawWidgetBackground jump table at 0x12bc2dc sends entries 10 and 31 to the PaintButton branch at 0x6a5fdc8; initial guessed enum values failed the native image test and were rejected."
+    },
+    "theme_eligibility": {
+      "context_theme": "0x370c190",
+      "theme_supports_widget_thunk": "0x6a60e78",
+      "style_display_pointer_offset": 80,
+      "display_appearance_offset": 6
+    },
+    "label": {
+      "function": "InputButtonControlFrame::GetLabel(nsAString&)",
+      "address": "0x6eedb5c",
+      "finalize": "0x3826f2c",
+      "substring_bytes": 16,
+      "data_offset": 0,
+      "length_offset": 8,
+      "data_flags_offset": 12,
+      "class_flags_offset": 14,
+      "empty_terminated_flag": 1,
+      "ownership": "Initialize an empty substring, call the engine accessor, encode its UTF16, then release through the real engine Finalize. No localization or whitespace algorithm copied.",
+      "default_title_evidence": "Matching omni.ja res/locale/layout/HtmlForm.properties and chrome/en-US/locale/en-US/global/layout/HtmlForm.properties contain Submit Query and Reset. Only test references include these strings."
+    },
+    "display_list": {
+      "block_build": "0x6e19bf0",
+      "text_build": "0x6ed0a34",
+      "signature": "void(this, nsDisplayListBuilder*, const nsDisplayListSet&)",
+      "ownership": "Within this exact input-button frame, suppress only the text frame whose content is its anonymous label node, and only after caching the complete actual NSButton snapshot. All other block/text frames retain their original builders."
+    },
+    "geometry_input_lifetime": "Reuse input-source-audit.json frame rectangle union, trusted click, focus traversal, native responder input and frame/cache/process ownership interfaces; no new control implementation."
+  },
+  "qualification": "Fixed integer CSS sizes, horizontal scale 1, input button/submit/reset only. HTML button rich content, intrinsic sizing, default-button policy and full browser interfaces remain open."
+}

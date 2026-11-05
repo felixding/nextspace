@@ -48,7 +48,7 @@ fixtures. Other scales retain Gecko's rendering until scaled native transport
 is connected. Native radio-group arrow navigation is still open: the provider
 currently hosts individual radio buttons rather than a native group container.
 The tested radio-group data changes use real engine mouse/Space activation.
-Indeterminate animation, other controls, menus, editing, IME, accessibility,
+Indeterminate animation, remaining controls, menus, editing, IME, accessibility,
 browser application interfaces and derivatives remain open.
 The progress fixture retains its author-styled engine path; broader styled
 interactive controls remain unqualified. This is not full native Firefox support
@@ -109,3 +109,32 @@ The final control run created 107 native objects: 101 had explicit destruction
 records (including six released after renderer death), and the remaining six
 were reclaimed with the intentionally killed helper process. The native loader,
 provider and installed package inventory remained unchanged.
+
+The optional input-button binding (`NEXTSPACE_FIREFOX_BUTTONS=1`, together with
+`NEXTSPACE_FIREFOX_INPUT=1`) connects `<input type=button|submit|reset>` to the
+same existing `NSButton` provider. Gecko's actual `GetLabel` supplies the title,
+including localized defaults. The native control draws the complete bezel and
+title. Display-list interception suppresses only that input frame's anonymous
+label after a complete native snapshot is available. A failed preparation
+restores the whole engine control; changing to unsupported styling or fractional
+dimensions releases native ownership. The bridge contains no button artwork,
+title layout or tracking/key rules. Native actions retain Gecko's real trusted
+click, submission, reset and cancellation paths.
+
+Use `--buttons` instead of `--controls` to reproduce this fixture. It passes 38
+checks, including 17 complete native-image comparisons, dynamic Unicode titles,
+resizing, held-pointer cancellation, form semantics, style/size fallback,
+focus-handler replacement, actual cached-page and tab restoration. The runner
+also verifies renderer-crash cleanup and mouse/key actions after helper loss.
+It records renderer sandbox status while processes are live, since navigation
+can retire a renderer before the final census. All 40 checkbox/radio and 21
+progress checks pass with the button hooks enabled.
+
+This qualification uses fixed integer CSS dimensions at scale 1 in the pinned
+ARM64 binary. Native preferred/intrinsic button sizing, default-button policy,
+rich-content HTML `<button>`, scaled output and browser application interfaces
+remain open. The actual UI library, loader and provider are unchanged. See
+[`button-source-audit.json`](button-source-audit.json) and
+[`button-qualification.json`](button-qualification.json) for the exact boundaries
+and evidence. This is another partial engine binding, not native browser-wide
+support.
