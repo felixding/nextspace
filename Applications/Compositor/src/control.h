@@ -369,9 +369,10 @@ static int control_ready(int fd, uint32_t mask, void *data)
     struct wlr_drag *drag = server->seat->drag;
     bool icon = server->drag_icon != NULL;
     struct nextspace_toplevel *target = drag ? view_for_surface(server, drag->focus) : NULL;
-    fprintf(f, "{\"active\":%s,\"icon\":%s,\"target\":%u,\"action\":%u",
+    fprintf(f, "{\"active\":%s,\"icon\":%s,\"target\":%u,\"action\":%u,\"accepted\":%s",
       drag ? "true" : "false", icon ? "true" : "false", target ? target->id : 0,
-      drag && drag->source ? drag->source->current_dnd_action : 0);
+      drag && drag->source ? drag->source->current_dnd_action : 0,
+      drag && drag->source && drag->source->accepted ? "true" : "false");
     if (drag && drag->icon) {
       struct wlr_surface *s = drag->icon->surface;
       fprintf(f, ",\"width\":%d,\"height\":%d,\"buffer_width\":%d,\"buffer_height\":%d",

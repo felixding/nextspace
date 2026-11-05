@@ -190,7 +190,10 @@ def drag_archives(probe, env, command, windows, archive, directory, member, payl
                     (artifacts / 'openup-hover-state.json').write_text(json.dumps(dict(
                         scale=density, cancelled=cancel, expected_icon=icon, drag=drag,
                         outputs=command('outputs'), windows=command('windows')), indent=2) + '\n')
-                    return drag if drag['active'] and drag['target'] == icon['id'] and drag['action'] == (0 if move else 1) else False
+                    # Action negotiation and MIME acceptance are separate;
+                    # a successful drop requires both.
+                    return drag if drag['active'] and drag['target'] == icon['id'] and \
+                        drag['action'] == (0 if move else 1) and drag['accepted'] == (not move) else False
                 drag = until(accepted, 'OpenUp negotiates the offered file operation')
                 if cancel:
                     assert command('key 1 1')['ok'] and command('key 1 0')['ok']
