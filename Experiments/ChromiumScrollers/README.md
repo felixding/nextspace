@@ -399,3 +399,39 @@ descriptor cleanup and abrupt owner death with a shared connection still open.
 Real native menu-window clicks have separate helper/renderer timestamp traces.
 See [`notification-qualification.json`](notification-qualification.json) for
 the measured results and remaining scope.
+
+## Native plain/password text fields
+
+`NEXTSPACE_CHROMIUM_TEXT=1` with the existing forms/input flags binds themed
+plain/password webpage fields to the shared actual `NSTextField` and
+`NSSecureTextField` field editors. Native controls supply the complete bitmap,
+selection, caret and interpreted key commands. The adapter suppresses the
+engine's anonymous editor drawing and caret only after a native field is
+prepared. No text editor, key-binding table, glyph layout or caret timer is
+copied into the bridge. The existing NativeUI provider/loader/shim and AppKit
+binaries are reused unchanged.
+
+Native proposals enter Blink's actual insertion and menu/key command paths.
+They retain `beforeinput` cancellation, trusted `input`/`change`, maxlength,
+readonly/disabled state and engine undo. Native proposed deletion ranges are
+applied after `beforeinput` only while the canonical value and original
+selection remain unchanged. The native edit is vetoed after the engine action,
+then its canonical model is echoed back. Logical modified keys use DOM key
+identity instead of Chromium's control-character text payload. Programmatic
+value and selection updates invalidate the complete native snapshot at the
+actual engine model boundaries. Native caret invalidations reuse the existing
+process-owned eventfd/work-loop integration.
+
+The [source/ABI audit](text-source-audit.json) and
+[text qualification](text-qualification.json) record the exact boundaries and
+runtime evidence. `check-text.py` drives the owned fixture through agent-browser
+and compares complete fields with independent direct-provider references.
+
+This is one exact opt-in ARM64 build at scale 1 with fixed field dimensions.
+Chromium text mouse selection still uses its engine path and remains
+unqualified. Clipboard/cut/paste web-event integration, native undo-menu routing,
+typing undo grouping, selection-event/direction details, IME/composition,
+accessibility, other text types, native intrinsic sizing, broader styling and
+scaled/transformed output remain open. Address bars, browser frontends,
+derivatives and other binaries still require integration. The native control
+does not automatically provide all browser/application behavior.

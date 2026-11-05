@@ -34,6 +34,7 @@ static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled;
+static int forms_text_enabled;
 static int forms_notifications_enabled;
 static __thread const void *popup_mouse_event;
 static unsigned forms_input_capabilities;
@@ -68,6 +69,9 @@ static struct NXSResponse *sync_popup_model(struct NativeForm *,struct NXSRespon
 static void popup_after_input(struct NativeForm *,struct NXSResponse *);
 static void popup_free_model(struct NativeForm *);
 static void popup_sync_origin(struct NativeForm *);
+static int text_kind(int);
+static struct NXSResponse *sync_text_form(struct NativeForm *,struct NXSResponse *);
+static int default_text_key(void *,void *);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -167,6 +171,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   }
   struct NXSResponse *response=form_request(form,1,0,0,0);
   if(kind!=NXS_PROGRESS)response=sync_form_focus(form,response);
+  if(text_kind(kind))response=sync_text_form(form,response);
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
      sizeof(*response)+(size_t)response->stride*response->height!=response->size){
     if(log_fd>=0)dprintf(log_fd,"%d native bitmap unavailable kind=%d id=%llu response=%p errno=%d\n",
@@ -208,7 +213,7 @@ static void box_paint(void *self,const void *info) {
   void *previous=native_parent;native_parent=node;
   original_box_paint(self,info);native_parent=previous;
 }
-static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON||f->kind==NXS_POPUP)&&f->painted;}
+static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON||f->kind==NXS_POPUP||text_kind(f->kind))&&f->painted;}
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
 static void block_children(void*s,const void*i,uint64_t offset)
@@ -312,7 +317,7 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     click_form=NULL;
     void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
     struct NativeForm *form=form_ancestor(node);
-    if(form&&form_enabled(form->node)) {
+    if(form&&!text_kind(form->kind)&&form_enabled(form->node)) {
       form->enabled=1;form->state=form_state(form->node,form->kind);
       struct NXSResponse *sync=form_request(form,1,0,0,0);
       if(sync) {
@@ -371,6 +376,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-sliders.inc"
 #include "forms-popups.inc"
 #include "forms-progress.inc"
+#include "forms-text.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
  {NXS_RADIO_OFFSET,nxs_radio_bytes,paint_radio,(void **)&original_radio},
@@ -388,9 +394,11 @@ static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_d
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
-  (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)));}
+  (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))&&
+  (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))));}
 static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
-  if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));}
+  if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));
+  if(forms_text_enabled)activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));}

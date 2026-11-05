@@ -1,0 +1,275 @@
+{
+  "date": "2026-11-06",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "status": "Source, compiled ABI and runtime text binding audit for one optional exact-build Chromium adapter; full browser integration is incomplete.",
+  "sources": [
+    {
+      "path": "third_party/blink/renderer/core/html/forms/text_field_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_field_input_type.cc",
+      "sha256": "e0bf97761d2685875dae4949332a3c5627ebb72e8c3f5cec1f7f2f06e4692b5a",
+      "bytes": 38506
+    },
+    {
+      "path": "third_party/blink/renderer/core/html/forms/text_field_input_type.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_field_input_type.h",
+      "sha256": "36813e85916ab073c84dc368ea7c4345d9270e65785045e7d03e960d6d12a027",
+      "bytes": 5622
+    },
+    {
+      "path": "third_party/blink/renderer/core/html/forms/text_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_input_type.cc",
+      "sha256": "e2f84a2ad9b599233d8db310b055358a00a46045a8eb7943b549401e84150a5b",
+      "bytes": 2526
+    },
+    {
+      "path": "third_party/blink/renderer/core/html/forms/password_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/password_input_type.cc",
+      "sha256": "275f14af460decff6602bd0a6312baa7ed91dac3e88493dd9d80d74c9eb14325",
+      "bytes": 9372
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/editor.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/editor.cc",
+      "sha256": "320e681e0d466d0b4e44a1a78675a088072bb12b4d55e3a53bd0a632b05cbaaa",
+      "bytes": 38043
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/editor.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/editor.h",
+      "sha256": "e97624590204c72eeb11e04b338f45036e6baa876d21cbf371ec9435ecacb626",
+      "bytes": 11172
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/editor_command.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/editor_command.cc",
+      "sha256": "1f70c87441bf80861349c7edfc93245c4b6ace44ffcbdac85b7626ba0c90e8fc",
+      "bytes": 101534
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/typing_command.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/typing_command.cc",
+      "sha256": "acf5acd76d7fb1274ff59bf22f8886a848e5d48cf5cfa9204a51cc992d753d9e",
+      "bytes": 52620
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/typing_command.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/typing_command.h",
+      "sha256": "628b958080250eb5a7ba97a670e2804df1880712f9c144a6ba6a203c45809041",
+      "bytes": 7746
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/theme_painter_default.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/theme_painter_default.cc",
+      "sha256": "1ef50eae3d648a0d488dbb1b8a7d62ea3f658a92ded8741eab6de909437c9ab7",
+      "bytes": 40505
+    },
+    {
+      "path": "third_party/blink/renderer/core/paint/theme_painter.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/theme_painter.cc",
+      "sha256": "c8409284532b2487bbe229ce16ed418c17390bdf27629347782a9984029a55f6",
+      "bytes": 18003
+    },
+    {
+      "path": "third_party/blink/renderer/core/layout/forms/layout_text_control_single_line.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/forms/layout_text_control_single_line.cc",
+      "sha256": "c24732c6526144f4d9bb98c626a98883c8506167e77bf0b7afd2985be9227ea0",
+      "bytes": 2744
+    },
+    {
+      "path": "third_party/blink/renderer/core/layout/forms/layout_text_control_single_line.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/forms/layout_text_control_single_line.h",
+      "sha256": "b89335f7d3b801f98b4ef7bb57f13fe0f223e6760ea253d5430e16c7810a9297",
+      "bytes": 1531
+    },
+    {
+      "path": "third_party/blink/renderer/core/input/event_handler.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/event_handler.cc",
+      "sha256": "792361122d2946779dadba2aa5507499e921848c7bb7e71a70b3ade76a325c54",
+      "bytes": 111441
+    },
+    {
+      "path": "third_party/blink/renderer/core/input/event_handler.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/event_handler.h",
+      "sha256": "2ec72b3c32fafb82bccdccd97f6afbad501dbeb5bb6ab23c10e9b705ea84f366",
+      "bytes": 21551
+    },
+    {
+      "path": "third_party/blink/renderer/core/frame/local_frame.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/frame/local_frame.h",
+      "sha256": "e0e7f42ecd10063043aace80509a10b8dcfa2ee6c9642ffadeee21f573b5dd4c",
+      "bytes": 57923
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/editor_command.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/editor_command.h",
+      "sha256": "bb00f7984fac43db7781be3a803d92349cb43ecd32f42205a708cedec7357ee0",
+      "bytes": 3891
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/delete_selection_command.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/delete_selection_command.cc",
+      "sha256": "9210f7246977de4d960bcafe697405de35ddd194447553ad5ab94ad53b3642d0",
+      "bytes": 65260
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/delete_selection_command.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/delete_selection_command.h",
+      "sha256": "db753cf180dbd70fcd59d35a5e211a4ddbaf8dd1e6fb7d2d726f5b0cc4320f8e",
+      "bytes": 4773
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/commands/editing_commands_utilities.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/commands/editing_commands_utilities.h",
+      "sha256": "e6fb3668cf62bd2eca20d60452181d2392ca795131a2e8b37b4a5937e9638da6",
+      "bytes": 8618
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/wtf_string.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/wtf/text/wtf_string.cc",
+      "sha256": "9204578a48cc9bbcdd578bd604bc63a88cc746372fe57808d1e378decb145e88",
+      "bytes": 12743
+    },
+    {
+      "path": "third_party/blink/renderer/platform/wtf/text/string_impl.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/wtf/text/string_impl.cc",
+      "sha256": "c71dd85ffd40531236b02730df0d8264a8d4ddf8b53823df0e89652cfd29ea74",
+      "bytes": 51640
+    },
+    {
+      "path": "third_party/blink/renderer/core/editing/editor_key_bindings.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/editor_key_bindings.cc",
+      "sha256": "2049ef0865ff3bbcc615a57e5f2dc5b0c5a4bbed5fe170fc472301e8d910e69f",
+      "bytes": 5650
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_input_element.h",
+      "sha256": "d3bed433ba8d280d030178e4437cb148d40d8a5fef9c4f0e5c5afd886efd9e3b",
+      "bytes": 23457
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/box_fragment_painter.cc",
+      "sha256": "ce3c7335701c5f076b30a6b6fc95ea45b52867997b59640a5a7fb6b2b32a0699",
+      "bytes": 126645
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_control_element.cc",
+      "sha256": "608155d99ce17c08282c9cf3d3a0a31cb2f2e40b6deba2a30e9ed693eab34849",
+      "bytes": 60546
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/events/keyboard_event.h",
+      "sha256": "88a97d0a5d1795d0d15d9f16433a2e3de5adec17586f951137f6d973026f5b57",
+      "bytes": 4363
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/events/keyboard_event.cc",
+      "sha256": "ace306c55d174e639414b35a0f1568832f7f57fac519a6345eea03a5ac3c1b7a",
+      "bytes": 8718
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/keyboard_event_manager.cc",
+      "sha256": "d5fac75f50fd6c0e07c566003b3bdc2f02a9c463cd1ff0527603144c10a99ede",
+      "bytes": 27402
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/public/common/input/web_keyboard_event.h",
+      "sha256": "c2f8d67c253f032a81f0798f961fbffd8a930467d3a09711b8193f745d5378f0",
+      "bytes": 5093
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_form_control_element.cc",
+      "sha256": "f39dcc56172593bc57b686c01f83b9929b23f0b022cda9aea7f39dd46b21f3d4",
+      "bytes": 20889
+    }
+  ],
+  "guarded_interfaces": {
+    "text_paint": {
+      "offset": "0xe8581a8",
+      "guard_bytes": 20
+    },
+    "text_carets": {
+      "offset": "0xe7a14d0",
+      "guard_bytes": 20
+    },
+    "text_value": {
+      "offset": "0xefa59fc",
+      "guard_bytes": 20
+    },
+    "text_start": {
+      "offset": "0xefb201c",
+      "guard_bytes": 20
+    },
+    "text_end": {
+      "offset": "0xefb1d98",
+      "guard_bytes": 20
+    },
+    "text_selection": {
+      "offset": "0xefb3524",
+      "guard_bytes": 20
+    },
+    "text_readonly": {
+      "offset": "0xe0d3774",
+      "guard_bytes": 20
+    },
+    "text_from_utf8": {
+      "offset": "0xbe908a8",
+      "guard_bytes": 20
+    },
+    "text_before_insert": {
+      "offset": "0xdd89f00",
+      "guard_bytes": 20
+    },
+    "text_insert_event": {
+      "offset": "0xe249e1c",
+      "guard_bytes": 20
+    },
+    "text_execute": {
+      "offset": "0xde4dbb0",
+      "guard_bytes": 20
+    },
+    "text_delete_backward": {
+      "offset": "0xddefbd0",
+      "guard_bytes": 20
+    },
+    "text_delete_forward": {
+      "offset": "0xddf04f0",
+      "guard_bytes": 20
+    },
+    "text_command": {
+      "offset": "0xde4d1c8",
+      "guard_bytes": 20
+    },
+    "text_string_destroy": {
+      "offset": "0x7246038",
+      "guard_bytes": 20
+    },
+    "text_view_value": {
+      "offset": "0xefb5bf0",
+      "guard_bytes": 20
+    }
+  },
+  "compiled_abi": {
+    "String": "Single pointer String return in this binary; native FromUtf8 receives span pointer/length in x0/x1 and returns StringImpl in x0. Actual Chromium String destructor releases it.",
+    "EditorCommand": "24 bytes: internal command pointer at 0, source int at 8, frame pointer at 16. Source 0 is menu/key binding, as in the compiled native keyboard dispatch call site. Real InternalCommand lookup and EditorCommand::Execute preserve command beforeinput and validation.",
+    "LocalFrame": "Existing decoded document/window/frame chain; compressed Editor member at +588 and EventHandler member at +592, verified by compiled Editor::HandleKeyboardEvent.",
+    "selection": "Real TextControlElement selection start/end and SetSelectionRange. Native proposed delete range is applied in actual static TypingCommand delete entry points after beforeinput, only when canonical value and original selection remain unchanged.",
+    "painting": "Existing ThemePainterDefault text-field rectangle and canvas. Prepared actual native bitmap replaces complete field; existing child-paint boundaries suppress anonymous text and guarded PaintCaretsIfNeeded suppresses the engine caret only for owned native fields."
+  },
+  "findings": [
+    "Blink Editor key insertion uses actual DispatchBeforeInputInsertText then EventHandler::HandleTextInputEvent; using that same path retains text filtering, maxlength, trusted input, cancellation and undo.",
+    "Editor::ExecuteCommand convenience aliases DeleteBackward to legacy BackwardDelete, which omits the expected beforeinput path. Resolve and execute the actual menu/key EditorCommand instead.",
+    "Chromium WebKeyboardEvent text for Control+A can be a control character. Native logical shortcut input must use DOM key identity with modifiers; otherwise GNUstep cannot match its real Emacs binding. Printable input remains on keypress, after page cancellation.",
+    "Native Return is dispatched on keypress only; keydown must retain the engine path that defers text-insertion commands.",
+    "Cached field background snapshots require invalidation when the real engine updates inner editor values or selection. Real TextControlElement update/selection boundaries invalidate the owning layout rather than fabricating DOM changes.",
+    "Actual native caret invalidations reuse the existing eventfd/work-loop integration. Helper loss also invalidates every native text field so original complete engine drawing returns immediately.",
+    "Beforeinput/input removal/replacement cases pass. Native controls, rendering, caret timer and key bindings remain in the unchanged shared UI library."
+  ],
+  "remaining": [
+    "Native mouse selection, multiple-click metadata, data dragging and context menus for Chromium fields.",
+    "Clipboard web events and native cut/paste/undo command routing, typing undo grouping, selection-event/direction semantics, IME/composition and accessibility.",
+    "Native intrinsic sizing, other text types, multiline/rich text, broad author styling, transforms and non-1 scale output.",
+    "Cached-page lifecycle, long validators/modal editing flows, other Chromium builds/derivatives and browser address bars/frontends.",
+    "Complete Firefox frontends and remaining GTK/Qt/KDE application surfaces."
+  ]
+}

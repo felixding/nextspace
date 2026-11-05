@@ -29,13 +29,15 @@ static int input_form_kind(void *node) {
   if(!type)return 0;
   int kind=!strcmp(type,"checkbox")?NXS_CHECKBOX:!strcmp(type,"radio")?NXS_RADIO:
     (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
+    (forms_text_enabled&&!strcmp(type,"text"))?NXS_TEXTFIELD:
+    (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
   free(type);return kind;
 }
 static struct NativeForm *bind_input_form(void *node) {
   struct NativeForm *form=find_form(node);if(form)return form;
   int kind=input_form_kind(node);
-  if(kind==NXS_POPUP)return NULL; /* The native theme paint establishes classic select ownership. */
+  if(kind==NXS_POPUP||text_kind(kind))return NULL; /* Theme paint establishes native ownership. */
   if(!kind||!decode_member((const char *)node+48))return NULL;
   /* Keyboard focus can precede the first paint. Use the engine's layout box
    * and semantic control type to create the native object at that boundary. */
@@ -119,6 +121,8 @@ static char *keyboard_text(const void *web,int offset,const char *fallback) {
 }
 static int default_form_key(void *node,void *event) {
   if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_KEYBOARD))return 0;
+  struct NativeForm *text_form=find_form(node);
+  if(text_form&&text_kind(text_form->kind))return default_text_key(node,event);
   unsigned short *flags=(unsigned short *)((char *)event+32);
   if(!(*flags&0x100)||(*flags&0x60))return 0;
   uintptr_t atom=*(const uintptr_t *)((char *)event+24);

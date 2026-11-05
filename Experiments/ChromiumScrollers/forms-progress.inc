@@ -68,10 +68,10 @@ static void *watch_native_forms(void *unused) {
   return NULL;
 }
 static int refresh_form_watch(void) {
-  if(!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled)return 1;
+  if(!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
   int needed=active_form&&active_form->kind==NXS_SLIDER;double generation=needed?active_form->generation:0;
   for(struct NativeForm *f=native_forms;f;f=f->next)
-    if((f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted)||(f->kind==NXS_POPUP&&f->popup_open)){needed=1;generation=fmax(generation,f->generation);}
+    if((f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted)||(f->kind==NXS_POPUP&&f->popup_open)||(text_kind(f->kind)&&f->painted)){needed=1;generation=fmax(generation,f->generation);}
   pthread_mutex_lock(&form_watch.mutex);
   if(form_watch.failed)needed=0;
   if(needed&&!form_watch.started){
@@ -101,8 +101,14 @@ static int refresh_form_watch(void) {
   if(join){pthread_join(thread,NULL);pthread_mutex_lock(&form_watch.mutex);form_watch.started=0;close_form_notifier();pthread_mutex_unlock(&form_watch.mutex);}
   return usable;
 }
+static void schedule_form_paint(struct NativeForm *form) {
+  void *layout=decode_member((const char *)form->node+48);if(!layout)return;
+  invalidate_form(form);
+  void *view=((void *(*)(const void *))(base+0xe11b43c))(layout);
+  if(view)((void (*)(void *))(base+0xdf93618))(view);
+}
 static void form_native_work(void *controller) {
-  if(!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled)return;
+  if(!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return;
   pthread_mutex_lock(&form_watch.mutex);
   int ready=form_watch.running&&form_watch.pending&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
   int failed=form_watch.failed;
@@ -116,6 +122,8 @@ static void form_native_work(void *controller) {
       if(!popup)break;
       popup->popup_open=0;popup_engine_closed(popup->popup_engine);
     }
+    for(struct NativeForm *f=native_forms;f;f=f->next)
+      if(text_kind(f->kind)){f->painted=0;schedule_form_paint(f);}
     refresh_form_watch();return;
   }
   if(active_form&&active_form->kind==NXS_SLIDER){
@@ -127,11 +135,8 @@ static void form_native_work(void *controller) {
   while(popup&&!(popup->kind==NXS_POPUP&&popup->popup_open))popup=popup->next;
   if(popup)popup_after_input(popup,form_request(popup,5,0,0,0));
   for(struct NativeForm *f=native_forms;f;f=f->next){
-    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&f->kind==NXS_SLIDER)))continue;
-    void *layout=decode_member((const char *)f->node+48);if(!layout)continue;
-    invalidate_form(f);
-    void *view=((void *(*)(const void *))(base+0xe11b43c))(layout);
-    if(view)((void (*)(void *))(base+0xdf93618))(view);
+    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&f->kind==NXS_SLIDER)||text_kind(f->kind)))continue;
+    schedule_form_paint(f);
   }
   static __thread unsigned logged;
   if(logged++<32)note("native invalidation applied on renderer thread");

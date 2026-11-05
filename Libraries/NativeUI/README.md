@@ -119,8 +119,10 @@ See [text qualification](text-qualification.json) and
 [source audit](text-source-audit.json).
 
 The optional [pinned Firefox adapter](../../Experiments/FirefoxNativeUI/text-qualification.json)
-now connects plain/password webpage fields. Chromium text and URL-bar fields
-remain open. Engine edits must
+now connects plain/password webpage fields. The optional
+[Chromium binding](../../Experiments/ChromiumScrollers/text-qualification.json)
+also connects their complete drawing and native keys to real Blink transactions.
+Chromium mouse/clipboard/IME and browser URL-bar fields remain open. Engine edits must
 retain beforeinput cancellation, trusted events, validation, selection, undo,
 composition and application command behavior. Multiline/rich text, IME, undo
 menu routing, other scales, drag/drop and accessibility

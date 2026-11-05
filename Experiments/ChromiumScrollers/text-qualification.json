@@ -1,0 +1,810 @@
+{
+  "date": "2026-11-06",
+  "base_commit": "78af432c",
+  "status": "Partial opt-in native plain/password webpage drawing and keyboard editing on one exact unchanged ARM64 Chromium build. Full native browsers and non-GNUstep applications remain incomplete.",
+  "implementation": {
+    "native_controls": "Existing unchanged NSTextField/NSSecureTextField field editors through the shared provider",
+    "native_behavior": "Complete field pixels, selection/caret and logical key interpretation; no copied controls, key bindings, editing algorithms, glyph layout or blink timer",
+    "engine_insertion": "Actual Blink beforeinput dispatch followed by the real text-input event/editor pipeline",
+    "engine_deletion": "Actual menu/key EditorCommand execution; native proposed ranges applied at real TypingCommand delete entry points after beforeinput while the canonical model remains unchanged",
+    "ownership": "Engine retains trusted events, validation and undo; native mutation is vetoed after the engine action, canonical model echoed",
+    "invalidation": "Existing native eventfd/work-loop subscription; actual engine value/selection boundaries invalidate the complete native snapshot",
+    "flags": [
+      "NEXTSPACE_CHROMIUM_FORMS=1",
+      "NEXTSPACE_CHROMIUM_INPUT=1",
+      "NEXTSPACE_CHROMIUM_TEXT=1"
+    ],
+    "compiled": "Optional Chromium adapter only; NativeUI provider/loader/shim, AppKit and browser reused unchanged"
+  },
+  "qualification": {
+    "browser_checks": 44,
+    "complete_native_images": 13,
+    "independent_native_key_cases": 9,
+    "checks": [
+      {
+        "case": "fixture-title",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-normal-normal",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 54,
+          "height": 24,
+          "left": 59.453125,
+          "right": 239.453125,
+          "top": 30,
+          "width": 180,
+          "x": 59.453125,
+          "y": 30
+        }
+      },
+      {
+        "case": "native-pixels-password-normal",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 98,
+          "height": 24,
+          "left": 95,
+          "right": 275,
+          "top": 74,
+          "width": 180,
+          "x": 95,
+          "y": 74
+        }
+      },
+      {
+        "case": "native-pixels-readonly-normal",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 142,
+          "height": 24,
+          "left": 98,
+          "right": 278,
+          "top": 118,
+          "width": 180,
+          "x": 98,
+          "y": 118
+        }
+      },
+      {
+        "case": "native-pixels-disabled-normal",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 186,
+          "height": 24,
+          "left": 89,
+          "right": 269,
+          "top": 162,
+          "width": 180,
+          "x": 89,
+          "y": 162
+        }
+      },
+      {
+        "case": "native-pixels-unicode-normal",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 230,
+          "height": 24,
+          "left": 85,
+          "right": 265,
+          "top": 206,
+          "width": 180,
+          "x": 85,
+          "y": 206
+        }
+      },
+      {
+        "case": "native-pixels-limited-normal",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 274,
+          "height": 24,
+          "left": 79,
+          "right": 259,
+          "top": 250,
+          "width": 180,
+          "x": 79,
+          "y": 250
+        }
+      },
+      {
+        "case": "native-pixels-normal-focused",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 54,
+          "height": 24,
+          "left": 59.453125,
+          "right": 239.453125,
+          "top": 30,
+          "width": 180,
+          "x": 59.453125,
+          "y": 30
+        }
+      },
+      {
+        "case": "native-pixels-password-focused",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 98,
+          "height": 24,
+          "left": 95,
+          "right": 275,
+          "top": 74,
+          "width": 180,
+          "x": 95,
+          "y": 74
+        }
+      },
+      {
+        "case": "native-pixels-readonly-focused",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 142,
+          "height": 24,
+          "left": 98,
+          "right": 278,
+          "top": 118,
+          "width": 180,
+          "x": 98,
+          "y": 118
+        }
+      },
+      {
+        "case": "native-pixels-unicode-focused",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 230,
+          "height": 24,
+          "left": 85,
+          "right": 265,
+          "top": 206,
+          "width": 180,
+          "x": 85,
+          "y": 206
+        }
+      },
+      {
+        "case": "native-pixels-limited-focused",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 274,
+          "height": 24,
+          "left": 79,
+          "right": 259,
+          "top": 250,
+          "width": 180,
+          "x": 79,
+          "y": 250
+        }
+      },
+      {
+        "case": "native-selection-replacement",
+        "passed": true,
+        "state": {
+          "end": 2,
+          "start": 2,
+          "value": "HXlo"
+        }
+      },
+      {
+        "case": "trusted-insert-transaction",
+        "passed": true,
+        "events": [
+          {
+            "data": "X",
+            "end": 3,
+            "id": "normal",
+            "inputType": "insertText",
+            "start": 1,
+            "trusted": true,
+            "type": "beforeinput",
+            "value": "Hello"
+          },
+          {
+            "data": "X",
+            "end": 2,
+            "id": "normal",
+            "inputType": "insertText",
+            "start": 2,
+            "trusted": true,
+            "type": "input",
+            "value": "HXlo"
+          }
+        ]
+      },
+      {
+        "case": "native-backspace",
+        "passed": true,
+        "state": {
+          "end": 1,
+          "start": 1,
+          "value": "Hlo"
+        }
+      },
+      {
+        "case": "trusted-delete-transaction",
+        "passed": true,
+        "events": [
+          {
+            "data": null,
+            "end": 2,
+            "id": "normal",
+            "inputType": "deleteContentBackward",
+            "start": 2,
+            "trusted": true,
+            "type": "beforeinput",
+            "value": "HXlo"
+          },
+          {
+            "data": null,
+            "end": 1,
+            "id": "normal",
+            "inputType": "deleteContentBackward",
+            "start": 1,
+            "trusted": true,
+            "type": "input",
+            "value": "Hlo"
+          }
+        ]
+      },
+      {
+        "case": "native-reference-Control+a",
+        "passed": true,
+        "state": {
+          "end": 0,
+          "start": 0,
+          "value": "Alpha beta"
+        },
+        "expected": {
+          "key": "Control+a",
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "native-reference-Control+e",
+        "passed": true,
+        "state": {
+          "end": 10,
+          "start": 10,
+          "value": "Alpha beta"
+        },
+        "expected": {
+          "key": "Control+e",
+          "value": "Alpha beta",
+          "start": 10,
+          "end": 10
+        }
+      },
+      {
+        "case": "native-reference-Control+b",
+        "passed": true,
+        "state": {
+          "end": 2,
+          "start": 2,
+          "value": "Alpha beta"
+        },
+        "expected": {
+          "key": "Control+b",
+          "value": "Alpha beta",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "native-reference-Control+f",
+        "passed": true,
+        "state": {
+          "end": 4,
+          "start": 4,
+          "value": "Alpha beta"
+        },
+        "expected": {
+          "key": "Control+f",
+          "value": "Alpha beta",
+          "start": 4,
+          "end": 4
+        }
+      },
+      {
+        "case": "native-reference-Backspace",
+        "passed": true,
+        "state": {
+          "end": 2,
+          "start": 2,
+          "value": "Alha beta"
+        },
+        "expected": {
+          "key": "Backspace",
+          "value": "Alha beta",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "native-reference-Delete",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 3,
+          "value": "Alpa beta"
+        },
+        "expected": {
+          "key": "Delete",
+          "value": "Alpa beta",
+          "start": 3,
+          "end": 3
+        }
+      },
+      {
+        "case": "native-reference-Control+d",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 3,
+          "value": "Alpa beta"
+        },
+        "expected": {
+          "key": "Control+d",
+          "value": "Alpa beta",
+          "start": 3,
+          "end": 3
+        }
+      },
+      {
+        "case": "native-reference-Control+h",
+        "passed": true,
+        "state": {
+          "end": 2,
+          "start": 2,
+          "value": "Alha beta"
+        },
+        "expected": {
+          "key": "Control+h",
+          "value": "Alha beta",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "native-reference-Control+k",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 3,
+          "value": "Alp"
+        },
+        "expected": {
+          "key": "Control+k",
+          "value": "Alp",
+          "start": 3,
+          "end": 3
+        }
+      },
+      {
+        "case": "cancel-beforeinput-insert",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 1,
+          "value": "Hello"
+        }
+      },
+      {
+        "case": "cancel-beforeinput-delete",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 1,
+          "value": "Hello"
+        }
+      },
+      {
+        "case": "beforeinput-script-model",
+        "passed": true,
+        "state": {
+          "end": 2,
+          "start": 2,
+          "value": "Script"
+        }
+      },
+      {
+        "case": "input-script-model",
+        "passed": true,
+        "state": {
+          "end": 12,
+          "start": 12,
+          "value": "Input update"
+        }
+      },
+      {
+        "case": "cancel-keydown",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 1,
+          "value": "Hello"
+        }
+      },
+      {
+        "case": "cancel-keypress",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 1,
+          "value": "Hello"
+        }
+      },
+      {
+        "case": "engine-undo-retained",
+        "passed": true,
+        "state": {
+          "end": 3,
+          "start": 1,
+          "value": "Hello"
+        }
+      },
+      {
+        "case": "engine-blur-change",
+        "passed": true
+      },
+      {
+        "case": "secure-engine-value",
+        "passed": true,
+        "state": {
+          "end": 2,
+          "start": 2,
+          "value": "HXlo"
+        }
+      },
+      {
+        "case": "readonly-retained",
+        "passed": true
+      },
+      {
+        "case": "disabled-no-focus",
+        "passed": true
+      },
+      {
+        "case": "unicode-utf16",
+        "passed": true,
+        "state": {
+          "end": 10,
+          "start": 10,
+          "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42X"
+        }
+      },
+      {
+        "case": "engine-maxlength",
+        "passed": true,
+        "state": {
+          "end": 4,
+          "start": 4,
+          "value": "abcX"
+        }
+      },
+      {
+        "case": "engine-form-submit",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-programmatic-model",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 54,
+          "height": 24,
+          "left": 59.453125,
+          "right": 239.453125,
+          "top": 30,
+          "width": 180,
+          "x": 59.453125,
+          "y": 30
+        }
+      },
+      {
+        "case": "native-pixels-programmatic-selection",
+        "passed": true,
+        "difference": null,
+        "rect": {
+          "bottom": 54,
+          "height": 24,
+          "left": 59.453125,
+          "right": 239.453125,
+          "top": 30,
+          "width": 180,
+          "x": 59.453125,
+          "y": 30
+        }
+      },
+      {
+        "case": "input-replaces-frame",
+        "passed": true,
+        "state": {
+          "end": 0,
+          "start": 0,
+          "value": "HXlo"
+        }
+      },
+      {
+        "case": "beforeinput-removes-frame",
+        "passed": true
+      },
+      {
+        "case": "native-caret-browser-invalidation",
+        "passed": true,
+        "difference": [
+          24,
+          3,
+          25,
+          18
+        ],
+        "state": {
+          "end": 3,
+          "start": 3,
+          "value": "Hello"
+        }
+      }
+    ]
+  },
+  "regressions": {
+    "input": {
+      "checks": 62,
+      "all_passed": true,
+      "evidence": ".build/native-ui/chromium-text-input-regression"
+    },
+    "progress": {
+      "checks": 20,
+      "all_passed": true,
+      "evidence": ".build/native-ui/chromium-text-regressions/progress"
+    },
+    "animation": {
+      "checks": 59,
+      "all_passed": true,
+      "evidence": ".build/native-ui/chromium-text-regressions/animation"
+    }
+  },
+  "helper_loss": {
+    "owned_helper_loss": {
+      "helper": 12192,
+      "browser": 12197
+    },
+    "immediate_field_repaint": {
+      "disabled": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "limited": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "normal": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "password": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "readonly": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "unicode": [
+        0,
+        0,
+        180,
+        24
+      ]
+    },
+    "all_fields_repainted": true,
+    "keyboard_fallback": {
+      "edits": [
+        {
+          "data": "X",
+          "end": 5,
+          "id": "normal",
+          "inputType": "insertText",
+          "start": 5,
+          "trusted": true,
+          "type": "beforeinput",
+          "value": "Hello"
+        },
+        {
+          "data": "X",
+          "end": 6,
+          "id": "normal",
+          "inputType": "insertText",
+          "start": 6,
+          "trusted": true,
+          "type": "input",
+          "value": "HelloX"
+        }
+      ],
+      "end": 6,
+      "start": 6,
+      "value": "HelloX"
+    },
+    "ordinary_action": "Activated"
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-native-ui/chromium-text-hook.so": "0125b1d18a60dc49fb5c9a0a1e0b186a38086aed37ccfe9278236571f51e80b7",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-native-ui/browser-text-build/libnextspace-native-scroller.so.0.1": "a31caaab0c1eab3f4e92f91aea449a2a47dc03199546319935e3d39a166acc33",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui.so.1": "2a65aa44b91c66b1165d9631eeca2d7a3734337065207cfe2116e56a9dd3b304",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui-gnustep.so.1": "bbaccb102804fe3d99a68b98d208cf0aec71e38a7ca48b3d6a617c56b23efc77"
+    },
+    "package_count": 1051,
+    "sandbox": [
+      {
+        "pid": 12275,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 12283,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 12287,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "launch": {
+      "pids": [
+        12186,
+        12192,
+        12197
+      ],
+      "command": [
+        "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+        "--ozone-platform=wayland",
+        "--gtk-version=4",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-sync",
+        "--disable-component-update",
+        "--password-store=basic",
+        "--remote-debugging-port=9241",
+        "--window-size=900,700",
+        "--user-data-dir=/tmp/native-text-chromium-804jafnf/profile",
+        "file:///workspace/Experiments/ChromiumScrollers/test-text.html"
+      ]
+    },
+    "native_created": 643,
+    "native_explicitly_destroyed": 636,
+    "native_reclaimed_with_killed_helper": [
+      [
+        1686779385,
+        637,
+        7
+      ],
+      [
+        1686779385,
+        638,
+        8
+      ],
+      [
+        1686779385,
+        639,
+        7
+      ],
+      [
+        1686779385,
+        640,
+        7
+      ],
+      [
+        1686779385,
+        641,
+        7
+      ],
+      [
+        1686779385,
+        642,
+        7
+      ],
+      [
+        1686779385,
+        643,
+        1
+      ]
+    ],
+    "owned_processes_exited": {
+      "12186": true,
+      "12192": true,
+      "12197": true
+    },
+    "cdp_port_closed": true,
+    "private_backend_alias_removed": true,
+    "launcher_cleanup": {
+      "exits": [
+        0,
+        -9,
+        0
+      ]
+    },
+    "owned_cdp_forward_removed": true
+  },
+  "unchanged_native_binaries": {
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": true,
+    "/var/tmp/nextspace-native-ui/browser-text-build/libnextspace-native-scroller.so.0.1": true,
+    "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui.so.1": true,
+    "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui-gnustep.so.1": true
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/hook.c": "aee12d6e097da3795725cb899e93ae37570e49e660cbae9eda2b7fed251c3bdf",
+    "Experiments/ChromiumScrollers/forms.inc": "726d64a0b2949ae2366686631256931333342ddc1f9ce3a7ce1c111105d3672a",
+    "Experiments/ChromiumScrollers/forms-input.inc": "2f583420f59766a1e602fd04cb953d68d4a500861f0343afe1affb47e290fe92",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "2554d58cfaa5dfafb0a3f4979df57d629318516a06961f9bc67bc430cdacf2b1",
+    "Experiments/ChromiumScrollers/forms-text.inc": "8bda18e83726494cc7722223ef0471eebff7fe9b525e254ef24327eef0fd063a",
+    "Experiments/ChromiumScrollers/pinned-text.h": "55ce6173be635d67c7148c434d2bdf52fdc77c99e092d764dfc1c79c86965bb1",
+    "Experiments/ChromiumScrollers/check-text.py": "79e7662cc9a03a2bc60abeb5f4fee3d13d6dfd7bfb6d6a48357cde05c9e4c368",
+    "Experiments/ChromiumScrollers/test-text.html": "18eec6ea65183300eab7f01a563e6ed8355dafa10b23d29be0a4ff6d1897344b"
+  },
+  "reference_evidence": {
+    "normal": ".build/firefox-native-ui/text-qualified/references",
+    "focused": ".build/firefox-native-ui/text-qualified/focused-references",
+    "provider_results_sha256": "f48d26aba2f0fbd83bfc2fb777db9d67e9e09a9547098afe7529a00db875ae62",
+    "provider_binary_unchanged": true
+  },
+  "source_audit": "text-source-audit.json",
+  "raw_evidence": [
+    ".build/native-ui/chromium-text-final",
+    ".build/native-ui/chromium-text-helper-loss-final/",
+    ".build/native-ui/chromium-text-input-regression/",
+    ".build/native-ui/chromium-text-regressions/",
+    ".build/native-ui/chromium-text-source/"
+  ],
+  "diagnostics": [
+    "The first launcher exited on stdin EOF before browser checks; a PTY-owned launcher then kept a live handle for the full fixture.",
+    "Control+A initially did nothing because Chromium supplied a control character as text. DOM key identity plus modifiers gives the native interpreter its actual logical shortcut.",
+    "The Editor::ExecuteCommand convenience alias initially deleted without beforeinput. Direct real menu/key EditorCommand execution restores the expected trusted event pair.",
+    "Thirty-nine checks passed before a programmatic-value pixel mismatch exposed the cached background. Real inner-editor value and selection boundaries now invalidate that whole native snapshot.",
+    "Helper loss initially retained stale images in all six fields even though keyboard fallback worked. Invalidating native text fields on the existing failure wakeup restores complete original engine drawing immediately; all six full rectangles change and trusted insertion/click remain functional.",
+    "A control-session close after its externally owned browser stopped failed CDP discovery. The offline doctor found a healthy named daemon; later cleanup closes the control session before its owned browser.",
+    "Host Apple Python lacked Pillow. Qualification used the already bundled Python/Pillow runtime without installing packages.",
+    "Guest fstrim reclaimed 9.7GiB of unused sparse-disk blocks; observed host free space increased from 571MiB to 1.9GiB without deleting files."
+  ],
+  "limitations": [
+    "One pinned Debian ARM64 Chromium build, scale 1 and fixed field dimensions. Other builds, Chrome/Vivaldi and derivatives are not established by this pin.",
+    "Only themed plain/password webpage inputs are covered. Native intrinsic sizing, other text types, multiline/rich text, author styling, transforms and scaling remain open.",
+    "Chromium mouse text selection currently uses its engine path. Native mouse/multiple-click/data-drag/context-menu bindings remain open.",
+    "Clipboard/cut/paste web-event integration, native undo-menu routing, typing undo grouping, selection-event/direction details, IME/composition and accessibility remain open.",
+    "Engine undo is tested through its existing command API, not native undo shortcut/menu routing. Unsupported native semantic edit commands are vetoed.",
+    "Native fixture fonts lack some Unicode glyphs. Value/UTF-16 preservation and equality to the actual native image are qualified, complete glyph coverage is not.",
+    "Cached-page/tab restoration, long validators/modal editing, broader layout and sustained performance need qualification.",
+    "Browser application interfaces/address bars, derivative-specific frontends and GTK/Qt/KDE apps remain required."
+  ]
+}
