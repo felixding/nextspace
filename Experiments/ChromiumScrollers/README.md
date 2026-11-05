@@ -93,3 +93,36 @@ Local raw evidence is under `.build/foreign-scrollbars/chromium-prototype/`:
 source inputs. The stock executable and the existing native bridge passed their
 hash checks afterward. Downloaded packages were extracted in a private test
 folder; the guest package inventory was unchanged.
+
+## Expanded requirement and disabled-control checks
+
+The [full native-control integration scope](../../docs/Native-Control-Integration.md)
+now records the requirement for browser UI, forms, menus, editing and shortcuts
+across browser families. Those additional controls are not implemented here.
+
+The earlier `qualified-zero.png` screenshot contains Chromium artwork in the
+nested disabled horizontal bar. Its original fallback trigger was not
+conclusively reproduced; this artifact must not be described as fully native.
+Fresh startup and eight new enabled/disabled comparisons match native pixels.
+The request guard now accepts content smaller than the viewport, which the
+existing `NSScroller` already supports, rather than invoking Chromium's fallback.
+
+`native-reference.py` renders reference images from the unchanged native bridge
+(requires Pillow and the existing GNUstep backend). `check-disabled.py` uses an
+explicit agent-browser session attached to the isolated test fixture, checks
+both nested scrollbars across fitting, overflowing, empty and restored content,
+and compares every pixel with those references. Run the reference generator in
+the native test session and the browser checker where agent-browser is available:
+
+```sh
+python3 Experiments/ChromiumScrollers/native-reference.py \
+  --library /path/to/libnextspace-native-scroller.so.1 --output /tmp/native-references
+python3 Experiments/ChromiumScrollers/check-disabled.py \
+  --session YOUR_TEST_SESSION --cdp YOUR_TEST_PORT \
+  --references /tmp/native-references --output /tmp/disabled-control-results
+```
+
+Raw results and screenshots are in
+`.build/foreign-scrollbars/chromium-prototype/disabled-matrix/`. All eight native
+pixel comparisons passed at 100% scale. This does not qualify other controls,
+other browser builds or the cause of every earlier fallback.

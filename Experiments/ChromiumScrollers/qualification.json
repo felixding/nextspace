@@ -56,8 +56,28 @@
     "unsupported_preload": "unchanged",
     "unsupported_launcher": "rejected",
     "missing_helper_startup": "unchanged",
-    "launcher_version_smoke": "passed"
+    "launcher_version_smoke": "passed",
+    "nested_enabled_disabled_pixel_transitions": {
+      "cases": [
+        "fitting",
+        "overflowing",
+        "empty",
+        "fitting-again"
+      ],
+      "orientations": [
+        "horizontal",
+        "vertical"
+      ],
+      "passed": 8,
+      "difference": null,
+      "evidence": ".build/foreign-scrollbars/chromium-prototype/disabled-matrix/results.json"
+    }
   },
   "scope": "Web-content scrollbar proof of concept; no general browser or desktop parity claim",
-  "raw_evidence": ".build/foreign-scrollbars/chromium-prototype/"
+  "raw_evidence": ".build/foreign-scrollbars/chromium-prototype/",
+  "known_limits": [
+    "The earlier qualified-zero.png screenshot contains non-native disabled horizontal artwork; its original fallback trigger was not conclusively reproduced. Fresh startup and the added eight state comparisons match native output.",
+    "The adapter now accepts nonnegative content extents smaller than the viewport instead of invoking the Chromium paint fallback.",
+    "No full-control or additional-browser support is implemented."
+  ]
 }

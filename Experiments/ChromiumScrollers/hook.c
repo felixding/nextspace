@@ -76,7 +76,10 @@ static struct NXSResponse *query(const void *bar,int layer,float value,int overr
     .length=orientation==0?frame.width:frame.height,
     .total=*(const int *)(p+36),.page=*(const int *)(p+32),
     .value=override_value?value:*(const float *)(p+40)};
-  if((orientation!=0&&orientation!=1)||req.length<1||req.length>8192||req.total<req.page||req.page<1||!isfinite(req.value))return NULL;
+  /* A forced, disabled scrollbar may have less content than its viewport.
+   * NSScroller already handles that range; rejecting it here leaks Blink's
+   * fallback artwork into an otherwise native control. */
+  if((orientation!=0&&orientation!=1)||req.length<1||req.length>8192||req.total<0||req.page<1||!isfinite(req.value))return NULL;
   if(!layer&&cached_response.magic&&memcmp(&req,&cached_request,sizeof(req))==0)return &cached_response;
   struct NXSResponse *response=exchange(req);
   if(!response)return NULL;

@@ -55,6 +55,10 @@ def run(library,path):
                 state['native']=native.nxs_scroller_create(req.horizontal,changed,pump,context);controls[key]=state
                 if not state['native']:raise RuntimeError('Native NSScroller initialization failed')
                 log('native-control',process=req.process,control=req.control,horizontal=bool(req.horizontal),length=req.length,total=req.total,page=req.page)
+            metrics=(req.length,req.total,req.page)
+            if state.get('metrics')!=metrics:
+                state['metrics']=metrics
+                log('native-metrics',process=req.process,control=req.control,horizontal=bool(req.horizontal),length=req.length,total=req.total,page=req.page)
             if not native.nxs_scroller_tracking(state['native']):state['value']=req.value
             native.nxs_scroller_sync(state['native'],req.length,0,req.total,req.page,40,req.page*.875,state['value'],1)
             response(client,req,state,req.layer==1)
