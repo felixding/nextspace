@@ -52,9 +52,6 @@ CONFIG_SYSTEM_LIB_DIR += $(GRAPHIC_LFLAGS)
 # on having libraries specified).
 #
 libgnustep-$(BACKEND_FULL)_BUNDLE_LIBS = $(GRAPHIC_LIBS)
-ifeq ($(BUILD_SERVER),x11)
-libgnustep-$(BACKEND_FULL)_BUNDLE_LIBS += -lwraster
-endif
 
 ifeq ($(BACKEND_BUNDLE),)
 libgnustep-$(BACKEND_FULL)_LIBRARIES_DEPEND_UPON = \

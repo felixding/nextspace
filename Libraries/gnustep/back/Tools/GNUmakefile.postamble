@@ -27,9 +27,6 @@
 #
 
 # Things to do before compiling
-before-all::
-	-$(RM) xdnd.c
-	$(LN_S) ../Source/x11/xdnd.c .
 
 # Things to do after compiling
 # after-all::
@@ -68,8 +65,6 @@ after-uninstall::
 # before-clean::
 
 # Things to do after cleaning
-after-clean::
-	-$(RM) xdnd.c
 
 # Things to do before distcleaning
 # before-distclean::

@@ -201,8 +201,9 @@ compositor compiles the same title geometry into Cairo primitives. Legacy small
 bitmaps are retained as references and are not the input for these assets.
 
 The obsolete numbered X11 build scripts and source-tree installers have been
-removed. The shared native pipeline and Debian recipe above are the maintained
-source-build path. They retain the pinned dependency archives, local patches,
+removed. The retired Red Hat X11 RPM pipeline and Debian 12/Ubuntu 22.04 Xorg
+dependency lists are also removed. The shared native pipeline and Debian 13
+recipe above are the maintained source-build path. They retain the pinned dependency archives, local patches,
 asset generators and framework/application build helpers needed for refinement.
 The retired Xorg session entry, Xresources defaults, `startx` home setup and
 Raspberry Pi Xorg-mode snippets are removed as well. Native session entry and

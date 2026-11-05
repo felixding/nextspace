@@ -26,17 +26,9 @@
 
 #include "config.h"
 #include <Foundation/NSObject.h>
-#include <Foundation/NSException.h>
 #include <Foundation/NSUserDefaults.h>
 
-#if BUILD_SERVER == SERVER_wayland
 #include "wayland/WaylandServer.h"
-#else
-#include <x11/XGServer.h>
-@interface XGServer (Initialize)
-+ (void) initializeBackend;
-@end
-#endif
 
 @interface GSBackend : NSObject
 {
@@ -55,15 +47,7 @@
   NSString       *context = nil;
   NSUserDefaults *defs = [NSUserDefaults standardUserDefaults];
 
-  /* Load in only one server */
-#if BUILD_SERVER == SERVER_x11
-  [XGServer initializeBackend];
-#elif BUILD_SERVER == SERVER_wayland
   [WaylandServer initializeBackend];
-#else
-  [NSException raise: NSInternalInconsistencyException
-	       format: @"No Window Server configured in backend"];
-#endif
 
   /* The way the frontend is currently structured
      it's not possible to have more than one */
@@ -74,13 +58,7 @@
   
   if ((context == nil) || ([context length] == 0))
     {
-#if (BUILD_GRAPHICS==GRAPHICS_art)
-    context = @"ARTContext";
-#elif (BUILD_GRAPHICS==GRAPHICS_cairo)
-    context = @"CairoContext";
-#else
-#error INVALID build graphics type
-#endif
+      context = @"CairoContext";
     }
     
   // Reference the requested build time class...
