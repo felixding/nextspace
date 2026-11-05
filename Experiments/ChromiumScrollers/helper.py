@@ -122,10 +122,12 @@ def run(library,path):
         if sources:timeout=0
         if native_wait>=0:
             timeout=native_wait if timeout is None else min(timeout,native_wait)
-        ready,_,_=select.select([server]+clients+(forms.notification_fds() if forms else []),[],[],timeout)
+        ready,_,_=select.select([server]+clients+(forms.notification_fds()+forms.text_filter_fds() if forms else []),[],[],timeout)
         for client in ready:
             if isinstance(client,int):
-                forms.owner_exited(client);continue
+                if client in forms.text_filter_fds():forms.text_filter_ready(client)
+                else:forms.owner_exited(client)
+                continue
             if client is server:
                 connection,_=server.accept()
                 if forms and forms.notification_capabilities:connection.setsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED,1)

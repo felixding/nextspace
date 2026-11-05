@@ -26,7 +26,8 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .event_source_destroy=nxs_gnustep_source_destroy,
     .control_popup_open=nxs_gnustep_control_popup_open,
     .control_text_sync=nxs_gnustep_control_text_sync,
-    .control_text_get=nxs_gnustep_control_text_get
+    .control_text_get=nxs_gnustep_control_text_get,
+    .control_text_filter=nxs_gnustep_control_text_filter
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

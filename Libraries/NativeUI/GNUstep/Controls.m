@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <objc/runtime.h>
 struct NXSControl {
   int kind,enabled;
   NSView *view;
@@ -14,6 +15,9 @@ struct NXSControl {
   void *context;
   double step;
   NSRange text_selection;
+  NXSTextShouldChange text_filter;
+  void *text_filter_context;
+  SEL text_command;
   BOOL text_selection_pending,destroying;
 };
 static int text_control(NXSControl *control)
@@ -28,13 +32,57 @@ static void slider_model(NXSControl *control)
   [view setNumberOfTickMarks:ticks];[view setAllowsTickMarkValuesOnly:ticks>1];
   [view setDoubleValue:[view doubleValue]];
 }
-@interface NXSControlAction : NSObject { @public NXSControl *control; }
+@interface NXSControlAction : NSObject {
+ @public NXSControl *control;
+ @private id editor_delegate;
+}
 - (void)changed:(id)sender;
 - (void)willPopUp:(NSNotification *)notification;
 - (void)controlTextDidChange:(NSNotification *)notification;
 - (void)controlTextDidEndEditing:(NSNotification *)notification;
+- (void)bindTextEditor;
 @end
 @implementation NXSControlAction
+- (void)dealloc {[editor_delegate release];[super dealloc];}
+/* Preserve NSTextField's complete native delegate/notification path. Only its
+ * pre-edit proposal is intercepted; the original editor still performs edits. */
+- (BOOL)respondsToSelector:(SEL)selector
+{return [super respondsToSelector:selector]||[editor_delegate respondsToSelector:selector];}
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector
+{return [super methodSignatureForSelector:selector]?:[editor_delegate methodSignatureForSelector:selector];}
+- (void)forwardInvocation:(NSInvocation *)invocation
+{if([editor_delegate respondsToSelector:[invocation selector]])[invocation invokeWithTarget:editor_delegate];
+ else [super forwardInvocation:invocation];}
+- (void)bindTextEditor
+{
+  NSTextView *editor=(NSTextView *)[(NSTextField *)control->view currentEditor];
+  if(!editor)return;
+  if(control->text_filter) {
+    if([editor delegate]!=self) {
+      id previous=[[editor delegate] retain];[editor_delegate release];editor_delegate=previous;
+      [editor setDelegate:(id)self];
+    }
+  } else if([editor delegate]==self) {
+    [editor setDelegate:editor_delegate];[editor_delegate release];editor_delegate=nil;
+  }
+}
+- (BOOL)textView:(NSTextView *)editor shouldChangeTextInRange:(NSRange)range replacementString:(NSString *)text
+{
+  if([editor_delegate respondsToSelector:_cmd]&&
+     ![editor_delegate textView:editor shouldChangeTextInRange:range replacementString:text])return NO;
+  if(!text||!control->text_filter)return YES;
+  if(control->destroying)return NO;
+  NSRange selection=[editor selectedRange];
+  NXSTextEdit edit={.size=sizeof(edit),.range_start=range.location,.range_length=range.length,
+    .selection_start=selection.location,.selection_length=selection.length,
+    .replacement=[text UTF8String],.command=control->text_command?sel_getName(control->text_command):NULL};
+  return edit.replacement&&control->text_filter(control->text_filter_context,&edit);
+}
+- (BOOL)control:(NSControl *)view textView:(NSTextView *)editor doCommandBySelector:(SEL)selector
+{control->text_command=selector;return NO;}
+- (void)willSendTextAction:(NSNotification *)notification
+{if(nxs_host_focused(control->host))control->text_command=[[[notification userInfo] objectForKey:@"MenuItem"] action];}
+- (void)controlTextDidBeginEditing:(NSNotification *)notification {[self bindTextEditor];}
 - (void)changed:(id)sender
 {
   if(!control->changed)return;
@@ -92,7 +140,11 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   if(kind!=NXS_PROGRESS) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
     [(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];
-    if(text_control(control))[(NSTextField *)view setDelegate:(id)target];
+    if(text_control(control)) {
+      [(NSTextField *)view setDelegate:(id)target];
+      [[NSNotificationCenter defaultCenter] addObserver:target selector:@selector(willSendTextAction:)
+        name:NSMenuWillSendActionNotification object:[NSTextView defaultMenu]];
+    }
     if(kind==NXS_POPUP)[[NSNotificationCenter defaultCenter] addObserver:target
       selector:@selector(willPopUp:) name:NSPopUpButtonWillPopUpNotification object:view];
   }
@@ -111,7 +163,7 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   NSView *view=[control->view retain];
   if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
   if(text_control(control))[(NSTextField *)view setDelegate:nil];
-  if(control->kind==NXS_POPUP)[[NSNotificationCenter defaultCenter] removeObserver:control->target];
+  if(control->kind==NXS_POPUP||text_control(control))[[NSNotificationCenter defaultCenter] removeObserver:control->target];
   if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
   [view release];
   [control->target release];free(control);[pool drain];return 1;
@@ -190,12 +242,16 @@ int nxs_gnustep_control_focus(NXSControl *control,int focused)
     [[(NSTextField *)control->view currentEditor] setSelectedRange:control->text_selection];
     control->text_selection_pending=NO;
   }
+  if(accepted&&focused&&text_control(control))[(NXSControlAction *)control->target bindTextEditor];
   [pool drain];return accepted;
 }
 int nxs_gnustep_control_focused(NXSControl *control)
 {return control?nxs_host_focused(control->host):0;}
 int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
-{return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_key(control->host,event):NXS_INPUT_UNHANDLED;}
+{
+  if(control)control->text_command=NULL;
+  return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_key(control->host,event):NXS_INPUT_UNHANDLED;
+}
 int nxs_gnustep_control_needs_display(NXSControl *control)
 {return control?nxs_host_needs_display(control->host):0;}
 int nxs_gnustep_control_set_step(NXSControl *control,double step)
@@ -287,6 +343,7 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
   NSString *current=[view currentEditor]?[[view currentEditor] string]:[view stringValue];
   if(![current isEqualToString:text])[view setStringValue:text];
   [view setEditable:!!model->editable];
+  [(NXSControlAction *)control->target bindTextEditor];
   control->text_selection=model->selection_start==NXS_TEXT_NO_SELECTION?NSMakeRange(NSNotFound,0):
     NSMakeRange(model->selection_start,model->selection_length);
   NSText *editor=[view currentEditor];
@@ -312,4 +369,12 @@ size_t nxs_gnustep_control_text_get(NXSControl *control,char *buffer,size_t capa
     .editing=editor!=nil,.editable=[view isEditable],.secure=control->kind==NXS_PASSWORD};
   if(buffer&&capacity){if(required&&capacity>=required)memcpy(buffer,utf8,required);else buffer[0]=0;}
   [pool drain];return required;
+}
+int nxs_gnustep_control_text_filter(NXSControl *control,NXSTextShouldChange filter,void *context)
+{
+  if(!text_control(control)||control->destroying||nxs_host_tracking(control->host))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  control->text_filter=filter;control->text_filter_context=context;
+  [(NXSControlAction *)control->target bindTextEditor];
+  [pool drain];return 1;
 }

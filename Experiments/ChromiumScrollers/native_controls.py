@@ -5,6 +5,8 @@ import math
 import os
 import fcntl
 import time
+import select
+import socket
 from pathlib import Path
 
 MAGIC = 0x4e585549
@@ -43,6 +45,17 @@ class TextState(C.Structure):
 class TextResponse(C.Structure):
     _fields_ = [('text_size',C.c_uint32),('flags',C.c_uint32),('selection_start',C.c_uint64),
         ('selection_length',C.c_uint64),('marked_start',C.c_uint64),('marked_length',C.c_uint64)]
+class TextEdit(C.Structure):
+    _fields_=[('size',C.c_uint32),('range_start',C.c_uint64),('range_length',C.c_uint64),
+        ('selection_start',C.c_uint64),('selection_length',C.c_uint64),('replacement',C.c_char_p),('command',C.c_char_p)]
+class NativeTextEdit(C.Structure):
+    _fields_=[('magic',C.c_uint32),('size',C.c_uint32),('process',C.c_uint32),('kind',C.c_uint32),
+        ('control',C.c_uint64),('serial',C.c_uint64),('range_start',C.c_uint64),('range_length',C.c_uint64),
+        ('selection_start',C.c_uint64),('selection_length',C.c_uint64),('text_size',C.c_uint32),('command_size',C.c_uint32)]
+class NativeTextDecision(C.Structure):
+    _fields_=[('magic',C.c_uint32),('accepted',C.c_uint32),('serial',C.c_uint64)]
+TextShouldChange=C.CFUNCTYPE(C.c_int,C.c_void_p,C.POINTER(TextEdit))
+TEXT_EDIT_MAGIC=0x4e585445
 class PopupItem(C.Structure):
     _fields_ = [('size',C.c_uint32),('title',C.c_char_p),('enabled',C.c_int),('separator',C.c_int)]
 class ControlRect(C.Structure):
@@ -68,6 +81,7 @@ class NativeControlServer:
     def __init__(self, native, bitmap_type, response_type, pump_type, dispatch, pending, send, idle, log):
         self.native, self.response_type = native, response_type
         self.pending, self.send, self.idle, self.log = pending, send, idle, log
+        self.dispatch=dispatch
         self.controls, self.contexts = {}, {}
         self.identities = itertools.count(1)
         self.active = None
@@ -96,6 +110,9 @@ class NativeControlServer:
         self.popup_capabilities=0
         self.popup_open_capabilities=0
         self.text_capabilities=0
+        self.text_filters={}
+        self.edit_serial=itertools.count(1)
+        self.text_filter=TextShouldChange(self._before_text_edit)
         if hasattr(native,'nxs_control_text_capabilities'):
             native.nxs_control_text_capabilities.argtypes=[]
             native.nxs_control_text_capabilities.restype=C.c_uint
@@ -104,6 +121,9 @@ class NativeControlServer:
             native.nxs_control_text_sync.restype=C.c_int
             native.nxs_control_text_get.argtypes=[C.c_void_p,C.c_void_p,C.c_size_t,C.POINTER(TextState)]
             native.nxs_control_text_get.restype=C.c_size_t
+            if self.text_capabilities&2:
+                native.nxs_control_text_filter.argtypes=[C.c_void_p,TextShouldChange,C.c_void_p]
+                native.nxs_control_text_filter.restype=C.c_int
         if hasattr(native,'nxs_control_popup_open_capabilities'):
             native.nxs_control_popup_open_capabilities.argtypes=[]
             native.nxs_control_popup_open_capabilities.restype=C.c_uint
@@ -158,12 +178,116 @@ class NativeControlServer:
         self.notification_capabilities=int(bool(self.event_capabilities and self.source_capabilities and hasattr(os,'pidfd_open')))
 
     def remove_notifier(self,process):
+        self.remove_text_filter(process)
         entry=self.notifiers.pop(process,None)
         if entry:
             assert self.native.nxs_native_ui_source_destroy(entry['source'])
             os.close(entry['lifetime']);os.close(entry['descriptor'])
 
+    def remove_text_filter(self,process):
+        entry=self.text_filters.pop(process,None)
+        if entry:
+            if entry.get('source'):assert self.native.nxs_native_ui_source_destroy(entry['source'])
+            if entry.get('socket'):entry['socket'].close()
+        self.update_text_filters(process)
+
+    def fail_text_filter(self,entry):
+        # EOF must stop waking the native loop. Retain a failed gate until
+        # explicit removal so losing validation never silently permits edits.
+        if entry.get('source'):assert self.native.nxs_native_ui_source_destroy(entry['source'])
+        if entry.get('socket'):entry['socket'].close()
+        entry.update(source=None,socket=None)
+
+    def update_text_filters(self,process):
+        for state in self.controls.values():
+            if state['key'][0]!=process or state['key'][2] not in (7,8):continue
+            enabled=process in self.text_filters
+            if state.get('text_filter',False)==enabled:continue
+            if self.native.nxs_control_text_filter(state['native'],self.text_filter if enabled else TextShouldChange(),state['context']):
+                state['text_filter']=enabled
+
+    def text_filter_message(self,client,req,descriptors,sender_pid):
+        accepted=0;owner=self.notifiers.get(req.process)
+        if (self.text_capabilities&2 and owner and owner['client'] is client and owner['pid']==sender_pid and
+            not req.kind and not req.control and not req.text_size):
+            if req.operation==20 and not descriptors:
+                self.remove_text_filter(req.process);accepted=1
+            elif req.operation==19 and len(descriptors)==1:
+                connection=None;source=None
+                try:
+                    connection=socket.socket(fileno=os.dup(descriptors[0]))
+                    if connection.family!=socket.AF_UNIX or connection.getsockopt(socket.SOL_SOCKET,socket.SO_TYPE)!=socket.SOCK_SEQPACKET:
+                        raise ValueError('Unsupported callback endpoint')
+                    connection.getpeername() # A connected endpoint, not a listener.
+                    source=self.native.nxs_native_ui_source_create(connection.fileno())
+                    if not source:raise ValueError('Cannot watch callback endpoint')
+                    self.remove_text_filter(req.process)
+                    self.text_filters[req.process]=dict(socket=connection,source=source)
+                    connection=None;source=None
+                    self.update_text_filters(req.process);accepted=1
+                except (OSError,ValueError):pass
+                finally:
+                    if source:self.native.nxs_native_ui_source_destroy(source)
+                    if connection:connection.close()
+        self.log('native-text-filter',process=req.process,operation=req.operation,accepted=accepted)
+        self._respond(client,req,input_result=accepted)
+
+    def _before_text_edit(self,context,pointer):
+        # This callback runs on the actual native editor's stack. Keep AppKit
+        # and other embedding requests responsive while its owner validates.
+        entry=None
+        try:
+            state=self.contexts[context];process,control,kind=state['key']
+            entry=self.text_filters.get(process)
+            if not entry or not entry.get('socket') or state['destroy']:return 0
+            edit=pointer.contents;text=edit.replacement or b'';command=edit.command or b''
+            if len(text)>65536 or len(command)>256:return 0
+            serial=next(self.edit_serial)
+            entry.update(serial=serial,waiting=True)
+            proposal=NativeTextEdit(TEXT_EDIT_MAGIC,C.sizeof(NativeTextEdit)+len(text)+len(command),
+                process,kind,control,serial,edit.range_start,edit.range_length,
+                edit.selection_start,edit.selection_length,len(text),len(command))
+            connection=entry['socket'];payload=bytes(proposal)+text+command
+            if connection.send(payload,socket.MSG_DONTWAIT|socket.MSG_NOSIGNAL)!=len(payload):return 0
+            deadline=time.monotonic()+2
+            while not state['destroy'] and self.text_filters.get(process) is entry and time.monotonic()<deadline:
+                if select.select([connection],[],[],0)[0]:
+                    data=connection.recv(C.sizeof(NativeTextDecision)+1,socket.MSG_DONTWAIT)
+                    if len(data)!=C.sizeof(NativeTextDecision):self.fail_text_filter(entry);return 0
+                    decision=NativeTextDecision.from_buffer_copy(data)
+                    if decision.magic!=TEXT_EDIT_MAGIC or decision.accepted>1:return 0
+                    if decision.serial==serial:return decision.accepted
+                self.native.nxs_native_ui_dispatch_events(min(.1,max(0,deadline-time.monotonic())))
+                self.dispatch(0)
+            if not state['destroy'] and self.text_filters.get(process) is entry:self.fail_text_filter(entry)
+            return 0
+        except Exception as error:
+            self.log('native-text-filter-failed',exception=type(error).__name__)
+            if 'entry' in locals() and entry and entry.get('socket'):self.fail_text_filter(entry)
+            return 0
+        finally:
+            if entry:entry['waiting']=False
+
     def notification_fds(self):return [entry['lifetime'] for entry in self.notifiers.values()]
+
+    def text_filter_fds(self):
+        return [entry['socket'].fileno() for entry in self.text_filters.values()
+                if entry.get('socket') and not entry.get('waiting')]
+
+    def text_filter_ready(self,descriptor):
+        for entry in self.text_filters.values():
+            if not entry.get('socket') or entry['socket'].fileno()!=descriptor:continue
+            try:
+                data=entry['socket'].recv(C.sizeof(NativeTextDecision)+1,socket.MSG_DONTWAIT)
+                if len(data)!=C.sizeof(NativeTextDecision):self.fail_text_filter(entry);return
+                decision=NativeTextDecision.from_buffer_copy(data)
+                # Validation can finish after its frame was removed. Drain the
+                # late decision so it cannot continuously wake NSRunLoop.
+                if decision.magic!=TEXT_EDIT_MAGIC or decision.serial>entry.get('serial',0) or decision.accepted>1:
+                    self.fail_text_filter(entry)
+            except BlockingIOError:pass
+            except OSError:self.fail_text_filter(entry)
+            return
 
     def owner_exited(self,descriptor):
         for process,entry in list(self.notifiers.items()):
@@ -329,7 +453,7 @@ class NativeControlServer:
         self.send(client, response, data)
 
     def message(self, client, data, descriptors=(),sender_pid=None):
-        if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little')!=15):return
+        if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==17:
             self.text_message(client,data)
             return
@@ -360,6 +484,9 @@ class NativeControlServer:
             return
         if req.operation in (15,16):
             self.notification_message(client,req,descriptors,sender_pid)
+            return
+        if req.operation in (19,20):
+            self.text_filter_message(client,req,descriptors,sender_pid)
             return
         if req.operation == 9:
             self.dispatch_events()
@@ -396,6 +523,7 @@ class NativeControlServer:
                     return
                 state = dict(key=key, native=pointer, context=context, client=client, actions=0, destroy=False)
                 self.controls[key] = self.contexts[context] = state
+                if req.kind in (7,8) and req.process in self.text_filters:self.update_text_filters(req.process)
                 self.log('native-form-control', process=req.process, control=req.control, kind=req.kind,
                          width=req.width, height=req.height)
             current = self.native.nxs_control_state(state['native'])
@@ -449,11 +577,11 @@ class NativeControlServer:
             if req.operation == 2 and self.idle():
                 state['starting'] = True
                 self.pending.append(lambda: self.track(state, req.x, req.y, req.modifiers))
-            elif req.operation in (3, 4) and self._tracking(state):
+            elif req.operation in (3, 4) and self.active is state:
                 self.native.nxs_control_send(state['native'], 0 if req.operation == 3 else 1, req.x, req.y, req.modifiers)
             elif req.operation == 6:
                 state['destroy'] = True
-                if self._tracking(state):
+                if self.active is state:
                     self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
         self._respond(client, req, state)
@@ -554,11 +682,13 @@ class NativeControlServer:
 
     def destroy_later(self,state):
         state['destroy']=True
-        if self._tracking(state):
+        if self.active is state:
             self.native.nxs_control_send(state['native'],0,-1,-1,0)
             self.native.nxs_control_send(state['native'],1,-1,-1,0)
 
     def cleanup(self):
+        for process in {state['key'][0] for state in self.controls.values() if state.get('text_filter')}:
+            self.update_text_filters(process)
         for key, state in list(self.controls.items()):
             if state['destroy'] and self.native.nxs_control_destroy(state['native']):
                 if key[2] == 5:

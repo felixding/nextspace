@@ -86,6 +86,12 @@ selection and caret invalidation. This foundation is qualified separately in
 [`Libraries/NativeUI/text-qualification.json`](../Libraries/NativeUI/text-qualification.json).
 Webpage and browser address-bar text bindings remain unimplemented; provider
 and transport checks cannot establish browser text integration.
+The shared editor now also exposes native pre-edit proposals and cancellation
+through a reentrant process-owned channel. This enables a future browser
+`beforeinput` decision before native mutation; it does not yet implement that
+browser decision. The pinned Firefox text transaction audit rules out its
+autocomplete-style whole-value setter as a general typing adapter because it
+temporarily clears read-only and maximum-length constraints.
 A shared host avoids duplicating the native components; coverage still requires
 toolkit, engine and application-frontend adapters. Verify representative GTK and
 Qt/KDE applications as well as browsers. A scrollbar or individual-control test

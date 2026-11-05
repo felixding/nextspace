@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-05",
+  "status": "Source and symbol audit for pending native text integration; no Firefox text adapter is implemented.",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsTextControlFrame.cpp",
+      "sha256": "b6a62c36824e5dc1a2c877d0157cd1285bf55e349acbebdd9ba3d0793f87cdfe"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.cpp",
+      "sha256": "c2609d0b8f2f559611408a6c048679c405e97677e0764e10948e72c12ac5c653"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.h",
+      "sha256": "a11e3cacf78679033081004f4454395d28f239c58790dc961aec19308bdd0762"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.h",
+      "sha256": "05d97a7d6603ddb1b954900a8c524b7f75323dcb8365e2f88d39582ac0bb8f65"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/EditorBase.h",
+      "sha256": "6e8b9c0b5499cd17eddde0a86f484704884310f0c6c18742eaeb389fa1e2cc23"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/EditorBase.cpp",
+      "sha256": "de39870b299e713ce2d138fbac239166abb2374b4ce3bf1a22b1d26316ca2d33"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/TextEditor.cpp",
+      "sha256": "c4ffbcb5d40e84560eedec8807f0b28236539d1bb8fc594e5a05f1acf6a2444c"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/TextEditor.h",
+      "sha256": "1e26f285e934b1134760a94e500263bec51ab165cc3c667849d401bf48afedb0"
+    }
+  ],
+  "interfaces": {
+    "input_value": {
+      "symbol": "HTMLInputElement::GetValue(nsAString&, CallerType)",
+      "address": "0x587f524"
+    },
+    "text_state_value": {
+      "symbol": "TextControlState::GetValue(nsAString&, bool) const",
+      "address": "0x58b4de8"
+    },
+    "text_editor": {
+      "symbol": "TextControlState::GetTextEditor()",
+      "address": "0x58b5020"
+    },
+    "insert_action": {
+      "symbol": "EditorBase::InsertTextAsAction(nsAString const&, nsIPrincipal*)",
+      "address": "0x6b81fac"
+    },
+    "delete_action": {
+      "symbol": "EditorBase::DeleteSelectionAsAction(short, short, nsIPrincipal*)",
+      "address": "0x6b71c58"
+    },
+    "replace_action": {
+      "symbol": "EditorBase::ReplaceTextAsAction(nsAString const&, nsRange*, AllowBeforeInputEventCancelable, PreventSetSelection, nsIPrincipal*)",
+      "address": "0x6b80464"
+    }
+  },
+  "findings": [
+    {
+      "source": "nsTextControlFrame.cpp",
+      "finding": "Text controls inherit ScrollContainerFrame and render anonymous contents. Theme border/background replacement alone cannot make the field editor native."
+    },
+    {
+      "source": "EditorBase.cpp:InsertTextAsAction",
+      "finding": "The existing engine creates an insert-text action, dispatches beforeinput, checks cancellation and uses its existing transaction batch."
+    },
+    {
+      "source": "EditorBase.cpp:DeleteSelectionAsAction",
+      "finding": "Native semantic deletion commands must connect to the corresponding engine action and preserve native proposed ranges; ordinary engine geometry alone does not establish native editing behavior."
+    },
+    {
+      "source": "TextControlState.cpp:AutoRestoreEditorState / SetValueWithTextEditor",
+      "finding": "The autocomplete-style user-value path clears the read-only flag, removes maximum length and replaces the value through ReplaceTextAsAction. It is unsuitable as a generic ordinary typing adapter."
+    },
+    {
+      "source": "EditorBase.cpp:ReplaceTextAsAction",
+      "finding": "Replacement is a distinct edit action with its own beforeinput data and selection behavior; a whole-value setter cannot stand in for every native editor operation."
+    }
+  ],
+  "remaining": [
+    "Audit exact text state/editor/node/selection layouts, structure returns and complete function signatures before using these symbols.",
+    "Guard instruction bytes and source/build identity for every activated detour. Symbol addresses alone are not an activation guard.",
+    "Bind actual engine insert/delete/paste/undo and beforeinput/input/change transactions to native proposals, including cancellation and reentrant script mutation.",
+    "Own complete anonymous editor display/selection/caret suppression only after native content and input are prepared.",
+    "Qualify native selection, maxlength/read-only/disabled behavior, composition, trusted events, clipboard events, undo, destruction/navigation and failure recovery.",
+    "Browser URL bars, frontends, derivative-specific interfaces, other builds and the remaining non-GNUstep apps remain separate integration work."
+  ]
+}

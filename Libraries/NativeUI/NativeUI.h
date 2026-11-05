@@ -63,7 +63,7 @@ typedef struct {
   /* NUL-terminated UTF-8. NULL text is empty; NULL unmodified_text uses text. */
   const char *text, *unmodified_text;
 } NXSKeyEvent;
-enum NXSTextCapability { NXS_TEXT_EDITING = 1 };
+enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2 };
 #define NXS_TEXT_NO_SELECTION UINT64_MAX
 /* Selection and marked ranges use native NSString/UTF16 code units. A model
  * with NO_SELECTION leaves initial selection to the native responder. */
@@ -78,6 +78,15 @@ typedef struct {
   uint64_t selection_start, selection_length, marked_start, marked_length;
   int editing, editable, secure;
 } NXSTextState;
+/* Borrowed proposal from the actual native editor before mutation/undo
+ * registration. Ranges use UTF-16. command is its interpreted selector, or
+ * NULL for direct insertion. Returning zero vetoes the edit. */
+typedef struct {
+  uint32_t size;
+  uint64_t range_start,range_length,selection_start,selection_length;
+  const char *replacement,*command;
+} NXSTextEdit;
+typedef int (*NXSTextShouldChange)(void *context,const NXSTextEdit *edit);
 
 /* The provider owns all native objects, metrics, drawing and interaction.
  * Consumers own application models and translate events through this C ABI.
@@ -121,6 +130,7 @@ typedef struct {
   int (*control_popup_open)(NXSControl *, int);
   int (*control_text_sync)(NXSControl *, const NXSTextModel *);
   size_t (*control_text_get)(NXSControl *, char *, size_t, NXSTextState *);
+  int (*control_text_filter)(NXSControl *,NXSTextShouldChange,void *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -180,6 +190,9 @@ int nxs_control_text_sync(NXSControl *, const NXSTextModel *);
 /* Returns required UTF8 buffer bytes including NUL, or 0 on failure. A NULL
  * or insufficient buffer does not copy partial text. State is optional. */
 size_t nxs_control_text_get(NXSControl *, char *buffer, size_t capacity, NXSTextState *);
+/* Install/remove a pre-edit delegate on the owning UI thread. The callback
+ * may read state; mutation/destruction remain deferred while busy. */
+int nxs_control_text_filter(NXSControl *,NXSTextShouldChange,void *);
 
 #ifdef __cplusplus
 }

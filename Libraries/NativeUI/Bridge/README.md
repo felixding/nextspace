@@ -23,6 +23,16 @@ part 2.width/height. Existing message layouts stay unchanged. Text payloads are
 excluded from diagnostics. This is an editor transport foundation; browser
 engine/frontend model and input adapters remain to implement.
 
+The optional pre-edit extension uses operations 19/20 and a separate Unix
+SEQPACKET channel, bound to the existing process owner subscription. Actual
+native replacement proposals and interpreted selectors travel on that channel;
+the owner returns a decision before the native editor changes its value. The
+shared transport permits nested and cross-process requests during validation,
+and reacquires normal reply ownership before sending the decision. Peer loss
+or the current two-second deadline vetoes the edit. Late decisions are drained
+after frame removal, without a custom widget timer. Text payloads remain absent
+from logs. Browser transaction adapters are still required.
+
 These are internal source includes, not a stable engine plugin ABI. Every
 consumer must audit its own binary, signatures, layouts and lifecycle. Sharing
 this machinery does not establish coverage for another engine or browser build.

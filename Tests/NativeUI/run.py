@@ -31,6 +31,8 @@ parser.add_argument('--previous-range-provider', type=Path, help='Provider preda
 parser.add_argument('--previous-popup-provider', type=Path, help='Provider predating optional popup/menu configuration')
 parser.add_argument('--previous-popup-open-provider',type=Path,help='Popup provider predating optional explicit open/close')
 parser.add_argument('--previous-text-provider',type=Path,help='Provider predating optional native text editing')
+parser.add_argument('--previous-text-filter-provider',type=Path,help='Text provider predating optional pre-edit filter')
+parser.add_argument('--previous-text-client',type=Path,help='Unchanged text probe from before the pre-edit extension')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -155,6 +157,24 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         text_output=held_probe(args.build/'native-ui/native-text-probe',[str(args.output)],
                                 'NXS_NATIVE_UI_TEXT_HOLD','text')
         checks['native_text']=json.loads(text_output)
+        if args.previous_text_client:
+            old_env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str((args.build/'native-ui/libnextspace-native-ui-gnustep.so.1').resolve()))
+            if args.previous_loader:old_env['LD_LIBRARY_PATH']=str(args.previous_loader.resolve())
+            old_output=args.output/'previous-text-client';old_output.mkdir(exist_ok=True)
+            code,stdout,stderr=bounded_probe([str(args.previous_text_client.resolve()),str(old_output)]+backend,
+                old_env,'previous-text-client',timeout=20)
+            assert code==0,(code,stderr)
+            checks['previous_text_client_with_new_provider']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-text-filter-probe')]+backend,
+            environment,'text-filter',timeout=15)
+        (args.output/'text-filter.stdout').write_text(stdout);(args.output/'text-filter.stderr').write_text(stderr)
+        assert code==0,(code,stderr)
+        checks['native_text_filter']=json.loads(stdout)
+        if args.previous_text_filter_provider:
+            previous=subprocess.run([str(args.build/'native-ui/native-text-filter-probe'),'--expect-no-filter']+backend,
+                env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_filter_provider.resolve())),text=True,capture_output=True,timeout=10)
+            assert previous.returncode==0,(previous.returncode,previous.stderr)
+            checks['previous_text_provider_accepted_without_filter']=json.loads(previous.stdout)
         if args.previous_text_provider:
             previous=subprocess.run([str(args.build/'native-ui/native-text-probe'),'--expect-no-text']+backend,
                 env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_provider.resolve())),text=True,capture_output=True,timeout=10)
@@ -276,6 +296,12 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                     '--output',str(args.output/'transport-text'),'--references',str(args.output)],
                     'NXS_NATIVE_UI_TEXT_HOLD','text-transport')
                 checks['transport_text']=json.loads(text)
+                filter_probe=subprocess.run([str(args.build/'native-ui/native-text-transport-probe'),str(endpoint),str(helper.pid)],
+                    env=environment,text=True,capture_output=True,timeout=20)
+                (args.output/'transport-text-filter.stdout').write_text(filter_probe.stdout)
+                (args.output/'transport-text-filter.stderr').write_text(filter_probe.stderr)
+                assert filter_probe.returncode==0,(filter_probe.returncode,filter_probe.stderr)
+                checks['transport_text_filter']=json.loads(filter_probe.stdout)
             finally:
                 if sys.exc_info()[0] is not None and helper.poll() is None:
                     with (args.output/'helper-timeout.txt').open('w') as trace:

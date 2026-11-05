@@ -1,0 +1,208 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "26002390",
+  "status": "Native pre-edit delegate and process-owned transport foundation. Browser beforeinput/transaction and full native browser integration remain unimplemented.",
+  "implementation": {
+    "native_editor": "Existing NSTextField/NSSecureTextField field editor; original delegate methods and notifications forwarded",
+    "native_proposal": "Actual shouldChangeTextInRange replacement and UTF-16 selection before native mutation/undo registration",
+    "command_source": "Native interpreted selector or native menu action; no shortcut/deletion algorithm copied",
+    "native_callback_capability": 2,
+    "api_bytes_arm64": 280,
+    "ABI": 1,
+    "optional_append_only": true,
+    "pre_edit_protocol": "Separate connected AF_UNIX/SOCK_SEQPACKET endpoint registered by an existing kernel-credential/process-owned subscription",
+    "reentrancy": "Release normal request ownership while validating, reacquire before decision; proposal storage separate from nested reply buffers",
+    "failure": "Veto on disconnected/expired validator; consume late decisions after frame destruction; avoid readable-EOF spin",
+    "compiled": "NativeUI provider/loader/shim/probes and optional browser adapters only; no browser/AppKit rebuild"
+  },
+  "native_filter_checks": {
+    "native_filter_controls": 2,
+    "pre_mutation_value": true,
+    "native_ranges_and_selectors": true,
+    "typing_veto": true,
+    "deletion_veto": true,
+    "cut_veto": true,
+    "paste_proposal": true,
+    "unicode": true,
+    "focus_transfer": true,
+    "model_rebind": true,
+    "reentrant_mutation_deferred": true,
+    "filter_removal": true
+  },
+  "transport_filter_checks": {
+    "native_pre_edit_ipc": true,
+    "proposals": 6,
+    "nested_reads": 12,
+    "nested_mutations_rejected": 6,
+    "other_process_request_during_validation": true,
+    "cancelled_typing_and_deletion": true,
+    "accepted_typing_and_deletion": true,
+    "callback_peer_loss_veto": true,
+    "expired_decision_veto": true,
+    "destroy_during_validation": true,
+    "idle_after_expiry_and_destroy": true,
+    "explicit_unregister": true
+  },
+  "compatibility": {
+    "previous_text_client_with_new_provider": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "previous_text_provider_accepted_without_filter": {
+      "previous_text_provider_without_filter": true
+    },
+    "previous_provider_accepted_without_text_extension": {
+      "previous_provider_without_text": true
+    },
+    "previous_client_unchanged_with_new_provider": true,
+    "previous_loader_and_client_unchanged_with_new_provider": true
+  },
+  "regressions": {
+    "native_text": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "text_transport_checks": 39,
+    "legacy_pixel_comparisons": 30,
+    "native_helpers": "Existing mouse/input/range/popup/animation/notifier suites passed in the final record",
+    "chromium_input_checks": 62,
+    "chromium_sandbox": [
+      {
+        "pid": 86616,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 86627,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 86628,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox_range_checks": 57,
+    "firefox_sandbox": [
+      {
+        "pid": 87397,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 87542,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox_native_created": 99,
+    "firefox_native_destroyed": 93,
+    "firefox_renderer_crash": {
+      "pid": 87397,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "firefox_helper_loss": {
+      "helper_exit": -9,
+      "value": 50,
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.2092758320068242,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    },
+    "chromium_helper_scope": "Filter inactive in the Chromium fixture. The final late-decision drain/expiry guard was added afterward and qualified in the final IPC suite; the final Firefox run also used it."
+  },
+  "environment": {
+    "owned_launch_and_pasteboard_processes_exited": true,
+    "pids": [
+      85620,
+      85623,
+      85635,
+      86535,
+      86538,
+      86541,
+      85227,
+      85230,
+      85234,
+      86686,
+      86689,
+      86692,
+      87257,
+      87260,
+      87261,
+      87145
+    ],
+    "private_backend_alias_removed": true,
+    "runtime_sha256": {
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "/var/tmp/nextspace-native-ui/filter-build/native-ui/libnextspace-native-ui-gnustep.so.1": "2125c7ddee77fd5c794d85a1c3ed398d5e375e07dd3b05f9fd25ae737caa86aa",
+      "/var/tmp/nextspace-native-ui/filter-build/native-ui/libnextspace-native-ui.so.1": "2a65aa44b91c66b1165d9631eeca2d7a3734337065207cfe2116e56a9dd3b304"
+    },
+    "native_api_bytes": 280,
+    "package_count": 1051,
+    "underlying_gui_hash_unchanged": true,
+    "browser_tool_sessions_closed": true,
+    "owned_ssh_tunnel_stopped": true
+  },
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "ae16723fb7dfdd133ced6f87d7f6aef5e2b500837d94201c5824f55250266e3d",
+    "Libraries/NativeUI/Loader.c": "1600e05ac57356cf0659f3e1a86b26adfafe8e6d2b7b89f2bb6b7e0a8458e79d",
+    "Libraries/NativeUI/GNUstep/Controls.m": "1b546418a61c68cdf3b7b46903641c06046025d46a97c94346452fa6299f6669",
+    "Libraries/NativeUI/GNUstep/Provider.m": "e4f208b8173016967c9113f9aaf0874a8dfead53c601ecf0f9b27fab1671268a",
+    "Libraries/NativeUI/GNUstep/Provider.h": "79bbc8cc32a7ddbc0400db438c01e6072a62fbb40d81d78706d7ad4d1b369a44",
+    "Libraries/NativeUI/Bridge/Protocol.h": "8055c757b20912fc86f01c08a9bdec1c260a4cd803e0b9a99266e1c00d311651",
+    "Libraries/NativeUI/Bridge/Transport.inc": "eb1b95c211ea271ab3ee81ece5ad083926f930f42d04eb25e759de05caf57dcf",
+    "Libraries/NativeUI/CMakeLists.txt": "0a8ec8e11f195a1c5663032e820a54a7f0b99311a95347144150962ae6d3daa0",
+    "Experiments/ChromiumScrollers/helper.py": "6bff3b496c32bb2f4cd60e933369ac4dd9efce6ba69feb1c98824c74068c97c5",
+    "Experiments/ChromiumScrollers/native_controls.py": "0b0c584b414f6feabb494bf142cdbfc74722eebf89837f7a016b62395f9ac0d1",
+    "Tests/NativeUI/text-filter-probe.c": "0cb4cf7ebcb61aeca4b2caedab4a7aae6e1dd73b1b9e4041c9c1cf453076b7d4",
+    "Tests/NativeUI/text-transport-probe.c": "e1b01508ebe6e12357921841947ab16034088d5ba72f4a055302f0e79def344d",
+    "Tests/NativeUI/text-probe.c": "05de9d8cf8b2cb9df773ddbbd424c75973da6aab9543edde3435d13ab05e4321",
+    "Tests/NativeUI/run.py": "8dc57e981462ea4af0ea14621376f266a73baadd0574a09762fb75f066374b88"
+  },
+  "evidence": [
+    ".build/native-ui/filter-probe-final-03/",
+    ".build/native-ui/filter-chromium-final/",
+    ".build/native-ui/filter-firefox-final-02/",
+    ".build/native-ui/filter-environment.json",
+    ".build/firefox-native-ui/text-source/"
+  ],
+  "remaining": [
+    "No webpage/address-bar text adapter: real browser beforeinput/input/change/clipboard/undo/composition transactions remain to connect and qualify.",
+    "Current pre-edit transport is bounded to a two-second decision and 64 KiB replacement/256-byte selector. Long-running engine script/modal editing flows and larger payloads remain open.",
+    "Native scale-1 single-line editor only; multiline/rich text, IME, mouse selection, drag/drop, accessibility, other scales and complete native menu integration remain open.",
+    "Browser-family frontends, derivative binaries, remaining controls and GTK/Qt/KDE integration remain incomplete."
+  ],
+  "observations": [
+    "GNUstep refocus selects all; the probe explicitly resynchronizes its application selection rather than overriding native focus policy.",
+    "One additional Firefox repeat timed out establishing its Marionette session, before checks. The owned fixture exited and cleaned up; a subsequent complete run passed. Cause remains unconfirmed."
+  ]
+}

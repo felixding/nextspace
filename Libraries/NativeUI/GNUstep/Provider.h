@@ -33,3 +33,4 @@ int nxs_gnustep_source_destroy(NXSEventSource *);
 int nxs_gnustep_control_popup_open(NXSControl *,int);
 int nxs_gnustep_control_text_sync(NXSControl *,const NXSTextModel *);
 size_t nxs_gnustep_control_text_get(NXSControl *,char *,size_t,NXSTextState *);
+int nxs_gnustep_control_text_filter(NXSControl *,NXSTextShouldChange,void *);

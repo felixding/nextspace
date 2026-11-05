@@ -70,7 +70,7 @@ int main(int argc,char **argv)
     assert(!nxs_control_create(NXS_TEXTFIELD,NULL,NULL,NULL));
     puts("{\"previous_provider_without_text\":true}");return 0;
   }
-  assert(nxs_control_text_capabilities()==NXS_TEXT_EDITING);
+  assert(nxs_control_text_capabilities()&NXS_TEXT_EDITING);
   const char *directory=argc>1&&argv[1][0]!='-'?argv[1]:NULL;
   for(int kind=NXS_TEXTFIELD;kind<=NXS_PASSWORD;kind++) {
     struct Probe p={0};p.control=nxs_control_create(kind,changed,NULL,&p);assert(p.control);

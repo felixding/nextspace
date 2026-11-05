@@ -125,6 +125,56 @@ menu routing, other scales, mouse text selection, drag/drop and accessibility
 still require integration and qualification. Browser adapters must consume the
 shared editor rather than reproducing its behavior.
 
+### Native proposals before an edit
+
+The optional `NXS_TEXT_FILTER` capability adds `nxs_control_text_filter()`.
+Its callback receives the actual native editor's replacement range, current
+selection, UTF-8 replacement and interpreted command selector. A zero return
+vetoes the operation before native text mutation and undo registration. Direct
+insertion has no command selector. Native Emacs commands and the existing
+Cut/Paste menu supply their own selectors and ranges; the bridge supplies no
+key table or deletion algorithm. The provider forwards other editor delegate
+methods and notifications to the original `NSTextField` delegate.
+
+An owner may read native state during validation. Replacing the model, changing
+the filter or destroying the active editor is rejected/deferred. Focused model
+updates rebind the delegate after native editor replacement, and removing the
+filter restores the native delegate. Refocus retains GNUstep's own select-all
+policy; owners can explicitly synchronize a different application selection.
+
+Browser transport operations 19/20 register/unregister a separate connected
+Unix SEQPACKET endpoint for an existing kernel-owned process subscription.
+The native editor waits for its owner's decision while AppKit and other
+requests remain serviceable. The shared C transport releases its request mutex
+during validation and reacquires it before sending the decision, allowing
+nested queries and another process's request without consuming the pending
+outer reply. The proposal has separate storage from borrowed reply buffers.
+
+Disconnected or expired validators veto edits. Expiry currently uses the
+existing two-second RPC budget and requires explicit removal/re-registration
+to resume validated editing. Late decisions after frame destruction are
+consumed outside the native callback so they cannot continuously wake the
+native run loop. Keyboard-dispatch ownership is distinguished from an active
+mouse gesture when cancelling a deferred destruction.
+
+The native tests cover vetoed/accepted insertion and deletion, Cut cancellation,
+Paste proposals, Unicode, plain/secure fields and delegate restoration. The C
+transport fixture verifies six proposals, twelve nested reads, six rejected
+nested model replacements, another process's request during validation,
+disconnect, expiry, destruction during validation and idle behavior afterward.
+The older text client/loader still runs with this provider, whose optional API
+now occupies 280 bytes on ARM64. See
+[filter qualification](text-filter-qualification.json).
+
+This callback is a prerequisite for browser `beforeinput`, not a completed
+browser transaction adapter. The engine must preserve its actual insert,
+delete, paste, validation, undo and composition transactions, handle script
+mutation/reentrancy and reconcile its canonical result with the native editor.
+Long-running browser scripts and modal editing flows remain unqualified. The
+[pinned Firefox text audit](../../Experiments/FirefoxNativeUI/text-source-audit.json)
+identifies candidate boundaries and explains why its autocomplete-style value
+setter cannot substitute for normal user editing.
+
 ## Build and checks
 
 Build the provider alone using the installed NEXTSPACE SDK:

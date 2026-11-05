@@ -88,6 +88,24 @@ struct NXSTextResponse {
   uint32_t text_size,flags; /* flags: editing=1, editable=2, secure=4 */
   uint64_t selection_start,selection_length,marked_start,marked_length;
 };
+/* Optional pre-edit channel. Operation 19 registers one AF_UNIX SEQPACKET
+ * endpoint for a process with an existing operation-15 owner subscription.
+ * Operation 20 unregisters it. Both use the ordinary request (kind/control 0).
+ * Bootstrap text capabilities include NXS_TEXT_FILTER when supported.
+ * While a native edit is on the stack, the helper sends this proposal on the
+ * dedicated endpoint; the owner answers before the actual native mutation.
+ * Existing requests may be serviced recursively while the owner validates an
+ * edit. No editing/key-binding algorithms or text diagnostics live here. */
+#define NXS_NATIVE_TEXT_EDIT_MAGIC 0x4e585445u
+struct NXSNativeTextEdit {
+  uint32_t magic,size,process,kind;
+  uint64_t control,serial,range_start,range_length,selection_start,selection_length;
+  uint32_t text_size,command_size;
+};
+struct NXSNativeTextDecision {
+  uint32_t magic,accepted;
+  uint64_t serial;
+};
 /* Optional invalidation notifications, bootstrap part 6.x. Operation 15 uses
  * the ordinary 104-byte control request (kind/control zero, value = last seen
  * process generation) and one SCM_RIGHTS nonblocking eventfd. Operation 16
