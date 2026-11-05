@@ -15,6 +15,7 @@ parser.add_argument('--controls', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--focus', action='store_true', help='Use the real first-responder state for enabled controls')
 parser.add_argument('--keys', action='store_true', help='Record actual native slider key results')
+parser.add_argument('--pointers', action='store_true', help='Record native text hit testing and selection tracking')
 args, _ = parser.parse_known_args()
 args.output.mkdir(parents=True, exist_ok=True)
 native = C.CDLL(str(args.library))
@@ -30,8 +31,20 @@ for item in json.loads(args.controls.read_text()):
         Image.frombytes('RGBA', (image.width, image.height), pixels, 'raw', 'BGRA').save(args.output / (item['id'] + suffix + '.png'))
         return image
     def release(_):
+        if pointer_case is not None:
+            current=TextState(size=C.sizeof(TextState))
+            assert native.nxs_control_text_get(pointer,None,0,C.byref(current))
+            selected=(current.selection_start,current.selection_length)
+            if not pointer_case['pumped']:
+                pointer_case['pumped']=True;pointer_case['initial']=selected
+                native.nxs_control_send(pointer,0 if pointer_case['drag'] else 1,
+                    pointer_case['end'],12,pointer_case['modifiers'])
+            elif not pointer_case['drag'] or selected!=pointer_case['initial']:
+                native.nxs_control_send(pointer,1,pointer_case['end'],12,pointer_case['modifiers'])
+            return
         save_image('-pressed')
         native.nxs_control_send(pointer, 1, config.width / 2, config.height / 2, 0)
+    pointer_case=None
     pump = Pump(release)
     pointer = native.nxs_control_create(item['kind'], ControlChanged(), pump, None)
     assert pointer
@@ -109,6 +122,23 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_text_get(pointer,buffer,len(buffer),C.byref(state))
             results[-1]['return_sequence']=dict(value=buffer.value.decode(),start=state.selection_start,
                 end=state.selection_start+state.selection_length)
+        if args.pointers and item['enabled'] and item['kind'] in (7,8):
+            assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1),item['id']
+            values=[]
+            for name,start,end,modifiers in [('left',3,3,0),('near',10,10,0),('middle',25,25,0),
+                ('right',175,175,0),('forward',3,25,0),('reverse',30,3,0),
+                ('outside-right',3,210,0),('outside-left',30,-20,0),('shift-left',3,3,1),('shift-right',30,30,1)]:
+                model=TextModel(C.sizeof(TextModel),item['text'].encode(),1 if modifiers else 0,2 if modifiers else 0,item.get('editable',1))
+                assert native.nxs_control_text_sync(pointer,C.byref(model))
+                pointer_case=dict(pumped=False,drag=start!=end,end=end,modifiers=modifiers)
+                native.nxs_control_track(pointer,start,12,modifiers)
+                state=TextState(size=C.sizeof(TextState));buffer=C.create_string_buffer(256)
+                assert native.nxs_control_text_get(pointer,buffer,len(buffer),C.byref(state))
+                assert pointer_case['pumped'] and not native.nxs_control_state(pointer).tracking
+                if state.selection_length:save_image('-pointer-'+name)
+                values.append(dict(name=name,x=start,end_x=end,modifiers=modifiers,value=buffer.value.decode(),
+                    start=state.selection_start,end=state.selection_start+state.selection_length))
+            pointer_case=None;results[-1]['pointers']=values
     finally:
         assert native.nxs_control_destroy(pointer)
 (args.output / 'results.json').write_text(json.dumps(results, indent=2) + '\n')

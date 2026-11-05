@@ -9,7 +9,7 @@ struct Widget {
   double width,height,actions;
   uint32_t *button_pixels;int button_width,button_height,button_label_owned;
   double range_step,range_x,range_y;int range_tracking,range_keypress;
-  int text_owned;
+  int text_owned,text_tracking;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
@@ -40,6 +40,8 @@ static int prepare_text_image(void *);
 static struct NXSResponse *sync_text_widget(struct Widget *);
 static void remove_text_watch(void);
 static int dispatch_text_key(void *,void *,void *);
+static void *text_pointer_frame(void *);
+static uint32_t text_pointer_post(void *,void *,void *,void *,int *,void *,void *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
 static int (*original_default_size)(void *);
 static int (*original_intrinsic)(void *,const void *,int);
@@ -251,6 +253,11 @@ static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,c
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
+  if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
+    void *text_frame=text_pointer_frame(frame);
+    if(text_frame||(active_widget&&(active_widget->kind==NXS_TEXTFIELD||active_widget->kind==NXS_PASSWORD)))
+      return text_pointer_post(self,context,event,frame,status,override,text_frame);
+  }
   void *down_node=NULL;
   if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(frame)&&frame_kind(frame)!=NXS_SLIDER) {
     down_node=*(void **)((char *)frame+24);

@@ -18,7 +18,7 @@ button {appearance:none}
 <script>
 window.events=[];window.cacheShows=[];addEventListener('pageshow',event=>cacheShows.push(event.persisted));
 window.submits=0;form.addEventListener('submit',e=>{submits++;e.preventDefault()});
-for(const type of ['keydown','keypress','keyup','beforeinput','input','change','select'])
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','select','pointerdown','pointerup','mousedown','mouseup','click'])
  document.addEventListener(type,e=>{if(e.target instanceof HTMLInputElement)events.push({type,id:e.target.id,
   data:e.data??null,inputType:e.inputType??null,trusted:e.isTrusted,value:e.target.value,
   start:e.target.selectionStart,end:e.target.selectionEnd});});

@@ -13,6 +13,7 @@ static __thread struct TextTransaction *text_transaction;
 static void (*original_text_scroll_display)(void *,void *,const void *);
 static uint32_t (*original_text_keypress)(void *,void *);
 static void *original_text_delete_subaction;
+static uint32_t (*original_text_frame_event)(void *,void *,void *,int *);
 static unsigned text_watch;
 static int (*text_watch_remove)(unsigned);
 static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;}
@@ -46,8 +47,46 @@ static int text_selection(void *node,uint64_t start,uint64_t length) {
     (state,start,start+length,0,&error,1);
   int okay=!(error.result&0x80000000u);clear_text_error(&error);return okay;
 }
+static struct NXSResponse *native_text_state(struct Widget *w) {
+  struct NXSControlRequest get={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=18,.process=identity(),.kind=w->kind,.control=w->id};
+  struct NXSResponse *response=exchange_bytes(&get,sizeof(get));
+  return response&&response->parts[3].x==1&&response->size>=sizeof(*response)+sizeof(struct NXSTextResponse)?response:NULL;
+}
+static void echo_native_selection(struct Widget *w) {
+  struct NXSResponse *response=native_text_state(w);
+  if(response) {
+    struct NXSTextResponse selection;memcpy(&selection,response+1,sizeof(selection));
+    struct TextModel model={0};
+    if(text_model(w->node,&model)) {
+      size_t length=strlen(model.value);
+      if(selection.text_size==length&&response->size==sizeof(*response)+sizeof(selection)+length&&
+         !memcmp((char *)(response+1)+sizeof(selection),model.value,length))
+        text_selection(w->node,selection.selection_start,selection.selection_length);
+      free(model.value);
+    }
+  }
+}
+static struct NXSResponse *end_text_pointer(struct Widget *w) {
+  struct NXSResponse *response=range_settle(w,widget_request(w,4,w->range_x,w->range_y,0));
+  w->text_tracking=0;if(active_widget==w)active_widget=NULL;
+  return response;
+}
 static struct NXSResponse *sync_text_widget(struct Widget *w) {
   struct TextModel model={0};if(!text_model(w->node,&model))return NULL;
+  if(w->text_tracking) {
+    struct NXSResponse *native=native_text_state(w);struct NXSTextResponse state={0};
+    if(native)memcpy(&state,native+1,sizeof(state));
+    size_t length=strlen(model.value);
+    int same=native&&state.text_size==length&&native->size==sizeof(*native)+sizeof(state)+length&&
+      !memcmp((char *)(native+1)+sizeof(state),model.value,length)&&!!(state.flags&2)==!!model.editable&&
+      widget_focused(w)&&native->parts[2].x&&w->width==w->button_width&&w->height==w->button_height;
+    if(same) {
+      struct NXSResponse *response=widget_request(w,5,0,0,0);
+      if(!response||!button_cache_update(w,response))response=NULL;
+      free(model.value);return response;
+    }
+    end_text_pointer(w);
+  }
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)goto done;
   if(!!response->parts[3].y!=widget_focused(w)) {
@@ -67,8 +106,65 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
 static int text_notification(int fd,unsigned condition,void *unused) {
   if(condition&~1u){text_watch=0;return 0;}
   drain_widget_notifier();
+  if(active_widget&&text_kind(active_widget->kind)) {
+    void *node=active_widget->node;
+    ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
+    if(widget_focused(active_widget))echo_native_selection(active_widget);
+    ((unsigned (*)(void *))(base+0x47ba6b8))(node);
+  }
   for(struct Widget *w=widgets;w;w=w->next)if(text_kind(w->kind)&&w->text_owned)invalidate_widget(w);
   return 1;
+}
+static void *text_pointer_frame(void *frame) {
+  if(!frame)return NULL;
+  void *root=native_text_frame(frame)?frame:
+    ((void *(*)(void *,unsigned))(base+NXS_GECKO_TEXT_NEAREST_SCROLL_OFFSET))(frame,3);
+  return native_text_frame(root)?root:NULL;
+}
+static uint32_t text_frame_event(void *frame,void *context,void *event,int *status) {
+  unsigned message=*(const uint16_t *)((char *)event+18);
+  if((*(const uint8_t *)((char *)event+48)&1)&&
+     (message==13||((message==14||message==15)&&*(const int16_t *)((char *)event+152)==0))) {
+    if(active_widget&&text_kind(active_widget->kind))return 0;
+    void *root=text_pointer_frame(frame);
+    if(message==15&&*status!=1&&!(*((const uint8_t *)event+49)&2)&&root&&prepare_text_image(root))return 0;
+  }
+  return original_text_frame_event(frame,context,event,status);
+}
+static uint32_t text_pointer_post(void *self,void *context,void *event,void *frame,int *status,void *override,void *root) {
+  unsigned message=*(const uint16_t *)((char *)event+18);
+  void *node=message==15&&root?*(void **)((char *)root+24):NULL;
+  if(node)((unsigned (*)(void *))(base+0x3b9f0e4))(node);
+  if(active_widget&&text_kind(active_widget->kind)&&(message==13||message==14)) {
+    struct Widget *w=active_widget;struct PointI point=widget_point(w,event);
+    w->range_x=point.x/60.;w->range_y=point.y/60.;
+    if(message==14&&*(const int16_t *)((char *)event+152)==0)end_text_pointer(w);
+    else if(message==13)pointer_request(w,3,event);
+    if(widget_focused(w))echo_native_selection(w);
+    invalidate_widget(w);
+  }
+  uint32_t result=original_post_event(self,context,event,frame,status,override);
+  if(node&&*status!=1&&!(*((const uint8_t *)event+49)&2)&&*(const int16_t *)((char *)event+152)==0) {
+    void *live=*(void **)((char *)node+96);
+    if(prepare_text_image(live)) {
+      struct Widget *w=widget_for_node(node);
+      if(w&&widget_focused(w)&&!active_widget) {
+        struct NXSResponse *response=widget_sync(w);
+        if(response&&response->parts[2].x) {
+          struct PointI point=widget_point(w,event);w->range_x=point.x/60.;w->range_y=point.y/60.;
+          response=pointer_request(w,2,event);
+          if(response&&response->parts[0].y) {
+            w->text_tracking=1;active_widget=w;
+            ((void (*)(void *,int))(base+NXS_GECKO_TEXT_STOP_DRAG_OFFSET))(self,1);
+            ((void (*)(void *,unsigned,void *))(base+NXS_GECKO_TEXT_CAPTURE_OFFSET))(node,1,NULL);
+            echo_native_selection(w);invalidate_widget(w);
+          }
+        }
+      }
+    } else if(live)original_text_frame_event(live,context,event,status);
+  }
+  if(node)((unsigned (*)(void *))(base+0x47ba6b8))(node);
+  return result;
 }
 static int ensure_text_watch(void) {
   if(text_watch)return 1;
@@ -222,6 +318,7 @@ static uint32_t text_keypress(void *listener,void *event) {
   return original_text_keypress(listener,event);
 }
 static struct Detour text_detours[]={
+  {NXS_GECKO_TEXT_FRAME_EVENT_OFFSET,gecko_text_frame_event_bytes,text_frame_event,(void **)&original_text_frame_event},
   {NXS_GECKO_TEXT_SCROLL_DISPLAY_OFFSET,gecko_text_scroll_display_bytes,text_scroll_display,(void **)&original_text_scroll_display},
   {NXS_GECKO_TEXT_KEYPRESS_OFFSET,gecko_text_keypress_bytes,text_keypress,(void **)&original_text_keypress},
   {NXS_GECKO_TEXT_DELETE_SUBACTION_OFFSET,gecko_text_delete_subaction_bytes,text_delete,&original_text_delete_subaction}

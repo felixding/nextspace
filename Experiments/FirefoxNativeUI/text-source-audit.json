@@ -66,6 +66,34 @@
     {
       "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/Event.h",
       "sha256": "0820834de88256ddd9d2d139701363ebdda0325e7c850527edca46853cef86d7"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.cpp",
+      "sha256": "b5e257715d6e59815c06df5273c0b258d4606054a615dffc55ec9b798c4ec6ac"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShell.cpp",
+      "sha256": "ed828332158b15815aa400b160b64eac30cac1b9e83a02e7e12c2b2710af0353"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.h",
+      "sha256": "0c35e704c757776e016bd2638caae3cdc5bf3e85984215b63c1365cf2c568f7e"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsFrameSelection.cpp",
+      "sha256": "1fc4ebf8a5be124ce0685a0afc46fa824c851253dfb68a2cc8d2d479cf004849"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/nsLayoutUtils.h",
+      "sha256": "cda5171ea8383332e5cb288df77fe9ebf668141af81a0561047f77b960a1823a"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShell.h",
+      "sha256": "17673f584ff27b91d242a5873a200dc42c50106a185582de9afb98e8f97ac809"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShellForwards.h",
+      "sha256": "8ef463b50655d473bcc3787295cc53254db411f8c60b44fb0aa4b845af3f3587"
     }
   ],
   "findings": [
@@ -100,15 +128,43 @@
     {
       "source": "Independent native reference fixture",
       "finding": "Return selects the field contents in this native editor. Browser follow-up typing is compared to the direct provider result instead of an assumed selection policy."
+    },
+    {
+      "source": "nsIFrame.cpp / PresShell.cpp / EventStateManager.cpp",
+      "finding": "Frame selection default handling runs after DOM listeners and before EventStateManager post handling focuses the field. Suppress that geometry only for prepared native text frames; start actual native mouse tracking after original engine focus. Engine mouseup post handling still releases capture and dispatches real clicks."
+    },
+    {
+      "source": "Shared helper native control query / descriptor invalidation",
+      "finding": "A text operation-5 query returns the actual native bitmap without mutating the busy editor. Existing eventfd invalidations propagate native selection to the engine during a held gesture. Canonical model/focus/size changes cancel tracking before rebinding; stale native ranges cannot overwrite a different canonical engine value."
+    },
+    {
+      "source": "NSTextField.m / independent direct-provider references",
+      "finding": "A field already using its native field editor rejects becoming first responder again. The pointer reference checks current focus before requesting it; it does not change native focus policy. Native hit testing, selection granularity, shift extension and tracking remain AppKit behavior."
     }
   ],
   "remaining": [
-    "Native mouse text hit testing/selection and dragging; current engine pointer editing remains unqualified.",
+    "Double/triple click counts, dragging selected text as data, context menus, touch and long-field horizontal/autoscroll behavior remain open beyond the qualified single-click/shift/selection-drag cases.",
     "Browser clipboard/cut/paste events, native undo/redo menu routing, IME/composition, selection direction, multiline/rich text and accessibility.",
     "Other text input types, native intrinsic sizing, scales other than 1, transforms and broader CSS/layout.",
     "URL bars/frontends, Chromium text bindings, derivative-specific interfaces, other builds and remaining GTK/Qt/KDE applications."
   ],
   "guarded_interfaces": {
+    "frame_event": {
+      "address": "0x6e7fbdc",
+      "guard_bytes": 20
+    },
+    "nearest_scroll": {
+      "address": "0x6da31ac",
+      "guard_bytes": 20
+    },
+    "capture": {
+      "address": "0x6d5c910",
+      "guard_bytes": 20
+    },
+    "stop_drag": {
+      "address": "0x56c6b7c",
+      "guard_bytes": 20
+    },
     "scroll_display": {
       "address": "0x6df4f08",
       "guard_bytes": 20
@@ -185,6 +241,7 @@
     "EditorEventListener": "EditorBase pointer at 16. Actual IsAcceptableInputEvent virtual slot 76; document pointer at editor+48. Actual layout flush uses FlushType 6.",
     "WidgetEvent": "Compiled event enum: keypress 2, keyup 3, keydown 4. Native default for accelerators/navigation runs after page keydown listeners.",
     "HandleDeleteSelection": "Nontrivial Result return uses indirect AArch64 x8 despite small payload. Naked adapter preserves original output pointer/result. Native range applied after beforeinput only if canonical value and selection remain unchanged.",
-    "retention": "Real node and EditorBase AddRef/Release across layout flush, native validation and script mutations."
+    "retention": "Real node and EditorBase AddRef/Release across layout flush, native validation and script mutations.",
+    "pointer_selection": "Actual nsIFrame::HandleEvent default selection boundary at 0x6e7fbdc. Native eligibility resolves through real GetNearestScrollContainerFrame(frame,3), same-document/include-hidden flags. Real SetCapturingContent(node,1,nullptr) and StopTrackingDragGesture(self,true) preserve engine capture without engine selection geometry. Capture flag 1 is verified in source and compiled MoveCaretToEventPoint call site."
   }
 }

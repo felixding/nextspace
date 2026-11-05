@@ -128,7 +128,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
             except ConnectionRefusedError:time.sleep(.05)
         subprocess.run([sys.executable,str(here.parent/'ChromiumScrollers/native-control-reference.py'),
             '--library',str(args.native_library.resolve()),'--controls',str(here/reference_model),
-            '--output',str(args.output/'references'),*(['--keys'] if args.sliders or args.text else []),'-GSBackend',args.backend],env=env,check=True,timeout=30,
+            '--output',str(args.output/'references'),*(['--keys'] if args.sliders or args.text else []),*(['--pointers'] if args.text else []),'-GSBackend',args.backend],env=env,check=True,timeout=30,
             stdout=(args.output/'references.stdout').open('w'),stderr=(args.output/'references.stderr').open('w'))
         if interactive:
             subprocess.run([sys.executable,str(here.parent/'ChromiumScrollers/native-control-reference.py'),

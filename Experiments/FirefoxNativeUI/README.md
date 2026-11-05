@@ -210,8 +210,23 @@ is required. See [text source audit](text-source-audit.json) and
 [text qualification](text-qualification.json).
 
 This is an opt-in fixed integer-size, scale-1 binding for one exact binary.
-Native mouse text selection, clipboard command/web-event integration, native
+Clipboard command/web-event integration, native
 undo-menu routing, IME/composition, other text types, intrinsic sizing,
 multiline/rich text, accessibility and broader styling remain open. Address
 bars and other browser application interfaces remain separate work. A native
 field editor does not automatically provide all application behaviors.
+
+Single clicks, Shift-click extension and forward/reverse selection drags now
+use the same native editor's actual mouse tracking. Gecko keeps DOM events,
+focus handlers, pointer capture and click dispatch; its frame selection geometry
+is suppressed only after a native field is prepared. Native selection changes
+return through the existing descriptor wakeup. A read-only snapshot query
+refreshes pixels during tracking without rebinding the busy editor. Model,
+style, size or focus changes cancel tracking before canonical rebinding.
+Independent native pointer ranges and selected images cover plain/password,
+readonly and Unicode models, including drags outside the field. Double/triple
+click counts, dragging selected text as data, context menus, touch and long-field
+horizontal scrolling remain open. This extension changes the adapter/helper;
+the qualified native provider and AppKit binaries are reused unchanged.
+The [pointer qualification](text-pointer-qualification.json) records 151 browser
+checks, including 50 native pointer ranges and 46 complete native images.

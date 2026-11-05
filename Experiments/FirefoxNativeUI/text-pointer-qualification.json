@@ -1,0 +1,923 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "04b99901",
+  "status": "Partial native mouse text selection on one pinned Firefox ESR binary; complete native browser/non-GNUstep application integration remains unfinished.",
+  "implementation": {
+    "native_controls": "Existing unchanged NSTextField/NSSecureTextField field editors and their actual mouseDown tracking",
+    "hit_testing": "Actual native character hit testing, shift extension, selection ranges and selected pixels; no selection geometry or tracking algorithm copied",
+    "engine_boundary": "Guarded nsIFrame::HandleEvent suppresses engine selection defaults only for prepared native fields; original EventStateManager retains DOM events, focus handlers, capture cleanup and click dispatch",
+    "capture": "Actual Gecko GetNearestScrollContainerFrame, SetCapturingContent and StopTrackingDragGesture; native editor supplies selection",
+    "busy_snapshot": "Text operation-5 query returns native pixels without applying configuration or model during tracking",
+    "canonical_model": "Changed value/editability, focus or dimensions terminate native tracking before rebinding; native selection echo checks the canonical engine value",
+    "invalidation": "Existing process-owned eventfd and GLib UI-loop subscription; no pointer or caret timer added",
+    "compiled": "Optional Gecko adapter and compatibility test stubs; main NativeUI provider/loader/shim, AppKit and Firefox reused unchanged"
+  },
+  "qualification": {
+    "browser_checks": 151,
+    "independent_native_pointer_cases": 50,
+    "complete_native_image_comparisons": 46,
+    "focused_outside_margin_checks": 5,
+    "checks": [
+      {
+        "case": "owned-fixture",
+        "passed": true
+      },
+      {
+        "case": "fixture-title",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-normal-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-password-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-readonly-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-disabled-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-unicode-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-limited-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-normal-focused",
+        "passed": true
+      },
+      {
+        "case": "native-focus-margin-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-password-focused",
+        "passed": true
+      },
+      {
+        "case": "native-focus-margin-password",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-readonly-focused",
+        "passed": true
+      },
+      {
+        "case": "native-focus-margin-readonly",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-unicode-focused",
+        "passed": true
+      },
+      {
+        "case": "native-focus-margin-unicode",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-limited-focused",
+        "passed": true
+      },
+      {
+        "case": "native-focus-margin-limited",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-programmatic-model",
+        "passed": true
+      },
+      {
+        "case": "programmatic-no-input-events",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-resized-model",
+        "passed": true
+      },
+      {
+        "case": "native-selection-replacement",
+        "passed": true
+      },
+      {
+        "case": "trusted-insert-transaction",
+        "passed": true
+      },
+      {
+        "case": "native-backspace-transaction",
+        "passed": true
+      },
+      {
+        "case": "engine-blur-change",
+        "passed": true
+      },
+      {
+        "case": "engine-undo-retained",
+        "passed": true
+      },
+      {
+        "case": "cancel-beforeinput",
+        "passed": true
+      },
+      {
+        "case": "beforeinput-canonical-script-value",
+        "passed": true
+      },
+      {
+        "case": "input-canonical-script-value",
+        "passed": true
+      },
+      {
+        "case": "cancel-keydown",
+        "passed": true
+      },
+      {
+        "case": "native-emacs-control-a",
+        "passed": true
+      },
+      {
+        "case": "native-emacs-control-e",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-near",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-middle",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-normal-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-normal-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-normal-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-normal-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-normal-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-normal-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-normal-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-near",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-middle",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-password-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-password-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-password-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-password-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-password-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-password-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-password-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-near",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-middle",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-readonly-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-readonly-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-readonly-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-readonly-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-readonly-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-readonly-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-readonly-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-near",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-middle",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-unicode-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-unicode-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-unicode-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-unicode-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-unicode-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-unicode-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-unicode-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-near",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-middle",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-limited-forward",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-limited-reverse",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-limited-outside-right",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-limited-outside-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-limited-shift-left",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-limited-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-pointer-image-limited-shift-right",
+        "passed": true
+      },
+      {
+        "case": "native-first-pointer-focus",
+        "passed": true
+      },
+      {
+        "case": "native-pointer-trusted-mouse-events",
+        "passed": true
+      },
+      {
+        "case": "pointer-selection-no-edit-events",
+        "passed": true
+      },
+      {
+        "case": "native-edit-after-pointer",
+        "passed": true
+      },
+      {
+        "case": "native-held-pointer-selection",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-held-native-selection",
+        "passed": true
+      },
+      {
+        "case": "native-edit-after-drag",
+        "passed": true
+      },
+      {
+        "case": "cancel-pointer-default",
+        "passed": true
+      },
+      {
+        "case": "cancel-pointerdown-default",
+        "passed": true
+      },
+      {
+        "case": "pointer-script-model",
+        "passed": true
+      },
+      {
+        "case": "script-model-during-native-tracking",
+        "passed": true
+      },
+      {
+        "case": "style-fallback-during-native-tracking",
+        "passed": true
+      },
+      {
+        "case": "pointer-focus-replaces-frame",
+        "passed": true
+      },
+      {
+        "case": "pointer-after-focus-replacement",
+        "passed": true
+      },
+      {
+        "case": "pointer-handler-removes-frame",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+a",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+e",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+b",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+f",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Backspace",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Delete",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+d",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+h",
+        "passed": true
+      },
+      {
+        "case": "native-reference-Control+k",
+        "passed": true
+      },
+      {
+        "case": "secure-engine-value",
+        "passed": true
+      },
+      {
+        "case": "readonly-retained",
+        "passed": true
+      },
+      {
+        "case": "native-unicode-utf16",
+        "passed": true
+      },
+      {
+        "case": "engine-maxlength",
+        "passed": true
+      },
+      {
+        "case": "native-return-engine-submit",
+        "passed": true
+      },
+      {
+        "case": "editing-after-return",
+        "passed": true
+      },
+      {
+        "case": "input-replaces-frame",
+        "passed": true
+      },
+      {
+        "case": "beforeinput-removes-frame",
+        "passed": true
+      },
+      {
+        "case": "native-next-focus",
+        "passed": true
+      },
+      {
+        "case": "style-change-keeps-engine-input",
+        "passed": true
+      },
+      {
+        "case": "cache-restores-value",
+        "passed": true
+      },
+      {
+        "case": "cache-restores-page",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-bfcache-updated",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-restored-normal",
+        "passed": true
+      },
+      {
+        "case": "native-caret-browser-invalidation",
+        "passed": true
+      }
+    ],
+    "sandbox": [
+      {
+        "pid": 9398,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 9585,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "native_created": 596,
+    "native_destroyed": 590,
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": "FallbackXY",
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.22312344500005565,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    },
+    "renderer_crash": {
+      "pid": 9398,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+  },
+  "regressions": {
+    "buttons": {
+      "sandbox": [
+        {
+          "pid": 8726,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8891,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 249,
+      "native_destroyed": 243,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 2,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.19960096200020416,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 8726,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 54,
+      "all_passed": true,
+      "hook_sha256": "935d9beaec48ebd1eeb3248c1d066366c963eefad2a66660f256faf198e72c3f",
+      "text_bindings_installed": true
+    },
+    "controls": {
+      "sandbox": [
+        {
+          "pid": 9071,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 9227,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 102,
+      "native_destroyed": 96,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": true,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.20934290200011674,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 9071,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 40,
+      "all_passed": true,
+      "hook_sha256": "935d9beaec48ebd1eeb3248c1d066366c963eefad2a66660f256faf198e72c3f",
+      "text_bindings_installed": true
+    },
+    "ranges": {
+      "sandbox": [
+        {
+          "pid": 9760,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 9918,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 99,
+      "native_destroyed": 93,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 50,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.2088413949995811,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 9760,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 57,
+      "all_passed": true,
+      "hook_sha256": "fc858435d4102711c50cf81ed18537c13d01cdb42dc0c6817e6d43bd095a7cb3",
+      "text_bindings_installed": true
+    },
+    "progress": {
+      "sandbox": [
+        {
+          "pid": 10088,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 45,
+      "native_destroyed": 45,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 0.61,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.14637821699943743,
+        "native_objects_reclaimed_by_helper_exit": 0,
+        "mouse_and_key_retained": false
+      },
+      "renderer_crash": null,
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 21,
+      "all_passed": true,
+      "hook_sha256": "fc858435d4102711c50cf81ed18537c13d01cdb42dc0c6817e6d43bd095a7cb3",
+      "text_bindings_installed": true
+    }
+  },
+  "shared_provider": {
+    "native_text": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "native_filter": {
+      "native_filter_controls": 2,
+      "pre_mutation_value": true,
+      "native_ranges_and_selectors": true,
+      "typing_veto": true,
+      "deletion_veto": true,
+      "cut_veto": true,
+      "paste_proposal": true,
+      "unicode": true,
+      "focus_transfer": true,
+      "model_rebind": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "transport_text_filter": {
+      "native_pre_edit_ipc": true,
+      "proposals": 6,
+      "nested_reads": 12,
+      "nested_mutations_rejected": 6,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true
+    },
+    "previous_text_transport_checks": 39,
+    "unchanged_legacy_images": 30,
+    "suite_completed": true
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-native-ui/text-pointer-hook.so": "fc858435d4102711c50cf81ed18537c13d01cdb42dc0c6817e6d43bd095a7cb3",
+      "/var/tmp/nextspace-native-ui/browser-text-build/libnextspace-native-scroller.so.0.1": "a31caaab0c1eab3f4e92f91aea449a2a47dc03199546319935e3d39a166acc33",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui.so.1": "2a65aa44b91c66b1165d9631eeca2d7a3734337065207cfe2116e56a9dd3b304",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui-gnustep.so.1": "bbaccb102804fe3d99a68b98d208cf0aec71e38a7ca48b3d6a617c56b23efc77",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "package_count": 1051,
+    "owned_processes_exited": {
+      "9268": true,
+      "9265": true,
+      "9260": true,
+      "8602": true,
+      "8599": true,
+      "8596": true,
+      "8931": true,
+      "8928": true,
+      "8925": true,
+      "9621": true,
+      "9618": true,
+      "9615": true,
+      "9955": true,
+      "9952": true,
+      "9949": true
+    },
+    "marionette_port_closed": true,
+    "private_backend_alias_removed": true
+  },
+  "unchanged_from_core_checkpoint": {
+    "/var/tmp/nextspace-native-ui/browser-text-build/libnextspace-native-scroller.so.0.1": true,
+    "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui.so.1": true,
+    "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui-gnustep.so.1": true,
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": true,
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": true,
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": true
+  },
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/controls.inc": "c4757c9521ee02cf236a8ce07459088dbec773a0a00919a113dfda0a652bf67c",
+    "Experiments/FirefoxNativeUI/text.inc": "4241f3ff4e6e42267978be6733f388d9368449a357cc7c526c781dba233d24bb",
+    "Experiments/FirefoxNativeUI/pinned-text.h": "a0435d31517ba290b2f1d46d4e3ff400f3865bb7d068f1604151ec90b0a45217",
+    "Experiments/FirefoxNativeUI/run-fixture.py": "5f03958c5ddb72d09d0bf8dfbe2e9191fae6a07f3f7b28dcd5e78c002e05fcff",
+    "Experiments/FirefoxNativeUI/check-text.py": "4844b61bac2507fcc41df810175cbbc583280cb90e6a6746dfb0aa180bf7260f",
+    "Experiments/FirefoxNativeUI/test-text.html": "3ad53cd17f42898a369b5ffabdc408feeb4bfd4106b5c4826cf11144ef573473",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "f280223883878d6e1a6893eb6e1fd07ab46cd53c15f70893910397f599251099",
+    "Experiments/ChromiumScrollers/native_controls.py": "6a42f343268f544e71c61263266c2adddf0ae327f33f78f774ccb40465935aec"
+  },
+  "source_audit": "text-source-audit.json",
+  "evidence_sha256": {
+    ".build/firefox-native-ui/text-pointer-qualified/results.json": "c690431ea97927290252ab13cb95cc073172c3fd28f732e87743bddd48a4eb68",
+    ".build/firefox-native-ui/text-pointer-qualified/references/results.json": "3db0107da8f82538de0d0922cc4e64cca91e8f73b1caf0595ac0f63d723601b3",
+    ".build/firefox-native-ui/pointer-environment.json": "a6198bcec11c69685a2b742c57bf374aacd3b6f730b5ed805bef7a9b6d9f2aa9",
+    ".build/native-ui/text-pointer-provider/results.json": "06093368f9493798d273ee4b43e1593f034bb8dc5894c34695cd6403dbfee360"
+  },
+  "evidence": [
+    ".build/firefox-native-ui/text-pointer-qualified/",
+    ".build/firefox-native-ui/pointer-{buttons,controls,ranges,progress}/",
+    ".build/firefox-native-ui/pointer-environment.json",
+    ".build/firefox-native-ui/text-pointer-source/",
+    ".build/native-ui/text-pointer-provider/"
+  ],
+  "diagnostics": [
+    "The direct pointer reference initially requested focus again on a field already using its native field editor. NSTextField deliberately rejects that; checking actual focus first fixes the fixture without modifying native policy.",
+    "After DOM listeners, frame selection default handling precedes engine focus post handling. Starting native tracking after original focus preserves handlers that replace/remove the frame.",
+    "Native text models reject mutation while tracking. Retrieve a snapshot through the existing read query instead of applying the model during repaint.",
+    "A canonical script value must not receive a stale native selection. Compare actual native and engine text before echoing a pointer range.",
+    "The final extra test checks cancelled pointerdown. The adapter checks the event default-prevented bit as well as event status, matching the engine focus boundary. Buttons/checkbox regressions preceded that text-only guard; final text/range/progress runs use the final adapter hash."
+  ],
+  "limitations": [
+    "One exact ARM64 Firefox ESR binary; themed plain/password inputs with explicit integer size at scale 1.",
+    "Single clicks, Shift-clicks, forward/reverse selection drags and outside-field capture are qualified. Double/triple click count metadata, selected-text data dragging, context menus, touch and long-field horizontal/autoscroll behavior remain open.",
+    "Held model/style changes, focus-handler replacement/removal and first-click focus pass. Held focus loss and live resize paths still need explicit browser qualification.",
+    "Selection direction, clipboard/cut/paste web-event integration, native undo-menu routing, IME/composition, accessibility, other input types and native intrinsic sizing remain open.",
+    "Current native fixture font lacks some Unicode glyphs; UTF-16/value preservation and equality to actual native pixels pass.",
+    "Chromium text and browser frontends/address bars, other binaries/derivatives and GTK/Qt/KDE apps remain open. Chromium browser suites were not rerun for this text-only helper query; shared provider/transport suites pass."
+  ]
+}

@@ -43,7 +43,7 @@ required integration surfaces differ:
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields through the shared provider. Text clipboard commands, mouse text selection, IME, other controls, scaled output and broader input remain open. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single-click/Shift-click/selection dragging through the shared provider. Text clipboard commands, multiple clicks/data dragging, IME, other controls, scaled output and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
@@ -292,6 +292,7 @@ Native pre-edit proposals enter Gecko's real insertion/deletion transactions;
 canonical engine values return to the native editor after trusted events,
 cancellation and script mutation. Tests cover native Emacs commands, engine
 undo/validation, dynamic values/resize, form Return, page restoration, real caret
-invalidation and failure recovery. Native text mouse selection, clipboard and
+invalidation and failure recovery. Single-click/Shift-click/selection dragging
+now use the actual native editor; multiple clicks/data dragging, clipboard and
 menu command semantics, IME, other text types/scales and browser frontends
 remain open. See [text qualification](../Experiments/FirefoxNativeUI/text-qualification.json).

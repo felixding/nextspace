@@ -584,7 +584,7 @@ class NativeControlServer:
                 if self.active is state:
                     self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
-        self._respond(client, req, state)
+        self._respond(client, req, state, pixels=req.operation==5 and req.kind in (7,8))
 
     def text_message(self,client,data):
         if len(data)<C.sizeof(ControlTextRequest):return

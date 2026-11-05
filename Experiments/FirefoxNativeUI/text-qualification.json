@@ -774,5 +774,7 @@
     "Repeated unchanged editable setter suppressed caret pixels. Guarding that setter fixes the native timer/invalidations without a replacement blink implementation.",
     "Initial pageshow-count fixture assumed exactly one event and failed. Restored window/node markers plus the real persisted pageshow flag verify actual bfcache retention; the restored native image is independently compared.",
     "Range regression preceded the final guard moving keyboard-only payload reads inside keydown. Final text, button, checkbox/radio and progress runs use the final adapter hash. Shared range paths were unchanged by that guard."
-  ]
+  ],
+  "scope": "Core text checkpoint at 04b99901. See the subsequent pointer qualification for the current mouse-selection extension and regression evidence.",
+  "subsequent_pointer_qualification": "text-pointer-qualification.json"
 }

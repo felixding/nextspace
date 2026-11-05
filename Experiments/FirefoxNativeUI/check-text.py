@@ -56,6 +56,59 @@ try:
  reset();focus(start=3,end=3);key('a','\ue009');check('native-emacs-control-a',state()['start']==state()['end']==0,state=state())
  key('e','\ue009');check('native-emacs-control-e',state()['start']==state()['end']==5,state=state())
  native=next(x for x in json.loads((a.references/'results.json').read_text()) if x['id']=='normal')
+ for identifier in ('normal','password','readonly','unicode','limited'):
+  references=next(x for x in json.loads((a.references/'results.json').read_text()) if x['id']==identifier)['pointers']
+  for expected in references:
+   reset();focus(identifier,1 if expected['modifiers'] else 0,3 if expected['modifiers'] else 0)
+   rect=execute('return document.getElementById('+json.dumps(identifier)+').getBoundingClientRect().toJSON()')
+   x,y=round(rect['x']),round(rect['y'])
+   actions=[dict(type='pointerMove',duration=0,x=x+expected['x'],y=y+12),dict(type='pointerDown',button=0)]
+   if expected['x']!=expected['end_x']:
+    actions += [dict(type='pointerMove',duration=100,x=x+expected['end_x'],y=y+12),dict(type='pause',duration=100)]
+   actions.append(dict(type='pointerUp',button=0))
+   keyboard=[dict(type='keyDown',value='\ue008')]+[dict(type='pause')]*(len(actions)-2)+[dict(type='keyUp',value='\ue008')]
+   m.command('WebDriver:PerformActions',dict(actions=[dict(type='pointer',id='mouse',parameters=dict(pointerType='mouse'),actions=actions)]+([dict(type='key',id='shift',actions=keyboard)] if expected['modifiers'] else [])))
+   check('native-pointer-'+identifier+'-'+expected['name'],state(identifier)=={k:expected[k] for k in ('value','start','end')},state=state(identifier),expected=expected)
+   if expected['start']!=expected['end']:
+    compare(identifier,reference=identifier+'-pointer-'+expected['name'],label='pointer-image-'+identifier+'-'+expected['name'])
+   m.command('WebDriver:ReleaseActions')
+ def pointer(actions):
+  m.command('WebDriver:PerformActions',dict(actions=[dict(type='pointer',id='mouse',parameters=dict(pointerType='mouse'),actions=actions)]))
+ def press(x=3,drag=None):
+  rect=execute('return normal.getBoundingClientRect().toJSON()');left,top=round(rect['x']),round(rect['y'])
+  actions=[dict(type='pointerMove',duration=0,x=left+x,y=top+12),dict(type='pointerDown',button=0)]
+  if drag is not None:actions += [dict(type='pointerMove',duration=100,x=left+drag,y=top+12),dict(type='pause',duration=100)]
+  pointer(actions)
+ def release():
+  pointer([dict(type='pointerUp',button=0)]);m.command('WebDriver:ReleaseActions')
+ reset();execute('ordinary.focus();return true');press(10);release()
+ check('native-first-pointer-focus',execute('return document.activeElement.id')=='normal' and state()==dict(value='Hello',start=1,end=1),state=state())
+ mouse=execute('return events.filter(e=>["mousedown","mouseup","click"].includes(e.type))')
+ check('native-pointer-trusted-mouse-events',[e['type'] for e in mouse]==['mousedown','mouseup','click'] and all(e['trusted'] for e in mouse),events=mouse)
+ check('pointer-selection-no-edit-events',not execute('return events.some(e=>e.type==="input"||e.type==="change")'))
+ key('X');check('native-edit-after-pointer',state()==dict(value='HXello',start=2,end=2),state=state())
+ reset();focus(start=0,end=0);press(3,25)
+ check('native-held-pointer-selection',state()==dict(value='Hello',start=0,end=3),state=state())
+ compare('normal',reference='normal-pointer-forward',label='held-native-selection');release()
+ key('X');check('native-edit-after-drag',state()==dict(value='Xlo',start=1,end=1),state=state())
+ reset();focus();execute('normal.addEventListener("mousedown",e=>e.preventDefault());return true');press(10);release()
+ check('cancel-pointer-default',state()==dict(value='Hello',start=1,end=3),state=state())
+ reset();focus();execute('normal.addEventListener("pointerdown",e=>e.preventDefault());return true');press(10);release()
+ check('cancel-pointerdown-default',state()==dict(value='Hello',start=1,end=3),state=state())
+ reset();focus();execute('normal.addEventListener("mousedown",e=>e.target.value="Updated",{once:true});return true');press(10);release()
+ expected=next(x for x in json.loads((a.references/'results.json').read_text()) if x['id']=='updated')['pointers'][1]
+ check('pointer-script-model',state()=={k:expected[k] for k in ('value','start','end')},state=state(),expected=expected)
+ reset();focus(start=0,end=0);press(3,25);execute('normal.value="Updated";return true')
+ m.command('WebDriver:TakeScreenshot',dict(full=False));release();key('X')
+ check('script-model-during-native-tracking',state()['value']=='UpdatedX',state=state())
+ reset();focus(start=0,end=0);press(3,25);execute('normal.style.appearance="none";return true')
+ m.command('WebDriver:TakeScreenshot',dict(full=False));release();focus(start=5,end=5);key('X')
+ check('style-fallback-during-native-tracking',state()['value']=='HelloX',state=state())
+ reset();execute('normal.addEventListener("focus",e=>e.target.replaceWith(e.target.cloneNode()),{once:true});ordinary.focus();return true');press(10);release()
+ check('pointer-focus-replaces-frame',state()['value']=='Hello',state=state())
+ press(10);release();check('pointer-after-focus-replacement',state()==dict(value='Hello',start=1,end=1),state=state())
+ reset();focus();execute('normal.addEventListener("mousedown",e=>e.target.remove(),{once:true});return true');press(10);release()
+ check('pointer-handler-removes-frame',execute('return !document.getElementById("normal")'))
  for expected in native['keys']:
   reset();execute('normal.value="Alpha beta";return true');focus(start=3,end=3)
   code=expected['key'];key(code.split('+')[-1] if code.startswith('Control+') else '\ue003' if code=='Backspace' else '\ue017','\ue009' if code.startswith('Control+') else None)

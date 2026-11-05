@@ -123,9 +123,15 @@ now connects plain/password webpage fields. Chromium text and URL-bar fields
 remain open. Engine edits must
 retain beforeinput cancellation, trusted events, validation, selection, undo,
 composition and application command behavior. Multiline/rich text, IME, undo
-menu routing, other scales, mouse text selection, drag/drop and accessibility
+menu routing, other scales, drag/drop and accessibility
 still require integration and qualification. Browser adapters must consume the
 shared editor rather than reproducing its behavior.
+
+The pinned Firefox binding also uses the existing native tracking API for
+single-click, Shift-click and selection-drag behavior. Pointer hit testing,
+selection ranges and selected pixels come from the actual native editor.
+Double/triple clicks, selected-text data dragging, context menus and long-field
+scrolling remain unqualified; this is not complete text-pointer integration.
 
 ### Native proposals before an edit
 
