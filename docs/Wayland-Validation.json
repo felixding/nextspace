@@ -13,28 +13,28 @@
       200
     ]
   },
-  "qualified_source_revision": "d33dff610d34584489dd6c5dca976fe03b36939e",
+  "qualified_source_revision": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
   "ci": {
     "workflow": ".github/workflows/wayland.yml",
     "runner": "ubuntu-24.04-arm",
-    "run": "https://github.com/felixding/nextspace/actions/runs/42022229984",
-    "head": "d33dff610d34584489dd6c5dca976fe03b36939e",
+    "run": "https://github.com/felixding/nextspace/actions/runs/42038175351",
+    "head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
     "native": {
-      "job": 127227553507,
+      "job": 127281682907,
       "conclusion": "success"
     },
     "desktop_packages": {
-      "job": 127227553904,
+      "job": 127281682588,
       "conclusion": "success"
     },
     "obsolete_x11_workflow_files_removed": 4
   },
   "package_artifact_audit": {
-    "archive": ".build/evidence/components/arm64-current-packages-b9f61839-evidence.tar.gz",
-    "bytes": 336303301,
-    "sha256": "b8d3e66889280cf95e62219d3799b3c4c04bce9f5ad9a42a9a64b956b7bd2e21",
-    "run": 41988568090,
-    "head": "b9f61839819e2805ba81480a5e306f041001943e",
+    "archive": ".build/evidence/components/arm64-current-packages-0496e814-evidence.tar.gz",
+    "bytes": 338063578,
+    "sha256": "ef97bec58b28d7778f4bfb1db4fbe9e783f76e788deea3d6f25c9f378f3f938c",
+    "run": 42038175351,
+    "head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
     "deb_packages": 6,
     "arm64_elfs": 170,
     "versions": [
@@ -43,18 +43,17 @@
     ],
     "payload_hashes_and_literal_links_verified": true,
     "source_inputs": {
-      "desktop": 4295,
-      "compositor": 727
+      "desktop": 4209,
+      "compositor": 721
     },
     "source_archives_and_committed_git_inputs_verified": true,
     "independent_extracted_replay": true
   },
   "system_login_evidence": {
-    "archive": ".build/evidence/components/arm64-current-runtime-b9f61839-v1-evidence.tar.gz",
-    "bytes": 2250110,
-    "sha256": "b95b4d4b23fd3b51e5ad16102b5b64941de69f40bea67b0ef2b1abfd16a30151",
-    "head": "b9f61839819e2805ba81480a5e306f041001943e",
-    "runtime_inputs_unchanged_through": "4ca9560df218acc5e7983557de49a1570cf889df",
+    "archive": ".build/evidence/components/arm64-current-runtime-0496e814-v1-evidence.tar.gz",
+    "bytes": 2211498,
+    "sha256": "35d0a3ccf1aa0b64dfb9b7b0ce57228002a9bd41d5bbecaabcbb5607aa8a3450",
+    "head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
     "package_version": "0.1.0~ci2",
     "environment": "Lima virtual DRM; private read-only runtime mounts",
     "passed": true,
@@ -67,7 +66,8 @@
     "useful_guest_runtime_and_probes_retained": true,
     "duplicate_transports_and_session_captures_removed": true,
     "independent_extracted_replay": true,
-    "physical_gpu_qualified": false
+    "physical_gpu_qualified": false,
+    "run": 42038175351
   },
   "input_reader_attribution": {
     "archive": ".build/evidence/components/arm64-input-reader-thread-v1-evidence.tar.gz",
@@ -253,8 +253,14 @@
         150,
         175,
         200
-      ]
-    }
+      ],
+      "normal_arm64_ci_passed": true,
+      "normal_arm64_ci_run": "https://github.com/felixding/nextspace/actions/runs/42038175351",
+      "normal_arm64_ci_head": "0496e8144f2a45720a5fb9b43fcfcbc5c788b0ac",
+      "unchanged_review_matrix_diagnostics_passed": 2,
+      "review_cases_per_diagnostic": 45
+    },
+    "obsolete_explicit_x11_build_dependencies_removed": 8
   },
   "remaining": [
     "Physical display, input, modeset, hotplug and gamma validation",

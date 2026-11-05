@@ -8,28 +8,28 @@ artifact digests and qualification boundaries. The full plan remains incomplete.
 
 ## Current ARM64 qualification
 
-Both full ARM64 jobs pass at `d33dff61` in
-[run 42022229984](https://github.com/felixding/nextspace/actions/runs/42022229984).
+Both full ARM64 jobs pass at `0496e814` in
+[run 42038175351](https://github.com/felixding/nextspace/actions/runs/42038175351).
 The native job builds and exercises the toolkit, compositor, applications,
 transfers, input methods, portals and session supervisor. The package job covers
 cold build, network-disabled source replay, installation, live upgrade and removal.
-These results qualify the earlier dead-code cleanup and the existing OpenUp
-fixture's action/MIME-acceptance synchronization. Subsequent native-backend
-source removal requires its own normal ARM64 CI result.
+These results include the native-backend removal and removal of obsolete explicit
+X11 development dependencies. No X11 test cases were added.
 
-The B9 package artifacts are independently inspected: six ARM64 DEBs, all payload
-hashes and literal symlinks, 170 ELF headers, and both retained source archives.
-The 4,295 desktop and 727 compositor input entries match their receipts and the
-exact committed Git blobs. The ci1 and ci2 source maps agree. This inspection
-qualifies those artifacts; it does not infer physical hardware behavior.
+The current package artifacts are independently inspected: six ARM64 DEBs, all
+payload hashes and literal symlinks, 170 ELF headers, and both retained source
+archives. The 4,209 desktop and 721 compositor input entries match their receipts
+and the exact committed Git blobs. The ci1 and ci2 source maps agree. An independent
+extracted replay passes. This inspection does not infer physical hardware behavior.
 
-The same cleaned-up B9 ci2 packages pass an isolated Lima PAM cycle: authentication,
-Workspace, Preferences, TimeMon, cancelled and confirmed logout, user hooks and
-return to a rendered greeter. All 64 authenticated-session and 19 returned-greeter
-process/library hashes match package payloads. Private read-only mounts preserve
-the installed native106 desktop, package database and service configuration.
-Maintained runtime/build inputs are unchanged through `4ca9560d`. An independent
-extracted replay verifies the retained session evidence.
+The current ci2 packages also pass the existing isolated Lima PAM cycle:
+authentication, Workspace, Preferences, TimeMon, cancelled and confirmed logout,
+user hooks and return to a rendered greeter. All 64 authenticated-session and
+19 returned-greeter process/library hashes match the current package payloads.
+Private read-only mounts preserve the installed native106 desktop, package
+database and service configuration. An independent extracted replay verifies the
+retained session evidence. The useful guest prefix, packages and probes remain;
+verified duplicate transports and temporary session captures are removed.
 
 ## Native-only cleanup
 
@@ -53,12 +53,13 @@ files). The obsolete Red Hat X11 RPM pipeline and old Debian/Ubuntu Xorg
 dependency lists are also removed. Configure now selects only Wayland/Cairo
 and requires their native libraries; it no longer probes X11 or falls back to another renderer. Backend and
 pasteboard builds pass with no direct X11 dependencies. Distribution Cairo/image
-libraries can still have transitive X11 dependencies. The unchanged application
-suite passes Review multipage/density and five-density retained scrolling, then
-stops at a 175% Open-panel readiness timeout; its capture retains the directory
-name and disabled OK button. The failure is preserved without attributing it to
-the cleanup. The independent five-density Workspace/Preferences/OpenUp/Dock suite
-passes with the rebuilt backend. No cases are added.
+libraries can still have transitive X11 dependencies. The initial local application
+suite stopped at a 175% Review Open-panel readiness timeout; its capture retains
+the directory name and disabled OK button. The failure is preserved without causal
+attribution. Both subsequent bounded runs of the unchanged 45-case Review matrix
+pass, as do the normal ARM64 CI jobs. The independent five-density
+Workspace/Preferences/OpenUp/Dock suite also passes with the rebuilt backend.
+No cases are added.
 
 Seven unchanged original title-font and application-hint files remain under
 `Tests/Wayland/fixtures/title-reference/originals`, with provenance, licenses and
