@@ -17,6 +17,9 @@ struct NativeForm {
   unsigned popup_count;
   int popup_selected,popup_open;
   void *popup_engine;
+  int text_tracking,text_width,text_height;
+  uint32_t text_start,text_end;
+  double text_x,text_y;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
@@ -72,6 +75,9 @@ static void popup_sync_origin(struct NativeForm *);
 static int text_kind(int);
 static struct NXSResponse *sync_text_form(struct NativeForm *,struct NXSResponse *);
 static int default_text_key(void *,void *);
+static struct NXSResponse *sync_text_image(struct NativeForm *);
+static void end_text_pointer(struct NativeForm *,int);
+static void echo_text_selection(struct NativeForm *);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -169,9 +175,12 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
     double position=((double (*)(const void *))(base+0xe7bb2e8))(element);
     form->indeterminate=position==-1;form->value=form->indeterminate?0:position;
   }
-  struct NXSResponse *response=form_request(form,1,0,0,0);
-  if(kind!=NXS_PROGRESS)response=sync_form_focus(form,response);
-  if(text_kind(kind))response=sync_text_form(form,response);
+  struct NXSResponse *response;
+  if(text_kind(kind))response=sync_text_image(form);
+  else {
+    response=form_request(form,1,0,0,0);
+    if(kind!=NXS_PROGRESS)response=sync_form_focus(form,response);
+  }
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
      sizeof(*response)+(size_t)response->stride*response->height!=response->size){
     if(log_fd>=0)dprintf(log_fd,"%d native bitmap unavailable kind=%d id=%llu response=%p errno=%d\n",
@@ -230,7 +239,11 @@ static struct FloatPoint form_point(struct NativeForm *form,const void *event) {
   return (struct FloatPoint){(local.x-box.x)*form->rect.width/box.width,(local.y-box.y)*form->rect.height/box.height};
 }
 static void finish_form(double x,double y,unsigned modifiers) {
-  struct NativeForm *form=active_form;if(!form)return;active_form=NULL;
+  struct NativeForm *form=active_form;if(!form)return;
+  if(text_kind(form->kind)) {
+    form->text_x=x;form->text_y=y;end_text_pointer(form,1);invalidate_form(form);return;
+  }
+  active_form=NULL;
   struct NXSResponse *response=form_request(form,4,x,y,modifiers);
   for(int n=0;response&&response->parts[0].y&&n<100;n++) {
     struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);
@@ -327,7 +340,7 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
         if(response&&response->parts[0].y){active_form=form;invalidate_form(form);note("native form tracking started");}
       }
     }
-  } else if(active_form&&same_atom(atom,0x123a5600)) {
+  } else if(active_form&&!text_kind(active_form->kind)&&same_atom(atom,0x123a5600)) {
     struct FloatPoint point=form_point(active_form,event);
     form_request(active_form,3,point.x,point.y,modifiers);invalidate_form(active_form);
   } else if(active_form&&same_atom(atom,0x123a5608)&&*(const int *)((const char *)event+120)==0) {

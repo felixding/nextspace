@@ -131,6 +131,7 @@ static void form_native_work(void *controller) {
     struct NXSResponse *response=form_request(slider,5,0,0,0);
     apply_slider_value(slider,response,2);
   }
+  if(active_form&&text_kind(active_form->kind))echo_text_selection(active_form);
   struct NativeForm *popup=native_forms;
   while(popup&&!(popup->kind==NXS_POPUP&&popup->popup_open))popup=popup->next;
   if(popup)popup_after_input(popup,form_request(popup,5,0,0,0));

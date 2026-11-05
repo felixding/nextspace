@@ -181,6 +181,48 @@
       "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_form_control_element.cc",
       "sha256": "f39dcc56172593bc57b686c01f83b9929b23f0b022cda9aea7f39dd46b21f3d4",
       "bytes": 20889
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/selection_controller.cc",
+      "sha256": "4fbfaf26521f08a4820909dd476f62d50d36262024b415414b3b6caf428624d0",
+      "path": "third_party/blink/renderer/core/editing/selection_controller.cc",
+      "bytes": 61938
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/editing/selection_controller.h",
+      "sha256": "e2aded6016677afaf9060d395501e89e732ee3307812b13a6484e9fe53553738",
+      "path": "third_party/blink/renderer/core/editing/selection_controller.h",
+      "bytes": 7375
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/mouse_event_manager.h",
+      "sha256": "7eb899913319b32e774a7898a5fc212a056128dbd9f9b35a0c3fed758ef8965e",
+      "path": "third_party/blink/renderer/core/input/mouse_event_manager.h",
+      "bytes": 10117
+    },
+    {
+      "path": "third_party/blink/renderer/core/page/event_with_hit_test_results.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/page/event_with_hit_test_results.h",
+      "sha256": "6eefec735299b194cd6f74bfce9a7334e5a77277fad7ed100ce039409f5fcb21",
+      "bytes": 2990
+    },
+    {
+      "path": "third_party/blink/renderer/core/layout/hit_test_result.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/hit_test_result.h",
+      "sha256": "01a0a3ecfcfb04bfd469c16545f16855ef688ffd822ab0329ff72efd077f983f",
+      "bytes": 10713
+    },
+    {
+      "path": "third_party/blink/renderer/core/input/mouse_event_manager.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/mouse_event_manager.cc",
+      "sha256": "0f049c6f18bf2cb5ef96acf2dc292a8555bbd6a5b4ad86d1a03c14a3497bc34e",
+      "bytes": 53501
+    },
+    {
+      "path": "third_party/blink/public/common/input/web_mouse_event.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/public/common/input/web_mouse_event.h",
+      "sha256": "a29cc33e5e24513cfd3a4861113d922ab033356ed3953c5d9d447d2076e545df",
+      "bytes": 4733
     }
   ],
   "guarded_interfaces": {
@@ -247,6 +289,22 @@
     "text_view_value": {
       "offset": "0xefb5bf0",
       "guard_bytes": 20
+    },
+    "text_mouse_press": {
+      "offset": "0xde47e58",
+      "guard_bytes": 20
+    },
+    "text_mouse_drag": {
+      "offset": "0xe255b84",
+      "guard_bytes": 20
+    },
+    "text_mouse_release": {
+      "offset": "0xde48730",
+      "guard_bytes": 20
+    },
+    "text_pointer_up": {
+      "offset": "0xe245bc0",
+      "guard_bytes": 20
     }
   },
   "compiled_abi": {
@@ -254,7 +312,10 @@
     "EditorCommand": "24 bytes: internal command pointer at 0, source int at 8, frame pointer at 16. Source 0 is menu/key binding, as in the compiled native keyboard dispatch call site. Real InternalCommand lookup and EditorCommand::Execute preserve command beforeinput and validation.",
     "LocalFrame": "Existing decoded document/window/frame chain; compressed Editor member at +588 and EventHandler member at +592, verified by compiled Editor::HandleKeyboardEvent.",
     "selection": "Real TextControlElement selection start/end and SetSelectionRange. Native proposed delete range is applied in actual static TypingCommand delete entry points after beforeinput, only when canonical value and original selection remain unchanged.",
-    "painting": "Existing ThemePainterDefault text-field rectangle and canvas. Prepared actual native bitmap replaces complete field; existing child-paint boundaries suppress anonymous text and guarded PaintCaretsIfNeeded suppresses the engine caret only for owned native fields."
+    "painting": "Existing ThemePainterDefault text-field rectangle and canvas. Prepared actual native bitmap replaces complete field; existing child-paint boundaries suppress anonymous text and guarded PaintCaretsIfNeeded suppresses the engine caret only for owned native fields.",
+    "MouseEventWithHitTestResults": "EventWithHitTestResults embeds WebMouseEvent first. Its compiled InnerNode access decodes the signed compressed Member at +204; scrollbar is +236. WebMouseEvent button is +120 and click_count +160. SelectionController::HandleMousePressEvent disassembly confirms each access. Existing real coordinate conversion maps the engine event into native bitmap coordinates without glyph hit testing.",
+    "pointer_lifecycle": "Real engine focus and cancellable pointer/mousedown dispatch precede SelectionController::HandleMousePressEvent. MouseEventManager retains press bookkeeping; native tracking owns character selection. Its drag-default entry bypasses engine data dragging and selection autoscroll during the claimed gesture. Selection release is suppressed only for that controller. The outer EventHandler::HandleMouseReleaseEvent restores bookkeeping even when mouseup is cancelled. Compiled drag manager frame Member at +0 matches the actual focused field frame.",
+    "busy_editor": "Native op18 reads actual editor value, UTF-16 range, editability and focus. While tracking, op5 draws the busy actual editor without model/configuration changes. Canonical value/range, enabled/read-only, focus or dimensions changing ends tracking before rebinding. The eventfd work-loop callback echoes actual selection only while its canonical engine model remains unchanged."
   },
   "findings": [
     "Blink Editor key insertion uses actual DispatchBeforeInputInsertText then EventHandler::HandleTextInputEvent; using that same path retains text filtering, maxlength, trusted input, cancellation and undo.",
@@ -263,10 +324,13 @@
     "Native Return is dispatched on keypress only; keydown must retain the engine path that defers text-insertion commands.",
     "Cached field background snapshots require invalidation when the real engine updates inner editor values or selection. Real TextControlElement update/selection boundaries invalidate the owning layout rather than fabricating DOM changes.",
     "Actual native caret invalidations reuse the existing eventfd/work-loop integration. Helper loss also invalidates every native text field so original complete engine drawing returns immediately.",
-    "Beforeinput/input removal/replacement cases pass. Native controls, rendering, caret timer and key bindings remain in the unchanged shared UI library."
+    "Beforeinput/input removal/replacement cases pass. Native controls, rendering, caret timer and key bindings remain in the unchanged shared UI library.",
+    "A shared input default handler also receives mouse events. Ending tracking before checking actual keydown/keypress type prematurely released native selection on mousemove. Modifier-only key events also preserve the active pointer gesture.",
+    "Direct independent native references match all fifty Chromium click, Shift-click, forward/reverse and outside-field drag ranges. The bridge only transports coordinates and selection; actual NSTextField/NSSecureTextField mouseDown owns hit testing and tracking.",
+    "The installed agent-browser mouse CLI accepts integer coordinates and cannot hold Shift across mouse input. The pointer checker retains its owned session for page inspection/screenshots and uses the existing owned page CDP endpoint solely for fractional/modified pointer input, via Node built-in WebSocket. No alternate browser driver or package install is required."
   ],
   "remaining": [
-    "Native mouse selection, multiple-click metadata, data dragging and context menus for Chromium fields.",
+    "Multiple-click metadata, dragging selected text as data, context menus, touch and long-field horizontal/autoscroll behavior for Chromium fields.",
     "Clipboard web events and native cut/paste/undo command routing, typing undo grouping, selection-event/direction semantics, IME/composition and accessibility.",
     "Native intrinsic sizing, other text types, multiline/rich text, broad author styling, transforms and non-1 scale output.",
     "Cached-page lifecycle, long validators/modal editing flows, other Chromium builds/derivatives and browser address bars/frontends.",

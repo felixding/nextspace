@@ -17,6 +17,11 @@ static void (*original_text_delete_backward)(void *,unsigned char,int);
 static void (*original_text_delete_forward)(void *,void *,unsigned char,int);
 static void (*original_text_view_value)(void *,const void *);
 static int (*original_text_selection)(void *,unsigned,unsigned,int);
+static int (*original_text_mouse_press)(void *,const void *);
+static int (*original_text_mouse_release)(void *,const void *,const void *);
+static int (*original_text_mouse_drag)(void *,const void *);
+static int (*original_text_pointer_up)(void *,const void *);
+static void *text_pointer_controller,*text_pointer_frame,*text_pointer_handler;
 static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;}
 static void *text_frame(void *node) {
   void *document=node_document(node),*window=document?decode_member((char *)document+264):NULL;
@@ -49,6 +54,115 @@ static struct NXSResponse *sync_text_form(struct NativeForm *form,struct NXSResp
   memcpy(request+1,model.value,length);response=exchange_bytes(request,size);
   free(request);free(model.value);
   return response&&response->parts[3].x==1?response:NULL;
+}
+static struct NXSResponse *text_native_state(struct NativeForm *form) {
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=18,
+    .process=identity(),.kind=form->kind,.control=form->control};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  return response&&response->parts[3].x==1&&response->size>=sizeof(*response)+sizeof(struct NXSTextResponse)?response:NULL;
+}
+static int text_pointer_matches(struct NativeForm *form,struct NXSResponse *response,struct BlinkTextModel *model) {
+  if(!response)return 0;
+  struct NXSTextResponse state;memcpy(&state,response+1,sizeof(state));
+  size_t length=strlen(model->value);
+  int same=state.text_size==length&&response->size==sizeof(*response)+sizeof(state)+length&&
+    !memcmp((char *)(response+1)+sizeof(state),model->value,length)&&
+    !!(state.flags&2)==!!model->editable&&response->parts[2].x&&response->parts[3].y&&
+    form_focused(form->node)&&form_enabled(form->node)&&
+    form->text_width==form->rect.width&&form->text_height==form->rect.height&&
+    model->start==form->text_start&&model->end==form->text_end;
+  return same;
+}
+static void echo_text_selection(struct NativeForm *form) {
+  struct BlinkTextModel model={0};if(!form->text_tracking||!text_model(form->node,&model))return;
+  struct NXSResponse *response=text_native_state(form);
+  if(text_pointer_matches(form,response,&model)) {
+    struct NXSTextResponse state;memcpy(&state,response+1,sizeof(state));
+    if(state.selection_start<=UINT32_MAX&&state.selection_length<=UINT32_MAX-state.selection_start) {
+      form->text_start=state.selection_start;form->text_end=state.selection_start+state.selection_length;
+      if(model.start!=form->text_start||model.end!=form->text_end)
+        text_selection(form->node,state.selection_start,state.selection_length);
+    }
+  } else if(active_form==form)end_text_pointer(form,0);
+  free(model.value);
+}
+static void end_text_pointer(struct NativeForm *form,int echo) {
+  if(!form->text_tracking)return;
+  if(active_form==form)active_form=NULL;
+  struct NXSResponse *response=form_request(form,4,form->text_x,form->text_y,0);
+  for(int n=0;response&&response->parts[0].y&&n<100;n++) {
+    struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);
+    response=form_request(form,5,0,0,0);
+  }
+  if(echo)echo_text_selection(form);
+  form->text_tracking=0;
+  refresh_form_watch();
+}
+static struct NXSResponse *sync_text_image(struct NativeForm *form) {
+  if(form->text_tracking) {
+    struct BlinkTextModel model={0};if(!text_model(form->node,&model))return NULL;
+    int same=text_pointer_matches(form,text_native_state(form),&model);free(model.value);
+    /* Querying draws the actual busy editor without rebinding its model or
+     * disturbing AppKit's mouseDown stack. Script/focus/size changes end it. */
+    if(same)return form_request(form,5,0,0,0);
+    end_text_pointer(form,0);
+  }
+  return sync_text_form(form,sync_form_focus(form,form_request(form,1,0,0,0)));
+}
+static int text_mouse_press(void *self,const void *event) {
+  /* Pinned EventWithHitTestResults embeds WebMouseEvent first. Its hit result
+   * holds a compressed InnerNode at 204 and scrollbar at 236 (audited code). */
+  void *node=decode_member((const char *)event+204);
+  struct NativeForm *form=form_ancestor(node);
+  if(form&&text_kind(form->kind)&&form->painted&&form_focused(form->node)&&form_enabled(form->node)&&
+     *(const int *)((const char *)event+120)==0&&*(const int *)((const char *)event+160)<=1&&
+     !decode_member((const char *)event+236)) {
+    struct BlinkTextModel model={0};
+    if(text_model(form->node,&model)) {
+      struct NXSResponse *response=sync_text_image(form);
+      if(response) {
+        struct FloatPoint point=form_point(form,event);
+        response=form_request(form,2,point.x,point.y,event_modifiers(event));
+        if(response&&response->parts[0].y) {
+          form->text_tracking=1;form->text_width=form->rect.width;form->text_height=form->rect.height;
+          form->text_start=model.start;form->text_end=model.end;form->text_x=point.x;form->text_y=point.y;
+          active_form=form;text_pointer_controller=self;text_pointer_frame=text_frame(form->node);
+          text_pointer_handler=text_pointer_frame?decode_member((char *)text_pointer_frame+592):NULL;
+          echo_text_selection(form);invalidate_form(form);free(model.value);return 1;
+        }
+      }
+      free(model.value);
+    }
+  }
+  return original_text_mouse_press(self,event);
+}
+static int text_mouse_drag(void *self,const void *event) {
+  /* DOM/capture dispatch already ran. Avoid competing Blink text-data dragging
+   * and selection autoscroll while the real native editor owns this gesture. */
+  if(text_pointer_controller&&decode_member(self)==text_pointer_frame) {
+    struct NativeForm *form=active_form;
+    if(form&&text_kind(form->kind)) {
+      struct FloatPoint point=form_point(form,event);form->text_x=point.x;form->text_y=point.y;
+      form_request(form,3,point.x,point.y,event_modifiers(event));echo_text_selection(form);invalidate_form(form);
+    }
+    return 3;
+  }
+  return original_text_mouse_drag(self,event);
+}
+static int text_mouse_release(void *self,const void *event,const void *origin) {
+  if(self==text_pointer_controller)return 1;
+  return original_text_mouse_release(self,event,origin);
+}
+static int text_pointer_up(void *self,const void *event) {
+  void *controller=self==text_pointer_handler?text_pointer_controller:NULL;
+  int result=original_text_pointer_up(self,event);
+  if(controller&&controller==text_pointer_controller) {
+    /* This outer path also runs when a page cancels mouseup or discards its
+     * target, so native tracking cannot remain stranded after release. */
+    if(active_form&&text_kind(active_form->kind))end_text_pointer(active_form,1);
+    text_pointer_controller=text_pointer_frame=text_pointer_handler=NULL;
+  }
+  return result;
 }
 static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char *replacement,const char *command) {
   struct BlinkTextTransaction *transaction=text_transaction;
@@ -125,6 +239,7 @@ static int default_text_key(void *node,void *event) {
   if(!strcmp(key,"Control")||!strcmp(key,"Alt")||!strcmp(key,"Shift")||!strcmp(key,"Meta")){free(key);return 0;}
   if(down&&(logical==NXS_KEY_ENTER||(!logical&&!(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))))){free(key);return 0;}
   if(press&&(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))){free(key);return 0;}
+  if(form->text_tracking)end_text_pointer(form,1);
   char *text=(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))&&!logical?strdup(key):keyboard_text(web,102,"");
   char *unmodified=keyboard_text(web,110,"");free(key);
   struct BlinkTextModel before={0};
@@ -181,6 +296,10 @@ static int text_selection_changed(void *node,unsigned start,unsigned end,int dir
   return changed;
 }
 static struct Detour text_detours[]={
+  {NXS_CHROMIUM_TEXT_MOUSE_PRESS_OFFSET,chromium_text_mouse_press_bytes,text_mouse_press,(void **)&original_text_mouse_press},
+  {NXS_CHROMIUM_TEXT_MOUSE_DRAG_OFFSET,chromium_text_mouse_drag_bytes,text_mouse_drag,(void **)&original_text_mouse_drag},
+  {NXS_CHROMIUM_TEXT_MOUSE_RELEASE_OFFSET,chromium_text_mouse_release_bytes,text_mouse_release,(void **)&original_text_mouse_release},
+  {NXS_CHROMIUM_TEXT_POINTER_UP_OFFSET,chromium_text_pointer_up_bytes,text_pointer_up,(void **)&original_text_pointer_up},
   {NXS_CHROMIUM_TEXT_SELECTION_OFFSET,chromium_text_selection_bytes,text_selection_changed,(void **)&original_text_selection},
   {NXS_CHROMIUM_TEXT_VIEW_VALUE_OFFSET,chromium_text_view_value_bytes,text_view_value,(void **)&original_text_view_value},
   {NXS_CHROMIUM_TEXT_PAINT_OFFSET,chromium_text_paint_bytes,paint_text_field,(void **)&original_text_paint},

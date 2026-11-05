@@ -31,6 +31,14 @@ static const unsigned char chromium_text_command_bytes[20]={0x3f,0x23,0x03,0xd5,
 static const unsigned char chromium_text_string_destroy_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0xf4,0x4f,0x01,0xa9,0x13,0x00,0x40,0xf9,0xfd,0x03,0x00,0x91};
 #define NXS_CHROMIUM_TEXT_VIEW_VALUE_OFFSET 0xefb5bf0ul
 static const unsigned char chromium_text_view_value_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x01,0xd1,0xfd,0x7b,0x03,0xa9,0x28,0xaa,0x01,0xf0,0xfd,0xc3,0x00,0x91};
+#define NXS_CHROMIUM_TEXT_MOUSE_PRESS_OFFSET 0xde47e58ul
+static const unsigned char chromium_text_mouse_press_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x43,0x03,0xd1,0xfd,0x7b,0x09,0xa9,0xa8,0x35,0x02,0xb0,0xfd,0x43,0x02,0x91};
+#define NXS_CHROMIUM_TEXT_MOUSE_DRAG_OFFSET 0xe255b84ul
+static const unsigned char chromium_text_mouse_drag_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x01,0xd1,0xfd,0x7b,0x02,0xa9,0x28,0x15,0x02,0xf0,0xfd,0x83,0x00,0x91};
+#define NXS_CHROMIUM_TEXT_MOUSE_RELEASE_OFFSET 0xde48730ul
+static const unsigned char chromium_text_mouse_release_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x43,0x03,0xd1,0xfd,0x7b,0x09,0xa9,0xa8,0x35,0x02,0x90,0xfd,0x43,0x02,0x91};
+#define NXS_CHROMIUM_TEXT_POINTER_UP_OFFSET 0xe245bc0ul
+static const unsigned char chromium_text_pointer_up_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbb,0xa9,0xfc,0x67,0x01,0xa9,0xfd,0x03,0x00,0x91,0xf8,0x5f,0x02,0xa9};
 static int guard_text_calls(void) {
 return !memcmp((void *)(base+NXS_CHROMIUM_TEXT_PAINT_OFFSET),chromium_text_paint_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_CARETS_OFFSET),chromium_text_carets_bytes,20)&&
@@ -47,5 +55,9 @@ return !memcmp((void *)(base+NXS_CHROMIUM_TEXT_PAINT_OFFSET),chromium_text_paint
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_DELETE_FORWARD_OFFSET),chromium_text_delete_forward_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_COMMAND_OFFSET),chromium_text_command_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_STRING_DESTROY_OFFSET),chromium_text_string_destroy_bytes,20)&&
-!memcmp((void *)(base+NXS_CHROMIUM_TEXT_VIEW_VALUE_OFFSET),chromium_text_view_value_bytes,20);
+!memcmp((void *)(base+NXS_CHROMIUM_TEXT_VIEW_VALUE_OFFSET),chromium_text_view_value_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_TEXT_MOUSE_PRESS_OFFSET),chromium_text_mouse_press_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_TEXT_MOUSE_DRAG_OFFSET),chromium_text_mouse_drag_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_TEXT_MOUSE_RELEASE_OFFSET),chromium_text_mouse_release_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_TEXT_POINTER_UP_OFFSET),chromium_text_pointer_up_bytes,20);
 }

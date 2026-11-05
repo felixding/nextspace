@@ -411,6 +411,15 @@ prepared. No text editor, key-binding table, glyph layout or caret timer is
 copied into the bridge. The existing NativeUI provider/loader/shim and AppKit
 binaries are reused unchanged.
 
+Single-click and Shift-click positioning, selection dragging and outside-field
+extension now use those actual native editors' `mouseDown` tracking. Blink
+retains cancellable DOM events, focus and mouse-release bookkeeping. While the
+native editor owns the gesture, the adapter bypasses competing Blink selection,
+text-data dragging and selection autoscroll. The existing notification channel
+echoes actual native UTF-16 selections on the renderer thread. Reading a busy
+editor's bitmap does not rebind its model. Script changes to value/selection,
+editability, focus or size end tracking before applying the canonical model.
+
 Native proposals enter Blink's actual insertion and menu/key command paths.
 They retain `beforeinput` cancellation, trusted `input`/`change`, maxlength,
 readonly/disabled state and engine undo. Native proposed deletion ranges are
@@ -426,10 +435,17 @@ The [source/ABI audit](text-source-audit.json) and
 [text qualification](text-qualification.json) record the exact boundaries and
 runtime evidence. `check-text.py` drives the owned fixture through agent-browser
 and compares complete fields with independent direct-provider references.
+The [pointer qualification](text-pointer-qualification.json) records fifty
+independent native pointer cases and the lifecycle/regression checks.
+`check-text-pointer.py` keeps the same owned browser session for inspection and
+screenshots. For fractional pointer coordinates and held Shift, which the
+installed CLI cannot express, it sends input through that owned page's CDP
+endpoint using Node's built-in WebSocket.
 
 This is one exact opt-in ARM64 build at scale 1 with fixed field dimensions.
-Chromium text mouse selection still uses its engine path and remains
-unqualified. Clipboard/cut/paste web-event integration, native undo-menu routing,
+Multiple-click metadata, selected-text data dragging, context menus, touch and
+long-field horizontal/autoscroll behavior remain open.
+Clipboard/cut/paste web-event integration, native undo-menu routing,
 typing undo grouping, selection-event/direction details, IME/composition,
 accessibility, other text types, native intrinsic sizing, broader styling and
 scaled/transformed output remain open. Address bars, browser frontends,

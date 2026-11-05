@@ -1,0 +1,1127 @@
+{
+  "date": "2026-11-06",
+  "base_commit": "db0f0031",
+  "status": "Partial native mouse selection for themed plain/password webpage fields in one exact unchanged Chromium ARM64 build. Complete native browsers, derivatives, address bars/frontends and GTK/Qt/KDE applications remain unfinished.",
+  "implementation": {
+    "native_controls": "Existing unchanged NSTextField/NSSecureTextField editors; no copied glyph hit testing, selection tracking, widgets, key bindings or caret timers",
+    "engine_boundary": "Native selection begins at the real SelectionController press default after cancellable DOM events and focus. The actual mouse manager keeps lifecycle bookkeeping; its drag default bypasses competing engine selection/data dragging/autoscroll during the claimed gesture.",
+    "release": "Native release settles actual tracking; the outer EventHandler release clears ownership even when mouseup is cancelled.",
+    "canonical_model": "Changes to canonical engine value/range, read-only/disabled state, focus or field dimensions terminate native tracking before rebinding. Native selection echo cannot overwrite script changes.",
+    "busy_editor": "Existing operation 5 returns actual busy editor pixels without a configuration/model mutation.",
+    "notifications": "Existing process-owned eventfd and renderer work-loop callback; no pointer timer.",
+    "compiled": "Optional Chromium C adapter only. Browser, AppKit and shared provider/loader/shim reused unchanged."
+  },
+  "qualification": {
+    "browser_text_checks": 144,
+    "pointer_checks": 100,
+    "independent_native_pointer_cases": 50,
+    "complete_native_images": 44,
+    "regressions": {
+      "input": 62,
+      "sliders": 50,
+      "progress": 20,
+      "animation": 59
+    },
+    "checks": [
+      {
+        "suite": "pointers",
+        "case": "fixture-title",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-near",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-middle",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-normal-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-normal-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-normal-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-normal-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-normal-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-normal-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-normal-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-near",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-middle",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-password-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-password-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-password-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-password-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-password-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-password-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-password-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-near",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-middle",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-readonly-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-readonly-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-readonly-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-readonly-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-readonly-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-readonly-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-readonly-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-near",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-middle",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-unicode-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-unicode-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-unicode-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-unicode-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-unicode-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-unicode-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-unicode-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-near",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-middle",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-limited-forward",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-limited-reverse",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-limited-outside-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-limited-outside-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-limited-shift-left",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pointer-limited-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-pointer-limited-shift-right",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "first-click-native-focus",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "trusted-mouse-events",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "selection-no-input-events",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "edit-after-click",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "held-native-selection",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "native-pixels-held-selection",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "edit-after-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "cancel-mousedown",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "cancel-pointerdown",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "script-value-during-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "script-selection-during-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "resize-during-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "readonly-during-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "disabled-during-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "focus-transfer-during-drag",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "cancel-mouseup-releases-editor",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "focus-handler-replacement",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "pointer-after-replacement",
+        "passed": true
+      },
+      {
+        "suite": "pointers",
+        "case": "handler-removes-field",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "fixture-title",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-normal-normal",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-password-normal",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-readonly-normal",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-disabled-normal",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-unicode-normal",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-limited-normal",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-normal-focused",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-password-focused",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-readonly-focused",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-unicode-focused",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-limited-focused",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-selection-replacement",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "trusted-insert-transaction",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-backspace",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "trusted-delete-transaction",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+a",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+e",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+b",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+f",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Backspace",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Delete",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+d",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+h",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-reference-Control+k",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "cancel-beforeinput-insert",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "cancel-beforeinput-delete",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "beforeinput-script-model",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "input-script-model",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "cancel-keydown",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "cancel-keypress",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "engine-undo-retained",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "engine-blur-change",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "secure-engine-value",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "readonly-retained",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "disabled-no-focus",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "unicode-utf16",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "engine-maxlength",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "engine-form-submit",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-programmatic-model",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-pixels-programmatic-selection",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "input-replaces-frame",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "beforeinput-removes-frame",
+        "passed": true
+      },
+      {
+        "suite": "text",
+        "case": "native-caret-browser-invalidation",
+        "passed": true
+      }
+    ]
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-native-ui/chromium-text-hook.so": "e70211c1e5b0cf60cb820266de14297b5855975014c65be7cd124edb07d4b9fb",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-native-ui/browser-text-build/libnextspace-native-scroller.so.0.1": "a31caaab0c1eab3f4e92f91aea449a2a47dc03199546319935e3d39a166acc33",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui.so.1": "2a65aa44b91c66b1165d9631eeca2d7a3734337065207cfe2116e56a9dd3b304",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui-gnustep.so.1": "bbaccb102804fe3d99a68b98d208cf0aec71e38a7ca48b3d6a617c56b23efc77"
+    },
+    "package_count": 1050,
+    "sandbox": [
+      {
+        "pid": 4736,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 4747,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 4748,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "launch": {
+      "pids": [
+        4650,
+        4656,
+        4657
+      ],
+      "command": [
+        "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+        "--ozone-platform=wayland",
+        "--gtk-version=4",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--disable-background-networking",
+        "--disable-sync",
+        "--disable-component-update",
+        "--password-store=basic",
+        "--remote-debugging-port=9241",
+        "--window-size=900,700",
+        "--user-data-dir=/tmp/native-text-chromium-tybratxf/profile",
+        "file:///workspace/Experiments/ChromiumScrollers/test-text.html"
+      ]
+    },
+    "native_created": 1144,
+    "native_explicitly_destroyed": 1137,
+    "native_reclaimed_with_killed_helper": [
+      [
+        2125313663,
+        1138,
+        7
+      ],
+      [
+        2125313663,
+        1139,
+        8
+      ],
+      [
+        2125313663,
+        1140,
+        7
+      ],
+      [
+        2125313663,
+        1141,
+        7
+      ],
+      [
+        2125313663,
+        1142,
+        7
+      ],
+      [
+        2125313663,
+        1143,
+        7
+      ],
+      [
+        2125313663,
+        1144,
+        1
+      ]
+    ]
+  },
+  "helper_loss": {
+    "helper_pid": 4656,
+    "field_repaints": {
+      "disabled": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "limited": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "normal": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "password": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "readonly": [
+        0,
+        0,
+        180,
+        24
+      ],
+      "unicode": [
+        0,
+        0,
+        180,
+        24
+      ]
+    },
+    "state": {
+      "end": 1,
+      "start": 1,
+      "value": "Xlo"
+    },
+    "events": [
+      {
+        "data": "X",
+        "end": 3,
+        "id": "normal",
+        "inputType": "insertText",
+        "start": 0,
+        "trusted": true,
+        "type": "beforeinput",
+        "value": "Hello"
+      },
+      {
+        "data": "X",
+        "end": 1,
+        "id": "normal",
+        "inputType": "insertText",
+        "start": 1,
+        "trusted": true,
+        "type": "input",
+        "value": "Xlo"
+      }
+    ],
+    "ordinary_button": true
+  },
+  "cleanup": {
+    "owners_exited": [
+      3474,
+      3481,
+      3489,
+      3718,
+      3724,
+      3727,
+      4039,
+      4046,
+      4047,
+      4210,
+      4217,
+      4218,
+      4377,
+      4382,
+      4383,
+      4650,
+      4656,
+      4657
+    ],
+    "counts": {
+      "native-form-action": 36,
+      "native-form-control": 1144,
+      "native-form-destroy": 1109,
+      "native-form-focus": 160,
+      "native-form-invalidation": 3505,
+      "native-form-key": 102,
+      "native-form-press": 66,
+      "native-form-release": 65,
+      "native-notifier": 211,
+      "native-progress-destroy": 28,
+      "native-progress-model": 35,
+      "native-slider-step": 40,
+      "native-text-filter": 30,
+      "ready": 1
+    },
+    "cleanup": {
+      "exits": [
+        0,
+        -9,
+        0
+      ]
+    },
+    "alias_removed": true,
+    "cdp_port_closed": true
+  },
+  "remaining": [
+    "Multiple-click metadata, selected text as data drag, context menus, touch and long-field scrolling/autoscroll.",
+    "Clipboard web events, native cut/paste/undo routing, typing undo grouping, selection-event/direction semantics, IME/composition and accessibility.",
+    "Other text types, multiline/rich text, intrinsic sizing, author styling, transforms/scaling and cached-page lifecycle.",
+    "Address bars/browser frontends, Chromium/Chrome/Vivaldi and Firefox derivative/build coverage; complete GTK/Qt/KDE application integration."
+  ],
+  "evidence_sha256": {
+    ".build/firefox-native-ui/text-pointer-qualified/references/results.json": "3db0107da8f82538de0d0922cc4e64cca91e8f73b1caf0595ac0f63d723601b3",
+    ".build/native-ui/chromium-pointer-final/after-helper-loss.png": "f5ce849ce3d6db3796bb2a42594ef4059bed648219c6cf6b4eeadd2881e2bb2a",
+    ".build/native-ui/chromium-pointer-final/animation/first-0.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/first-1.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/first-2.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/first-3.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/first-4.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/first-5.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/first-6.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/first-7.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-0.png": "4867bf493e742ab5da07b3cbab9d755836263fe4bbf41790b9588118a038042c",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-1.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-2.png": "9f7a51f7b8842f7b6d280c6632616d7e77484621cef757bb8762478e458f1685",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-3.png": "4867bf493e742ab5da07b3cbab9d755836263fe4bbf41790b9588118a038042c",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-4.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-5.png": "9f7a51f7b8842f7b6d280c6632616d7e77484621cef757bb8762478e458f1685",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-6.png": "4867bf493e742ab5da07b3cbab9d755836263fe4bbf41790b9588118a038042c",
+    ".build/native-ui/chromium-pointer-final/animation/new-control-7.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/chromium-pointer-final/animation/only-static-after.png": "508f2ceac5a62718174917b08175bc84e751deda972c723c797392cbb74f336f",
+    ".build/native-ui/chromium-pointer-final/animation/only-static-before.png": "508f2ceac5a62718174917b08175bc84e751deda972c723c797392cbb74f336f",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-0.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-1.png": "5947932e3e2eee9724fb508dd1f04d625c4aec36b50a82593395cabd7ef9f2df",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-2.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-3.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-4.png": "5947932e3e2eee9724fb508dd1f04d625c4aec36b50a82593395cabd7ef9f2df",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-5.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-6.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/chromium-pointer-final/animation/reinserted-7.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-0.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-1.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-2.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-3.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-4.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-5.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-6.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/reloaded-7.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-0.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-1.png": "a1f959701ad382a8f22c1611db6e16f60dcd7844e52d7f5fab31140cd2adfe2a",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-2.png": "1390c2a91233dcc8325ac7fd5fea3e8643f3fc902bd44c6de192fabccf59576e",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-3.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-4.png": "1390c2a91233dcc8325ac7fd5fea3e8643f3fc902bd44c6de192fabccf59576e",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-5.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-6.png": "a1f959701ad382a8f22c1611db6e16f60dcd7844e52d7f5fab31140cd2adfe2a",
+    ".build/native-ui/chromium-pointer-final/animation/restarted-7.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/chromium-pointer-final/animation/results.json": "2d225c35d2afe9813a480027c4ffaf79fba7d60166b0b7f57fd6b25e8bea7e88",
+    ".build/native-ui/chromium-pointer-final/animation/second-0.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/second-1.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/second-2.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/second-3.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/second-4.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/second-5.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/chromium-pointer-final/animation/second-6.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/second-7.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/static-after.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/chromium-pointer-final/animation/static-before.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/chromium-pointer-final/animation/stopped-after.png": "32acb67538a6d6fba5b5972ea92b6917525bb1b7f0e30258da3c4278506af30d",
+    ".build/native-ui/chromium-pointer-final/animation/stopped-before.png": "d8aff8f8ec809759af5bbe3ac36eaceca978b1e6fb8570fb029b32199947035d",
+    ".build/native-ui/chromium-pointer-final/cleanup.json": "49cfaf9f9e989dcb92168367f9af83e13b55edcf9c7efe8bf891e179e9c6dc2b",
+    ".build/native-ui/chromium-pointer-final/environment.json": "5f1a9ae6add54a8daec7db33e3c267be929cbbfae21e6a5fc7732594bbc92cc3",
+    ".build/native-ui/chromium-pointer-final/held-before-helper-loss.png": "0673e26312bc2c1ee67c63fb3d6fce1d049b2c9bcfabf8f5197650d6033dd903",
+    ".build/native-ui/chromium-pointer-final/helper-loss.json": "fc0ce7959acc68c501b216df2f3f5982cee74160703fc9c8378012ab7b7b39df",
+    ".build/native-ui/chromium-pointer-final/input/button-focused.png": "1de5ebd0aac1e5cb21b1d55cbbbeed00dd826ac2662241d6d3f56fc150c45c4b",
+    ".build/native-ui/chromium-pointer-final/input/button-pressed.png": "9401fff5fe12927cd976312288da111bb09fcf149a09f2acebd6259c8c1ca105",
+    ".build/native-ui/chromium-pointer-final/input/cancelled-checkbox.png": "64acb0639dbf2dfdb275d97554fb396dfb1b45992f4fcf6bee01e379e5e4ca9f",
+    ".build/native-ui/chromium-pointer-final/input/cancelled-focused.png": "1f87edb5c1e9104385a2c8ba772087a374c7fc79255508360640af23401c0e3c",
+    ".build/native-ui/chromium-pointer-final/input/check-focused.png": "3c248b9378d30900017b1cd1fbf5d59af23a1bb387b56fc1d09e3435d9455a24",
+    ".build/native-ui/chromium-pointer-final/input/check-pressed.png": "75d88b11d806b72195fb61cf4bde85027b7ac62dba36d2fb4eadedd36c07d769",
+    ".build/native-ui/chromium-pointer-final/input/input-button-focused.png": "5e6e638a4bd00301e183f1baff7d67307af71bbd1f723b212aea3f67b0fe9960",
+    ".build/native-ui/chromium-pointer-final/input/large-focused.png": "de9cf53c39792d5158c92b4f36f409b48e3af058715ee97c2081eae9e27971a4",
+    ".build/native-ui/chromium-pointer-final/input/mixed-focused.png": "a0b4e9244b93a9ffd667cfc1c2ec9bf37fb3c93f6eeafd29ce83e8624a469294",
+    ".build/native-ui/chromium-pointer-final/input/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/native-ui/chromium-pointer-final/input/radio-a-focused.png": "f0f6fa7c316c44bddf5ef1d260090b0874bfd6ba83ac7201f2bc644f3bf6a603",
+    ".build/native-ui/chromium-pointer-final/input/radio-a-pressed.png": "d91633887ed9835aa28cc0a80b3222e2d83e7f9b357015f14b092699e1b6f77e",
+    ".build/native-ui/chromium-pointer-final/input/radio-b-focused.png": "aebfcf437a647b3c72fea7eb6ef29c6f87262a60bf37bf76911bdf60d2261756",
+    ".build/native-ui/chromium-pointer-final/input/results.json": "3ed3d7cbc81eb9a5975961547ba0ca824266dfbf7f5dcea7108e327b85fc4301",
+    ".build/native-ui/chromium-pointer-final/pointers/disabled-during-drag.png": "e81b3fe65a9618800b5e57b4d47a409aea5d4818a2358c0292a5360dae8f970c",
+    ".build/native-ui/chromium-pointer-final/pointers/held-selection.png": "0673e26312bc2c1ee67c63fb3d6fce1d049b2c9bcfabf8f5197650d6033dd903",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-limited-forward.png": "6e62383825c4f66cdc2f94912e8f5cf1a49a9de05f0b4f0ab673504c378bcd91",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-limited-outside-left.png": "6e62383825c4f66cdc2f94912e8f5cf1a49a9de05f0b4f0ab673504c378bcd91",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-limited-outside-right.png": "6e62383825c4f66cdc2f94912e8f5cf1a49a9de05f0b4f0ab673504c378bcd91",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-limited-reverse.png": "6e62383825c4f66cdc2f94912e8f5cf1a49a9de05f0b4f0ab673504c378bcd91",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-limited-shift-left.png": "6e62383825c4f66cdc2f94912e8f5cf1a49a9de05f0b4f0ab673504c378bcd91",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-limited-shift-right.png": "07158abadd2eecaa2fc036227286d919a83e90e377d397a7d5aab81b3f87dd70",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-normal-forward.png": "0673e26312bc2c1ee67c63fb3d6fce1d049b2c9bcfabf8f5197650d6033dd903",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-normal-outside-left.png": "c03ef7bb2b07734ec28e9f7a010d199d5e2b09efaf38f7d38f3d16fb835d6b9e",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-normal-outside-right.png": "be3336738ceca8afa9a962679938de420cde8ee21d6bd9d9de9bab65ae887044",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-normal-reverse.png": "c03ef7bb2b07734ec28e9f7a010d199d5e2b09efaf38f7d38f3d16fb835d6b9e",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-normal-shift-left.png": "0673e26312bc2c1ee67c63fb3d6fce1d049b2c9bcfabf8f5197650d6033dd903",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-normal-shift-right.png": "13da3d15fd229b0c9e8d9307163e822f81e3a076e0cc5770c5c59ea4498a5052",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-password-forward.png": "d9b4af929f97bb6536aeb773e6f2da2dd65f8cf38ceca7631af94d986aeb4fe6",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-password-outside-left.png": "ffb2cc529f2b6f82cc1b5a2286b894d22def8e3e83682c09899c20501ba5425c",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-password-outside-right.png": "ffb2cc529f2b6f82cc1b5a2286b894d22def8e3e83682c09899c20501ba5425c",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-password-reverse.png": "ffb2cc529f2b6f82cc1b5a2286b894d22def8e3e83682c09899c20501ba5425c",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-password-shift-left.png": "f25130ec238a885ca7aea52bdeb1e8ba6ebb6aef582c5b17b497966534d99a9f",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-password-shift-right.png": "9dde6df4001af41bc2430067881772c680608478c619a64619f93e630edef97f",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-readonly-forward.png": "0027febe4def4b712450e74ff4076f26fb905815842ac4615fc9fad70e553253",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-readonly-outside-left.png": "32abc393e64aca788ae3fad7759904ac67146626070041f1ab821842a4c6d11f",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-readonly-outside-right.png": "cfc5ddfb7d617f8b4758999306527033e3d5827ef75b73314e94b1aeba99ed92",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-readonly-reverse.png": "32abc393e64aca788ae3fad7759904ac67146626070041f1ab821842a4c6d11f",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-readonly-shift-left.png": "0027febe4def4b712450e74ff4076f26fb905815842ac4615fc9fad70e553253",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-readonly-shift-right.png": "11fecaafd45c9b132ae232dd52afd9026b49461c4fd78a03f0acec713776779a",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-unicode-forward.png": "29976b48a4708d19151aedda9414a79ec5cf5eb2d17421820ab3df8f2b9ce22d",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-unicode-outside-left.png": "29976b48a4708d19151aedda9414a79ec5cf5eb2d17421820ab3df8f2b9ce22d",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-unicode-outside-right.png": "476e22f1b65307d8fb768572c5aa33c347ff91bd3dc874d21d048355b1aab89a",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-unicode-reverse.png": "29976b48a4708d19151aedda9414a79ec5cf5eb2d17421820ab3df8f2b9ce22d",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-unicode-shift-left.png": "7b80785868bdd41ddcd81d162f6daf5cdc45f789d46d584a46a712ccd592a1ae",
+    ".build/native-ui/chromium-pointer-final/pointers/pointer-unicode-shift-right.png": "b6dd8aa019b1d08214006b2697089bd3eb9c6f4e3e5749dc7c20616d747e7ddd",
+    ".build/native-ui/chromium-pointer-final/pointers/readonly-during-drag.png": "0673e26312bc2c1ee67c63fb3d6fce1d049b2c9bcfabf8f5197650d6033dd903",
+    ".build/native-ui/chromium-pointer-final/pointers/resize-during-drag.png": "44a4e5dba926367c8fa599cda36da8bda5028adb1ca9c662fbae95dbd61e70f8",
+    ".build/native-ui/chromium-pointer-final/pointers/results.json": "3af57fadc7f09da3b91168df1eea0181b99ed273a1e43d493c66054780e18f0c",
+    ".build/native-ui/chromium-pointer-final/pointers/script-during-drag.png": "c30ef714e8eed045a1a409f371b755fa33c8fc0193c30e43f15f243b8db69d8c",
+    ".build/native-ui/chromium-pointer-final/pointers/selection-during-drag.png": "b3fa29740045948bbf9f35bc2b042701cbbb406748e000b397f61cb9abc24727",
+    ".build/native-ui/chromium-pointer-final/progress/determinate-restored.png": "b961c72f3e9672c7f5918be317c4bf9d5b00614810406f64857a5ad21d0b7337",
+    ".build/native-ui/chromium-pointer-final/progress/initial-clamped.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/chromium-pointer-final/progress/initial-default-max.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/chromium-pointer-final/progress/initial-full.png": "b961c72f3e9672c7f5918be317c4bf9d5b00614810406f64857a5ad21d0b7337",
+    ".build/native-ui/chromium-pointer-final/progress/initial-invalid-max.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/chromium-pointer-final/progress/initial-invalid-value.png": "b961c72f3e9672c7f5918be317c4bf9d5b00614810406f64857a5ad21d0b7337",
+    ".build/native-ui/chromium-pointer-final/progress/initial-negative.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/chromium-pointer-final/progress/initial-partial.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/chromium-pointer-final/progress/initial-zero.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/chromium-pointer-final/progress/maximum-update.png": "b8b80beeafde757da3818b8b9581fe0b3f721f50410cc6893388edad70cc53cf",
+    ".build/native-ui/chromium-pointer-final/progress/native-new-element.png": "b22a17bd862fa21004f56d701bcc86d917aacb99019c9e714d8b64890a70fc35",
+    ".build/native-ui/chromium-pointer-final/progress/native-reinsert.png": "b0bd56a0fccaa5f9436397a69c729d346ee8a6db208ab062b366323e7acacc00",
+    ".build/native-ui/chromium-pointer-final/progress/native-resize.png": "ff258e10f72acc4440b82a16b0bbf9c73464d99369f88d711b2448f2f55dbeec",
+    ".build/native-ui/chromium-pointer-final/progress/reload-first-control.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/chromium-pointer-final/progress/reload-value.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/chromium-pointer-final/progress/results.json": "7390c86b3f8ff0607aa7463c2b86d02e3c9c3025c1b07519b6e3913fb323fff5",
+    ".build/native-ui/chromium-pointer-final/progress/value-update.png": "451e41fc71fee28394e9ed686620ee3cf447abedd0da48ae1d9a3e9ae22c7a2f",
+    ".build/native-ui/chromium-pointer-final/sliders/coarse-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/coarse-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/custom-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/custom-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/disabled-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/range-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/range-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/results.json": "12742d1c0e9486e3b157429456d98c3bbf4cb6c962fbaf05b43b19315d03ad0c",
+    ".build/native-ui/chromium-pointer-final/sliders/vertical-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/sliders/vertical-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/chromium-pointer-final/text/caret-0.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-1.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-2.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-3.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-4.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-5.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-6.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-7.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-8.png": "1e74815276f0bd37e1de5112c5b8016e3ecab49e9d4715350e5a8cc3612c1111",
+    ".build/native-ui/chromium-pointer-final/text/caret-9.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba",
+    ".build/native-ui/chromium-pointer-final/text/caret-before-programmatic-selection.png": "fbca7b14cf31efaac2f74238fa8d6f0def8ff763053b361d2e51d4da6d983c52",
+    ".build/native-ui/chromium-pointer-final/text/disabled-normal.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba",
+    ".build/native-ui/chromium-pointer-final/text/limited-focused.png": "07158abadd2eecaa2fc036227286d919a83e90e377d397a7d5aab81b3f87dd70",
+    ".build/native-ui/chromium-pointer-final/text/limited-normal.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba",
+    ".build/native-ui/chromium-pointer-final/text/normal-focused.png": "b89f2f6ca0cc71989613ea261077a6d3187861b210624c7569c9c8707c2119b4",
+    ".build/native-ui/chromium-pointer-final/text/normal-normal.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba",
+    ".build/native-ui/chromium-pointer-final/text/password-focused.png": "7aecf8612a4fdb9da1a17a6a1c98dbb2653c21606cec95e88c0438d78e1d57e9",
+    ".build/native-ui/chromium-pointer-final/text/password-normal.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba",
+    ".build/native-ui/chromium-pointer-final/text/programmatic-model.png": "9912819bfa6339f6ce827b463339f20af5bfc635b79251f67db209fdfd3918c7",
+    ".build/native-ui/chromium-pointer-final/text/programmatic-selection.png": "b89f2f6ca0cc71989613ea261077a6d3187861b210624c7569c9c8707c2119b4",
+    ".build/native-ui/chromium-pointer-final/text/readonly-focused.png": "a786126298f6e44ac97cc0bcc5cf6f39d1bc7238ab0d1b2d2a2bd42ad71118d8",
+    ".build/native-ui/chromium-pointer-final/text/readonly-normal.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba",
+    ".build/native-ui/chromium-pointer-final/text/results.json": "d4c186e943856b9fd981ec8bb0824989d8a38c8af66a79fc08102670e3fceec6",
+    ".build/native-ui/chromium-pointer-final/text/unicode-focused.png": "f9701f628f2f981239117ddbfab1e946d812e90fbbe5f4750d2eb583381e78b1",
+    ".build/native-ui/chromium-pointer-final/text/unicode-normal.png": "08aca8a902caaae6b7be874333f6a7adb0804f13d7007120ed123988df29f9ba"
+  }
+}

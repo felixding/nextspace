@@ -79,6 +79,7 @@ static void element_focus(void *node,int focused,int type,int blur) {
   struct NativeForm *form=find_form(node);
   if(!form&&form_focused(node))form=bind_input_form(node);
   if(form&&form->kind!=NXS_PROGRESS&&(form->painted||form->input_owned)) {
+    if(form->text_tracking&&!form_focused(node))end_text_pointer(form,0);
     form_input_request(form,7,form_focused(node),0,0,NULL,NULL,0,0);
     invalidate_form(form);
   }
