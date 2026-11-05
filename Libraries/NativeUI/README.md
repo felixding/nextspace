@@ -22,7 +22,7 @@ The C loader rejects an absent, incompatible or incomplete provider. Its error
 is available through `nxs_native_ui_error()`; it does not emulate a control.
 
 The API supports native push buttons, checkboxes, radio buttons, sliders,
-progress indicators and the existing scrollbar contract. Normal/disabled state,
+progress indicators, popup buttons/menus and the existing scrollbar contract. Normal/disabled state,
 model updates, native preferred metrics, bitmap output and synchronous mouse
 tracking are exposed. The application owns its data model; the native control
 owns its actual input loop. The event pump services application/transport events
@@ -61,7 +61,7 @@ application focus traversal still need their broader integration contracts.
 The pinned Chromium experiment now applies next/previous requests through its
 real focus controller; other application integrations remain open.
 
-The input, event and range function pointers are appended to ABI version 1. The loader validates
+The optional input, event, range, popup and descriptor-source functions extend ABI version 1. The loader validates
 the original `NXS_NATIVE_UI_CORE_SIZE` prefix and checks the advertised structure
 size before reading optional fields. Older providers keep their original
 controls and report no input capabilities. An older loader/client can also use
@@ -69,7 +69,7 @@ the new provider unchanged. This preserves the separation while the API grows.
 
 This is an initial implementation of the shared host, not full browser support.
 Text editing, broader engine/frontend focus and keyboard routing, IME, accessibility,
-menus, lists/trees, tabs, popup controls,
+general application menus, lists/trees, tabs,
 and engine/frontend adapters for the new control types remain to implement.
 The provider ABI is under development until that broader contract is qualified.
 
@@ -201,3 +201,54 @@ establish a live control deadlock. The harness now waits for the probe's actual
 exit independently of inherited output descriptors, and captures a backtrace
 on an actual exit timeout. The subsequent complete run passed. The original
 timeouts' exact cause remains unconfirmed.
+
+## Native popup menus and event sources
+
+`NXS_POPUP` hosts an actual `NSPopUpButton` and `NSMenu`. Query
+`nxs_control_popup_capabilities()` before supplying ordered UTF-8 item labels,
+enabled/separator flags and a selected array index with
+`nxs_control_popup_items()`. Duplicate labels retain distinct indices. The
+provider constructs ordinary menu items and uses the popup's public `setMenu:`
+and selection methods. Native menu ownership supplies selection and action
+dispatch. The callback reports `NXS_VALUE_CHANGED` with the native selected
+index. No private popup selectors or widget implementations are copied.
+
+`nxs_control_popup_state()` and `nxs_control_popup_item_rect()` read native
+visibility, highlight and geometry in control bitmap coordinates; rectangles
+can extend outside the control. The optional origin request sets the hidden
+host's native layout position relative to the main screen. Placement remains
+subject to the backend and compositor. Owned menu windows read the embedding
+pointer stream during synthetic tracking, while retaining their actual native
+layout, hit testing, rendering and tracking. The menu windows are real native
+windows; control backing windows remain hidden.
+
+Model replacement and destruction are rejected while native input owns the
+object. Destruction after dispatch closes an open menu. Invalid model data is
+rejected before replacing the model. The optional descriptor-source API
+registers caller-owned readable descriptors with the native run loop. It wakes
+event dispatch without reading or closing the descriptors; remove sources on
+their UI thread before closing the descriptors. The host services native window
+and input events while idle and leaves active native tracking in charge of its
+queue. The helper can wait on native window events and IPC without a widget
+polling interval.
+
+These fields extend ABI 1 from 200 to 248 bytes on ARM64: popup methods end at
+232, followed by two descriptor-source methods. Older providers advertise no
+unavailable capabilities, and old loaders/clients work unchanged.
+`--previous-popup-provider` checks a saved pre-extension provider.
+`Tests/NativeUI/run.py --transport` runs the existing mouse, focus, keyboard and
+animation transport checks plus 18 popup checks. They cover complete
+normal/focused images against direct native references, native menu mapping
+without further RPCs, keys and mouse selection, disabled items/controls,
+duplicate labels, cancellation, isolation, invalid models and destruction.
+The helper used zero CPU time during the test's 200 ms idle-menu sample;
+broader performance remains unqualified.
+
+This is the shared menu contract for browser adapters. HTML selects, browser
+menus and Chromium/Firefox frontend bindings remain to implement. The isolated
+menu has no browser parent, and its compositor placement can differ from its
+native anchor request. Browser-relative placement, multiple outputs, scales,
+submenus and failure recovery remain to qualify. One earlier helper RPC timed
+out; later provider/transport and full compatibility runs passed. Its cause is
+unresolved, and the verifier captures helper backtraces on future failures.
+See [`popup-qualification.json`](popup-qualification.json).

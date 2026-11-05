@@ -53,4 +53,18 @@ struct NXSControlStepRequest {
   uint32_t text_size,reserved;
   double step;
 };
+/* Optional popup operation 11: item model. Each following item is two uint32s
+ * (enabled/separator flags, UTF-8 byte length), then that many title bytes.
+ * text_size covers the entire item payload. Existing request layouts remain.
+ * Bootstrap part 6.width / generic part 5.height advertise popup capabilities.
+ * Generic part 5.y reports native highlight; part 6 reports the native menu
+ * frame. Operation 12 uses the ordinary request's x as item index and returns
+ * that item's native rectangle in part 6. Operation 13 sets screen origin x/y.
+ * Model/origin acceptance uses part 3.x. No menu metrics live in the wire. */
+struct NXSControlPopupRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved,count;
+  int32_t selected;
+};
 #endif

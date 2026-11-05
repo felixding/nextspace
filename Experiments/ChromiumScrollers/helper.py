@@ -38,7 +38,15 @@ def run(library,path):
     native.nxs_scroller_track.argtypes=[C.c_void_p,C.c_double,C.c_double,C.c_uint]
     native.nxs_scroller_send.argtypes=[C.c_void_p,C.c_int,C.c_double,C.c_double,C.c_uint]
     server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET);server.bind(str(path));os.chmod(path,0o600);server.listen(20)
-    clients=[];controls={};contexts={};pending=[];active=None;forms=None
+    clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={}
+    def add_source(connection):
+        if forms and forms.source_capabilities:
+            source=native.nxs_native_ui_source_create(connection.fileno())
+            if not source:raise RuntimeError('Cannot register embedding descriptor with native loop')
+            sources[connection]=source
+    def remove_source(connection):
+        source=sources.pop(connection,None)
+        if source:assert native.nxs_native_ui_source_destroy(source)
     context_ids=itertools.count(1)
     def log(event,**data):print(json.dumps(dict(event=event,**data)),flush=True)
     @Changed
@@ -56,6 +64,7 @@ def run(library,path):
                 result.parts[4].width=forms.input_capabilities
                 result.parts[4].height=forms.event_capabilities
                 result.parts[5].width=forms.range_capabilities
+                result.parts[6].width=forms.popup_capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):
@@ -104,13 +113,14 @@ def run(library,path):
             response(client,req,state)
         else:response(client,req,None)
     def dispatch(timeout):
-        native_wait=forms.dispatch_events() if forms else -1
+        native_wait=forms.dispatch_events(60 if timeout is None and sources else 0) if forms else -1
+        if sources:timeout=0
         if native_wait>=0:
             timeout=native_wait if timeout is None else min(timeout,native_wait)
         ready,_,_=select.select([server]+clients,[],[],timeout)
         for client in ready:
             if client is server:
-                connection,_=server.accept();clients.append(connection);continue
+                connection,_=server.accept();clients.append(connection);add_source(connection);continue
             try:
                 data=client.recv(128*1024)
                 if data:message(client,data);continue
@@ -120,7 +130,7 @@ def run(library,path):
                     state['destroy']=True
                     if native.nxs_scroller_tracking(state['native']):native.nxs_scroller_send(state['native'],1,0,0,0)
             if forms:forms.disconnect(client)
-            clients.remove(client);client.close()
+            clients.remove(client);remove_source(client);client.close()
     def track_scroller(state,x,y,modifiers):
         nonlocal active
         state['starting']=False
@@ -132,6 +142,7 @@ def run(library,path):
     if hasattr(native,'nxs_control_create'):
         forms=NativeControlServer(native,Bitmap,Response,Pump,dispatch,pending,send_response,
                                   lambda: not pending and active is None and forms.active is None,log)
+        add_source(server)
     log('ready',socket=str(path),request_size=C.sizeof(Request),response_size=C.sizeof(Response))
     try:
         while True:
@@ -143,6 +154,7 @@ def run(library,path):
                     native.nxs_scroller_destroy(state['native']);state['native']=None;del controls[key];del contexts[state['context']]
             if forms:forms.cleanup()
     finally:
+        for connection in list(sources):remove_source(connection)
         if forms:forms.close()
         for state in controls.values():native.nxs_scroller_destroy(state['native'])
         for client in clients:client.close()

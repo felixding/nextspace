@@ -1,5 +1,10 @@
 # Native scrollbars in foreign applications
 
+This is the initial scrollbar component of the broader
+[native application integration](../../docs/Native-Control-Integration.md).
+The project goal covers native appearance and behavior throughout non-GNUstep
+applications, including GTK and Qt/KDE applications and browsers.
+
 These adapters host the existing GNUstep `NSScroller`. They contain no scrollbar
 drawing, geometry, arrow repeat, jump-to-point or drag implementations.
 `NativeScroller.c` forwards the existing C interface to the separate

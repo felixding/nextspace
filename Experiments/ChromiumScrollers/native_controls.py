@@ -24,6 +24,14 @@ class ControlInputRequest(C.Structure):
         ('repeat', C.c_uint32), ('unmodified_size', C.c_uint32), ('focused', C.c_int32)]
 class ControlStepRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7]+[('step',C.c_double)]
+class ControlPopupRequest(C.Structure):
+    _fields_ = ControlRequest._fields_[:7]+[('count',C.c_uint32),('selected',C.c_int32)]
+class PopupItem(C.Structure):
+    _fields_ = [('size',C.c_uint32),('title',C.c_char_p),('enabled',C.c_int),('separator',C.c_int)]
+class ControlRect(C.Structure):
+    _fields_ = [('x',C.c_double),('y',C.c_double),('width',C.c_double),('height',C.c_double)]
+class PopupState(C.Structure):
+    _fields_ = [('size',C.c_uint32),('visible',C.c_int),('highlighted',C.c_int),('frame',ControlRect)]
 
 class KeyEvent(C.Structure):
     _fields_ = [('size', C.c_uint32), ('type', C.c_uint32), ('modifiers', C.c_uint32),
@@ -67,6 +75,28 @@ class NativeControlServer:
         self.event_capabilities, self.event_deadline = 0, -1
         self.generations = {}
         self.range_capabilities=0
+        self.popup_capabilities=0
+        self.source_capabilities=0
+        if hasattr(native,'nxs_native_ui_source_capabilities'):
+            native.nxs_native_ui_source_capabilities.argtypes=[]
+            native.nxs_native_ui_source_capabilities.restype=C.c_uint
+            self.source_capabilities=native.nxs_native_ui_source_capabilities()
+            native.nxs_native_ui_source_create.argtypes=[C.c_int]
+            native.nxs_native_ui_source_create.restype=C.c_void_p
+            native.nxs_native_ui_source_destroy.argtypes=[C.c_void_p]
+            native.nxs_native_ui_source_destroy.restype=C.c_int
+        if hasattr(native,'nxs_control_popup_capabilities'):
+            native.nxs_control_popup_capabilities.argtypes=[]
+            native.nxs_control_popup_capabilities.restype=C.c_uint
+            self.popup_capabilities=native.nxs_control_popup_capabilities()
+            native.nxs_control_popup_items.argtypes=[C.c_void_p,C.POINTER(PopupItem),C.c_uint32,C.c_int]
+            native.nxs_control_popup_items.restype=C.c_int
+            native.nxs_control_popup_state.argtypes=[C.c_void_p]
+            native.nxs_control_popup_state.restype=PopupState
+            native.nxs_control_popup_item_rect.argtypes=[C.c_void_p,C.c_int]
+            native.nxs_control_popup_item_rect.restype=ControlRect
+            native.nxs_control_set_screen_origin.argtypes=[C.c_void_p,C.c_double,C.c_double]
+            native.nxs_control_set_screen_origin.restype=C.c_int
         if hasattr(native,'nxs_control_range_capabilities'):
             native.nxs_control_range_capabilities.argtypes=[]
             native.nxs_control_range_capabilities.restype=C.c_uint
@@ -92,10 +122,10 @@ class NativeControlServer:
             native.nxs_control_needs_display.argtypes = [C.c_void_p]
             native.nxs_control_needs_display.restype = C.c_int
 
-    def dispatch_events(self):
+    def dispatch_events(self,maximum_wait=0):
         if not self.event_capabilities:
             return -1
-        self.event_deadline = self.native.nxs_native_ui_dispatch_events(0)
+        self.event_deadline = self.native.nxs_native_ui_dispatch_events(maximum_wait)
         for state in self.controls.values():
             if state['destroy'] or state.get('invalidated'):
                 continue
@@ -135,7 +165,7 @@ class NativeControlServer:
     def _tracking(self, state):
         return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
 
-    def _respond(self, client, req, state=None, pixels=False, input_result=0):
+    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None):
         response = self.response_type()
         response.magic, response.reserved = MAGIC, req.reserved
         response.parts[3].x = input_result
@@ -144,6 +174,7 @@ class NativeControlServer:
         response.parts[4].y = self.event_deadline
         response.parts[4].width = self.event_capabilities
         response.parts[5].width = self.range_capabilities
+        response.parts[5].height = self.popup_capabilities
         data = b''
         if state:
             response.parts[5].x=state.get('step',0)
@@ -157,6 +188,11 @@ class NativeControlServer:
             response.parts[2].x = current.enabled
             if self.input_capabilities & 1:
                 response.parts[3].y = self.native.nxs_control_focused(state['native'])
+            if req.kind==6 and self.popup_capabilities:
+                popup=self.native.nxs_control_popup_state(state['native'])
+                response.parts[5].y=popup.highlighted
+                frame=rectangle if rectangle is not None else popup.frame
+                for field in ('x','y','width','height'):setattr(response.parts[6],field,getattr(frame,field))
             if pixels:
                 bitmap = self.native.nxs_control_draw(state['native'], 1)
                 if bitmap.pixels:
@@ -166,6 +202,9 @@ class NativeControlServer:
         self.send(client, response, data)
 
     def message(self, client, data):
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==11:
+            self.popup_message(client,data)
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==10:
             if len(data)!=C.sizeof(ControlStepRequest):return
             req=ControlStepRequest.from_buffer_copy(data)
@@ -198,7 +237,7 @@ class NativeControlServer:
             self._respond(client, req)
             return
         if req.operation == 1:
-            if not 1 <= req.kind <= 5 or not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value)):
+            if not 1 <= req.kind <= 6 or (req.kind==6 and not self.popup_capabilities) or not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value)):
                 self._respond(client, req)
                 return
             if not 1 <= req.width <= 8192 or not 1 <= req.height <= 8192 or req.width * req.height > 8 * 1024 * 1024:
@@ -241,6 +280,16 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==12 and req.kind==6 and self.popup_capabilities:
+                rectangle=ControlRect()
+                if req.x==int(req.x) and 0<=req.x<65536:
+                    rectangle=self.native.nxs_control_popup_item_rect(state['native'],int(req.x))
+                self._respond(client,req,state,rectangle=rectangle)
+                return
+            if req.operation==13 and self.popup_capabilities:
+                accepted=self.native.nxs_control_set_screen_origin(state['native'],req.x,req.y)
+                self._respond(client,req,state,input_result=accepted)
+                return
             if req.operation == 2 and self.idle():
                 state['starting'] = True
                 self.pending.append(lambda: self.track(state, req.x, req.y, req.modifiers))
@@ -252,6 +301,29 @@ class NativeControlServer:
                     self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
         self._respond(client, req, state)
+
+    def popup_message(self,client,data):
+        if len(data)<C.sizeof(ControlPopupRequest):return
+        req=ControlPopupRequest.from_buffer_copy(data)
+        if req.magic!=MAGIC or req.kind!=6 or req.text_size!=len(data)-C.sizeof(req) or req.text_size>65536 or req.count>65536:
+            self._respond(client,req);return
+        state=self.controls.get((req.process,req.control,req.kind))
+        if not state or state['destroy'] or not self.popup_capabilities:
+            self._respond(client,req);return
+        offset=C.sizeof(req);items=(PopupItem*req.count)()
+        for index in range(req.count):
+            if offset+8>len(data):self._respond(client,req);return
+            flags=int.from_bytes(data[offset:offset+4],'little');size=int.from_bytes(data[offset+4:offset+8],'little');offset+=8
+            if flags&~3 or size>65536 or offset+size>len(data):self._respond(client,req);return
+            title=data[offset:offset+size];offset+=size
+            try:title.decode('utf-8')
+            except UnicodeDecodeError:self._respond(client,req);return
+            if b'\0' in title:self._respond(client,req);return
+            items[index]=PopupItem(C.sizeof(PopupItem),title,flags&1,bool(flags&2))
+        if offset!=len(data):self._respond(client,req);return
+        accepted=self.native.nxs_control_popup_items(state['native'],items,req.count,req.selected)
+        if accepted:self.log('native-popup-model',process=req.process,control=req.control,count=req.count,selected=req.selected)
+        self._respond(client,req,state,pixels=bool(accepted),input_result=accepted)
 
     def input_message(self, client, data):
         if len(data) < C.sizeof(ControlInputRequest):
@@ -312,6 +384,8 @@ class NativeControlServer:
             if state['destroy'] and self.native.nxs_control_destroy(state['native']):
                 if key[2] == 5:
                     self.log('native-progress-destroy', process=key[0], control=key[1])
+                elif key[2]==6:
+                    self.log('native-popup-destroy',process=key[0],control=key[1])
                 del self.controls[key]
                 del self.contexts[state['context']]
 

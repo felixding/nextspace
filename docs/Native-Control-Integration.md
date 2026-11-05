@@ -1,12 +1,24 @@
 # Native controls across foreign applications
 
-User requirement, 2026-11-05: use the actual NEXTSPACE controls throughout
-applications, including Chromium, Chrome, Vivaldi, Firefox and their derivatives.
-This includes native appearance, placement, input behavior, menus, text editing
-and shortcuts. Existing control implementations must be reused. Bridges must remain separate
-from the underlying UI library so appearance and interaction can be updated in
-one place. Recompiling each application is excluded. The scrollbar experiment is a feasibility result, not
-completion of this requirement.
+User requirement, clarified 2026-11-05: make non-GNUstep applications look and
+behave native throughout NEXTSPACE. This includes GTK applications, Qt/KDE
+applications and browsers such as Chromium, Chrome, Vivaldi, Firefox and their
+derivatives. The scope covers whole applications: controls, layout and placement,
+detached menus, text editing, focus, keyboard shortcuts, dialogs and integration
+with the desktop's window decorations and commands.
+
+Reuse the actual NEXTSPACE control implementations. Keep toolkit/application
+adapters and the shared bridge separate from the underlying UI library, so
+appearance and interaction can be changed in that library in one place.
+Recompiling each application is excluded. The historical `left-scrollbars`
+branch name identifies the starting experiment; acceptance is application-wide
+native integration across foreign toolkits and frontends.
+
+Implementation priority, 2026-11-05: first make the Chromium-based and
+Firefox-based browser families native, including their application interfaces
+and web controls. Then continue with the remaining non-GNUstep applications.
+Both stages use the same native UI library and keep the no-duplication and
+no-application-recompile requirements.
 
 ## Shared implementation and distinct integration boundaries
 
@@ -24,13 +36,15 @@ required integration surfaces differ:
 
 | Surface | Required integration | Current evidence |
 | --- | --- | --- |
-| GTK and Qt widgets | Toolkit object/layout/input adapters | Existing adapters cover scrollbars only. |
+| GTK applications | Toolkit controls, layout, editing, menus, commands, dialogs and input adapters | Existing GTK3/GTK4 adapters cover scrollbars only. |
+| Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
+| Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented or binary qualified. |
+| Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented. An unchanged ARM64 Firefox ESR binary is pinned for initial work; runtime/native UI support is unqualified. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
-| Derivative-specific controls | The derivative's actual frontend and binary interfaces | Must be inspected and tested; engine ancestry is insufficient. |
+| Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
 Chromium's own documentation describes its Linux GTK integration as primarily
 color extraction, rather than whole GTK widgets. Its browser address bar and
@@ -65,10 +79,10 @@ lack a standard widget contract; the policy for forcibly replacing these is a
 separate user decision.
 
 There is currently no implemented universal adapter satisfying the requirement.
-A shared host can avoid duplicating the native components, but coverage still
-requires integrations for the engine and frontend surfaces above. Passing a
-Chromium scrollbar test must not be reported as Chrome, Vivaldi, Firefox, menus,
-text fields, or full native compatibility.
+A shared host avoids duplicating the native components; coverage still requires
+toolkit, engine and application-frontend adapters. Verify representative GTK and
+Qt/KDE applications as well as browsers. A scrollbar or individual-control test
+does not establish whole-application native compatibility.
 
 ## Implementation and acceptance sequence
 
@@ -78,14 +92,19 @@ text fields, or full native compatibility.
 2. Extend the shared host with actual native button, checkbox, radio, text,
    popup, slider, progress, list/tree and tab controls. Transport native events
    and model updates without substituting host-side drawing or tracking rules.
-3. Bind standard web controls in both Blink and Gecko, including metrics, focus,
-   disabled/pressed state and model synchronization. Test shipped binaries with
-   their sandboxes retained.
-4. Bind browser frontends and command models. Native text editing, detached
-   menus, command validation, file dialogs and shortcut routing must call the
-   host application's real actions and preserve its data.
-5. Qualify every advertised browser/build and normal/disabled/focused/pressed
-   state at the supported scales. Require native pixel references and native
+3. Bind Chromium-based and Firefox-based browser engines to the shared host,
+   including metrics, layout, focus, input and state synchronization. Qualify
+   each advertised browser/build, including derivative-specific frontends.
+4. Bind browser application interfaces, command models and desktop integration. Native text editing,
+   detached menus, command validation, dialogs, window decorations and shortcut
+   routing must invoke the application's real actions and preserve its data.
+5. Continue with GTK, Qt/KDE and other non-GNUstep applications through toolkit
+   and application-frontend adapters to the same host. Cover complete
+   applications, including controls outside standard toolkit widgets. Adapters
+   translate semantics and events without owning another widget implementation.
+6. Qualify every advertised toolkit/application/build and normal/disabled/focused/pressed
+   state at the supported scales. Test shipped binaries with their sandboxes
+   retained where applicable. Require native pixel references and native
    interaction traces, plus reload/close/crash/resize/IME/accessibility checks.
    Unsupported coverage remains explicit rather than silently falling back to
    a lookalike and claiming completion.
@@ -94,11 +113,11 @@ The first implementation of step 2 is in
 [`Libraries/NativeUI`](../Libraries/NativeUI/README.md): a C-only loader, an
 independent GNUstep UI provider and the existing scrollbar ABI forwarding shim.
 The provider hosts actual push buttons, checkboxes, radio buttons, sliders,
-progress indicators and scrollbars using one shared view/event host. Native
+progress indicators, popup buttons/menus and scrollbars using one shared view/event host. Native
 tracking/model probes and 30 unchanged-scrollbar bitmap comparisons pass on the
 private ARM64 test setup. The unchanged Chromium scrollbar path also passes
 through this provider; changing the UI library's width setting changes its
-layout and passes native pixels/input without a browser or bridge rebuild. Text, menus and the remaining controls are still open.
+layout and passes native pixels/input without a browser or bridge rebuild. Text, application menu integration and the remaining controls are still open.
 The first Blink bindings now connect standard push buttons, checkboxes and radio
 buttons in the same pinned Chromium experiment. They reuse this provider through
 its public C ABI for metrics, pixels and mouse tracking. Fourteen native pixel
@@ -159,3 +178,14 @@ browser artwork in the first determinate bar; model invalidation corrected it,
 and later fresh runs passed, but its cause remains unresolved. The diagnostics
 and initial-frame test preserve that gap. See
 [`progress-qualification.json`](../Experiments/ChromiumScrollers/progress-qualification.json).
+
+The shared provider now adds actual `NSPopUpButton`/`NSMenu` objects and native
+window event dispatch. Its optional descriptor-source API integrates browser
+transport descriptors with the native run loop. Eighteen helper checks verify
+native pixels, menu mapping while idle, keys, mouse selection, disabled items,
+models and destruction. Existing Chromium checks remain green. This is the
+common menu contract; HTML select and browser application-menu bindings, browser
+parent/placement, command models and Gecko integration remain unfinished. See
+[`popup-qualification.json`](../Libraries/NativeUI/popup-qualification.json).
+Firefox binary preparation is recorded separately in
+[`Experiments/FirefoxNativeUI`](../Experiments/FirefoxNativeUI/README.md).

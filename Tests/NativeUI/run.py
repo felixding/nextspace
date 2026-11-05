@@ -8,6 +8,8 @@ import select
 import socket
 import subprocess
 import tempfile
+import time
+import sys
 from PIL import Image
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -21,6 +23,8 @@ parser.add_argument('--previous-client', type=Path, help='Pre-extension native-c
 parser.add_argument('--previous-loader', type=Path, help='Previous loader directory for the unchanged client/provider-swap check')
 parser.add_argument('--previous-event-provider', type=Path, help='Provider predating optional event dispatch')
 parser.add_argument('--previous-range-provider', type=Path, help='Provider predating optional slider step configuration')
+parser.add_argument('--previous-popup-provider', type=Path, help='Provider predating optional popup/menu configuration')
+parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -71,6 +75,7 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
             try:
                 assert select.select([probe.stdout], [], [], 15)[0], 'Native host startup'
                 first = probe.stdout.readline()
+                assert first,(label,(args.output/(label+'.stderr')).read_text())
                 assert json.loads(first)['event'] == 'host-live', (first, (args.output / (label + '.stderr')).read_text())
                 windows = command('windows')
                 assert not any(window['buffer_width'] > 0 for window in windows), windows
@@ -82,6 +87,19 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                     windows = command('windows')
                     assert not any(window['buffer_width'] > 0 for window in windows), windows
                     probe.stdin.write('\n'); probe.stdin.flush()
+                if label.startswith('popup'):
+                    for stage, visible in [('popup-live',True),('popup-closed',False)]:
+                        assert select.select([probe.stdout],[],[],10)[0], 'Native popup stage'
+                        record=probe.stdout.readline();assert json.loads(record)['event']==stage,record
+                        deadline=time.monotonic()+2
+                        while True:
+                            windows=command('windows')
+                            shown=[w for w in windows if w.get('visible') and w['buffer_width']>0]
+                            if len(shown)==int(visible):break
+                            assert probe.poll() is None and time.monotonic()<deadline,windows
+                            time.sleep(.01)
+                        (args.output/(label+'-'+stage+'-windows.json')).write_text(json.dumps(windows,indent=2)+'\n')
+                        probe.stdin.write('\n');probe.stdin.flush()
                 try:
                     probe.stdin.close()
                     probe.wait(timeout=20)
@@ -127,6 +145,17 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
             env=environment,text=True,capture_output=True,timeout=10)
         assert range_result.returncode==0,(range_result.returncode,range_result.stderr)
         checks['native_range']=json.loads(range_result.stdout)
+        popup_output=held_probe(args.build/'native-ui/native-popup-probe',[str(args.output)],
+                                'NXS_NATIVE_UI_POPUP_HOLD','popup')
+        checks['native_popup']=json.loads(popup_output)
+        for path in args.output.glob('popup-*.argb'):
+            scale=1.5 if path.stem.endswith('-150') else 1
+            Image.frombytes('RGBA',(round(180*scale),round(24*scale)),path.read_bytes(),'raw','BGRA').save(path.with_suffix('.png'))
+        if args.previous_popup_provider:
+            previous=subprocess.run([str(args.build/'native-ui/native-popup-probe'),'--expect-no-popup']+backend,
+                env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_popup_provider.resolve())),text=True,capture_output=True,timeout=10)
+            assert previous.returncode==0,(previous.returncode,previous.stderr)
+            checks['previous_provider_accepted_without_popup_extension']=json.loads(previous.stdout)
         if args.previous_range_provider:
             previous=subprocess.run([str(args.build/'native-ui/native-range-probe'),'--expect-no-step']+backend,
                 env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_range_provider.resolve())),text=True,capture_output=True,timeout=10)
@@ -193,6 +222,37 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         exports = subprocess.check_output(['readelf', '--dyn-syms', '--wide', str(args.build / 'native-ui/libnextspace-native-ui-gnustep.so')], text=True)
         assert 'nxs_native_ui_provider' in exports and 'nxs_gnustep_' not in exports
         checks['provider_internals_not_exported'] = True
+        if args.transport:
+            scripts=Path(__file__).resolve().parents[2]/'Experiments/ChromiumScrollers'
+            endpoint=Path(runtime)/'native-controls.sock'
+            with (args.output/'helper.jsonl').open('w') as out,(args.output/'helper.stderr').open('w') as err:
+                helper=subprocess.Popen([sys.executable,str(scripts/'helper.py'),'--library',str((args.build/'libnextspace-native-scroller.so.1').resolve()),
+                    '--socket',str(endpoint)]+backend,env=environment,stdout=out,stderr=err)
+            try:
+                deadline=time.monotonic()+10
+                while not endpoint.exists():
+                    assert helper.poll() is None and time.monotonic()<deadline,'Native helper startup'
+                    time.sleep(.01)
+                for name in ['transport','input','animation']:
+                    output=args.output/('transport-'+name)
+                    if name=='input':output=output.with_suffix('.json')
+                    probe=subprocess.run([sys.executable,str(scripts/('check-control-'+name+'.py')),'--socket',str(endpoint),'--output',str(output)],
+                        env=environment,text=True,capture_output=True,timeout=20)
+                    (args.output/('transport-'+name+'.stdout')).write_text(probe.stdout)
+                    assert probe.returncode==0,(name,probe.stdout,probe.stderr)
+                    checks['transport_'+name]=json.loads(probe.stdout)
+                output=args.output/'transport-popup'
+                popup=held_probe(Path(sys.executable),[str(scripts/'check-control-popup.py'),'--socket',str(endpoint),
+                    '--output',str(output),'--references',str(args.output),'--helper-pid',str(helper.pid)],'NXS_NATIVE_UI_POPUP_HOLD','popup-transport')
+                checks['transport_popup']=json.loads(popup)
+            finally:
+                if sys.exc_info()[0] is not None and helper.poll() is None:
+                    with (args.output/'helper-timeout.txt').open('w') as trace:
+                        try:subprocess.run(['sudo','-n','gdb','-q','-batch','-ex','thread apply all bt','-p',str(helper.pid)],stdout=trace,stderr=trace,timeout=8)
+                        except subprocess.TimeoutExpired:trace.write('Backtrace collection timed out\n')
+                helper.terminate()
+                try:helper.wait(timeout=5)
+                except subprocess.TimeoutExpired:helper.kill();helper.wait()
         if args.baseline:
             comparisons = []
             def render(arguments, client_env, label):

@@ -326,3 +326,13 @@ Automatic metrics/layout, arbitrary step bases and dense-step rounding, dynamic
 style/model combinations, touch, accessibility, HiDPI and other browser/frontends
 remain unqualified. Existing early progress/scrollbar fallback observations
 remain unresolved. This does not complete the all-controls requirement.
+
+The shared provider now hosts actual native popup buttons and menu windows.
+The generic helper accepts their ordered models, native input, geometry queries
+and origin requests through optional operations 11–13, with item payloads up to
+64 KiB. Native descriptor readiness services IPC and native window events while
+idle. Eighteen independent transport checks pass; see the
+[provider menu contract](../../Libraries/NativeUI/README.md). These methods are
+not yet wired to HTML selects or browser chrome. Browser-relative placement and
+the Chromium/Firefox adapters remain implementation work. The transport checks
+do not establish browser popup support.

@@ -9,6 +9,7 @@ extern "C" {
 
 typedef struct NXSScroller NXSScroller;
 typedef struct NXSControl NXSControl;
+typedef struct NXSEventSource NXSEventSource;
 typedef struct { double x, y, width, height; } NXSRect;
 typedef struct { double width, height; } NXSSize;
 typedef struct { int width, height, stride; const unsigned char *pixels; } NXSBitmap;
@@ -18,7 +19,7 @@ enum { NXS_SHIFT = 1, NXS_ALT = 2, NXS_CONTROL = 4, NXS_SUPER = 8 };
 enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
-  NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS
+  NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED };
 typedef struct {
@@ -37,6 +38,17 @@ typedef void (*NXSControlChanged)(void *context, int event, const NXSControlStat
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
 enum NXSEventCapability { NXS_EVENTS = 1 };
 enum NXSRangeCapability { NXS_RANGE_STEP = 1 };
+enum NXSPopupCapability { NXS_POPUP_ITEMS = 1 };
+typedef struct {
+  uint32_t size;
+  const char *title;
+  int enabled, separator;
+} NXSPopupItem;
+typedef struct {
+  uint32_t size;
+  int visible, highlighted;
+  NXSRect frame;
+} NXSPopupState;
 enum NXSKeyType { NXS_KEY_DOWN, NXS_KEY_UP, NXS_KEY_MODIFIERS };
 enum NXSKey {
   NXS_KEY_TEXT, NXS_KEY_ENTER, NXS_KEY_TAB, NXS_KEY_BACKSPACE, NXS_KEY_DELETE,
@@ -84,6 +96,12 @@ typedef struct {
   double (*dispatch_events)(double maximum_wait);
   int (*control_needs_display)(NXSControl *);
   int (*control_set_step)(NXSControl *, double);
+  int (*control_popup_items)(NXSControl *, const NXSPopupItem *, uint32_t, int);
+  NXSPopupState (*control_popup_state)(NXSControl *);
+  NXSRect (*control_popup_item_rect)(NXSControl *, int);
+  int (*control_set_screen_origin)(NXSControl *, double, double);
+  NXSEventSource *(*event_source_create)(int descriptor);
+  int (*event_source_destroy)(NXSEventSource *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -114,6 +132,23 @@ unsigned nxs_control_range_capabilities(void);
 /* Positive data quantum; zero denotes a continuous range. The provider maps
  * small discrete domains to native slider ticks; widget behavior stays native. */
 int nxs_control_set_step(NXSControl *control, double step);
+unsigned nxs_control_popup_capabilities(void);
+/* The application supplies ordered item data, including separators. Selection
+ * is an array index, or -1. The native control owns layout and navigation. */
+int nxs_control_popup_items(NXSControl *, const NXSPopupItem *, uint32_t count, int selected);
+/* Native menu geometry uses control bitmap coordinates, including positions
+ * outside that bitmap. A hidden menu returns a zero frame/item rectangle. */
+NXSPopupState nxs_control_popup_state(NXSControl *);
+NXSRect nxs_control_popup_item_rect(NXSControl *, int index);
+/* Request the control's top-left relative to the native main screen's top-left,
+ * in logical units. The backend/compositor determines actual window placement. */
+int nxs_control_set_screen_origin(NXSControl *, double x, double y);
+/* Optional native-loop integration for an embedding application's readable
+ * descriptors. The source wakes dispatch_events; the caller still reads the
+ * descriptor and retains ownership of it. Create/destroy on the UI thread. */
+unsigned nxs_native_ui_source_capabilities(void);
+NXSEventSource *nxs_native_ui_source_create(int descriptor);
+int nxs_native_ui_source_destroy(NXSEventSource *);
 
 #ifdef __cplusplus
 }

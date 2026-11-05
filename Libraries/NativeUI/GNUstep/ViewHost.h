@@ -15,3 +15,7 @@ int nxs_host_focused(NXSViewHost *host);
 int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *event);
 double nxs_host_dispatch_events(double maximum_wait);
 int nxs_host_needs_display(NXSViewHost *host);
+int nxs_host_set_screen_origin(NXSViewHost *host,double x,double y);
+NXSRect nxs_host_rect_from_view(NXSViewHost *,NSView *,NSRect);
+void nxs_host_bind_input_window(NXSViewHost *,NSWindow *);
+void nxs_host_unbind_input_windows(NXSViewHost *);

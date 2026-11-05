@@ -17,7 +17,13 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_key=nxs_gnustep_control_key,
     .dispatch_events=nxs_host_dispatch_events,
     .control_needs_display=nxs_gnustep_control_needs_display,
-    .control_set_step=nxs_gnustep_control_set_step
+    .control_set_step=nxs_gnustep_control_set_step,
+    .control_popup_items=nxs_gnustep_control_popup_items,
+    .control_popup_state=nxs_gnustep_control_popup_state,
+    .control_popup_item_rect=nxs_gnustep_control_popup_item_rect,
+    .control_set_screen_origin=nxs_gnustep_control_set_screen_origin,
+    .event_source_create=nxs_gnustep_source_create,
+    .event_source_destroy=nxs_gnustep_source_destroy
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

@@ -1,0 +1,879 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "93f70853",
+  "status": "native popup/menu provider and browser IPC contract qualified in the private ARM64 setup; browser popup adapters remain unimplemented",
+  "architecture": {
+    "UI_library": "installed AppKit NSPopUpButton, NSMenu, NSMenuItem and NSMenuView",
+    "provider": "native objects, public menu model/selection methods, native geometry and event dispatch",
+    "helper": "application model and event representation/transport only",
+    "components_copied": false,
+    "widget_drawing_geometry_tracking_key_rules_copied": false,
+    "private_popup_selectors_used": false,
+    "UI_library_rebuilt": false,
+    "chromium_rebuilt": false
+  },
+  "environment": {
+    "distribution": "Debian 13 ARM64",
+    "nextspace": "native106",
+    "display": "private headless Wayland/Pixman",
+    "scale": 1,
+    "viewport": [
+      868,
+      571
+    ],
+    "renderers": [
+      {
+        "pid": 45417,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 45425,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 45426,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "installed_session_activated": false,
+    "owned_test_processes_stopped": true,
+    "owned_backend_alias_removed": true,
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "chromium_sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "f649cced1cbe60b954ad83fb626d236a7c3de9684fc33a345bf8d32c68adb9a7",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "04da8bb88300cf6824216993269f2d994869ed499a875476ccca7d61ffc6dfe0",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "f6793dca38bd3e4dedc4f0677c476342b30f0911c4b3b0e9a91490ee940b5544"
+  },
+  "API": {
+    "version": 1,
+    "arm64_size": 248,
+    "core_prefix_size": 152,
+    "input_prefix_size": 176,
+    "event_prefix_size": 192,
+    "range_prefix_size": 200,
+    "popup_prefix_size": 232,
+    "popup_functions": [
+      "control_popup_items",
+      "control_popup_state",
+      "control_popup_item_rect",
+      "control_set_screen_origin"
+    ],
+    "source_functions": [
+      "event_source_create",
+      "event_source_destroy"
+    ],
+    "old_core_requests_bytes": 104,
+    "popup_model_request_bytes": 40,
+    "popup_model_operation": 11,
+    "item_rectangle_operation": 12,
+    "origin_operation": 13,
+    "item_payload_maximum_bytes": 65536
+  },
+  "provider_and_transport_checks": {
+    "controls": [
+      {
+        "kind": 1,
+        "preferred": [
+          94,
+          20
+        ],
+        "native_actions": 1,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 2,
+        "preferred": [
+          94.0034,
+          15.0034
+        ],
+        "native_actions": 1,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 3,
+        "preferred": [
+          95.0036,
+          15.0034
+        ],
+        "native_actions": 1,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 4,
+        "preferred": [
+          8,
+          4
+        ],
+        "native_actions": 2,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 5,
+        "preferred": [
+          128,
+          24
+        ],
+        "native_actions": 0,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      }
+    ],
+    "legacy_tracking": {
+      "tracked_value": 541.463,
+      "slow_value": 358.537,
+      "alternate_arrow_value": 480
+    },
+    "no_mapped_backing_window": true,
+    "native_input": {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    "native_range": {
+      "coarse_native_keys": 3,
+      "dense_native_keys": 1,
+      "range_update": true,
+      "invalid_rejected": true
+    },
+    "native_popup": {
+      "native_popup": true,
+      "duplicate_labels": true,
+      "disabled_item_no_action": true,
+      "separator": true,
+      "keyboard_actions": 1,
+      "mouse_actions": 1,
+      "deferred_destruction": 2,
+      "empty_model": true,
+      "invalid_model_atomic": true,
+      "destroy_open_menu": true,
+      "native_descriptor_wakeup": true
+    },
+    "previous_provider_accepted_without_popup_extension": {
+      "older_provider_without_popup": true
+    },
+    "previous_provider_accepted_without_range_extension": {
+      "older_provider_without_step": true
+    },
+    "native_animation": {
+      "frames": 12,
+      "unique_native_images": 3,
+      "static_invalidations": 0,
+      "restart": true,
+      "actions": 0,
+      "times": [
+        0.000512,
+        0.020138,
+        0.113938,
+        0.193307,
+        0.269122,
+        0.352579,
+        0.443014,
+        0.519832,
+        0.602591,
+        0.691965,
+        0.772103,
+        0.860898
+      ],
+      "native_next_delays": [
+        0.018555,
+        0.082265,
+        0.071799,
+        0.07576,
+        0.08328,
+        0.083156,
+        0.076062,
+        0.08258,
+        0.083146,
+        0.077108,
+        0.080309,
+        0.074842
+      ]
+    },
+    "previous_provider_accepted_without_event_extension": {
+      "older_provider_without_events": true
+    },
+    "previous_provider_accepted_without_input_extension": {
+      "previous_provider_input_extension_absent": true
+    },
+    "previous_client_unchanged_with_new_provider": true,
+    "previous_loader_and_client_unchanged_with_new_provider": true,
+    "alternate_provider_same_client_and_native_behavior": true,
+    "wrong_provider_abi_rejected": true,
+    "loader_has_no_ui_toolkit_dependency": true,
+    "provider_internals_not_exported": true,
+    "transport_transport": [
+      {
+        "kind": 1,
+        "actions": 1.0,
+        "cancelled_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 2,
+        "actions": 1.0,
+        "cancelled_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 3,
+        "actions": 1.0,
+        "cancelled_actions": 0,
+        "disabled_actions": 0
+      }
+    ],
+    "transport_input": [
+      {
+        "kind": 1,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 2,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 3,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 4,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      }
+    ],
+    "transport_animation": {
+      "frames": 12,
+      "unique_native_images": 3,
+      "idle_native_wakeup": true,
+      "process_isolation": true,
+      "stopped_stable": true,
+      "restart": true,
+      "destroy_stops_invalidation": true,
+      "native_actions": 0,
+      "generations": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0
+      ],
+      "native_next_delays": [
+        0.07120788097381592,
+        0.07349824905395508,
+        0.07410657405853271,
+        0.07648301124572754,
+        0.07676827907562256,
+        0.07165265083312988,
+        0.075248122215271,
+        0.076202392578125,
+        0.07708382606506348,
+        0.07428216934204102,
+        0.07486855983734131,
+        0.07564699649810791
+      ]
+    },
+    "transport_popup": {
+      "passed": 18,
+      "results": [
+        {
+          "case": "popup-capability",
+          "passed": true
+        },
+        {
+          "case": "native-screen-origin-request",
+          "passed": true
+        },
+        {
+          "case": "native-item-model",
+          "passed": true
+        },
+        {
+          "case": "native-control-pixels",
+          "passed": true
+        },
+        {
+          "case": "native-focus",
+          "passed": true
+        },
+        {
+          "case": "native-focus-pixels",
+          "passed": true
+        },
+        {
+          "case": "native-open-key",
+          "passed": true
+        },
+        {
+          "case": "idle-menu-no-busy-poll",
+          "passed": true,
+          "cpu_seconds": 0.0,
+          "wall_seconds": 0.2
+        },
+        {
+          "case": "native-escape-cancels",
+          "passed": true
+        },
+        {
+          "case": "disabled-item-no-selection",
+          "passed": true
+        },
+        {
+          "case": "native-keyboard-selection",
+          "passed": true
+        },
+        {
+          "case": "duplicate-label-index-retained",
+          "passed": true
+        },
+        {
+          "case": "other-process-model-isolated",
+          "passed": true
+        },
+        {
+          "case": "invalid-model-atomic",
+          "passed": true
+        },
+        {
+          "case": "tracking-rejects-model-replacement",
+          "passed": true
+        },
+        {
+          "case": "native-mouse-selection",
+          "passed": true
+        },
+        {
+          "case": "disabled-no-menu-or-action",
+          "passed": true
+        },
+        {
+          "case": "destroy-open-menu",
+          "passed": true
+        }
+      ]
+    },
+    "unchanged_legacy_pixels": [
+      "vertical-normal-1",
+      "vertical-disabled-1",
+      "vertical-fitting-1",
+      "vertical-normal-1.25",
+      "vertical-disabled-1.25",
+      "vertical-fitting-1.25",
+      "vertical-normal-1.5",
+      "vertical-disabled-1.5",
+      "vertical-fitting-1.5",
+      "vertical-normal-1.75",
+      "vertical-disabled-1.75",
+      "vertical-fitting-1.75",
+      "vertical-normal-2",
+      "vertical-disabled-2",
+      "vertical-fitting-2",
+      "horizontal-normal-1",
+      "horizontal-disabled-1",
+      "horizontal-fitting-1",
+      "horizontal-normal-1.25",
+      "horizontal-disabled-1.25",
+      "horizontal-fitting-1.25",
+      "horizontal-normal-1.5",
+      "horizontal-disabled-1.5",
+      "horizontal-fitting-1.5",
+      "horizontal-normal-1.75",
+      "horizontal-disabled-1.75",
+      "horizontal-fitting-1.75",
+      "horizontal-normal-2",
+      "horizontal-disabled-2",
+      "horizontal-fitting-2"
+    ]
+  },
+  "popup_native_callback_trace": {
+    "passed": true,
+    "native_controls": 1,
+    "native_destructions": 1,
+    "native_value_changed_actions": 2,
+    "keyboard_selection": 3,
+    "mouse_selection": 4,
+    "native_presses": 1,
+    "native_releases": 1,
+    "model_updates": 4
+  },
+  "existing_chromium_regressions": {
+    "slider": {
+      "assertions": 50,
+      "result_sha256": "12742d1c0e9486e3b157429456d98c3bbf4cb6c962fbaf05b43b19315d03ad0c"
+    },
+    "input": {
+      "assertions": 62,
+      "result_sha256": "3ed3d7cbc81eb9a5975961547ba0ca824266dfbf7f5dcea7108e327b85fc4301"
+    },
+    "mouse": {
+      "assertions": 33,
+      "result_sha256": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17"
+    },
+    "progress": {
+      "assertions": 20,
+      "result_sha256": "7390c86b3f8ff0607aa7463c2b86d02e3c9c3025c1b07519b6e3913fb323fff5"
+    },
+    "animation": {
+      "assertions": 59,
+      "result_sha256": "2d225c35d2afe9813a480027c4ffaf79fba7d60166b0b7f57fd6b25e8bea7e88"
+    },
+    "scrollbar": {
+      "assertions": 8,
+      "result_sha256": "70a7d088253e2c4cfaa35326d8153fe1cce6c6c49e829c7b6d05107bdbc6bfd1"
+    }
+  },
+  "browser_pin": {
+    "package": "chromium 156.0.8078.79-1~deb13u1 ARM64",
+    "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "source_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0"
+  },
+  "limitations": [
+    "No HTML select, browser menu, Firefox/Gecko, or derivative frontend adapter is implemented by this step.",
+    "Native menu windows have no browser parent and compositor placement can differ from requested native anchor coordinates.",
+    "Application identity, browser command routing, submenus, touch, accessibility, multiple outputs and scales remain unqualified.",
+    "One earlier initial popup configure RPC timed out; later complete provider/transport and compatibility runs passed. Its cause remains unresolved; helper backtrace capture was added.",
+    "Existing earlier progress/scrollbar first-frame fallback observations remain unresolved.",
+    "The 200 ms idle helper CPU sample does not establish general performance, latency or failure recovery."
+  ],
+  "external_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSPopUpButton.m",
+      "sha256": "7fc45bba7270f525e80c07948597dba07ba6e7a21440c69ac87abc0f85c7324f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSPopUpButtonCell.m",
+      "sha256": "fa4f07c83c57a6d86f355c119eee34ec13225d1b31b08223efc4af2701074b7d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSMenu.m",
+      "sha256": "db15ecc3067c18bea86a64e071b721ffb8a50b76189ed999e6bb99c50add0b3a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSMenuView.m",
+      "sha256": "f46ad3734a4cfdf5d7ae9af67011c9515f12427df54da6b55b8ade532e7c0933"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-base/6307e474dd39e36eb2c5f6ee15ade8b51e337970/Source/NSRunLoop.m",
+      "sha256": "ae41af8771ee64a000cec00e2239a7ea6ba5c6b0de429970c7ee299ba9a2860b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-base/6307e474dd39e36eb2c5f6ee15ade8b51e337970/Headers/Foundation/NSRunLoop.h",
+      "sha256": "33b45a21bf4cd685bdf8ea27500640d3937d4f6a00d9636e4d527187d39d732b"
+    }
+  ],
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/build.py": "300498443495e468353bb0d67855c7a344ee78bb1db3d118b798a976ab1f7db4",
+    "Experiments/ChromiumScrollers/check-animation-trace.py": "28331497b8a8b9ad2fe89acca9a7c43370ac73669932d7274e462b136efaa448",
+    "Experiments/ChromiumScrollers/check-animation.py": "aee393277b2cb5748535499508535b58efcc261023ba5b318dea5e5283de5390",
+    "Experiments/ChromiumScrollers/check-control-animation.py": "02180016b5973bd5643c5b5782a14e2d64d47cf99606d55788537ba91ddc6ac2",
+    "Experiments/ChromiumScrollers/check-control-input.py": "bdd233b6d552c50baa9dfba585fa2bcac25066f8849f77431c78a38b4d0d215b",
+    "Experiments/ChromiumScrollers/check-control-popup.py": "4e6d2a9c0235a31cb80ed54e85e42dcb9d35624871c207a17582ae8bbbf80849",
+    "Experiments/ChromiumScrollers/check-control-transport.py": "cc9b77f272bb1ff43874fd6d6cacf713c7e05090c72b13e2dfce91211395c0f4",
+    "Experiments/ChromiumScrollers/check-disabled.py": "0ae4a1dea929e038b850006ef13a8a72b58d6a2e9539816f0b4a807b26072eb2",
+    "Experiments/ChromiumScrollers/check-form-input-trace.py": "5baa2af43ca042eeee7634e7d0f70e4a49ad23c002a9cfd9da1d3cc7956b25db",
+    "Experiments/ChromiumScrollers/check-form-input.py": "69057ab10795d7c7c7d293b25f4d6caa09c1155c2ade7df5fe2517276448fee4",
+    "Experiments/ChromiumScrollers/check-form-trace.py": "ccedfe2ecde062586a36029b56d88104dc656672552457220b860a7e179d83b4",
+    "Experiments/ChromiumScrollers/check-forms.py": "15e8efea64f92b3307828b494c14d11719df8b5e4502b1435b1c0079466129f5",
+    "Experiments/ChromiumScrollers/check-popup-trace.py": "adcbb51242a1b82d1dd42981a064c5b22b5cd2c5cf43cee460bb8c0a17862a79",
+    "Experiments/ChromiumScrollers/check-progress-trace.py": "bb12d58697f805c92b33bd3bd0596ebf7748716e7c048c71b802773fe1625297",
+    "Experiments/ChromiumScrollers/check-progress.py": "a7010c77e1e60aa25a1e1f61eb1453fc09765a211ebe57a36a01a268a11e2c7e",
+    "Experiments/ChromiumScrollers/check-slider-trace.py": "336a23a01a4afbba172b8cf0d40b2e4807216264c129ff35da5e8b859fc60f2f",
+    "Experiments/ChromiumScrollers/check-sliders.py": "45151fc9fe4f33e6d3f2dd75f1022c272de7f441698fe998800564979e04872c",
+    "Experiments/ChromiumScrollers/forms-input.inc": "35ef1f41be9d066e2b5e62ded554b01c27f9cc3bc9c81e7a45bc354df1805d84",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "38ff95688f7162824525949eb087c3677b26290d804ca06edf33561c2a4c94db",
+    "Experiments/ChromiumScrollers/forms-sliders.inc": "1dc21f1ae6380dc3bbebc393e0d588cf95c9d2282a7e40148c8abe34ffc56704",
+    "Experiments/ChromiumScrollers/forms.inc": "8f77d41c831e6600d80113c88d00375d364ae2ef21c829f4b37c6ed32b176104",
+    "Experiments/ChromiumScrollers/helper.py": "d73e55103c8aaa9b3e7c8bbf9279510849003f4229da43a4116ce60f520155a0",
+    "Experiments/ChromiumScrollers/hook.c": "dafbd9dae30fe27db27437664c6a0b0aa6e043c9550d8c3b17f8fa7b474d5ca0",
+    "Experiments/ChromiumScrollers/input.inc": "711cc9bb3a6484a486d1d5e1b3e8c3e50cc14552a234e49ad027f0aa24329a8f",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "ad9369a020c39fe7b0b1eca951c2035bb46b30b8c8ca895e8112d43bc67e4269",
+    "Experiments/ChromiumScrollers/native-reference.py": "c42c2c1f19be0a25c1d60a8bad3ee89ba45834ea7dd64da5b2cca9e00ee8224e",
+    "Experiments/ChromiumScrollers/native_controls.py": "7522388305e612103db274cc521319c364a9f7ada945beb7cd94bacbbd154d12",
+    "Experiments/ChromiumScrollers/pinned-form-input.h": "83d385bf4935ee57b666633a9ef9837870acd987bf1da948bfe835cfcd29b339",
+    "Experiments/ChromiumScrollers/pinned-forms.h": "b810e391b07737ff19e1e70f3ed1b6ac77a5cf74b8feb35962a0df39f0ed40d6",
+    "Experiments/ChromiumScrollers/pinned-input.h": "4d63e4502f21ee0c7a8ad11dac2fccaa3970eb154ec9f38546514c75f84b4f2a",
+    "Experiments/ChromiumScrollers/pinned-progress.h": "b49d27bb426e8c8eb7d079bc1b3e2f155de071775c77f4b716d7e57543eb103c",
+    "Experiments/ChromiumScrollers/pinned-sliders.h": "1c63b85d9e23fc981522a2c2c9589f618b9fe3dca25a2e13dcaec271dd06de25",
+    "Experiments/ChromiumScrollers/protocol.h": "6b8537a264dec89984d95a3dc3531e12ae4454f9b8ca2817472b8b8477890ace",
+    "Experiments/ChromiumScrollers/run.py": "24dd728ee6768e67a6026e153a5d9fa546614347ee7f9534e16fd501e06bd8b1",
+    "Experiments/ChromiumScrollers/test-animation.html": "fefe1bb41e1dd1036f8dc3aae5d951cc684f4089d89b3571ce13d945313238a3",
+    "Experiments/ChromiumScrollers/test-forms.html": "99c4c9aece6447fd32e8e8885b8057b779c93c39ea9d3d30d4ea9e980f243274",
+    "Experiments/ChromiumScrollers/test-page.html": "1df2bdb8ea38c67f3bed40333bf0456b106ef8b89cff9ff95b38944510a4fa0d",
+    "Experiments/ChromiumScrollers/test-progress.html": "acd39d8254b91f3e222fe6503875dbd92abcbabffde47ce5d04286418d588b37",
+    "Experiments/ChromiumScrollers/test-sliders.html": "8d8243948a79c0ae00163a5d94dad7e636f58866b4d248470231bb2d383586a5",
+    "Libraries/NativeUI/CMakeLists.txt": "1b0ada52c266a12707af8d7a7405af70f36797a3376255d09dcaf8557eee149b",
+    "Libraries/NativeUI/GNUstep/Controls.m": "550506e16085d548336c7f80b63bca940414f061d627268ddc701e8bc8f3e3bc",
+    "Libraries/NativeUI/GNUstep/EventSource.m": "cc0406b12333ac4aa6a264470dd83d5019cf0a5cb9694643a2cffbadda929610",
+    "Libraries/NativeUI/GNUstep/Provider.h": "07653e0c38408b086998b1b1ea6599fa8b811bda1916a2f4ef4fb265912dcd54",
+    "Libraries/NativeUI/GNUstep/Provider.m": "de8d5f3cd2f4ffbc8d5908bc1ee45b40c0d30fc8c519fe233133a9fac9917671",
+    "Libraries/NativeUI/GNUstep/Scroller.m": "4057efd6897eaf7e9d3139169ef137d67fcbd94a882757364ecaa4062d6d3cc7",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "da702a9aba126215d67f5b7b2c6e1de145625b09a680858ae0fe8860978a6c05",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "4387e2fea316a0566fbb13d273c31ca16960d4d7d69016c25fdd4ec3415626b3",
+    "Libraries/NativeUI/Loader.c": "647c418b0290e4a6770ac8969c5bf06e35daf0986fef212afb2b93c2d038b810",
+    "Libraries/NativeUI/NativeUI.h": "c27c1146ee760988f11f3da5f98d3659e6b345dbc3e0bcb1808c47934eab623e",
+    "Tests/NativeUI/animation-probe.c": "c4d3917b93a0592321f4b4d0627d457d0b21d4624fb30a7638777f1ec8aabd38",
+    "Tests/NativeUI/input-probe.c": "94f15b50e42f14daef198c68ee2262f54b9e3952790851e9986c3d36cafbebc5",
+    "Tests/NativeUI/popup-probe.m": "a34ffd53f8dddd23a6cc4504a534a34d18210bff779f4a3c05cd2b862bae33c3",
+    "Tests/NativeUI/provider-relay.c": "df6b055a36c0c49b1bd0469abf8e272373edb0eda974f3cfff4ba129d43a5e92",
+    "Tests/NativeUI/range-probe.c": "a3dcc0ac54b3bb65876c98d5c2274adc1769138c5b6d380da45430a959dcb07b",
+    "Tests/NativeUI/run.py": "0dda7b4ced6c8d2bfe34a7c964fa5f9350c62347ebbb295d10b3c6ed26cd9c4a"
+  },
+  "evidence_sha256": {
+    ".build/native-ui/popup-browser/animation-regression/first-0.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/first-1.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/first-2.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/popup-browser/animation-regression/first-3.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/popup-browser/animation-regression/first-4.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/popup-browser/animation-regression/first-5.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/popup-browser/animation-regression/first-6.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/popup-browser/animation-regression/first-7.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/popup-browser/animation-regression/new-control-0.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/popup-browser/animation-regression/new-control-1.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/popup-browser/animation-regression/new-control-2.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/popup-browser/animation-regression/new-control-3.png": "9f7a51f7b8842f7b6d280c6632616d7e77484621cef757bb8762478e458f1685",
+    ".build/native-ui/popup-browser/animation-regression/new-control-4.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/popup-browser/animation-regression/new-control-5.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/popup-browser/animation-regression/new-control-6.png": "4867bf493e742ab5da07b3cbab9d755836263fe4bbf41790b9588118a038042c",
+    ".build/native-ui/popup-browser/animation-regression/new-control-7.png": "b410c17243bf562173ff91b1b7429f3b54bab38035c3bb80e49300106acd09fa",
+    ".build/native-ui/popup-browser/animation-regression/only-static-after.png": "508f2ceac5a62718174917b08175bc84e751deda972c723c797392cbb74f336f",
+    ".build/native-ui/popup-browser/animation-regression/only-static-before.png": "508f2ceac5a62718174917b08175bc84e751deda972c723c797392cbb74f336f",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-0.png": "a1f959701ad382a8f22c1611db6e16f60dcd7844e52d7f5fab31140cd2adfe2a",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-1.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-2.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-3.png": "1390c2a91233dcc8325ac7fd5fea3e8643f3fc902bd44c6de192fabccf59576e",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-4.png": "a1f959701ad382a8f22c1611db6e16f60dcd7844e52d7f5fab31140cd2adfe2a",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-5.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-6.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/popup-browser/animation-regression/reinserted-7.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-0.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-1.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-2.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-3.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-4.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-5.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-6.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/reloaded-7.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/popup-browser/animation-regression/restarted-0.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/popup-browser/animation-regression/restarted-1.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/restarted-2.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/popup-browser/animation-regression/restarted-3.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/popup-browser/animation-regression/restarted-4.png": "1390c2a91233dcc8325ac7fd5fea3e8643f3fc902bd44c6de192fabccf59576e",
+    ".build/native-ui/popup-browser/animation-regression/restarted-5.png": "a1f959701ad382a8f22c1611db6e16f60dcd7844e52d7f5fab31140cd2adfe2a",
+    ".build/native-ui/popup-browser/animation-regression/restarted-6.png": "620ef7db851bb58becebcdb679babd5ca58c7789b51e3b670276d396cb17ff5f",
+    ".build/native-ui/popup-browser/animation-regression/restarted-7.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/results.json": "2d225c35d2afe9813a480027c4ffaf79fba7d60166b0b7f57fd6b25e8bea7e88",
+    ".build/native-ui/popup-browser/animation-regression/second-0.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/popup-browser/animation-regression/second-1.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/popup-browser/animation-regression/second-2.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/second-3.png": "5947932e3e2eee9724fb508dd1f04d625c4aec36b50a82593395cabd7ef9f2df",
+    ".build/native-ui/popup-browser/animation-regression/second-4.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/popup-browser/animation-regression/second-5.png": "0a528b84db4f02d4c2f135b4995d7ffeaed17605682961c1cc5cb18a4f03e098",
+    ".build/native-ui/popup-browser/animation-regression/second-6.png": "62df81a5f199f2401d9bf1a060bfcea96b534f6d834d48507f5a03ac43ee6868",
+    ".build/native-ui/popup-browser/animation-regression/second-7.png": "750b91b920524c0927be92d9c1371cf3b6bd0b70b95c119706b7fd64e5091922",
+    ".build/native-ui/popup-browser/animation-regression/static-after.png": "3ff41b9c883eed78213fd838a92b21386bd62fa98bcba2a780f698559ada23f1",
+    ".build/native-ui/popup-browser/animation-regression/static-before.png": "67e1b69ef86d43b92a215a8e82b9080c1af109a1ac7925673158b8dd87fab085",
+    ".build/native-ui/popup-browser/animation-regression/stopped-after.png": "634596d71afe5a1b733c5a27f753bcce5dc2e1f3029acc3ea98cf45cf74d6c98",
+    ".build/native-ui/popup-browser/animation-regression/stopped-before.png": "d8aff8f8ec809759af5bbe3ac36eaceca978b1e6fb8570fb029b32199947035d",
+    ".build/native-ui/popup-browser/environment.json": "18b977e47d085ffa1f031e3115481064a84ee52b6d025e4454e99b853facd0d1",
+    ".build/native-ui/popup-browser/input-regression/button-focused.png": "1de5ebd0aac1e5cb21b1d55cbbbeed00dd826ac2662241d6d3f56fc150c45c4b",
+    ".build/native-ui/popup-browser/input-regression/button-pressed.png": "9401fff5fe12927cd976312288da111bb09fcf149a09f2acebd6259c8c1ca105",
+    ".build/native-ui/popup-browser/input-regression/cancelled-checkbox.png": "64acb0639dbf2dfdb275d97554fb396dfb1b45992f4fcf6bee01e379e5e4ca9f",
+    ".build/native-ui/popup-browser/input-regression/cancelled-focused.png": "1f87edb5c1e9104385a2c8ba772087a374c7fc79255508360640af23401c0e3c",
+    ".build/native-ui/popup-browser/input-regression/check-focused.png": "3c248b9378d30900017b1cd1fbf5d59af23a1bb387b56fc1d09e3435d9455a24",
+    ".build/native-ui/popup-browser/input-regression/check-pressed.png": "75d88b11d806b72195fb61cf4bde85027b7ac62dba36d2fb4eadedd36c07d769",
+    ".build/native-ui/popup-browser/input-regression/input-button-focused.png": "5e6e638a4bd00301e183f1baff7d67307af71bbd1f723b212aea3f67b0fe9960",
+    ".build/native-ui/popup-browser/input-regression/large-focused.png": "de9cf53c39792d5158c92b4f36f409b48e3af058715ee97c2081eae9e27971a4",
+    ".build/native-ui/popup-browser/input-regression/mixed-focused.png": "a0b4e9244b93a9ffd667cfc1c2ec9bf37fb3c93f6eeafd29ce83e8624a469294",
+    ".build/native-ui/popup-browser/input-regression/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/native-ui/popup-browser/input-regression/radio-a-focused.png": "f0f6fa7c316c44bddf5ef1d260090b0874bfd6ba83ac7201f2bc644f3bf6a603",
+    ".build/native-ui/popup-browser/input-regression/radio-a-pressed.png": "d91633887ed9835aa28cc0a80b3222e2d83e7f9b357015f14b092699e1b6f77e",
+    ".build/native-ui/popup-browser/input-regression/radio-b-focused.png": "aebfcf437a647b3c72fea7eb6ef29c6f87262a60bf37bf76911bdf60d2261756",
+    ".build/native-ui/popup-browser/input-regression/results.json": "3ed3d7cbc81eb9a5975961547ba0ca824266dfbf7f5dcea7108e327b85fc4301",
+    ".build/native-ui/popup-browser/mouse-regression/button-pressed.png": "9401fff5fe12927cd976312288da111bb09fcf149a09f2acebd6259c8c1ca105",
+    ".build/native-ui/popup-browser/mouse-regression/check-pressed.png": "75d88b11d806b72195fb61cf4bde85027b7ac62dba36d2fb4eadedd36c07d769",
+    ".build/native-ui/popup-browser/mouse-regression/normal.png": "4a7c8976603ed73bbf696744cbd8bfdcc66284c31ffb9c198276e3bdf5ed3597",
+    ".build/native-ui/popup-browser/mouse-regression/radio-a-pressed.png": "d91633887ed9835aa28cc0a80b3222e2d83e7f9b357015f14b092699e1b6f77e",
+    ".build/native-ui/popup-browser/mouse-regression/results.json": "ab24d389841c6235db182cb85a606feeab269ee687a9529b701c75da65796a17",
+    ".build/native-ui/popup-browser/popup-cleanup.json": "861a8bea32c8482b8655821d6c563ca78aaf1752c3607fae9d0ffc3245d72b72",
+    ".build/native-ui/popup-browser/progress-regression/determinate-restored.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/popup-browser/progress-regression/initial-clamped.png": "b961c72f3e9672c7f5918be317c4bf9d5b00614810406f64857a5ad21d0b7337",
+    ".build/native-ui/popup-browser/progress-regression/initial-default-max.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/popup-browser/progress-regression/initial-full.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/popup-browser/progress-regression/initial-invalid-max.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/popup-browser/progress-regression/initial-invalid-value.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/popup-browser/progress-regression/initial-negative.png": "b961c72f3e9672c7f5918be317c4bf9d5b00614810406f64857a5ad21d0b7337",
+    ".build/native-ui/popup-browser/progress-regression/initial-partial.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/popup-browser/progress-regression/initial-zero.png": "b961c72f3e9672c7f5918be317c4bf9d5b00614810406f64857a5ad21d0b7337",
+    ".build/native-ui/popup-browser/progress-regression/maximum-update.png": "aaeb7cad2eafc41c98254f8dd823890b2fa951c1b29f31e217462305499b61b8",
+    ".build/native-ui/popup-browser/progress-regression/native-new-element.png": "69cc3c6ed02761ede6a148be2e076e5b03dff99578ed8e8bc7a37e6272261927",
+    ".build/native-ui/popup-browser/progress-regression/native-reinsert.png": "b0bd56a0fccaa5f9436397a69c729d346ee8a6db208ab062b366323e7acacc00",
+    ".build/native-ui/popup-browser/progress-regression/native-resize.png": "ff258e10f72acc4440b82a16b0bbf9c73464d99369f88d711b2448f2f55dbeec",
+    ".build/native-ui/popup-browser/progress-regression/reload-first-control.png": "1959a67ee61f0a39e4716be164d476d859d6952f29f8f81517c83cf32374c9fd",
+    ".build/native-ui/popup-browser/progress-regression/reload-value.png": "c9a5e4544429221ad4c1344f66aa98796de0e381f184ea2d6f485af52ba1619a",
+    ".build/native-ui/popup-browser/progress-regression/results.json": "7390c86b3f8ff0607aa7463c2b86d02e3c9c3025c1b07519b6e3913fb323fff5",
+    ".build/native-ui/popup-browser/progress-regression/value-update.png": "d52e8873037320fb406333ae2bbed17dc7afc5163da9a7e1b8d9052eeec48d3d",
+    ".build/native-ui/popup-browser/scrollbar-regression/empty.png": "d755c76d49703dc1b6c637c6c38e151500c820b414c9cc5314555be177192f67",
+    ".build/native-ui/popup-browser/scrollbar-regression/fitting-again.png": "330670de19b8c0b763c86ebb88c8517ee26e250d2031ef49e7d032d16b616a0f",
+    ".build/native-ui/popup-browser/scrollbar-regression/fitting.png": "330670de19b8c0b763c86ebb88c8517ee26e250d2031ef49e7d032d16b616a0f",
+    ".build/native-ui/popup-browser/scrollbar-regression/overflowing.png": "23304e152d8d3b0692d2213dfb4a64281debe6e16923dcc5bd618d9a2c2953ae",
+    ".build/native-ui/popup-browser/scrollbar-regression/results.json": "70a7d088253e2c4cfaa35326d8153fe1cce6c6c49e829c7b6d05107bdbc6bfd1",
+    ".build/native-ui/popup-browser/slider-regression/coarse-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/coarse-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/custom-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/custom-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/disabled-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/range-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/range-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/results.json": "12742d1c0e9486e3b157429456d98c3bbf4cb6c962fbaf05b43b19315d03ad0c",
+    ".build/native-ui/popup-browser/slider-regression/vertical-focused.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-browser/slider-regression/vertical-normal.png": "2a77f53a1c53f7d37e43cb633781780fdc7a06df47352bb50d8daaae42078742",
+    ".build/native-ui/popup-failures/helper.jsonl": "109f514b25a081152062bd05d48b20e4568e6c5991b102504de722274c377d86",
+    ".build/native-ui/popup-failures/popup-transport.stderr": "45a7e5bd657a08e56b04243786e04534f90b3d9f8682f67180eda6a74afe3c3c",
+    ".build/native-ui/popup-provider-final/animation-00.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/animation-00.png": "3f577aac01fc68e9398e43850b699ef14e7c1bd6d579ef4a928c41d2643e426e",
+    ".build/native-ui/popup-provider-final/animation-01.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/animation-01.png": "6de153933e0e4ce59c183dce5f84481366b2ac4ff5ed066cefe3fee0935e930f",
+    ".build/native-ui/popup-provider-final/animation-02.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/animation-02.png": "dff751e98a87648fc9bf6bdd8f9c371f80427b3b063d2588156b7c4f71826865",
+    ".build/native-ui/popup-provider-final/animation-03.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/animation-03.png": "3f577aac01fc68e9398e43850b699ef14e7c1bd6d579ef4a928c41d2643e426e",
+    ".build/native-ui/popup-provider-final/animation-04.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/animation-04.png": "6de153933e0e4ce59c183dce5f84481366b2ac4ff5ed066cefe3fee0935e930f",
+    ".build/native-ui/popup-provider-final/animation-05.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/animation-05.png": "dff751e98a87648fc9bf6bdd8f9c371f80427b3b063d2588156b7c4f71826865",
+    ".build/native-ui/popup-provider-final/animation-06.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/animation-06.png": "3f577aac01fc68e9398e43850b699ef14e7c1bd6d579ef4a928c41d2643e426e",
+    ".build/native-ui/popup-provider-final/animation-07.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/animation-07.png": "6de153933e0e4ce59c183dce5f84481366b2ac4ff5ed066cefe3fee0935e930f",
+    ".build/native-ui/popup-provider-final/animation-08.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/animation-08.png": "dff751e98a87648fc9bf6bdd8f9c371f80427b3b063d2588156b7c4f71826865",
+    ".build/native-ui/popup-provider-final/animation-09.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/animation-09.png": "3f577aac01fc68e9398e43850b699ef14e7c1bd6d579ef4a928c41d2643e426e",
+    ".build/native-ui/popup-provider-final/animation-10.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/animation-10.png": "6de153933e0e4ce59c183dce5f84481366b2ac4ff5ed066cefe3fee0935e930f",
+    ".build/native-ui/popup-provider-final/animation-11.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/animation-11.png": "dff751e98a87648fc9bf6bdd8f9c371f80427b3b063d2588156b7c4f71826865",
+    ".build/native-ui/popup-provider-final/animation-12.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/animation-12.png": "3f577aac01fc68e9398e43850b699ef14e7c1bd6d579ef4a928c41d2643e426e",
+    ".build/native-ui/popup-provider-final/animation.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/animation.stdout": "4ac334cf7e4e7d002bea3f2dafa26f13348dbf612a483776ccf50d9896ace2f2",
+    ".build/native-ui/popup-provider-final/controls.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/controls.stdout": "6dd2ec9f234229cff4abd2857a9f9c2e284b8931e88d830858bf5e202ef8a2c1",
+    ".build/native-ui/popup-provider-final/helper.jsonl": "28b976128d4561f05b5692da1a6f5168f04b502f04f23921ba27fff2b3b410d2",
+    ".build/native-ui/popup-provider-final/helper.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1-baseline.argb": "7bdba540596fab310b381c4be41562cd39870740ef1861bc0c522f4372e69706",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1-provider.argb": "7bdba540596fab310b381c4be41562cd39870740ef1861bc0c522f4372e69706",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1.25-baseline.argb": "055227b6a562b8291cd877721729c90500b5c1e2e6336d5c168ebb857e70b2ac",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1.25-provider.argb": "055227b6a562b8291cd877721729c90500b5c1e2e6336d5c168ebb857e70b2ac",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1.5-baseline.argb": "092e3a8f80165579ac41127f49c754caea0558c47d9490ba1f345cb1780bb0dd",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1.5-provider.argb": "092e3a8f80165579ac41127f49c754caea0558c47d9490ba1f345cb1780bb0dd",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1.75-baseline.argb": "6df6971f2da819bd530c079755476adc029909f4b82e1e58282551fc07036c34",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-1.75-provider.argb": "6df6971f2da819bd530c079755476adc029909f4b82e1e58282551fc07036c34",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-2-baseline.argb": "d80c1bd1262f5f61b5fb60864d400e1a5d2ef0dda4243a93b7835ee966a401bf",
+    ".build/native-ui/popup-provider-final/horizontal-disabled-2-provider.argb": "d80c1bd1262f5f61b5fb60864d400e1a5d2ef0dda4243a93b7835ee966a401bf",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1-baseline.argb": "7bdba540596fab310b381c4be41562cd39870740ef1861bc0c522f4372e69706",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1-provider.argb": "7bdba540596fab310b381c4be41562cd39870740ef1861bc0c522f4372e69706",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1.25-baseline.argb": "055227b6a562b8291cd877721729c90500b5c1e2e6336d5c168ebb857e70b2ac",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1.25-provider.argb": "055227b6a562b8291cd877721729c90500b5c1e2e6336d5c168ebb857e70b2ac",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1.5-baseline.argb": "092e3a8f80165579ac41127f49c754caea0558c47d9490ba1f345cb1780bb0dd",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1.5-provider.argb": "092e3a8f80165579ac41127f49c754caea0558c47d9490ba1f345cb1780bb0dd",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1.75-baseline.argb": "6df6971f2da819bd530c079755476adc029909f4b82e1e58282551fc07036c34",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-1.75-provider.argb": "6df6971f2da819bd530c079755476adc029909f4b82e1e58282551fc07036c34",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-2-baseline.argb": "d80c1bd1262f5f61b5fb60864d400e1a5d2ef0dda4243a93b7835ee966a401bf",
+    ".build/native-ui/popup-provider-final/horizontal-fitting-2-provider.argb": "d80c1bd1262f5f61b5fb60864d400e1a5d2ef0dda4243a93b7835ee966a401bf",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1-baseline.argb": "c41d7d8cb9be7338ff1d428e57ccdbb7bf5ffd0b37de3c27b398ae7dab1ff847",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1-provider.argb": "c41d7d8cb9be7338ff1d428e57ccdbb7bf5ffd0b37de3c27b398ae7dab1ff847",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1.25-baseline.argb": "e5ff71669ee7b06096def537affd16741de60f8e09800509951a899fb31982ec",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1.25-provider.argb": "e5ff71669ee7b06096def537affd16741de60f8e09800509951a899fb31982ec",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1.5-baseline.argb": "a3ef916beab9b6e3e3df8c1f62899d748948fd6a1c668208eae095ff8abe2e3c",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1.5-provider.argb": "a3ef916beab9b6e3e3df8c1f62899d748948fd6a1c668208eae095ff8abe2e3c",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1.75-baseline.argb": "110f9df57c2370a4cafd60cd2f181515309c110514ce23cf55315a7d882dd898",
+    ".build/native-ui/popup-provider-final/horizontal-normal-1.75-provider.argb": "110f9df57c2370a4cafd60cd2f181515309c110514ce23cf55315a7d882dd898",
+    ".build/native-ui/popup-provider-final/horizontal-normal-2-baseline.argb": "002681e45b6dba74798eb2a866158df1eb96269736a36d6ae90a9723bb1d1dbf",
+    ".build/native-ui/popup-provider-final/horizontal-normal-2-provider.argb": "002681e45b6dba74798eb2a866158df1eb96269736a36d6ae90a9723bb1d1dbf",
+    ".build/native-ui/popup-provider-final/input-kind-1-focused.argb": "cafb8c650eb64d8252ef03ef8d8140be38d82173b4e8ac3f5b5191ba40e7653b",
+    ".build/native-ui/popup-provider-final/input-kind-1-focused.png": "e8c55fd51a4e512242eba16fb6401afb03b24c672d10b526d5a6a4bb69c903f4",
+    ".build/native-ui/popup-provider-final/input-kind-1-normal.argb": "a19ec0e37622080ad983091cb77ccc00b52b11adc35ab838bf77f60631796f80",
+    ".build/native-ui/popup-provider-final/input-kind-1-normal.png": "c3c94fe5d8f4e76cd92020a0ec980ae22db21cfa7c3b58722c0469e9003489f1",
+    ".build/native-ui/popup-provider-final/input-kind-2-focused.argb": "1035eae82ebfa559af4848d230cdcbd732e36ce68b7effc836d8fb8a19494f2f",
+    ".build/native-ui/popup-provider-final/input-kind-2-focused.png": "229e42c367c539cd8e3089b52d8ba9953ca6c56d5cf190f7dcc54badf7090596",
+    ".build/native-ui/popup-provider-final/input-kind-2-normal.argb": "da1d31c6fad52359ecbd0e86927ec5b72832d2f039c2db4648f1b3c22cae5c73",
+    ".build/native-ui/popup-provider-final/input-kind-2-normal.png": "a81759685902e9e5309eba10628c501b00009a35b3157f5cccc8cc02636ee4a8",
+    ".build/native-ui/popup-provider-final/input-kind-3-focused.argb": "0f61268c118de717eedb207b730c3075e336c37b030c63a3d99f2f4279da911d",
+    ".build/native-ui/popup-provider-final/input-kind-3-focused.png": "14c1ea8d0c4af8c53e5fde17c0fc3c7df3044c492696128b30181b051eb5b125",
+    ".build/native-ui/popup-provider-final/input-kind-3-normal.argb": "460fbb25801b760ddd4ea46ee03af0629ce526ff1c23808d7178bfb7be09e8b7",
+    ".build/native-ui/popup-provider-final/input-kind-3-normal.png": "85052441d018483215ad773b9404d1b47821bbcfd562bf5256672b5e16a6bf41",
+    ".build/native-ui/popup-provider-final/input-kind-4-focused.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/input-kind-4-focused.png": "ef46a4f887ef52d461abc35c33e4a4439829c630a813d47c67a1f3afd7204c36",
+    ".build/native-ui/popup-provider-final/input-kind-4-normal.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/input-kind-4-normal.png": "ef46a4f887ef52d461abc35c33e4a4439829c630a813d47c67a1f3afd7204c36",
+    ".build/native-ui/popup-provider-final/input.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/input.stdout": "d7eed2d9f735af363b66091c36bdad90bce63f256466a81162f058899cf4a266",
+    ".build/native-ui/popup-provider-final/kind-1-150.argb": "795461581acf86cd0c7e34d7888a58a0bc03f25ceec4ec0f964aa6ddb2d61301",
+    ".build/native-ui/popup-provider-final/kind-1-150.png": "9d69e2ffbd569821779cf21a6ca6b92b0414d93aa9e173fc457be257cc7164b0",
+    ".build/native-ui/popup-provider-final/kind-1-disabled.argb": "e4cca51d24c74fa86c060c08594f53da607d211295db930a49ab96048d96fe0d",
+    ".build/native-ui/popup-provider-final/kind-1-disabled.png": "33bed77dc7762401925cf22f8c7e56defee5831c721d88c54c6cfe2e6c8dac1f",
+    ".build/native-ui/popup-provider-final/kind-1-normal.argb": "99e083075373f733a95b63398ed770b3bee18d461d52dc4acf125ab9dae744c7",
+    ".build/native-ui/popup-provider-final/kind-1-normal.png": "9e56291fa76e18fc59d65194dd40540408b05347b6c8d839cf579759a8654009",
+    ".build/native-ui/popup-provider-final/kind-1-pressed.argb": "2187373c249fd22bd7878cf16decf5bb7b5f1ffa6dcbf60a8a4c5368f74f744c",
+    ".build/native-ui/popup-provider-final/kind-1-pressed.png": "c71a01af9060b7e493fed6278c3f8fd61533f11dcd4093d7b7974a5ac7436c2e",
+    ".build/native-ui/popup-provider-final/kind-2-150.argb": "176ecc9aedd4e8f4152d0f33ce806eb1f4bb72ea24893d94f75caf6d45a0b45f",
+    ".build/native-ui/popup-provider-final/kind-2-150.png": "5eadfcf10def33895574229b982583f33b46edde5634becd4408b70d5280ed8b",
+    ".build/native-ui/popup-provider-final/kind-2-disabled.argb": "4334f61546c3fa1ee37b13734745a660a63d8c20f5cee27806d3c92936d22b2a",
+    ".build/native-ui/popup-provider-final/kind-2-disabled.png": "4960c0050ef0bcedca0f2e8165ad195a0d094eb14e6bd603301805e6ab62666c",
+    ".build/native-ui/popup-provider-final/kind-2-normal.argb": "02189744378b74c4b9576f473c681849b5c5a3166f4c91390145e59a0418a1c8",
+    ".build/native-ui/popup-provider-final/kind-2-normal.png": "c876a64bfa6ae1eef2f309130f17189f772c52637b6867b5eaff19e30aeeb17c",
+    ".build/native-ui/popup-provider-final/kind-2-pressed.argb": "d437347b5950b5e5cac99ca30941696b394544ea0a804abbff992b3de360452b",
+    ".build/native-ui/popup-provider-final/kind-2-pressed.png": "af38227e35a514b8d5217411e303bdf75789f81d416711697e46cc3a33ac84a6",
+    ".build/native-ui/popup-provider-final/kind-3-150.argb": "c2f39933d146e9d2ca175b30f4fa87748dd9c6c2f434bf7c8f56d5f1b74ed384",
+    ".build/native-ui/popup-provider-final/kind-3-150.png": "7036c26308798e4548f0c6c7dc93eb901c28371ce318ae5107f25539924ad245",
+    ".build/native-ui/popup-provider-final/kind-3-disabled.argb": "e97dc658baaee98531fb3d1f687b6fadd4fc97150574b133f52b26c536dbfc0d",
+    ".build/native-ui/popup-provider-final/kind-3-disabled.png": "4fa2a90324f632683370883442a9bdb163c662149e3b129256beca49bedf508a",
+    ".build/native-ui/popup-provider-final/kind-3-normal.argb": "4409eda6534183e1c3b52d6ad40aa99cbd2360099b9598aecce15add83173179",
+    ".build/native-ui/popup-provider-final/kind-3-normal.png": "64464a4ac67a2ee8183dfd679a2b2fb6672183c02c8f798aad32574823b35580",
+    ".build/native-ui/popup-provider-final/kind-3-pressed.argb": "483aeed72134e2c228b5b2742e1607b886439c6c4c03e1963d61a9f956284263",
+    ".build/native-ui/popup-provider-final/kind-3-pressed.png": "d2a2c1127268d10b3731f63879baa8fe3c1984fd50f1703591da0a9614896450",
+    ".build/native-ui/popup-provider-final/kind-4-150.argb": "70ba4124d3371c08f7bd023eef4be6fc9c89d6499ede73a129ade63aff1a3453",
+    ".build/native-ui/popup-provider-final/kind-4-150.png": "ad1bce15993b373343f9b6536ae2a81af4c51336743105ce4a3ffca326bb6a40",
+    ".build/native-ui/popup-provider-final/kind-4-disabled.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/kind-4-disabled.png": "ef46a4f887ef52d461abc35c33e4a4439829c630a813d47c67a1f3afd7204c36",
+    ".build/native-ui/popup-provider-final/kind-4-normal.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/kind-4-normal.png": "ef46a4f887ef52d461abc35c33e4a4439829c630a813d47c67a1f3afd7204c36",
+    ".build/native-ui/popup-provider-final/kind-4-pressed.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/kind-4-pressed.png": "ef46a4f887ef52d461abc35c33e4a4439829c630a813d47c67a1f3afd7204c36",
+    ".build/native-ui/popup-provider-final/kind-5-150.argb": "6a45274e9c4dff0a4d317322e57512ed81c228a8eabc1e909745ddc4a5665f22",
+    ".build/native-ui/popup-provider-final/kind-5-150.png": "f2dad48e45db46cfddf17ebb84acc6459e6bd362b23149a5bcc994489d111623",
+    ".build/native-ui/popup-provider-final/kind-5-disabled.argb": "fc67c236cf4e11ee1d47895bbf18a0f4b77ed7bc7a92dbfa0d3d4ea775bfbdaf",
+    ".build/native-ui/popup-provider-final/kind-5-disabled.png": "2ae4009f67119e4d0cb87f038fe5686a5710cc5fc9e3d7673f8ff205acd69389",
+    ".build/native-ui/popup-provider-final/kind-5-normal.argb": "fc67c236cf4e11ee1d47895bbf18a0f4b77ed7bc7a92dbfa0d3d4ea775bfbdaf",
+    ".build/native-ui/popup-provider-final/kind-5-normal.png": "2ae4009f67119e4d0cb87f038fe5686a5710cc5fc9e3d7673f8ff205acd69389",
+    ".build/native-ui/popup-provider-final/legacy.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/legacy.stdout": "bd440c4f4b2ac9af7f20cae0ee7952cd5bd9e6fa8eb4561a0d71fae77ce15118",
+    ".build/native-ui/popup-provider-final/popup-150.argb": "a1746fe11ab841115878ea9690a2def961a63cc052202075e1849b2ef02933ce",
+    ".build/native-ui/popup-provider-final/popup-150.png": "86394365d14d75ac56c79626975f5d5cd246bc8db4a5a354d60460f322d73766",
+    ".build/native-ui/popup-provider-final/popup-disabled.argb": "732cd3992cdc68a45b8cc05e31ec54b6299e06293097bb30b1a5dc2bb34aa621",
+    ".build/native-ui/popup-provider-final/popup-disabled.png": "7b490de7529790d470a37fdc57c25a13956e2a51bcff12161727ef5f990a610a",
+    ".build/native-ui/popup-provider-final/popup-focused.argb": "d0789f481f6af27cbac9353aeb737e0c9b84188af8c7fe176b05b34f6f799f0f",
+    ".build/native-ui/popup-provider-final/popup-focused.png": "23b7320f2e589f4781df08b9685ec555952c3294c305ca68aac48aeebd569b28",
+    ".build/native-ui/popup-provider-final/popup-normal.argb": "34fec304a2e3ec147367b5191e5d7ab9ea407278ffba04da051f8381577d5876",
+    ".build/native-ui/popup-provider-final/popup-normal.png": "5c5511f3999adeebb95e53e0ada5ba74807e1b7f0c86cc507cdbfebce6202dd6",
+    ".build/native-ui/popup-provider-final/popup-popup-closed-windows.json": "936a353edf6006e13ea84a1b8c94095c79e8ea2c575f30ea5affa201885c734a",
+    ".build/native-ui/popup-provider-final/popup-popup-live-windows.json": "3ed1a0eb27bbf5c09b608c3bdddf25f9fe256c044dd583b86da59935508b4168",
+    ".build/native-ui/popup-provider-final/popup-trace.json": "def673c924fb83bbaaaff4ef31743d1bfa60ab989d6e4f993d430c5d10516130",
+    ".build/native-ui/popup-provider-final/popup-transport-popup-closed-windows.json": "9d5166c905454ba5e2294d88c209745ac2a9ff13da6def7416b0088426d58c8d",
+    ".build/native-ui/popup-provider-final/popup-transport-popup-live-windows.json": "442a776cfebce0c1d586232300840d720be6f8ce9920cdaaba9e0dff169806c2",
+    ".build/native-ui/popup-provider-final/popup-transport.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/popup-transport.stdout": "c07992effa894476abc97059db08977acb40e30330cf57c80f76f785f1eb2877",
+    ".build/native-ui/popup-provider-final/popup.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    ".build/native-ui/popup-provider-final/popup.stdout": "1ceb588b533337f2dedfd59132872021b799f253cefe158eaa772cdfbaf7a7b1",
+    ".build/native-ui/popup-provider-final/previous-client/kind-1-150.argb": "795461581acf86cd0c7e34d7888a58a0bc03f25ceec4ec0f964aa6ddb2d61301",
+    ".build/native-ui/popup-provider-final/previous-client/kind-1-disabled.argb": "e4cca51d24c74fa86c060c08594f53da607d211295db930a49ab96048d96fe0d",
+    ".build/native-ui/popup-provider-final/previous-client/kind-1-normal.argb": "99e083075373f733a95b63398ed770b3bee18d461d52dc4acf125ab9dae744c7",
+    ".build/native-ui/popup-provider-final/previous-client/kind-1-pressed.argb": "2187373c249fd22bd7878cf16decf5bb7b5f1ffa6dcbf60a8a4c5368f74f744c",
+    ".build/native-ui/popup-provider-final/previous-client/kind-2-150.argb": "176ecc9aedd4e8f4152d0f33ce806eb1f4bb72ea24893d94f75caf6d45a0b45f",
+    ".build/native-ui/popup-provider-final/previous-client/kind-2-disabled.argb": "4334f61546c3fa1ee37b13734745a660a63d8c20f5cee27806d3c92936d22b2a",
+    ".build/native-ui/popup-provider-final/previous-client/kind-2-normal.argb": "02189744378b74c4b9576f473c681849b5c5a3166f4c91390145e59a0418a1c8",
+    ".build/native-ui/popup-provider-final/previous-client/kind-2-pressed.argb": "d437347b5950b5e5cac99ca30941696b394544ea0a804abbff992b3de360452b",
+    ".build/native-ui/popup-provider-final/previous-client/kind-3-150.argb": "c2f39933d146e9d2ca175b30f4fa87748dd9c6c2f434bf7c8f56d5f1b74ed384",
+    ".build/native-ui/popup-provider-final/previous-client/kind-3-disabled.argb": "e97dc658baaee98531fb3d1f687b6fadd4fc97150574b133f52b26c536dbfc0d",
+    ".build/native-ui/popup-provider-final/previous-client/kind-3-normal.argb": "4409eda6534183e1c3b52d6ad40aa99cbd2360099b9598aecce15add83173179",
+    ".build/native-ui/popup-provider-final/previous-client/kind-3-pressed.argb": "483aeed72134e2c228b5b2742e1607b886439c6c4c03e1963d61a9f956284263",
+    ".build/native-ui/popup-provider-final/previous-client/kind-4-150.argb": "70ba4124d3371c08f7bd023eef4be6fc9c89d6499ede73a129ade63aff1a3453",
+    ".build/native-ui/popup-provider-final/previous-client/kind-4-disabled.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/previous-client/kind-4-normal.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/previous-client/kind-4-pressed.argb": "71b01c42f0eb2936c7a791547206c18c82659a570f7ea28875959938acb1e013",
+    ".build/native-ui/popup-provider-final/previous-client/kind-5-150.argb": "6a45274e9c4dff0a4d317322e57512ed81c228a8eabc1e909745ddc4a5665f22",
+    ".build/native-ui/popup-provider-final/previous-client/kind-5-disabled.argb": "fc67c236cf4e11ee1d47895bbf18a0f4b77ed7bc7a92dbfa0d3d4ea775bfbdaf",
+    ".build/native-ui/popup-provider-final/previous-client/kind-5-normal.argb": "fc67c236cf4e11ee1d47895bbf18a0f4b77ed7bc7a92dbfa0d3d4ea775bfbdaf",
+    ".build/native-ui/popup-provider-final/results.json": "f50781388ea6e1b45a548e2397f5892a2ba6cf01be09a3f6d3e8594e3d500dd0",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-01.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-02.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-03.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-04.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-05.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-06.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-07.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-08.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-09.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-10.argb": "46c050c80bcab947e5323a6fbb72ae724c9619e179edab546b944ff1fd4444e2",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-11.argb": "4f297aafac8afa996db19d2bfc7acfbb366a80818116bc54bcae4ea30e700b60",
+    ".build/native-ui/popup-provider-final/transport-animation/frame-12.argb": "1c32389f877746e533e5d312c0599707998cc03e3af91e06b6c5d15045383bdf",
+    ".build/native-ui/popup-provider-final/transport-animation/results.json": "7ab32d638356ca6f3da39951e5490ab3000510ecb72c407795c0a5c7a1be8cfe",
+    ".build/native-ui/popup-provider-final/transport-animation.stdout": "9d69099d0acd99b6e50e8dd1fd09d3d8115770ae0861026dfa6e4b1358445964",
+    ".build/native-ui/popup-provider-final/transport-input.json": "651a7b4599a1a93f607bb838533886fcda690884dd92340a65fe925bf9c251aa",
+    ".build/native-ui/popup-provider-final/transport-input.stdout": "37a84b09a2dfd80589b933077471b0f849101836695b11aa028d338f7c0ae41e",
+    ".build/native-ui/popup-provider-final/transport-popup/popup-focused.argb": "d0789f481f6af27cbac9353aeb737e0c9b84188af8c7fe176b05b34f6f799f0f",
+    ".build/native-ui/popup-provider-final/transport-popup/popup-normal.argb": "34fec304a2e3ec147367b5191e5d7ab9ea407278ffba04da051f8381577d5876",
+    ".build/native-ui/popup-provider-final/transport-popup/results.json": "e966133fc1e51e84b8fb98517a801dcc6657fa274ddfbe36d55602547af33bc0",
+    ".build/native-ui/popup-provider-final/transport-transport/kind-1.argb": "99e083075373f733a95b63398ed770b3bee18d461d52dc4acf125ab9dae744c7",
+    ".build/native-ui/popup-provider-final/transport-transport/kind-2.argb": "02189744378b74c4b9576f473c681849b5c5a3166f4c91390145e59a0418a1c8",
+    ".build/native-ui/popup-provider-final/transport-transport/kind-3.argb": "4409eda6534183e1c3b52d6ad40aa99cbd2360099b9598aecce15add83173179",
+    ".build/native-ui/popup-provider-final/transport-transport/results.json": "fa092247283cd0dd44b1baab6e7cdb116591e6797d1da26f0e2b33529d9d113f",
+    ".build/native-ui/popup-provider-final/transport-transport.stdout": "6ecd62601979720b78e64db887d6f504255b8c980bb23cf96a66755fd1664679",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1-baseline.argb": "5fd091fae65f785fb4ac10a80d19101408f8c026f21d4d6ce4780de4b4a393e5",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1-provider.argb": "5fd091fae65f785fb4ac10a80d19101408f8c026f21d4d6ce4780de4b4a393e5",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1.25-baseline.argb": "5468817ec1e1ec84e220dd31b2d8572f09d9964524f4734f920091bcb45e01dd",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1.25-provider.argb": "5468817ec1e1ec84e220dd31b2d8572f09d9964524f4734f920091bcb45e01dd",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1.5-baseline.argb": "e1f65a72dae2165d6faadc8fa8fe251da9fddaf53a42be518466332d88c78dbc",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1.5-provider.argb": "e1f65a72dae2165d6faadc8fa8fe251da9fddaf53a42be518466332d88c78dbc",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1.75-baseline.argb": "10aa5f1264fcb3c9eb937822688b7db38b0958c9075b22d2d15dd716228c0113",
+    ".build/native-ui/popup-provider-final/vertical-disabled-1.75-provider.argb": "10aa5f1264fcb3c9eb937822688b7db38b0958c9075b22d2d15dd716228c0113",
+    ".build/native-ui/popup-provider-final/vertical-disabled-2-baseline.argb": "5f385f6329f7646868f0dce74def873205745a869ab95a7fa3af9f0f900b0c7b",
+    ".build/native-ui/popup-provider-final/vertical-disabled-2-provider.argb": "5f385f6329f7646868f0dce74def873205745a869ab95a7fa3af9f0f900b0c7b",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1-baseline.argb": "5fd091fae65f785fb4ac10a80d19101408f8c026f21d4d6ce4780de4b4a393e5",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1-provider.argb": "5fd091fae65f785fb4ac10a80d19101408f8c026f21d4d6ce4780de4b4a393e5",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1.25-baseline.argb": "5468817ec1e1ec84e220dd31b2d8572f09d9964524f4734f920091bcb45e01dd",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1.25-provider.argb": "5468817ec1e1ec84e220dd31b2d8572f09d9964524f4734f920091bcb45e01dd",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1.5-baseline.argb": "e1f65a72dae2165d6faadc8fa8fe251da9fddaf53a42be518466332d88c78dbc",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1.5-provider.argb": "e1f65a72dae2165d6faadc8fa8fe251da9fddaf53a42be518466332d88c78dbc",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1.75-baseline.argb": "10aa5f1264fcb3c9eb937822688b7db38b0958c9075b22d2d15dd716228c0113",
+    ".build/native-ui/popup-provider-final/vertical-fitting-1.75-provider.argb": "10aa5f1264fcb3c9eb937822688b7db38b0958c9075b22d2d15dd716228c0113",
+    ".build/native-ui/popup-provider-final/vertical-fitting-2-baseline.argb": "5f385f6329f7646868f0dce74def873205745a869ab95a7fa3af9f0f900b0c7b",
+    ".build/native-ui/popup-provider-final/vertical-fitting-2-provider.argb": "5f385f6329f7646868f0dce74def873205745a869ab95a7fa3af9f0f900b0c7b",
+    ".build/native-ui/popup-provider-final/vertical-normal-1-baseline.argb": "82d98163b96ea209bcd172736ee98c1d72042366e0e9592c3c1311a04839d490",
+    ".build/native-ui/popup-provider-final/vertical-normal-1-provider.argb": "82d98163b96ea209bcd172736ee98c1d72042366e0e9592c3c1311a04839d490",
+    ".build/native-ui/popup-provider-final/vertical-normal-1.25-baseline.argb": "475379ba21525de121c17556a6849f78225f0474b9f2c14d525aac6e670f51e0",
+    ".build/native-ui/popup-provider-final/vertical-normal-1.25-provider.argb": "475379ba21525de121c17556a6849f78225f0474b9f2c14d525aac6e670f51e0",
+    ".build/native-ui/popup-provider-final/vertical-normal-1.5-baseline.argb": "b679319d4af7cb5965cc10649f5c648fe63a1496aa7e45dea694161dbdcd1369",
+    ".build/native-ui/popup-provider-final/vertical-normal-1.5-provider.argb": "b679319d4af7cb5965cc10649f5c648fe63a1496aa7e45dea694161dbdcd1369",
+    ".build/native-ui/popup-provider-final/vertical-normal-1.75-baseline.argb": "2857b87e7609152ba90c0cc8a33d9bd9af6599e0862a0697a68bc41298b1e615",
+    ".build/native-ui/popup-provider-final/vertical-normal-1.75-provider.argb": "2857b87e7609152ba90c0cc8a33d9bd9af6599e0862a0697a68bc41298b1e615",
+    ".build/native-ui/popup-provider-final/vertical-normal-2-baseline.argb": "92964fa4810d519b360046fe85300dc233e24a5b4305e3dedbda2870107f89bb",
+    ".build/native-ui/popup-provider-final/vertical-normal-2-provider.argb": "92964fa4810d519b360046fe85300dc233e24a5b4305e3dedbda2870107f89bb"
+  }
+}

@@ -73,3 +73,19 @@ unsigned nxs_control_range_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_step)?NXS_RANGE_STEP:0;}
 int nxs_control_set_step(NXSControl *c,double step)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_step)?p->control_set_step(c,step):0;}
+unsigned nxs_control_popup_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_items)&&HAS_INPUT(p,control_popup_state)&&HAS_INPUT(p,control_popup_item_rect)&&HAS_INPUT(p,control_set_screen_origin)?NXS_POPUP_ITEMS:0;}
+int nxs_control_popup_items(NXSControl *c,const NXSPopupItem *items,uint32_t count,int selected)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_items)?p->control_popup_items(c,items,count,selected):0;}
+NXSPopupState nxs_control_popup_state(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_state)?p->control_popup_state(c):(NXSPopupState){.size=sizeof(NXSPopupState),.highlighted=-1};}
+NXSRect nxs_control_popup_item_rect(NXSControl *c,int index)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_item_rect)?p->control_popup_item_rect(c,index):(NXSRect){0};}
+int nxs_control_set_screen_origin(NXSControl *c,double x,double y)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_screen_origin)?p->control_set_screen_origin(c,x,y):0;}
+unsigned nxs_native_ui_source_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_create)&&HAS_INPUT(p,event_source_destroy)?1:0;}
+NXSEventSource *nxs_native_ui_source_create(int descriptor)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_create)?p->event_source_create(descriptor):NULL;}
+int nxs_native_ui_source_destroy(NXSEventSource *source)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_destroy)?p->event_source_destroy(source):0;}

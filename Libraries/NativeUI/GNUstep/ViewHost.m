@@ -2,6 +2,7 @@
 #import "ViewHost.h"
 #include <math.h>
 #include <stdlib.h>
+#include <objc/runtime.h>
 struct NXSViewHost {
   NSView *view;
   NSWindow *window;
@@ -12,12 +13,66 @@ struct NXSViewHost {
   BOOL tracking;
   unsigned modifiers;
   NSPoint pointer;
+  BOOL injected_pointer;
   BOOL release_queued;
   unsigned dispatch_depth;
   int key_result;
   NSResponder *fallback;
 };
 static NXSViewHost *active,*focused;
+/* Auxiliary native windows (menus) must read the same pointer stream as their
+ * owner during embedded tracking. Only the event source is adapted; native
+ * menu layout, hit testing and tracking remain untouched. */
+struct NXSInputWindow {
+  NSWindow *window;
+  NXSViewHost *host;
+  Class original,adapted;
+  struct NXSInputWindow *next;
+};
+static struct NXSInputWindow *input_windows;
+static NSPoint auxiliary_pointer(id window,SEL selector)
+{
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if(entry->window==window) {
+      if(active==entry->host&&(entry->host->tracking||entry->host->injected_pointer)) {
+        NSPoint screen=[entry->host->window convertBaseToScreen:entry->host->pointer];
+        return [window convertScreenToBase:screen];
+      }
+      IMP original=class_getMethodImplementation(entry->original,selector);
+      return ((NSPoint (*)(id,SEL))original)(window,selector);
+    }
+  return NSZeroPoint;
+}
+void nxs_host_bind_input_window(NXSViewHost *host,NSWindow *window)
+{
+  if(!host||!window)return;
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if(entry->window==window)return;
+  Class original=object_getClass(window);
+  NSString *name=[@"NXSInputWindow_" stringByAppendingString:NSStringFromClass(original)];
+  Class adapted=objc_getClass([name UTF8String]);
+  if(!adapted) {
+    adapted=objc_allocateClassPair(original,[name UTF8String],0);
+    if(!adapted)return;
+    SEL selector=@selector(mouseLocationOutsideOfEventStream);
+    Method method=class_getInstanceMethod(original,selector);
+    class_addMethod(adapted,selector,(IMP)auxiliary_pointer,method_getTypeEncoding(method));
+    objc_registerClassPair(adapted);
+  }
+  struct NXSInputWindow *entry=calloc(1,sizeof(*entry));if(!entry)return;
+  *entry=(struct NXSInputWindow){[window retain],host,original,adapted,input_windows};
+  input_windows=entry;object_setClass(window,adapted);
+}
+void nxs_host_unbind_input_windows(NXSViewHost *host)
+{
+  struct NXSInputWindow **cursor=&input_windows;
+  while(*cursor) {
+    struct NXSInputWindow *entry=*cursor;
+    if(entry->host!=host){cursor=&entry->next;continue;}
+    if(object_getClass(entry->window)==entry->adapted)object_setClass(entry->window,entry->original);
+    *cursor=entry->next;[entry->window release];free(entry);
+  }
+}
 /* The native control owns the tracking loop. While it waits, dispatch the embedding
  * toolkit so real pointer events and its other windows remain responsive. */
 @interface NXSApplication : NSApplication
@@ -141,6 +196,7 @@ int nxs_host_destroy(NXSViewHost *host)
   if(!host)return 1;
   if(host->tracking||host->dispatch_depth)return 0;
   if(focused==host&&!nxs_host_focus(host,0))return 0;
+  nxs_host_unbind_input_windows(host);
   [host->view removeFromSuperview];
   [host->window close];[host->window release];[host->view release];
   [host->fallback release];
@@ -152,6 +208,22 @@ void nxs_host_resize(NXSViewHost *host,NSSize size)
   if(!host||NSEqualSizes([host->view frame].size,size))return;
   [host->view setFrameSize:size];[host->window setContentSize:size];
 }
+int nxs_host_set_screen_origin(NXSViewHost *host,double x,double y)
+{
+  if(!host||!isfinite(x)||!isfinite(y)||fabs(x)>1e7||fabs(y)>1e7||nxs_host_tracking(host))return 0;
+  NSRect screen=[[NSScreen mainScreen] frame];
+  [host->window setFrameOrigin:NSMakePoint(NSMinX(screen)+x,NSMaxY(screen)-y-[host->view frame].size.height)];
+  return 1;
+}
+NXSRect nxs_host_rect_from_view(NXSViewHost *host,NSView *view,NSRect rect)
+{
+  if(!host||!view||![view window])return (NXSRect){0};
+  rect=[view convertRect:rect toView:nil];
+  rect.origin=[[view window] convertBaseToScreen:rect.origin];
+  rect.origin=[host->window convertScreenToBase:rect.origin];
+  rect=[host->view convertRect:rect fromView:nil];
+  return (NXSRect){rect.origin.x,[host->view isFlipped]?rect.origin.y:[host->view bounds].size.height-NSMaxY(rect),rect.size.width,rect.size.height};
+}
 double nxs_host_dispatch_events(double maximum_wait)
 {
   if(!NSApp||!isfinite(maximum_wait)||maximum_wait<0||maximum_wait>60)return -1;
@@ -159,11 +231,28 @@ double nxs_host_dispatch_events(double maximum_wait)
   NSRunLoop *loop=[NSRunLoop currentRunLoop];
   NSString *mode=active?NSEventTrackingRunLoopMode:NSDefaultRunLoopMode;
   [loop runMode:mode beforeDate:[NSDate dateWithTimeIntervalSinceNow:maximum_wait]];
+  /* Native menus own real auxiliary windows. Run their queued AppKit window
+   * and input events as NSApplication normally does, unless a native tracking
+   * loop already owns the queue. Never take events out of that loop. */
+  unsigned dispatched=0;
+  if(!active)while(dispatched<1024) {
+    NSEvent *event=[NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast]
+      inMode:NSDefaultRunLoopMode dequeue:YES];
+    if(!event)break;
+    NXSViewHost *owner=NULL;
+    for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+      if(entry->window==[event window]){owner=entry->host;break;}
+    if(owner){owner->dispatch_depth++;owner->injected_pointer=NO;owner->release_queued=NO;active=owner;}
+    @try {[NSApp sendEvent:event];}
+    @finally {if(owner){owner->dispatch_depth--;active=NULL;}}
+    dispatched++;
+  }
   /* GNUstep services due timers and reports their own next deadline here.
    * No control interval, animation counter or frame selection lives in host. */
   NSDate *date=[loop limitDateForMode:mode];
   double next=date&&[date compare:[NSDate distantFuture]]==NSOrderedAscending?
     MAX(0,[date timeIntervalSinceNow]):-1;
+  if(dispatched==1024)next=0;
   [pool drain];return next;
 }
 int nxs_host_needs_display(NXSViewHost *host)
@@ -225,7 +314,8 @@ void nxs_host_track(NXSViewHost *control, double x, double y, unsigned modifiers
 
 void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned modifiers)
 {
-  if (!control || !control->tracking || control->release_queued) return;
+  if (!control || (!control->tracking&&!control->dispatch_depth) || active!=control || control->release_queued) return;
+  control->injected_pointer=YES;
   if(event==NXS_RELEASE) control->release_queued=YES;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
   if(control->modifiers!=modifiers) {
