@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-05",
+  "status": "experimental, exact build only",
+  "environment": {
+    "distribution": "Debian 13",
+    "architecture": "ARM64",
+    "nextspace": "0.1.0~native106",
+    "compositor": "headless Wayland/Pixman",
+    "scale": 1,
+    "content_viewport": [
+      868,
+      571
+    ],
+    "renderer_seccomp": 2
+  },
+  "chromium": {
+    "version": "156.0.8078.79-1~deb13u1",
+    "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "on_disk_unchanged": true
+  },
+  "native_bridge": {
+    "sha256": "5a11964eeb514900fdd7d706b370f419543f4ebc9896bf68c9d8e560584f6042",
+    "source_unchanged": true
+  },
+  "checks": {
+    "native_pixel_difference_at_zero": null,
+    "native_pixel_difference_at_700": null,
+    "single_arrow": {
+      "native": 40,
+      "browser": 40
+    },
+    "held_arrow_final": {
+      "native": 400,
+      "browser": 400
+    },
+    "outside_thumb_drag": {
+      "native": 986.3636269569397,
+      "browser": 986,
+      "tolerance_css_pixels": 1
+    },
+    "nested_arrow": {
+      "native": 40,
+      "nested": 40,
+      "root": 0
+    },
+    "horizontal_arrow": {
+      "native": 40,
+      "browser": 40
+    },
+    "reload_during_tracking": {
+      "native_tracking_stopped": true,
+      "page_ready": "complete"
+    },
+    "document_direction": "ltr",
+    "unsupported_preload": "unchanged",
+    "unsupported_launcher": "rejected",
+    "missing_helper_startup": "unchanged",
+    "launcher_version_smoke": "passed"
+  },
+  "scope": "Web-content scrollbar proof of concept; no general browser or desktop parity claim",
+  "raw_evidence": ".build/foreign-scrollbars/chromium-prototype/"
+}

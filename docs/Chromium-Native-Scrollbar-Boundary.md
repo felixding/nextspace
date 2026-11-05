@@ -32,7 +32,14 @@ placement, painting and input, reusing the existing native bridge across the
 renderer boundary. No supported way to install that integration into the
 inspected unchanged browser binary was found. A source integration would need
 a Chromium rebuild, conflicting with the current no-application-recompile
-constraint. It is not implemented or counted as supported by this branch.
+constraint. A supported integration is not provided by this branch.
+
+A subsequent [runtime experiment](../Experiments/ChromiumScrollers/README.md)
+demonstrates native drawing, left placement and mouse tracking without a Chromium
+rebuild, using guarded in-memory patches in this exact executable. It reuses the
+unchanged native bridge through a helper process and retains the renderer
+sandbox. It is optional and remains an experiment; it does not establish a
+generic module interface or support for other builds.
 
 Local audit evidence is under `.build/foreign-scrollbars/chromium-boundary/`:
 `audit.json`, the executable's dynamic symbols/section, download log, binary

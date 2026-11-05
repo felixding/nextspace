@@ -34,3 +34,8 @@ coverage. Qt5 and sandboxed runtimes are unqualified. Menu and shortcut
 integration are separate from this scrollbar change.
 The [Chromium source and binary audit](Chromium-Native-Scrollbar-Boundary.md)
 records why the shared adapters cannot replace its web-content control.
+
+An optional [Chromium runtime experiment](../Experiments/ChromiumScrollers/README.md)
+now passes basic native pixel and mouse-tracking checks on the exact audited
+ARM64 build without recompiling it. It is not installed or included in the
+GTK/Qt package qualification above. General Chromium support remains open.
