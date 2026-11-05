@@ -13,18 +13,18 @@
       200
     ]
   },
-  "qualified_source_revision": "4ca9560df218acc5e7983557de49a1570cf889df",
+  "qualified_source_revision": "d33dff610d34584489dd6c5dca976fe03b36939e",
   "ci": {
     "workflow": ".github/workflows/wayland.yml",
     "runner": "ubuntu-24.04-arm",
-    "run": "https://github.com/felixding/nextspace/actions/runs/41994425337",
-    "head": "4ca9560df218acc5e7983557de49a1570cf889df",
+    "run": "https://github.com/felixding/nextspace/actions/runs/42022229984",
+    "head": "d33dff610d34584489dd6c5dca976fe03b36939e",
     "native": {
-      "job": 127134062367,
+      "job": 127227553507,
       "conclusion": "success"
     },
     "desktop_packages": {
-      "job": 127134062730,
+      "job": 127227553904,
       "conclusion": "success"
     },
     "obsolete_x11_workflow_files_removed": 4
@@ -143,6 +143,54 @@
       "physical_60hz_qualified": false,
       "full_plan_complete": false,
       "runtime_scope": "Earlier recorded ARM runtime; not current physical performance qualification"
+    },
+    "scheduler_diagnostic_b9": {
+      "archive": ".build/evidence/components/arm64-vz-scheduler-b9-v1-evidence.tar.gz",
+      "bytes": 2900675,
+      "sha256": "9f0a4b58a6ea2fc22d69bc265691156c55d387dbc1b0d48ad39c80f6d169d4e4",
+      "files": 262,
+      "runtime_head": "b9f61839819e2805ba81480a5e306f041001943e",
+      "independent_extracted_replay": true,
+      "duplicate_guest_and_host_captures_removed": true,
+      "physical_60hz_qualified": false,
+      "full_plan_complete": false,
+      "diagnostic_only": true,
+      "single_scale_percent": 150,
+      "trials": 3,
+      "historical_long_stall_reproduced": false,
+      "host_paging_observed": true,
+      "causal_attribution_established": false
+    },
+    "virtual_drm_corrected_accounting_b9": {
+      "archive": ".build/evidence/components/arm64-vz-performance-accounting-b9-v1-evidence.tar.gz",
+      "bytes": 4873688,
+      "sha256": "1ebde86050df78df5600c36fe02be0773874ee39681054ada36872d8cfe6791d",
+      "files": 296,
+      "runtime_head": "b9f61839819e2805ba81480a5e306f041001943e",
+      "independent_extracted_replay": true,
+      "duplicate_guest_and_host_captures_removed": true,
+      "physical_60hz_qualified": false,
+      "full_plan_complete": false,
+      "measurement_integrity_passed": true,
+      "original_matrix_preserved": true,
+      "original_phases": 75,
+      "original_requests": 24000,
+      "original_late_requests": 10,
+      "original_maximum_lateness_ms": 40.50292065949179,
+      "replacement_phases": 15,
+      "replacement_requests": 4800,
+      "replacement_late_requests": 148,
+      "replacement_maximum_lateness_ms": 183.96612400829326,
+      "replacement_selected": false,
+      "replacement_limit_exhausted": true,
+      "comparison_qualified": false,
+      "reason": "Both the original control and the single registered replacement have requests issued more than one 60Hz period late. No control is discarded to produce a passing comparison.",
+      "host_memory_scope": "Host memory samples cover the original matrix only; no contemporaneous host sampler was running for the replacement.",
+      "causal_attribution_established": false,
+      "native_scroll_events": 7200,
+      "native_scroll_states_verified": 7198,
+      "coalesced_states": 2,
+      "injector_cpu_uses_actual_python_pid": true
     }
   },
   "installed_virtual_vt": {
@@ -183,7 +231,30 @@
     "unchanged_original_reference_files_retained": 7,
     "retired_x11_test_paths_removed": true,
     "new_x11_coverage_added": false,
-    "source_masters_generators_native_fixtures_and_useful_sdk_retained": true
+    "source_masters_generators_native_fixtures_and_useful_sdk_retained": true,
+    "vendored_x11_backend_files_removed": 56,
+    "backend_configure_native_wayland_cairo_only": true,
+    "native_backend_local_build_has_no_direct_x11_dependencies": true,
+    "retired_redhat_pipeline_and_old_xorg_dependency_files_removed": 25,
+    "native_backend_followup": {
+      "local_build_passed": true,
+      "source_files_matched": 100,
+      "new_test_cases": 0,
+      "full_local_application_suite_passed": false,
+      "local_failure": "Review Open panel readiness at 175%; directory name remains in field and OK is disabled",
+      "cause_established": false,
+      "workspace_suite_pending": false,
+      "normal_arm64_ci_required": true,
+      "source_commit": "131ac75cc943620a38bd654495123609ac902b7d",
+      "workspace_suite_passed": true,
+      "workspace_scales_percent": [
+        100,
+        125,
+        150,
+        175,
+        200
+      ]
+    }
   },
   "remaining": [
     "Physical display, input, modeset, hotplug and gamma validation",

@@ -8,12 +8,14 @@ artifact digests and qualification boundaries. The full plan remains incomplete.
 
 ## Current ARM64 qualification
 
-Both full ARM64 jobs pass at `4ca9560d` in
-[run 41994425337](https://github.com/felixding/nextspace/actions/runs/41994425337).
+Both full ARM64 jobs pass at `d33dff61` in
+[run 42022229984](https://github.com/felixding/nextspace/actions/runs/42022229984).
 The native job builds and exercises the toolkit, compositor, applications,
 transfers, input methods, portals and session supervisor. The package job covers
 cold build, network-disabled source replay, installation, live upgrade and removal.
-These results supersede the pending cleanup qualifications in the earlier record.
+These results qualify the earlier dead-code cleanup and the existing OpenUp
+fixture's action/MIME-acceptance synchronization. Subsequent native-backend
+source removal requires its own normal ARM64 CI result.
 
 The B9 package artifacts are independently inspected: six ARM64 DEBs, all payload
 hashes and literal symlinks, 170 ELF headers, and both retained source archives.
@@ -45,6 +47,19 @@ runner remain. Existing native scenarios validate this cleanup; no X11 coverage
 was added. The temporary-account teardown race is fixed by retrying only the
 transient busy-account result, and its hosted follow-up passes both ARM64 jobs.
 
+The vendored backend's retired X11 server, X11-dependent ART renderer, Cairo X11
+surfaces, X selection bridge and obsolete configure launchers are removed (56
+files). The obsolete Red Hat X11 RPM pipeline and old Debian/Ubuntu Xorg
+dependency lists are also removed. Configure now selects only Wayland/Cairo
+and requires their native libraries; it no longer probes X11 or falls back to another renderer. Backend and
+pasteboard builds pass with no direct X11 dependencies. Distribution Cairo/image
+libraries can still have transitive X11 dependencies. The unchanged application
+suite passes Review multipage/density and five-density retained scrolling, then
+stops at a 175% Open-panel readiness timeout; its capture retains the directory
+name and disabled OK button. The failure is preserved without attributing it to
+the cleanup. The independent five-density Workspace/Preferences/OpenUp/Dock suite
+passes with the rebuilt backend. No cases are added.
+
 Seven unchanged original title-font and application-hint files remain under
 `Tests/Wayland/fixtures/title-reference/originals`, with provenance, licenses and
 hashes. They support original-design comparisons and are excluded from the
@@ -72,6 +87,22 @@ the reader is runnable but waiting for CPU time. The independent reader retains
 all 514 key transitions; the compositor observes `SYN_DROPPED`. Priority is
 restored after every trial. No scheduling-policy change or keyboard-stress fix
 is promoted, and these captures do not explain every historical failure.
+
+A corrected injector-CPU-accounting matrix on the retained B9 ci2 runtime completes
+75 phases: 24,000 requests, all 7,200 observed scroll events, 7,198 verified native
+buffer states and two coalesced states. Identity, buffer lifetime and session
+cleanup pass. Timing remains unqualified: the original control has ten requests
+more than one 60Hz period late (maximum 40.503ms), and its single registered
+replacement has 148 (maximum 183.966ms). Both captures are retained, the replacement
+is ineligible, and further replacements are not used to select a passing result.
+The earlier B9 matrix's 578 late requests and 1.321-second maximum remain recorded.
+
+A separate bounded scheduler/profile diagnostic does not reproduce that long
+stall. It corrects the sampled injector PID (the actual Python worker rather than
+its sudo launcher), observes host paging and verifies trace cleanup. These
+observations establish no cause for the historical stall. The actual-injector PID
+is now included in the existing helper's ready message; event handling is unchanged.
+Independent extracted replay passes for both retained diagnostic capsules.
 
 The remaining full-plan gates are physical display/input, modeset/hotplug/gamma,
 physical suspend/resume and VT cycles, hardware latency/CPU/buffer-memory
