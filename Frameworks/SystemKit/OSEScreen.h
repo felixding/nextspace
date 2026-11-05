@@ -32,8 +32,9 @@
   NSSize sizeInPixels, sizeInMilimeters;
   OSEPower *_systemPower;
  @private
-  struct OSEX11ScreenState *_x11;
-  NSLock *updateScreenLock;
+  NSDictionary *_state;
+  NSString *_transaction;
+  BOOL _refreshing;
 }
 
 @property (readonly) OSEPower *systemPower;

@@ -29,7 +29,7 @@ int main(int argc, char **argv)
   }
   [NSApplication sharedApplication];
   OSEScreen *screen = [OSEScreen new];
-  require([NSStringFromClass([screen class]) isEqual:@"OSEWaylandScreen"], @"native factory selected X11");
+  require([screen isNativeDisplay], @"native display model unavailable");
   require([[screen connectedDisplays] count] > 0, @"no native outputs");
   if (readonly) {
     require(![screen supportsDisplayConfiguration], @"read-only fixture found a settings service");

@@ -38,20 +38,12 @@ typedef struct _NXGammaValue NXGammaValue;
 {
  @protected
   OSEScreen *screen;
- @private
-  struct OSEX11DisplayState *_x11;
- @protected
-  NSMutableArray *allResolutions;  // width, height, rate
-
-  CGFloat dpiValue;  // calculated DPI
-
   NXGammaValue gammaValue;
   CGFloat gammaBrightness;
-
-  NSMutableDictionary *properties;
-
-  BOOL isMain;
-  // BOOL			isActive;
+ @private
+  NSDictionary *_descriptor;
+  NSData *_identity;
+  NSRect _logicalFrame, _hiddenLogicalFrame;
 }
 
 @property (readonly) NSString *outputName;  // LVDS, VGA, DVI, HDMI
@@ -148,6 +140,5 @@ typedef struct _NXGammaValue NXGammaValue;
 
 // - (NSString *)model;    // EDID
 // - (CGFloat)gamma;       // EDID
-// - (NSArray *)rotations; // XRRRotations
 
 @end

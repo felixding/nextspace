@@ -33,12 +33,12 @@ static void require(BOOL value, const char *message)
 
 @interface GammaWorker : NSObject
 {
-  OSEWaylandDisplay *display;
+  OSEDisplay *display;
 }
-- (id)initWithDisplay:(OSEWaylandDisplay *)value;
+- (id)initWithDisplay:(OSEDisplay *)value;
 @end
 @implementation GammaWorker
-- (id)initWithDisplay:(OSEWaylandDisplay *)value
+- (id)initWithDisplay:(OSEDisplay *)value
 { if ((self = [super init])) display = [value retain]; return self; }
 - (void)dealloc { [display release]; [super dealloc]; }
 - (void)change:(id)sender
@@ -55,7 +55,7 @@ int main(void)
   NSDictionary *one = [NSDictionary dictionaryWithObjectsAndKeys:@1, @"red", @1, @"green", @1, @"blue", @1, @"brightness", nil];
   NSMutableDictionary *head = [NSMutableDictionary dictionaryWithObjectsAndKeys:
     @1, @"id", @1, @"enabled", @256, @"gamma_size", one, @"gamma", @"TEST-1", @"name", @"model", @"model", @"serial", @"serial", nil];
-  OSEWaylandDisplay *display = [[OSEWaylandDisplay alloc] initWithDescriptor:head screen:nil duplicateIdentity:NO];
+  OSEDisplay *display = [[OSEDisplay alloc] initWithDescriptor:head screen:nil duplicateIdentity:NO];
   require([display isGammaSupported] && [display gamma] == 1 && [display gammaBrightness] == 1, "Initial gamma capability/state");
   [display setGammaRed:0.5 green:1.5 blue:2 brightness:0.75];
   NSDictionary *description = [display gammaDescription];
@@ -85,7 +85,7 @@ int main(void)
   [display fadeTo:0 interval:0 brightness:0.5]; require([display gammaBrightness] == 0, "Fade-to-black target");
   [display fadeTo:1 interval:0 brightness:0.5]; require([display gammaBrightness] == 0.5, "Fade-to-normal target");
   [head setObject:@0 forKey:@"gamma_size"];
-  OSEWaylandDisplay *unsupported = [[OSEWaylandDisplay alloc] initWithDescriptor:head screen:nil duplicateIdentity:NO];
+  OSEDisplay *unsupported = [[OSEDisplay alloc] initWithDescriptor:head screen:nil duplicateIdentity:NO];
   before = provider->requests; [unsupported setGamma:2]; [unsupported fadeToBlack:1];
   require(![unsupported isGammaSupported] && [unsupported gamma] == 1 && provider->requests == before,
     "Unsupported head claimed or applied gamma");

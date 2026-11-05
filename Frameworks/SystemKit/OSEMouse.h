@@ -34,10 +34,7 @@
 {
   NSUserDefaults *gsDefaults;
   OSEDefaults *nxDefaults;
-  NSMutableDictionary *wmDefaults;
-  NSString *wmDefaultsPath;
 
-  NSInteger acceleration;
   NSInteger	threshold;
   NSInteger	doubleClickTime;
   NSInteger	wheelScrollLines;
@@ -51,8 +48,9 @@
 + (NSTimeInterval)doubleClickInterval;
 + (void)configureWithDefaults:(OSEDefaults *)defaults;
 
-/* Native pointer speed has libinput's normalized -1..1 semantics. The X11
-   acceleration ratio remains a separate legacy setting. */
+/* Native pointer speed uses libinput's normalized -1..1 range. The retained
+   ratio argument affects no device; setAcceleration:threshold: changes only
+   the logical toolkit drag threshold. */
 - (BOOL)usesNativeInputSettings;
 - (double)normalizedAcceleration;
 - (NSUInteger)accelerationProfile;

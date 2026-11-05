@@ -10,6 +10,14 @@ ARM64 CI and the existing Lima guest. Intel/AMD qualification is deferred.
 Physical hardware and unrestricted artwork redistribution remain release gates;
 they do not block ARM implementation and personal-use validation.
 
+SystemKit now implements the native display model directly in `OSEScreen` and
+`OSEDisplay`. Its obsolete X11 display/input implementations, XRandR handles and
+Xlib calls are removed, along with the direct Xrandr/xkbfile/Xcursor links and
+the xkbfile build dependency. The existing gamma, output transaction, native
+Workspace, Preferences and archive workflow checks pass locally. Existing probes
+use the public native models; no additional coverage was added. Hosted ARM64
+confirmation of this cleanup is pending.
+
 The latest full hosted qualification is run `41957255179` at `1f225782`: both
 native and desktop-packages pass. Ten full native runs and fifteen full package
 lifecycle runs are recorded. Details below preserve the sequence of earlier
