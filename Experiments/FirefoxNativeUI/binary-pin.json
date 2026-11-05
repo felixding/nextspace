@@ -1,0 +1,28 @@
+{
+  "package": "firefox-esr",
+  "version": "153.6.0esr-1~deb13u1",
+  "architecture": "arm64",
+  "archive_sha256": "5ad1884bff1cf3a5a9e50c0a111101fa9a2cd9a4232437a7a790ed2333e1ccdb",
+  "files_sha256": {
+    "usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+  },
+  "elf_build_ids": {
+    "firefox-esr": "50992ec7f4057079ed632c38e8fd42533fa58578",
+    "libxul.so": "ace600697490ec169e3e371fb456dcb542e3abef"
+  },
+  "installed": false,
+  "package_inventory_unchanged": true,
+  "date": "2026-11-05",
+  "status": "binary preparation only; no runtime or native UI qualification",
+  "rebuilt": false,
+  "launched": false,
+  "native_ui_adapter_implemented": false,
+  "declared_upstream": {
+    "repository": "https://hg.mozilla.org/releases/mozilla-esr153",
+    "revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+    "build_id": "20261022211647",
+    "milestone": "153.6.0"
+  },
+  "raw_manifest_sha256": "248ad70cd7b9d1f8fa26e75d71b704140b1df234e0a4f1a234af0d5f6d99416b"
+}
