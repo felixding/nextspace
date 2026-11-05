@@ -54,6 +54,7 @@ def run(library,path):
             result.parts[0].height=bool(forms)
             if forms:
                 result.parts[4].width=forms.input_capabilities
+                result.parts[4].height=forms.event_capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):
@@ -102,6 +103,9 @@ def run(library,path):
             response(client,req,state)
         else:response(client,req,None)
     def dispatch(timeout):
+        native_wait=forms.dispatch_events() if forms else -1
+        if native_wait>=0:
+            timeout=native_wait if timeout is None else min(timeout,native_wait)
         ready,_,_=select.select([server]+clients,[],[],timeout)
         for client in ready:
             if client is server:

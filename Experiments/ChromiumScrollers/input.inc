@@ -103,6 +103,7 @@ __attribute__((used,noinline)) static void nxs_prepare_work(void *controller) {
   if(ready)native_input.pending=0;
   pthread_mutex_unlock(&native_input.mutex);
   if(ready)apply_value(bar,value);
+  form_native_work(controller);
 }
 __attribute__((naked)) static void work_handoff(void) {
   __asm__ volatile("bti c\n"

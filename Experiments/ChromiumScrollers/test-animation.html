@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native animation invalidation transport</title>
+<style>
+  body { margin:24px; background:white; color:black; font:16px sans-serif; }
+  .row { display:flex; align-items:center; gap:20px; height:48px; }
+  label { width:170px; }
+  progress { display:block; width:128px; height:24px; margin:0; }
+</style>
+<h1>Native progress animation</h1>
+<div class="row"><label for="animated">Animated</label><progress id="animated"></progress></div>
+<div class="row"><label for="static">Determinate</label><progress id="static" value="0.5"></progress></div>
+<div class="row"><label for="second">Second animated</label><progress id="second"></progress></div>
+<script>window.events=[];for(const type of ['click','input','change'])document.addEventListener(type,e=>events.push({type,id:e.target.id,trusted:e.isTrusted}));</script>

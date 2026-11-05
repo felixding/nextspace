@@ -19,6 +19,7 @@ parser.add_argument('--baseline', type=Path, help='Directory containing the prev
 parser.add_argument('--previous-provider', type=Path, help='Pre-extension NativeUI provider to test ABI compatibility')
 parser.add_argument('--previous-client', type=Path, help='Pre-extension native-controls-probe to run unchanged')
 parser.add_argument('--previous-loader', type=Path, help='Previous loader directory for the unchanged client/provider-swap check')
+parser.add_argument('--previous-event-provider', type=Path, help='Provider predating optional event dispatch')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -52,6 +53,13 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                 windows = command('windows')
                 assert not any(window['buffer_width'] > 0 for window in windows), windows
                 probe.stdin.write('\n'); probe.stdin.flush()
+                if label == 'animation':
+                    assert select.select([probe.stdout], [], [], 10)[0], 'Native animation startup'
+                    animated = probe.stdout.readline()
+                    assert json.loads(animated)['event'] == 'animation-live', animated
+                    windows = command('windows')
+                    assert not any(window['buffer_width'] > 0 for window in windows), windows
+                    probe.stdin.write('\n'); probe.stdin.flush()
                 output, _ = probe.communicate(timeout=20)
                 (args.output / (label + '.stdout')).write_text(output)
                 assert probe.returncode == 0, (probe.returncode, (args.output / (label + '.stderr')).read_text())
@@ -79,6 +87,17 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         checks['native_input'] = json.loads(input_output)
         for path in args.output.glob('input-kind-*.argb'):
             Image.frombytes('RGBA', (128, 24), path.read_bytes(), 'raw', 'BGRA').save(path.with_suffix('.png'))
+        animation_output = held_probe(args.build / 'native-ui/native-animation-probe', [str(args.output)],
+                                      'NXS_NATIVE_UI_ANIMATION_HOLD', 'animation')
+        checks['native_animation'] = json.loads(animation_output)
+        for path in args.output.glob('animation-*.argb'):
+            Image.frombytes('RGBA', (128,24), path.read_bytes(), 'raw', 'BGRA').save(path.with_suffix('.png'))
+        if args.previous_event_provider:
+            previous = subprocess.run([str(args.build / 'native-ui/native-animation-probe'), '--expect-no-events'] + backend,
+                env=dict(environment, NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_event_provider.resolve())),
+                text=True, capture_output=True, timeout=10)
+            assert previous.returncode == 0, (previous.returncode, previous.stderr)
+            checks['previous_provider_accepted_without_event_extension'] = json.loads(previous.stdout)
         if args.previous_provider:
             previous = subprocess.run([str(args.build / 'native-ui/native-input-probe'), '--expect-no-input'] + backend,
                 env=dict(environment, NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_provider.resolve())),

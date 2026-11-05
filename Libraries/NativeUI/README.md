@@ -21,8 +21,8 @@ once per process and remains loaded for the lifetime of its native objects.
 The C loader rejects an absent, incompatible or incomplete provider. Its error
 is available through `nxs_native_ui_error()`; it does not emulate a control.
 
-The initial API supports native push buttons, checkboxes, radio buttons, sliders,
-determinate progress indicators and the existing scrollbar contract. Normal/disabled state,
+The API supports native push buttons, checkboxes, radio buttons, sliders,
+progress indicators and the existing scrollbar contract. Normal/disabled state,
 model updates, native preferred metrics, bitmap output and synchronous mouse
 tracking are exposed. The application owns its data model; the native control
 owns its actual input loop. The event pump services application/transport events
@@ -61,7 +61,7 @@ application focus traversal still need their broader integration contracts.
 The pinned Chromium experiment now applies next/previous requests through its
 real focus controller; other application integrations remain open.
 
-The input function pointers are appended to ABI version 1. The loader validates
+The input and event function pointers are appended to ABI version 1. The loader validates
 the original `NXS_NATIVE_UI_CORE_SIZE` prefix and checks the advertised structure
 size before reading optional fields. Older providers keep their original
 controls and report no input capabilities. An older loader/client can also use
@@ -70,7 +70,6 @@ the new provider unchanged. This preserves the separation while the API grows.
 This is an initial implementation of the shared host, not full browser support.
 Text editing, broader engine/frontend focus and keyboard routing, IME, accessibility,
 menus, lists/trees, tabs, popup controls,
-progress animation
 and engine/frontend adapters for the new control types remain to implement.
 The provider ABI is under development until that broader contract is qualified.
 
@@ -143,3 +142,36 @@ A later repeat run timed out during one legacy probe's shutdown after writing
 its bitmap. The next complete run passed; the original timeout remains an open
 lifecycle issue. The verifier now captures a live backtrace if it recurs rather
 than treating that run as passed.
+
+## Native events and animation
+
+The optional event extension exposes `nxs_native_ui_event_capabilities()`,
+`nxs_native_ui_dispatch_events(maximum_wait)` and
+`nxs_control_needs_display(control)`. Service events on the owning UI thread;
+zero wait is nonblocking. The returned delay comes from the native run loop's
+next deadline, with `-1` for no deadline. It is not a bridge animation period.
+The repaint flag is the native view's own state and clears when the provider
+draws the control. Older providers advertise no event capabilities; older
+loaders/clients retain their original methods unchanged.
+
+Indeterminate progress configuration now calls the actual
+`NSProgressIndicator.startAnimation:`/`stopAnimation:` methods. Its existing
+timer, frame selection, artwork and timing remain in AppKit. Destroying an
+animated control stops that timer before releasing its last view reference.
+The shared host services the native run-loop mode, including the tracking mode
+while a native tracking loop owns input. No widget interval or animation counter
+was added to the provider or consumers.
+
+The native probe observes changing images and repaint flags, stable determinate
+mode, restart and safe active-timer destruction, with no mapped backing window.
+Thirty old scrollbar images and both directions of client/provider compatibility
+still pass. The Chromium helper services these deadlines, exposes per-process
+invalidation generations and passes idle animation, process-isolation and
+lifecycle checks. The optional pinned browser binding passes 59 animation
+assertions, including 48 complete images against native references. Its renderer
+thread applies native invalidations through the engine's existing scheduling
+API. See [`animation-qualification.json`](animation-qualification.json).
+
+This covers progress animation in the qualified setup. Offscreen native keyboard
+activation animation, other widgets' animation/invalidation contracts and the
+broader engine/frontend matrix remain open.

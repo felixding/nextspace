@@ -63,3 +63,9 @@ int nxs_control_focused(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_focused)?p->control_focused(c):0;}
 int nxs_control_key(NXSControl *c,const NXSKeyEvent *event)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_key)?p->control_key(c,event):NXS_INPUT_UNHANDLED;}
+unsigned nxs_native_ui_event_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,dispatch_events)&&HAS_INPUT(p,control_needs_display)?NXS_EVENTS:0;}
+double nxs_native_ui_dispatch_events(double maximum_wait)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,dispatch_events)?p->dispatch_events(maximum_wait):-1;}
+int nxs_control_needs_display(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_needs_display)?p->control_needs_display(c):0;}

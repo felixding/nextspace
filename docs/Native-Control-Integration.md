@@ -144,8 +144,17 @@ ordinary read-only DOM click behavior. Twenty fixture checks cover whole native
 images, model changes, resize, replacement, reinsertion and reload. The provider
 and the UI library were unchanged for this binding.
 
-Indeterminate progress remains on the browser path until native animation timers
-and invalidation are connected. One early initial-frame screenshot also showed
+Indeterminate progress additionally uses the real native timer/invalidation
+handoff when `NEXTSPACE_CHROMIUM_ANIMATION=1` is enabled. The optional provider
+event API services its native run loop and exposes repaint state; the helper
+transports per-process invalidations, and the owning renderer thread schedules
+the actual engine frame update. No native interval, frame selection or artwork
+is copied. Fifty-nine browser checks pass, including 48 complete images against
+native references and lifecycle/mode transitions. Older providers and old
+loaders/clients retain their supported methods without emulation. See
+[`animation-qualification.json`](../Libraries/NativeUI/animation-qualification.json).
+
+One early initial-frame screenshot also showed
 browser artwork in the first determinate bar; model invalidation corrected it,
 and later fresh runs passed, but its cause remains unresolved. The diagnostics
 and initial-frame test preserve that gap. See

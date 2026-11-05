@@ -62,6 +62,8 @@ class NativeControlServer:
         native.nxs_control_track.argtypes = [C.c_void_p, C.c_double, C.c_double, C.c_uint]
         native.nxs_control_send.argtypes = [C.c_void_p, C.c_int, C.c_double, C.c_double, C.c_uint]
         self.input_capabilities = 0
+        self.event_capabilities, self.event_deadline = 0, -1
+        self.generations = {}
         if hasattr(native, 'nxs_control_input_capabilities'):
             native.nxs_control_input_capabilities.argtypes = []
             native.nxs_control_input_capabilities.restype = C.c_uint
@@ -72,6 +74,29 @@ class NativeControlServer:
             native.nxs_control_focused.restype = C.c_int
             native.nxs_control_key.argtypes = [C.c_void_p, C.POINTER(KeyEvent)]
             native.nxs_control_key.restype = C.c_int
+        if hasattr(native, 'nxs_native_ui_event_capabilities'):
+            native.nxs_native_ui_event_capabilities.argtypes = []
+            native.nxs_native_ui_event_capabilities.restype = C.c_uint
+            self.event_capabilities = native.nxs_native_ui_event_capabilities()
+            native.nxs_native_ui_dispatch_events.argtypes = [C.c_double]
+            native.nxs_native_ui_dispatch_events.restype = C.c_double
+            native.nxs_control_needs_display.argtypes = [C.c_void_p]
+            native.nxs_control_needs_display.restype = C.c_int
+
+    def dispatch_events(self):
+        if not self.event_capabilities:
+            return -1
+        self.event_deadline = self.native.nxs_native_ui_dispatch_events(0)
+        for state in self.controls.values():
+            if state['destroy'] or state.get('invalidated'):
+                continue
+            if self.native.nxs_control_needs_display(state['native']):
+                state['invalidated'] = True
+                process, control, kind = state['key']
+                self.generations[process] = self.generations.get(process, 0) + 1
+                self.log('native-form-invalidation', process=process, control=control, kind=kind,
+                         generation=self.generations[process])
+        return self.event_deadline
 
     def preferred(self, kind):
         if kind not in self.metric_cache:
@@ -104,6 +129,9 @@ class NativeControlServer:
         response.magic, response.reserved = MAGIC, req.reserved
         response.parts[3].x = input_result
         response.parts[3].width = self.input_capabilities
+        response.parts[4].x = self.generations.get(req.process, 0)
+        response.parts[4].y = self.event_deadline
+        response.parts[4].width = self.event_capabilities
         data = b''
         if state:
             current = self.native.nxs_control_state(state['native'])
@@ -121,6 +149,7 @@ class NativeControlServer:
                 if bitmap.pixels:
                     response.width, response.height, response.stride = bitmap.width, bitmap.height, bitmap.stride
                     data = C.string_at(bitmap.pixels, bitmap.stride * bitmap.height)
+                    state['invalidated'] = False
         self.send(client, response, data)
 
     def message(self, client, data):
@@ -133,6 +162,10 @@ class NativeControlServer:
         if req.magic != MAGIC or req.text_size != len(data) - C.sizeof(req) or req.text_size > 65536:
             return
         if not all(math.isfinite(x) for x in (req.x, req.y)):
+            self._respond(client, req)
+            return
+        if req.operation == 9:
+            self.dispatch_events()
             self._respond(client, req)
             return
         key = req.process, req.control, req.kind
@@ -175,11 +208,12 @@ class NativeControlServer:
                 return
             if req.kind == 5:
                 current = self.native.nxs_control_state(state['native'])
-                model = req.width, req.height, current.value
+                model = req.width, req.height, current.value, bool(req.indeterminate)
                 if state.get('progress_model') != model:
                     state['progress_model'] = model
                     self.log('native-progress-model', process=req.process, control=req.control,
-                             width=req.width, height=req.height, value=current.value)
+                             width=req.width, height=req.height, value=current.value,
+                             indeterminate=bool(req.indeterminate))
             self._respond(client, req, state, pixels=True)
             return
         if state:

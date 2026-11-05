@@ -252,8 +252,43 @@ An early initial frame showed Chromium artwork in the first bar; changing its
 value corrected it. Later fresh starts and reloads passed, but the original
 fallback remains unexplained. The first-frame checker does not reload or mutate
 controls before checking them, and bitmap/canvas diagnostics remain in the hook.
-Indeterminate animation is still Chromium's implementation; it must be connected
-to the real UI library timer/invalidation model before being called native.
+Without the additional animation flag below, indeterminate animation retains
+Chromium's implementation.
 See [progress-qualification.json](progress-qualification.json) for the exact
 evidence and remaining limits. Chromium, the provider and the UI library were
 not rebuilt for this binding; only the preload library was compiled.
+
+## Native progress animation
+
+Add `NEXTSPACE_CHROMIUM_ANIMATION=1` to the forms/progress flags and open
+`test-animation.html`. This also requires the provider's optional native-event
+capability. Keyboard routing can be enabled or disabled independently. The
+installed NEXTSPACE session does not enable these experiment flags.
+
+The provider calls the real `NSProgressIndicator` animation methods and services
+its native run-loop timers. The helper uses the returned deadline to wake and
+observes the native repaint flag. Operation 9 reports a per-process invalidation
+generation and next native delay. A renderer transport watcher uses the existing
+thread controller wakeup, then the owning renderer thread marks affected controls
+dirty and calls its actual frame scheduling API. The watcher stops when the last
+animated object is detached or becomes determinate. Neither helper nor browser
+bridge chooses animation frames, artwork, a widget interval or an easing rule.
+
+`check-animation.py` passes 59 assertions: 48 complete frame images match direct
+native-provider references, both animated controls move, determinate/stopped
+controls stay stable, and restart, reinsertion, removal of every animated control,
+creation and reload preserve native output. Native traces verify real view
+invalidations and destruction with no button/key actions. Provider and helper
+probes independently cover native deadlines, idle wakeup, process isolation and
+stop/restart/destruction. The existing 62 keyboard/focus, 33 mouse, 20 progress
+and eight scrollbar checks pass with the new event service enabled.
+
+This is still one exact software-rendered ARM64 binary at 100% scale. The earlier
+initial-frame fallback remains unresolved. Keyboard activation animation, rich
+controls, other frontend/engine bindings, helper failure recovery and broader
+display/accessibility/performance qualification remain open. The engine may
+still request redundant progress repaints; its old progress pixels are not used
+by the native binding. See
+[`Libraries/NativeUI/animation-qualification.json`](../../Libraries/NativeUI/animation-qualification.json)
+for exact sources and evidence. Only integration libraries were rebuilt; the
+installed AppKit library and Chromium executable were unchanged.

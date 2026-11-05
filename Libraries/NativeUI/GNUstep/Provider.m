@@ -14,7 +14,9 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_size=nxs_gnustep_control_size,.control_draw=nxs_gnustep_control_draw,
     .control_track=nxs_gnustep_control_track,.control_send=nxs_gnustep_control_send,
     .control_focus=nxs_gnustep_control_focus,.control_focused=nxs_gnustep_control_focused,
-    .control_key=nxs_gnustep_control_key
+    .control_key=nxs_gnustep_control_key,
+    .dispatch_events=nxs_host_dispatch_events,
+    .control_needs_display=nxs_gnustep_control_needs_display
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

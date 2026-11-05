@@ -58,7 +58,10 @@ int nxs_gnustep_control_destroy(NXSControl *control)
 {
   if(!control)return 1;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  if(!nxs_host_destroy(control->host)){[pool drain];return 0;}
+  NSView *view=[control->view retain];
+  if(!nxs_host_destroy(control->host)){[view release];[pool drain];return 0;}
+  if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
+  [view release];
   [control->target release];free(control);[pool drain];return 1;
 }
 int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
@@ -78,6 +81,8 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     NSProgressIndicator *view=(NSProgressIndicator *)control->view;
     [view setMinValue:config->minimum];[view setMaxValue:config->maximum];[view setDoubleValue:config->value];
     [view setIndeterminate:!!config->indeterminate];
+    if(config->indeterminate&&control->enabled)[view startAnimation:nil];
+    else [view stopAnimation:nil];
   } else {
     [(NSControl *)control->view setEnabled:control->enabled];
     if(control->kind==NXS_SLIDER) {
@@ -121,3 +126,5 @@ int nxs_gnustep_control_focused(NXSControl *control)
 {return control?nxs_host_focused(control->host):0;}
 int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
 {return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_key(control->host,event):NXS_INPUT_UNHANDLED;}
+int nxs_gnustep_control_needs_display(NXSControl *control)
+{return control?nxs_host_needs_display(control->host):0;}

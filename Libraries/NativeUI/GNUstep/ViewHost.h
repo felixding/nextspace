@@ -13,3 +13,5 @@ int nxs_host_tracking(NXSViewHost *host);
 int nxs_host_focus(NXSViewHost *host,int focused);
 int nxs_host_focused(NXSViewHost *host);
 int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *event);
+double nxs_host_dispatch_events(double maximum_wait);
+int nxs_host_needs_display(NXSViewHost *host);

@@ -18,8 +18,11 @@ struct NXSResponse {
 };
 /* Generic native-control transport. UTF-8 title bytes follow this header.
  * The leading control/sequence fields share the scrollbar envelope.
- * Operations: 1 configure/draw, 2 press, 3 move, 4 release, 5 poll, 6 destroy.
+ * Operations: 1 configure/draw, 2 press, 3 move, 4 release, 5 poll, 6 destroy,
+ * 9 native event/invalidation poll for this process (no widget required).
  * Response part 0: value, tracking, action count, state. Part 1: preferred size.
+ * Part 4: process invalidation generation, next native delay (seconds or -1),
+ * event capabilities. Bootstrap part 4.height advertises event capabilities.
  * Payloads above 64 KiB arrive in a sealed memfd via SCM_RIGHTS; size still
  * describes the header plus pixels. Small payloads remain inline. */
 struct NXSControlRequest {

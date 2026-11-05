@@ -35,6 +35,7 @@ typedef struct {
 typedef void (*NXSControlChanged)(void *context, int event, const NXSControlState *state);
 
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
+enum NXSEventCapability { NXS_EVENTS = 1 };
 enum NXSKeyType { NXS_KEY_DOWN, NXS_KEY_UP, NXS_KEY_MODIFIERS };
 enum NXSKey {
   NXS_KEY_TEXT, NXS_KEY_ENTER, NXS_KEY_TAB, NXS_KEY_BACKSPACE, NXS_KEY_DELETE,
@@ -78,6 +79,9 @@ typedef struct {
   int (*control_focus)(NXSControl *, int);
   int (*control_focused)(NXSControl *);
   int (*control_key)(NXSControl *, const NXSKeyEvent *);
+  /* Optional native event-loop extension; timing and invalidation stay native. */
+  double (*dispatch_events)(double maximum_wait);
+  int (*control_needs_display)(NXSControl *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -98,6 +102,12 @@ unsigned nxs_control_input_capabilities(void);
 int nxs_control_focus(NXSControl *control, int focused);
 int nxs_control_focused(NXSControl *control);
 int nxs_control_key(NXSControl *control, const NXSKeyEvent *event);
+unsigned nxs_native_ui_event_capabilities(void);
+/* Service native events on the owning UI thread. maximum_wait is in seconds;
+ * zero is nonblocking. Return seconds until the next native deadline, or -1
+ * when none is available. This does not advance or draw controls itself. */
+double nxs_native_ui_dispatch_events(double maximum_wait);
+int nxs_control_needs_display(NXSControl *control);
 
 #ifdef __cplusplus
 }

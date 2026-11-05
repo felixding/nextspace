@@ -152,6 +152,22 @@ void nxs_host_resize(NXSViewHost *host,NSSize size)
   if(!host||NSEqualSizes([host->view frame].size,size))return;
   [host->view setFrameSize:size];[host->window setContentSize:size];
 }
+double nxs_host_dispatch_events(double maximum_wait)
+{
+  if(!NSApp||!isfinite(maximum_wait)||maximum_wait<0||maximum_wait>60)return -1;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSRunLoop *loop=[NSRunLoop currentRunLoop];
+  NSString *mode=active?NSEventTrackingRunLoopMode:NSDefaultRunLoopMode;
+  [loop runMode:mode beforeDate:[NSDate dateWithTimeIntervalSinceNow:maximum_wait]];
+  /* GNUstep services due timers and reports their own next deadline here.
+   * No control interval, animation counter or frame selection lives in host. */
+  NSDate *date=[loop limitDateForMode:mode];
+  double next=date&&[date compare:[NSDate distantFuture]]==NSOrderedAscending?
+    MAX(0,[date timeIntervalSinceNow]):-1;
+  [pool drain];return next;
+}
+int nxs_host_needs_display(NXSViewHost *host)
+{return host&&[host->view needsDisplay];}
 NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 {
   NXSBitmap result = {0};
