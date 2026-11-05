@@ -30,7 +30,10 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_text_filter=nxs_gnustep_control_text_filter,
     .control_text_command=nxs_gnustep_control_text_command,
     .control_track_clicks=nxs_gnustep_control_track_clicks,
-    .control_command_filter=nxs_gnustep_control_command_filter
+    .control_command_filter=nxs_gnustep_control_command_filter,
+    .menu_create=nxs_gnustep_menu_create,.menu_destroy=nxs_gnustep_menu_destroy,
+    .menu_items=nxs_gnustep_menu_items,.menu_show=nxs_gnustep_menu_show,
+    .menu_key=nxs_gnustep_menu_key,.menu_state=nxs_gnustep_menu_state
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

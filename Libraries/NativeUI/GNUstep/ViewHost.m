@@ -25,6 +25,11 @@ struct NXSViewHost {
   void *command_context;
 };
 static NXSViewHost *active,*focused;
+static NXSMenuLoop *menu_loop;
+void nxs_host_menu_begin(NXSMenuLoop *scope)
+{scope->previous=menu_loop;menu_loop=scope;}
+void nxs_host_menu_end(NXSMenuLoop *scope)
+{if(menu_loop==scope)menu_loop=scope->previous;}
 /* Auxiliary native windows (menus) must read the same pointer stream as their
  * owner during embedded tracking. Only the event source is adapted; native
  * menu layout, hit testing and tracking remain untouched. */
@@ -123,6 +128,7 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
  * toolkit so real pointer events and its other windows remain responsive. */
 @interface NXSApplication : NSApplication
 - (void)dispatchNativeEvent:(NSEvent *)event to:(NSResponder *)responder;
+- (BOOL)dispatchNativeEvent:(NSEvent *)event toMenu:(NSMenu *)menu;
 @end
 @implementation NXSApplication
 /* AppKit resolves nil-target menu actions through the embedding application's
@@ -151,7 +157,9 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
       case NSKeyDown:
         /* Reuse the editor's native command menu, including its key equivalents
          * and validation. Do not maintain an embedding-specific shortcut table. */
-        if(!([responder isKindOfClass:[NSView class]]&&
+        [[self mainMenu] update];
+        if(![[self mainMenu] performKeyEquivalent:event]&&
+           !([responder isKindOfClass:[NSView class]]&&
              [[(NSView *)responder menu] performKeyEquivalent:event]))
           [responder keyDown:event];
         break;
@@ -162,17 +170,25 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
   }
   @finally {[responder release];[_current_event release];_current_event=previous;}
 }
+- (BOOL)dispatchNativeEvent:(NSEvent *)event toMenu:(NSMenu *)menu
+{
+  NSEvent *previous=[_current_event retain];
+  [_current_event release];_current_event=[event retain];
+  @try {[menu update];return [menu performKeyEquivalent:event];}
+  @finally {[_current_event release];_current_event=previous;}
+}
 - (NSEvent *)nextEventMatchingMask:(NSUInteger)mask untilDate:(NSDate *)limit
                            inMode:(NSString *)mode dequeue:(BOOL)dequeue
 {
-  if (!active) return [super nextEventMatchingMask:mask untilDate:limit inMode:mode dequeue:dequeue];
+  if (!active&&!menu_loop) return [super nextEventMatchingMask:mask untilDate:limit inMode:mode dequeue:dequeue];
   do {
-    if(active->pump)active->pump(active->context);
+    if(menu_loop&&menu_loop->pump)menu_loop->pump(menu_loop->context);
+    else if(active&&active->pump)active->pump(active->context);
     NSDate *slice = [NSDate dateWithTimeIntervalSinceNow:.005];
     if ([limit compare:slice] == NSOrderedAscending) slice = limit;
     NSEvent *event = [super nextEventMatchingMask:mask untilDate:slice inMode:mode dequeue:dequeue];
     if (event) return event;
-  } while (active && [limit timeIntervalSinceNow] > 0);
+  } while ((active||menu_loop) && [limit timeIntervalSinceNow] > 0);
   return nil;
 }
 @end
@@ -194,6 +210,11 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 /* The embedding application supplies activation; a private backing window
  * must never acquire OS focus merely to activate its native field editor. */
 - (BOOL)isKeyWindow {return control&&focused==control;}
+/* Native menus restore their logical key window after an action. This window
+ * is only an editor backing, so that restoration must not map a second widget
+ * window beside the embedding application's real control. */
+- (void)orderWindow:(NSWindowOrderingMode)place relativeTo:(NSInteger)other
+{if(place==NSWindowOut)[super orderWindow:place relativeTo:other];}
 /* NSCell flushes its backing window during tracking. Its pixels belong to the
  * embedding widget; never submit this private window to the compositor. */
 - (void)flushWindow {[control->view setNeedsDisplay:YES];}
@@ -309,13 +330,13 @@ double nxs_host_dispatch_events(double maximum_wait)
   if(!NSApp||!isfinite(maximum_wait)||maximum_wait<0||maximum_wait>60)return -1;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   NSRunLoop *loop=[NSRunLoop currentRunLoop];
-  NSString *mode=active?NSEventTrackingRunLoopMode:NSDefaultRunLoopMode;
+  NSString *mode=active||menu_loop?NSEventTrackingRunLoopMode:NSDefaultRunLoopMode;
   [loop runMode:mode beforeDate:[NSDate dateWithTimeIntervalSinceNow:maximum_wait]];
   /* Native menus own real auxiliary windows. Run their queued AppKit window
    * and input events as NSApplication normally does, unless a native tracking
    * loop already owns the queue. Never take events out of that loop. */
   unsigned dispatched=0;
-  if(!active)while(dispatched<1024) {
+  if(!active&&!menu_loop)while(dispatched<1024) {
     NSEvent *event=[NSApp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantPast]
       inMode:NSDefaultRunLoopMode dequeue:YES];
     if(!event)break;
@@ -407,7 +428,7 @@ void nxs_host_track(NXSViewHost *control, double x, double y, unsigned modifiers
 {nxs_host_track_clicks(control,x,y,modifiers,1);}
 int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifiers,unsigned clicks)
 {
-  if (!control || active || !clicks || clicks>INT_MAX || !isfinite(x) || !isfinite(y)) return 0;
+  if (!control || active || menu_loop || !clicks || clicks>INT_MAX || !isfinite(x) || !isfinite(y)) return 0;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
   /* Native cells may prepare their track/knob geometry while drawing. An
    * offscreen host has no automatic display pass between resize and input;
@@ -504,20 +525,31 @@ static NSString *key_characters(const NXSKeyEvent *event,BOOL unmodified)
   }
   return key?[NSString stringWithCharacters:&key length:1]:nil;
 }
-int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *input)
+static NSEvent *key_event(const NXSKeyEvent *input,NSWindow *window)
 {
-  if(!host||!input||input->size<sizeof(*input)||input->type>NXS_KEY_MODIFIERS||
-     active||!nxs_host_focused(host))return NXS_INPUT_UNHANDLED;
-  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  if(!input||input->size<sizeof(*input)||input->type>NXS_KEY_MODIFIERS)return nil;
   NSString *text=key_characters(input,NO),*unmodified=key_characters(input,YES);
-  if(!text||!unmodified){[pool drain];return NXS_INPUT_UNHANDLED;}
-  if([host->view needsDisplay])nxs_host_draw(host,1);
+  if(!text||!unmodified)return nil;
   NSUInteger modifiers=flags(input->modifiers);
   if(input->key>=NXS_KEY_LEFT)modifiers|=NSFunctionKeyMask;
-  NSEvent *event=[NSEvent keyEventWithType:input->type==NXS_KEY_DOWN?NSKeyDown:input->type==NXS_KEY_UP?NSKeyUp:NSFlagsChanged
+  return [NSEvent keyEventWithType:input->type==NXS_KEY_DOWN?NSKeyDown:input->type==NXS_KEY_UP?NSKeyUp:NSFlagsChanged
     location:NSZeroPoint modifierFlags:modifiers timestamp:[NSDate timeIntervalSinceReferenceDate]
-    windowNumber:[host->window windowNumber] context:nil characters:text
+    windowNumber:[window windowNumber] context:nil characters:text
     charactersIgnoringModifiers:unmodified isARepeat:!!input->repeat keyCode:0];
+}
+int nxs_host_menu_key(NSMenu *menu,const NXSKeyEvent *input)
+{
+  if(!menu||!input||input->size<sizeof(*input)||input->type!=NXS_KEY_DOWN)return 0;
+  NSEvent *event=key_event(input,[menu window]);
+  return event&&[(NXSApplication *)NSApp dispatchNativeEvent:event toMenu:menu];
+}
+int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *input)
+{
+  if(!host||active||menu_loop||!nxs_host_focused(host))return NXS_INPUT_UNHANDLED;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSEvent *event=key_event(input,host->window);
+  if(!event){[pool drain];return NXS_INPUT_UNHANDLED;}
+  if([host->view needsDisplay])nxs_host_draw(host,1);
   host->key_result=NXS_INPUT_HANDLED;host->dispatch_depth++;active=host;
   @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:[host->window firstResponder]];}
   @finally {host->dispatch_depth--;active=NULL;}

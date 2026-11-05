@@ -2,6 +2,13 @@
 #import <AppKit/AppKit.h>
 #include "../NativeUI.h"
 typedef struct NXSViewHost NXSViewHost;
+typedef struct NXSMenuLoop {
+  NXSPump pump;
+  void *context;
+  struct NXSMenuLoop *previous;
+} NXSMenuLoop;
+void nxs_host_menu_begin(NXSMenuLoop *);
+void nxs_host_menu_end(NXSMenuLoop *);
 int nxs_host_initialize(void);
 NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context);
 int nxs_host_destroy(NXSViewHost *host);
@@ -14,6 +21,7 @@ int nxs_host_tracking(NXSViewHost *host);
 int nxs_host_focus(NXSViewHost *host,int focused);
 int nxs_host_focused(NXSViewHost *host);
 int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *event);
+int nxs_host_menu_key(NSMenu *,const NXSKeyEvent *);
 int nxs_host_command_filter(NXSViewHost *,NXSCommandFilter,void *);
 int nxs_host_command(NXSViewHost *,SEL,unsigned);
 double nxs_host_dispatch_events(double maximum_wait);

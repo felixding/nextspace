@@ -35,6 +35,7 @@ parser.add_argument('--previous-text-filter-provider',type=Path,help='Text provi
 parser.add_argument('--previous-text-client',type=Path,help='Unchanged text probe from before the pre-edit extension')
 parser.add_argument('--previous-text-command-provider',type=Path,help='Provider predating optional native command reporting')
 parser.add_argument('--previous-command-filter-provider',type=Path,help='Provider predating application command validation/execution')
+parser.add_argument('--previous-menu-provider',type=Path,help='Provider predating optional application menus')
 parser.add_argument('--previous-pointer-provider',type=Path,help='Provider predating optional native click-count metadata')
 parser.add_argument('--previous-input-client',type=Path,help='Unchanged earlier focus/keyboard client')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
@@ -187,6 +188,15 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-probe')]+backend,
             environment,'command-filter',timeout=15)
         assert code==0,(code,stderr);checks['native_command_filter']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-probe')]+backend,
+            environment,'menu',timeout=20)
+        (args.output/'menu.stdout').write_text(stdout);(args.output/'menu.stderr').write_text(stderr)
+        assert code==0,(code,stderr);checks['native_menu']=json.loads(stdout)
+        if args.previous_menu_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-probe'),'--expect-no-menu']+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_menu_provider.resolve())),
+                'previous-menu-provider',timeout=10)
+            assert code==0,(code,stderr);checks['previous_provider_without_menus']=json.loads(stdout)
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-thread-probe')],
             environment,'command-thread',timeout=10)
         (args.output/'command-thread.stdout').write_text(stdout)

@@ -1,0 +1,1356 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "13755fa0",
+  "status": "Qualified shared native application-menu foundation. Browser menu models, menu IPC and idle command dispatch are not connected; full browser/toolkit integration remains incomplete.",
+  "api": {
+    "version": 1,
+    "size": 352,
+    "input": 3,
+    "pointer": 1,
+    "text": 7,
+    "command": 1,
+    "menu": 1
+  },
+  "environment": {
+    "hashes": {
+      "chromium_adapter": "6c394c0bfdd1edbada6cbb770002b76d1612d5fde972ae33d60aa94da969c1f7",
+      "firefox_adapter": "6d3eefd9dcb85ba4a783a0294889b3bff3a6dea8cf5e0b71c0873cd34e48ee8b",
+      "provider": "ad2fbcd901c0b5cfcf34c672d086494b297fb5b43b40ee6ca3d8cb5e92a5ec53",
+      "shim": "95d625ada301c0d92ee6c3067bbc2934070be7c8179dc24a4031d04b232fde84",
+      "loader": "f14576a9d32fcc1c0e50590a3ff089137d09616a34069627206714a8e5331bbf",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "owned_browser_pids": {
+      "chromium": [
+        13448,
+        13473,
+        13474,
+        13483,
+        13516,
+        13523,
+        13526,
+        13550,
+        13574,
+        13606,
+        14066
+      ],
+      "firefox": [
+        13449,
+        13648,
+        13651,
+        13677,
+        13686,
+        13718,
+        13784,
+        13787,
+        13826,
+        13834,
+        13850
+      ]
+    },
+    "renderers": {
+      "chromium": [
+        {
+          "pid": 13574,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 13606,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 14066,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 13677,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 13718,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 13784,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 13787,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 13834,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 13850,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "packages": 1050
+  },
+  "application_binaries_and_AppKit_unchanged": true,
+  "browser_adapters_unchanged": true,
+  "small_provider_loader_shim_rebuilt": true,
+  "native_menu_windows": {
+    "checks": 14,
+    "passed": 14,
+    "evidence": ".build/native-ui/menu-evidence/menu-windows-final/results.json"
+  },
+  "chromium_command_regressions": {
+    "checks": 44,
+    "passed": 44,
+    "evidence": ".build/native-ui/menu-evidence/final-chromium-commands/results.json"
+  },
+  "firefox_command_regressions": {
+    "checks": 83,
+    "passed": 83,
+    "evidence": ".build/native-ui/menu-evidence/menu-final-firefox/commands/results.json"
+  },
+  "native_provider_tests": {
+    "controls": [
+      {
+        "kind": 1,
+        "preferred": [
+          94,
+          20
+        ],
+        "native_actions": 1,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 2,
+        "preferred": [
+          94.0034,
+          15.0034
+        ],
+        "native_actions": 1,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 3,
+        "preferred": [
+          95.0036,
+          15.0034
+        ],
+        "native_actions": 1,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 4,
+        "preferred": [
+          8,
+          4
+        ],
+        "native_actions": 2,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 5,
+        "preferred": [
+          128,
+          24
+        ],
+        "native_actions": 0,
+        "cancel_actions": 0,
+        "disabled_actions": 0
+      }
+    ],
+    "legacy_tracking": {
+      "tracked_value": 541.463,
+      "slow_value": 358.537,
+      "alternate_arrow_value": 480
+    },
+    "no_mapped_backing_window": true,
+    "native_input": {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    "native_backing": {
+      "native_cases": 6,
+      "identical_redraws": 30,
+      "selection_retained": true
+    },
+    "native_mouse": {
+      "native_click_metadata": true,
+      "legacy_single_click": true,
+      "focus_keyboard_capabilities_unchanged": true,
+      "invalid_input_rejected": true
+    },
+    "native_text": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "native_command_filter": {
+      "native_controls": 2,
+      "empty_clipboard_command": true,
+      "application_validation": true,
+      "native_copy_fallback": true,
+      "secure_copy_protected": true,
+      "no_second_edit": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "native_menu": {
+      "native_menu_model": true,
+      "native_submenus": true,
+      "native_key_equivalents": true,
+      "native_modifier_preferences": true,
+      "application_validation": true,
+      "field_menu_routing": true,
+      "atomic_invalid_model_rejection": true,
+      "reentrant_mutation_rejected": true,
+      "show_hide_destroy": true
+    },
+    "previous_provider_without_menus": {
+      "unsupported_menu_rejected": true
+    },
+    "native_command_thread": {
+      "passed": true,
+      "command_callbacks": 2,
+      "edit_callbacks": 1,
+      "wrong_thread_callbacks": 0,
+      "worker_edit_registration": 0,
+      "worker_command_registration": 0,
+      "worker_unregister": 0,
+      "owner_unregister": 1
+    },
+    "native_text_filter": {
+      "native_filter_controls": 2,
+      "pre_mutation_value": true,
+      "native_ranges_and_selectors": true,
+      "typing_veto": true,
+      "deletion_veto": true,
+      "cut_veto": true,
+      "paste_proposal": true,
+      "unicode": true,
+      "focus_transfer": true,
+      "model_rebind": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "native_range": {
+      "coarse_native_keys": 3,
+      "dense_native_keys": 1,
+      "range_update": true,
+      "invalid_rejected": true
+    },
+    "native_popup": {
+      "native_popup": true,
+      "duplicate_labels": true,
+      "disabled_item_no_action": true,
+      "separator": true,
+      "keyboard_actions": 1,
+      "mouse_actions": 1,
+      "deferred_destruction": 2,
+      "empty_model": true,
+      "invalid_model_atomic": true,
+      "destroy_open_menu": true,
+      "native_descriptor_wakeup": true,
+      "explicit_open_close": true,
+      "screen_origin": true,
+      "sync_retains_live_highlight": true,
+      "model_retains_disabled_state": true
+    },
+    "native_animation": {
+      "frames": 12,
+      "unique_native_images": 3,
+      "static_invalidations": 0,
+      "restart": true,
+      "actions": 0,
+      "times": [
+        0.001053,
+        0.090131,
+        0.172504,
+        0.259682,
+        0.339806,
+        0.423128,
+        0.506605,
+        0.589257,
+        0.672515,
+        0.755824,
+        0.839215,
+        0.922658
+      ],
+      "native_next_delays": [
+        0.004716,
+        0.082305,
+        0.083264,
+        0.079421,
+        0.08263,
+        0.082641,
+        0.082497,
+        0.083178,
+        0.083253,
+        0.083277,
+        0.08322,
+        0.08312
+      ]
+    },
+    "previous_client_unchanged_with_new_provider": true,
+    "previous_loader_and_client_unchanged_with_new_provider": true,
+    "alternate_provider_same_client_and_native_behavior": true,
+    "wrong_provider_abi_rejected": true,
+    "loader_has_no_ui_toolkit_dependency": true,
+    "provider_internals_not_exported": true,
+    "transport_transport": [
+      {
+        "kind": 1,
+        "actions": 1.0,
+        "cancelled_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 2,
+        "actions": 1.0,
+        "cancelled_actions": 0,
+        "disabled_actions": 0
+      },
+      {
+        "kind": 3,
+        "actions": 1.0,
+        "cancelled_actions": 0,
+        "disabled_actions": 0
+      }
+    ],
+    "transport_input": [
+      {
+        "kind": 1,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 2,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 3,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      },
+      {
+        "kind": 4,
+        "native_key_actions": 1,
+        "focus_and_blur": true,
+        "navigation_requests": 2,
+        "disabled_actions": 0,
+        "unfocused_actions": 0
+      }
+    ],
+    "transport_animation": {
+      "frames": 12,
+      "unique_native_images": 3,
+      "idle_native_wakeup": true,
+      "process_isolation": true,
+      "stopped_stable": true,
+      "restart": true,
+      "destroy_stops_invalidation": true,
+      "native_actions": 0,
+      "generations": [
+        1.0,
+        2.0,
+        3.0,
+        4.0,
+        5.0,
+        6.0,
+        7.0,
+        8.0,
+        9.0,
+        10.0,
+        11.0,
+        12.0
+      ],
+      "native_next_delays": [
+        0.07938146591186523,
+        0.0735398530960083,
+        0.07186925411224365,
+        0.07557368278503418,
+        0.07772195339202881,
+        0.07148337364196777,
+        0.07712376117706299,
+        0.06673216819763184,
+        0.07616949081420898,
+        0.07638883590698242,
+        0.07458221912384033,
+        0.06604063510894775
+      ]
+    },
+    "transport_notifications": {
+      "passed": 26,
+      "results": [
+        {
+          "case": "register-separate-process-descriptors",
+          "passed": true
+        },
+        {
+          "case": "idle-descriptors-not-readable",
+          "passed": true
+        },
+        {
+          "case": "native-action-wakes-owner",
+          "passed": true
+        },
+        {
+          "case": "generation-follows-native-action",
+          "passed": true
+        },
+        {
+          "case": "invalidations-coalesce",
+          "passed": true
+        },
+        {
+          "case": "reject-file-descriptor",
+          "passed": true
+        },
+        {
+          "case": "reject-blocking-counter-without-changing-flags",
+          "passed": true
+        },
+        {
+          "case": "reject-semaphore-counter",
+          "passed": true
+        },
+        {
+          "case": "bad-registration-retains-original",
+          "passed": true
+        },
+        {
+          "case": "reject-cross-process-shared-counter",
+          "passed": true
+        },
+        {
+          "case": "process-isolation-after-rejection",
+          "passed": true
+        },
+        {
+          "case": "unregister-preserves-caller-descriptor",
+          "passed": true
+        },
+        {
+          "case": "unregistered-no-notification",
+          "passed": true
+        },
+        {
+          "case": "registration-catches-missed-generation",
+          "passed": true
+        },
+        {
+          "case": "saturated-counter-never-blocks",
+          "passed": true
+        },
+        {
+          "case": "counter-usable-after-drain",
+          "passed": true
+        },
+        {
+          "case": "replace-registration",
+          "passed": true
+        },
+        {
+          "case": "replacement-closes-old-helper-reference",
+          "passed": true
+        },
+        {
+          "case": "replacement-is-exclusive",
+          "passed": true
+        },
+        {
+          "case": "native-timer-wakes-without-polling",
+          "passed": true,
+          "seconds": 0.07758994799951324
+        },
+        {
+          "case": "unregister-idempotent",
+          "passed": true
+        },
+        {
+          "case": "other-process-still-registered",
+          "passed": true
+        },
+        {
+          "case": "unregister-closes-helper-references",
+          "passed": true
+        },
+        {
+          "case": "disconnect-closes-only-helper-reference",
+          "passed": true
+        },
+        {
+          "case": "owner-crash-releases-notifier-with-shared-connection-alive",
+          "passed": true
+        },
+        {
+          "case": "owner-crash-destroys-its-native-control",
+          "passed": true
+        }
+      ]
+    },
+    "transport_popup": {
+      "passed": 20,
+      "results": [
+        {
+          "case": "popup-capability",
+          "passed": true
+        },
+        {
+          "case": "native-screen-origin-request",
+          "passed": true
+        },
+        {
+          "case": "native-item-model",
+          "passed": true
+        },
+        {
+          "case": "native-control-pixels",
+          "passed": true
+        },
+        {
+          "case": "native-focus",
+          "passed": true
+        },
+        {
+          "case": "native-focus-pixels",
+          "passed": true
+        },
+        {
+          "case": "explicit-native-open-unfocused",
+          "passed": true
+        },
+        {
+          "case": "explicit-native-close-no-action",
+          "passed": true
+        },
+        {
+          "case": "native-open-key",
+          "passed": true
+        },
+        {
+          "case": "idle-menu-no-busy-poll",
+          "passed": true,
+          "cpu_seconds": 0.0,
+          "wall_seconds": 0.2
+        },
+        {
+          "case": "native-escape-cancels",
+          "passed": true
+        },
+        {
+          "case": "disabled-item-no-selection",
+          "passed": true
+        },
+        {
+          "case": "native-keyboard-selection",
+          "passed": true
+        },
+        {
+          "case": "duplicate-label-index-retained",
+          "passed": true
+        },
+        {
+          "case": "other-process-model-isolated",
+          "passed": true
+        },
+        {
+          "case": "invalid-model-atomic",
+          "passed": true
+        },
+        {
+          "case": "tracking-rejects-model-replacement",
+          "passed": true
+        },
+        {
+          "case": "native-mouse-selection",
+          "passed": true
+        },
+        {
+          "case": "disabled-no-menu-or-action",
+          "passed": true
+        },
+        {
+          "case": "destroy-open-menu",
+          "passed": true
+        }
+      ]
+    },
+    "transport_text": {
+      "native_text_transport": [
+        {
+          "case": "text-created",
+          "passed": true
+        },
+        {
+          "case": "text-model",
+          "passed": true
+        },
+        {
+          "case": "text-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "text-focus",
+          "passed": true
+        },
+        {
+          "case": "text-reject-click-count-0",
+          "passed": true
+        },
+        {
+          "case": "text-reject-click-count--1",
+          "passed": true
+        },
+        {
+          "case": "text-click-count-accepted-2",
+          "passed": true
+        },
+        {
+          "case": "text-busy-click-rejected-2",
+          "passed": true
+        },
+        {
+          "case": "text-native-click-selection-2",
+          "passed": true
+        },
+        {
+          "case": "text-click-count-accepted-3",
+          "passed": true
+        },
+        {
+          "case": "text-busy-click-rejected-3",
+          "passed": true
+        },
+        {
+          "case": "text-native-click-selection-3",
+          "passed": true
+        },
+        {
+          "case": "text-native-focused-pixels",
+          "passed": true
+        },
+        {
+          "case": "text-selection-replace",
+          "passed": true
+        },
+        {
+          "case": "text-native-command-selector",
+          "passed": true
+        },
+        {
+          "case": "text-tab",
+          "passed": true
+        },
+        {
+          "case": "text-backtab",
+          "passed": true
+        },
+        {
+          "case": "text-utf16-unicode",
+          "passed": true
+        },
+        {
+          "case": "emacs-control-a",
+          "passed": true
+        },
+        {
+          "case": "emacs-control-e",
+          "passed": true
+        },
+        {
+          "case": "native-copy-command-without-mutation",
+          "passed": true
+        },
+        {
+          "case": "native-alt-copy-paste",
+          "passed": true
+        },
+        {
+          "case": "native-alt-cut",
+          "passed": true
+        },
+        {
+          "case": "text-return-activation",
+          "passed": true
+        },
+        {
+          "case": "text-read-only",
+          "passed": true
+        },
+        {
+          "case": "text-reject-invalid-text",
+          "passed": true
+        },
+        {
+          "case": "text-reject-invalid-text",
+          "passed": true
+        },
+        {
+          "case": "text-reject-invalid-range",
+          "passed": true
+        },
+        {
+          "case": "text-disabled-click",
+          "passed": true
+        },
+        {
+          "case": "text-disabled-focus",
+          "passed": true
+        },
+        {
+          "case": "text-disabled-key",
+          "passed": true
+        },
+        {
+          "case": "text-destroyed",
+          "passed": true
+        },
+        {
+          "case": "password-created",
+          "passed": true
+        },
+        {
+          "case": "password-model",
+          "passed": true
+        },
+        {
+          "case": "password-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "password-focus",
+          "passed": true
+        },
+        {
+          "case": "password-reject-click-count-0",
+          "passed": true
+        },
+        {
+          "case": "password-reject-click-count--1",
+          "passed": true
+        },
+        {
+          "case": "password-click-count-accepted-2",
+          "passed": true
+        },
+        {
+          "case": "password-busy-click-rejected-2",
+          "passed": true
+        },
+        {
+          "case": "password-native-click-selection-2",
+          "passed": true
+        },
+        {
+          "case": "password-click-count-accepted-3",
+          "passed": true
+        },
+        {
+          "case": "password-busy-click-rejected-3",
+          "passed": true
+        },
+        {
+          "case": "password-native-click-selection-3",
+          "passed": true
+        },
+        {
+          "case": "password-native-focused-pixels",
+          "passed": true
+        },
+        {
+          "case": "password-selection-replace",
+          "passed": true
+        },
+        {
+          "case": "password-native-command-selector",
+          "passed": true
+        },
+        {
+          "case": "password-tab",
+          "passed": true
+        },
+        {
+          "case": "password-backtab",
+          "passed": true
+        },
+        {
+          "case": "password-utf16-unicode",
+          "passed": true
+        },
+        {
+          "case": "secure-copy-keeps-previous-clipboard",
+          "passed": true
+        },
+        {
+          "case": "password-return-activation",
+          "passed": true
+        },
+        {
+          "case": "password-read-only",
+          "passed": true
+        },
+        {
+          "case": "password-reject-invalid-text",
+          "passed": true
+        },
+        {
+          "case": "password-reject-invalid-text",
+          "passed": true
+        },
+        {
+          "case": "password-reject-invalid-range",
+          "passed": true
+        },
+        {
+          "case": "password-disabled-click",
+          "passed": true
+        },
+        {
+          "case": "password-disabled-focus",
+          "passed": true
+        },
+        {
+          "case": "password-disabled-key",
+          "passed": true
+        },
+        {
+          "case": "password-destroyed",
+          "passed": true
+        }
+      ]
+    },
+    "transport_text_filter": {
+      "native_pre_edit_ipc": true,
+      "proposals": 7,
+      "nested_reads": 14,
+      "nested_mutations_rejected": 7,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true,
+      "native_application_command_ipc": true,
+      "application_command_validation": true,
+      "command_nested_reads_and_mutation_rejection": true,
+      "command_peer_loss_veto": true,
+      "command_expiry_veto": true,
+      "command_frame_destruction": true,
+      "command_idle_after_expiry_and_destroy": true,
+      "late_command_before_current_edit_decision": true
+    },
+    "unchanged_legacy_pixels": [
+      "vertical-normal-1",
+      "vertical-disabled-1",
+      "vertical-fitting-1",
+      "vertical-normal-1.25",
+      "vertical-disabled-1.25",
+      "vertical-fitting-1.25",
+      "vertical-normal-1.5",
+      "vertical-disabled-1.5",
+      "vertical-fitting-1.5",
+      "vertical-normal-1.75",
+      "vertical-disabled-1.75",
+      "vertical-fitting-1.75",
+      "vertical-normal-2",
+      "vertical-disabled-2",
+      "vertical-fitting-2",
+      "horizontal-normal-1",
+      "horizontal-disabled-1",
+      "horizontal-fitting-1",
+      "horizontal-normal-1.25",
+      "horizontal-disabled-1.25",
+      "horizontal-fitting-1.25",
+      "horizontal-normal-1.5",
+      "horizontal-disabled-1.5",
+      "horizontal-fitting-1.5",
+      "horizontal-normal-1.75",
+      "horizontal-disabled-1.75",
+      "horizontal-fitting-1.75",
+      "horizontal-normal-2",
+      "horizontal-disabled-2",
+      "horizontal-fitting-2"
+    ]
+  },
+  "diagnostic_findings": [
+    "The first standalone fixture lacked its private pasteboard service; the native-field portion of startup could not contact GPBS. The corrected fixture owns a real storage service.",
+    "The compositor control pointer command accepts integer coordinates. Test points now round measured native item centers before sending them.",
+    "A native submenu is an xdg popup, not a second toplevel. Native visibility and the compositor popup query establish its actual mapping.",
+    "A compositor input acknowledgment precedes native menu hit testing. The fixture waits for the actual native leaf highlight before releasing.",
+    "Keeping a focused native field alive exposed normal AppKit key-window restoration mapping its private backing. The final backing host denies ordering; the final test rejects competing field input during tracking and observes no extra window after the menu hides.",
+    "An earlier Firefox diagnostic failed a native application clipboard roundtrip, then passed 83 checks on retry. A fresh final cohort passed all 83 on its first run. Rapid clipboard focus/owner lifetime behavior remains unqualified.",
+    "A provider was rebuilt while two owned diagnostic browser instances still had it loaded. Those cohorts were stopped; all final qualification used fresh processes and an immutable separate menu-final-build directory."
+  ],
+  "cleanup": {
+    "processes": [
+      {
+        "pid": 11889,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11941,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11944,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11945,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11953,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11956,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11958,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11959,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11966,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11969,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11973,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11974,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11979,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11980,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11985,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11986,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11987,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11989,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11993,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11994,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11995,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 11996,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12538,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12687,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12690,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12694,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12695,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12715,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12718,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12720,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12721,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12727,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12765,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12768,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12770,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12771,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12772,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12934,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12937,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12939,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 12940,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13405,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13408,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13411,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13412,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13415,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13420,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13425,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13426,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13429,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13431,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13432,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13434,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13437,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13441,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13448,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13449,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13473,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13474,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13483,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13516,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13523,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13526,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13550,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13574,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13606,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13648,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13651,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13677,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13686,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13718,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13784,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13787,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13826,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13834,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13850,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 13935,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 14066,
+        "state": null,
+        "stopped": true
+      }
+    ],
+    "sockets": [
+      {
+        "path": "/var/tmp/nextspace-native-ui/menu-chromium-qualified/control.sock",
+        "exists": false
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/menu-firefox-qualified/control.sock",
+        "exists": false
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/menu-final-chromium/control.sock",
+        "exists": false
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/menu-final-firefox/control.sock",
+        "exists": false
+      }
+    ],
+    "private_alias_removed": true
+  },
+  "owned_CDP_session_and_forwarding_closed": true,
+  "raw_evidence": ".build/native-ui/menu-evidence",
+  "remaining": [
+    "Browser application menu-model extraction, menu transport and owner-loop dispatch while idle.",
+    "Native browser Undo/Redo availability and execution through actual controllers.",
+    "Broader live menu updates, torn-off states, icons and application-specific menu models.",
+    "Clipboard focus/owner lifetimes, IME, accessibility, scaling and remaining controls/dialogs.",
+    "Chrome/Vivaldi/Firefox derivatives, then GTK/Qt/KDE applications."
+  ],
+  "source_sha256": {
+    "Libraries/NativeUI/GNUstep/Menu.m": "8fd8669f451c14cd578e0fd5ee7eae2076e9a7e984cf79d7f43db05ed601114c",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "35c9d8332c3c46e9409be4b67b877ad89e4d9bbb2ef470d713f0c55f63776a02",
+    "Libraries/NativeUI/NativeUI.h": "44716e9a2c826e090f15e85f32b5dece54d8440818b655f410197db9fb0fccf6",
+    "Tests/NativeUI/menu-probe.m": "df94725ffe041e96b0e26b52e2a20a344bb06e0254af24280b56d4424ead46ed",
+    "Tests/NativeUI/check-menus.py": "66e0cc68859967f25f1f4a3dbe9f4049c14dd4a2b9a0d31ca075fd20b9e4f399"
+  }
+}

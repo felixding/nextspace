@@ -40,11 +40,11 @@ required integration surfaces differ:
 | GTK applications | Toolkit controls, layout, editing, menus, commands, dialogs and input adapters | Existing GTK3/GTK4 adapters cover scrollbars only. |
 | Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
 | Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
-| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing, editing keys and single/Shift/double/triple-click selection and dragging connected to real Blink transactions. Text clipboard/IME, sizing/scaling and broader commands remain open. |
+| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing, editing keys and single/Shift/double/triple-click selection and dragging connected to real Blink transactions. Native clipboard validation/execution now uses the existing Blink commands. IME, sizing/scaling and broader commands remain open. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | The pinned Chromium Omnibox now uses the shared native text field for complete pixels, editing keys, native-interpreted clipboard commands, single/Shift/double/triple-click selection and dragging. Undo/availability, IME, other Views controls and menus remain open; Chrome builds are not qualified. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single/Shift/double/triple-click selection and dragging through the shared provider. Text clipboard commands, selected-text data dragging, IME, other controls, scaled output and broader input remain open. |
-| Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | The pinned Firefox address editor now uses the shared native field for complete pixels, editing keys and pointer selection, including multiple clicks. Clipboard/application commands, menus, other frontend controls and wider qualification remain open. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single/Shift/double/triple-click selection and dragging through the shared provider. Native clipboard validation/execution now uses the existing Gecko controllers. Selected-text data dragging, IME, other controls, scaled output and broader input remain open. |
+| Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | The pinned Firefox address editor now uses the shared native field for complete pixels, editing keys and pointer selection, including multiple clicks. Native clipboard validation/execution now uses the actual URL-bar controllers. Menus, Undo/Redo availability, other frontend controls and wider qualification remain open. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
 Chromium's own documentation describes its Linux GTK integration as primarily
@@ -301,3 +301,16 @@ invalidation and failure recovery. Single-click/Shift-click/selection dragging
 now use the actual native editor, including double/triple-click word/line selection; data dragging, clipboard and
 menu command semantics, IME, other text types/scales and browser frontends
 remain open. See [text qualification](../Experiments/FirefoxNativeUI/text-qualification.json).
+
+
+## Shared application menu foundation
+
+The NativeUI provider now exposes optional application menus built from real
+GNUstep NSMenu/NSMenuItem controls. Application models supply titles, hierarchy,
+command IDs, state and native key-equivalent metadata; AppKit owns presentation
+and interaction. Physical menu tracking, submenu actions, main-menu editing-key
+routing and complete native images are qualified independently of browsers.
+See [menu qualification](../Libraries/NativeUI/menu-qualification.json).
+Browser menu-model extraction, menu transport and idle owner-loop command
+dispatch remain to implement. This foundation does not establish native browser
+menus or coverage for GTK/Qt/KDE applications.

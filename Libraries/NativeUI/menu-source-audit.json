@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-06",
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenu.m",
+      "sha256": "db15ecc3067c18bea86a64e071b721ffb8a50b76189ed999e6bb99c50add0b3a",
+      "bytes": 54799
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenuItem.m",
+      "sha256": "0d5aecf9f213a2507432b1bf4cf470de97c45d58b5d26b8e1a6de348d20e2e38",
+      "bytes": 21032
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenuView.m",
+      "sha256": "f46ad3734a4cfdf5d7ae9af67011c9515f12427df54da6b55b8ade532e7c0933",
+      "bytes": 59407
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSApplication.m",
+      "sha256": "9f63bfce8820a1c2f6e231eb680b0fc618eca6a871f7fbdd01920551dc006f25",
+      "bytes": 123466
+    }
+  ],
+  "bindings": [
+    "NSMenu/NSMenuItem supply the entire native menu implementation. A native NSMenu subclass adds application model availability for submenu items; leaf targets delegate availability/execution through opaque application command IDs.",
+    "NSApplication setMainMenu and NSMenu display/close own the detached root. AppKit selects native key equivalents before field editor commands. Existing host event conversion supplies physical key preferences.",
+    "Actual NSMenuDidBeginTracking/DidEndTracking notifications delimit the embedding pump scope. The native loop retains its event queue; the caller can process its descriptors without stealing queued native menu events.",
+    "Private editor backing windows reject window ordering except order-out, preventing normal native menu key-window restoration from mapping an extra widget."
+  ],
+  "no_copied_UI_algorithms": true,
+  "no_application_recompile": true,
+  "raw_source": ".build/native-ui/menu-source",
+  "runtime_evidence": ".build/native-ui/menu-evidence/",
+  "remaining": "Browser menu-model extraction, transport, idle owner-loop command dispatch and complete application/toolkit menu qualification."
+}

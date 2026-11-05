@@ -10,6 +10,7 @@ extern "C" {
 typedef struct NXSScroller NXSScroller;
 typedef struct NXSControl NXSControl;
 typedef struct NXSEventSource NXSEventSource;
+typedef struct NXSMenu NXSMenu;
 typedef struct { double x, y, width, height; } NXSRect;
 typedef struct { double width, height; } NXSSize;
 typedef struct { int width, height, stride; const unsigned char *pixels; } NXSBitmap;
@@ -94,6 +95,31 @@ enum NXSCommandPhase { NXS_COMMAND_VALIDATE, NXS_COMMAND_EXECUTE };
  * responder/menu, never from a consumer shortcut table. */
 typedef int (*NXSCommandFilter)(void *context,const char *selector,unsigned phase);
 
+enum NXSMenuFlag {
+  NXS_MENU_SEPARATOR=1, NXS_MENU_DISABLED=2, NXS_MENU_CHECKED=4,
+  NXS_MENU_MIXED=8, NXS_MENU_SUBMENU=16
+};
+/* Menu key equivalents name native modifier roles, independently of the
+ * physical event modifiers. The UI library applies the user's key preferences. */
+enum NXSMenuModifier {
+  NXS_MENU_COMMAND=1, NXS_MENU_SHIFT=2, NXS_MENU_CONTROL=4, NXS_MENU_ALTERNATE=8
+};
+typedef struct {
+  uint32_t size;
+  int32_t parent; /* -1 for root; otherwise an earlier SUBMENU item index. */
+  uint64_t command;
+  const char *title,*key_equivalent;
+  uint32_t modifiers,flags;
+} NXSMenuItem;
+typedef struct {
+  uint32_t size;
+  int visible,tracking,highlighted,enabled;
+  NXSRect frame,item_frame; /* Native main-screen top-left logical coordinates. */
+} NXSMenuState;
+/* Return one for enabled/executed, zero for rejected. Commands are opaque
+ * application IDs; native menus own matching, validation and action dispatch. */
+typedef int (*NXSMenuCommand)(void *context,uint64_t command,unsigned phase);
+
 /* The provider owns all native objects, metrics, drawing and interaction.
  * Consumers own application models and translate events through this C ABI.
  * Coordinates are logical units from the top-left of the returned bitmap.
@@ -140,6 +166,12 @@ typedef struct {
   const char *(*control_text_command)(NXSControl *);
   int (*control_track_clicks)(NXSControl *,double,double,unsigned,unsigned);
   int (*control_command_filter)(NXSControl *,NXSCommandFilter,void *);
+  NXSMenu *(*menu_create)(const char *,NXSMenuCommand,NXSPump,void *);
+  int (*menu_destroy)(NXSMenu *);
+  int (*menu_items)(NXSMenu *,const NXSMenuItem *,uint32_t);
+  int (*menu_show)(NXSMenu *,int);
+  int (*menu_key)(NXSMenu *,const NXSKeyEvent *);
+  NXSMenuState (*menu_state)(NXSMenu *,int);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -216,6 +248,21 @@ int nxs_control_text_filter(NXSControl *,NXSTextShouldChange,void *);
 const char *nxs_control_text_command(NXSControl *);
 unsigned nxs_control_command_capabilities(void);
 int nxs_control_command_filter(NXSControl *,NXSCommandFilter,void *);
+
+/* Optional native application menus. Model strings are copied on success.
+ * Mutations/destruction are rejected during native tracking or callbacks.
+ * Show installs one menu as the native application's main menu; hide releases
+ * that role. An existing unrelated main menu is never replaced. Key dispatch
+ * also works while hidden. State index -1 describes the root; other indices
+ * address the flattened model. Submenu frames are empty until mapped.
+ * Call on the owning UI thread and service dispatch_events for real input. */
+unsigned nxs_native_ui_menu_capabilities(void);
+NXSMenu *nxs_menu_create(const char *title,NXSMenuCommand,NXSPump,void *context);
+int nxs_menu_destroy(NXSMenu *);
+int nxs_menu_items(NXSMenu *,const NXSMenuItem *,uint32_t count);
+int nxs_menu_show(NXSMenu *,int visible);
+int nxs_menu_key(NXSMenu *,const NXSKeyEvent *);
+NXSMenuState nxs_menu_state(NXSMenu *,int index);
 
 #ifdef __cplusplus
 }

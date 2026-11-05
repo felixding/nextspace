@@ -79,6 +79,43 @@ general application menus, lists/trees, tabs,
 and engine/frontend adapters for the new control types remain to implement.
 The provider ABI is under development until that broader contract is qualified.
 
+## Native application menu foundation
+
+`nxs_native_ui_menu_capabilities()` advertises the optional `NXSMenu` API.
+`nxs_menu_items()` copies application-supplied titles, opaque command IDs,
+parent indices, separators, state and native key-equivalent metadata into real
+`NSMenu`/`NSMenuItem` objects. The provider supplies application validation and
+execution callbacks. GNUstep retains drawing, sizing, submenu attachment, hit
+testing, highlighting, key matching and tracking. There is no standard-command
+or shortcut table in the bridge. Menu key modifiers name native Command,
+Control, Alternate and Shift roles; the existing shared event conversion reads
+the user's GNUstep physical-key preferences.
+
+`nxs_menu_show()` installs and displays a detached native main menu, or hides
+and uninstalls it. An unrelated existing main menu is preserved. The key API
+works while hidden, and focused native controls consult the application menu
+before their editor menu. `nxs_menu_state()` reads actual native window/item
+geometry. Its index is a flattened model index, with -1 selecting the root.
+Submenus use the backend's ordinary popup surfaces. The menu's pump keeps the
+embedding application responsive during native tracking without taking events
+from the menu's loop. Model changes, hiding, destruction and competing control
+input are rejected while tracking. A native menu restoring its logical key
+window cannot map a private editor backing window.
+
+The append-only API grows from 304 to 352 bytes on ARM64 while retaining ABI 1,
+input 3, pointer 1, text 7 and command 1. Older providers report no menu support;
+older loaders and clients retain their existing controls. The
+[qualification](menu-qualification.json) records fourteen physical-window and
+complete-image checks against direct AppKit menus, the native-control/transport
+suite, thirty unchanged legacy images, and fresh Chromium/Firefox command
+regressions. `Tests/NativeUI/check-menus.py` drives an isolated compositor and
+compares unaltered root/submenu captures with direct native references.
+
+This is the shared menu implementation. Browser menu-model extraction,
+transport and idle command dispatch are not connected yet. Complete browser
+menus, browser Undo/Redo routing, broader live model/torn-off behavior, IME,
+accessibility, scaling and other toolkit bindings remain required.
+
 ## Native text editor foundation
 
 `NXS_TEXTFIELD` and `NXS_PASSWORD` create the installed `NSTextField` and
