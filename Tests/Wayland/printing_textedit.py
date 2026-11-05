@@ -37,40 +37,6 @@ def print_document(probe,env,directory,layout,orientation):
     return pages(path,directory)
 
 
-def run_x11(textedit,probe,env,artifacts):
-    assert env.get('DISPLAY')
-    artifacts.mkdir(parents=True);document=artifacts/'document.txt';document.write_text(CONTENT)
-    with (artifacts/'textedit.log').open('w') as log:
-        client=subprocess.Popen([str(textedit),'-GSBackend','libgnustep-x11','-GSTheme','NextSpace',
-            '-GSFilePath',str(document),'-NSUseRunningCopy','NO'],env=env,stdout=log,stderr=log)
-    def xdo(*arguments):
-        return subprocess.run(['xdotool',*arguments],env=env,capture_output=True,text=True,timeout=3)
-    try:
-        def window():
-            assert client.poll() is None,(artifacts/'textedit.log').read_text()[-3000:]
-            for identity in xdo('search','--onlyvisible','--pid',str(client.pid),'--name','^document.txt').stdout.splitlines():
-                row=xdo('getwindowgeometry','--shell',identity)
-                if row.returncode==0:
-                    fields=dict(line.split('=',1) for line in row.stdout.splitlines())
-                    if int(fields['WIDTH'])>200:return identity
-        identity=until(window,'X11 TextEdit document')
-        assert xdo('windowactivate','--sync',identity).returncode==0
-        records=[]
-        for layout in ('continuous','paged'):
-            for orientation in ('portrait','landscape'):
-                rendered=print_document(probe,env,artifacts/f'{layout}-{orientation}',layout,orientation)
-                assert document.read_text()==CONTENT
-                records.append(dict(layout=layout,orientation=orientation,pages=len(rendered)))
-        libraries=sorted({line.split()[-1] for line in Path(f'/proc/{client.pid}/maps').read_text().splitlines()
-            if any(token in line for token in ('libgnustep-','libobjc.so.','libDesktopKit','libSystemKit','GSPrinting/'))})
-        assert any('libgnustep-x11' in p for p in libraries) and not any('libgnustep-wayland' in p for p in libraries)
-        (artifacts/'runtime.json').write_text(json.dumps(dict(executable=str(textedit),libraries=libraries),indent=2)+'\n')
-        (artifacts/'results.json').write_text(json.dumps(dict(cases=records,complete=True,x11=True,
-            document_unchanged=True,physical_printer_tested=False),indent=2)+'\n')
-        print('X11 TextEdit printing: complete continuous/paged portrait/landscape documents PASS')
-    finally:stop_process(client)
-
-
 def run(compositor,textedit,probe,artifacts,pasteboard_server,pasteboard_probe,layouts=('continuous','paged')):
     artifacts.mkdir(parents=True);home=artifacts/'home';home.mkdir();records=[]
     document=artifacts/'document.txt'

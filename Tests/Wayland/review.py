@@ -4,10 +4,9 @@ import hashlib
 from pathlib import Path
 import subprocess
 import time
-from PIL import Image, ImageChops, ImageGrab
+from PIL import Image, ImageChops
 from gnustep import capture_frame, capture_process_failure
 from integration import until
-from text_input import stop_process
 
 COLORS=((255,0,0),(0,255,0),(0,0,255))
 ACTIONS=(('next',1,'100%'),('zoom-in',1,'200%'),('zoom-out',1,'100%'),
@@ -60,11 +59,11 @@ def check_state(state,index,zoom):
     assert state['image_size']=='{width = %d; height = %d}'%(512*factor,384*factor),state
 
 
-def runtime(pid,artifacts,backend):
+def runtime(pid,artifacts):
     libraries=sorted({line.split()[-1] for line in Path(f'/proc/{pid}/maps').read_text().splitlines()
         if any(token in line for token in ('libgnustep-','libobjc.so.','libDesktopKit','libSystemKit'))})
-    assert any('libgnustep-'+backend in path for path in libraries),libraries
-    assert not any('libgnustep-'+('x11' if backend=='wayland' else 'wayland') in path for path in libraries),libraries
+    assert any('libgnustep-wayland' in path for path in libraries),libraries
+    assert not any('libgnustep-x11' in path for path in libraries),libraries
     (artifacts/'runtime.json').write_text(json.dumps(dict(
         executable=str(Path(f'/proc/{pid}/exe').resolve()),libraries=libraries),indent=2)+'\n')
 
@@ -85,7 +84,7 @@ def run(command,env,artifacts,pid,probe):
     def window():
         return document_window(command,pid,source)
     w=until(window,'Review multipage document');assert not w['legacy']
-    runtime(pid,artifacts,'wayland')
+    runtime(pid,artifacts)
     captures=Path(env['NEXTSPACE_WAYLAND_CAPTURE_DIR']);outputs=command('outputs')
     heads=[o['name'] for o in outputs]
     def capture(color,previous=None):
@@ -153,7 +152,7 @@ def run_scroll(command,env,artifacts,pid,probe,source=None):
     try:
         query('open',str(source))
         w=until(window,'Review large scrolling image');assert not w['legacy']
-        runtime(pid,artifacts,'wayland')
+        runtime(pid,artifacts)
         assert command(f"focus {w['id']}")['ok']
         until(lambda:(state:=query('state'))['frames']==1 and state['image_path']==str(source),
             'Review scrolling document active')
@@ -339,7 +338,7 @@ def run_saves(command,env,artifacts,pid,probe):
         return until(lambda:(state:=query('state'))['image_path']==str(source) and state,
             'Review source document becomes main')
     try:
-        runtime(pid,artifacts,'wayland')
+        runtime(pid,artifacts)
         for index,scale in enumerate((120,150,180,210,240)):
             target=outputs[index%len(outputs)]
             assert command(f"test-scale {target['name']} {scale} 10000")['ok'] and command('confirm')['ok']
@@ -415,39 +414,3 @@ def run_saves(command,env,artifacts,pid,probe):
     finally:
         for output in outputs:
             assert command(f"test-scale {output['name']} {output['scale']} 10000")['ok'] and command('confirm')['ok']
-
-
-def run_x11(review,probe,env,artifacts):
-    assert env.get('DISPLAY')
-    artifacts.mkdir(parents=True);source=document(artifacts);records=[]
-    with (artifacts/'review.log').open('w') as log:
-        client=subprocess.Popen([str(review),'-GSBackend','libgnustep-x11','-GSTheme','NextSpace',
-            '-GSFilePath',str(source),'-NSUseRunningCopy','NO'],env=env,stdout=log,stderr=log)
-    def xdo(*arguments):
-        return subprocess.run(['xdotool',*arguments],env=env,capture_output=True,text=True,timeout=3)
-    try:
-        def window():
-            assert client.poll() is None,(artifacts/'review.log').read_text()[-4000:]
-            for identity in xdo('search','--onlyvisible','--pid',str(client.pid),'--name','^three-pages.tiff').stdout.splitlines():
-                geometry=xdo('getwindowgeometry','--shell',identity)
-                if geometry.returncode==0:
-                    row=dict(line.split('=',1) for line in geometry.stdout.splitlines())
-                    if int(row['WIDTH'])>300:return identity,row
-        identity,row=until(window,'X11 Review document')
-        assert xdo('windowactivate','--sync',identity).returncode==0
-        runtime(client.pid,artifacts,'x11')
-        def capture(color):
-            x,y,width,height=(int(row[key]) for key in ('X','Y','WIDTH','HEIGHT'))
-            image=ImageGrab.grab((x,y,x+width,y+height),xdisplay=env['DISPLAY']).convert('RGB')
-            return image if image.getpixel((width//2,height//2))==color else None
-        for action,index,zoom in (('state',0,'100%'),*ACTIONS):
-            state=request(probe,env,artifacts,action);check_state(state,index,zoom)
-            image=until(lambda:capture(COLORS[index]),'X11 Review selected page after '+action)
-            path=artifacts/f'{len(records):02d}-{action}.png';image.save(path)
-            records.append(dict(action=action,state=state,capture=path.name))
-        (artifacts/'results.json').write_text(json.dumps(dict(cases=records,complete=True,x11=True),indent=2)+'\n')
-        print('X11 Review TIFF pages and zoom:7 checks PASS')
-    except BaseException:
-        (artifacts/'failure.json').write_text(json.dumps(dict(cases=records),indent=2)+'\n')
-        raise
-    finally:stop_process(client)

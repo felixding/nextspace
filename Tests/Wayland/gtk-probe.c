@@ -1,6 +1,5 @@
 /* Independent native toolkit comparison. SPDX-License-Identifier: MIT */
 #include <gtk/gtk.h>
-#include <gdk/x11/gdkx.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -116,21 +115,6 @@ static void window_state(GObject *object, GParamSpec *property, gpointer data)
     gtk_window_is_maximized(GTK_WINDOW(object)) ? "true" : "false",
     gtk_window_is_fullscreen(GTK_WINDOW(object)) ? "true" : "false");
   fflush(stdout);
-}
-
-static gboolean x11_event(GdkDisplay *display, XEvent *event, void *data)
-{
-  if (window_drag && event->type == ConfigureNotify) {
-    printf("{\"event\":\"x11-configure\",\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d}\n",
-      event->xconfigure.x, event->xconfigure.y, event->xconfigure.width, event->xconfigure.height);
-    fflush(stdout);
-  }
-  if (event->type == ClientMessage && event->xclient.message_type ==
-      gdk_x11_get_xatom_by_name_for_display(display, "XdndFinished")) {
-    printf("{\"event\":\"xdnd-finished\",\"success\":%s}\n",
-      event->xclient.data.l[1] & 1 ? "true" : "false"); fflush(stdout);
-  }
-  return FALSE;
 }
 
 static void draw(GtkDrawingArea *area, cairo_t *cr, int width, int height, void *data)
@@ -257,8 +241,6 @@ static void install_drag_source(GtkWidget *area, GtkGesture *click)
 static void activate(GtkApplication *app, void *data)
 {
   GdkDisplay *display = gdk_display_get_default();
-  if ((drag_source_mode || window_drag) && GDK_IS_X11_DISPLAY(display))
-    g_signal_connect(display, "xevent", G_CALLBACK(x11_event), NULL);
   GtkWidget *window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window), window_title ? window_title :
     drag_source_mode ? "GtkDragSource" : drag_target_mode ? "GtkDragTarget" : "GtkProbe");
