@@ -1,6 +1,6 @@
 {
   "date": "2026-11-05",
-  "status": "Source and symbol audit for pending native text integration; no Firefox text adapter is implemented.",
+  "status": "Source, compiled ABI and runtime audit for the optional native plain/password field adapter on one exact Firefox binary. Browser-wide native integration remains incomplete.",
   "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
   "sources": [
     {
@@ -34,34 +34,40 @@
     {
       "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/TextEditor.h",
       "sha256": "1e26f285e934b1134760a94e500263bec51ab165cc3c667849d401bf48afedb0"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/bindings/ErrorResult.h",
+      "sha256": "3f8283ac6492968b1d360c9a39049864f2cad16bd8a2344b441452b4faee8fc2"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/ScrollContainerFrame.cpp",
+      "sha256": "7dd6128c6f75b8be2e00ebd38041f89959fbabe7e56533f04bd3d35ffe9dab98"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsTextControlFrame.h",
+      "sha256": "86977cd9646ebeef327393c34d8238471a234f65c81c470db598fbdf99a99685"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/nsIEditor.idl",
+      "sha256": "bfacc5f50cdc71933a5a97150999f4d35776353737d94e4bdeeac478ff149ef7"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlElement.h",
+      "sha256": "95dc85fa02f89270ad70d6a94cd9602be41bdf7a2c6b7f0fe13b6cf24b993b36"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/EditorEventListener.cpp",
+      "sha256": "2526ba0250195392ad7d02263f5b86a39ae0886d09bbf6d1155f5cf39e6d95e0"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/editor/libeditor/EditorEventListener.h",
+      "sha256": "85ee4d9cb923ae33b978f1922906333faa0cc39f9fcc0d210b9c89839dba19ef"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/Event.h",
+      "sha256": "0820834de88256ddd9d2d139701363ebdda0325e7c850527edca46853cef86d7"
     }
   ],
-  "interfaces": {
-    "input_value": {
-      "symbol": "HTMLInputElement::GetValue(nsAString&, CallerType)",
-      "address": "0x587f524"
-    },
-    "text_state_value": {
-      "symbol": "TextControlState::GetValue(nsAString&, bool) const",
-      "address": "0x58b4de8"
-    },
-    "text_editor": {
-      "symbol": "TextControlState::GetTextEditor()",
-      "address": "0x58b5020"
-    },
-    "insert_action": {
-      "symbol": "EditorBase::InsertTextAsAction(nsAString const&, nsIPrincipal*)",
-      "address": "0x6b81fac"
-    },
-    "delete_action": {
-      "symbol": "EditorBase::DeleteSelectionAsAction(short, short, nsIPrincipal*)",
-      "address": "0x6b71c58"
-    },
-    "replace_action": {
-      "symbol": "EditorBase::ReplaceTextAsAction(nsAString const&, nsRange*, AllowBeforeInputEventCancelable, PreventSetSelection, nsIPrincipal*)",
-      "address": "0x6b80464"
-    }
-  },
   "findings": [
     {
       "source": "nsTextControlFrame.cpp",
@@ -82,14 +88,103 @@
     {
       "source": "EditorBase.cpp:ReplaceTextAsAction",
       "finding": "Replacement is a distinct edit action with its own beforeinput data and selection behavior; a whole-value setter cannot stand in for every native editor operation."
+    },
+    {
+      "source": "EditorEventListener.cpp / compiled KeyPress",
+      "finding": "Native interpreted insertion/deletion proposals call real Gecko actions, preserving trusted beforeinput/input, maxlength and undo. Native proposal is then vetoed and canonical engine state echoed to avoid duplicate edits."
+    },
+    {
+      "source": "GNUstep Controls.m / caret regression",
+      "finding": "Reapplying unchanged setEditable restarts the native caret. Guard that setter by current native state; the real AppKit timer and existing eventfd/GLib watcher deliver browser invalidations."
+    },
+    {
+      "source": "Independent native reference fixture",
+      "finding": "Return selects the field contents in this native editor. Browser follow-up typing is compared to the direct provider result instead of an assumed selection policy."
     }
   ],
   "remaining": [
-    "Audit exact text state/editor/node/selection layouts, structure returns and complete function signatures before using these symbols.",
-    "Guard instruction bytes and source/build identity for every activated detour. Symbol addresses alone are not an activation guard.",
-    "Bind actual engine insert/delete/paste/undo and beforeinput/input/change transactions to native proposals, including cancellation and reentrant script mutation.",
-    "Own complete anonymous editor display/selection/caret suppression only after native content and input are prepared.",
-    "Qualify native selection, maxlength/read-only/disabled behavior, composition, trusted events, clipboard events, undo, destruction/navigation and failure recovery.",
-    "Browser URL bars, frontends, derivative-specific interfaces, other builds and the remaining non-GNUstep apps remain separate integration work."
-  ]
+    "Native mouse text hit testing/selection and dragging; current engine pointer editing remains unqualified.",
+    "Browser clipboard/cut/paste events, native undo/redo menu routing, IME/composition, selection direction, multiline/rich text and accessibility.",
+    "Other text input types, native intrinsic sizing, scales other than 1, transforms and broader CSS/layout.",
+    "URL bars/frontends, Chromium text bindings, derivative-specific interfaces, other builds and remaining GTK/Qt/KDE applications."
+  ],
+  "guarded_interfaces": {
+    "scroll_display": {
+      "address": "0x6df4f08",
+      "guard_bytes": 20
+    },
+    "keypress": {
+      "address": "0x6b8f374",
+      "guard_bytes": 20
+    },
+    "delete_subaction": {
+      "address": "0x6c58920",
+      "guard_bytes": 20
+    },
+    "value": {
+      "address": "0x587f524",
+      "guard_bytes": 20
+    },
+    "selection_start": {
+      "address": "0x5891700",
+      "guard_bytes": 20
+    },
+    "selection_end": {
+      "address": "0x5891964",
+      "guard_bytes": 20
+    },
+    "selection_set": {
+      "address": "0x58c2fc8",
+      "guard_bytes": 20
+    },
+    "editor": {
+      "address": "0x588acb0",
+      "guard_bytes": 20
+    },
+    "insert_action": {
+      "address": "0x6b81fac",
+      "guard_bytes": 20
+    },
+    "delete_action": {
+      "address": "0x6b71c58",
+      "guard_bytes": 20
+    },
+    "editor_addref": {
+      "address": "0x3af8874",
+      "guard_bytes": 20
+    },
+    "editor_release": {
+      "address": "0x464de58",
+      "guard_bytes": 20
+    },
+    "prevent_default": {
+      "address": "0x6a65b2c",
+      "guard_bytes": 20
+    },
+    "flush_layout": {
+      "address": "0x476c3ec",
+      "guard_bytes": 20
+    },
+    "is_themed": {
+      "address": "0x47c1bfc",
+      "guard_bytes": 20
+    },
+    "clear_error": {
+      "address": "0x529493c",
+      "guard_bytes": 20
+    },
+    "display_background": {
+      "address": "0x6e294e0",
+      "guard_bytes": 20
+    }
+  },
+  "compiled_abi": {
+    "ErrorResult": "Release layout: result uint32 at 0, padding 4, union pointer/uint64 at 8; total 16. Actual SuppressException releases engine state.",
+    "HTMLInputElement": "Exact primary vtable; compiled text type 145 and password 140; TextControlState pointer at 352. Existing state flags retain disabled/readonly.",
+    "nsTextControlFrame": "Exact primary vtable 0xa10b810+16. Inherits ScrollContainerFrame. Native background display item replaces complete anonymous editor display only after prepared snapshot.",
+    "EditorEventListener": "EditorBase pointer at 16. Actual IsAcceptableInputEvent virtual slot 76; document pointer at editor+48. Actual layout flush uses FlushType 6.",
+    "WidgetEvent": "Compiled event enum: keypress 2, keyup 3, keydown 4. Native default for accelerators/navigation runs after page keydown listeners.",
+    "HandleDeleteSelection": "Nontrivial Result return uses indirect AArch64 x8 despite small payload. Naked adapter preserves original output pointer/result. Native range applied after beforeinput only if canonical value and selection remain unchanged.",
+    "retention": "Real node and EditorBase AddRef/Release across layout flush, native validation and script mutations."
+  }
 }

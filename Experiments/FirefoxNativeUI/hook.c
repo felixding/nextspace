@@ -67,6 +67,7 @@ static double progress_position(void *frame) {
 }
 static int eligible(void *frame,unsigned appearance) {
   if(channel<0)return 0;
+  if(texts_enabled&&native_text_frame(frame)&&widget_for_frame(frame)&&widget_for_frame(frame)->text_owned)return 1;
   if(widgets_enabled&&(appearance==4||appearance==5||(buttons_enabled&&appearance==10)||(sliders_enabled&&appearance==19))&&frame_kind(frame))return 1;
   if(appearance!=9)return 0;
   double position=progress_position(frame);
@@ -141,10 +142,12 @@ static void install(void) {
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
   if(buttons_enabled&&!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours))){note("Gecko button guard failed; unchanged");return;}
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
+  if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
   if(buttons_enabled){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note("native Gecko input buttons installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
+  if(texts_enabled){activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));note("native Gecko text bindings installed");}
   installed=1;
   note("exact-build Gecko native progress adapter installed");
 }

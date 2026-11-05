@@ -342,7 +342,7 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
   NSTextField *view=(NSTextField *)control->view;
   NSString *current=[view currentEditor]?[[view currentEditor] string]:[view stringValue];
   if(![current isEqualToString:text])[view setStringValue:text];
-  [view setEditable:!!model->editable];
+  if([view isEditable]!=!!model->editable)[view setEditable:!!model->editable];
   [(NXSControlAction *)control->target bindTextEditor];
   control->text_selection=model->selection_start==NXS_TEXT_NO_SELECTION?NSMakeRange(NSNotFound,0):
     NSMakeRange(model->selection_start,model->selection_length);

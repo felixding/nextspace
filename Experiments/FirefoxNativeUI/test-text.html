@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><title>Gecko native text transport</title>
+<style>
+body {margin:30px;background:white;color:black;font:14px sans-serif}
+label {display:block;margin-bottom:20px}
+input {box-sizing:border-box;width:180px;height:24px;padding:0}
+button {appearance:none}
+</style>
+<form id="form">
+<label>Text <input id="normal" value="Hello"></label>
+<label>Password <input id="password" type="password" value="Hello"></label>
+<label>Read only <input id="readonly" value="Hello" readonly></label>
+<label>Disabled <input id="disabled" value="Hello" disabled></label>
+<label>Unicode <input id="unicode" value="日本語Café🙂"></label>
+<label>Limited <input id="limited" value="abc" maxlength="4"></label>
+<button id="ordinary" type="button" onclick="this.textContent='Activated'">Ordinary action</button>
+<button type="submit" hidden>Submit</button>
+</form>
+<script>
+window.events=[];window.cacheShows=[];addEventListener('pageshow',event=>cacheShows.push(event.persisted));
+window.submits=0;form.addEventListener('submit',e=>{submits++;e.preventDefault()});
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','select'])
+ document.addEventListener(type,e=>{if(e.target instanceof HTMLInputElement)events.push({type,id:e.target.id,
+  data:e.data??null,inputType:e.inputType??null,trusted:e.isTrusted,value:e.target.value,
+  start:e.target.selectionStart,end:e.target.selectionEnd});});
+</script>

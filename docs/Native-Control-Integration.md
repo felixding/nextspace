@@ -43,7 +43,7 @@ required integration surfaces differ:
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio drawing/input, input push/submit/reset buttons with native intrinsic sizing and native range drawing/input through the shared provider. Other controls, scaled output, animation, radio-group arrow navigation and broader input remain open. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields through the shared provider. Text clipboard commands, mouse text selection, IME, other controls, scaled output and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
@@ -84,12 +84,14 @@ The shared provider and helper now expose actual GNUstep single-line text and
 password editors, including native Emacs commands, Cut/Copy/Paste menu routing,
 selection and caret invalidation. This foundation is qualified separately in
 [`Libraries/NativeUI/text-qualification.json`](../Libraries/NativeUI/text-qualification.json).
-Webpage and browser address-bar text bindings remain unimplemented; provider
-and transport checks cannot establish browser text integration.
+The pinned Firefox adapter now binds plain/password webpage fields to those
+editors; Chromium webpage fields and browser address bars remain open. Provider
+and transport checks alone cannot establish browser text integration.
 The shared editor now also exposes native pre-edit proposals and cancellation
-through a reentrant process-owned channel. This enables a future browser
-`beforeinput` decision before native mutation; it does not yet implement that
-browser decision. The pinned Firefox text transaction audit rules out its
+through a reentrant process-owned channel. The pinned Firefox adapter runs its
+actual engine edit transaction during that callback, retains `beforeinput`
+cancellation, and echoes the canonical result into the native editor. Its
+text transaction audit rules out the
 autocomplete-style whole-value setter as a general typing adapter because it
 temporarily clears read-only and maximum-length constraints.
 A shared host avoids duplicating the native components; coverage still requires
@@ -282,3 +284,14 @@ renderer cleanup and helper-loss checks pass. Native automatic sizing, broader
 step bases/endpoints, scaled output, touch/wheel/accessibility and browser
 application interfaces remain open. See
 [range qualification](../Experiments/FirefoxNativeUI/range-qualification.json).
+
+
+The optional Gecko plain/password binding now uses the shared actual native
+field editors for complete pixels, selection, caret and key interpretation.
+Native pre-edit proposals enter Gecko's real insertion/deletion transactions;
+canonical engine values return to the native editor after trusted events,
+cancellation and script mutation. Tests cover native Emacs commands, engine
+undo/validation, dynamic values/resize, form Return, page restoration, real caret
+invalidation and failure recovery. Native text mouse selection, clipboard and
+menu command semantics, IME, other text types/scales and browser frontends
+remain open. See [text qualification](../Experiments/FirefoxNativeUI/text-qualification.json).

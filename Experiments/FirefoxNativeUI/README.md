@@ -185,3 +185,33 @@ remain open. The actual UI library, loader and provider are unchanged. See
 [`button-qualification.json`](button-qualification.json) for the exact boundaries
 and evidence. This is another partial engine binding, not native browser-wide
 support.
+
+
+The optional plain/password text binding (`NEXTSPACE_FIREFOX_TEXT=1` with
+`NEXTSPACE_FIREFOX_INPUT=1`) uses actual `NSTextField`/`NSSecureTextField` field
+editors. Those editors render the complete contents, selection, caret and bezel,
+and interpret logical keys. A complete prepared snapshot replaces the engine's
+anonymous editor display. Native pre-edit ranges/selectors call Gecko's actual
+insertion/deletion transactions, preserving trusted `beforeinput`/`input`,
+cancellation, maximum length, script mutation and engine undo. The native
+proposal is vetoed after the engine action, then its canonical result is echoed
+back; the bridge contains no editing algorithm or copied key-binding table.
+
+Use `--text` for the owned fixture. Its independent native references include
+complete normal/selected images and actual native key/Return results. Checks
+cover Emacs navigation/deletion, password/readonly/disabled fields, UTF-16
+selection, programmatic values, resize, form Return, Tab, engine undo, cancelled
+keydown/beforeinput, reentrant value changes/frame removal, cache restoration,
+caret invalidation, renderer death and helper-loss recovery. A one-line provider
+fix avoids reapplying unchanged `setEditable`, which restarted the native caret;
+AppKit still supplies the timer and rendering. The existing eventfd subscription
+wakes the engine UI loop through GLib. No browser or underlying AppKit rebuild
+is required. See [text source audit](text-source-audit.json) and
+[text qualification](text-qualification.json).
+
+This is an opt-in fixed integer-size, scale-1 binding for one exact binary.
+Native mouse text selection, clipboard command/web-event integration, native
+undo-menu routing, IME/composition, other text types, intrinsic sizing,
+multiline/rich text, accessibility and broader styling remain open. Address
+bars and other browser application interfaces remain separate work. A native
+field editor does not automatically provide all application behaviors.

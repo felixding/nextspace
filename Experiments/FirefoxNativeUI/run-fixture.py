@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """Run the pinned Firefox fixture and native references in a private Wayland session."""
 import argparse,base64,hashlib,json,os,select,signal,socket,subprocess,sys,tempfile,time
+import uuid
+from contextlib import ExitStack
 from pathlib import Path
 from marionette import Marionette
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
+from gnustep import pasteboard_storage
 
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--firefox',type=Path,required=True)
@@ -17,10 +21,11 @@ fixture_mode=parser.add_mutually_exclusive_group()
 fixture_mode.add_argument('--controls',action='store_true',help='Exercise the optional checkbox/radio input binding')
 fixture_mode.add_argument('--buttons',action='store_true',help='Exercise native input buttons through the same provider')
 fixture_mode.add_argument('--sliders',action='store_true',help='Exercise native range controls through NSSlider')
+fixture_mode.add_argument('--text',action='store_true',help='Exercise native text/password editors and engine transactions')
 args=parser.parse_args();here=Path(__file__).resolve().parent
-mode='sliders' if args.sliders else 'buttons' if args.buttons else 'controls' if args.controls else 'progress'
-reference_model='range-controls.json' if args.sliders else 'button-controls.json' if args.buttons else 'input-controls.json' if args.controls else 'progress-controls.json'
-interactive=args.controls or args.buttons or args.sliders
+mode='text' if args.text else 'sliders' if args.sliders else 'buttons' if args.buttons else 'controls' if args.controls else 'progress'
+reference_model='text-controls.json' if args.text else 'range-controls.json' if args.sliders else 'button-controls.json' if args.buttons else 'input-controls.json' if args.controls else 'progress-controls.json'
+interactive=args.controls or args.buttons or args.sliders or args.text
 pin=json.loads((here/'binary-pin.json').read_text())
 def digest(path):
     with path.open('rb') as source:return hashlib.file_digest(source,'sha256').hexdigest()
@@ -55,6 +60,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
     if args.library_path:env['LD_LIBRARY_PATH']=':'.join(args.library_path)
     parent,child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);parent.settimeout(5)
     server=helper=browser=None
+    services=ExitStack()
     renderer_status={}
     def control(command):parent.sendall(command.encode());return json.loads(parent.recv(65536))
     def connect_client():
@@ -79,7 +85,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
     def collect_renderer_status():
         log=args.output/'hook.log'
         if not log.exists():return
-        pids={int(line.split()[0]) for line in log.read_text().splitlines() if ' native-progress ' in line or ' native-widget ' in line or ' native-button ' in line}
+        pids={int(line.split()[0]) for line in log.read_text().splitlines() if ' native-progress ' in line or ' native-widget ' in line or ' native-button ' in line or ' native-text ' in line}
         for pid in pids-renderer_status.keys():
             try:
                 status=dict(line.split(':',1) for line in Path('/proc',str(pid),'status').read_text().splitlines() if ':' in line)
@@ -91,6 +97,10 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
         assert select.select([server.stdout],[],[],10)[0],'Compositor startup'
         line=server.stdout.readline().strip();assert line.startswith('WAYLAND_DISPLAY=')
         env['WAYLAND_DISPLAY']=line.split('=',1)[1]
+        if args.text:
+            env['NEXTSPACE_SESSION_ID']='firefox-native-text-'+uuid.uuid4().hex
+            services.enter_context(pasteboard_storage(Path('/Library/bin/gpbs-wayland'),
+                args.native_library.parent/'native-ui/native-pasteboard-probe',env,args.output))
         output=control('outputs')[0]['name'];assert control('resize-output '+output+' 1280 900')['ok']
         endpoint=root/'native.sock'
         helper=subprocess.Popen([sys.executable,str(here.parent/'ChromiumScrollers/helper.py'),
@@ -105,6 +115,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
         if interactive:browser_env['NEXTSPACE_FIREFOX_INPUT']='1'
         if args.buttons:browser_env['NEXTSPACE_FIREFOX_BUTTONS']='1'
         if args.sliders:browser_env['NEXTSPACE_FIREFOX_SLIDERS']='1'
+        if args.text:browser_env['NEXTSPACE_FIREFOX_TEXT']='1'
         fixture=here/('test-'+mode+'.html')
         command=[str(args.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette',fixture.as_uri()]
         browser=subprocess.Popen(command,env=browser_env,stdout=(args.output/'firefox.stdout').open('w'),stderr=(args.output/'firefox.stderr').open('w'))
@@ -117,7 +128,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
             except ConnectionRefusedError:time.sleep(.05)
         subprocess.run([sys.executable,str(here.parent/'ChromiumScrollers/native-control-reference.py'),
             '--library',str(args.native_library.resolve()),'--controls',str(here/reference_model),
-            '--output',str(args.output/'references'),*(['--keys'] if args.sliders else []),'-GSBackend',args.backend],env=env,check=True,timeout=30,
+            '--output',str(args.output/'references'),*(['--keys'] if args.sliders or args.text else []),'-GSBackend',args.backend],env=env,check=True,timeout=30,
             stdout=(args.output/'references.stdout').open('w'),stderr=(args.output/'references.stderr').open('w'))
         if interactive:
             subprocess.run([sys.executable,str(here.parent/'ChromiumScrollers/native-control-reference.py'),
@@ -143,7 +154,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
                 assert session['capabilities']['moz:processID']==browser.pid
                 crash_client.command('WebDriver:Navigate',dict(url=fixture.as_uri()))
                 crash_client.command('WebDriver:TakeScreenshot',dict(full=False))
-                pid=int(next(line.split()[0] for line in reversed((args.output/'hook.log').read_text().splitlines()) if ' native-widget id=' in line or ' native-button id=' in line))
+                pid=int(next(line.split()[0] for line in reversed((args.output/'hook.log').read_text().splitlines()) if ' native-widget id=' in line or ' native-button id=' in line or ' native-text id=' in line))
                 # Never signal a namespace-local PID or another browser. Prove
                 # this is a live descendant of the owned browser first.
                 assert pid>1 and pid!=browser.pid
@@ -177,11 +188,20 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
             assert len(helper_reclaimed)==(6 if interactive else 0),helper_reclaimed
             helper.kill();helper.wait(timeout=5)
             started=time.monotonic()
-            script='document.getElementById("normal").value=61;document.getElementById("normal").focus();return true' if args.sliders else 'document.getElementById("button").value="Fallback label";document.getElementById("button").focus();return true' if args.buttons else 'document.getElementById("check").checked=true;document.getElementById("check").focus();return true' if args.controls else 'document.getElementById("normal").value=61;return true'
+            script='document.getElementById("normal").value="Fallback";document.getElementById("normal").focus();document.getElementById("normal").setSelectionRange(8,8);return true' if args.text else 'document.getElementById("normal").value=61;document.getElementById("normal").focus();return true' if args.sliders else 'document.getElementById("button").value="Fallback label";document.getElementById("button").focus();return true' if args.buttons else 'document.getElementById("check").checked=true;document.getElementById("check").focus();return true' if args.controls else 'document.getElementById("normal").value=61;return true'
             loss_client.command('WebDriver:ExecuteScript',dict(script=script,args=[]))
             after=loss_client.command('WebDriver:TakeScreenshot',dict(full=False))
             (args.output/'after-helper-loss.png').write_bytes(base64.b64decode(after['value']))
-            if args.sliders:
+            if args.text:
+                loss_client.command('WebDriver:PerformActions',dict(actions=[dict(type='key',id='loss-keyboard',actions=[dict(type='keyDown',value='X'),dict(type='keyUp',value='X')])]))
+                value=loss_client.command('WebDriver:ExecuteScript',dict(script='return document.getElementById("normal").value',args=[]))['value']
+                assert value=='FallbackX',value
+                control_element=loss_client.command('WebDriver:FindElement',dict(using='css selector',value='#normal'))['value']
+                loss_client.command('WebDriver:ElementClick',dict(id=next(iter(control_element.values()))))
+                loss_client.command('WebDriver:PerformActions',dict(actions=[dict(type='key',id='loss-keyboard',actions=[dict(type='keyDown',value='Y'),dict(type='keyUp',value='Y')])]))
+                value=loss_client.command('WebDriver:ExecuteScript',dict(script='return document.getElementById("normal").value',args=[]))['value']
+                assert value.replace('Y','')=='FallbackX',value
+            elif args.sliders:
                 loss_client.command('WebDriver:PerformActions',dict(actions=[dict(type='key',id='loss-keyboard',actions=[dict(type='keyDown',value='\ue014'),dict(type='keyUp',value='\ue014')])]))
                 assert loss_client.command('WebDriver:ExecuteScript',dict(script='return document.getElementById("normal").valueAsNumber',args=[]))['value']==62
                 control_element=loss_client.command('WebDriver:FindElement',dict(using='css selector',value='#normal'))['value']
@@ -212,7 +232,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
             assert action=='Activated',action
             helper_loss=dict(helper_exit=helper.returncode,value=value,engine_action=action,elapsed_seconds=time.monotonic()-started,native_objects_reclaimed_by_helper_exit=len(helper_reclaimed),mouse_and_key_retained=interactive)
         finally:loss_client.close()
-        pids={int(line.split()[0]) for line in (args.output/'hook.log').read_text().splitlines() if ' native-progress ' in line or ' native-widget ' in line or ' native-button ' in line}
+        pids={int(line.split()[0]) for line in (args.output/'hook.log').read_text().splitlines() if ' native-progress ' in line or ' native-widget ' in line or ' native-button ' in line or ' native-text ' in line}
         collect_renderer_status();sandbox=[]
         for pid in sorted(pids):
             if crashed_renderer and pid==crashed_renderer['pid']:
@@ -237,6 +257,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
         print(json.dumps(dict(passed=len(report['checks']),native_created=created,native_destroyed=destroyed)),flush=True)
     finally:
         terminate(browser);terminate(helper)
+        services.close()
         if server and server.poll() is None:
             try:control('quit');server.wait(timeout=5)
             except (OSError,subprocess.TimeoutExpired):terminate(server)

@@ -1,0 +1,778 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "410bd9b5",
+  "status": "Partial opt-in native plain/password webpage fields on one exact unchanged Firefox ESR binary. Full native browser and non-GNUstep application integration remain incomplete.",
+  "implementation": {
+    "native_controls": "Actual NSTextField and NSSecureTextField field editors, complete pixels/selection/caret and key interpretation",
+    "engine_transactions": "Actual Gecko insertion/deletion, trusted beforeinput/input/change, cancellation, maxlength and undo; echo canonical model after native proposal veto",
+    "duplication": "No copied controls, editing algorithms, key bindings, glyph layout, caret timer or selection geometry",
+    "native_wakeup": "Existing eventfd subscription and GLib UI-loop descriptor source",
+    "provider_fix": "Avoid reapplying unchanged setEditable, which restarts the actual native caret",
+    "compiled": "Optional adapter and shared NativeUI provider/loader/shim/probes only; no Firefox or AppKit rebuild",
+    "flags": [
+      "NEXTSPACE_FIREFOX_INPUT=1",
+      "NEXTSPACE_FIREFOX_TEXT=1"
+    ]
+  },
+  "qualification": {
+    "sandbox": [
+      {
+        "pid": 6305,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 6486,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "native_created": 241,
+    "native_destroyed": 235,
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": "FallbackXY",
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.3810723400001734,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    },
+    "renderer_crash": {
+      "pid": 6305,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "browser_checks": 56,
+    "checks": [
+      {
+        "case": "owned-fixture",
+        "passed": true
+      },
+      {
+        "case": "fixture-title",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-normal-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-password-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-readonly-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-disabled-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-unicode-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-limited-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-normal-focused",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-focus-margin-normal",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-password-focused",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-focus-margin-password",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-readonly-focused",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-focus-margin-readonly",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-unicode-focused",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-focus-margin-unicode",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-limited-focused",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-focus-margin-limited",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-programmatic-model",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "programmatic-no-input-events",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-resized-model",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-selection-replacement",
+        "passed": true,
+        "state": {
+          "value": "HXlo",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "trusted-insert-transaction",
+        "passed": true,
+        "events": [
+          {
+            "type": "beforeinput",
+            "id": "normal",
+            "data": "X",
+            "inputType": "insertText",
+            "trusted": true,
+            "value": "Hello",
+            "start": 1,
+            "end": 3
+          },
+          {
+            "type": "input",
+            "id": "normal",
+            "data": "X",
+            "inputType": "insertText",
+            "trusted": true,
+            "value": "HXlo",
+            "start": 2,
+            "end": 2
+          }
+        ]
+      },
+      {
+        "case": "native-backspace-transaction",
+        "passed": true,
+        "state": {
+          "value": "Hlo",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "engine-blur-change",
+        "passed": true
+      },
+      {
+        "case": "engine-undo-retained",
+        "passed": true,
+        "state": {
+          "value": "Hello",
+          "start": 1,
+          "end": 3
+        }
+      },
+      {
+        "case": "cancel-beforeinput",
+        "passed": true,
+        "state": {
+          "value": "Hello",
+          "start": 1,
+          "end": 3
+        }
+      },
+      {
+        "case": "beforeinput-canonical-script-value",
+        "passed": true,
+        "state": {
+          "value": "Script",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "input-canonical-script-value",
+        "passed": true,
+        "state": {
+          "value": "Input update",
+          "start": 12,
+          "end": 12
+        }
+      },
+      {
+        "case": "cancel-keydown",
+        "passed": true,
+        "state": {
+          "value": "Hello",
+          "start": 1,
+          "end": 3
+        }
+      },
+      {
+        "case": "native-emacs-control-a",
+        "passed": true,
+        "state": {
+          "value": "Hello",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "native-emacs-control-e",
+        "passed": true,
+        "state": {
+          "value": "Hello",
+          "start": 5,
+          "end": 5
+        }
+      },
+      {
+        "case": "native-reference-Control+a",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        },
+        "expected": {
+          "key": "Control+a",
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "native-reference-Control+e",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 10,
+          "end": 10
+        },
+        "expected": {
+          "key": "Control+e",
+          "value": "Alpha beta",
+          "start": 10,
+          "end": 10
+        }
+      },
+      {
+        "case": "native-reference-Control+b",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 2,
+          "end": 2
+        },
+        "expected": {
+          "key": "Control+b",
+          "value": "Alpha beta",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "native-reference-Control+f",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 4,
+          "end": 4
+        },
+        "expected": {
+          "key": "Control+f",
+          "value": "Alpha beta",
+          "start": 4,
+          "end": 4
+        }
+      },
+      {
+        "case": "native-reference-Backspace",
+        "passed": true,
+        "state": {
+          "value": "Alha beta",
+          "start": 2,
+          "end": 2
+        },
+        "expected": {
+          "key": "Backspace",
+          "value": "Alha beta",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "native-reference-Delete",
+        "passed": true,
+        "state": {
+          "value": "Alpa beta",
+          "start": 3,
+          "end": 3
+        },
+        "expected": {
+          "key": "Delete",
+          "value": "Alpa beta",
+          "start": 3,
+          "end": 3
+        }
+      },
+      {
+        "case": "native-reference-Control+d",
+        "passed": true,
+        "state": {
+          "value": "Alpa beta",
+          "start": 3,
+          "end": 3
+        },
+        "expected": {
+          "key": "Control+d",
+          "value": "Alpa beta",
+          "start": 3,
+          "end": 3
+        }
+      },
+      {
+        "case": "native-reference-Control+h",
+        "passed": true,
+        "state": {
+          "value": "Alha beta",
+          "start": 2,
+          "end": 2
+        },
+        "expected": {
+          "key": "Control+h",
+          "value": "Alha beta",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "native-reference-Control+k",
+        "passed": true,
+        "state": {
+          "value": "Alp",
+          "start": 3,
+          "end": 3
+        },
+        "expected": {
+          "key": "Control+k",
+          "value": "Alp",
+          "start": 3,
+          "end": 3
+        }
+      },
+      {
+        "case": "secure-engine-value",
+        "passed": true,
+        "state": {
+          "value": "HXlo",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "readonly-retained",
+        "passed": true
+      },
+      {
+        "case": "native-unicode-utf16",
+        "passed": true,
+        "state": {
+          "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42X",
+          "start": 10,
+          "end": 10
+        }
+      },
+      {
+        "case": "engine-maxlength",
+        "passed": true,
+        "state": {
+          "value": "abcX",
+          "start": 4,
+          "end": 4
+        }
+      },
+      {
+        "case": "native-return-engine-submit",
+        "passed": true
+      },
+      {
+        "case": "editing-after-return",
+        "passed": true,
+        "state": {
+          "value": "X",
+          "start": 1,
+          "end": 1
+        },
+        "expected": {
+          "value": "X",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "input-replaces-frame",
+        "passed": true,
+        "state": {
+          "value": "HXlo",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "beforeinput-removes-frame",
+        "passed": true
+      },
+      {
+        "case": "native-next-focus",
+        "passed": true
+      },
+      {
+        "case": "style-change-keeps-engine-input",
+        "passed": true,
+        "state": {
+          "value": "HXlo",
+          "start": 2,
+          "end": 2
+        }
+      },
+      {
+        "case": "cache-restores-value",
+        "passed": true,
+        "state": {
+          "value": "Updated",
+          "start": 7,
+          "end": 7
+        }
+      },
+      {
+        "case": "cache-restores-page",
+        "passed": true,
+        "cache": {
+          "window": 23,
+          "node": 47,
+          "shows": [
+            false,
+            true
+          ]
+        }
+      },
+      {
+        "case": "native-pixels-bfcache-updated",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-pixels-restored-normal",
+        "passed": true,
+        "difference": null
+      },
+      {
+        "case": "native-caret-browser-invalidation",
+        "passed": true,
+        "difference": [
+          24,
+          3,
+          25,
+          18
+        ]
+      }
+    ],
+    "independent_complete_native_images": 15,
+    "native_objects_reclaimed_by_helper_exit": 6
+  },
+  "regressions": {
+    "range-regression": {
+      "sandbox": [
+        {
+          "pid": 4972,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5134,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 99,
+      "native_destroyed": 93,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 50,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.19302340799958984,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 4972,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 57,
+      "all_passed": true,
+      "hook_sha256": "11478c238cc8738b196fbb328e7d19207da2870ae618167918974ccfb413ab04",
+      "text_bindings_installed": true
+    },
+    "button-regression": {
+      "sandbox": [
+        {
+          "pid": 5309,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5472,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 249,
+      "native_destroyed": 243,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 2,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.19052982099992732,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 5309,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 54,
+      "all_passed": true,
+      "hook_sha256": "11478c238cc8738b196fbb328e7d19207da2870ae618167918974ccfb413ab04",
+      "text_bindings_installed": true
+    },
+    "control-regression": {
+      "sandbox": [
+        {
+          "pid": 5649,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5801,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 106,
+      "native_destroyed": 100,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": true,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.18626471099969422,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 5649,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 40,
+      "all_passed": true,
+      "hook_sha256": "11478c238cc8738b196fbb328e7d19207da2870ae618167918974ccfb413ab04",
+      "text_bindings_installed": true
+    },
+    "progress-active": {
+      "sandbox": [
+        {
+          "pid": 6644,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 45,
+      "native_destroyed": 45,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 0.61,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.09825645700038876,
+        "native_objects_reclaimed_by_helper_exit": 0,
+        "mouse_and_key_retained": false
+      },
+      "renderer_crash": null,
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "check_count": 21,
+      "all_passed": true,
+      "hook_sha256": "11478c238cc8738b196fbb328e7d19207da2870ae618167918974ccfb413ab04",
+      "text_bindings_installed": true
+    }
+  },
+  "shared_provider": {
+    "native_text": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "native_filter": {
+      "native_text_filter": {
+        "native_filter_controls": 2,
+        "pre_mutation_value": true,
+        "native_ranges_and_selectors": true,
+        "typing_veto": true,
+        "deletion_veto": true,
+        "cut_veto": true,
+        "paste_proposal": true,
+        "unicode": true,
+        "focus_transfer": true,
+        "model_rebind": true,
+        "reentrant_mutation_deferred": true,
+        "filter_removal": true
+      },
+      "previous_text_provider_accepted_without_filter": {
+        "previous_text_provider_without_filter": true
+      }
+    },
+    "transport_text_filter": {
+      "native_pre_edit_ipc": true,
+      "proposals": 6,
+      "nested_reads": 12,
+      "nested_mutations_rejected": 6,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true
+    },
+    "previous_text_transport_checks": 39,
+    "unchanged_legacy_images": 30
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-native-ui/text-firefox-hook.so": "11478c238cc8738b196fbb328e7d19207da2870ae618167918974ccfb413ab04",
+      "/var/tmp/nextspace-native-ui/browser-text-build/libnextspace-native-scroller.so.0.1": "a31caaab0c1eab3f4e92f91aea449a2a47dc03199546319935e3d39a166acc33",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui.so.1": "2a65aa44b91c66b1165d9631eeca2d7a3734337065207cfe2116e56a9dd3b304",
+      "/var/tmp/nextspace-native-ui/browser-text-build/native-ui/libnextspace-native-ui-gnustep.so.1": "bbaccb102804fe3d99a68b98d208cf0aec71e38a7ca48b3d6a617c56b23efc77",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "package_count": 1051,
+    "owned_processes_exited": {
+      "6183": true,
+      "6180": true,
+      "6175": true,
+      "4838": true,
+      "4836": true,
+      "4833": true,
+      "5173": true,
+      "5170": true,
+      "5167": true,
+      "5513": true,
+      "5508": true,
+      "5505": true,
+      "6518": true,
+      "6516": true,
+      "6513": true
+    },
+    "marionette_port_closed": true,
+    "private_backend_alias_removed": true,
+    "guest_meminfo": "MemTotal:        4010448 kB"
+  },
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/hook.c": "2c3e756bb011f59bcbb54d1950f47b398d7e2e384745d9be2c2007ca66eeae82",
+    "Experiments/FirefoxNativeUI/controls.inc": "361f6929748565837980177c27116edd88f822243a6229a720d467f42b28f494",
+    "Experiments/FirefoxNativeUI/text.inc": "18823720d73b53a3b63f5360452b9facab196a839b5fbf95a0d7696a5c7c08cb",
+    "Experiments/FirefoxNativeUI/pinned-text.h": "62ac7e23994b6c7e28c466e727b41064c864a9aa8a51a00cdf17f79611f1a8ed",
+    "Experiments/FirefoxNativeUI/run-fixture.py": "36800cc4c2918d3bdd2f64b27501e43df903f21a9ca8791843879ff10a1771c5",
+    "Experiments/FirefoxNativeUI/check-text.py": "0e92ffd4590c252a3e4814012c3fbc5270c81f722184b9161325504860eb8cf3",
+    "Experiments/FirefoxNativeUI/test-text.html": "54677ea57f835190f3d124b0599d11eb8d5f5d5521838747a1241c4a1ff1bc08",
+    "Experiments/FirefoxNativeUI/text-controls.json": "80b67859ae6bf1ca81fbd7ee2178ef1702ee413b9c3f48c9b8bf47a95cc9483b",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "3ec7c772cbeaab9763854f3233578e3c26d347e4861fcb5b1d806bc80aa62cd1",
+    "Libraries/NativeUI/GNUstep/Controls.m": "039706e3482bccf62bffe66e1802c6dff1644eacf6ccdc762d31bf5cb222d211",
+    "Tests/NativeUI/text-probe.c": "a95e9ca40b322a099923d5341672e96cde3361e821b245f7ec1e445faf09d6dc"
+  },
+  "source_audit": "text-source-audit.json",
+  "raw_evidence": [
+    ".build/firefox-native-ui/text-qualified/",
+    ".build/firefox-native-ui/text-environment.json",
+    ".build/firefox-native-ui/text-*-regression/",
+    ".build/firefox-native-ui/text-progress-active/",
+    ".build/native-ui/browser-text-provider-01/",
+    ".build/firefox-native-ui/text-source/"
+  ],
+  "limitations": [
+    "Exact pinned ARM64 Firefox ESR build only; themed plain/password inputs with explicit integer size at scale 1.",
+    "Native mouse hit testing/selection/drag, clipboard web events and cut/paste commands, native undo-menu routing, IME/composition, selection direction and accessibility remain unqualified.",
+    "Other input types, textarea/rich text, native intrinsic sizing, fractional/scaled/transformed output and broader styles remain open.",
+    "Current command adapter covers insertion and listed deletion commands; unsupported semantic edit commands are vetoed. Engine undo is qualified through its existing transaction API, not native undo shortcut/menu routing.",
+    "Native fixture font renders some Unicode glyphs as missing; UTF-16/value preservation and equality to the actual native image are qualified, complete font coverage is not.",
+    "Chromium text fields, browser address bars/frontends, other binaries/derivatives and GTK/Qt/KDE apps remain open.",
+    "Two-second validation budget does not qualify long-running scripts/modal editing flows."
+  ],
+  "diagnostics": [
+    "Full gdb debug load was killed with status 137 even after the user-authorized VM increase to 4GiB. Exact source, compiled disassembly, guarded bytes and runtime fixtures establish the interfaces used here.",
+    "The compiled keydown event enum is 4. Initial enum 2 let engine accelerators override native Ctrl+A; the early default-action binding uses 4.",
+    "HandleDeleteSelection uses an indirect x8 return because its Result is nontrivial. Forward the exact original output without reproducing that result type.",
+    "Initial implicit submit fixture lacked a submit button despite multiple text fields; adding a hidden real submit button exercises the actual form path.",
+    "Return selects all in the real native field editor. The subsequent edit now uses an independent native reference rather than an assumed retained selection.",
+    "Repeated unchanged editable setter suppressed caret pixels. Guarding that setter fixes the native timer/invalidations without a replacement blink implementation.",
+    "Initial pageshow-count fixture assumed exactly one event and failed. Restored window/node markers plus the real persisted pageshow flag verify actual bfcache retention; the restored native image is independently compared.",
+    "Range regression preceded the final guard moving keyboard-only payload reads inside keydown. Final text, button, checkbox/radio and progress runs use the final adapter hash. Shared range paths were unchanged by that guard."
+  ]
+}

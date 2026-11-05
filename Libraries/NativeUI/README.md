@@ -118,7 +118,9 @@ pass compatibility checks; all 30 legacy scrollbar images are unchanged.
 See [text qualification](text-qualification.json) and
 [source audit](text-source-audit.json).
 
-This does not yet connect webpage or URL-bar text fields. Engine edits must
+The optional [pinned Firefox adapter](../../Experiments/FirefoxNativeUI/text-qualification.json)
+now connects plain/password webpage fields. Chromium text and URL-bar fields
+remain open. Engine edits must
 retain beforeinput cancellation, trusted events, validation, selection, undo,
 composition and application command behavior. Multiline/rich text, IME, undo
 menu routing, other scales, mouse text selection, drag/drop and accessibility
@@ -166,13 +168,13 @@ The older text client/loader still runs with this provider, whose optional API
 now occupies 280 bytes on ARM64. See
 [filter qualification](text-filter-qualification.json).
 
-This callback is a prerequisite for browser `beforeinput`, not a completed
-browser transaction adapter. The engine must preserve its actual insert,
+This callback supplies the boundary used by the pinned Firefox text adapter.
+The engine must preserve its actual insert,
 delete, paste, validation, undo and composition transactions, handle script
 mutation/reentrancy and reconcile its canonical result with the native editor.
 Long-running browser scripts and modal editing flows remain unqualified. The
 [pinned Firefox text audit](../../Experiments/FirefoxNativeUI/text-source-audit.json)
-identifies candidate boundaries and explains why its autocomplete-style value
+records the guarded boundaries and explains why its autocomplete-style value
 setter cannot substitute for normal user editing.
 
 ## Build and checks

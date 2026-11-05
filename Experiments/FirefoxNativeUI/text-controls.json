@@ -1,0 +1,90 @@
+[
+  {
+    "id": "normal",
+    "kind": 7,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 1,
+    "state": 0,
+    "text": "Hello",
+    "editable": 1
+  },
+  {
+    "id": "password",
+    "kind": 8,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 1,
+    "state": 0,
+    "text": "Hello",
+    "editable": 1
+  },
+  {
+    "id": "readonly",
+    "kind": 7,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 1,
+    "state": 0,
+    "text": "Hello",
+    "editable": 0
+  },
+  {
+    "id": "disabled",
+    "kind": 7,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 0,
+    "state": 0,
+    "text": "Hello",
+    "editable": 0
+  },
+  {
+    "id": "unicode",
+    "kind": 7,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 1,
+    "state": 0,
+    "text": "日本語Café🙂",
+    "editable": 1
+  },
+  {
+    "id": "limited",
+    "kind": 7,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 1,
+    "state": 0,
+    "text": "abc",
+    "editable": 1
+  },
+  {
+    "id": "updated",
+    "kind": 7,
+    "title": "",
+    "width": 180,
+    "height": 24,
+    "enabled": 1,
+    "state": 0,
+    "text": "Updated",
+    "editable": 1
+  },
+  {
+    "id": "wide",
+    "kind": 7,
+    "title": "",
+    "width": 240,
+    "height": 30,
+    "enabled": 1,
+    "state": 0,
+    "text": "Hello",
+    "editable": 1
+  }
+]

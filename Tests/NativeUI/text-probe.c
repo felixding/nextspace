@@ -56,6 +56,9 @@ static void caret(struct Probe *p)
     nxs_native_ui_dispatch_events(.05);
     if(nxs_control_needs_display(p->control)) {
       invalidated++;
+      NXSControlConfig config={.size=sizeof(config),.width=180,.height=24,.enabled=1};
+      assert(nxs_control_sync(p->control,&config));
+      model(p,"Caret",5,0,1); /* An unchanged application echo must not restart blinking. */
       b=nxs_control_draw(p->control,1);assert(b.pixels);
       different=memcmp(before,b.pixels,size)!=0;
     }

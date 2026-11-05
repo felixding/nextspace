@@ -9,10 +9,11 @@ struct Widget {
   double width,height,actions;
   uint32_t *button_pixels;int button_width,button_height,button_label_owned;
   double range_step,range_x,range_y;int range_tracking,range_keypress;
+  int text_owned;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
-static int widgets_enabled,buttons_enabled,sliders_enabled,widget_notifier=-1;
+static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static pid_t widget_pid;
 static uint64_t next_widget;
 static struct Widget *widgets,*active_widget;
@@ -34,6 +35,11 @@ static int range_config(struct Widget *,struct NXSControlRequest *);
 static void range_key_action(void *,const struct NXSResponse *,int);
 static struct NXSResponse *range_end(struct Widget *);
 static void prepare_range_bindings(const struct NXSResponse *);
+static int native_text_frame(const void *);
+static int prepare_text_image(void *);
+static struct NXSResponse *sync_text_widget(struct Widget *);
+static void remove_text_watch(void);
+static int dispatch_text_key(void *,void *,void *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
 static int (*original_default_size)(void *);
 static int (*original_intrinsic)(void *,const void *,int);
@@ -49,7 +55,8 @@ static int node_kind(const void *node) {
   unsigned type=*((const unsigned char *)node+144);
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
     buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
-    sliders_enabled&&type==148?NXS_SLIDER:0;
+    sliders_enabled&&type==148?NXS_SLIDER:
+    texts_enabled&&type==145?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
 }
 static int frame_kind(const void *frame) {
   return frame?node_kind(*(void *const *)((const char *)frame+24)):0;
@@ -88,6 +95,7 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
   struct NXSResponse *response=exchange_bytes(data,size);free(data);free(title);return response;
 }
 static struct NXSResponse *widget_sync(struct Widget *w) {
+  if(w->kind==NXS_TEXTFIELD||w->kind==NXS_PASSWORD)return sync_text_widget(w);
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)return NULL;
   if(w->kind==NXS_SLIDER&&response->parts[5].x!=w->range_step) {
@@ -112,6 +120,7 @@ static void drain_widget_notifier(void) {
 }
 static void reset_widget_process(void) {
   if(widget_pid!=getpid()) {
+    remove_text_watch();
     while(widgets){struct Widget *next=widgets->next;free(widgets->button_pixels);free(widgets);widgets=next;}
     active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
     if(widget_notifier>=0)close(widget_notifier);
@@ -144,6 +153,7 @@ static struct Widget *bind_widget(void *frame) {
   int native;
   if(kind==NXS_BUTTON)native=native_button_frame(frame);
   else if(kind==NXS_SLIDER)native=native_range_frame(frame);
+  else if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD)native=native_text_frame(frame);
   else {metric_probe=1;native=original_intrinsic(frame,NULL,0);metric_probe=0;}
   if(!native||!ensure_widget_lifetime())return NULL;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
@@ -162,9 +172,12 @@ static struct Widget *bind_widget(void *frame) {
 }
 static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
   int kind=frame_kind(frame);
+  int is_text=kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;
+  if(is_text&&(!native_text_frame(frame)||!widget_for_frame(frame)||!widget_for_frame(frame)->text_owned))
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
   if(kind==NXS_SLIDER&&!prepare_range_image(frame))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
-  if(!widgets_enabled||!kind||appearance!=(unsigned)(kind==NXS_BUTTON?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5)||fabsf(frame_scale(frame)-1)>0.000001f||
+  if(!widgets_enabled||!kind||(!is_text&&appearance!=(unsigned)(kind==NXS_BUTTON?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5))||fabsf(frame_scale(frame)-1)>0.000001f||
      (kind==NXS_SLIDER&&!native_range_frame(frame)))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   const void *context=*(void *const *)((const char *)frame+40);
@@ -180,6 +193,14 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
     w->next=widgets;widgets=w;
   }
   w->width=area.width;w->height=area.height;
+  if(is_text) {
+    if(w->text_owned&&button_cache_available(w)&&w->button_width==lround(area.width)&&w->button_height==lround(area.height)) {
+      draw_bitmap(target,&area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
+      if(log_fd>=0)dprintf(log_fd,"%d native-text id=%llu kind=%d size=%dx%d\n",getpid(),(unsigned long long)w->id,kind,w->button_width,w->button_height);
+      return 1;
+    }
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
+  }
   if(kind==NXS_BUTTON) {
     if(!w->button_label_owned)return original_draw_target(self,target,frame,appearance,rect,overflow);
     widget_sync(w);
@@ -310,6 +331,18 @@ static int advance_focus(void *node,int result) {
   return !(status&0x80000000u);
 }
 static uint32_t input_post(void *node,void *visitor) {
+  if(node_kind(node)==NXS_TEXTFIELD||node_kind(node)==NXS_PASSWORD) {
+    void *event=*(void **)((char *)visitor+8);int *status=(int *)((char *)visitor+24);
+    unsigned message=*(const uint16_t *)((char *)event+18);
+    /* Accelerators and navigation may never produce keypress. Take their
+     * default action after DOM keydown listeners, before engine commands. */
+    if(message==4&&*status!=1) {
+      unsigned code=*(uint32_t *)((char *)event+200),modifiers=widget_modifiers(event);
+      if((modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))||code==8||code==9||code==46||(code>=33&&code<=40))
+        if(dispatch_text_key(node,event,NULL))*status=1;
+    }
+    return original_input_post(node,visitor);
+  }
   void *event=*(void **)((char *)visitor+8);
   unsigned message=*(const uint16_t *)((char *)event+18);
   struct Widget *w=widget_for_node(node);
@@ -354,6 +387,7 @@ static void forget_widget(struct Widget **cursor) {
   if(active_widget==w)active_widget=NULL;
   widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w);
   if(!widgets&&widget_notifier>=0) {
+    remove_text_watch();
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
     exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
   }
@@ -381,6 +415,7 @@ static void active_shell(void *shell,int active) {
 }
 #include "buttons.inc"
 #include "ranges.inc"
+#include "text.inc"
 static struct Detour widget_detours[]={
   {NXS_GECKO_DRAW_TARGET_OFFSET,gecko_draw_target_bytes,draw_widget,(void **)&original_draw_target},
   {NXS_GECKO_DEFAULT_SIZE_OFFSET,gecko_default_size_bytes,default_size,(void **)&original_default_size},
@@ -403,4 +438,5 @@ static void prepare_widget_metrics(void) {
   widgets_enabled=1;
   prepare_range_bindings(response);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
+  const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
 }
