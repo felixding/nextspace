@@ -223,6 +223,12 @@ def run(command, env, artifacts, programs, until):
                     Image.frombytes('RGB', crop_size, before).save(directory / f'tail-{scale}-before.png')
                     before_frame = until(lambda: capture(scale, w), "Terminal complete frame before scrolling")
                     before_frame.save(directory / f'frame-{scale}-before.png')
+                    # The running-program indicator may change independently
+                    # of scrolling. Compare the content, scroller and resize bar;
+                    # native_frames.py already checks the title controls.
+                    repaint_bounds = (0, (w['frame_top'] * scale + 119) // 120,
+                                      before_frame.width, before_frame.height)
+                    before_repaint = before_frame.crop(repaint_bounds).tobytes()
                     assert command(f"pointer {w['x'] + 100} {w['y'] + 100}")["ok"]
                     assert command("scroll 1000")["ok"]
                     scrolled = until(lambda: (text if (text := visible_text()) not in (None, before) else None),
@@ -232,8 +238,8 @@ def run(command, env, artifacts, programs, until):
                     try:
                         until(lambda: visible_text() == before, "Terminal redraws the same tail after scrolling")
                         until(lambda: (frame := capture(scale, w)) is not None and
-                            frame.tobytes() == before_frame.tobytes(),
-                            "Terminal frame and scroller repaint identically after scrolling")
+                            frame.crop(repaint_bounds).tobytes() == before_repaint,
+                            "Terminal content and scroller repaint identically after scrolling")
                     finally:
                         returned = capture(scale, w)
                         if returned:
