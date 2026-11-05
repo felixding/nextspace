@@ -31,6 +31,16 @@ excludes its independently changing running-program title indicator; the native
 frame-control checks already cover that indicator. Hosted confirmation of these
 application and fixture changes is pending.
 
+Run `41985367984` at `82bd01c4` passes its native job. Its package job stops at
+temporary greeter-account removal after all thirteen profile cases have exited
+gracefully and released their defaults locks. The fixture issued `SIGKILL` and
+immediately called `userdel`, which returned 8 while process `30719` still held
+the account. Shared native-fixture cleanup now retries only that transient busy
+result while reaping completes; other failures remain errors. The thirteen
+existing profile cases and seven Login UI modes pass locally with account-removal
+receipts. No new scenarios or production runtime changes are introduced; hosted
+follow-up is pending.
+
 Workspace now has one native build and session path. Its X11 session, adapter,
 notification bridge, legacy Recycler integration and embedded Window Maker
 sources are removed. It requires the pinned GUI session/backend APIs and no

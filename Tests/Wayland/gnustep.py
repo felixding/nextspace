@@ -4,6 +4,7 @@ from io import BytesIO
 import json
 import os
 from pathlib import Path
+import pwd
 import re
 import select
 import shutil
@@ -12,6 +13,34 @@ import subprocess
 import tempfile
 import time
 import uuid
+
+
+def remove_test_account(name, uid, artifacts):
+    """Remove an owned fixture account after its killed processes are reaped."""
+    assert name.startswith('nextspace-') and uid > 0
+    assert pwd.getpwnam(name).pw_uid == uid
+    killed = subprocess.run(['pkill', '-KILL', '-u', name], capture_output=True)
+    if killed.returncode not in (0, 1):
+        killed.check_returncode()
+    started = time.monotonic()
+    busy = []
+    while True:
+        result = subprocess.run(['userdel', name], capture_output=True, text=True)
+        elapsed = time.monotonic() - started
+        if result.returncode == 0:
+            return dict(user=name, uid=uid, removed=True,
+                        reap_wait_seconds=elapsed, busy_responses=busy)
+        # SIGKILL delivery precedes reaping by the container's init process.
+        # Only shadow-utils' "user currently used by process" result is transient.
+        if result.returncode != 8 or elapsed >= 10:
+            artifacts.mkdir(parents=True, exist_ok=True)
+            (artifacts / 'account-cleanup-failure.json').write_text(json.dumps(dict(
+                user=name, uid=uid, returncode=result.returncode, stderr=result.stderr,
+                reap_wait_seconds=elapsed, busy_responses=busy), indent=2) + '\n')
+            result.check_returncode()
+        if result.stderr not in busy:
+            busy.append(result.stderr)
+        time.sleep(0.05)
 
 
 def process_runtime(pid):

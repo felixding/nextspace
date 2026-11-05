@@ -15,7 +15,7 @@ import time
 import uuid
 
 from integration import until
-from gnustep import private_defaults
+from gnustep import private_defaults, remove_test_account
 from PIL import Image
 from login_artwork import check_panel
 
@@ -209,11 +209,10 @@ def greeter_account(application, artifacts):
         account=pwd.getpwnam(name);os.chown(home,account.pw_uid,account.pw_gid)
         try:yield account.pw_uid,account.pw_gid,home
         finally:
-            subprocess.run(['pkill','-KILL','-u',name],check=False)
-            subprocess.run(['userdel',name],check=True)
+            cleanup=remove_test_account(name,account.pw_uid,artifacts)
             if artifacts.is_dir():
-                (artifacts/'account-cleanup.json').write_text(json.dumps(dict(user=name,uid=account.pw_uid,
-                    removed=True,root_greeter_rejected=True),indent=2)+'\n')
+                (artifacts/'account-cleanup.json').write_text(json.dumps(dict(cleanup,
+                    root_greeter_rejected=True),indent=2)+'\n')
 
 
 if __name__ == '__main__':

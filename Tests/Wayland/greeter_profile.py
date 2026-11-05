@@ -18,7 +18,7 @@ import tempfile
 import time
 import uuid
 
-from gnustep import private_defaults
+from gnustep import private_defaults, remove_test_account
 from integration import until
 from login_greeter import at_density
 from workspace_power_session import descendants
@@ -203,8 +203,8 @@ def run(compositor, supervisor, helper, application, artifacts):
         hanging.chmod(0o755)
         check('hung-helper', 120, hanging)
     finally:
-        subprocess.run(['pkill', '-KILL', '-u', name], check=False)
-        subprocess.run(['userdel', name], check=True)
+        cleanup = remove_test_account(name, account.pw_uid, artifacts)
+        (artifacts / 'account-cleanup.json').write_text(json.dumps(cleanup, indent=2) + '\n')
         shutil.rmtree(runtime)
     (artifacts / 'results.json').write_text(json.dumps(dict(cases=rows, complete=True, real_pam=False,
         unprivileged_uid=account.pw_uid, account_removed=True), indent=2) + '\n')
