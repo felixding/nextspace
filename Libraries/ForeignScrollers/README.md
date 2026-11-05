@@ -2,8 +2,9 @@
 
 These adapters host the existing GNUstep `NSScroller`. They contain no scrollbar
 drawing, geometry, arrow repeat, jump-to-point or drag implementations.
-`NativeScroller.m` calls `NSScroller` for those operations and translates the
-host's range and pointer events across a small C interface. The application's
+`NativeScroller.c` forwards the existing C interface to the separate
+[native UI provider](../NativeUI/README.md). Its GNUstep provider calls the real
+`NSScroller` and translates the host's range and pointer events. The application's
 existing scroll model, content widget and accessibility object remain in place.
 
 Rendering uses the installed NextSpace theme through ordinary AppKit drawing,

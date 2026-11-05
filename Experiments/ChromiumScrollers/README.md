@@ -126,3 +126,11 @@ Raw results and screenshots are in
 `.build/foreign-scrollbars/chromium-prototype/disabled-matrix/`. All eight native
 pixel comparisons passed at 100% scale. This does not qualify other controls,
 other browser builds or the cause of every earlier fallback.
+
+The existing scrollbar ABI now forwards to the separate
+[native UI provider](../../Libraries/NativeUI/README.md). The Chromium hook asks
+that provider for scrollbar thickness at startup; it no longer supplies a fixed
+native width. Changing only the UI library's `GSScrollerDefaultWidth` setting
+from 18 to 22 changed Chromium's layout and passed eight native pixel checks
+plus an arrow-action check without rebuilding Chromium or the bridge. This
+qualifies that metric handoff, not all controls or arbitrary theme changes.

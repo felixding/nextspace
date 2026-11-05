@@ -3,8 +3,9 @@
 User requirement, 2026-11-05: use the actual NEXTSPACE controls throughout
 applications, including Chromium, Chrome, Vivaldi, Firefox and their derivatives.
 This includes native appearance, placement, input behavior, menus, text editing
-and shortcuts. Existing control implementations must be reused. Recompiling each
-application is excluded. The scrollbar experiment is a feasibility result, not
+and shortcuts. Existing control implementations must be reused. Bridges must remain separate
+from the underlying UI library so appearance and interaction can be updated in
+one place. Recompiling each application is excluded. The scrollbar experiment is a feasibility result, not
 completion of this requirement.
 
 ## Shared implementation and distinct integration boundaries
@@ -88,5 +89,14 @@ text fields, or full native compatibility.
    Unsupported coverage remains explicit rather than silently falling back to
    a lookalike and claiming completion.
 
-No step after the scrollbar work is implemented or qualified yet. This document
-records the expanded requirement and integration audit; it is not a support claim.
+The first implementation of step 2 is in
+[`Libraries/NativeUI`](../Libraries/NativeUI/README.md): a C-only loader, an
+independent GNUstep UI provider and the existing scrollbar ABI forwarding shim.
+The provider hosts actual push buttons, checkboxes, radio buttons, sliders,
+progress indicators and scrollbars using one shared view/event host. Native
+tracking/model probes and 30 unchanged-scrollbar bitmap comparisons pass on the
+private ARM64 test setup. The unchanged Chromium scrollbar path also passes
+through this provider; changing the UI library's width setting changes its
+layout and passes native pixels/input without a browser or bridge rebuild. Text, menus and the remaining controls are still open.
+The new types are not connected to GTK/Qt or browser controls yet; steps 3-5
+remain incomplete. The full application matrix must be rerun before activation.

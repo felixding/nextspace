@@ -1,18 +1,10 @@
 /* Thin C boundary to the existing AppKit control. GPL-2.0-or-later. */
 #ifndef NEXTSPACE_NATIVE_SCROLLER_H
 #define NEXTSPACE_NATIVE_SCROLLER_H
-#include <stdint.h>
+#include "../NativeUI/NativeUI.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
-typedef struct NXSScroller NXSScroller;
-typedef struct { double x, y, width, height; } NXSRect;
-typedef struct { int width, height, stride; const unsigned char *pixels; } NXSBitmap;
-typedef void (*NXSChanged)(void *context, double value);
-typedef void (*NXSPump)(void *context);
-/* Physical host modifier families; the bridge applies GNUstep's own defaults. */
-enum { NXS_SHIFT = 1, NXS_ALT = 2, NXS_CONTROL = 4, NXS_SUPER = 8 };
-enum { NXS_MOVE, NXS_RELEASE };
 NXSScroller *nxs_scroller_create(int horizontal, NXSChanged changed, NXSPump pump, void *context);
 void nxs_scroller_destroy(NXSScroller *scroller);
 double nxs_scroller_width(void);

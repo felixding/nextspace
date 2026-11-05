@@ -30,6 +30,7 @@ static pid_t observed_pid;
 static uint32_t process_cookie;
 static int channel=-1,log_fd=-1,draw_slot=-1;
 static uintptr_t base;
+static double native_thickness;
 static __thread unsigned char *packet;
 static __thread struct NXSRequest cached_request;
 static __thread struct NXSResponse cached_response;
@@ -103,7 +104,7 @@ static int minimum(void*t,const void*b) {struct NXSResponse*r=query(b,0,0,0);if(
 static int position(void*t,const void*b,float value){struct NXSResponse*r=query(b,0,value,1);if(!r)return 0;return lround(*(const int *)((const char *)b+16)?r->parts[2].y-r->parts[6].y:r->parts[2].x-r->parts[6].x);}
 static int track_position(void*t,const void*b){struct Rect r=track(t,b),f=*(const struct Rect *)((const char *)b+208);return *(const int *)((const char *)b+16)?r.y-f.y:r.x-f.x;}
 static int track_length(void*t,const void*b){struct Rect r=track(t,b);return *(const int *)((const char *)b+16)?r.height:r.width;}
-static int thickness(void*t,float scale,int width){return width==2?0:lround(18*scale);}
+static int thickness(void*t,float scale,int width){return width==2?0:lround(native_thickness*scale);}
 struct Color {float r,g,b,a;};
 static struct Color transparent(void*t,const void*b){return (struct Color){0};}
 static struct Rect zero_insets(void*t,const void*b){return (struct Rect){0};}
@@ -219,6 +220,11 @@ __attribute__((constructor)) static void initialize(void) {
   observed_pid=getpid();process_cookie=0;
   uint32_t seed;
   if(!getentropy(&seed,sizeof(seed)))atomic_store(&shared->next_process,seed);
+  struct NXSResponse *metrics=exchange((struct NXSRequest){.magic=NXS_CHROMIUM_MAGIC,.operation=7,.process=identity()});
+  if(!metrics||!isfinite(metrics->parts[0].width)||metrics->parts[0].width<1||metrics->parts[0].width>256) {
+    note("native metrics unavailable; unchanged");return;
+  }
+  native_thickness=metrics->parts[0].width;
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};

@@ -15,6 +15,7 @@ Pump=C.CFUNCTYPE(None,C.c_void_p)
 
 def run(library,path):
     native=C.CDLL(str(library));native.nxs_scroller_create.argtypes=[C.c_int,Changed,Pump,C.c_void_p];native.nxs_scroller_create.restype=C.c_void_p
+    native.nxs_scroller_width.argtypes=[];native.nxs_scroller_width.restype=C.c_double
     native.nxs_scroller_sync.argtypes=[C.c_void_p]+[C.c_double]*7+[C.c_int]
     native.nxs_scroller_part.argtypes=[C.c_void_p,C.c_int];native.nxs_scroller_part.restype=Rect
     native.nxs_scroller_draw.argtypes=[C.c_void_p,C.c_double];native.nxs_scroller_draw.restype=Bitmap
@@ -31,8 +32,9 @@ def run(library,path):
         log('native-action',process=state['key'][0],control=state['key'][1],value=value)
     @Pump
     def pump(context):dispatch(0)
-    def response(client,req,state,pixels=False):
+    def response(client,req,state,pixels=False,scroller_width=0):
         result=Response();result.magic=req.magic;result.reserved=req.reserved
+        result.parts[0].width=scroller_width
         if state and state.get('native'):
             for part in range(1,7):result.parts[part]=native.nxs_scroller_part(state['native'],part)
             result.parts[0].x=state['value'];result.parts[0].y=bool(state.get('starting') or native.nxs_scroller_tracking(state['native']))
@@ -47,6 +49,9 @@ def run(library,path):
         if len(data)!=C.sizeof(Request):return
         req=Request.from_buffer_copy(data)
         if req.magic!=0x4e585343:return
+        if req.operation==7:
+            response(client,req,None,scroller_width=native.nxs_scroller_width())
+            return
         key=(req.process,req.control,req.horizontal);state=controls.get(key)
         if req.operation==1:
             if req.layer>1 or not 1<=req.length<=8192:return

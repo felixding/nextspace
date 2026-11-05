@@ -1,36 +1,27 @@
-/* Reuse NSScroller drawing, geometry and tracking; no second control.
- * GPL-2.0-or-later. */
-#import <AppKit/AppKit.h>
-#include "NativeScroller.h"
+/* One native view host shared by every provider control. GPL-2.0-or-later. */
+#import "ViewHost.h"
 #include <math.h>
 #include <stdlib.h>
-
-struct NXSScroller {
-  NSScroller *view;
+struct NXSViewHost {
+  NSView *view;
   NSWindow *window;
-  id target;
   NSBitmapImageRep *bitmap;
   unsigned char *pixels;
-  double lower, upper, page, step, page_step, value;
-  NXSChanged changed;
   NXSPump pump;
   void *context;
   BOOL tracking;
-  BOOL horizontal;
   unsigned modifiers;
   NSPoint pointer;
   BOOL release_queued;
 };
-
-static NXSScroller *active;
-
-/* NSScroller owns the tracking loop. While it waits, dispatch the embedding
+static NXSViewHost *active;
+/* The native control owns the tracking loop. While it waits, dispatch the embedding
  * toolkit so real pointer events and its other windows remain responsive. */
 @interface NXSApplication : NSApplication
-- (void)trackScroller:(NSScroller *)view event:(NSEvent *)event;
+- (void)trackView:(NSView *)view event:(NSEvent *)event;
 @end
 @implementation NXSApplication
-- (void)trackScroller:(NSScroller *)view event:(NSEvent *)event
+- (void)trackView:(NSView *)view event:(NSEvent *)event
 {
   /* NSCell expects the initiating event to be NSApp.currentEvent, just as
    * when AppKit dispatches a real mouseDown. */
@@ -44,7 +35,7 @@ static NXSScroller *active;
 {
   if (!active) return [super nextEventMatchingMask:mask untilDate:limit inMode:mode dequeue:dequeue];
   do {
-    active->pump(active->context);
+    if(active->pump)active->pump(active->context);
     NSDate *slice = [NSDate dateWithTimeIntervalSinceNow:.005];
     if ([limit compare:slice] == NSOrderedAscending) slice = limit;
     NSEvent *event = [super nextEventMatchingMask:mask untilDate:slice inMode:mode dequeue:dequeue];
@@ -54,7 +45,7 @@ static NXSScroller *active;
 }
 @end
 
-@interface NXSBackingWindow : NSWindow { @public NXSScroller *control; }
+@interface NXSBackingWindow : NSWindow { @public NXSViewHost *control; }
 @end
 @implementation NXSBackingWindow
 - (NSPoint)mouseLocationOutsideOfEventStream {return control->pointer;}
@@ -62,26 +53,6 @@ static NXSScroller *active;
  * embedding widget; never submit this private window to the compositor. */
 - (void)flushWindow {}
 - (void)flushWindowIfNeeded {}
-@end
-
-@interface NXSAction : NSObject { @public NXSScroller *control; }
-- (void)changed:(NSScroller *)sender;
-@end
-@implementation NXSAction
-- (void)changed:(NSScroller *)sender
-{
-  double value = control->value;
-  switch ([sender hitPart]) {
-    case NSScrollerDecrementLine: value -= control->step; break;
-    case NSScrollerIncrementLine: value += control->step; break;
-    case NSScrollerDecrementPage: value -= control->page_step; break;
-    case NSScrollerIncrementPage: value += control->page_step; break;
-    default: value = control->lower + [sender doubleValue] *
-      fmax(0, control->upper - control->lower - control->page); break;
-  }
-  control->value = fmax(control->lower, fmin(value, fmax(control->lower, control->upper - control->page)));
-  control->changed(control->context, control->value);
-}
 @end
 
 static NSUInteger flags(unsigned modifiers)
@@ -100,23 +71,20 @@ static NSUInteger flags(unsigned modifiers)
   return result;
 }
 
-static NSEvent *mouse(NXSScroller *control, NSEventType type, double x, double y, unsigned modifiers)
+static NSEvent *mouse(NXSViewHost *control, NSEventType type, double x, double y, unsigned modifiers)
 {
-  NSPoint point = [control->view convertPoint:NSMakePoint(x, y) toView:nil];
+  /* Consumers use bitmap coordinates, independent of a UI library's native
+   * view orientation. Keep this conversion inside the provider. */
+  double localY=[control->view isFlipped]?y:[control->view bounds].size.height-y;
+  NSPoint point = [control->view convertPoint:NSMakePoint(x, localY) toView:nil];
   return [NSEvent mouseEventWithType:type location:point modifierFlags:flags(modifiers)
     timestamp:[NSDate timeIntervalSinceReferenceDate] windowNumber:[control->window windowNumber]
     context:nil eventNumber:0 clickCount:1 pressure:type == NSLeftMouseUp ? 0 : 1];
 }
 
-double nxs_scroller_width(void)
+int nxs_host_initialize(void)
 {
-  return [NSScroller scrollerWidth];
-}
-
-NXSScroller *nxs_scroller_create(int horizontal, NXSChanged changed, NXSPump pump, void *context)
-{
-  NSAutoreleasePool *pool = [NSAutoreleasePool new];
-  if (NSApp && ![NSApp isKindOfClass:[NXSApplication class]]) { [pool drain]; return NULL; }
+  if (NSApp && ![NSApp isKindOfClass:[NXSApplication class]]) return 0;
   if(!NSApp) {
     NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
     NSMutableDictionary *arguments=[NSMutableDictionary dictionaryWithDictionary:
@@ -126,60 +94,36 @@ NXSScroller *nxs_scroller_create(int horizontal, NXSChanged changed, NXSPump pum
     [defaults setVolatileDomain:arguments forName:NSArgumentDomain];
   }
   [NXSApplication sharedApplication];
-  NXSScroller *control = calloc(1, sizeof(*control));
-  if (control) {
-    double width = nxs_scroller_width();
-    control->view = [[NSScroller alloc] initWithFrame:
-      NSMakeRect(0, 0, horizontal ? 128 : width, horizontal ? width : 128)];
-    NXSAction *target = [NXSAction new]; target->control = control;
-    control->target = target;
-    [control->view setTarget:target]; [control->view setAction:@selector(changed:)];
-    control->changed = changed; control->pump = pump; control->context = context;
-    control->horizontal=horizontal;
-    /* NSCell pixel alignment uses the view-to-window transform, even when
-     * rendering offscreen. Keep that contract stable before the first click. */
-    NXSBackingWindow *window = [[NXSBackingWindow alloc] initWithContentRect:[control->view bounds]
-      styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
-    window->control=control;control->window=window;
-    [window setReleasedWhenClosed:NO];
-    [[window contentView] addSubview:control->view];
-  }
-  [pool drain];
-  return control;
+  return 1;
 }
-
-void nxs_scroller_destroy(NXSScroller *control)
+NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
 {
-  if (!control) return;
-  NSAutoreleasePool *pool = [NSAutoreleasePool new];
-  [control->view removeFromSuperview];
-  [control->window close];[control->window release]; [control->view release]; [control->target release];
-  [control->bitmap release]; free(control->pixels); free(control);
-  [pool drain];
+  if(!view||!nxs_host_initialize())return NULL;
+  NXSViewHost *host=calloc(1,sizeof(*host));
+  if(!host)return NULL;
+  host->view=[view retain];host->pump=pump;host->context=context;
+  NXSBackingWindow *window=[[NXSBackingWindow alloc] initWithContentRect:[view bounds]
+    styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+  window->control=host;host->window=window;
+  [window setReleasedWhenClosed:NO];
+  [[window contentView] addSubview:view];
+  return host;
 }
-
-void nxs_scroller_sync(NXSScroller *control, double length, double lower, double upper,
-                       double page, double step, double page_step, double value, int enabled)
+int nxs_host_destroy(NXSViewHost *host)
 {
-  if (!control || !isfinite(length) || length < 1 || length > 32768) return;
-  NSAutoreleasePool *pool = [NSAutoreleasePool new];
-  double width=nxs_scroller_width();
-  NSSize size=NSMakeSize(control->horizontal ? length : width,control->horizontal ? width : length);
-  /* setFrameSize: resets NSScroller's hit part, even for an unchanged size. */
-  if(!NSEqualSizes([control->view frame].size,size)) {
-    [control->view setFrameSize:size];
-    if (control->window) [control->window setContentSize:size];
-  }
-  control->lower = lower; control->upper = upper; control->page = page;
-  control->step = step; control->page_step = page_step; control->value = value;
-  double extent = fmax(0, upper - lower), range = fmax(0, extent - page);
-  [control->view setEnabled:enabled && range > 0];
-  [control->view setFloatValue:range > 0 ? (value - lower) / range : 0
-              knobProportion:extent > 0 ? fmin(1, page / extent) : 1];
-  [pool drain];
+  if(!host)return 1;
+  if(host->tracking)return 0;
+  [host->view removeFromSuperview];
+  [host->window close];[host->window release];[host->view release];
+  [host->bitmap release];free(host->pixels);free(host);
+  return 1;
 }
-
-NXSBitmap nxs_scroller_draw(NXSScroller *control, double scale)
+void nxs_host_resize(NXSViewHost *host,NSSize size)
+{
+  if(!host||NSEqualSizes([host->view frame].size,size))return;
+  [host->view setFrameSize:size];[host->window setContentSize:size];
+}
+NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 {
   NXSBitmap result = {0};
   if (!control || !isfinite(scale) || scale < 1 || scale > 8) return result;
@@ -197,6 +141,7 @@ NXSBitmap nxs_scroller_draw(NXSScroller *control, double scale)
   [[NSColor controlBackgroundColor] set]; NSRectFill(NSMakeRect(0,0,size.width,size.height));
   [control->view drawRect:[control->view bounds]];
   [context unlockFocusView:control->view needsFlush:NO];
+  [control->view setNeedsDisplay:NO];
   [NSGraphicsContext saveGraphicsState];
   [transform invert]; [transform concat];
   NSBitmapImageRep *bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0,0,width,height)];
@@ -218,24 +163,22 @@ NXSBitmap nxs_scroller_draw(NXSScroller *control, double scale)
   return result;
 }
 
-NXSRect nxs_scroller_part(NXSScroller *control, int part)
+void nxs_host_track(NXSViewHost *control, double x, double y, unsigned modifiers)
 {
-  NSRect rect = control ? [control->view rectForPart:(NSScrollerPart)part] : NSZeroRect;
-  return (NXSRect){rect.origin.x, rect.origin.y, rect.size.width, rect.size.height};
-}
-
-void nxs_scroller_track(NXSScroller *control, double x, double y, unsigned modifiers)
-{
-  if (!control || active || ![control->view isEnabled]) return;
+  if (!control || active) return;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
+  /* Native cells may prepare their track/knob geometry while drawing. An
+   * offscreen host has no automatic display pass between resize and input;
+   * let the native view finish that pass instead of reproducing its layout. */
+  if([control->view needsDisplay])nxs_host_draw(control,1);
   active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;
   NSEvent *event=mouse(control,NSLeftMouseDown,x,y,modifiers);control->pointer=[event locationInWindow];
-  @try { [(NXSApplication *)NSApp trackScroller:control->view event:event]; }
+  @try { [(NXSApplication *)NSApp trackView:control->view event:event]; }
   @finally { control->tracking = NO; active = NULL; }
   [pool drain];
 }
 
-void nxs_scroller_send(NXSScroller *control, int event, double x, double y, unsigned modifiers)
+void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned modifiers)
 {
   if (!control || !control->tracking || control->release_queued) return;
   if(event==NXS_RELEASE) control->release_queued=YES;
@@ -252,5 +195,4 @@ void nxs_scroller_send(NXSScroller *control, int event, double x, double y, unsi
   [pool drain];
 }
 
-int nxs_scroller_tracking(NXSScroller *control) { return control && control->tracking; }
-int nxs_scroller_hit_part(NXSScroller *control) { return control ? [control->view hitPart] : NSScrollerNoPart; }
+int nxs_host_tracking(NXSViewHost *host){return host&&host->tracking;}

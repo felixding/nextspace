@@ -45,3 +45,9 @@ all browser controls and frontend behavior. The implementations above remain
 scrollbar-only. An earlier Chromium screenshot exposed a disabled-bar fallback;
 eight added enabled/disabled pixel comparisons now pass, while the exact earlier
 trigger remains unconfirmed.
+
+The native implementation now lives in the separate
+[`NativeUI` provider](../Libraries/NativeUI/README.md), with a C scrollbar ABI
+forwarding shim. Private native/control and Chromium checks pass through this
+split. The installed v13 package matrix above predates it; the full GTK/Qt
+package matrix still needs to be rerun before activating the new provider.

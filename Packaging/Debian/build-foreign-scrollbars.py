@@ -17,7 +17,7 @@ def build(repo, work, output, version):
     subprocess.run(['dpkg','--validate-version',version],check=True)
     work.mkdir(parents=True)
     output.mkdir(parents=True,exist_ok=True)
-    files=source_files(repo,('Libraries/ForeignScrollers','Tests/ForeignScrollers'),
+    files=source_files(repo,('Libraries/ForeignScrollers','Libraries/NativeUI','Tests/ForeignScrollers','Tests/NativeUI'),
         ['LICENSE','Packaging/Debian/build-foreign-scrollbars.py','Packaging/Debian/common.py'])
     expected={name:source_digest(path) for name,path in sorted(files.items())}
     snapshot=work/'source'
@@ -37,7 +37,9 @@ def build(repo, work, output, version):
     (debian/'control').write_text(f'Source: {PACKAGE}\nMaintainer: {maintainer}\n\nPackage: {PACKAGE}\nArchitecture: any\nDescription: NEXTSPACE native scrollbar adapters\n')
     overrides=debian/'shlibs.local'
     overrides.write_text('libgnustep-gui 0 nextspace-runtime\nlibgnustep-base 1.31 nextspace-runtime\n'
-        'libobjc 4.6 nextspace-runtime\n'+f'libnextspace-native-scroller 1 {PACKAGE} (= {version})\n')
+        'libobjc 4.6 nextspace-runtime\n'+f'libnextspace-native-scroller 1 {PACKAGE} (= {version})\n'
+        f'libnextspace-native-ui 1 {PACKAGE} (= {version})\n'
+        f'libnextspace-native-ui-gnustep 1 {PACKAGE} (= {version})\n')
     libraries=stage/'usr/NextSpace/lib/nextspace-scrollbars'
     elfs=[path for path in stage.rglob('*') if path.is_file() and not path.is_symlink()
           and path.read_bytes()[:4]==b'\x7fELF']

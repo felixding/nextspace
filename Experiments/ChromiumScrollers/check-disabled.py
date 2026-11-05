@@ -34,9 +34,11 @@ for name, mutation, state in cases:
     actual = Image.open(image_path).convert('RGB')
     rect = metrics['rect']
     x, y = math.floor(rect['x'] + 2), math.floor(rect['y'] + 2)
+    vertical_width = round(rect['width'] - metrics['width'] - 4)
+    horizontal_height = round(rect['height'] - metrics['height'] - 4)
     for orientation, bounds in [
-        ('horizontal', (x + 18, y + metrics['height'], x + 18 + metrics['width'], y + metrics['height'] + 18)),
-        ('vertical', (x, y, x + 18, y + metrics['height'])),
+        ('horizontal', (x + vertical_width, y + metrics['height'], x + vertical_width + metrics['width'], y + metrics['height'] + horizontal_height)),
+        ('vertical', (x, y, x + vertical_width, y + metrics['height'])),
     ]:
         expected = Image.open(args.references / (state + '-' + orientation + '.png')).convert('RGB')
         crop = actual.crop(bounds)

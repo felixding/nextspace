@@ -1,0 +1,52 @@
+/* Provider loading and ABI forwarding only; no UI implementation. GPL-2.0-or-later. */
+#include "NativeUI.h"
+#include <dlfcn.h>
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+static pthread_once_t once=PTHREAD_ONCE_INIT;
+static const NXSNativeUIAPI *api;
+static char error[512];
+static void load_provider(void)
+{
+  const char *path=getenv("NEXTSPACE_NATIVE_UI_PROVIDER");
+  if(!path||!*path)path="libnextspace-native-ui-gnustep.so.1";
+  void *library=dlopen(path,RTLD_NOW|RTLD_LOCAL);
+  if(!library){snprintf(error,sizeof(error),"%s",dlerror());return;}
+  const NXSNativeUIAPI *(*provider)(uint32_t)=dlsym(library,"nxs_native_ui_provider");
+  if(!provider){snprintf(error,sizeof(error),"Native UI provider has no ABI entry point");return;}
+  const NXSNativeUIAPI *candidate=provider(NXS_NATIVE_UI_ABI);
+  if(!candidate||candidate->version!=NXS_NATIVE_UI_ABI||candidate->size<sizeof(NXSNativeUIAPI)) {
+    snprintf(error,sizeof(error),"Unsupported native UI provider ABI");return;
+  }
+  if(!candidate->scroller_create||!candidate->scroller_destroy||!candidate->scroller_width||
+     !candidate->scroller_sync||!candidate->scroller_draw||!candidate->scroller_part||
+     !candidate->scroller_track||!candidate->scroller_send||!candidate->scroller_tracking||
+     !candidate->scroller_hit_part||!candidate->control_create||!candidate->control_destroy||
+     !candidate->control_sync||!candidate->control_state||!candidate->control_size||
+     !candidate->control_draw||!candidate->control_track||!candidate->control_send) {
+    snprintf(error,sizeof(error),"Incomplete native UI provider ABI");return;
+  }
+  /* Objective-C classes and active controls can outlive a caller. Keep this
+   * provider loaded for the process lifetime rather than unloading its code. */
+  api=candidate;
+}
+const NXSNativeUIAPI *nxs_native_ui_api(void){pthread_once(&once,load_provider);return api;}
+const char *nxs_native_ui_error(void){nxs_native_ui_api();return error;}
+NXSControl *nxs_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return p?p->control_create(kind,changed,pump,context):NULL;}
+int nxs_control_destroy(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return p?p->control_destroy(c):0;}
+int nxs_control_sync(NXSControl *c,const NXSControlConfig *config)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return p?p->control_sync(c,config):0;}
+NXSControlState nxs_control_state(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return p?p->control_state(c):(NXSControlState){0};}
+NXSSize nxs_control_size(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return p?p->control_size(c):(NXSSize){0};}
+NXSBitmap nxs_control_draw(NXSControl *c,double scale)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return p?p->control_draw(c,scale):(NXSBitmap){0};}
+void nxs_control_track(NXSControl *c,double x,double y,unsigned m)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_track(c,x,y,m);}
+void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_send(c,event,x,y,m);}

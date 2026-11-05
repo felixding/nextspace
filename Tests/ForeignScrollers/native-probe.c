@@ -21,9 +21,10 @@ static void pump(void *unused) {
   else nxs_scroller_send(control, NXS_RELEASE, move_x, move_y, held_modifiers);
 }
 int main(int argc, char **argv) {
-  control = nxs_scroller_create(0, changed, pump, NULL);
+  int horizontal=argc>1&&!strcmp(argv[1],"--render-horizontal");
+  control = nxs_scroller_create(horizontal, changed, pump, NULL);
   assert(control);
-  int render = argc > 7 && !strcmp(argv[1],"--render");
+  int render = argc > 7 && (!strcmp(argv[1],"--render")||horizontal);
   nxs_scroller_sync(control, render ? atof(argv[2]) : 240, 0, render ? atof(argv[3]) : 1000,
     render ? atof(argv[4]) : 200, 10, 180, render ? atof(argv[5]) : value, 1);
   NXSRect knob = nxs_scroller_part(control, 2);

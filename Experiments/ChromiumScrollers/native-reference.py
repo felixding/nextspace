@@ -9,6 +9,8 @@ from helper import Bitmap
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--horizontal-length', type=float, default=332)
+parser.add_argument('--vertical-length', type=float, default=152)
 args, backend_arguments = parser.parse_known_args()
 args.output.mkdir(parents=True, exist_ok=True)
 native = C.CDLL(str(args.library.resolve()))
@@ -19,10 +21,10 @@ native.nxs_scroller_draw.argtypes = [C.c_void_p, C.c_double]
 native.nxs_scroller_draw.restype = Bitmap
 native.nxs_scroller_destroy.argtypes = [C.c_void_p]
 for name, horizontal, length, total, page in [
-    ('disabled-horizontal', 1, 332, 332, 332),
-    ('disabled-vertical', 0, 152, 152, 152),
-    ('enabled-horizontal', 1, 332, 600, 332),
-    ('enabled-vertical', 0, 152, 1200, 152),
+    ('disabled-horizontal', 1, args.horizontal_length, args.horizontal_length, args.horizontal_length),
+    ('disabled-vertical', 0, args.vertical_length, args.vertical_length, args.vertical_length),
+    ('enabled-horizontal', 1, args.horizontal_length, 600, args.horizontal_length),
+    ('enabled-vertical', 0, args.vertical_length, 1200, args.vertical_length),
 ]:
     control = native.nxs_scroller_create(horizontal, None, None, None)
     if not control:
