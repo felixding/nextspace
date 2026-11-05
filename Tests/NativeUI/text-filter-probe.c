@@ -47,6 +47,11 @@ static void key(struct Probe *p,int logical,const char *text,unsigned modifiers)
 }
 int main(int argc,char **argv)
 {
+  if(argc>1&&!strcmp(argv[1],"--expect-no-command")) {
+    assert(!(nxs_control_text_capabilities()&NXS_TEXT_COMMAND));
+    assert(!nxs_control_text_command(NULL));
+    puts("{\"previous_text_provider_without_command\":true}");return 0;
+  }
   if(argc>1&&!strcmp(argv[1],"--expect-no-filter")) {
     assert(nxs_control_text_capabilities()==NXS_TEXT_EDITING);
     assert(!nxs_control_text_filter(NULL,NULL,NULL));
@@ -63,6 +68,7 @@ int main(int argc,char **argv)
     p.allow=1;key(&p,NXS_KEY_TEXT,"X",0);value(&p,"HXlo");assert(p.proposals==2&&p.changes==1);
     model(&p,"Alpha beta",3,0);p.start=2;p.length=1;p.replacement="";p.command="deleteBackward:";p.allow=0;
     key(&p,NXS_KEY_BACKSPACE,NULL,0);value(&p,"Alpha beta");assert(p.proposals==3&&p.changes==1);
+    if(nxs_control_text_capabilities()&NXS_TEXT_COMMAND)assert(!strcmp(nxs_control_text_command(p.control),"deleteBackward:"));
     p.allow=1;key(&p,NXS_KEY_BACKSPACE,NULL,0);value(&p,"Alha beta");assert(p.proposals==4&&p.changes==2);
     model(&p,"日本語Café🙂",9,0);p.start=9;p.length=0;p.replacement="X";p.command=NULL;p.allow=0;
     key(&p,NXS_KEY_TEXT,"X",0);value(&p,"日本語Café🙂");assert(p.proposals==5&&p.changes==2);
@@ -73,8 +79,10 @@ int main(int argc,char **argv)
       model(&p,"Copy me",0,7);key(&p,NXS_KEY_TEXT,"c",NXS_ALT);assert(p.proposals==6);
       p.start=0;p.length=7;p.replacement="";p.command="cut:";p.allow=0;
       key(&p,NXS_KEY_TEXT,"x",NXS_ALT);value(&p,"Copy me");assert(p.proposals==7&&p.changes==3);
+      if(nxs_control_text_capabilities()&NXS_TEXT_COMMAND)assert(!strcmp(nxs_control_text_command(p.control),"cut:"));
       model(&p,"Paste here",10,0);p.start=10;p.length=0;p.replacement="Copy me";p.command="paste:";p.allow=1;
       key(&p,NXS_KEY_TEXT,"v",NXS_ALT);value(&p,"Paste hereCopy me");assert(p.proposals==8&&p.changes==4);
+      if(nxs_control_text_capabilities()&NXS_TEXT_COMMAND)assert(!strcmp(nxs_control_text_command(p.control),"paste:"));
     }
     int count=p.proposals;assert(nxs_control_text_filter(p.control,NULL,NULL));
     model(&p,"Plain",5,0);key(&p,NXS_KEY_TEXT,"X",0);value(&p,"PlainX");assert(p.proposals==count);

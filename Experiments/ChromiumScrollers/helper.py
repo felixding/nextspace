@@ -39,6 +39,7 @@ def run(library,path):
     native.nxs_scroller_track.argtypes=[C.c_void_p,C.c_double,C.c_double,C.c_uint]
     native.nxs_scroller_send.argtypes=[C.c_void_p,C.c_int,C.c_double,C.c_double,C.c_uint]
     server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET)
+    server.setblocking(False)
     clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={}
     def add_source(connection):
         if forms and forms.source_capabilities:
@@ -129,11 +130,16 @@ def run(library,path):
                 else:forms.owner_exited(client)
                 continue
             if client is server:
-                connection,_=server.accept()
+                try:connection,_=server.accept()
+                except BlockingIOError:continue
+                connection.setblocking(True)
                 if forms and forms.notification_capabilities:connection.setsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED,1)
                 clients.append(connection);add_source(connection);continue
+            if client not in clients:continue
             try:
-                data,ancillary,flags,_=client.recvmsg(128*1024,socket.CMSG_SPACE(4*4)+socket.CMSG_SPACE(12),socket.MSG_CMSG_CLOEXEC)
+                # Drawing or a validator can pump this dispatcher recursively.
+                # A nested pass may consume a packet from this ready snapshot.
+                data,ancillary,flags,_=client.recvmsg(128*1024,socket.CMSG_SPACE(4*4)+socket.CMSG_SPACE(12),socket.MSG_CMSG_CLOEXEC|socket.MSG_DONTWAIT)
                 descriptors=[];sender_pid=None
                 for level,kind,payload in ancillary:
                     if level==socket.SOL_SOCKET and kind==socket.SCM_RIGHTS:
@@ -145,6 +151,7 @@ def run(library,path):
                 finally:
                     for descriptor in descriptors:os.close(descriptor)
                 if data:continue
+            except BlockingIOError:continue
             except (BrokenPipeError,ConnectionResetError):pass
             for state in controls.values():
                 if state['client'] is client:

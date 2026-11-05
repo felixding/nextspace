@@ -247,6 +247,8 @@ int nxs_gnustep_control_focus(NXSControl *control,int focused)
 }
 int nxs_gnustep_control_focused(NXSControl *control)
 {return control?nxs_host_focused(control->host):0;}
+const char *nxs_gnustep_control_text_command(NXSControl *control)
+{return text_control(control)&&control->text_command?sel_getName(control->text_command):NULL;}
 int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
 {
   if(control)control->text_command=NULL;

@@ -118,6 +118,22 @@ pass compatibility checks; all 30 legacy scrollbar images are unchanged.
 See [text qualification](text-qualification.json) and
 [source audit](text-source-audit.json).
 
+The optional `NXS_TEXT_COMMAND` capability adds `nxs_control_text_command()`.
+It reads the actual selector already interpreted by the native editor/menu,
+including commands such as `copy:` that produce no text mutation. The embedding
+application can then invoke its own semantic action. The provider adds a selector
+getter; it adds no editor or shortcut implementation. IPC operation 21 exposes
+the same borrowed selector as a copied UTF-8 payload.
+
+This extension preserves ABI version 1 and all existing offsets. The ARM64 API
+size grows from 280 to 288 bytes. Old providers return no command capability,
+and old loaders/text clients continue to work with the new provider. Forty-two
+text transport checks, the pre-edit/reentrant suite and thirty unchanged legacy
+scrollbar images pass. See [command qualification](text-command-qualification.json).
+Command reporting does not supply external menu availability: a native editor
+whose local history is empty disables Undo even when an embedding application
+has its own history. Native undo/redo routing still needs that integration.
+
 The optional [pinned Firefox adapter](../../Experiments/FirefoxNativeUI/text-qualification.json)
 now connects plain/password webpage fields. The optional
 [Chromium binding](../../Experiments/ChromiumScrollers/text-qualification.json)

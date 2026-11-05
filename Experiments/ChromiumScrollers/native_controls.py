@@ -110,6 +110,9 @@ class NativeControlServer:
         self.popup_capabilities=0
         self.popup_open_capabilities=0
         self.text_capabilities=0
+        if hasattr(native,'nxs_control_text_command'):
+            native.nxs_control_text_command.argtypes=[C.c_void_p]
+            native.nxs_control_text_command.restype=C.c_char_p
         self.text_filters={}
         self.edit_serial=itertools.count(1)
         self.text_filter=TextShouldChange(self._before_text_edit)
@@ -544,6 +547,10 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==21 and req.kind in (7,8) and self.text_capabilities&4 and not req.text_size:
+                command=self.native.nxs_control_text_command(state['native']) or b''
+                self._respond(client,req,state,input_result=1,payload=command)
+                return
             if req.operation==18 and req.kind in (7,8) and self.text_capabilities and not req.text_size:
                 current=TextState(size=C.sizeof(TextState))
                 required=self.native.nxs_control_text_get(state['native'],None,0,C.byref(current))

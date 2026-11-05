@@ -42,18 +42,21 @@ static void text_selection(void *node,uint64_t start,uint64_t length) {
   if(start>UINT32_MAX||length>UINT32_MAX-start)return;
   ((int (*)(void *,unsigned,unsigned,int))(base+NXS_CHROMIUM_TEXT_SELECTION_OFFSET))(node,start,start+length,0);
 }
+static struct NXSResponse *send_text_model(struct NativeForm *form,const char *value,uint32_t start,uint32_t length,int editable) {
+  size_t bytes=strlen(value),size=sizeof(struct NXSControlTextRequest)+bytes;
+  struct NXSControlTextRequest *request=calloc(1,size);
+  if(!request)return NULL;
+  *request=(struct NXSControlTextRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=17,.process=identity(),
+    .kind=form->kind,.control=form->control,.text_size=bytes,.selection_start=start,
+    .selection_length=length,.editable=editable};
+  memcpy(request+1,value,bytes);struct NXSResponse *response=exchange_bytes(request,size);free(request);
+  return response&&response->parts[3].x==1?response:NULL;
+}
 static struct NXSResponse *sync_text_form(struct NativeForm *form,struct NXSResponse *response) {
   if(!response)return NULL;
   struct BlinkTextModel model={0};if(!text_model(form->node,&model))return NULL;
-  size_t length=strlen(model.value),size=sizeof(struct NXSControlTextRequest)+length;
-  struct NXSControlTextRequest *request=calloc(1,size);
-  if(!request){free(model.value);return NULL;}
-  *request=(struct NXSControlTextRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=17,.process=identity(),
-    .kind=form->kind,.control=form->control,.text_size=length,.selection_start=model.start,
-    .selection_length=model.end-model.start,.editable=model.editable};
-  memcpy(request+1,model.value,length);response=exchange_bytes(request,size);
-  free(request);free(model.value);
-  return response&&response->parts[3].x==1?response:NULL;
+  response=send_text_model(form,model.value,model.start,model.end-model.start,model.editable);
+  free(model.value);return response;
 }
 static struct NXSResponse *text_native_state(struct NativeForm *form) {
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=18,

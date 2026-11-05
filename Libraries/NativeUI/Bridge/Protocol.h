@@ -88,6 +88,9 @@ struct NXSTextResponse {
   uint32_t text_size,flags; /* flags: editing=1, editable=2, secure=4 */
   uint64_t selection_start,selection_length,marked_start,marked_length;
 };
+/* Optional operation 21 (NXS_TEXT_COMMAND): ordinary text-control request,
+ * part 3.x accepts it and its payload is the last actual native command
+ * selector as UTF8 without NUL, possibly empty. No binding table is sent. */
 /* Optional pre-edit channel. Operation 19 registers one AF_UNIX SEQPACKET
  * endpoint for a process with an existing operation-15 owner subscription.
  * Operation 20 unregisters it. Both use the ordinary request (kind/control 0).

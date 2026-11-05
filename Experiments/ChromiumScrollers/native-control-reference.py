@@ -70,8 +70,8 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_focus(pointer, 1)
         if item['kind'] in (7,8):
             model=TextModel(C.sizeof(TextModel),item['text'].encode(),
-                1 if args.focus and item['enabled'] else item.get('selection_start',0),
-                2 if args.focus and item['enabled'] else item.get('selection_length',0),item.get('editable',1))
+                item.get('selection_start',1) if args.focus and item['enabled'] else item.get('selection_start',0),
+                item.get('selection_length',2) if args.focus and item['enabled'] else item.get('selection_length',0),item.get('editable',1))
             assert native.nxs_control_text_sync(pointer,C.byref(model))
         image = save_image()
         preferred = native.nxs_control_size(pointer)

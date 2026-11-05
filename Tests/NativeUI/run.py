@@ -33,6 +33,7 @@ parser.add_argument('--previous-popup-open-provider',type=Path,help='Popup provi
 parser.add_argument('--previous-text-provider',type=Path,help='Provider predating optional native text editing')
 parser.add_argument('--previous-text-filter-provider',type=Path,help='Text provider predating optional pre-edit filter')
 parser.add_argument('--previous-text-client',type=Path,help='Unchanged text probe from before the pre-edit extension')
+parser.add_argument('--previous-text-command-provider',type=Path,help='Provider predating optional native command reporting')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -170,6 +171,12 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         (args.output/'text-filter.stdout').write_text(stdout);(args.output/'text-filter.stderr').write_text(stderr)
         assert code==0,(code,stderr)
         checks['native_text_filter']=json.loads(stdout)
+        if args.previous_text_command_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-text-filter-probe'),'--expect-no-command']+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_command_provider.resolve())),
+                'previous-text-command-provider')
+            assert code==0,(code,stderr)
+            checks['previous_provider_accepted_without_command_reporting']=json.loads(stdout)
         if args.previous_text_filter_provider:
             previous=subprocess.run([str(args.build/'native-ui/native-text-filter-probe'),'--expect-no-filter']+backend,
                 env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_filter_provider.resolve())),text=True,capture_output=True,timeout=10)

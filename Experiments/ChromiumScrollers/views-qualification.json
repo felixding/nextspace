@@ -1,0 +1,184 @@
+{
+  "date": "2026-11-06",
+  "status": "Partial native Chromium address field; full browser scope is not achieved.",
+  "browser": "Debian ARM64 Chromium 156.0.8078.79-1~deb13u1",
+  "chromium_rebuilt": false,
+  "installed_appkit_rebuilt": false,
+  "hashes": {
+    "shim": "e190ed92fe7b6d2e2b191e7074385b659bbc5222a1f31c43b6dc6849120ca3a4",
+    "loader": "e3802e8b39a50ef4440c8eb4fc3a2e44fc948bfbfc81116c468076ca35da4459",
+    "provider": "362933951af062ab1362a0415a9cf7759b8b4fe846d46526357ab088bafb202d",
+    "adapter": "34973356170eb537306f0235b8116f1660075112b21c51c0c16ab81bc42bc256"
+  },
+  "environment": {
+    "renderers": [
+      {
+        "pid": 1099,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 1109,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 2501,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      }
+    ],
+    "second_address_field_destroyed": true,
+    "guest_memtotal_kib": 4010448,
+    "browser_sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "appkit_sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+  },
+  "address_field_checks": {
+    "passed": 43,
+    "native_editing_keys": [
+      "Control+a",
+      "Control+e",
+      "Control+b",
+      "Control+f",
+      "Backspace",
+      "Delete",
+      "Control+d",
+      "Control+h",
+      "Control+k"
+    ],
+    "actual_application_model": true,
+    "clipboard": [
+      "Alt+c/v",
+      "Alt+x/v",
+      "Focused native TextEdit copy through the Wayland clipboard into the address field"
+    ],
+    "complete_native_image_matches": [
+      {
+        "case": "native-complete-pixels-address-selected",
+        "passed": true,
+        "match": [
+          171,
+          51,
+          724,
+          24
+        ],
+        "native_size": [
+          724,
+          24
+        ]
+      },
+      {
+        "case": "native-complete-pixels-address-resized",
+        "passed": true,
+        "match": [
+          171,
+          51,
+          856,
+          24
+        ],
+        "native_size": [
+          856,
+          24
+        ]
+      }
+    ]
+  },
+  "lifecycle": {
+    "passed": 4,
+    "second_window_field_explicitly_destroyed": true,
+    "owned_helper_loss_restores_engine_drawing_and_typing": true
+  },
+  "web_regressions": {
+    "progress": 20,
+    "input": 62,
+    "animation": 59,
+    "pointers": 100,
+    "text": 44,
+    "sliders": 50
+  },
+  "total_web_checks": 335,
+  "native_control_lifetime": {
+    "created": 1160,
+    "explicitly_destroyed": 1152,
+    "remaining_at_intentional_helper_kill": 8
+  },
+  "provider_checks": {
+    "native_text_transport": 42,
+    "native_pre_edit": {
+      "native_pre_edit_ipc": true,
+      "proposals": 6,
+      "nested_reads": 12,
+      "nested_mutations_rejected": 6,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true
+    },
+    "unchanged_legacy_scrollbar_images": 30,
+    "older_provider_without_command_reporting": {
+      "previous_text_provider_without_command": true
+    },
+    "previous_text_client_with_new_provider": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "previous_loader_and_client_with_new_provider": true
+  },
+  "cleanup": {
+    "recorded_owner_pids": [
+      1013,
+      1019,
+      1022,
+      1016,
+      1017,
+      2299
+    ],
+    "all_exited": true,
+    "backend_alias_removed": true,
+    "launcher_cleanup": {
+      "exits": [
+        0,
+        -9,
+        0
+      ],
+      "capture_exit": -15
+    }
+  },
+  "packages": 1050,
+  "packages_changed_by_this_run": false,
+  "coverage_limits": [
+    "Native address-bar mouse selection and tracking",
+    "Undo/redo command availability and native menu routing",
+    "Clipboard availability when native and platform clipboard state differ",
+    "IME/composition, selection direction, accessibility, scaling and long-field scrolling",
+    "Remaining Views controls, menus, dialogs and detached menu layout",
+    "Firefox address bar and frontends",
+    "Chrome, Vivaldi and other derivative builds/frontends",
+    "GTK, Qt/KDE and other foreign applications"
+  ],
+  "failed_test_iterations": [
+    "Startup input before the first mapped browser window; checker now waits for the owned window.",
+    "Unpublished GPBS storage is not a Wayland clipboard selection; qualification now copies from real focused TextEdit.",
+    "TextEdit needs -NSOpen for the synthetic file; passing a positional filename did not open a document.",
+    "Asynchronous key resets read stale model state; checker now waits for canonical empty/prefix/range states between operations.",
+    "Screencopy includes the pointer, so it must leave the field for complete pixel comparison.",
+    "Compositor resize acknowledgment precedes client repaint; wait for changed actual Views bounds before building the independent reference."
+  ],
+  "local_evidence": ".build/native-ui/chromium-views-qualified",
+  "source_audit": "views-source-audit.json"
+}

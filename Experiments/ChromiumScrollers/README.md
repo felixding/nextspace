@@ -451,3 +451,47 @@ accessibility, other text types, native intrinsic sizing, broader styling and
 scaled/transformed output remain open. Address bars, browser frontends,
 derivatives and other binaries still require integration. The native control
 does not automatically provide all browser/application behavior.
+
+
+## Partial native address field
+
+The same pinned binary now has an optional Omnibox/Views adapter. Launch with
+`run.py --native-views` and a NativeUI provider advertising `NXS_TEXT_COMMAND`.
+This enables the required form/input/text bindings as well. Only the small
+adapter and shared provider extension are built; Chromium and installed AppKit
+remain unchanged. Unsupported browser builds still fail the executable guard.
+
+`views-text.inc` binds the real Omnibox model to the existing `NSTextField`.
+The native library draws the complete field and interprets editing keys. Real
+Views insertion/deletion methods retain application callbacks and history;
+the native pre-edit veto prevents a duplicate edit. Native-interpreted clipboard
+selectors invoke the actual Omnibox commands, including its asynchronous paste
+and existing sanitization. A focused native editor receives modified editing
+commands before browser accelerators, without a copied shortcut table.
+The source audit also accounts for the inlined Omnibox painter and separate
+engine caret view. Actual native invalidations reuse the eventfd/work-loop host.
+
+The [Views audit](views-source-audit.json) records the source receipts, compiled
+layouts and 24 instruction guards. [Qualification](views-qualification.json)
+records 43 address-field checks, including nine independent native editing-key
+cases, Alt+C/V/X, real focused TextEdit copy into the browser, and complete native
+images at two widths. All 335 webpage pointer/text/input/slider/progress/animation
+checks pass with the new provider/helper. Closing a second browser window
+explicitly releases its native field. Losing the owned helper restores engine
+painting and typing. Older providers/loaders/text clients and thirty unchanged
+legacy scrollbar images pass the shared provider checks.
+
+`check-views.py` runs inside the private headless fixture, using its owned
+compositor control socket and trusted screencopy client. It requires `--fixture`,
+`--references`, `--pasteboard-probe`, `--native-text-app` and `--backend` paths.
+The retained fixture harness, inputs, images and logs are under
+`.build/native-ui/chromium-views-qualified/` and `chromium-views-source/`.
+`NEXTSPACE_CHROMIUM_VIEWS_TRACE=1` records actual model values for synthetic tests
+and is off by default; keep it off for normal browsing.
+
+Native address-bar mouse selection, undo/redo availability, clipboard availability
+across different native/platform states, IME, accessibility and scaling remain
+open. The surrounding address-bar layout, buttons, suggestion popup, tabs, menus
+and dialogs still need native integration. This qualifies one partial Chromium
+frontend binding; Chrome, Vivaldi, Firefox frontends and other toolkits remain
+required by the full scope.

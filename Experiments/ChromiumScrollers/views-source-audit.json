@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-06",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "status": "Partial exact-build Omnibox/Views binding; browser-wide native integration remains incomplete.",
+  "sources": [
+    {
+      "path": "ui/views/controls/textfield/textfield.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/textfield/textfield.cc",
+      "sha256": "d7538ddd831d7d54f97e50dba2cf54f5ff21221bfecbb89c3bb5bd4b13813087",
+      "bytes": 126324
+    },
+    {
+      "path": "ui/views/controls/textfield/textfield.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/textfield/textfield.h",
+      "sha256": "a1cf28b0c93647cc0a032e787ecc0126f36ea24a695bbc6510e0c8370591ff83",
+      "bytes": 42737
+    },
+    {
+      "path": "ui/views/controls/textfield/textfield_model.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/textfield/textfield_model.h",
+      "sha256": "8d6301d99e0c4fb6856bc8d790d6f74aea005129169f67bba314beff49be583b",
+      "bytes": 14801
+    },
+    {
+      "path": "chrome/browser/ui/views/omnibox/omnibox_view_views.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/omnibox/omnibox_view_views.cc",
+      "sha256": "2148d87eeb48891426376b9cf00993cb80962e48b48178f4b6a5e05c26cd0ada",
+      "bytes": 102543
+    },
+    {
+      "path": "chrome/browser/ui/views/omnibox/omnibox_view_views.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/omnibox/omnibox_view_views.h",
+      "sha256": "ee3d84caab920f9c3692626951be12be6d486e76bd4b6bb47a915ea5958dae50",
+      "bytes": 22710
+    },
+    {
+      "path": "ui/gfx/canvas.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/gfx/canvas.h",
+      "sha256": "7f497d934fb4c28dc868d5a320dde173a1741f6a5268a0232d1884ed82a3b7a1",
+      "bytes": 21344
+    },
+    {
+      "path": "ui/events/event.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event.h",
+      "sha256": "2beb783f717f170cc53c404ed1be4f40b8301b53cf58f6094356acf76d7b9c78",
+      "bytes": 42711
+    },
+    {
+      "path": "ui/events/event.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event.cc",
+      "sha256": "5fb0a9d4b1ddaf994f674d5806676c766bebc3ae9a93a48bdafc6ae0e332171c",
+      "bytes": 42931
+    },
+    {
+      "path": "ui/gfx/range/range.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/gfx/range/range.h",
+      "sha256": "452b15efcb176338191b83f49d035bd95df00862ac4a3fc8e55e543b0c18dd7c",
+      "bytes": 5944
+    },
+    {
+      "path": "ui/base/ime/text_edit_commands.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/ime/text_edit_commands.h",
+      "sha256": "74c81be421c544121c40e3c82b72c2dbaaacaa1a22dc773fc94bc201a328010b",
+      "bytes": 573
+    },
+    {
+      "path": "ui/views/view.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/view.h",
+      "sha256": "994c58f94e502a6ead3a802549d459b4fbbe65f132527434758920bb997bf79b",
+      "bytes": 120844
+    },
+    {
+      "path": "ui/views/selection_controller.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/selection_controller.cc",
+      "sha256": "827300199d4bf180ff3a8bbe86f330e523c20b0ed99a171a37b38ca3b819149b",
+      "bytes": 8693
+    },
+    {
+      "path": "ui/gfx/render_text.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/gfx/render_text.h",
+      "sha256": "b41ffba59ab60a4611633ab32de227fc2be0f84bcf4fba5913a23258b5127801",
+      "bytes": 49632
+    },
+    {
+      "path": "ui/events/keycodes/dom/dom_key.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/keycodes/dom/dom_key.h",
+      "sha256": "99a760ee629d5cdc52812e7e2412bbb954627b174ed0ddd7707d8597a88a8cae",
+      "bytes": 6425
+    },
+    {
+      "path": "ui/events/event_constants.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event_constants.h",
+      "sha256": "faafc4e6950a16876bd631f5fd63faf8464ca2e51013e0c384c53378a85d7139",
+      "bytes": 9375
+    },
+    {
+      "path": "ui/base/ime/text_edit_commands.inc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/ime/text_edit_commands.inc",
+      "sha256": "68c1ad8c1832217ebc6509abaa656bed66a86298875b92a8edc4ea7dc01dc312",
+      "bytes": 4975
+    },
+    {
+      "path": "ui/views/controls/textfield/textfield_model.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/textfield/textfield_model.cc",
+      "sha256": "3f7df6d86aeabe0f2b43e9d3312eb0f07838c55f69cd3a0a05af9a02755eb9a7",
+      "bytes": 36101
+    },
+    {
+      "path": "ui/views/focus/focus_manager.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/focus/focus_manager.cc",
+      "sha256": "5f534315f9cd6b47928db1d11b4dc4f2e5797a5d6e349efb58f650920f3a982a",
+      "bytes": 24512
+    },
+    {
+      "path": "ui/views/focus/focus_manager.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/focus/focus_manager.h",
+      "sha256": "0661b5f4e2cd0c002bb01e90e7175260d401e7173427961596f5624c4eaf9830",
+      "bytes": 17576
+    },
+    {
+      "path": "ui/base/accelerators/accelerator.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/accelerators/accelerator.h",
+      "sha256": "59fe8ee09ba5e6848be88ccc981a81f2eb662083753465f3248d162df21c1878",
+      "bytes": 9885
+    },
+    {
+      "path": "chrome/browser/ui/omnibox/omnibox_view.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/omnibox/omnibox_view.cc",
+      "sha256": "cad11f4716f9ad4578fc4cbad4637275d61f87b30d1a7d5823d11bd6b7d0a544",
+      "bytes": 16192
+    },
+    {
+      "path": "components/omnibox/browser/omnibox_text_util.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/components/omnibox/browser/omnibox_text_util.cc",
+      "sha256": "70e5dfcba9b68c95b25e8dc4a40e1f2f5ea84536c4d8d9a0ab6a0aa170c03c63",
+      "bytes": 10247
+    },
+    {
+      "path": "chrome/browser/ui/omnibox/clipboard_utils.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/omnibox/clipboard_utils.cc",
+      "sha256": "abf3690f3d9e35200dd41cc7c2035d55500b63f93cfd3eb3ec093a3b8d26d073",
+      "bytes": 3038
+    },
+    {
+      "path": "chrome/browser/ui/omnibox/clipboard_utils.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/omnibox/clipboard_utils.h",
+      "sha256": "83b20844847f557731c99af9b00b3c0bc774017ca5ae305d6f900d7b03657398",
+      "bytes": 1766
+    }
+  ],
+  "compiled_function_guards": [
+    {
+      "name": "views_omnibox_paint",
+      "address": "0x980a034",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_text_paint",
+      "address": "0xc6c1924",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_border",
+      "address": "0xc716868",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_focus",
+      "address": "0xc6c1cb8",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_blur",
+      "address": "0xc6c1de4",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_controller_key",
+      "address": "0x980fee8",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_insert_char",
+      "address": "0xc6c51d8",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_insert_text",
+      "address": "0xc6c4f0c",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_delete",
+      "address": "0xc6c5e40",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_selection",
+      "address": "0xc6c5c9c",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_value",
+      "address": "0xc6bd704",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_has_focus",
+      "address": "0x9772bfc",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_cursor",
+      "address": "0xc6c8240",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_destroy",
+      "address": "0xc70a110",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_schedule",
+      "address": "0x782558c",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_character",
+      "address": "0xb1a8a44",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_composition",
+      "address": "0xc6c5a78",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_range",
+      "address": "0xc6c5c10",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_bounds",
+      "address": "0xc70d7fc",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_accelerator_key",
+      "address": "0xc6e013c",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_focus_manager",
+      "address": "0x90cb268",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_utf16",
+      "address": "0xa2b49a0",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_string_destroy",
+      "address": "0x966edb4",
+      "guard_bytes": 20
+    },
+    {
+      "name": "views_omnibox_execute",
+      "address": "0x980f9c4",
+      "guard_bytes": 20
+    }
+  ],
+  "compiled_layout": {
+    "omnibox_textfield_base": 16,
+    "textfield_model": 872,
+    "model_render_text": 16,
+    "render_text_selection": 80,
+    "textfield_readonly": 892,
+    "view_bounds": 440,
+    "view_enabled_in_subtree": 458,
+    "canvas_sk_canvas": 192,
+    "key_event_type": 8,
+    "key_event_flags": 80,
+    "key_event_key_code": 136,
+    "key_event_dom_key": 152,
+    "libcxx_u16string_size": 24
+  },
+  "decisions": [
+    "Omnibox OnPaint inlines the base painter; intercept the actual PaintTextAndCursor call while the Omnibox painter owns the stack.",
+    "Suppress only the engine caret visibility predicate during its actual UpdateCursorVisibility call. All other focus/model/accessibility queries retain application focus.",
+    "Native pre-edit proposals execute original Views InsertChar/InsertText/DeleteRange transactions and veto the second native mutation.",
+    "Actual NativeUI command selectors route cut/copy/paste to Omnibox ExecuteTextEditCommand, preserving application clipboard callbacks and paste sanitization.",
+    "FocusManager receives modified native editing keys before browser accelerators; GNUstep resolves the commands without a copied key-binding table.",
+    "Native eventfd invalidations schedule the actual Views paint callback; the adapter adds no caret timer."
+  ],
+  "open": [
+    "Native address-bar mouse selection and tracking",
+    "Undo/redo command availability and native menu routing",
+    "Clipboard availability when native and platform clipboard state differ",
+    "IME/composition, selection direction, accessibility, scaling and long-field scrolling",
+    "Remaining Views controls, menus, dialogs and detached menu layout",
+    "Firefox address bar and frontends",
+    "Chrome, Vivaldi and other derivative builds/frontends",
+    "GTK, Qt/KDE and other foreign applications"
+  ],
+  "local_evidence": ".build/native-ui/chromium-views-source"
+}

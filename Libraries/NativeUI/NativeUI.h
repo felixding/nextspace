@@ -63,7 +63,7 @@ typedef struct {
   /* NUL-terminated UTF-8. NULL text is empty; NULL unmodified_text uses text. */
   const char *text, *unmodified_text;
 } NXSKeyEvent;
-enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2 };
+enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4 };
 #define NXS_TEXT_NO_SELECTION UINT64_MAX
 /* Selection and marked ranges use native NSString/UTF16 code units. A model
  * with NO_SELECTION leaves initial selection to the native responder. */
@@ -131,6 +131,7 @@ typedef struct {
   int (*control_text_sync)(NXSControl *, const NXSTextModel *);
   size_t (*control_text_get)(NXSControl *, char *, size_t, NXSTextState *);
   int (*control_text_filter)(NXSControl *,NXSTextShouldChange,void *);
+  const char *(*control_text_command)(NXSControl *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -193,6 +194,12 @@ size_t nxs_control_text_get(NXSControl *, char *buffer, size_t capacity, NXSText
 /* Install/remove a pre-edit delegate on the owning UI thread. The callback
  * may read state; mutation/destruction remain deferred while busy. */
 int nxs_control_text_filter(NXSControl *,NXSTextShouldChange,void *);
+/* Last selector interpreted by the actual editor (for example copy:), or NULL.
+ * Borrowed until the next key/menu command; no key-binding resolution is copied
+ * into an embedding application. The application can perform its semantic
+ * action after interpretation. Disabled native menu items do not dispatch a
+ * selector; this getter does not supply external command availability. */
+const char *nxs_control_text_command(NXSControl *);
 
 #ifdef __cplusplus
 }

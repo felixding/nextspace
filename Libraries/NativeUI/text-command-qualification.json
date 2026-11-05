@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-06",
+  "status": "Qualified optional command-reporting extension; external history/availability is not supplied.",
+  "abi_version": 1,
+  "api_size_bytes_arm64": 288,
+  "previous_api_size_bytes_arm64": 280,
+  "capability": "NXS_TEXT_COMMAND",
+  "api": "nxs_control_text_command",
+  "transport_operation": 21,
+  "implementation": "Read the actual native editor selector already captured by its delegate or native menu notification; no native control or key-binding implementation is copied.",
+  "hashes": {
+    "shim": "e190ed92fe7b6d2e2b191e7074385b659bbc5222a1f31c43b6dc6849120ca3a4",
+    "loader": "e3802e8b39a50ef4440c8eb4fc3a2e44fc948bfbfc81116c468076ca35da4459",
+    "provider": "362933951af062ab1362a0415a9cf7759b8b4fe846d46526357ab088bafb202d",
+    "adapter": "34973356170eb537306f0235b8116f1660075112b21c51c0c16ab81bc42bc256"
+  },
+  "provider_results": {
+    "native_text_transport": 42,
+    "native_pre_edit": {
+      "native_pre_edit_ipc": true,
+      "proposals": 6,
+      "nested_reads": 12,
+      "nested_mutations_rejected": 6,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true
+    },
+    "unchanged_legacy_scrollbar_images": 30,
+    "older_provider_without_command_reporting": {
+      "previous_text_provider_without_command": true
+    },
+    "previous_text_client_with_new_provider": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "previous_loader_and_client_with_new_provider": true
+  },
+  "command_availability": [
+    {
+      "key": "Control+z",
+      "result": 1,
+      "command": null
+    },
+    {
+      "key": "Alt+z",
+      "result": 1,
+      "command": null
+    },
+    {
+      "key": "Control+_",
+      "result": 1,
+      "command": null
+    },
+    {
+      "key": "Alt+c",
+      "result": 1,
+      "command": "copy:"
+    }
+  ],
+  "limitations": [
+    "The getter reports an interpreted selector; it does not enable commands disabled by native menu validation.",
+    "Application-owned undo history is not mirrored in the vetoed native editor, so native undo/redo availability remains unresolved."
+  ],
+  "raw_evidence": ".build/native-ui/chromium-views-qualified",
+  "provider_raw_evidence": ".build/native-ui/chromium-views-source/provider-run.log"
+}

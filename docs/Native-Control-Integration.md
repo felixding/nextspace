@@ -40,8 +40,8 @@ required integration surfaces differ:
 | GTK applications | Toolkit controls, layout, editing, menus, commands, dialogs and input adapters | Existing GTK3/GTK4 adapters cover scrollbars only. |
 | Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
 | Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
-| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing plus native key interpretation connected to real Blink text transactions. Text mouse/clipboard/IME, sizing/scaling and broader commands remain open. |
-| Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
+| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing, editing keys and single-click/Shift-click/selection dragging connected to real Blink transactions. Text clipboard/IME, sizing/scaling and broader commands remain open. |
+| Chrome/Chromium browser UI | Views controls, text editing and menu models | The pinned Chromium Omnibox now uses the shared native text field for complete pixels, editing keys and native-interpreted clipboard commands. Mouse selection, undo/availability, IME, other Views controls and menus remain open; Chrome builds are not qualified. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single-click/Shift-click/selection dragging through the shared provider. Text clipboard commands, multiple clicks/data dragging, IME, other controls, scaled output and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
@@ -86,7 +86,10 @@ selection and caret invalidation. This foundation is qualified separately in
 [`Libraries/NativeUI/text-qualification.json`](../Libraries/NativeUI/text-qualification.json).
 The pinned Firefox adapter now binds plain/password webpage fields to those
 editors; Chromium now also connects plain/password webpage drawing and native
-keys to real engine text transactions. Browser address bars remain open. Provider
+keys to real engine text transactions. Chromium's address field now also binds
+complete pixels and native editing keys to its real Views model, with clipboard
+selectors routed through the actual Omnibox commands. Native address-bar pointer
+tracking and undo/menu availability remain open, as does Firefox's address bar. Provider
 and transport checks alone cannot establish browser text integration.
 The shared editor now also exposes native pre-edit proposals and cancellation
 through a reentrant process-owned channel. The pinned Firefox adapter runs its

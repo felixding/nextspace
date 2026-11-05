@@ -16,6 +16,8 @@ parser.add_argument('--chromium', type=Path, required=True)
 parser.add_argument('--native-library', type=Path, required=True)
 parser.add_argument('--hook', type=Path, required=True)
 parser.add_argument('--backend', help='Optional GNUstep backend name, passed only to the helper')
+parser.add_argument('--native-views', action='store_true',
+                    help='Enable the experimental native address field and its required form/text bindings')
 parser.add_argument('--log-directory', type=Path, required=True)
 parser.add_argument('arguments', nargs=argparse.REMAINDER)
 args = parser.parse_args()
@@ -69,6 +71,9 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
             environment.update(LD_PRELOAD=str(args.hook.resolve()),
                                NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),
                                NEXTSPACE_CHROMIUM_LOG=str((args.log_directory / 'hook.log').resolve()))
+            if args.native_views:
+                environment.update(NEXTSPACE_CHROMIUM_FORMS='1', NEXTSPACE_CHROMIUM_INPUT='1',
+                                   NEXTSPACE_CHROMIUM_TEXT='1', NEXTSPACE_CHROMIUM_VIEWS='1')
             command = [str(args.chromium.resolve()), '--ozone-platform=wayland', '--gtk-version=4',
                        '--disable-gpu',
                        '--disable-features=OverlayScrollbar', '--no-first-run', '--no-default-browser-check',
