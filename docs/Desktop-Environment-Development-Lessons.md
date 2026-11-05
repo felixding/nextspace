@@ -2,7 +2,8 @@
 
 - Recorded: 2026-11-05.
 - Purpose: carry the decisions and engineering lessons from the NEXTSPACE Wayland/HiDPI rewrite into future desktop-environment projects, including faithful recreations of an existing desktop experience.
-- Source snapshot: NEXTSPACE `fcaf02c1758bb55e0decdf9f80ff084521684a50` on `codex/wayland-hidpi-arm64`.
+- Scope: reusable engineering knowledge. Each future project defines its own reference desktop, release and UX specification.
+- Source snapshot: NEXTSPACE `1f2257829c7d9e2eabe3fc669b2761adff60bdd4` on `codex/wayland-hidpi-arm64`.
 - This is a handoff document. It does not select or start a new desktop project, and the NEXTSPACE rewrite is not fully qualified.
 
 ## What carries over, and what needs a new decision
@@ -33,6 +34,8 @@ These are recorded NEXTSPACE decisions. Confirm the applicable platform and scop
 ### Keep reference-specific policy separate
 
 Each reference release needs a coherent set of visual metrics, assets, fonts, interaction rules and animation behavior. Record differences between releases explicitly. Supporting another release should reuse suitable rendering, input, session and test mechanisms while supplying that release's own design and behavior contracts. Introduce shared helpers where implementations actually overlap; a universal theme or compatibility framework is not a prerequisite.
+
+For example, a project targeting Leopard should use Leopard's reference captures and behavior throughout. Tiger-specific artwork, window rules or interactions are not defaults for that project. Keep those release-specific requirements in the chosen project's specification; this document records the shared lessons.
 
 ## Architecture worth reusing
 
@@ -99,6 +102,7 @@ Keep artwork provenance separate from code licensing. Existing NeXTSpirit packs 
 | Mouse events exposed Linux button codes | AppKit needs zero-based public button numbers. Test press, drag and release for extra buttons as well as left/right/middle, using observed public events. |
 | A desktop fixture treated a broadcast as an RPC reply | Wait for the matching completion event and retain the final state assertion. Do not replace synchronization with sleeps or weaker deadlines. |
 | Clipboard reset lost ownership | Retry only the identified temporary ownership conflict. Preserve stale-write rejection and prove that a newer writer's data survives. |
+| A shell marker preceded completed Terminal output | The child had written the text, but Terminal was still parsing it and cleared selection after Select All. Use an acknowledgement from the consumer: this fixture waits for a genuine cursor-position response after typed input. Restore TTY settings and keep clipboard readiness polling free of repeated resets and menu actions. |
 | A live JSON log was read halfway through a record | Consume complete newline-terminated records. Keep partial-read diagnostics and continue rejecting malformed complete records. |
 | Linux artifacts lost useful structure on macOS | Preserve filename case, literal symlinks and permissions inside tar archives. Verify transport hashes, payload hashes and extracted replays. |
 | Failure logs contained no useful stack | Native CI lacked GDB; a package failure recorded denied attachment. Add debugger access only to disposable test containers, require an actual stack and record missing/denied/timed-out diagnostics explicitly. |
@@ -119,11 +123,15 @@ Maintain a feature inventory and acceptance matrix before the broad rewrite. For
 - Test real login/PAM/logind ownership, locking, logout and failure recovery separately from a synthetic greeter UI fixture.
 - Match every claim to the scope of its evidence. Headless Pixman, another compositor, virtual DRM and physical hardware are distinct qualification environments.
 
+Producer completion is not consumer completion. A file written by a child process does not prove the application displayed or parsed its output. Wait for an acknowledgement at the boundary being tested. A readiness predicate should observe completion; repeatedly issuing actions or resetting the value it is observing can interfere with valid asynchronous work.
+
 A useful regression rejects the original faulty implementation with the same meaningful assertion, then passes the fixed version. Keep the original deadlines and tolerances unless evidence justifies changing the contract. A controlled failure should also prove that diagnostics capture the state needed for the next investigation.
 
 ### Performance evidence needs its own boundary
 
 Software-rendered and virtual-DRM trials provide useful CPU, buffer-memory and rendered-state measurements. They do not establish physical 60Hz input-to-scanout latency, missed vblanks or GPU-specific thresholds. Record the renderer, hardware, mode, scale, workload and sampling method, and compare controlled cohorts. Set physical thresholds from measured hardware baselines.
+
+A requested injection period does not establish the actual rate. In one scheduler-tracing comparison, the median injection duration increased by about 25% despite the same requested period. All eight endpoint cases passed, but the cohorts were not matched well enough for a causal conclusion. Record actual producer and consumer timing and measure observer overhead before accepting a comparison.
 
 Unpaced synthetic keyboard bursts lost input in the two-vCPU guest. Captures establish evdev overflow and a small queue boundary in that environment; they do not establish the complete scheduling bottleneck or a product fix. Paced tests passing does not explain the failing burst. Keep that distinction when reusing the test harness.
 
@@ -139,9 +147,9 @@ When a build or test is live, observe the same process or job until authoritativ
 
 ## Evidence boundary at handoff
 
-The latest independently audited native revision at this snapshot is `a9bcfe57`: the native job passes in [run 41941298449](https://github.com/felixding/nextspace/actions/runs/41941298449), including real debugger-stack capture. Eight full native jobs and fourteen package lifecycle jobs have passed across recorded revisions. The latest revision with both jobs passing is `5418015a`, in [run 41931331899](https://github.com/felixding/nextspace/actions/runs/41931331899). These results qualify the recorded NEXTSPACE scope, not a future project's implementation or fidelity.
+At the recorded source snapshot, `1f225782`, the native and package lifecycle jobs passed in [run 41957255179](https://github.com/felixding/nextspace/actions/runs/41957255179). The native audit includes real debugger stacks, non-ELF resource exclusion and the Terminal output acknowledgement, including the actual cursor response, restored TTY, exact input and all 400 scrollback lines. The package audit verifies the completed job, exact revision, full logged lifecycle pass and artifact identity; it does not independently extract that run's package payload.
 
-The package job at `a9bcfe57` fails during late evidence collection because its process snapshot includes `/etc/ld.so.cache` as a library; final removal does not run. The subsequent ELF-header classification fix passes deterministic original/fixed controls, the unchanged strict collector and the full debugger preflight locally. Hosted qualification of that follow-up is pending at this snapshot. Check the current qualification record before treating a newer revision as fully tested.
+These results qualify the recorded NEXTSPACE scope. A future project needs its own implementation, visual references and verification. Consult the [implementation status](Wayland-Implementation-Status.md) and [validation summary](Wayland-Validation.json) for continuing NEXTSPACE qualification rather than treating this reusable document as a live progress report.
 
 Still open in NEXTSPACE:
 
@@ -154,7 +162,7 @@ Give every new project its own plan and evidence ledger. NEXTSPACE's estimated c
 
 ## Where to start reading and reusing code
 
-Paths below are relative to the NEXTSPACE repository. If this document is copied elsewhere, resolve those paths against the [recorded NEXTSPACE snapshot](https://github.com/felixding/nextspace/tree/fcaf02c1758bb55e0decdf9f80ff084521684a50). Generic mechanisms are candidates for reuse; audit dependencies, policy coupling, licenses and tests before copying them into the separate project.
+Paths below are relative to the NEXTSPACE repository. If this document is copied elsewhere, resolve those paths against the [recorded NEXTSPACE snapshot](https://github.com/felixding/nextspace/tree/1f2257829c7d9e2eabe3fc669b2761adff60bdd4). Generic mechanisms are candidates for reuse; audit dependencies, policy coupling, licenses and tests before copying them into the separate project.
 
 | Source | Reusable knowledge |
 | --- | --- |
