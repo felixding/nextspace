@@ -42,7 +42,10 @@ static const unsigned char gecko_text_clear_error_bytes[20]={0x3f,0x23,0x03,0xd5
 #define NXS_GECKO_TEXT_DISPLAY_BACKGROUND_OFFSET 0x6e294e0ul
 static const unsigned char gecko_text_display_background_bytes[20]={0x5f,0x24,0x03,0xd5,0x08,0x10,0x40,0xf9,0x09,0x0d,0x40,0xf9,0x29,0x05,0x40,0x39,0x3f,0x05,0x00,0x71};
 static int guard_text_calls(void) {
-return !memcmp((void *)(base+NXS_GECKO_TEXT_FRAME_EVENT_OFFSET),gecko_text_frame_event_bytes,20)&&
+/* Actual AssignMouseEventDataOnly load/store of mClickCount (+236). */
+static const unsigned char click_count_bytes[8]={0x88,0xee,0x40,0xb9,0x68,0xee,0x00,0xb9};
+return !memcmp((void *)(base+0x41345f8),click_count_bytes,8)&&
+!memcmp((void *)(base+NXS_GECKO_TEXT_FRAME_EVENT_OFFSET),gecko_text_frame_event_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_NEAREST_SCROLL_OFFSET),gecko_text_nearest_scroll_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_CAPTURE_OFFSET),gecko_text_capture_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_STOP_DRAG_OFFSET),gecko_text_stop_drag_bytes,20)&&

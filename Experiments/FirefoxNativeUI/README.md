@@ -224,9 +224,18 @@ return through the existing descriptor wakeup. A read-only snapshot query
 refreshes pixels during tracking without rebinding the busy editor. Model,
 style, size or focus changes cancel tracking before canonical rebinding.
 Independent native pointer ranges and selected images cover plain/password,
-readonly and Unicode models, including drags outside the field. Double/triple
-click counts, dragging selected text as data, context menus, touch and long-field
+readonly and Unicode models, including drags outside the field. Dragging
+selected text as data, context menus, touch and long-field
 horizontal scrolling remain open. This extension changes the adapter/helper;
 the qualified native provider and AppKit binaries are reused unchanged.
 The [pointer qualification](text-pointer-qualification.json) records 151 browser
 checks, including 50 native pointer ranges and 46 complete native images.
+
+The subsequent optional click-count extension forwards the actual
+`WidgetMouseEvent.mClickCount` into the shared native mouse event. Its offset
+is checked against the pinned source and guarded compiled copy instructions.
+`run-fixture.py --text --click-counts` adds native word/line click and drag
+references, verifies the helper received each real click count, and retains the
+existing DOM/transaction, renderer-crash and helper-loss checks. This extension
+rebuilds the small provider/loader and adapter; Firefox and AppKit stay unchanged.
+See [click-count evidence](../../Libraries/NativeUI/click-count-qualification.json).

@@ -148,8 +148,31 @@ shared editor rather than reproducing its behavior.
 The pinned Firefox binding also uses the existing native tracking API for
 single-click, Shift-click and selection-drag behavior. Pointer hit testing,
 selection ranges and selected pixels come from the actual native editor.
-Double/triple clicks, selected-text data dragging, context menus and long-field
-scrolling remain unqualified; this is not complete text-pointer integration.
+The optional click-count extension below adds word/line selection. Selected-text
+data dragging, context menus and long-field scrolling remain unqualified; this
+is not complete text-pointer integration.
+
+### Native click metadata
+
+`nxs_control_pointer_capabilities()` advertises `NXS_POINTER_CLICK_COUNT`
+separately from focus/keyboard capabilities. `nxs_control_track_clicks()` passes
+the embedding application's positive click count into the existing `NSEvent`.
+The actual GNUstep field editor implements word/line selection and dragging;
+the bridge contains no click aggregator, word boundaries or selection rules.
+Move/release use the existing API and retain that gesture's click count.
+
+The optional function appends to ABI version 1: the ARM64 table grows from 288
+to 296 bytes, preserving every existing offset. Older providers advertise zero
+pointer capabilities; a count of one delegates to their original tracking
+entry point, while larger counts are rejected. Existing clients and loaders
+continue to work with the new provider. Focus/keyboard capabilities remain 3.
+The shared helper advertises pointer capabilities in bootstrap part 5.x and
+accepts operation 22 using the existing request layout, with the count in
+`state`. Busy/disabled controls and invalid counts are rejected.
+
+The pinned Chromium address field, Blink plain/password fields and Gecko
+plain/password fields consume this extension. Other builds, frontends and
+controls still require qualification. See [click-count evidence](click-count-qualification.json).
 
 ### Native proposals before an edit
 

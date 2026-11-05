@@ -17,12 +17,14 @@ parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--backend',required=True)
 parser.add_argument('--port',type=int,default=2829)
+parser.add_argument('--click-counts',action='store_true',help='Qualify native double/triple click selection')
 fixture_mode=parser.add_mutually_exclusive_group()
 fixture_mode.add_argument('--controls',action='store_true',help='Exercise the optional checkbox/radio input binding')
 fixture_mode.add_argument('--buttons',action='store_true',help='Exercise native input buttons through the same provider')
 fixture_mode.add_argument('--sliders',action='store_true',help='Exercise native range controls through NSSlider')
 fixture_mode.add_argument('--text',action='store_true',help='Exercise native text/password editors and engine transactions')
 args=parser.parse_args();here=Path(__file__).resolve().parent
+if args.click_counts and not args.text:parser.error('--click-counts requires --text')
 mode='text' if args.text else 'sliders' if args.sliders else 'buttons' if args.buttons else 'controls' if args.controls else 'progress'
 reference_model='text-controls.json' if args.text else 'range-controls.json' if args.sliders else 'button-controls.json' if args.buttons else 'input-controls.json' if args.controls else 'progress-controls.json'
 interactive=args.controls or args.buttons or args.sliders or args.text
@@ -128,7 +130,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
             except ConnectionRefusedError:time.sleep(.05)
         subprocess.run([sys.executable,str(here.parent/'ChromiumScrollers/native-control-reference.py'),
             '--library',str(args.native_library.resolve()),'--controls',str(here/reference_model),
-            '--output',str(args.output/'references'),*(['--keys'] if args.sliders or args.text else []),*(['--pointers'] if args.text else []),'-GSBackend',args.backend],env=env,check=True,timeout=30,
+            '--output',str(args.output/'references'),*(['--keys'] if args.sliders or args.text else []),*(['--pointers'] if args.text else []),*(['--click-counts'] if args.click_counts else []),'-GSBackend',args.backend],env=env,check=True,timeout=30,
             stdout=(args.output/'references.stdout').open('w'),stderr=(args.output/'references.stderr').open('w'))
         if interactive:
             subprocess.run([sys.executable,str(here.parent/'ChromiumScrollers/native-control-reference.py'),
@@ -137,9 +139,9 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
                 stdout=(args.output/'focused-references.stdout').open('w'),stderr=(args.output/'focused-references.stderr').open('w'))
         checker=subprocess.Popen([sys.executable,str(here/('check-'+mode+'.py')),'--port',str(args.port),
             '--expected-pid',str(browser.pid),'--references',str(args.output/'references'),
-            '--output',str(args.output/'checks')],env=env)
+            '--output',str(args.output/'checks'),*(['--native-log',str(args.output/'native.jsonl')] if args.text else [])],env=env)
         try:
-            deadline=time.monotonic()+(120 if args.sliders else 60)
+            deadline=time.monotonic()+(120 if args.sliders or args.click_counts else 60)
             while checker.poll() is None:
                 collect_renderer_status()
                 assert browser.poll() is None and time.monotonic()<deadline,'Owned Firefox fixture check'

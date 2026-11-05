@@ -16,6 +16,7 @@ parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--focus', action='store_true', help='Use the real first-responder state for enabled controls')
 parser.add_argument('--keys', action='store_true', help='Record actual native slider key results')
 parser.add_argument('--pointers', action='store_true', help='Record native text hit testing and selection tracking')
+parser.add_argument('--click-counts',action='store_true',help='Include native word/line click and drag references')
 args, _ = parser.parse_known_args()
 args.output.mkdir(parents=True, exist_ok=True)
 native = C.CDLL(str(args.library))
@@ -39,7 +40,9 @@ for item in json.loads(args.controls.read_text()):
                 pointer_case['pumped']=True;pointer_case['initial']=selected
                 native.nxs_control_send(pointer,0 if pointer_case['drag'] else 1,
                     pointer_case['end'],12,pointer_case['modifiers'])
-            elif not pointer_case['drag'] or selected!=pointer_case['initial']:
+            # Word/line dragging may keep the initial range. Release on the
+            # next native event-pump pass even when that range did not change.
+            elif not pointer_case['drag'] or selected!=pointer_case['initial'] or pointer_case['clicks']>1:
                 native.nxs_control_send(pointer,1,pointer_case['end'],12,pointer_case['modifiers'])
             return
         save_image('-pressed')
@@ -128,18 +131,26 @@ for item in json.loads(args.controls.read_text()):
             cases=[('left',3,3,0),('near',10,10,0),('middle',25,25,0),
                 ('right',175,175,0),('forward',3,25,0),('reverse',30,3,0),
                 ('outside-right',3,210,0),('outside-left',30,-20,0),('shift-left',3,3,1),('shift-right',30,30,1)]
+            cases=[(*entry,1) for entry in cases]
             if 'pointer_cases' in item:
-                cases=[(entry['name'],entry['x'],entry['end_x'],entry.get('modifiers',0)) for entry in item['pointer_cases']]
-            for name,start,end,modifiers in cases:
+                cases=[(entry['name'],entry['x'],entry['end_x'],entry.get('modifiers',0),entry.get('click_count',1)) for entry in item['pointer_cases']]
+            if args.click_counts:
+                assert api.pointer_capabilities&1
+                cases += [('word',25,25,0,2),('line',25,25,0,3),('word-forward',10,100,0,2),
+                    ('word-reverse',100,10,0,2),('line-forward',10,100,0,3),('line-reverse',100,10,0,3)]
+            for name,start,end,modifiers,clicks in cases:
                 model=TextModel(C.sizeof(TextModel),item['text'].encode(),1 if modifiers else 0,2 if modifiers else 0,item.get('editable',1))
                 assert native.nxs_control_text_sync(pointer,C.byref(model))
-                pointer_case=dict(pumped=False,drag=start!=end,end=end,modifiers=modifiers)
-                native.nxs_control_track(pointer,start,12,modifiers)
+                pointer_case=dict(pumped=False,drag=start!=end,end=end,modifiers=modifiers,clicks=clicks)
+                if clicks==1:native.nxs_control_track(pointer,start,12,modifiers)
+                else:
+                    assert api.pointer_capabilities&1
+                    assert native.nxs_control_track_clicks(pointer,start,12,modifiers,clicks)
                 state=TextState(size=C.sizeof(TextState));buffer=C.create_string_buffer(256)
                 assert native.nxs_control_text_get(pointer,buffer,len(buffer),C.byref(state))
                 assert pointer_case['pumped'] and not native.nxs_control_state(pointer).tracking
                 if state.selection_length:save_image('-pointer-'+name)
-                values.append(dict(name=name,x=start,end_x=end,modifiers=modifiers,value=buffer.value.decode(),
+                values.append(dict(name=name,x=start,end_x=end,modifiers=modifiers,click_count=clicks,value=buffer.value.decode(),
                     start=state.selection_start,end=state.selection_start+state.selection_length))
             pointer_case=None;results[-1]['pointers']=values
     finally:

@@ -14,6 +14,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
+static unsigned widget_pointer_capabilities;
 static pid_t widget_pid;
 static uint64_t next_widget;
 static struct Widget *widgets,*active_widget;
@@ -248,6 +249,13 @@ static struct PointI widget_point(struct Widget *w,const void *event) {
 }
 static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,const void *event) {
   struct PointI point=widget_point(w,event);
+  if(operation==2&&(w->kind==NXS_TEXTFIELD||w->kind==NXS_PASSWORD)) {
+    /* AssignMouseEventDataOnly copies the source's uint32_t mClickCount at
+     * +236 in this exact libxul. No local click aggregation or word rules. */
+    unsigned clicks=*(const uint32_t *)((const char *)event+236);
+    if(clicks>1&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT))
+      return native_pointer_press(w->kind,w->id,point.x/60.,point.y/60.,widget_modifiers(event),clicks);
+  }
   return widget_request(w,operation,point.x/60.,point.y/60.,widget_modifiers(event));
 }
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
@@ -443,6 +451,7 @@ static void prepare_widget_metrics(void) {
     preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
   }
   widgets_enabled=1;
+  widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   prepare_range_bindings(response);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;

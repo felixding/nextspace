@@ -231,6 +231,8 @@ NXSBitmap nxs_gnustep_control_draw(NXSControl *control,double scale)
 {return control?nxs_host_draw(control->host,scale):(NXSBitmap){0};}
 void nxs_gnustep_control_track(NXSControl *control,double x,double y,unsigned modifiers)
 {if(control&&control->enabled&&control->kind!=NXS_PROGRESS)nxs_host_track(control->host,x,y,modifiers);}
+int nxs_gnustep_control_track_clicks(NXSControl *control,double x,double y,unsigned modifiers,unsigned clicks)
+{return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_track_clicks(control->host,x,y,modifiers,clicks):0;}
 void nxs_gnustep_control_send(NXSControl *control,int event,double x,double y,unsigned modifiers)
 {if(control)nxs_host_send(control->host,event,x,y,modifiers);}
 int nxs_gnustep_control_focus(NXSControl *control,int focused)

@@ -34,6 +34,8 @@ parser.add_argument('--previous-text-provider',type=Path,help='Provider predatin
 parser.add_argument('--previous-text-filter-provider',type=Path,help='Text provider predating optional pre-edit filter')
 parser.add_argument('--previous-text-client',type=Path,help='Unchanged text probe from before the pre-edit extension')
 parser.add_argument('--previous-text-command-provider',type=Path,help='Provider predating optional native command reporting')
+parser.add_argument('--previous-pointer-provider',type=Path,help='Provider predating optional native click-count metadata')
+parser.add_argument('--previous-input-client',type=Path,help='Unchanged earlier focus/keyboard client')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -155,6 +157,18 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         input_output = held_probe(args.build / 'native-ui/native-input-probe', [str(args.output)],
                                   'NXS_NATIVE_UI_INPUT_HOLD', 'input')
         checks['native_input'] = json.loads(input_output)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-mouse-probe')]+backend,
+            environment,'mouse',timeout=15)
+        assert code==0,(code,stderr);checks['native_mouse']=json.loads(stdout)
+        if args.previous_pointer_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-mouse-probe'),'--expect-no-clicks']+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_pointer_provider.resolve())),
+                'previous-pointer-provider',timeout=15)
+            assert code==0,(code,stderr);checks['previous_pointer_provider']=json.loads(stdout)
+        if args.previous_input_client:
+            code,stdout,stderr=bounded_probe([str(args.previous_input_client.resolve())]+backend,
+                environment,'previous-input-client',timeout=15)
+            assert code==0,(code,stderr);checks['previous_input_client']=json.loads(stdout)
         text_output=held_probe(args.build/'native-ui/native-text-probe',[str(args.output)],
                                 'NXS_NATIVE_UI_TEXT_HOLD','text')
         checks['native_text']=json.loads(text_output)

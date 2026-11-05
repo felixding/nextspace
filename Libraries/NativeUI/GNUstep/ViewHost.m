@@ -2,6 +2,7 @@
 #import "ViewHost.h"
 #include <math.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <objc/runtime.h>
 struct NXSViewHost {
   NSView *view;
@@ -12,6 +13,7 @@ struct NXSViewHost {
   void *context;
   BOOL tracking;
   unsigned modifiers;
+  unsigned click_count;
   NSPoint pointer;
   BOOL injected_pointer;
   BOOL release_queued;
@@ -173,7 +175,7 @@ static NSEvent *mouse(NXSViewHost *control, NSEventType type, double x, double y
   NSPoint point = [control->view convertPoint:NSMakePoint(x, localY) toView:nil];
   return [NSEvent mouseEventWithType:type location:point modifierFlags:flags(modifiers)
     timestamp:[NSDate timeIntervalSinceReferenceDate] windowNumber:[control->window windowNumber]
-    context:nil eventNumber:0 clickCount:1 pressure:type == NSLeftMouseUp ? 0 : 1];
+    context:nil eventNumber:0 clickCount:control->click_count pressure:type == NSLeftMouseUp ? 0 : 1];
 }
 
 int nxs_host_initialize(void)
@@ -195,6 +197,7 @@ NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
   if(!view||!nxs_host_initialize())return NULL;
   NXSViewHost *host=calloc(1,sizeof(*host));
   if(!host)return NULL;
+  host->click_count=1;
   host->view=[view retain];host->pump=pump;host->context=context;
   /* Keep geometry in NSWindow until a native auxiliary window is shown. An
    * unmapped backend window cannot acknowledge moves; its stale frame would
@@ -335,18 +338,21 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 }
 
 void nxs_host_track(NXSViewHost *control, double x, double y, unsigned modifiers)
+{nxs_host_track_clicks(control,x,y,modifiers,1);}
+int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifiers,unsigned clicks)
 {
-  if (!control || active) return;
+  if (!control || active || !clicks || clicks>INT_MAX || !isfinite(x) || !isfinite(y)) return 0;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
   /* Native cells may prepare their track/knob geometry while drawing. An
    * offscreen host has no automatic display pass between resize and input;
    * let the native view finish that pass instead of reproducing its layout. */
   if([control->view needsDisplay])nxs_host_draw(control,1);
-  active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;
+  active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;control->click_count=clicks;
   NSEvent *event=mouse(control,NSLeftMouseDown,x,y,modifiers);control->pointer=[event locationInWindow];
   @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:control->view]; }
   @finally { control->tracking = NO; active = NULL; }
   [pool drain];
+  return 1;
 }
 
 void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned modifiers)

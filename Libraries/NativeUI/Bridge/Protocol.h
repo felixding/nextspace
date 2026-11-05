@@ -91,6 +91,11 @@ struct NXSTextResponse {
 /* Optional operation 21 (NXS_TEXT_COMMAND): ordinary text-control request,
  * part 3.x accepts it and its payload is the last actual native command
  * selector as UTF8 without NUL, possibly empty. No binding table is sent. */
+/* Optional operation 22: native mouse press with click count in state, using
+ * the original 104-byte request. Bootstrap part 5.x advertises pointer
+ * capabilities independently of focus/keyboard. Part 3.x accepts the request;
+ * move/release remain operations 3/4. Counts are supplied event metadata; no
+ * click aggregation or word-selection rules live in the transport. */
 /* Optional pre-edit channel. Operation 19 registers one AF_UNIX SEQPACKET
  * endpoint for a process with an existing operation-15 owner subscription.
  * Operation 20 unregisters it. Both use the ordinary request (kind/control 0).

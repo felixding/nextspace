@@ -56,14 +56,14 @@ def cdp(method,**params):
  assert select.select([child.stdout],[],[],10)[0], 'Owned page input protocol timed out'
  response=json.loads(child.stdout.readline());assert response.get('id')==serial and 'error' not in response,response
  return response.get('result')
-def pointer(kind,x=None,y=None,shift=False):
+def pointer(kind,x=None,y=None,shift=False,clicks=1):
  if x is not None:last[:]=[x,y]
  return cdp('Input.dispatchMouseEvent',type=kind,x=last[0],y=last[1],button='left' if kind!='mouseMoved' else 'none',
-  buttons=0 if kind=='mouseReleased' else 1 if kind=='mousePressed' or held[0] else 0,modifiers=8 if shift else 0,clickCount=1)
+  buttons=0 if kind=='mouseReleased' else 1 if kind=='mousePressed' or held[0] else 0,modifiers=8 if shift else 0,clickCount=clicks)
 held=[False]
-def press(identifier='normal',x=3,drag=None,shift=False):
+def press(identifier='normal',x=3,drag=None,shift=False,clicks=1):
  rect=execute('document.getElementById('+json.dumps(identifier)+').getBoundingClientRect().toJSON()')
- pointer('mouseMoved',rect['x']+x,rect['y']+12,shift);pointer('mousePressed',shift=shift);held[0]=True
+ pointer('mouseMoved',rect['x']+x,rect['y']+12,shift);pointer('mousePressed',shift=shift,clicks=clicks);held[0]=True
  if drag is not None:pointer('mouseMoved',rect['x']+drag,rect['y']+12,shift)
 def release(shift=False):pointer('mouseReleased',shift=shift);held[0]=False
 try:
@@ -71,7 +71,7 @@ try:
  for identifier in ('normal','password','readonly','unicode','limited'):
   for expected in next(x for x in native if x['id']==identifier)['pointers']:
    reset();focus(identifier,1 if expected['modifiers'] else 0,3 if expected['modifiers'] else 0)
-   shift=bool(expected['modifiers']);press(identifier,expected['x'],expected['end_x'] if expected['x']!=expected['end_x'] else None,shift)
+   shift=bool(expected['modifiers']);press(identifier,expected['x'],expected['end_x'] if expected['x']!=expected['end_x'] else None,shift,expected.get('click_count',1))
    if expected['x']!=expected['end_x']:
     deadline=time.monotonic()+2
     while time.monotonic()<deadline and state(identifier)!={k:expected[k] for k in ('value','start','end')}:pass

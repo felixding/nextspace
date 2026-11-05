@@ -138,6 +138,13 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
 static struct NXSResponse *exchange_bytes(void *request,size_t request_size)
 {return exchange_bytes_descriptor(request,request_size,-1);}
 static struct NXSResponse *exchange(struct NXSRequest req){return exchange_bytes(&req,sizeof(req));}
+static struct NXSResponse * __attribute__((unused)) native_pointer_press(int kind,uint64_t control,double x,double y,unsigned modifiers,unsigned clicks) {
+  if(!clicks||clicks>INT32_MAX)return NULL;
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=22,
+    .process=identity(),.kind=kind,.control=control,.x=x,.y=y,.modifiers=modifiers,.state=(int32_t)clicks};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  return response&&response->parts[3].x==1?response:NULL;
+}
 
 static int bridge_connect(const char *socket_path) {
   if(!socket_path||strlen(socket_path)>=sizeof(((struct sockaddr_un *)0)->sun_path))return 0;

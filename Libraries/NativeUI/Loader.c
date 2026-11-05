@@ -2,6 +2,8 @@
 #include "NativeUI.h"
 #include <dlfcn.h>
 #include <pthread.h>
+#include <math.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -51,6 +53,16 @@ void nxs_control_track(NXSControl *c,double x,double y,unsigned m)
 void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_send(c,event,x,y,m);}
 #define HAS_INPUT(p, field) ((p) && (p)->size >= offsetof(NXSNativeUIAPI, field)+sizeof((p)->field) && (p)->field)
+unsigned nxs_control_pointer_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_track_clicks)?NXS_POINTER_CLICK_COUNT:0;}
+int nxs_control_track_clicks(NXSControl *c,double x,double y,unsigned m,unsigned clicks)
+{
+  if(!c||!clicks||clicks>INT_MAX||!isfinite(x)||!isfinite(y))return 0;
+  const NXSNativeUIAPI *p=nxs_native_ui_api();
+  if(HAS_INPUT(p,control_track_clicks))return p->control_track_clicks(c,x,y,m,clicks);
+  if(p&&c&&clicks==1){p->control_track(c,x,y,m);return 1;}
+  return 0;
+}
 unsigned nxs_control_input_capabilities(void)
 {
   const NXSNativeUIAPI *p=nxs_native_ui_api();

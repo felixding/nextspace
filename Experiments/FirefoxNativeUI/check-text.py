@@ -7,6 +7,7 @@ from marionette import Marionette
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--port',type=int,default=2829);p.add_argument('--expected-pid',type=int,required=True)
 p.add_argument('--references',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
+p.add_argument('--native-log',type=Path)
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);results=[];m=Marionette(a.port)
 def execute(script):return m.command('WebDriver:ExecuteScript',dict(script=script,args=[]))['value']
 def check(case,condition,**details):
@@ -63,12 +64,17 @@ try:
    rect=execute('return document.getElementById('+json.dumps(identifier)+').getBoundingClientRect().toJSON()')
    x,y=round(rect['x']),round(rect['y'])
    actions=[dict(type='pointerMove',duration=0,x=x+expected['x'],y=y+12),dict(type='pointerDown',button=0)]
+   for previous in range(1,expected.get('click_count',1)):
+    actions += [dict(type='pointerUp',button=0),dict(type='pointerDown',button=0)]
    if expected['x']!=expected['end_x']:
     actions += [dict(type='pointerMove',duration=100,x=x+expected['end_x'],y=y+12),dict(type='pause',duration=100)]
    actions.append(dict(type='pointerUp',button=0))
    keyboard=[dict(type='keyDown',value='\ue008')]+[dict(type='pause')]*(len(actions)-2)+[dict(type='keyUp',value='\ue008')]
    m.command('WebDriver:PerformActions',dict(actions=[dict(type='pointer',id='mouse',parameters=dict(pointerType='mouse'),actions=actions)]+([dict(type='key',id='shift',actions=keyboard)] if expected['modifiers'] else [])))
    check('native-pointer-'+identifier+'-'+expected['name'],state(identifier)=={k:expected[k] for k in ('value','start','end')},state=state(identifier),expected=expected)
+   if a.native_log and expected.get('click_count',1)>1:
+    press=next(json.loads(line) for line in reversed(a.native_log.read_text().splitlines()) if json.loads(line).get('event')=='native-form-press')
+    check('native-click-count-'+identifier+'-'+expected['name'],press['click_count']==expected['click_count'],press=press)
    if expected['start']!=expected['end']:
     compare(identifier,reference=identifier+'-pointer-'+expected['name'],label='pointer-image-'+identifier+'-'+expected['name'])
    m.command('WebDriver:ReleaseActions')

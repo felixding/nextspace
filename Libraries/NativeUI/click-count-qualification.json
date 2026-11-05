@@ -1,0 +1,329 @@
+{
+  "date": "2026-11-06",
+  "status": "Partial native browser text integration on two exact ARM64 binaries; browser-wide and non-GNUstep application scope remains incomplete.",
+  "previous_checkpoint": "892f83bd",
+  "architecture": {
+    "control_implementation": "Installed NSTextField/NSSecureTextField and their actual field editors",
+    "provider_change": "Pass supplied click count into the existing NSEvent; no copied selection, hit-testing or aggregation implementation",
+    "api": {
+      "version": 1,
+      "size": 296,
+      "input_capabilities": 3,
+      "pointer_capabilities": 1
+    },
+    "shared_wire": {
+      "operation": 22,
+      "request_size": 104,
+      "count_field": "state",
+      "bootstrap_capability": "part 5.x",
+      "unchanged_move_release": [
+        3,
+        4
+      ]
+    },
+    "browser_and_appkit_rebuilt": false,
+    "small_provider_loader_shim_and_adapters_rebuilt": true
+  },
+  "source_audit": {
+    "primary_sources": [
+      {
+        "path": "ui/events/event.h",
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event.h",
+        "sha256": "2beb783f717f170cc53c404ed1be4f40b8301b53cf58f6094356acf76d7b9c78",
+        "bytes": 42711
+      },
+      {
+        "path": "ui/events/event_constants.h",
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event_constants.h",
+        "sha256": "faafc4e6950a16876bd631f5fd63faf8464ca2e51013e0c384c53378a85d7139",
+        "bytes": 9375
+      },
+      {
+        "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/MouseEvents.h",
+        "sha256": "606cbdfa4bcf33abff12a2dc5e3f9398ef0cb721c212256a67c5309be6f712e8"
+      }
+    ],
+    "chromium_blink": "Existing compiled WebMouseEvent click_count at +160; ui MouseEvent flags at +80 carry double 1<<16 / triple 1<<17.",
+    "gecko": "WidgetMouseEvent::AssignMouseEventDataOnly source copies uint32_t mClickCount after mExitFrom. Actual AssignMouseEventData at 0x413453c copies +236 using load/store at 0x41345f8; these eight instruction bytes are guarded before enabling text integration.",
+    "compiled_copy_guard": {
+      "address": "0x41345f8",
+      "bytes": "88ee40b968ee00b9",
+      "field_offset": 236
+    },
+    "compiled_evidence": ".build/native-ui/mouse-source/gecko-click-count.objdump"
+  },
+  "environment": {
+    "hashes": {
+      "chromium_adapter": "4389180a6bbf9fd13a710489cdfc7100b4e9c7a7483f18b4f69c5912f0f06b84",
+      "firefox_adapter": "ed708f58495f868d2dd4fe46f8b70f0d3b0fb96e0b0dd989f93de235e0ee65b3",
+      "shim": "94738128feedbef16b038a4eba42dbb52e482d51e5f6973a38a0014e74006614",
+      "loader": "7a8b22d9895dadb60ae9aecf5d30cf5aa5eec494746c55cb4c72895553cc84f4",
+      "provider": "b9a9515807f1e002206fd11e7e0f30e91bedfb29daa8cda008673a9338dbbaab",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "renderers": [
+      {
+        "pid": 7780,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 7789,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 9227,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "api": {
+      "version": 1,
+      "size": 296,
+      "input_capabilities": 3,
+      "pointer_capabilities": 1
+    },
+    "packages": 1050
+  },
+  "checks": {
+    "address_clicks": 31,
+    "address_pointer": 50,
+    "address_existing": 43,
+    "address_lifecycle": 5,
+    "web_progress": 20,
+    "web_input": 62,
+    "web_animation": 59,
+    "web_pointers": 160,
+    "web_text": 44,
+    "web_sliders": 50,
+    "firefox": 241
+  },
+  "native_cases": {
+    "address_clicks": [
+      {
+        "name": "word",
+        "x": 25,
+        "end_x": 25,
+        "modifiers": 0,
+        "click_count": 2,
+        "value": "Hello Hello",
+        "start": 0,
+        "end": 5
+      },
+      {
+        "name": "line",
+        "x": 25,
+        "end_x": 25,
+        "modifiers": 0,
+        "click_count": 3,
+        "value": "Hello Hello",
+        "start": 0,
+        "end": 11
+      },
+      {
+        "name": "word-forward",
+        "x": 25,
+        "end_x": 70,
+        "modifiers": 0,
+        "click_count": 2,
+        "value": "Hello Hello",
+        "start": 0,
+        "end": 11
+      },
+      {
+        "name": "word-reverse",
+        "x": 70,
+        "end_x": 25,
+        "modifiers": 0,
+        "click_count": 2,
+        "value": "Hello Hello",
+        "start": 0,
+        "end": 11
+      },
+      {
+        "name": "line-forward",
+        "x": 25,
+        "end_x": 100,
+        "modifiers": 0,
+        "click_count": 3,
+        "value": "Hello Hello",
+        "start": 0,
+        "end": 11
+      },
+      {
+        "name": "line-reverse",
+        "x": 70,
+        "end_x": 3,
+        "modifiers": 0,
+        "click_count": 3,
+        "value": "Hello Hello",
+        "start": 0,
+        "end": 11
+      }
+    ],
+    "web_count_cases_per_field": 6,
+    "web_field_kinds": [
+      "plain",
+      "password",
+      "readonly",
+      "unicode",
+      "limited"
+    ],
+    "firefox_native_click_metadata_assertions": 30
+  },
+  "compatibility": {
+    "native_mouse": {
+      "native_click_metadata": true,
+      "legacy_single_click": true,
+      "focus_keyboard_capabilities_unchanged": true,
+      "invalid_input_rejected": true
+    },
+    "previous_pointer_provider": {
+      "native_click_metadata": false,
+      "legacy_single_click": true,
+      "focus_keyboard_capabilities_unchanged": true,
+      "invalid_input_rejected": true
+    },
+    "previous_input_client": {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    "unchanged_previous_client": true,
+    "unchanged_previous_loader_and_client": true,
+    "unchanged_previous_text_client": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "unchanged_legacy_pixels": [
+      "vertical-normal-1",
+      "vertical-disabled-1",
+      "vertical-fitting-1",
+      "vertical-normal-1.25",
+      "vertical-disabled-1.25",
+      "vertical-fitting-1.25",
+      "vertical-normal-1.5",
+      "vertical-disabled-1.5",
+      "vertical-fitting-1.5",
+      "vertical-normal-1.75",
+      "vertical-disabled-1.75",
+      "vertical-fitting-1.75",
+      "vertical-normal-2",
+      "vertical-disabled-2",
+      "vertical-fitting-2",
+      "horizontal-normal-1",
+      "horizontal-disabled-1",
+      "horizontal-fitting-1",
+      "horizontal-normal-1.25",
+      "horizontal-disabled-1.25",
+      "horizontal-fitting-1.25",
+      "horizontal-normal-1.5",
+      "horizontal-disabled-1.5",
+      "horizontal-fitting-1.5",
+      "horizontal-normal-1.75",
+      "horizontal-disabled-1.75",
+      "horizontal-fitting-1.75",
+      "horizontal-normal-2",
+      "horizontal-disabled-2",
+      "horizontal-fitting-2"
+    ],
+    "transport_text_checks": 60
+  },
+  "lifetimes": {
+    "chromium": {
+      "created": 1636,
+      "explicitly_destroyed": 1632,
+      "reclaimed_on_helper_exit": 4,
+      "native_press_click_counts": {
+        "1": 162,
+        "2": 33,
+        "3": 25
+      }
+    },
+    "firefox": {
+      "created": 776,
+      "explicitly_destroyed": 770,
+      "reclaimed_on_helper_exit": 6,
+      "native_press_click_counts": {
+        "1": 86,
+        "2": 30,
+        "3": 15
+      }
+    },
+    "firefox_renderer_crash": {
+      "pid": 8259,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "firefox_helper_loss": {
+      "helper_exit": -9,
+      "value": "FallbackXY",
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.247387668000556,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    }
+  },
+  "cleanup": {
+    "recorded_pids": [
+      7691,
+      7698,
+      7701,
+      7694,
+      8126,
+      8133,
+      8135,
+      7703,
+      7705,
+      7780,
+      7789,
+      9227,
+      8259,
+      8694
+    ],
+    "live": [],
+    "fixture": {
+      "exits": [
+        0,
+        -9,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "backend_alias_removed": true,
+    "control_socket_removed": true
+  },
+  "raw_evidence": [
+    ".build/native-ui/chromium-mouse-qualified/",
+    ".build/native-ui/firefox-mouse-qualified/",
+    ".build/native-ui/provider-mouse-qualified/"
+  ],
+  "remaining": [
+    "Other exact builds and browser derivatives/frontends",
+    "Firefox address field",
+    "Other browser frontend controls, detached menus and dialogs",
+    "Selected-text data dragging, context menus, long-field scrolling, initial-focus/unelision and selection direction",
+    "External undo/command availability, clipboard in webpage fields, IME, accessibility and scale qualification",
+    "GTK, Qt/KDE and other non-GNUstep applications"
+  ]
+}

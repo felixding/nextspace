@@ -8,7 +8,7 @@ import os
 from pathlib import Path
 import socket
 import sys
-from helper import Response
+from helper import Request,Response
 from native_controls import ControlRequest,ControlInputRequest,ControlTextRequest,TextResponse,MAGIC
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--socket',type=Path,required=True)
@@ -35,7 +35,7 @@ def exchange(req,payload=b''):
                 data+=payload
             finally:
                 for fd in descriptors:os.close(fd)
-    assert response.magic==MAGIC and response.size==len(data) and response.reserved==sequence
+    assert response.magic==req.magic and response.size==len(data) and response.reserved==sequence
     return response,data[C.sizeof(Response):]
 
 def request(operation,**values):
@@ -68,6 +68,7 @@ def check(case,condition):
     (a.output/'results.json').write_text(json.dumps(results,indent=2)+'\n');assert condition,case
 
 try:
+    bootstrap,_=exchange(Request(magic=0x4e585343,operation=7,process=process))
     for kind in (7,8):
         label='password' if kind==8 else 'text'
         response,_=request(1)
@@ -77,6 +78,19 @@ try:
         suffix='secure-normal' if kind==8 else 'normal'
         check(label+'-native-pixels',pixels==(a.references/('text-'+suffix+'.argb')).read_bytes())
         check(label+'-focus',key(operation=7,focused=1).parts[3].y==1)
+        if bootstrap.parts[5].x==1:
+            for invalid in (0,-1):
+                check(label+'-reject-click-count-'+str(invalid),request(22,state=invalid,x=25,y=12)[0].parts[3].x==0)
+            for clicks in (2,3):
+                model('Alpha beta')
+                response,_=request(22,state=clicks,x=25,y=12)
+                check(label+'-click-count-accepted-'+str(clicks),response.parts[3].x==1)
+                check(label+'-busy-click-rejected-'+str(clicks),request(22,state=clicks,x=25,y=12)[0].parts[3].x==0)
+                request(4,x=25,y=12)
+                state,response=value('Alpha beta')
+                check(label+'-native-click-selection-'+str(clicks),state.selection_start==0 and
+                    state.selection_length==(10 if clicks==3 else 5))
+            model('Hello',1,2)
         response,pixels=request(1)
         suffix='secure-focused' if kind==8 else 'focused'
         check(label+'-native-focused-pixels',pixels==(a.references/('text-'+suffix+'.argb')).read_bytes())
@@ -117,6 +131,8 @@ try:
             check(label+'-reject-invalid-text',model(invalid)[0].parts[3].x==0);value('Read only')
         check(label+'-reject-invalid-range',model('x',2)[0].parts[3].x==0);value('Read only')
         request(1,enabled=0)
+        if bootstrap.parts[5].x==1:
+            check(label+'-disabled-click',request(22,state=2,x=25,y=12)[0].parts[3].x==0)
         check(label+'-disabled-focus',key(operation=7,focused=1).parts[3].x==0)
         check(label+'-disabled-key',key(b'Z').parts[3].x==0);value('Read only')
         request(6)

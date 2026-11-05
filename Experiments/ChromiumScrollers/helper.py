@@ -66,6 +66,7 @@ def run(library,path):
                 result.parts[4].width=forms.input_capabilities
                 result.parts[4].height=forms.event_capabilities
                 result.parts[5].width=forms.range_capabilities
+                result.parts[5].x=forms.pointer_capabilities
                 result.parts[6].width=forms.popup_capabilities
                 result.parts[6].height=forms.popup_open_capabilities
                 result.parts[6].x=forms.notification_capabilities

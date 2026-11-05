@@ -46,15 +46,19 @@ static void views_pointer_end(struct ViewsField *f,int echo) {
 static int views_pointer_press(void *controller,const void *event,int handled,int initial_focus) {
   struct ViewsField *f=find_views_controller(controller);
   unsigned flags=*(const unsigned *)((const char *)event+80);
-  /* Native multiple-click metadata is a separate contract extension. */
-  if(f&&f->owned&&!handled&&(flags&0xf800)==0x800&&!(flags&((1u<<16)|(1u<<17)))&&
+  /* These are the actual ui::MouseEvent click-count flags, not a local
+   * click aggregator. The native editor interprets the supplied count. */
+  unsigned clicks=(flags&(1u<<17))?3:(flags&(1u<<16))?2:1;
+  if(f&&f->owned&&!handled&&(flags&0xf800)==0x800&&
+     (clicks==1||(forms_pointer_capabilities&NXS_POINTER_CLICK_COUNT))&&
      original_views_has_focus(f->transport.node)&&
      !((int (*)(const void *))(base+NXS_CHROMIUM_VIEWS_COMPOSITION_OFFSET))(f->transport.node)) {
     views_pointer_end(f,1);f->pointer_owned=0;
     struct NXSResponse *response=views_sync(f);struct BlinkTextModel model={0};
     if(response&&views_model(f->transport.node,&model)) {
       const float *point=(const float *)((const char *)event+136);
-      response=form_request(&f->transport,2,point[0],point[1],views_modifiers(event));
+      response=clicks==1?form_request(&f->transport,2,point[0],point[1],views_modifiers(event)):
+        native_pointer_press(f->transport.kind,f->transport.control,point[0],point[1],views_modifiers(event),clicks);
       if(response&&response->parts[0].y) {
         f->pointer_owned=1;f->pointer_modifiers=views_modifiers(event);f->transport.text_tracking=1;
         f->transport.text_start=model.start;f->transport.text_end=model.end;

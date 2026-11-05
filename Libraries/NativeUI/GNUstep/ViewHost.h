@@ -8,6 +8,7 @@ int nxs_host_destroy(NXSViewHost *host);
 void nxs_host_resize(NXSViewHost *host,NSSize size);
 NXSBitmap nxs_host_draw(NXSViewHost *host,double scale);
 void nxs_host_track(NXSViewHost *host,double x,double y,unsigned modifiers);
+int nxs_host_track_clicks(NXSViewHost *host,double x,double y,unsigned modifiers,unsigned click_count);
 void nxs_host_send(NXSViewHost *host,int event,double x,double y,unsigned modifiers);
 int nxs_host_tracking(NXSViewHost *host);
 int nxs_host_focus(NXSViewHost *host,int focused);

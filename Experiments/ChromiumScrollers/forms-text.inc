@@ -117,15 +117,18 @@ static int text_mouse_press(void *self,const void *event) {
    * holds a compressed InnerNode at 204 and scrollbar at 236 (audited code). */
   void *node=decode_member((const char *)event+204);
   struct NativeForm *form=form_ancestor(node);
+  unsigned clicks=*(const unsigned *)((const char *)event+160);
   if(form&&text_kind(form->kind)&&form->painted&&form_focused(form->node)&&form_enabled(form->node)&&
-     *(const int *)((const char *)event+120)==0&&*(const int *)((const char *)event+160)<=1&&
+     *(const int *)((const char *)event+120)==0&&clicks>0&&
+     (clicks==1||(forms_pointer_capabilities&NXS_POINTER_CLICK_COUNT))&&
      !decode_member((const char *)event+236)) {
     struct BlinkTextModel model={0};
     if(text_model(form->node,&model)) {
       struct NXSResponse *response=sync_text_image(form);
       if(response) {
         struct FloatPoint point=form_point(form,event);
-        response=form_request(form,2,point.x,point.y,event_modifiers(event));
+        response=clicks==1?form_request(form,2,point.x,point.y,event_modifiers(event)):
+          native_pointer_press(form->kind,form->control,point.x,point.y,event_modifiers(event),clicks);
         if(response&&response->parts[0].y) {
           form->text_tracking=1;form->text_width=form->rect.width;form->text_height=form->rect.height;
           form->text_start=model.start;form->text_end=model.end;form->text_x=point.x;form->text_y=point.y;

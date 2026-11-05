@@ -37,6 +37,7 @@ typedef struct {
 typedef void (*NXSControlChanged)(void *context, int event, const NXSControlState *state);
 
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
+enum NXSPointerCapability { NXS_POINTER_CLICK_COUNT = 1 };
 enum NXSEventCapability { NXS_EVENTS = 1 };
 enum NXSRangeCapability { NXS_RANGE_STEP = 1 };
 enum NXSPopupCapability { NXS_POPUP_ITEMS = 1 };
@@ -132,6 +133,7 @@ typedef struct {
   size_t (*control_text_get)(NXSControl *, char *, size_t, NXSTextState *);
   int (*control_text_filter)(NXSControl *,NXSTextShouldChange,void *);
   const char *(*control_text_command)(NXSControl *);
+  int (*control_track_clicks)(NXSControl *,double,double,unsigned,unsigned);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -147,6 +149,12 @@ NXSControlState nxs_control_state(NXSControl *control);
 NXSSize nxs_control_size(NXSControl *control);
 NXSBitmap nxs_control_draw(NXSControl *control, double scale);
 void nxs_control_track(NXSControl *control, double x, double y, unsigned modifiers);
+unsigned nxs_control_pointer_capabilities(void);
+/* Forward the embedding application's positive click count to the actual
+ * native mouse event. The UI library owns word/line selection and tracking.
+ * Returns zero for unsupported metadata or rejected input. Legacy providers
+ * retain single-click tracking through the original entry point. */
+int nxs_control_track_clicks(NXSControl *,double x,double y,unsigned modifiers,unsigned click_count);
 void nxs_control_send(NXSControl *control, int event, double x, double y, unsigned modifiers);
 unsigned nxs_control_input_capabilities(void);
 int nxs_control_focus(NXSControl *control, int focused);

@@ -517,7 +517,16 @@ unaltered captures and requiring complete comparisons after release. The previou
 window and losing the helper during held selection also pass recovery checks.
 The provider, loader, shim, AppKit and Chromium binaries remain unchanged.
 
-Right/middle buttons, multiple clicks, selected-text data dragging, touch,
+Right/middle buttons, selected-text data dragging, touch,
 long-field autoscroll, broader initial-focus/unelision behavior, selection
 direction, IME and scaling remain unqualified. Those paths and the remaining
 browser frontend still require integration.
+
+The optional shared pointer capability now forwards real Views click-count
+flags and Blink's existing `WebMouseEvent.click_count` to the native editor.
+`check-views-pointer.py --click-counts` compares real double/triple clicks and
+word/line drags with independent GNUstep ranges and pixels. Webpage pointer
+checks also consume references generated with `native-control-reference.py
+--pointers --click-counts`. No browser or AppKit rebuild is needed; only the
+small shared provider/loader extension and adapters change. Runtime and ABI
+evidence is in [click-count qualification](../../Libraries/NativeUI/click-count-qualification.json).

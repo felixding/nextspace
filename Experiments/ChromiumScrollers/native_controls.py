@@ -103,6 +103,12 @@ class NativeControlServer:
         native.nxs_control_track.argtypes = [C.c_void_p, C.c_double, C.c_double, C.c_uint]
         native.nxs_control_send.argtypes = [C.c_void_p, C.c_int, C.c_double, C.c_double, C.c_uint]
         self.input_capabilities = 0
+        self.pointer_capabilities=0
+        if hasattr(native,'nxs_control_pointer_capabilities'):
+            native.nxs_control_pointer_capabilities.restype=C.c_uint
+            self.pointer_capabilities=native.nxs_control_pointer_capabilities()
+            native.nxs_control_track_clicks.argtypes=[C.c_void_p,C.c_double,C.c_double,C.c_uint,C.c_uint]
+            native.nxs_control_track_clicks.restype=C.c_int
         self.event_capabilities, self.event_deadline = 0, -1
         self.generations = {}
         self.notifiers = {}
@@ -547,6 +553,15 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==22:
+                accepted=bool(self.pointer_capabilities&1 and not req.text_size and req.kind!=5 and
+                    req.state>0 and self.idle() and not self._tracking(state) and
+                    self.native.nxs_control_state(state['native']).enabled)
+                if accepted:
+                    state['starting']=True
+                    self.pending.append(lambda:self.track(state,req.x,req.y,req.modifiers,req.state))
+                self._respond(client,req,state,input_result=int(accepted))
+                return
             if req.operation==21 and req.kind in (7,8) and self.text_capabilities&4 and not req.text_size:
                 command=self.native.nxs_control_text_command(state['native']) or b''
                 self._respond(client,req,state,input_result=1,payload=command)
@@ -666,14 +681,15 @@ class NativeControlServer:
                      type=req.type, result=result, actions=state['actions'])
         self._respond(client, req, state, input_result=result)
 
-    def track(self, state, x, y, modifiers):
+    def track(self, state, x, y, modifiers,click_count=None):
         if state['destroy']:
             state['starting'] = False
             return
         self.active, state['starting'] = state, False
-        self.log('native-form-press', process=state['key'][0], control=state['key'][1], kind=state['key'][2], x=x, y=y)
+        self.log('native-form-press', process=state['key'][0], control=state['key'][1], kind=state['key'][2], x=x, y=y,click_count=1 if click_count is None else click_count)
         try:
-            self.native.nxs_control_track(state['native'], x, y, modifiers)
+            if click_count is None:self.native.nxs_control_track(state['native'], x, y, modifiers)
+            else:assert self.native.nxs_control_track_clicks(state['native'],x,y,modifiers,click_count)
         finally:
             self.active = None
         self.log('native-form-release', process=state['key'][0], control=state['key'][1], kind=state['key'][2], actions=state['actions'])

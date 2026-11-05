@@ -167,6 +167,7 @@ static void configure(uintptr_t offset) {
 }
 static void form_native_work(void *controller);
 static int views_enabled,views_trace_enabled;
+static unsigned forms_pointer_capabilities;
 static int views_watch_needed(void);
 static void views_native_work(int failed);
 #include "input.inc"
@@ -200,6 +201,7 @@ __attribute__((constructor)) static void initialize(void) {
     note("native metrics unavailable; unchanged");return;
   }
   native_thickness=metrics->parts[0].width;
+  if(metrics->parts[5].x==1)forms_pointer_capabilities=NXS_POINTER_CLICK_COUNT;
   const char *forms=getenv("NEXTSPACE_CHROMIUM_FORMS");
   forms_available=forms&&!strcmp(forms,"1")&&metrics->parts[0].height;
   if(isfinite(metrics->parts[4].width)&&metrics->parts[4].width>=0&&metrics->parts[4].width<=3)
