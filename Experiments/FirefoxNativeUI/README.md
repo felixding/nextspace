@@ -54,6 +54,39 @@ The progress fixture retains its author-styled engine path; broader styled
 interactive controls remain unqualified. This is not full native Firefox support
 and is not activated outside the private test session.
 
+The optional range binding (`NEXTSPACE_FIREFOX_SLIDERS=1` with
+`NEXTSPACE_FIREFOX_INPUT=1`) uses the same provider's actual `NSSlider`. Gecko's
+real minimum, maximum, value and step accessors supply application data. Native
+mouse tracking and logical-key interpretation supply values; Gecko's real
+setter retains serialization, validation and trusted input/change events.
+The adapter keeps the original range drag lifecycle for capture, focus
+bookkeeping, blur and cancellation. It replaces that lifecycle's point-to-value
+result with the native slider result, rather than copying track/knob geometry.
+Keyboard actions use the same actual engine setter. Effective appearance and
+author-style eligibility use the engine's own methods.
+
+Run `--sliders` for independent whole native images and key results, including
+horizontal/vertical, disabled, discrete, continuous and locked models. The
+fixture passes 57 checks, including 16 full native-image comparisons. It checks
+continuous input before pointer release, trusted change on
+commit, cancellation, frame replacement, removal and style changes during
+tracking, cache/tab restoration, renderer death and helper loss. Native keyboard
+expectations come from the provider; its normal ArrowRight step differs from
+Gecko's old widget step. The adapter defines no replacement key bindings.
+
+Only fixed integer sizes at scale 1 are qualified for the tested range models.
+Automatic range sizing, noncanonical aspect ratios, transformed/scaled output,
+nonzero step bases and broader discrete-step/end-point combinations remain
+open. Datalist tick labels, touch/wheel input, accessibility and full browser
+interfaces also remain open. Unsupported style/orientation changes release
+native ownership and retain the whole engine fallback. No UI library, provider,
+loader or Firefox rebuild is needed. See
+[`range-source-audit.json`](range-source-audit.json) and
+[`range-qualification.json`](range-qualification.json) for the precise evidence.
+The 54 input-button, 40 checkbox/radio and 21 progress checks also pass with
+slider hooks enabled. Installed packages and native loader/provider hashes
+remain unchanged.
+
 ## Reproduce the private fixture
 
 Build only the optional adapter on Linux ARM64:

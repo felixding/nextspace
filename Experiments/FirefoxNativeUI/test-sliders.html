@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>Gecko native range transport</title>
+<style>
+body {margin:24px;background:white;color:black;font:16px sans-serif}
+.row {margin:16px 0}
+input[type=range] {box-sizing:border-box;margin:0;width:180px;height:24px}
+#vertical {width:24px;height:180px;writing-mode:vertical-lr}
+</style>
+<form id="form">
+<div class="row"><input id="normal" name="normal" type="range" value="25"></div>
+<div class="row"><input id="coarse" name="coarse" type="range" min="0" max="10" step="1" value="4"></div>
+<div class="row"><input id="custom" name="custom" type="range" min="-10" max="10" step="any" value="2.5"></div>
+<div class="row"><input id="disabled" type="range" disabled value="35"></div>
+<div class="row"><input id="vertical" type="range" value="25"></div>
+<div class="row"><input id="locked" type="range" min="4" max="4" value="4"></div>
+</form>
+<button id="ordinary" onclick="this.textContent='Activated'">Ordinary engine action</button>
+<script>
+window.events=[];window.cacheShows=[];addEventListener('pageshow',event=>cacheShows.push(event.persisted));
+for(let element of document.querySelectorAll('input'))for(let type of ['input','change','click','keydown','keyup'])
+ element.addEventListener(type,event=>events.push({id:element.id,type,value:element.valueAsNumber,trusted:event.isTrusted}));
+</script>

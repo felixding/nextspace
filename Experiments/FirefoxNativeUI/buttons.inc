@@ -97,6 +97,8 @@ static int prepare_button_image(void *frame) {
   w->button_label_owned=1;w->painted=1;return 1;
 }
 static struct Widget *bind_input_widget(void *frame) {
+  if(frame_kind(frame)==NXS_SLIDER)
+    return prepare_range_image(frame)?widget_for_frame(frame):NULL;
   if(frame_kind(frame)==NXS_BUTTON)
     return prepare_button_image(frame)?widget_for_frame(frame):NULL;
   return bind_widget(frame);

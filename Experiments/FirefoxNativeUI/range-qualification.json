@@ -1,0 +1,633 @@
+{
+  "date": "2026-11-05",
+  "status": "Partial opt-in range control binding on one exact unchanged Firefox ESR binary; whole native browsers remain incomplete.",
+  "implementation": {
+    "native_control": "Actual existing NSSlider in the unchanged GNUstep NativeUI provider",
+    "model": "Real Gecko Decimal min/max/value/step getters and user-value/change methods",
+    "mouse": "Original engine capture/focus/cancellation lifecycle; actual native point-to-value result, tracking and geometry",
+    "keyboard": "Native logical-key interpretation and focus; actual engine user-value and trusted change path",
+    "recompiled": "Only the optional C adapter; no Firefox, UI library, loader or provider recompilation",
+    "flags": [
+      "NEXTSPACE_FIREFOX_INPUT=1",
+      "NEXTSPACE_FIREFOX_SLIDERS=1"
+    ]
+  },
+  "qualification": {
+    "browser_checks": 57,
+    "independent_full_native_image_comparisons": 16,
+    "checks": [
+      {
+        "case": "owned-fixture",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-normal-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-pixels-coarse-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-pixels-custom-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-pixels-disabled-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-pixels-vertical-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          24,
+          180
+        ],
+        "reference_size": [
+          24,
+          180
+        ]
+      },
+      {
+        "case": "native-pixels-locked-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-pixels-normal-focused",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-key-model-normal-ArrowRight",
+        "passed": true,
+        "value": 30,
+        "expected": 30.0
+      },
+      {
+        "case": "native-key-model-normal-Home",
+        "passed": true,
+        "value": 0,
+        "expected": 0.0
+      },
+      {
+        "case": "native-key-model-normal-End",
+        "passed": true,
+        "value": 100,
+        "expected": 100.0
+      },
+      {
+        "case": "native-key-model-normal-PageDown",
+        "passed": true,
+        "value": 90,
+        "expected": 90.0
+      },
+      {
+        "case": "native-pixels-coarse-focused",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-key-model-coarse-ArrowRight",
+        "passed": true,
+        "value": 5,
+        "expected": 5.0
+      },
+      {
+        "case": "native-key-model-coarse-Home",
+        "passed": true,
+        "value": 0,
+        "expected": 0.0
+      },
+      {
+        "case": "native-key-model-coarse-End",
+        "passed": true,
+        "value": 10,
+        "expected": 10.0
+      },
+      {
+        "case": "native-key-model-coarse-PageDown",
+        "passed": true,
+        "value": 8,
+        "expected": 8.0
+      },
+      {
+        "case": "native-pixels-custom-focused",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-key-model-custom-ArrowRight",
+        "passed": true,
+        "value": 3.5,
+        "expected": 3.5
+      },
+      {
+        "case": "native-key-model-custom-Home",
+        "passed": true,
+        "value": -10,
+        "expected": -10.0
+      },
+      {
+        "case": "native-key-model-custom-End",
+        "passed": true,
+        "value": 10,
+        "expected": 10.0
+      },
+      {
+        "case": "native-key-model-custom-PageDown",
+        "passed": true,
+        "value": 8,
+        "expected": 8.0
+      },
+      {
+        "case": "native-pixels-vertical-focused",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          24,
+          180
+        ],
+        "reference_size": [
+          24,
+          180
+        ]
+      },
+      {
+        "case": "native-key-model-vertical-ArrowRight",
+        "passed": true,
+        "value": 30,
+        "expected": 30.0
+      },
+      {
+        "case": "native-key-model-vertical-Home",
+        "passed": true,
+        "value": 0,
+        "expected": 0.0
+      },
+      {
+        "case": "native-key-model-vertical-End",
+        "passed": true,
+        "value": 100,
+        "expected": 100.0
+      },
+      {
+        "case": "native-key-model-vertical-PageDown",
+        "passed": true,
+        "value": 90,
+        "expected": 90.0
+      },
+      {
+        "case": "native-pixels-locked-focused",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "native-key-model-locked-ArrowRight",
+        "passed": true,
+        "value": 4,
+        "expected": 4.0
+      },
+      {
+        "case": "native-key-model-locked-Home",
+        "passed": true,
+        "value": 4,
+        "expected": 4.0
+      },
+      {
+        "case": "native-key-model-locked-End",
+        "passed": true,
+        "value": 4,
+        "expected": 4.0
+      },
+      {
+        "case": "native-key-model-locked-PageDown",
+        "passed": true,
+        "value": 4,
+        "expected": 4.0
+      },
+      {
+        "case": "trusted-key-input-change",
+        "passed": true
+      },
+      {
+        "case": "native-next-focus",
+        "passed": true
+      },
+      {
+        "case": "page-cancels-native-key",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-programmatic-model",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "programmatic-no-input-change",
+        "passed": true
+      },
+      {
+        "case": "disabled-no-action",
+        "passed": true
+      },
+      {
+        "case": "continuous-engine-input",
+        "passed": true,
+        "pressed_value": 19,
+        "value": 75,
+        "events": [
+          {
+            "id": "normal",
+            "type": "input",
+            "value": 19,
+            "trusted": true
+          },
+          {
+            "id": "normal",
+            "type": "input",
+            "value": 75,
+            "trusted": true
+          }
+        ]
+      },
+      {
+        "case": "trusted-drag-commit",
+        "passed": true
+      },
+      {
+        "case": "native-value-uses-engine-sanitizer",
+        "passed": true,
+        "value": 75,
+        "native": 75.15723270440252,
+        "expected": 75
+      },
+      {
+        "case": "input-handler-replaces-frame",
+        "passed": true,
+        "value": 30
+      },
+      {
+        "case": "blur-finishes-native-drag",
+        "passed": true
+      },
+      {
+        "case": "engine-cancels-native-gesture",
+        "passed": true,
+        "value": 25
+      },
+      {
+        "case": "remove-during-native-tracking",
+        "passed": true
+      },
+      {
+        "case": "style-change-releases-native-tracking",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-resize",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          280,
+          24
+        ],
+        "reference_size": [
+          280,
+          24
+        ]
+      },
+      {
+        "case": "reinsert-new-native-binding",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-reload",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "ordinary-engine-action",
+        "passed": true
+      },
+      {
+        "case": "other-tab-active",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-tab-restored",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "reactivated-native-model",
+        "passed": true
+      },
+      {
+        "case": "navigation-away",
+        "passed": true
+      },
+      {
+        "case": "actual-bfcache-restore",
+        "passed": true
+      },
+      {
+        "case": "native-pixels-bfcache-restored",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          180,
+          24
+        ],
+        "reference_size": [
+          180,
+          24
+        ]
+      },
+      {
+        "case": "restored-native-engine-model",
+        "passed": true
+      }
+    ],
+    "native_key_cases": 20,
+    "native_created": 99,
+    "native_explicitly_destroyed": 93,
+    "native_objects_reclaimed_by_helper_exit": 6,
+    "native_action_records": 36,
+    "native_key_records": 54,
+    "sandbox": [
+      {
+        "pid": 75291,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 75448,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": 50,
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.3734738710045349,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    },
+    "renderer_crash": {
+      "pid": 75291,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "regressions_with_slider_hooks": {
+      "buttons": {
+        "checks": 54,
+        "all_passed": true,
+        "native_created": 164,
+        "native_explicitly_destroyed": 158,
+        "helper_loss": {
+          "helper_exit": -9,
+          "value": 2,
+          "engine_action": "Activated",
+          "elapsed_seconds": 0.668441879999591,
+          "native_objects_reclaimed_by_helper_exit": 6,
+          "mouse_and_key_retained": true
+        },
+        "renderer_crash": {
+          "pid": 74444,
+          "seccomp": 2,
+          "no_new_privs": 1,
+          "native_objects_released": 6,
+          "kernel_owner_exit": true
+        },
+        "sandbox": [
+          {
+            "pid": 74444,
+            "seccomp": 2,
+            "no_new_privs": 1
+          },
+          {
+            "pid": 74652,
+            "seccomp": 2,
+            "no_new_privs": 1
+          }
+        ]
+      },
+      "controls": {
+        "checks": 40,
+        "all_passed": true,
+        "native_created": 107,
+        "native_explicitly_destroyed": 101,
+        "helper_loss": {
+          "helper_exit": -9,
+          "value": true,
+          "engine_action": "Activated",
+          "elapsed_seconds": 0.4077677860041149,
+          "native_objects_reclaimed_by_helper_exit": 6,
+          "mouse_and_key_retained": true
+        },
+        "renderer_crash": {
+          "pid": 75668,
+          "seccomp": 2,
+          "no_new_privs": 1,
+          "native_objects_released": 6,
+          "kernel_owner_exit": true
+        },
+        "sandbox": [
+          {
+            "pid": 75668,
+            "seccomp": 2,
+            "no_new_privs": 1
+          },
+          {
+            "pid": 75843,
+            "seccomp": 2,
+            "no_new_privs": 1
+          }
+        ]
+      },
+      "progress": {
+        "checks": 21,
+        "all_passed": true,
+        "native_created": 45,
+        "native_explicitly_destroyed": 45,
+        "helper_loss": {
+          "helper_exit": -9,
+          "value": 0.61,
+          "engine_action": "Activated",
+          "elapsed_seconds": 0.1281573090091115,
+          "native_objects_reclaimed_by_helper_exit": 0,
+          "mouse_and_key_retained": false
+        },
+        "renderer_crash": null,
+        "sandbox": [
+          {
+            "pid": 76058,
+            "seccomp": 2,
+            "no_new_privs": 1
+          }
+        ]
+      }
+    }
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-firefox-prototype/range-hook.so": "9d8d7dcaa4c25be2f3e5505b374a01f941504fe91dafe1a9e2aa6a7c9c136a81",
+      "/var/tmp/nextspace-native-ui/bridge-build/libnextspace-native-scroller.so.0.1": "74d9e8d2f0bac09752571d237aeee5cebab45d39da8d2f5cc5d3e64d8f9f545b",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055"
+    },
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "owned_fixture_processes_exited": true,
+    "marionette_port_closed": true,
+    "private_backend_alias_removed": true
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-firefox-prototype/range-hook.so": "9d8d7dcaa4c25be2f3e5505b374a01f941504fe91dafe1a9e2aa6a7c9c136a81",
+    "/var/tmp/nextspace-native-ui/bridge-build/libnextspace-native-scroller.so.0.1": "74d9e8d2f0bac09752571d237aeee5cebab45d39da8d2f5cc5d3e64d8f9f545b",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055",
+    "firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+  },
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/hook.c": "ac968d1069cb85a556c7d55afc393283fbd1a3c4baf8418f987ab44ea63b0490",
+    "Experiments/FirefoxNativeUI/controls.inc": "61140e4a7c953904cb1d9fd18ae77ebe95ffa9c9e7c2523be50f8b8f0e497a67",
+    "Experiments/FirefoxNativeUI/buttons.inc": "3f7a5016aa3eaf08a95414a555e2f4c5f67768e77cda203a2e9812439eb22deb",
+    "Experiments/FirefoxNativeUI/ranges.inc": "44ea1d669d987f60e526e1671b3464763565a918a7de1ef7dc33ffb10a2026b1",
+    "Experiments/FirefoxNativeUI/pinned-input.h": "f91d2c53e4fe8841574e8a6143ad753ba180997fc96a5cf519efd80467247b75",
+    "Experiments/FirefoxNativeUI/pinned-button-size.h": "43960013d1947cac15b8348ddb0fb33e20d7b610246cfcdd8c5beb588f8eadd7",
+    "Experiments/FirefoxNativeUI/pinned-ranges.h": "feeec6928172bc8c43d010f73175fa3fd3058f7b1ecbb564e2881f5064f9480e",
+    "Experiments/FirefoxNativeUI/run-fixture.py": "795928dd04837ee4330b46436197b3184ac0abc99e7497030df62805c61f99a3",
+    "Experiments/FirefoxNativeUI/check-sliders.py": "6eee27f7c55ae2c2a6bef1d6744cf1dea70ca11ff7b3f68c46d19d05c990a0ee",
+    "Experiments/FirefoxNativeUI/range-controls.json": "748a645f5c9c51a65fcb0d0c1e87bc48798f0d22898fbdfb4b0256dadf503b0e",
+    "Experiments/FirefoxNativeUI/test-sliders.html": "a02d5ca72eaa13689406be23b8e83b08a6b53545a73b07c81f2a86688ebbb23b"
+  },
+  "source_audit": "range-source-audit.json",
+  "limitations": [
+    "Exact ARM64 Firefox ESR build only; fixed integer CSS sizes at scale 1.",
+    "Native model shape must match engine orientation. Automatic sizing, noncanonical aspect ratios, transformed/scaled output and broader styles remain open.",
+    "Default step 1, sparse aligned step 1, step any, nonzero continuous domains, disabled, vertical and equal-endpoint models are tested. Nonzero step bases, fractional/discrete steps and unaligned endpoints need broader qualification.",
+    "Datalist tick labels, touch/wheel/accessibility, broader commands and full browser application interfaces remain open. Reversed min/max retains engine fallback."
+  ],
+  "diagnostics": [
+    "Initial type 147 and a raw-appearance comparison failed the first image checks. The compiled enum is 148; the real ShouldUseNativeStyle method resolves auto appearance and author styles.",
+    "The native normal ArrowRight reference is 25 to 30; an initial replacement test assumed Gecko widget step 1 and was corrected to the independent native reference.",
+    "The expanded lifecycle suite exceeded its old 60-second fixture budget after 46 passing checks. The owned run was authoritatively terminated by its runner; its extended 120-second budget then passed all 57 checks. No browser was restarted on a mere observation timeout."
+  ],
+  "raw_evidence": [
+    ".build/firefox-native-ui/ranges-03/",
+    ".build/firefox-native-ui/ranges-04/",
+    ".build/firefox-native-ui/ranges-05/",
+    ".build/firefox-native-ui/ranges-final/",
+    ".build/firefox-native-ui/ranges-buttons-regression/",
+    ".build/firefox-native-ui/ranges-controls-regression/",
+    ".build/firefox-native-ui/ranges-progress-regression/",
+    ".build/firefox-native-ui/ranges-environment.json"
+  ]
+}

@@ -43,7 +43,7 @@ required integration surfaces differ:
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio drawing/input and input push/submit/reset buttons with native intrinsic sizing through the shared provider. Other controls, scaled output, animation, radio-group arrow navigation and broader input remain open. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio drawing/input, input push/submit/reset buttons with native intrinsic sizing and native range drawing/input through the shared provider. Other controls, scaled output, animation, radio-group arrow navigation and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
@@ -257,3 +257,16 @@ min/max constraints pass at horizontal scale 1. Default-button policy,
 HTML `<button>` rich content, scaled/vertical output, broader layout and whole
 browser interfaces remain open. See
 [input-button qualification](../Experiments/FirefoxNativeUI/button-qualification.json).
+
+The optional Gecko range binding uses the same actual `NSSlider` provider for
+whole control drawing, mouse tracking, focus and logical keys. Engine accessors
+supply min/max/value/step, and original drag lifecycle and user-value methods
+retain capture, validation, cancellation and trusted input/change events.
+The bridge supplies no slider geometry or key rules. Independent native images
+and key results cover the tested fixed-size horizontal, vertical, disabled,
+continuous, discrete and locked models. Continuous input, blur/Escape,
+replacement/removal/style changes during tracking, cache/tab restoration,
+renderer cleanup and helper-loss checks pass. Native automatic sizing, broader
+step bases/endpoints, scaled output, touch/wheel/accessibility and browser
+application interfaces remain open. See
+[range qualification](../Experiments/FirefoxNativeUI/range-qualification.json).

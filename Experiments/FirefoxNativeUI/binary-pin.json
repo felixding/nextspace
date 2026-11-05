@@ -14,7 +14,7 @@
   "installed": false,
   "package_inventory_unchanged": true,
   "date": "2026-11-05",
-  "status": "experimental determinate progress and checkbox/radio native input on the exact pinned binary; broader Firefox integration incomplete",
+  "status": "experimental native determinate progress, checkbox/radio, input buttons and ranges on the exact pinned binary; broader Firefox integration incomplete",
   "rebuilt": false,
   "launched": true,
   "native_ui_adapter_implemented": true,

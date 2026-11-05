@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-05",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "related_audits": [
+    "source-audit.json",
+    "input-source-audit.json"
+  ],
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsRangeFrame.cpp",
+      "sha256": "4cec7d4528bff257453d71be0206ad6a034a77886c8effabda971aba8bc5471f"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsRangeFrame.h",
+      "sha256": "a13b5a1799f13bebee141051613749e89c8bcc2271c0271f1c850c799b988a6f"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.h",
+      "sha256": "05d97a7d6603ddb1b954900a8c524b7f75323dcb8365e2f88d39582ac0bb8f65"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/mozglue/misc/decimal/Decimal.h",
+      "sha256": "725ed7eae5095c4416d88c041b427c6eae28532ad5c5018e4f26a32c7dbd80af"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/mozglue/misc/decimal/Decimal.cpp",
+      "sha256": "4217e4b5f04724e423f502edca2a1047ae23d1394075210614a7a9c8167617cf"
+    }
+  ],
+  "interfaces": {
+    "input_model": {
+      "primary_vtable": "0xa00fc30",
+      "type_offset": 144,
+      "range_type": 148,
+      "evidence": "Pinned nsIFormControl.h enumerators, InputButton 129 through InputRange 148; initial 147 was rejected by native-image checks."
+    },
+    "frame": {
+      "vtable": "0xa10b448",
+      "address_point": 16,
+      "should_use_native_style": "0x6ef91c4",
+      "is_themed": "0x47c1bfc",
+      "is_horizontal": "0x6ef8690",
+      "eligibility": "Call actual methods for effective appearance and author-style eligibility. A raw auto appearance differs from the effective Range appearance."
+    },
+    "appearance": {
+      "range": 19,
+      "evidence": "DoDrawWidgetBackground jump table at 0x12bc2dc, appearance 19 to branch 0x6a600e4, PaintRange call at 0x6a6011c to 0x6a77008."
+    },
+    "decimal": {
+      "bytes": 24,
+      "getter_return": "ARM64 indirect result in x8",
+      "setter_argument": "Nontrivial by-value Decimal passed by address in x1",
+      "from_double_export": "_ZN5blink7Decimal10fromDoubleEd",
+      "from_double_executable_offset": "0x877dc",
+      "to_double_export": "_ZNK5blink7Decimal8toDoubleEv",
+      "to_double_executable_offset": "0x87e80",
+      "ownership": "Opaque engine model data; call actual conversions without copying Decimal math or validation."
+    },
+    "model": {
+      "minimum": "0x5888ddc",
+      "maximum": "0x5888f34",
+      "value": "0x5887588",
+      "step": "0x5889cf4",
+      "user_value": "0x588da50",
+      "fire_change": "0x588a9c4",
+      "snap_to_tick_marks_no": 0,
+      "step_any": 0
+    },
+    "pointer": {
+      "point_to_value": "0x6ef831c",
+      "cancel": "0x588dba4",
+      "start_range_drag": "0x588d924",
+      "ownership": "Retain original Start/Finish/CancelRangeThumbDrag for capture, focus baseline, rollback and trusted events. Replace only point-to-value with actual NSSlider results. Use engine coordinates and wait for real native release; no knob/track geometry copied."
+    },
+    "keyboard": {
+      "blur_message": 66,
+      "ownership": "Use existing logical-key/focus transport. Native actions call the real engine setter/change path. Unhandled native keys return through the original engine path; gesture cancellation retains original application rollback."
+    },
+    "lifetime": "Existing frame destruction, freeze/inactivity, renderer-owned eventfd and kernel credentials/pidfd cleanup. Release unsupported style, size, aspect/orientation and helper failures."
+  },
+  "guards": "Launcher checks exact executable/libxul SHA256. Adapter checks exact libxul ELF build ID and pinned-ranges.h prologues before any activation.",
+  "limitations": [
+    "Exact ARM64 Firefox ESR build only; fixed integer CSS sizes at scale 1.",
+    "Native model shape must match engine orientation. Automatic sizing, noncanonical aspect ratios, transformed/scaled output and broader styles remain open.",
+    "Default step 1, sparse aligned step 1, step any, nonzero continuous domains, disabled, vertical and equal-endpoint models are tested. Nonzero step bases, fractional/discrete steps and unaligned endpoints need broader qualification.",
+    "Datalist tick labels, touch/wheel/accessibility, broader commands and full browser application interfaces remain open. Reversed min/max retains engine fallback."
+  ]
+}

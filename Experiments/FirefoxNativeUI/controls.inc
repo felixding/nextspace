@@ -8,10 +8,11 @@ struct Widget {
   int kind,painted;
   double width,height,actions;
   uint32_t *button_pixels;int button_width,button_height,button_label_owned;
+  double range_step,range_x,range_y;int range_tracking,range_keypress;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
-static int widgets_enabled,buttons_enabled,widget_notifier=-1;
+static int widgets_enabled,buttons_enabled,sliders_enabled,widget_notifier=-1;
 static pid_t widget_pid;
 static uint64_t next_widget;
 static struct Widget *widgets,*active_widget;
@@ -26,6 +27,13 @@ static int native_button_frame(const void *);
 static int button_cache_update(struct Widget *,const struct NXSResponse *);
 static int button_cache_available(const struct Widget *);
 static char *button_title(const struct Widget *);
+static int native_range_frame(const void *);
+static int prepare_range_image(void *);
+static void release_range_frame(void *);
+static int range_config(struct Widget *,struct NXSControlRequest *);
+static void range_key_action(void *,const struct NXSResponse *,int);
+static struct NXSResponse *range_end(struct Widget *);
+static void prepare_range_bindings(const struct NXSResponse *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
 static int (*original_default_size)(void *);
 static int (*original_intrinsic)(void *,const void *,int);
@@ -40,7 +48,8 @@ static int node_kind(const void *node) {
   if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
   unsigned type=*((const unsigned char *)node+144);
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
-    buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:0;
+    buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
+    sliders_enabled&&type==148?NXS_SLIDER:0;
 }
 static int frame_kind(const void *frame) {
   return frame?node_kind(*(void *const *)((const char *)frame+24)):0;
@@ -63,11 +72,12 @@ static void invalidate_widget(struct Widget *w) {
   ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,1);
 }
 static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
-  uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_CHECKBOX?4:5);
+  uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=w->kind,.control=w->id,.width=w->width,.height=w->height,
     .maximum=1,.state=(w->kind==NXS_CHECKBOX&&(state&64))?-1:!!(state&32),
     .enabled=!(state&16),.x=x,.y=y,.modifiers=modifiers};
+  if(w->kind==NXS_SLIDER&&operation==1&&!range_config(w,&request))return NULL;
   char *title=w->kind==NXS_BUTTON&&operation==1?button_title(w):NULL;
   if(w->kind==NXS_BUTTON&&operation==1&&!title)return NULL;
   size_t length=title?strlen(title):0;
@@ -80,6 +90,12 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
 static struct NXSResponse *widget_sync(struct Widget *w) {
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)return NULL;
+  if(w->kind==NXS_SLIDER&&response->parts[5].x!=w->range_step) {
+    struct NXSControlStepRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=10,
+      .process=identity(),.kind=w->kind,.control=w->id,.step=w->range_step};
+    response=exchange_bytes(&request,sizeof(request));
+    if(!response||response->parts[5].x!=w->range_step)return NULL;
+  }
   int focused=widget_focused(w);
   if(!!response->parts[3].y!=focused) {
     struct NXSControlInputRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=7,
@@ -127,6 +143,7 @@ static struct Widget *bind_widget(void *frame) {
   float scale=frame_scale(frame);if(!isfinite(scale)||fabsf(scale-1)>0.000001f)return NULL;
   int native;
   if(kind==NXS_BUTTON)native=native_button_frame(frame);
+  else if(kind==NXS_SLIDER)native=native_range_frame(frame);
   else {metric_probe=1;native=original_intrinsic(frame,NULL,0);metric_probe=0;}
   if(!native||!ensure_widget_lifetime())return NULL;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
@@ -139,13 +156,16 @@ static struct Widget *bind_widget(void *frame) {
   w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
   w->width=width;w->height=height;w->next=widgets;widgets=w;
   w->painted=widget_sync(w)!=NULL;
-  if(kind==NXS_BUTTON)w->painted=0;
+  if(kind==NXS_BUTTON||kind==NXS_SLIDER)w->painted=0;
   if(log_fd>=0)dprintf(log_fd,"%d native-widget bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)w->id,w->kind);
   return w;
 }
 static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
   int kind=frame_kind(frame);
-  if(!widgets_enabled||!kind||appearance!=(unsigned)(kind==NXS_BUTTON?10:kind==NXS_CHECKBOX?4:5)||fabsf(frame_scale(frame)-1)>0.000001f)
+  if(kind==NXS_SLIDER&&!prepare_range_image(frame))
+    return original_draw_target(self,target,frame,appearance,rect,overflow);
+  if(!widgets_enabled||!kind||appearance!=(unsigned)(kind==NXS_BUTTON?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5)||fabsf(frame_scale(frame)-1)>0.000001f||
+     (kind==NXS_SLIDER&&!native_range_frame(frame)))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   const void *context=*(void *const *)((const char *)frame+40);
   double units=*(const int *)((const char *)context+200);
@@ -211,7 +231,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
   void *down_node=NULL;
-  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(frame)) {
+  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(frame)&&frame_kind(frame)!=NXS_SLIDER) {
     down_node=*(void **)((char *)frame+24);
     ((unsigned (*)(void *))(base+0x3b9f0e4))(down_node);
   }
@@ -293,13 +313,16 @@ static uint32_t input_post(void *node,void *visitor) {
   void *event=*(void **)((char *)visitor+8);
   unsigned message=*(const uint16_t *)((char *)event+18);
   struct Widget *w=widget_for_node(node);
+  if(w&&w->kind==NXS_SLIDER&&w->range_tracking&&message==66) {
+    struct NXSResponse *response=range_end(w);range_key_action(node,response,0);w=widget_for_node(node);
+  }
   if(!w&&node_kind(node))w=bind_widget(*(void **)((char *)node+96));
-  if(node_kind(node)==NXS_BUTTON&&message>=2&&message<=4)
+  if((node_kind(node)==NXS_BUTTON||node_kind(node)==NXS_SLIDER)&&message>=2&&message<=4)
     w=bind_input_widget(*(void **)((char *)node+96));
   int *status=(int *)((char *)visitor+24);
   if(!w||!w->painted||message<2||message>4||!(*(uint8_t *)((char *)event+48)&1)||*status==1||!widget_focused(w))
     return original_input_post(node,visitor);
-  if(message==2)return 0; /* Native keyDown/keyUp, not the engine keypress widget implementation. */
+  if(message==2)return w->kind==NXS_SLIDER&&w->range_keypress?original_input_post(node,visitor):0;
   struct NXSResponse *response=widget_sync(w);
   if(!response||!response->parts[2].x)return original_input_post(node,visitor);
   double actions=response->parts[0].width;
@@ -314,11 +337,13 @@ static uint32_t input_post(void *node,void *visitor) {
   response=exchange_bytes(request,size);free(request);free(text);
   if(!response)return original_input_post(node,visitor);
   int handled=response->parts[3].x,activate=response->parts[0].width>actions;
+  if(w->kind==NXS_SLIDER)w->range_keypress=handled==NXS_INPUT_UNHANDLED;
   invalidate_widget(w);drain_widget_notifier();
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS) {
     if(advance_focus(node,handled))*status=1;
   } else if(handled==NXS_INPUT_HANDLED)*status=1;
   if(activate) {
+    if(w->kind==NXS_SLIDER){range_key_action(node,response,1);return 0;}
     note("native Gecko keyboard action invokes real engine click");
     ((uint32_t (*)(void *,int,void *))(base+0x58ce09c))(node,1,*(void **)visitor);
   }
@@ -355,6 +380,7 @@ static void active_shell(void *shell,int active) {
   original_active(shell,active);
 }
 #include "buttons.inc"
+#include "ranges.inc"
 static struct Detour widget_detours[]={
   {NXS_GECKO_DRAW_TARGET_OFFSET,gecko_draw_target_bytes,draw_widget,(void **)&original_draw_target},
   {NXS_GECKO_DEFAULT_SIZE_OFFSET,gecko_default_size_bytes,default_size,(void **)&original_default_size},
@@ -375,5 +401,6 @@ static void prepare_widget_metrics(void) {
     preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
   }
   widgets_enabled=1;
+  prepare_range_bindings(response);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
 }
