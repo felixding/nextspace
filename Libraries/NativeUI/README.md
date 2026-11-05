@@ -281,3 +281,12 @@ API without changing the public NativeUI ABI or control implementations.
 Active subscriber lifetime is tracked using kernel credentials and pidfds.
 The separate [notification qualification](../../Experiments/ChromiumScrollers/notification-qualification.json)
 records native-window delivery, resource preparation and cleanup checks.
+
+
+The first optional Firefox/Gecko binding now reuses this unchanged provider for
+determinate HTML progress. Chromium and Firefox share the internal transport
+and ARM64 hook support in [`Bridge`](Bridge); neither adapter implements a
+native control. See the [Firefox experiment](../../Experiments/FirefoxNativeUI)
+for its exact binary pin, 21 passing checks, remaining controls/frontend work
+and the 261 Chromium regressions after extraction. Generic-control scaled
+transport and broader Firefox integration remain open.

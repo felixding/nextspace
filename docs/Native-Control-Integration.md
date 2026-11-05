@@ -43,7 +43,7 @@ required integration surfaces differ:
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
-| Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented. An unchanged ARM64 Firefox ESR binary is pinned for initial work; runtime/native UI support is unqualified. |
+| Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has an experimental determinate progress binding using the shared native provider. Other controls, animation, input and scaled output remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | No adapter implemented. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
@@ -208,3 +208,19 @@ lifetimes across PID namespaces and shared connections. Initial native drawing
 also finishes before helper readiness, addressing a reproduced cold-resource
 RPC timeout. The broader input, appearance and application requirements above
 remain open. See the [notification qualification](../Experiments/ChromiumScrollers/notification-qualification.json).
+
+
+The first Gecko binding now paints determinate HTML progress through the same
+unchanged NativeUI provider and actual `NSProgressIndicator` implementation.
+Gecko supplies its validated model and existing fallback DrawTarget; the bridge
+transports native pixels and releases every native object after the snapshot.
+Chromium and Firefox now share transport, protocol and ARM64 hook machinery in
+`Libraries/NativeUI/Bridge`, with no copied native control implementation.
+The private Firefox fixture passed 21 checks, including full native image
+comparisons, model/maximum changes, resize, reinsert, reload and trusted engine
+clicks; all 45 native objects were released. Renderer sandbox checks and helper
+loss passed. The existing Chromium suite still passes all 261 checks after the
+extraction. This qualifies only determinate progress at the tested 100% scale on
+the pinned Firefox binary. Other Firefox controls and application interfaces,
+scaled native transport, animation, broader input/accessibility and derivatives
+remain required. See [Firefox qualification](../Experiments/FirefoxNativeUI/progress-qualification.json).

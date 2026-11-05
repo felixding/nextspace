@@ -14,10 +14,10 @@
   "installed": false,
   "package_inventory_unchanged": true,
   "date": "2026-11-05",
-  "status": "binary preparation only; no runtime or native UI qualification",
+  "status": "experimental determinate native progress binding on the exact pinned binary; broader Firefox integration incomplete",
   "rebuilt": false,
-  "launched": false,
-  "native_ui_adapter_implemented": false,
+  "launched": true,
+  "native_ui_adapter_implemented": true,
   "declared_upstream": {
     "repository": "https://hg.mozilla.org/releases/mozilla-esr153",
     "revision": "d63de7b9609253a860fbb0050f678700f4cdc492",

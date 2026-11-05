@@ -1,0 +1,86 @@
+[
+  {
+    "id": "normal",
+    "width": 242,
+    "height": 26,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0.42,
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "empty",
+    "width": 242,
+    "height": 26,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0,
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "full",
+    "width": 242,
+    "height": 26,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 1,
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "value-61",
+    "width": 242,
+    "height": 26,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0.61,
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "value-80",
+    "width": 242,
+    "height": 26,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0.8,
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "resized",
+    "width": 322,
+    "height": 19,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0.42,
+    "enabled": 1,
+    "state": 0
+  },
+  {
+    "id": "replacement",
+    "width": 322,
+    "height": 19,
+    "kind": 5,
+    "title": "",
+    "minimum": 0,
+    "maximum": 1,
+    "value": 0.5,
+    "enabled": 1,
+    "state": 0
+  }
+]

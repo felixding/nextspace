@@ -1,0 +1,331 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "53b33489",
+  "status": "experimental determinate Gecko progress on one unchanged ARM64 Firefox build; full native browser integration incomplete",
+  "architecture": {
+    "UI_implementation": "actual GNUstep NSProgressIndicator through the existing NativeUI public C ABI",
+    "UI_library_rebuilt": false,
+    "NativeUI_provider_rebuilt": false,
+    "Firefox_rebuilt": false,
+    "NativeUI_ABI_changed": false,
+    "control_implementations_copied": false,
+    "bridge": "Shared C transport, protocol and exact-build ARM64 instruction machinery used by Chromium and Firefox",
+    "Gecko_binding": "validated engine Position model; existing display-item DrawTarget fallback; native pixels; transient read-only native objects released after paint"
+  },
+  "qualification": {
+    "Firefox_browser_checks": 21,
+    "Firefox_full_native_image_comparisons": 13,
+    "Firefox_checks": [
+      {
+        "case": "owned-fixture",
+        "passed": true
+      },
+      {
+        "case": "initial-normal",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "initial-empty",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "initial-full",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "author-styled-path-preserved",
+        "passed": true
+      },
+      {
+        "case": "trusted-read-only-click",
+        "passed": true
+      },
+      {
+        "case": "value-update",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "normalized-engine-value",
+        "passed": true
+      },
+      {
+        "case": "maximum-update",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "engine-clamped-value",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "engine-negative-value",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "indeterminate-engine-model",
+        "passed": true
+      },
+      {
+        "case": "determinate-restored",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "resize",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          322,
+          19
+        ],
+        "reference_size": [
+          322,
+          19
+        ]
+      },
+      {
+        "case": "remove-reinsert",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          322,
+          19
+        ],
+        "reference_size": [
+          322,
+          19
+        ]
+      },
+      {
+        "case": "new-engine-element",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          322,
+          19
+        ],
+        "reference_size": [
+          322,
+          19
+        ]
+      },
+      {
+        "case": "updates-do-not-edit-model",
+        "passed": true
+      },
+      {
+        "case": "ordinary-engine-action",
+        "passed": true
+      },
+      {
+        "case": "reload-initial-control",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "reload-full-control",
+        "passed": true,
+        "difference": null,
+        "actual_size": [
+          242,
+          26
+        ],
+        "reference_size": [
+          242,
+          26
+        ]
+      },
+      {
+        "case": "navigation-away",
+        "passed": true
+      }
+    ],
+    "native_created": 45,
+    "native_destroyed": 45,
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": 0.61,
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.0882730849989457
+    },
+    "Firefox_renderers": [
+      {
+        "pid": 53857,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "Chromium_regression_checks": 261,
+    "Chromium_regressions": [
+      {
+        "case": "select",
+        "passed": 29
+      },
+      {
+        "case": "sliders",
+        "passed": 50
+      },
+      {
+        "case": "input",
+        "passed": 62
+      },
+      {
+        "case": "mouse",
+        "passed": 33
+      },
+      {
+        "case": "progress",
+        "passed": 20
+      },
+      {
+        "case": "animation",
+        "passed": 59
+      },
+      {
+        "case": "scrollbars",
+        "passed": 8
+      }
+    ],
+    "Chromium_renderers": [
+      {
+        "pid": 53612,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 53620,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 53621,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "unsupported_executable_rejected_before_launch": true
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "839ddaaf5dd009cf2fcf7639aa1a193ba04955894839f615d882cdf18ae2a84d",
+    "/var/tmp/nextspace-firefox-prototype/native-hook.so": "3559522a5fee8666fd3218d1efc1f51c4e20ccc3ef359e94c8aba57ee5e6f6e1",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+    "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055",
+    "firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+  },
+  "environment": {
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "dependency_archive_sha256": {
+      "libgtk-3-0t64_3.24.49-3_arm64.deb": "84f5dfbeadf9fc8c1e12f18a2010b1cce45481aba5c3db427d98d6601d95ec82",
+      "firefox-esr-dbgsym.deb": "f56be52923dd3c21e644f96b8195f4d4ff7bcf8320ed50016224e3543256daaa"
+    }
+  },
+  "cleanup": {
+    "private_backend_alias_removed": true,
+    "test_ports_closed": {
+      "2829": true,
+      "9227": true
+    },
+    "package_inventory_unchanged": true,
+    "package_count": 1051,
+    "unsupported_executable_rejected_before_launch": true
+  },
+  "limitations": [
+    "Only the recorded Firefox ESR ARM64 binary is accepted; derivatives are unqualified.",
+    "Only determinate horizontal HTML progress at scale 1 is qualified.",
+    "Other scales retain Gecko rendering; scaled native control transport remains open.",
+    "Indeterminate animation, vertical and RTL progress are unqualified.",
+    "Other Gecko controls, native input, browser/frontend menus, text/IME, accessibility and application dialogs remain open.",
+    "Chromium application interfaces and derivative-specific frontends remain open.",
+    "GTK/Qt/KDE adapters still cover scrollbars only; broader application integration remains required.",
+    "No global installation or activation."
+  ],
+  "raw_evidence": [
+    ".build/firefox-native-ui/qualified-final/",
+    ".build/firefox-native-ui/chromium-regressions/",
+    ".build/firefox-native-ui/chromium-helper.jsonl",
+    ".build/firefox-native-ui/chromium-hook.log",
+    ".build/firefox-native-ui/environment.json",
+    ".build/firefox-native-ui/cleanup.json"
+  ]
+}

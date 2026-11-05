@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><title>Gecko native progress transport</title>
+<style>
+  body { background:white; color:black; margin:24px; font:16px sans-serif; }
+  progress { display:block; width:240px; height:24px; margin:16px 0; }
+  #styled { appearance:none; background:magenta; }
+  #styled::-moz-progress-bar { background:lime; }
+</style>
+<progress id="normal" max="100" value="42"></progress>
+<progress id="empty" max="100" value="0"></progress>
+<progress id="full" max="100" value="100"></progress>
+<progress id="busy"></progress>
+<progress id="styled" max="100" value="42"></progress>
+<button id="button" onclick="this.textContent='Activated'">Ordinary engine action</button>

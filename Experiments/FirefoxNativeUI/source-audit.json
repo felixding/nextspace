@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-05",
+  "library_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "debug_archive_url": "https://deb.debian.org/debian-security-debug/pool/updates/main/f/firefox-esr/firefox-esr-dbgsym_153.6.0esr-1~deb13u1_arm64.deb",
+  "debug_archive_sha256": "f56be52923dd3c21e644f96b8195f4d4ff7bcf8320ed50016224e3543256daaa",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/painting/nsDisplayList.cpp",
+      "sha256": "a08da875d2991a795d99d79770aa7df970c81688dd4d9a65d8a9207ece3c4daa"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/thebes/gfxContext.h",
+      "sha256": "b6369ec9eb1bf671193e249963e215c967f72b7f6aef2e78ee2035d40aca17bc"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/2d/2D.h",
+      "sha256": "e3c212bd157d183f53be553cb242ae4876874ea4b83e2db356ee5d771e74ba47"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/ThemeDrawing.h",
+      "sha256": "08eed2332341b979479630fa872bb4a0528a90ba6e619434662f45252b768e62"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/Theme.cpp",
+      "sha256": "c82c8a6fd8626c1c1f96c01b0abf0a3560d4d37238a09ab31a7c3b8ff36063da"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/Theme.h",
+      "sha256": "94e400d3a4894ab6981e5cd7fe7d71d2231016d7ea91234bc9b5e5e91e0d8d44"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/remote/marionette/driver.sys.mjs",
+      "sha256": "8b60184b0ee76db755b5853e91816baacab2e0d4f26301045842678931b33426"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/2d/Types.h",
+      "sha256": "5d0521d4e673084b8cc8eb08e480e17d76a7545b5dfa96366934b7a8d085b5c4"
+    }
+  ],
+  "interfaces": {
+    "progress_paint": {
+      "address": "0x6a77614",
+      "symbol": "mozilla::widget::Theme::PaintProgress<mozilla::gfx::DrawTarget>",
+      "arguments": [
+        "x0 Theme",
+        "x1 nsIFrame",
+        "x2 DrawTarget",
+        "x3 LayoutDeviceRect reference",
+        "x4 ElementState reference",
+        "x5 ThemeColors reference",
+        "x6 indirect DPIRatio value",
+        "w7 isMeter"
+      ]
+    },
+    "webrender": {
+      "address": "0x6a60354",
+      "symbol": "mozilla::widget::Theme::CreateWebRenderCommandsForWidget",
+      "purpose": "return false for eligible determinate progress, selecting existing display-item fallback painting"
+    },
+    "progress_appearance": {
+      "value": 9,
+      "evidence": "DoDrawWidgetBackground jump table at 0x12bc2dc maps appearance 9 to 0x6a5ffb4; that branch calls PaintProgress at 0x6a5ffe0 with isMeter false"
+    },
+    "content": {
+      "frame_offset": 24,
+      "evidence": "PaintProgress load at 0x6a7782c; content NodeInfo +40, local-name atom +16 and namespace +32 checked against the same FromNode branch"
+    },
+    "position": {
+      "address": "0x589f280",
+      "symbol": "mozilla::dom::HTMLProgressElement::Position() const",
+      "purpose": "use validated and normalized engine model, including indeterminate -1"
+    },
+    "fill_rect": {
+      "vtable": "0x9e22190",
+      "slot": 27,
+      "skia_target": "0x3fc3108",
+      "purpose": "transport native pixels through actual DrawTarget API; no widget rasterizer"
+    },
+    "color_pattern": {
+      "vtable": "0x9e21210",
+      "address_point": 16,
+      "size": 24,
+      "rgba_offset": 8
+    },
+    "draw_options": {
+      "size": 8,
+      "alpha_offset": 0,
+      "composition_offset": 4,
+      "antialias_offset": 5,
+      "over": 1,
+      "antialias_none": 0
+    }
+  },
+  "limitations": [
+    "Only the recorded ARM64 build is accepted.",
+    "Only determinate progress at the tested 100 percent device scale is qualified.",
+    "Gecko frontend and other control/input/menu boundaries remain open."
+  ],
+  "auditing": "Matching debug symbols plus pinned source and ELF disassembly/vtable entries. Bulk GDB type queries exceeded the 2 GiB test guest memory; no type-query result was used as evidence."
+}
