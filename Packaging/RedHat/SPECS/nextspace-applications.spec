@@ -118,24 +118,7 @@ export CMAKE=%{CMAKE}
 #%pre
 
 %post
-if [ $1 -eq 1 ]; then
-    # post-installation
-    systemctl enable /usr/NextSpace/lib/systemd/loginwindow.service
-    systemctl set-default graphical.target
-    ldconfig
-elif [ $1 -eq 2 ]; then
-    # post-upgrade
-    systemctl daemon-reload;
-    systemctl restart loginwindow;
-fi
-
-
-%preun
-if [ $1 -eq 0 ]; then
-    systemctl stop loginwindow.service
-    systemctl disable loginwindow.service
-    systemctl set-default multi-user.target
-fi
+ldconfig
 
 %postun
 if [ $1 -eq 0 -a -f /usr/NextSpace/Preferences/Login ]; then

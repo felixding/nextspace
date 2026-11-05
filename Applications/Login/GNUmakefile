@@ -13,10 +13,6 @@ CC=clang
 # Application
 #
 VERSION = 0.8
-NEXTSPACE_BUILD_WAYLAND ?= 1
-ifeq ($(NEXTSPACE_BUILD_WAYLAND),1)
-ADDITIONAL_CPPFLAGS += -DNEXTSPACE_BUILD_WAYLAND=1
-endif
 PACKAGE_NAME = Login
 APP_NAME = Login
 Login_APPLICATION_ICON = loginwindow.tiff
@@ -34,7 +30,6 @@ Preferences
 #
 Login_RESOURCE_FILES = \
 	Resources/Login.gorm \
-	Resources/ConsoleLog.gorm \
 	Resources/loginwindow.tiff \
 	Resources/Login \
 	Resources/Login.user \
@@ -55,8 +50,8 @@ Login_HEADER_FILES += GreetdClient.h GreetdSession.h
 Login_OBJC_FILES = \
 Controller.m \
 LoginWindow.m \
-UserSession.m
-Login_OBJC_FILES += GreetdClient.m GreetdSession.m Controller+Native.m
+GreetdClient.m \
+GreetdSession.m
 
 #
 # Other sources

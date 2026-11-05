@@ -1,6 +1,6 @@
 # Native greeter candidate
 
-The default build is native Wayland only. Startup requires greetd's
+The build is native Wayland only. Startup requires greetd's
 `GREETD_SOCK`; Login rejects root execution and
 requires the native Wayland backend. The existing Gorm panel and NeXT alerts
 handle the asynchronous PAM conversation. The GUI verifies the IPC peer is root;

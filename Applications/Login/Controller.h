@@ -19,39 +19,15 @@
 // Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 //
 
-#include <security/pam_appl.h>
-#include <X11/Xlib.h>
-#include <X11/cursorfont.h>
-#include <X11/Xcursor/Xcursor.h>
-
-#import <GNUstepGUI/GSDisplayServer.h>
 #import <AppKit/AppKit.h>
-
+#import <GNUstepGUI/GSDisplayServer.h>
 #import <SystemKit/OSEDefaults.h>
-#import <DesktopKit/NXTAlert.h>
-#import <SystemKit/OSEScreen.h>
 #import <SystemKit/OSEPower.h>
-
+#import <DesktopKit/NXTAlert.h>
 #import "LoginWindow.h"
 #import "GreetdSession.h"
 
-// 1 - Catchall for general errors
-// 2 - Misuse of shell builtins (according to Bash documentation)
-// 10 - exit(0)
-// 11 - shutdown
-// 12 - reboot
-typedef enum {
-  QuitExitCode = 128,
-  ShutdownExitCode = 129,
-  RebootExitCode = 130,
-  UpdateExitCode = 131
-} LoginExitCode;
-
-extern LoginExitCode panelExitCode;
-
-@class UserSession;
-
-@interface Controller : NSObject
+@interface Controller : NSObject <GreetdSessionDelegate>
 {
   IBOutlet LoginWindow *window;
   IBOutlet id hostnameField;
@@ -62,89 +38,20 @@ extern LoginExitCode panelExitCode;
   IBOutlet id password;
   IBOutlet id shutDownBtn;
   IBOutlet id restartBtn;
-
-  BOOL isWindowActive;
-
-  // X resources
-  Display *xDisplay;
-  Window xRootWindow;
-  int xScreen;
-  Window xPanelWindow;
-
-  // Preferences
+  BOOL didLoadPanel, isWindowActive;
   OSEDefaults *prefs;
-
-  // User sessions
-  NSArray *mainThreadPorts;
-  NSMutableDictionary *userSessions;
-
-  pam_handle_t *PAM_handle;
-
-  // Error panel
-  NXTAlert *alert;
-  NSScrollView *consoleLogView;
-
-  // Busy cursor
-  XcursorAnimate *busy_cursor;
-  NSTimer *busyTimer;
-  NSTimer *rrTimer;
   GreetdSession *nativeLogin;
   BOOL nativePowerPending;
 }
-
-@property (readonly) OSEScreen *systemScreen;
-
 - (void)displayHostname;
 - (void)clearFields;
-
-- (void)authenticate:(id)sender;
-- (void)restart:sender;
-- (void)shutDown:sender;
-
-@end
-
-@interface Controller (NativeLogin) <GreetdSessionDelegate>
-- (BOOL)isNativeLogin;
+- (void)setWindowVisible:(BOOL)visible;
 - (id)loginPreference:(NSString *)key;
-- (void)startNativeLogin;
-- (void)authenticateNative:(id)sender;
-- (void)requestNativePower:(OSEPowerAction)action;
-@end
-
-@interface Controller (UserSession)
-
-- (void)openSessionForUser:(NSString *)userName;
-- (void)closeUserSession:(UserSession *)session;
-
-@end
-
-@interface Controller (XWindowSystem)
-
-- (void)initXApp;
-- (void)setRootWindowBackground;
-- (void)setWindowVisible:(BOOL)flag;
-- (void)closeAllXClients;
-
-- (void)setBusyCursor;
-- (void)destroyBusyCursor;
-- (void)animateBusyCursor:(NSTimer *)timer;
-
-@end
-
-@interface Controller (Preferences)
-
 - (NSString *)lastLoggedInUser;
-- (void)setLastLoggedInUser:(NSString *)username;
-
-@end
-
-@interface Controller (PAMAuth)
-
-- (BOOL)authenticateUser:(NSString *)user;
-- (NSString *)password;
-- (void)authenticateWithHandle:(pam_handle_t *)handle;
-- (void)establishAccountManagementWithHandle:(pam_handle_t *)handle;
-- (void)establishCredentialsWithHandle:(pam_handle_t *)handle;
-- (void)openSessionWithHandle:(pam_handle_t *)handle;
-
+- (void)setLastLoggedInUser:(NSString *)user;
+- (void)startNativeLogin;
+- (void)authenticate:(id)sender;
+- (void)restart:(id)sender;
+- (void)shutDown:(id)sender;
+- (void)requestNativePower:(OSEPowerAction)action;
 @end

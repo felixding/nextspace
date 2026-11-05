@@ -43,7 +43,7 @@ TOOL_NAME += LoginSessionProbe
 LoginSessionProbe_OBJC_FILES = LoginSessionProbe.m GreetdClient.m
 TOOL_NAME += LoginWindowProbe
 LoginWindowProbe_OBJC_FILES = LoginWindowProbe.m LoginWindow.m
-LoginWindowProbe_TOOL_LIBS = -lgnustep-gui -lX11
+LoginWindowProbe_TOOL_LIBS = -lgnustep-gui
 endif
 WaylandProbe_OBJC_FILES = WaylandProbe.m
 WaylandProbe_TOOL_LIBS = -lgnustep-gui

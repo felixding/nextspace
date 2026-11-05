@@ -96,22 +96,6 @@ fi
 echo
 
 #===============================================================================
-# More X drivers. Workaround until NextSpace RPMs include them as dependencies
-#===============================================================================
-echo -e -n "\e[1m"
-echo "==============================================================================="
-echo "Installing X11 drivers and utilities..."
-echo "==============================================================================="
-echo -e -n "\e[0m"
-echo -n "..."
-X11_DRIVERS="xorg-x11-drivers xorg-x11-xinit"
-sudo yum -y -q install $X11_DRIVERS 2>&1 > /dev/null || exit 1
-echo -e -n "\e[32m"
-echo -e "\b\b\bDone. X11 drivers and utilities were installed."
-echo -e -n "\e[0m"
-echo
-
-#===============================================================================
 # Post-install activities
 #===============================================================================
 echo -e -n "\e[1m"
@@ -122,9 +106,6 @@ echo -e -n "\e[0m"
 
 # Adding user
 add_user
-
-# Setting up Login Panel
-setup_loginwindow
 
 echo -e "\e[32m"
 echo "==============================================================================="

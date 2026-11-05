@@ -58,13 +58,6 @@ DEST_DIR=""
     $CP_CMD ${CORE_SOURCES}/etc/ld.so.conf.d/nextspace.conf $DEST_DIR/etc/ld.so.conf.d/
     sudo ldconfig
 
-    # X11
-    if ! [ -d $DEST_DIR/etc/X11/xorg.conf.d ];then
-        $MKDIR_CMD -v $DEST_DIR/etc/X11/xorg.conf.d
-    fi
-    $CP_CMD ${CORE_SOURCES}/etc/X11/Xresources.nextspace $DEST_DIR/etc/X11
-    $CP_CMD ${CORE_SOURCES}/etc/X11/xorg.conf.d/*.conf $DEST_DIR/etc/X11/xorg.conf.d/
-
     # PolKit & udev
     if ! [ -d $DEST_DIR/etc/polkit-1/rules.d ];then
         $MKDIR_CMD -v $DEST_DIR/etc/polkit-1/rules.d
@@ -113,17 +106,6 @@ DEST_DIR=""
 }
 sudo ldconfig
 
-#===============================================================================
-# More X drivers. Workaround until NextSpace RPMs include them as dependencies
-#===============================================================================
-$ECHO -e "\e[1m"
-$ECHO "========================================================================="
-$ECHO "Installing X11 drivers and utilities..."
-$ECHO "========================================================================="
-$ECHO -e -n "\e[0m"
-sudo apt-get install xserver-xorg-input-all xserver-xorg-video-all 2>&1 > /dev/null
-$ECHO -e "\e[32m Done! \e[0m"
-
 $ECHO -e "\e[1m"
 $ECHO "========================================================================="
 $ECHO "Performing system check and configuration..."
@@ -153,19 +135,6 @@ if [ $? -ne 0 ];then
     sudo systemctl enable /usr/NextSpace/lib/systemd/gdnc-local.service
     sudo systemctl start gdnc gdnc-local
 fi
-$ECHO -n "Checking for Pasteboard: "
-systemctl is-enabled gpbs
-if [ $? -ne 0 ];then
-    $ECHO "Enabling Pasteboard service..."
-    sudo systemctl enable /usr/NextSpace/lib/systemd/gpbs.service
-    sudo systemctl start gpbs
-fi
-$ECHO -n "Checking for Login panel: "
-systemctl is-enabled loginwindow
-if [ $? -ne 0 ];then
-    $ECHO "Enabling Login panel service..."
-    sudo systemctl enable /usr/NextSpace/lib/systemd/loginwindow.service
-fi
 $ECHO
 
 #===============================================================================
@@ -181,10 +150,6 @@ $ECHO -e -n "\e[0m"
 
 # Adding user
 add_user
-
-# Setting up Login Panel
-setup_loginwindow
-
 
 $ECHO -e "\e[32m"
 $ECHO "========================================================================="

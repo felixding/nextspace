@@ -172,7 +172,7 @@ NSString *TerminalViewSizeDidChangeNotification = @"TerminalViewSizeDidChange";
 
 - (void)scrollWheel:(NSEvent *)e
 {
-  float delta = [e deltaY];  // with multiplier applied in XGServerEvent.m
+  float delta = [e deltaY];  // with the backend scroll multiplier applied
   float shift;
   int new_scroll;
 
