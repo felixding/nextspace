@@ -20,6 +20,9 @@ struct NXSViewHost {
   unsigned dispatch_depth;
   int key_result;
   NSResponder *fallback;
+  id command_target;
+  NXSCommandFilter command_filter;
+  void *command_context;
 };
 static NXSViewHost *active,*focused;
 /* Auxiliary native windows (menus) must read the same pointer stream as their
@@ -32,6 +35,47 @@ struct NXSInputWindow {
   struct NXSInputWindow *next;
 };
 static struct NXSInputWindow *input_windows;
+/* The native menu still resolves targets and validates its own items. This
+ * proxy lets the embedding application's existing controller own selected
+ * semantic actions, while all unclaimed native methods remain untouched. */
+@interface NXSCommandTarget : NSObject {
+ @public NXSViewHost *host; id target;
+}
+@end
+@implementation NXSCommandTarget
+- (void)dealloc {[target release];[super dealloc];}
+- (BOOL)respondsToSelector:(SEL)selector
+{return [super respondsToSelector:selector]||[target respondsToSelector:selector];}
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector
+{return [super methodSignatureForSelector:selector]?:[target methodSignatureForSelector:selector];}
+- (void)forwardInvocation:(NSInvocation *)invocation
+{
+  if(nxs_host_command(host,[invocation selector],NXS_COMMAND_EXECUTE)<0)
+    [invocation invokeWithTarget:target];
+}
+- (BOOL)validateMenuItem:(NSMenuItem *)item
+{
+  int result=nxs_host_command(host,[item action],NXS_COMMAND_VALIDATE);
+  if(result>=0)return result!=0;
+  if([target respondsToSelector:_cmd])return [target validateMenuItem:item];
+  if([target respondsToSelector:@selector(validateUserInterfaceItem:)])return [target validateUserInterfaceItem:item];
+  return YES;
+}
+@end
+int nxs_host_command(NXSViewHost *host,SEL selector,unsigned phase)
+{
+  if(!host||!host->command_filter||!selector||phase>NXS_COMMAND_EXECUTE)return -1;
+  host->dispatch_depth++;
+  int result;
+  @try {result=host->command_filter(host->command_context,sel_getName(selector),phase);}
+  @finally {host->dispatch_depth--;}
+  return result>=-1&&result<=1?result:0;
+}
+int nxs_host_command_filter(NXSViewHost *host,NXSCommandFilter filter,void *context)
+{
+  if(!host||host->dispatch_depth)return 0;
+  host->command_filter=filter;host->command_context=context;return 1;
+}
 static NSPoint auxiliary_pointer(id window,SEL selector)
 {
   for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
@@ -84,6 +128,16 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 /* AppKit resolves nil-target menu actions through the embedding application's
  * logical key window, without ordering a private backing window on screen. */
 - (NSWindow *)keyWindow {return focused?focused->window:[super keyWindow];}
+- (id)targetForAction:(SEL)action to:(id)recipient from:(id)sender
+{
+  id native=[super targetForAction:action to:recipient from:sender];
+  if(native&&focused&&focused->command_filter&&native==[focused->window firstResponder]) {
+    NXSCommandTarget *proxy=focused->command_target;
+    if(proxy->target!=native){[native retain];[proxy->target release];proxy->target=native;}
+    return proxy;
+  }
+  return native;
+}
 - (void)dispatchNativeEvent:(NSEvent *)event to:(NSResponder *)responder
 {
   /* NSCell expects the initiating event to be NSApp.currentEvent, just as
@@ -198,6 +252,7 @@ NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
   NXSViewHost *host=calloc(1,sizeof(*host));
   if(!host)return NULL;
   host->click_count=1;
+  NXSCommandTarget *proxy=[NXSCommandTarget new];proxy->host=host;host->command_target=proxy;
   host->view=[view retain];host->pump=pump;host->context=context;
   /* Keep geometry in NSWindow until a native auxiliary window is shown. An
    * unmapped backend window cannot acknowledge moves; its stale frame would
@@ -218,6 +273,7 @@ int nxs_host_destroy(NXSViewHost *host)
   if(host->tracking||host->dispatch_depth)return 0;
   if(focused==host&&!nxs_host_focus(host,0))return 0;
   nxs_host_unbind_input_windows(host);
+  [host->command_target release];
   [host->view removeFromSuperview];
   [host->window close];[host->window release];[host->view release];
   [host->fallback release];

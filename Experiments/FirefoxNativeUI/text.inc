@@ -224,6 +224,16 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
    * result after this native dispatch; do not perform a second local edit. */
   return 0;
 }
+static int native_application_command(const struct NXSNativeCommand *command,const char *selector) {
+  struct TextTransaction *transaction=text_transaction;
+  if(!transaction||command->process!=identity())return 0;
+  struct Widget *w=widget_for_node(transaction->node);
+  if(!w||w->id!=command->control||w->kind!=(int)command->kind)return 0;
+  int enabled=application_text_command_enabled(transaction->node,selector);
+  if(enabled<0||command->phase==NXS_COMMAND_VALIDATE)return enabled;
+  transaction->attempted=1;
+  return enabled?application_text_command(transaction->node,selector):0;
+}
 static int prepare_text_image(void *frame) {
   if(!native_text_frame(frame)||fabsf(frame_scale(frame)-1)>0.000001f)goto release;
   struct Widget *w=bind_widget(frame);if(!w)goto release;
@@ -233,7 +243,8 @@ static int prepare_text_image(void *frame) {
      (!frontend_text_frame(frame)&&(width!=floor(width)||height!=floor(height))))goto release;
   w->width=width;w->height=height;
   if(frontend_text_frame(frame)&&log_fd>=0)dprintf(log_fd,"%d native-frontend-geometry id=%llu size=%.17g,%.17g\n",getpid(),(unsigned long long)w->id,width,height);
-  if(!ensure_text_watch()||!native_text_filter_register(native_text_proposal)||!sync_text_widget(w))goto release;
+  if(!ensure_text_watch()||!native_text_filter_register(native_text_proposal)||
+     (application_commands&&!native_command_filter_register(native_application_command))||!sync_text_widget(w))goto release;
   w->text_owned=1;w->painted=1;return 1;
  release: {
     struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;

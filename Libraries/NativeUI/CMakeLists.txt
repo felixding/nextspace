@@ -76,3 +76,8 @@ add_executable(native-pasteboard-probe ../../Tests/GNUstep-GUI/PasteboardProbe.m
 target_compile_options(native-pasteboard-probe PRIVATE ${OBJC_FLAGS})
 target_link_libraries(native-pasteboard-probe PRIVATE ${GUI_LIBS})
 set_target_properties(native-pasteboard-probe PROPERTIES AUTOMOC OFF)
+add_executable(native-command-probe ../../Tests/NativeUI/command-probe.m)
+target_compile_options(native-command-probe PRIVATE ${OBJC_FLAGS} -UNDEBUG)
+target_link_libraries(native-command-probe PRIVATE nextspace-native-ui ${GUI_LIBS})
+add_dependencies(native-command-probe nextspace-native-ui-gnustep)
+set_target_properties(native-command-probe PROPERTIES AUTOMOC OFF)

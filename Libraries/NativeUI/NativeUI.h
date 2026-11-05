@@ -88,6 +88,11 @@ typedef struct {
   const char *replacement,*command;
 } NXSTextEdit;
 typedef int (*NXSTextShouldChange)(void *context,const NXSTextEdit *edit);
+enum NXSCommandPhase { NXS_COMMAND_VALIDATE, NXS_COMMAND_EXECUTE };
+/* -1 leaves the native action/validation unchanged. Zero owns a disabled or
+ * rejected command; one enables/executes it. Selectors come from the native
+ * responder/menu, never from a consumer shortcut table. */
+typedef int (*NXSCommandFilter)(void *context,const char *selector,unsigned phase);
 
 /* The provider owns all native objects, metrics, drawing and interaction.
  * Consumers own application models and translate events through this C ABI.
@@ -134,6 +139,7 @@ typedef struct {
   int (*control_text_filter)(NXSControl *,NXSTextShouldChange,void *);
   const char *(*control_text_command)(NXSControl *);
   int (*control_track_clicks)(NXSControl *,double,double,unsigned,unsigned);
+  int (*control_command_filter)(NXSControl *,NXSCommandFilter,void *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -208,6 +214,8 @@ int nxs_control_text_filter(NXSControl *,NXSTextShouldChange,void *);
  * action after interpretation. Disabled native menu items do not dispatch a
  * selector; this getter does not supply external command availability. */
 const char *nxs_control_text_command(NXSControl *);
+unsigned nxs_control_command_capabilities(void);
+int nxs_control_command_filter(NXSControl *,NXSCommandFilter,void *);
 
 #ifdef __cplusplus
 }

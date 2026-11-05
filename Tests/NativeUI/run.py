@@ -34,6 +34,7 @@ parser.add_argument('--previous-text-provider',type=Path,help='Provider predatin
 parser.add_argument('--previous-text-filter-provider',type=Path,help='Text provider predating optional pre-edit filter')
 parser.add_argument('--previous-text-client',type=Path,help='Unchanged text probe from before the pre-edit extension')
 parser.add_argument('--previous-text-command-provider',type=Path,help='Provider predating optional native command reporting')
+parser.add_argument('--previous-command-filter-provider',type=Path,help='Provider predating application command validation/execution')
 parser.add_argument('--previous-pointer-provider',type=Path,help='Provider predating optional native click-count metadata')
 parser.add_argument('--previous-input-client',type=Path,help='Unchanged earlier focus/keyboard client')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
@@ -183,6 +184,14 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                 old_env,'previous-text-client',timeout=20)
             assert code==0,(code,stderr)
             checks['previous_text_client_with_new_provider']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-probe')]+backend,
+            environment,'command-filter',timeout=15)
+        assert code==0,(code,stderr);checks['native_command_filter']=json.loads(stdout)
+        if args.previous_command_filter_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-probe'),'--expect-no-command-filter']+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_command_filter_provider.resolve())),
+                'previous-command-filter-provider',timeout=15)
+            assert code==0,(code,stderr);checks['previous_provider_without_command_filter']=json.loads(stdout)
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-text-filter-probe')]+backend,
             environment,'text-filter',timeout=15)
         (args.output/'text-filter.stdout').write_text(stdout);(args.output/'text-filter.stderr').write_text(stderr)

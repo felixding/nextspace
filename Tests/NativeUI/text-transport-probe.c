@@ -15,6 +15,8 @@ _Static_assert(sizeof(struct NXSNativeTextDecision)==16,"Text decision wire ABI"
 static int proposals,allow,destroy_on_edit,delay_decision;
 static const char *expected_value,*expected_text,*expected_command;
 static uint64_t expected_start,expected_length;
+static int command_executed,command_queries,command_enabled=1,command_delay,command_destroy;
+static int mixed_late_command;
 static struct NXSResponse *request(unsigned operation)
 {
   struct NXSControlRequest req={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),
@@ -54,17 +56,35 @@ static int filter(const struct NXSNativeTextEdit *edit,const char *text,const ch
   value(expected_value);
   if(destroy_on_edit)assert(request(6)->parts[0].y==1);
   if(delay_decision){struct timespec delay={.tv_sec=2,.tv_nsec=200000000};nanosleep(&delay,NULL);}
+  if(mixed_late_command) {
+    struct NXSNativeCommandDecision late={NXS_NATIVE_COMMAND_MAGIC,-1,edit->serial-1};
+    assert(send(native_edit_channel,&late,sizeof(late),MSG_NOSIGNAL)==sizeof(late));mixed_late_command=0;
+  }
   return allow;
 }
-static void key(unsigned logical,const char *text)
+static int command_filter(const struct NXSNativeCommand *command,const char *selector)
+{
+  assert(command->process==identity()&&command->control==1&&command->kind==NXS_TEXTFIELD);
+  if(strcmp(selector,"paste:"))return -1;
+  value("Hello");assert(!model("Reentrant",0,0));
+  if(command->phase==NXS_COMMAND_VALIDATE){command_queries++;return command_enabled;}
+  assert(command->phase==NXS_COMMAND_EXECUTE);
+  if(!command_enabled)return 0;
+  command_executed++;
+  if(command_destroy)assert(request(6)->parts[0].y==1);
+  if(command_delay){struct timespec delay={.tv_sec=2,.tv_nsec=200000000};nanosleep(&delay,NULL);}
+  return 1;
+}
+static void key_with_modifiers(unsigned logical,const char *text,unsigned modifiers)
 {
   size_t length=text?strlen(text):0,size=sizeof(struct NXSControlInputRequest)+2*length;
   struct NXSControlInputRequest *req=calloc(1,size);assert(req);
   *req=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=8,.process=identity(),
-    .kind=NXS_TEXTFIELD,.control=1,.text_size=length,.unmodified_size=length,.key=logical};
+    .kind=NXS_TEXTFIELD,.control=1,.text_size=length,.unmodified_size=length,.key=logical,.modifiers=modifiers};
   if(length){memcpy(req+1,text,length);memcpy((char *)(req+1)+length,text,length);}
   struct NXSResponse *r=exchange_bytes(req,size);free(req);assert(r&&r->parts[3].x==NXS_INPUT_HANDLED);
 }
+static void key(unsigned logical,const char *text){key_with_modifiers(logical,text,0);}
 static void idle_cpu(pid_t helper)
 {
   clockid_t clock;struct timespec a,b,pause={.tv_nsec=250000000};assert(!clock_getcpuclockid(helper,&clock));
@@ -103,7 +123,23 @@ int main(int argc,char **argv)
   destroy_on_edit=1;key(NXS_KEY_TEXT,"Z");assert(proposals==6&&request(18)->parts[3].x==0);
   idle_cpu(helper);
   assert(native_text_filter_unregister());
+  assert(native_text_filter_register(filter)&&native_command_filter_register(command_filter));
+  request(1);assert(model("Hello",1,2));r=exchange_bytes(&focus,sizeof(focus));assert(r&&r->parts[3].x==1);
+  key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);value("Hello");assert(command_queries>0&&command_executed==1);
+  expected_value="Hello";expected_start=1;expected_length=2;expected_text="X";expected_command=NULL;
+  allow=1;destroy_on_edit=0;mixed_late_command=1;key(NXS_KEY_TEXT,"X");value("HXlo");assert(proposals==7);
+  assert(model("Hello",1,2));
+  command_enabled=0;key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);value("Hello");assert(command_executed==1);
+  close(native_edit_channel);native_edit_channel=-1;
+  key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);value("Hello");assert(command_executed==1);
+  idle_cpu(helper);assert(native_text_filter_unregister());
+  assert(native_text_filter_register(filter)&&native_command_filter_register(command_filter));
+  command_enabled=1;command_delay=1;key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);value("Hello");assert(command_executed==2);
+  idle_cpu(helper);assert(native_text_filter_unregister());
+  assert(native_text_filter_register(filter)&&native_command_filter_register(command_filter));
+  command_delay=0;command_destroy=1;key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);assert(command_executed==3&&request(18)->parts[3].x==0);
+  idle_cpu(helper);assert(native_text_filter_unregister());
   owner.operation=16;r=exchange_bytes(&owner,sizeof(owner));assert(r&&r->parts[3].x==1);
   close(notifier);close(channel);
-  puts("{\"native_pre_edit_ipc\":true,\"proposals\":6,\"nested_reads\":12,\"nested_mutations_rejected\":6,\"other_process_request_during_validation\":true,\"cancelled_typing_and_deletion\":true,\"accepted_typing_and_deletion\":true,\"callback_peer_loss_veto\":true,\"expired_decision_veto\":true,\"destroy_during_validation\":true,\"idle_after_expiry_and_destroy\":true,\"explicit_unregister\":true}");
+  puts("{\"native_pre_edit_ipc\":true,\"proposals\":7,\"nested_reads\":14,\"nested_mutations_rejected\":7,\"other_process_request_during_validation\":true,\"cancelled_typing_and_deletion\":true,\"accepted_typing_and_deletion\":true,\"callback_peer_loss_veto\":true,\"expired_decision_veto\":true,\"destroy_during_validation\":true,\"idle_after_expiry_and_destroy\":true,\"explicit_unregister\":true,\"native_application_command_ipc\":true,\"application_command_validation\":true,\"command_nested_reads_and_mutation_rejection\":true,\"command_peer_loss_veto\":true,\"command_expiry_veto\":true,\"command_frame_destruction\":true,\"command_idle_after_expiry_and_destroy\":true,\"late_command_before_current_edit_decision\":true}");
 }

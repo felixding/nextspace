@@ -33,6 +33,18 @@ or the current two-second deadline vetoes the edit. Late decisions are drained
 after frame removal, without a custom widget timer. Text payloads remain absent
 from logs. Browser transaction adapters are still required.
 
+Optional operation 23 enables/disables application command callbacks on that
+same registered channel, using the ordinary request's state. Bootstrap part
+5.y advertises this independently of existing text/input/pointer capabilities.
+The existing kernel-owned subscription and callback endpoint must belong to the
+same client/PID. `NXSNativeCommand` carries a native selector and validation or
+execution phase; its 16-byte decision has a signed -1/0/1 result. The shared
+RPC path preserves reentrant requests and reply ownership. Missing/expired
+decisions reject the action, and late command replies are drained after frame
+removal. A valid older command reply is also drained by serial when a newer
+edit decision is pending. The channel supplies no key bindings, controller algorithms or widget
+implementation. Existing edit messages and decision layouts remain unchanged.
+
 These are internal source includes, not a stable engine plugin ABI. Every
 consumer must audit its own binary, signatures, layouts and lifecycle. Sharing
 this machinery does not establish coverage for another engine or browser build.

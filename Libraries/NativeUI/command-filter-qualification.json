@@ -1,0 +1,564 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "1eedab45",
+  "status": "Qualified optional application command validation/execution boundary and pinned Firefox text binding. Complete browser/toolkit native integration remains unfinished.",
+  "browser_and_appkit_rebuilt": false,
+  "small_provider_loader_shim_and_firefox_adapter_rebuilt": true,
+  "api": {
+    "version": 1,
+    "size": 304,
+    "input": 3,
+    "pointer": 1,
+    "text": 7,
+    "command": 1
+  },
+  "previous_api_size_arm64": 296,
+  "transport": {
+    "bootstrap_capability": "part 5.y",
+    "registration_operation": 23,
+    "existing_owner_channel": true,
+    "decision_results": [
+      -1,
+      0,
+      1
+    ],
+    "late_serial_drain": true
+  },
+  "environment": {
+    "hashes": {
+      "firefox_adapter": "dd4a8fb24014f5070426c8e8a8f41dbfbd92b3d56f0c23939529f0f86d5d3dd4",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "provider": "56689f430d1cd195195a1263eda97dd8141f9b2a3b91b685feb44ca6aedd7536",
+      "shim": "1648848dbc2e7c0413986a76a557fd8f51faa6527717d96552f15e772a65832b",
+      "loader": "6bfc0d99101365f90e24cc8bf1a516b97261c62b95bfe75be49364365ac448b9",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "renderers": [
+      {
+        "pid": 7286,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "api": {
+      "version": 1,
+      "size": 304,
+      "input": 3,
+      "pointer": 1,
+      "text": 7,
+      "command": 1
+    },
+    "packages": 1050,
+    "helper_source_sha256": "a2028243e3cf43de41442988022304e3c625e008bc3c9e4800bdbcd51e947275"
+  },
+  "chromium_environment": {
+    "hashes": {
+      "chromium_adapter": "4389180a6bbf9fd13a710489cdfc7100b4e9c7a7483f18b4f69c5912f0f06b84",
+      "firefox_adapter": "dd4a8fb24014f5070426c8e8a8f41dbfbd92b3d56f0c23939529f0f86d5d3dd4",
+      "shim": "1648848dbc2e7c0413986a76a557fd8f51faa6527717d96552f15e772a65832b",
+      "loader": "6bfc0d99101365f90e24cc8bf1a516b97261c62b95bfe75be49364365ac448b9",
+      "provider": "56689f430d1cd195195a1263eda97dd8141f9b2a3b91b685feb44ca6aedd7536",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "renderers": [
+      {
+        "pid": 7703,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 7712,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 8182,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "api": {
+      "version": 1,
+      "size": 304,
+      "input_capabilities": 3,
+      "pointer_capabilities": 1
+    },
+    "packages": 1050
+  },
+  "native_provider": {
+    "native_command_filter": {
+      "native_controls": 2,
+      "empty_clipboard_command": true,
+      "application_validation": true,
+      "native_copy_fallback": true,
+      "secure_copy_protected": true,
+      "no_second_edit": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "previous_provider_without_command_filter": {
+      "unsupported_command_filter_rejected": true
+    },
+    "native_text_filter": {
+      "native_filter_controls": 2,
+      "pre_mutation_value": true,
+      "native_ranges_and_selectors": true,
+      "typing_veto": true,
+      "deletion_veto": true,
+      "cut_veto": true,
+      "paste_proposal": true,
+      "unicode": true,
+      "focus_transfer": true,
+      "model_rebind": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "previous_client_unchanged_with_new_provider": true,
+    "previous_loader_and_client_unchanged_with_new_provider": true,
+    "previous_input_client": {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    "previous_text_client_with_new_provider": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "native_backing": {
+      "native_cases": 6,
+      "identical_redraws": 30,
+      "selection_retained": true
+    },
+    "native_mouse": {
+      "native_click_metadata": true,
+      "legacy_single_click": true,
+      "focus_keyboard_capabilities_unchanged": true,
+      "invalid_input_rejected": true
+    },
+    "transport_text_filter": {
+      "native_pre_edit_ipc": true,
+      "proposals": 7,
+      "nested_reads": 14,
+      "nested_mutations_rejected": 7,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true,
+      "native_application_command_ipc": true,
+      "application_command_validation": true,
+      "command_nested_reads_and_mutation_rejection": true,
+      "command_peer_loss_veto": true,
+      "command_expiry_veto": true,
+      "command_frame_destruction": true,
+      "command_idle_after_expiry_and_destroy": true,
+      "late_command_before_current_edit_decision": true
+    }
+  },
+  "legacy_scrollbar_images": 30,
+  "firefox": {
+    "command_checks": 83,
+    "empty_helper_clipboard_cases": [
+      {
+        "case": "frontend-helper-storage-empty",
+        "passed": true
+      },
+      {
+        "case": "frontend-paste-without-helper-data",
+        "passed": true,
+        "state": {
+          "value": "Cold frontend:日本語🙂",
+          "start": 19,
+          "end": 19
+        }
+      },
+      {
+        "case": "frontend-native-application-command-callbacks",
+        "passed": true,
+        "callbacks": [
+          {
+            "event": "native-command",
+            "process": 3013937826,
+            "control": 4,
+            "kind": 7,
+            "phase": 0,
+            "result": 1
+          },
+          {
+            "event": "native-command",
+            "process": 3013937826,
+            "control": 4,
+            "kind": 7,
+            "phase": 1,
+            "result": 0
+          }
+        ]
+      },
+      {
+        "case": "web-helper-storage-empty",
+        "passed": true
+      },
+      {
+        "case": "web-paste-without-helper-data",
+        "passed": true,
+        "state": {
+          "value": "Cold web:日本語🙂",
+          "start": 14,
+          "end": 14
+        }
+      },
+      {
+        "case": "web-native-application-command-callbacks",
+        "passed": true,
+        "callbacks": [
+          {
+            "event": "native-command",
+            "process": 2620567787,
+            "control": 1,
+            "kind": 7,
+            "phase": 0,
+            "result": 1
+          },
+          {
+            "event": "native-command",
+            "process": 2620567787,
+            "control": 1,
+            "kind": 7,
+            "phase": 1,
+            "result": 1
+          }
+        ]
+      }
+    ],
+    "frontend_checks": 59,
+    "lifecycle_checks": 7,
+    "web_checks": 241,
+    "sandbox": [
+      {
+        "pid": 6872,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 7094,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "renderer_crash": {
+      "pid": 6872,
+      "seccomp": 2,
+      "no_new_privs": 1,
+      "native_objects_released": 6,
+      "kernel_owner_exit": true
+    },
+    "helper_loss": {
+      "helper_exit": -9,
+      "value": "FallbackXY",
+      "engine_action": "Activated",
+      "elapsed_seconds": 0.2807005550002941,
+      "native_objects_reclaimed_by_helper_exit": 6,
+      "mouse_and_key_retained": true
+    }
+  },
+  "chromium_compatibility": {
+    "web": {
+      "pointers": 100,
+      "text": 44,
+      "input": 62,
+      "sliders": 50,
+      "progress": 20,
+      "animation": 59
+    },
+    "web_total": 335,
+    "address_checks": 43,
+    "command_filter_not_enabled_by_older_chromium_adapter": true
+  },
+  "negative_evidence": {
+    "empty_helper_paste": [
+      {
+        "case": "frontend-empty-storage-paste",
+        "passed": false,
+        "value": "",
+        "expected": "Cold frontend:日本語🙂"
+      },
+      {
+        "case": "web-empty-storage-paste",
+        "passed": false,
+        "value": "",
+        "expected": "Cold web:日本語🙂"
+      }
+    ],
+    "mixed_late_reply_old_helper_stderr": "native-text-transport-probe: /workspace/Tests/NativeUI/text-transport-probe.c:31: value: Assertion `s->text_size==strlen(expected)&&r->size==sizeof(*r)+sizeof(*s)+s->text_size' failed.\n",
+    "old_helper_source_sha256": "16786004fb73f90b8e4d2d15ff0cf8e52ed216da4875c7141d6994dabd2dc7df",
+    "cross_app_readiness_failure": "firefox-command-filter-final/commands/results.json",
+    "readiness_correction": "Wait for a new native pasteboard generation and expected text before returning focus; retained native Wayland logs show set_selection before keyboard leave."
+  },
+  "cleanup": {
+    "cohorts": [
+      {
+        "name": "firefox-cold-probe",
+        "owned_pids": [
+          2763,
+          2769,
+          2772,
+          2766
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-filter-probe",
+        "owned_pids": [
+          3683,
+          3690,
+          3691,
+          3686
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-filter-qualified",
+        "owned_pids": [
+          4374,
+          4380,
+          4381,
+          4377
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -9,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-filter-web-qualified",
+        "owned_pids": [
+          4816,
+          4821,
+          4829
+        ],
+        "cleanup": null
+      },
+      {
+        "name": "chromium-command-provider",
+        "owned_pids": [
+          5324,
+          5331,
+          5339,
+          5327
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-filter-final",
+        "owned_pids": [
+          6380,
+          6386,
+          6389,
+          6383
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-filter-final-02",
+        "owned_pids": [
+          7152,
+          7158,
+          7161,
+          7155
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -9,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "name": "firefox-command-filter-web-final",
+        "owned_pids": [
+          6732,
+          6739,
+          6747
+        ],
+        "cleanup": null
+      },
+      {
+        "name": "chromium-command-provider-final",
+        "owned_pids": [
+          7606,
+          7613,
+          7621,
+          7609
+        ],
+        "cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        }
+      }
+    ],
+    "recorded_pids": [
+      2763,
+      2766,
+      2769,
+      2772,
+      3683,
+      3686,
+      3690,
+      3691,
+      4188,
+      4235,
+      4374,
+      4377,
+      4380,
+      4381,
+      4687,
+      4816,
+      4821,
+      4829,
+      5324,
+      5327,
+      5331,
+      5339,
+      5872,
+      6380,
+      6383,
+      6386,
+      6389,
+      6705,
+      6732,
+      6739,
+      6747,
+      7152,
+      7155,
+      7158,
+      7161,
+      7484,
+      7606,
+      7609,
+      7613,
+      7621,
+      8150
+    ],
+    "live": [],
+    "native_apps": [
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-filter-probe/commands-cold/native-app-cleanup.json",
+        "pid": 4235,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-filter-probe/commands/native-app-cleanup.json",
+        "pid": 4188,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-filter-qualified/commands/native-app-cleanup.json",
+        "pid": 4687,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/chromium-command-provider/native-app-cleanup.json",
+        "pid": 5872,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-filter-final/commands/native-app-cleanup.json",
+        "pid": 6705,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/firefox-command-filter-final-02/commands/native-app-cleanup.json",
+        "pid": 7484,
+        "exit": -15
+      },
+      {
+        "path": "/var/tmp/nextspace-native-ui/chromium-command-provider-final/native-app-cleanup.json",
+        "pid": 8150,
+        "exit": -15
+      }
+    ],
+    "backend_alias_removed": true,
+    "control_sockets_removed": true
+  },
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "268ce444a86db2481b9367c201e7fc0f54459ba12afb474cd8d90801cd5747bf",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "d891bf29173363b9b2c3103a910add4d8e45d1b8d746b0ae61e7da512cc199a8",
+    "Libraries/NativeUI/Bridge/Protocol.h": "f43eec6640967a8f3789c5edebda55bcf54d76883deeda597492f3db792e79dc",
+    "Libraries/NativeUI/Bridge/Transport.inc": "39c4cb34eecb7588d12b0b162e7c2b20d9f2e42bf2595cd65ffd1b47d3d8b3d3",
+    "Experiments/ChromiumScrollers/native_controls.py": "a2028243e3cf43de41442988022304e3c625e008bc3c9e4800bdbcd51e947275",
+    "Experiments/FirefoxNativeUI/commands.inc": "b21f7f74301a01e5faeab316c2f0d90044c65e22bae290f6cb06b397550ade0f",
+    "Experiments/FirefoxNativeUI/text.inc": "1c1e24af8fcb5135d8ae4cf428248372547d9c643eebb4c92555ee0c86b5357c"
+  },
+  "source_audit": "command-filter-source-audit.json",
+  "raw_evidence": [
+    ".build/native-ui/command-filter-source/",
+    ".build/native-ui/command-filter-evidence/"
+  ],
+  "remaining": [
+    "Enable the shared command callback in Chromium frontend and webpage adapters",
+    "Native application Edit menus and undo/redo shortcuts; complete command availability",
+    "Rapid focus/clipboard-owner transitions, non-text formats and owner lifetime",
+    "Automatic focus restoration, complete resize-image parity, IME, accessibility and scaling",
+    "Other browser controls, detached menus and dialogs",
+    "Other exact browser/derivative builds and GTK/Qt/KDE applications"
+  ]
+}

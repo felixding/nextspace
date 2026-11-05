@@ -114,6 +114,21 @@ struct NXSNativeTextDecision {
   uint32_t magic,accepted;
   uint64_t serial;
 };
+/* Optional operation 23 enables application command validation/execution on
+ * the existing owner callback channel; state=0 disables it. Bootstrap part
+ * 5.y advertises support separately from the unchanged text capability bits.
+ * phase and signed result use the public NativeUI command contract. */
+#define NXS_NATIVE_COMMAND_MAGIC 0x4e58434du
+struct NXSNativeCommand {
+  uint32_t magic,size,process,kind;
+  uint64_t control,serial;
+  uint32_t phase,command_size;
+};
+struct NXSNativeCommandDecision {
+  uint32_t magic;
+  int32_t result;
+  uint64_t serial;
+};
 /* Optional invalidation notifications, bootstrap part 6.x. Operation 15 uses
  * the ordinary 104-byte control request (kind/control zero, value = last seen
  * process generation) and one SCM_RIGHTS nonblocking eventfd. Operation 16

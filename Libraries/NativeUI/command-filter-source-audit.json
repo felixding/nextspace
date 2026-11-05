@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-06",
+  "sources": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTextView.m",
+      "sha256": "12a42c4318c418d25ab4c275a869ad98d6c6d4950b72a2c73d8fb00f45736854"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenu.m",
+      "sha256": "db15ecc3067c18bea86a64e071b721ffb8a50b76189ed999e6bb99c50add0b3a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSApplication.m",
+      "sha256": "9f63bfce8820a1c2f6e231eb680b0fc618eca6a871f7fbdd01920551dc006f25"
+    }
+  ],
+  "gecko_sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/CommandList.inc",
+      "sha256": "13b06b9e85f1f25090c4514d09a9578fed67aec4c3d1c0dd8612abbb8c2f3665"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/WidgetEventImpl.cpp",
+      "sha256": "134f35cc2fa8705022d6bc74fed76cd068fff6bd477681e4a05d9ada84ee72ca"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.cpp",
+      "sha256": "c2609d0b8f2f559611408a6c048679c405e97677e0764e10948e72c12ac5c653"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.cpp",
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/TextEvents.h",
+      "sha256": "850a0f9a7d4c6ae7c27c068a19be262a785fd03e024b43abd7ed81e0eddd48f4"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/EventForwards.h",
+      "sha256": "cc14a8207ac5c7b18ae29ad2471471a45fd2b765a8342988e46e68b12c6f9fde"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/nsXULControllers.cpp",
+      "sha256": "9c9b7f2ca56605a10c03b03c82712a250166b0f11c58cec8dd114b0d66736a78"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/nsIController.idl",
+      "sha256": "591c3ef89b3a424349f5c4204f5c4e2cd6bfde8c73fbb99c9a57a93c75dc0b31"
+    }
+  ],
+  "native_boundary": "Existing NSMenu autoenable and performKeyEquivalent, NSApplication targetForAction/sendAction, and native field command delegation.",
+  "application_boundary": "Actual HTMLInputElement::GetControllers at 0x589119c; GetControllerForCommand and IsCommandEnabled use the actual collection/controller vtables (+24), with Release at +16. Command execution reuses the existing TextControlState DoCommandCallback.",
+  "compiled_guards": "GetControllers first 20 bytes added to the exact-build command guard. Existing build ID, command callback, command-name and modifier guards remain.",
+  "findings": [
+    "Native Paste validation consults its own pasteboard. A browser's valid clipboard can coexist with empty unfocused helper storage, so post-action selector reporting alone cannot enable Paste.",
+    "The generic application callback supplies validation and execution at the existing native target/responder boundary. The native menu owns key matching, validation dispatch and action dispatch; the host does not add menu items, shortcut bindings or clipboard data.",
+    "Unclaimed commands return -1 and retain their original native target and validator. Claimed commands execute once in the application; native mutation/copy is suppressed.",
+    "The optional C API appends one function pointer, keeping ABI 1 and earlier input/pointer/text capability values. The transport advertises command support independently and reuses the registered owner callback channel.",
+    "The actual native text-view default menu contains Cut, Copy and Paste but no Undo item. A retained Alt+Z probe inserted z. Native application Edit-menu binding remains required; this change does not add a replacement shortcut table.",
+    "Command and edit callbacks share one channel. Validate each reply by its own magic/result contract, drain valid older serials, and require the expected magic for the current serial. An isolated helper retaining the earlier strict-magic-first reader loses the following edit in the mixed-reply probe.",
+    "A test waiting only for unchanged expected clipboard text did not prove that native TextEdit had processed its new Copy. The fixture now observes a new native pasteboard change count as well as the expected text before returning focus, and retains native Wayland publication logs. Rapid focus/clipboard-owner transitions remain a separate lifecycle requirement."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/command-filter-source/",
+    ".build/native-ui/command-filter-evidence/"
+  ],
+  "clipboard_sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsClipboard.cpp",
+      "sha256": "8adbe5a2ab6cb4f903710ee82f4195d4f97861f35bb97fe52281566abd7b07b4"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsIClipboard.idl",
+      "sha256": "840371b7117b9d3a773e91a9932d6bed4b15d70488a8ffe73a6197ac02ac6496"
+    }
+  ]
+}

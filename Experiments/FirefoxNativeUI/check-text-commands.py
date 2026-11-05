@@ -8,6 +8,7 @@ p.add_argument('--port',type=int,required=True);p.add_argument('--expected-pid',
 p.add_argument('--fixture',type=Path,required=True);p.add_argument('--pasteboard-probe',type=Path,required=True)
 p.add_argument('--native-text-app',type=Path,required=True);p.add_argument('--backend',required=True)
 p.add_argument('--output',type=Path,required=True)
+p.add_argument('--command-filter',action='store_true',help='Require application command validation with empty helper storage')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);results=[];m=Marionette(a.port);native_app=None
 runtime=dict(os.environ,**json.loads((a.fixture/'runtime.json').read_text()));runtime.pop('LD_PRELOAD',None)
 def command(text):
@@ -43,6 +44,8 @@ def clipboard():
  result=subprocess.run([str(a.pasteboard_probe),'--export-text'],env=runtime,text=True,capture_output=True,timeout=5)
  assert result.returncode in (0,1),result.stderr
  return result.stdout if result.returncode==0 else None
+def clipboard_generation():
+ return int(subprocess.check_output([str(a.pasteboard_probe),'--change-count'],env=runtime,text=True,timeout=5))
 def frontend_seed(text,typed=True):
  dismiss_menubar()
  return js("gURLBar._setValue("+json.dumps(text)+",{allowTrim:true,valueIsTyped:"+str(typed).lower()+"});gURLBar.setPageProxyState('invalid');gURLBar.inputField.focus();gURLBar.inputField.select();return {value:gURLBar.value,clipboard:gURLBar._getSelectedValueForClipboard()}")
@@ -82,9 +85,23 @@ try:
  context('chrome');js('gBrowser.selectedBrowser.focus();return true');context('content')
  for identifier in ['normal','password']:
   modifier_checks(identifier+'-modifier',lambda:web_seed(identifier),lambda:state(identifier))
+ if a.command_filter:
+  for name in ['frontend','web']:
+   context('chrome');expected='Cold '+name+':日本語🙂';frontend_seed(expected)
+   js("gURLBar._copyCutController.doCommand('cmd_copy');return true")
+   if name=='frontend':frontend_seed('');read=frontend_state
+   else:web_seed(value='');read=state
+   subprocess.run([str(a.pasteboard_probe),'--empty'],env=runtime,check=True,timeout=5)
+   empty=subprocess.run([str(a.pasteboard_probe),'--export-text'],env=runtime,capture_output=True,text=True,timeout=5)
+   check(name+'-helper-storage-empty',empty.returncode==1 and not empty.stdout)
+   before=len((a.fixture/'helper.jsonl').read_text().splitlines());key('paste');wait(lambda:read()['value']==expected)
+   actual=read();length=len(expected.encode('utf-16-le'))//2
+   check(name+'-paste-without-helper-data',actual==dict(value=expected,start=length,end=length),state=actual)
+   callbacks=[json.loads(line) for line in (a.fixture/'helper.jsonl').read_text().splitlines()[before:] if '"event": "native-command"' in line]
+   check(name+'-native-application-command-callbacks',any(r['phase']==0 and r['result']==1 for r in callbacks) and any(r['phase']==1 for r in callbacks),callbacks=callbacks)
  native_text='Native source: 日本語, 한글, emoji 😸';source=a.output/'native-source.txt';source.write_text(native_text)
  log=(a.output/'native-app.log').open('w')
- native_app=subprocess.Popen([str(a.native_text_app),'-NSUseRunningCopy','NO','-GSBackend',a.backend,'-NSOpen',str(source)],env=runtime,stdout=log,stderr=log)
+ native_app=subprocess.Popen([str(a.native_text_app),'-NSUseRunningCopy','NO','-GSBackend',a.backend,'-NSOpen',str(source)],env=dict(runtime,WAYLAND_DEBUG='client'),stdout=log,stderr=log)
  native=wait(lambda:next((w for w in command('windows') if w['pid']==native_app.pid and w['visible'] and w['presented'] and w['width']>200 and source.stem in w['title']),None),timeout=15)
  (a.output/'native-window.json').write_text(json.dumps(native,indent=2)+'\n')
  focus_window(native)
@@ -98,8 +115,14 @@ try:
  check('frontend-application-copy-controller',js('return window.__commandSpy').count('cmd_copy')==1)
  check('frontend-copy-preserves-selection',frontend_state()==before,state=frontend_state())
  focus_window(native);wait(lambda:clipboard()==initial['clipboard']);check('frontend-formatted-system-clipboard',clipboard()==initial['clipboard'],display=initial['value'],clipboard=clipboard())
- physical_key(30,56);key('paste',native=True);physical_key(30,56);key('copy',native=True);wait(lambda:clipboard()==initial['clipboard'])
- browser_focus();frontend_seed('');key('paste');wait(lambda:frontend_state()['value']==initial['clipboard'])
+ generation=clipboard_generation()
+ physical_key(30,56);key('paste',native=True);physical_key(30,56);key('copy',native=True)
+ wait(lambda:clipboard_generation()>generation and clipboard()==initial['clipboard'])
+ browser_focus();frontend_seed('');key('paste')
+ try:wait(lambda:frontend_state()['value']==initial['clipboard'])
+ except AssertionError:
+  platform=js("let c=Cc['@mozilla.org/widget/clipboard;1'].getService(Ci.nsIClipboard);let controller=gURLBar.inputField.controllers.getControllerForCommand('cmd_paste');return {hasPlainText:c.hasDataMatchingFlavors(['text/plain'],c.kGlobalClipboard),pasteEnabled:controller.isCommandEnabled('cmd_paste')}")
+  check('frontend-native-application-roundtrip',False,state=frontend_state(),clipboard=clipboard(),platform=platform)
  check('frontend-native-application-roundtrip',frontend_state()['value']==initial['clipboard'],state=frontend_state())
  frontend_seed('Cut me');key('cut');wait(lambda:frontend_state()['value']=='')
  check('frontend-application-cut-controller',js('return window.__commandSpy').count('cmd_cut')==1)

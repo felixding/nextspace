@@ -221,12 +221,12 @@ native run loop. Keyboard-dispatch ownership is distinguished from an active
 mouse gesture when cancelling a deferred destruction.
 
 The native tests cover vetoed/accepted insertion and deletion, Cut cancellation,
-Paste proposals, Unicode, plain/secure fields and delegate restoration. The C
-transport fixture verifies six proposals, twelve nested reads, six rejected
+Paste proposals, Unicode, plain/secure fields and delegate restoration. The initial C
+transport fixture verified six proposals, twelve nested reads, six rejected
 nested model replacements, another process's request during validation,
 disconnect, expiry, destruction during validation and idle behavior afterward.
-The older text client/loader still runs with this provider, whose optional API
-now occupies 280 bytes on ARM64. See
+The older text client/loader still runs with this provider. That filter
+checkpoint occupied 280 bytes on ARM64. See
 [filter qualification](text-filter-qualification.json).
 
 This callback supplies the boundary used by the pinned Firefox text adapter.
@@ -237,6 +237,36 @@ Long-running browser scripts and modal editing flows remain unqualified. The
 [pinned Firefox text audit](../../Experiments/FirefoxNativeUI/text-source-audit.json)
 records the guarded boundaries and explains why its autocomplete-style value
 setter cannot substitute for normal user editing.
+
+### Application command ownership
+
+`nxs_control_command_filter` optionally lets an application validate and execute
+selectors chosen by the actual native menu or responder. The callback receives
+`NXS_COMMAND_VALIDATE` or `NXS_COMMAND_EXECUTE`: return -1 to retain the original
+native behavior, zero for an owned disabled/rejected command, or one to enable
+or execute it. Unknown actions keep their original native target and validator.
+The native menu still owns items, key equivalents, matching and dispatch. No
+application shortcut table, clipboard implementation or control is duplicated.
+
+This matters when an offscreen editor cannot import the focused application's
+Wayland clipboard. Native Paste validation would otherwise consult empty helper
+storage and reject valid application data. The host routes native menu target
+validation through a forwarding object, and the native editor's command delegate
+through the same callback. The application executes its own existing command
+and the host suppresses a second native action. Changes/destruction during the
+callback follow the existing deferred-dispatch rules.
+
+The append-only ARM64 API grows from 296 to 304 bytes while retaining ABI 1 and
+the previous input, pointer and text capability values. Command support has a
+separate `nxs_control_command_capabilities` query. New loaders reject the optional
+filter for older providers; unchanged earlier clients/loaders remain usable.
+The direct native probe and shared transport probe cover application validation,
+native fallback, secure Copy restrictions, nested queries, mutation rejection,
+peer loss, expiry, frame destruction and idle behavior afterward. This supplies
+no new menu items or undo shortcuts. A mixed-reply probe verifies that an older
+command decision cannot cancel a newer edit; the isolated earlier helper fails
+the same probe. See
+[command-filter qualification](command-filter-qualification.json).
 
 ## Build and checks
 

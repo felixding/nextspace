@@ -36,3 +36,4 @@ int nxs_gnustep_control_text_sync(NXSControl *,const NXSTextModel *);
 size_t nxs_gnustep_control_text_get(NXSControl *,char *,size_t,NXSTextState *);
 int nxs_gnustep_control_text_filter(NXSControl *,NXSTextShouldChange,void *);
 const char *nxs_gnustep_control_text_command(NXSControl *);
+int nxs_gnustep_control_command_filter(NXSControl *,NXSCommandFilter,void *);

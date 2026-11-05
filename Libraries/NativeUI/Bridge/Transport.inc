@@ -22,17 +22,32 @@ static __thread size_t packet_capacity;
 static int native_edit_channel=-1;
 static pid_t native_edit_pid;
 static int (*native_edit_handler)(const struct NXSNativeTextEdit *,const char *,const char *);
+static int (*native_command_handler)(const struct NXSNativeCommand *,const char *);
+static pid_t native_command_pid;
 static int dispatch_native_edit(int *owns_mutex) {
   size_t capacity=sizeof(struct NXSNativeTextEdit)+65536+256;
   unsigned char *data=malloc(capacity+2);if(!data)return 0;
   ssize_t bytes=recv(native_edit_channel,data,capacity,MSG_DONTWAIT|MSG_TRUNC);
-  if(bytes<(ssize_t)sizeof(struct NXSNativeTextEdit)||(size_t)bytes>capacity){free(data);return 0;}
-  struct NXSNativeTextEdit edit;memcpy(&edit,data,sizeof(edit));
-  if(edit.magic!=NXS_NATIVE_TEXT_EDIT_MAGIC||edit.size!=bytes||edit.text_size>65536||edit.command_size>256||
-     edit.size!=sizeof(edit)+(size_t)edit.text_size+edit.command_size||
-     memchr(data+sizeof(edit),0,edit.text_size+edit.command_size)){free(data);return 0;}
-  char *text=(char *)(data+sizeof(edit)),*command=text+edit.text_size+1;
-  memmove(command,text+edit.text_size,edit.command_size);text[edit.text_size]=0;command[edit.command_size]=0;
+  if(bytes<8||(size_t)bytes>capacity){free(data);return 0;}
+  int is_command=*(uint32_t *)data==NXS_NATIVE_COMMAND_MAGIC;
+  struct NXSNativeTextEdit edit={0};struct NXSNativeCommand action={0};
+  char *text=NULL,*command=NULL;uint64_t serial;uint32_t magic;
+  if(is_command) {
+    if(bytes<(ssize_t)sizeof(action)){free(data);return 0;}
+    memcpy(&action,data,sizeof(action));
+    if(action.size!=bytes||!action.command_size||action.command_size>256||action.phase>1||
+       action.size!=sizeof(action)+action.command_size||memchr(data+sizeof(action),0,action.command_size)){free(data);return 0;}
+    command=(char *)(data+sizeof(action));command[action.command_size]=0;serial=action.serial;magic=action.magic;
+  } else {
+    if(bytes<(ssize_t)sizeof(edit)){free(data);return 0;}
+    memcpy(&edit,data,sizeof(edit));
+    if(edit.magic!=NXS_NATIVE_TEXT_EDIT_MAGIC||edit.size!=bytes||edit.text_size>65536||edit.command_size>256||
+       edit.size!=sizeof(edit)+(size_t)edit.text_size+edit.command_size||
+       memchr(data+sizeof(edit),0,edit.text_size+edit.command_size)){free(data);return 0;}
+    text=(char *)(data+sizeof(edit));command=text+edit.text_size+1;
+    memmove(command,text+edit.text_size,edit.command_size);text[edit.text_size]=0;command[edit.command_size]=0;
+    serial=edit.serial;magic=edit.magic;
+  }
   /* The separately owned proposal survives nested requests and their borrowed
    * response buffers while the engine runs its normal edit transaction. */
   /* The helper withholds the outer key reply until this decision. Let engine
@@ -40,12 +55,14 @@ static int dispatch_native_edit(int *owns_mutex) {
    * proposal lives in its separate buffer. Reacquire before sending a decision
    * so no other request can consume the outer reply. */
   pthread_mutex_unlock(&shared->mutex);*owns_mutex=0;
-  int accepted=native_edit_handler?!!native_edit_handler(&edit,text,edit.command_size?command:NULL):0;
+  int accepted=is_command?(native_command_handler?native_command_handler(&action,command):-1):
+    (native_edit_handler?!!native_edit_handler(&edit,text,edit.command_size?command:NULL):0);
+  if(accepted<-1||accepted>1)accepted=0;
   int locked=pthread_mutex_lock(&shared->mutex);
   if(locked==EOWNERDEAD)pthread_mutex_consistent(&shared->mutex);
   else if(locked){free(data);return 0;}
   *owns_mutex=1;
-  struct NXSNativeTextDecision decision={NXS_NATIVE_TEXT_EDIT_MAGIC,accepted,edit.serial};
+  struct NXSNativeCommandDecision decision={magic,accepted,serial};
   free(data);
   return send(native_edit_channel,&decision,sizeof(decision),MSG_NOSIGNAL|MSG_DONTWAIT)==sizeof(decision);
 }
@@ -54,7 +71,7 @@ static int dispatch_native_edit(int *owns_mutex) {
 static uint32_t identity(void) {
   pid_t pid=getpid();
   if(!process_cookie||pid!=observed_pid) {
-    if(native_edit_channel>=0&&pid!=native_edit_pid){close(native_edit_channel);native_edit_channel=-1;}
+    if(native_edit_channel>=0&&pid!=native_edit_pid){close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;native_command_handler=NULL;}
     int locked=pthread_mutex_lock(&shared->mutex);
     if(locked==EOWNERDEAD)pthread_mutex_consistent(&shared->mutex);
     else if(locked)return 0;
@@ -92,7 +109,7 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
         int result;do result=poll(ready,2,2000);while(result<0&&errno==EINTR);
         if(result<=0){bytes=-1;break;}
         if(ready[1].revents) {
-          if(!dispatch_native_edit(&owns_mutex)){close(native_edit_channel);native_edit_channel=-1;}
+          if(!dispatch_native_edit(&owns_mutex)){close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;}
           if(!owns_mutex){bytes=-1;break;}
           continue;
         }
@@ -168,12 +185,20 @@ static int __attribute__((unused)) native_text_filter_register(int (*handler)(co
   struct NXSResponse *response=exchange_bytes_descriptor(&request,sizeof(request),endpoints[1]);
   close(endpoints[1]);
   if(!response||response->parts[3].x!=1){close(endpoints[0]);return 0;}
-  native_edit_channel=endpoints[0];native_edit_pid=getpid();native_edit_handler=handler;return 1;
+  native_edit_channel=endpoints[0];native_edit_pid=getpid();native_edit_handler=handler;native_command_pid=0;return 1;
 }
 static int __attribute__((unused)) native_text_filter_unregister(void) {
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=20,.process=identity()};
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   int accepted=response&&response->parts[3].x==1;
   if(native_edit_channel>=0)close(native_edit_channel);
-  native_edit_channel=-1;native_edit_handler=NULL;return accepted;
+  native_edit_channel=-1;native_edit_handler=NULL;native_command_pid=0;native_command_handler=NULL;return accepted;
+}
+static int __attribute__((unused)) native_command_filter_register(int (*handler)(const struct NXSNativeCommand *,const char *)) {
+  uint32_t process=identity();if(!handler||native_edit_channel<0||native_edit_pid!=getpid())return 0;
+  if(native_command_pid==getpid()){native_command_handler=handler;return 1;}
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=23,.process=process,.state=1};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  if(!response||response->parts[3].x!=1)return 0;
+  native_command_handler=handler;native_command_pid=getpid();return 1;
 }

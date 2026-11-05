@@ -276,7 +276,8 @@ availability and executes it. This preserves the URL bar's custom copy/cut
 controller, including complete-URL formatting, and the webpage editor's trusted
 clipboard events, cancellation, validation and undo transactions. NativeUI's
 existing menu and editor choose the selector; the adapter contains no shortcut
-table, URL formatter or clipboard implementation. Only the adapter is rebuilt.
+table, URL formatter or clipboard implementation. The initial binding rebuilt
+only the adapter.
 
 Modifier keys use Gecko's existing key-name classifier and NativeUI's existing
 modifier event. AppKit receives `flagsChanged`, rather than an empty text
@@ -295,3 +296,15 @@ alone can return stale data. Input checks wait for browser DOM delivery instead
 of treating compositor acknowledgment as completed application processing.
 See [command evidence](text-command-qualification.json) and the
 [source audit](text-command-source-audit.json).
+
+The optional shared application-command filter also fixes Paste when the
+helper has no pasteboard string. Firefox answers native menu validation through
+the element's actual controller collection, then invokes its existing command
+callback. A native menu action is not executed again in the helper. The shared
+host API is now 304 bytes on ARM64; Firefox and AppKit remain unchanged.
+`check-text-commands.py --command-filter` adds six checks for empty helper
+storage, real browser paste and actual validation/execution callbacks in both
+address and webpage fields, bringing that run to 83 assertions. See the
+[shared qualification](../../Libraries/NativeUI/command-filter-qualification.json).
+Native undo shortcuts still require the application Edit menu; the control's
+default menu alone does not supply them.

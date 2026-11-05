@@ -56,6 +56,13 @@ class NativeTextDecision(C.Structure):
     _fields_=[('magic',C.c_uint32),('accepted',C.c_uint32),('serial',C.c_uint64)]
 TextShouldChange=C.CFUNCTYPE(C.c_int,C.c_void_p,C.POINTER(TextEdit))
 TEXT_EDIT_MAGIC=0x4e585445
+COMMAND_MAGIC=0x4e58434d
+class NativeCommand(C.Structure):
+    _fields_=[('magic',C.c_uint32),('size',C.c_uint32),('process',C.c_uint32),('kind',C.c_uint32),
+        ('control',C.c_uint64),('serial',C.c_uint64),('phase',C.c_uint32),('command_size',C.c_uint32)]
+class NativeCommandDecision(C.Structure):
+    _fields_=[('magic',C.c_uint32),('result',C.c_int32),('serial',C.c_uint64)]
+CommandFilter=C.CFUNCTYPE(C.c_int,C.c_void_p,C.c_char_p,C.c_uint)
 class PopupItem(C.Structure):
     _fields_ = [('size',C.c_uint32),('title',C.c_char_p),('enabled',C.c_int),('separator',C.c_int)]
 class ControlRect(C.Structure):
@@ -122,6 +129,13 @@ class NativeControlServer:
         self.text_filters={}
         self.edit_serial=itertools.count(1)
         self.text_filter=TextShouldChange(self._before_text_edit)
+        self.command_capabilities=0
+        self.command_filter=CommandFilter(self._command)
+        if hasattr(native,'nxs_control_command_capabilities'):
+            native.nxs_control_command_capabilities.restype=C.c_uint
+            self.command_capabilities=native.nxs_control_command_capabilities()
+            native.nxs_control_command_filter.argtypes=[C.c_void_p,CommandFilter,C.c_void_p]
+            native.nxs_control_command_filter.restype=C.c_int
         if hasattr(native,'nxs_control_text_capabilities'):
             native.nxs_control_text_capabilities.argtypes=[]
             native.nxs_control_text_capabilities.restype=C.c_uint
@@ -211,9 +225,12 @@ class NativeControlServer:
         for state in self.controls.values():
             if state['key'][0]!=process or state['key'][2] not in (7,8):continue
             enabled=process in self.text_filters
-            if state.get('text_filter',False)==enabled:continue
-            if self.native.nxs_control_text_filter(state['native'],self.text_filter if enabled else TextShouldChange(),state['context']):
+            if state.get('text_filter',False)!=enabled and self.native.nxs_control_text_filter(state['native'],self.text_filter if enabled else TextShouldChange(),state['context']):
                 state['text_filter']=enabled
+            commands=bool(self.text_filters.get(process,{}).get('commands'))
+            if self.command_capabilities and state.get('command_filter',False)!=commands:
+                if self.native.nxs_control_command_filter(state['native'],self.command_filter if commands else CommandFilter(),state['context']):
+                    state['command_filter']=commands
 
     def text_filter_message(self,client,req,descriptors,sender_pid):
         accepted=0;owner=self.notifiers.get(req.process)
@@ -221,6 +238,10 @@ class NativeControlServer:
             not req.kind and not req.control and not req.text_size):
             if req.operation==20 and not descriptors:
                 self.remove_text_filter(req.process);accepted=1
+            elif req.operation==23 and not descriptors and self.command_capabilities and req.state in (0,1):
+                entry=self.text_filters.get(req.process)
+                if entry:
+                    entry['commands']=bool(req.state);self.update_text_filters(req.process);accepted=1
             elif req.operation==19 and len(descriptors)==1:
                 connection=None;source=None
                 try:
@@ -256,23 +277,48 @@ class NativeControlServer:
             proposal=NativeTextEdit(TEXT_EDIT_MAGIC,C.sizeof(NativeTextEdit)+len(text)+len(command),
                 process,kind,control,serial,edit.range_start,edit.range_length,
                 edit.selection_start,edit.selection_length,len(text),len(command))
-            connection=entry['socket'];payload=bytes(proposal)+text+command
-            if connection.send(payload,socket.MSG_DONTWAIT|socket.MSG_NOSIGNAL)!=len(payload):return 0
-            deadline=time.monotonic()+2
-            while not state['destroy'] and self.text_filters.get(process) is entry and time.monotonic()<deadline:
-                if select.select([connection],[],[],0)[0]:
-                    data=connection.recv(C.sizeof(NativeTextDecision)+1,socket.MSG_DONTWAIT)
-                    if len(data)!=C.sizeof(NativeTextDecision):self.fail_text_filter(entry);return 0
-                    decision=NativeTextDecision.from_buffer_copy(data)
-                    if decision.magic!=TEXT_EDIT_MAGIC or decision.accepted>1:return 0
-                    if decision.serial==serial:return decision.accepted
-                self.native.nxs_native_ui_dispatch_events(min(.1,max(0,deadline-time.monotonic())))
-                self.dispatch(0)
-            if not state['destroy'] and self.text_filters.get(process) is entry:self.fail_text_filter(entry)
-            return 0
+            return self._owner_decision(state,entry,bytes(proposal)+text+command,serial,TEXT_EDIT_MAGIC)
         except Exception as error:
             self.log('native-text-filter-failed',exception=type(error).__name__)
             if 'entry' in locals() and entry and entry.get('socket'):self.fail_text_filter(entry)
+            return 0
+        finally:
+            if entry:entry['waiting']=False
+
+    def _owner_decision(self,state,entry,payload,serial,magic):
+        connection=entry['socket'];process=state['key'][0]
+        if connection.send(payload,socket.MSG_DONTWAIT|socket.MSG_NOSIGNAL)!=len(payload):return 0
+        deadline=time.monotonic()+2
+        while not state['destroy'] and self.text_filters.get(process) is entry and time.monotonic()<deadline:
+            if select.select([connection],[],[],0)[0]:
+                data=connection.recv(C.sizeof(NativeCommandDecision)+1,socket.MSG_DONTWAIT)
+                if len(data)!=C.sizeof(NativeCommandDecision):self.fail_text_filter(entry);return 0
+                decision=NativeCommandDecision.from_buffer_copy(data)
+                if (decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC) or decision.serial>serial or
+                    decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1))):
+                    self.fail_text_filter(entry);return 0
+                if decision.serial==serial:
+                    if decision.magic!=magic:self.fail_text_filter(entry);return 0
+                    return decision.result
+            self.native.nxs_native_ui_dispatch_events(min(.1,max(0,deadline-time.monotonic())))
+            self.dispatch(0)
+        if not state['destroy'] and self.text_filters.get(process) is entry:self.fail_text_filter(entry)
+        return 0
+
+    def _command(self,context,selector,phase):
+        entry=None
+        try:
+            state=self.contexts[context];process,control,kind=state['key'];entry=self.text_filters.get(process)
+            if not entry or not entry.get('commands'):return -1
+            if not entry.get('socket') or state['destroy'] or not selector or len(selector)>256 or phase>1:return 0
+            serial=next(self.edit_serial);entry.update(serial=serial,waiting=True)
+            proposal=NativeCommand(COMMAND_MAGIC,C.sizeof(NativeCommand)+len(selector),process,kind,control,serial,phase,len(selector))
+            result=self._owner_decision(state,entry,bytes(proposal)+selector,serial,COMMAND_MAGIC)
+            self.log('native-command',process=process,control=control,kind=kind,phase=phase,result=result)
+            return result
+        except Exception as error:
+            self.log('native-command-failed',exception=type(error).__name__)
+            if entry and entry.get('socket'):self.fail_text_filter(entry)
             return 0
         finally:
             if entry:entry['waiting']=False
@@ -289,10 +335,10 @@ class NativeControlServer:
             try:
                 data=entry['socket'].recv(C.sizeof(NativeTextDecision)+1,socket.MSG_DONTWAIT)
                 if len(data)!=C.sizeof(NativeTextDecision):self.fail_text_filter(entry);return
-                decision=NativeTextDecision.from_buffer_copy(data)
+                decision=NativeCommandDecision.from_buffer_copy(data)
                 # Validation can finish after its frame was removed. Drain the
                 # late decision so it cannot continuously wake NSRunLoop.
-                if decision.magic!=TEXT_EDIT_MAGIC or decision.serial>entry.get('serial',0) or decision.accepted>1:
+                if decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC) or decision.serial>entry.get('serial',0) or decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1)):
                     self.fail_text_filter(entry)
             except BlockingIOError:pass
             except OSError:self.fail_text_filter(entry)
@@ -494,7 +540,7 @@ class NativeControlServer:
         if req.operation in (15,16):
             self.notification_message(client,req,descriptors,sender_pid)
             return
-        if req.operation in (19,20):
+        if req.operation in (19,20,23):
             self.text_filter_message(client,req,descriptors,sender_pid)
             return
         if req.operation == 9:

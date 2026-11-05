@@ -117,3 +117,7 @@ int nxs_control_text_filter(NXSControl *c,NXSTextShouldChange filter,void *conte
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_filter)?p->control_text_filter(c,filter,context):0;}
 const char *nxs_control_text_command(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_command)?p->control_text_command(c):NULL;}
+unsigned nxs_control_command_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_command_filter)?1:0;}
+int nxs_control_command_filter(NXSControl *c,NXSCommandFilter filter,void *context)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_command_filter)?p->control_command_filter(c,filter,context):0;}

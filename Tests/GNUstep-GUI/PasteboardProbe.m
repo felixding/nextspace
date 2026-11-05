@@ -23,6 +23,13 @@ int main(int argc, char **argv)
     if (text) fwrite([text bytes], 1, [text length], stdout);
     else result = 1;
     [text release];
+  } else if ([mode isEqual:@"--change-count"]) {
+    printf("%ld\n",(long)[[NSPasteboard generalPasteboard] changeCount]);
+  } else if ([mode isEqual:@"--empty"]) {
+    /* Storage only: this process owns no focused Wayland surface. */
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    [pasteboard declareTypes:[NSArray array] owner:nil];
+    result = [[pasteboard types] count] != 0;
   } else if ([mode isEqual:@"--clear"]) {
     NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
     NSInteger declared = [pasteboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
