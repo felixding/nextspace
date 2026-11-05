@@ -13,6 +13,13 @@ static NXSControl *control;
 static unsigned actions,pumps,phase;
 static int destination=4,deferred;
 static double pointer_x,pointer_y;
+static NSPopUpButton *native;
+@interface PopupWitness : NSObject
+- (void)willPopUp:(NSNotification *)notification;
+@end
+@implementation PopupWitness
+- (void)willPopUp:(NSNotification *)notification {native=[notification object];}
+@end
 static void changed(void *unused,int event,const NXSControlState *state)
 {
   assert(event==NXS_VALUE_CHANGED);assert(state->value==destination);actions++;
@@ -65,7 +72,18 @@ static void save(const char *directory,const char *name,double scale)
 }
 int main(int argc,char **argv)
 {
+  if(argc>1&&!strcmp(argv[1],"--expect-no-popup-open")){
+    assert(nxs_control_popup_capabilities()==NXS_POPUP_ITEMS);
+    assert(!nxs_control_popup_open_capabilities()&&!nxs_control_popup_open(NULL,1));
+    NXSControl *legacy=nxs_control_create(NXS_POPUP,NULL,NULL,NULL);assert(legacy);
+    NXSPopupItem item={sizeof(item),"Legacy",1,0};
+    assert(nxs_control_popup_items(legacy,&item,1,0));
+    assert(!nxs_control_popup_open(legacy,1)&&nxs_control_state(legacy).value==0);
+    assert(nxs_control_destroy(legacy));
+    puts("{\"older_popup_provider_without_explicit_open\":true}");return 0;
+  }
   if(argc>1&&!strcmp(argv[1],"--expect-no-popup")){
+    assert(!nxs_control_popup_open_capabilities()&&!nxs_control_popup_open(NULL,1));
     assert(!nxs_control_popup_capabilities());assert(!nxs_control_create(NXS_POPUP,NULL,NULL,NULL));
     assert(!nxs_control_popup_items(NULL,NULL,0,-1));assert(!nxs_control_popup_state(NULL).visible);
     assert(nxs_control_popup_state(NULL).highlighted==-1);
@@ -83,6 +101,7 @@ int main(int argc,char **argv)
   char byte;assert(read(descriptors[0],&byte,1)==1&&byte=='x');
   assert(fcntl(descriptors[0],F_GETFD)>=0);close(descriptors[0]);close(descriptors[1]);
   assert(nxs_control_popup_capabilities()==NXS_POPUP_ITEMS);
+  assert(nxs_control_popup_open_capabilities()==1);
   control=nxs_control_create(NXS_POPUP,changed,pump,NULL);assert(control);
   NXSControlConfig config={.size=sizeof(config),.width=180,.height=24,.maximum=1,.value=0,.enabled=1};
   assert(nxs_control_sync(control,&config));assert(nxs_control_set_screen_origin(control,240,160));
@@ -91,10 +110,18 @@ int main(int argc,char **argv)
     {sizeof(NXSPopupItem),"",0,1},{sizeof(NXSPopupItem),"Repeated",1,0},
     {sizeof(NXSPopupItem),"First",1,0}};
   assert(nxs_control_popup_items(control,items,5,0));assert(nxs_control_state(control).value==0);
-  NSPopUpButton *native=nil;
-  for(NSWindow *window in [NSApp windows])for(NSView *view in [[window contentView] subviews])
-    if([view isKindOfClass:[NSPopUpButton class]])native=(NSPopUpButton *)view;
+  hold("host-live");
+  PopupWitness *witness=[PopupWitness new];
+  [[NSNotificationCenter defaultCenter] addObserver:witness selector:@selector(willPopUp:)
+    name:NSPopUpButtonWillPopUpNotification object:nil];
+  assert(!nxs_control_focused(control));
+  assert(nxs_control_popup_open(control,1)&&nxs_control_popup_state(control).visible);
+  assert(nxs_control_popup_open(control,0)&&!nxs_control_popup_state(control).visible&&!actions);
   assert(native&&[native numberOfItems]==5);
+  NSPoint anchor=[[native window] convertBaseToScreen:NSZeroPoint];
+  NSRect screen=[[NSScreen mainScreen] frame];
+  assert(fabs(anchor.x-(NSMinX(screen)+240))<.01);
+  assert(fabs(anchor.y-(NSMaxY(screen)-160-24))<.01);
   assert([[native itemTitleAtIndex:0] isEqual:[native itemTitleAtIndex:4]]);
   assert(![[native itemAtIndex:1] isEnabled]&&[[native itemAtIndex:2] isSeparatorItem]);
   assert(!nxs_control_popup_item_rect(control,0).width);
@@ -103,7 +130,11 @@ int main(int argc,char **argv)
   NXSPopupItem bad={sizeof(bad),"\xff",1,0};assert(!nxs_control_popup_items(control,&bad,1,0));
   assert([native numberOfItems]==5&&[native indexOfSelectedItem]==0);
   save(directory,"popup-normal",1);save(directory,"popup-150",1.5);
-  hold("host-live");
+  assert(!nxs_control_focused(control));
+  assert(nxs_control_popup_open(control,1)&&nxs_control_popup_state(control).visible);
+  assert(nxs_control_popup_open(control,1)&&!actions);
+  assert(nxs_control_popup_open(control,0)&&!nxs_control_popup_state(control).visible&&!actions);
+  assert(nxs_control_popup_open(control,0));
   assert(nxs_control_focus(control,1));save(directory,"popup-focused",1);
   key(NXS_KEY_TEXT," ");assert(nxs_control_popup_state(control).visible);
   assert([[[native menu] window] isVisible]);
@@ -119,23 +150,30 @@ int main(int argc,char **argv)
    * keys nor substitutes a widget selection algorithm. */
   key(NXS_KEY_TEXT," ");key(NXS_KEY_DOWN_ARROW,NULL);key(NXS_KEY_DOWN_ARROW,NULL);key(NXS_KEY_DOWN_ARROW,NULL);
   destination=nxs_control_popup_state(control).highlighted;
-  assert(destination==3);key(NXS_KEY_ENTER,NULL);assert(actions==1&&deferred==1);
+  assert(destination==3);
+  assert(nxs_control_sync(control,&config)&&nxs_control_state(control).value==0);
+  assert(nxs_control_popup_state(control).highlighted==destination);
+  key(NXS_KEY_ENTER,NULL);assert(actions==1&&deferred==1);
   assert([native indexOfSelectedItem]==destination&&!nxs_control_popup_state(control).visible);
   assert(nxs_control_popup_items(control,items,5,0));destination=4;
   nxs_control_track(control,18,12,0);
   assert(phase==2&&actions==2&&deferred==2&&nxs_control_state(control).value==4);
   assert(!nxs_control_popup_state(control).visible);
   config.enabled=0;config.value=4;assert(nxs_control_sync(control,&config));save(directory,"popup-disabled",1);
+  assert(nxs_control_popup_items(control,items,5,4)&&![native isEnabled]);
   unsigned before=actions;nxs_control_track(control,18,12,0);assert(actions==before);
   NXSKeyEvent disabled={.size=sizeof(disabled),.key=NXS_KEY_TEXT,.text=" "};
   assert(nxs_control_key(control,&disabled)==NXS_INPUT_UNHANDLED&&!nxs_control_popup_state(control).visible);
+  assert(!nxs_control_popup_open(control,1));
   config.enabled=1;assert(nxs_control_sync(control,&config));
   assert(nxs_control_popup_items(control,NULL,0,-1)&&nxs_control_state(control).value==-1);
+  assert(!nxs_control_popup_open(control,1));
   assert(nxs_control_popup_items(control,items,5,0));assert(nxs_control_focus(control,1));
   key(NXS_KEY_TEXT," ");assert(nxs_control_popup_state(control).visible);
   NSMenu *menu=[[native menu] retain];
   assert(nxs_control_destroy(control));control=NULL;
   assert(![[menu window] isVisible]);[menu release];
-  puts("{\"native_popup\":true,\"duplicate_labels\":true,\"disabled_item_no_action\":true,\"separator\":true,\"keyboard_actions\":1,\"mouse_actions\":1,\"deferred_destruction\":2,\"empty_model\":true,\"invalid_model_atomic\":true,\"destroy_open_menu\":true,\"native_descriptor_wakeup\":true}");
+  [[NSNotificationCenter defaultCenter] removeObserver:witness];[witness release];
+  puts("{\"native_popup\":true,\"duplicate_labels\":true,\"disabled_item_no_action\":true,\"separator\":true,\"keyboard_actions\":1,\"mouse_actions\":1,\"deferred_destruction\":2,\"empty_model\":true,\"invalid_model_atomic\":true,\"destroy_open_menu\":true,\"native_descriptor_wakeup\":true,\"explicit_open_close\":true,\"screen_origin\":true,\"sync_retains_live_highlight\":true,\"model_retains_disabled_state\":true}");
   [pool drain];return 0;
 }

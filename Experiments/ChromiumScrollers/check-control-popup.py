@@ -80,6 +80,11 @@ try:
     (a.output/'popup-focused.argb').write_bytes(pixels)
     check('native-focus-pixels',pixels==(a.references/'popup-focused.argb').read_bytes())
     hold('host-live')
+    input(operation=7,focused=0)
+    check('explicit-native-open-unfocused',request(14,state=1)[0].parts[6].width>0)
+    response=request(14,state=0)[0]
+    check('explicit-native-close-no-action',response.parts[3].x==1 and response.parts[6].width==0 and response.parts[0].width==0)
+    input(operation=7,focused=1)
     check('native-open-key',input(text=b' ').parts[6].width>0)
     # No RPCs while this sleeps: native Wayland/window events must continue
     # through the native loop. The parent observes its mapped menu window.

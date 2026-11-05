@@ -41,7 +41,9 @@ ARM64 build without recompiling it. It is not installed or included in the
 GTK/Qt package qualification above. General Chromium support remains open.
 
 The expanded [native-control requirement](Native-Control-Integration.md) covers
-all browser controls and frontend behavior. The implementations above remain
+whole non-GNUstep applications, including GTK, Qt/KDE and browser applications:
+controls, detached menus, editing, focus, shortcuts, dialogs and desktop behavior.
+The toolkit implementations above remain
 scrollbar-only. An earlier Chromium screenshot exposed a disabled-bar fallback;
 eight added enabled/disabled pixel comparisons now pass, while the exact earlier
 trigger remains unconfirmed.

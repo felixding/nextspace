@@ -1,0 +1,24 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native select model transport</title>
+<style>
+body { margin:24px; background:white; color:black; font:16px sans-serif; }
+h1 { margin:0 0 18px; height:38px; line-height:38px; }
+.row { display:flex; align-items:center; gap:20px; height:48px; }
+label { width:170px; }
+select { width:200px; height:26px; padding:0; margin:0; }
+</style>
+<h1>Standard HTML selects</h1>
+<div class="row"><label for="select">Options</label><select id="select"><option value="a">First</option><option value="b">Second</option><option value="c">Third</option></select></div>
+<div class="row"><label for="disabled">Disabled</label><select id="disabled" disabled><option>Unavailable</option></select></div>
+<div class="row"><label for="grouped">Groups and duplicates</label><select id="grouped"><optgroup label="Group"><option>Repeated</option><option disabled>Disabled option</option><option>Repeated</option></optgroup><hr><option hidden>Hidden</option><option>Last</option></select></div>
+<div class="row"><label for="empty">Empty</label><select id="empty"></select></div>
+<button id="show-picker" type="button">Open select through application action</button>
+<script>
+window.events=[];
+document.getElementById('show-picker').onclick=()=>{
+ const select=document.getElementById('select');select.focus();select.showPicker();
+};
+for(const type of ['mousedown','mouseup','click','keydown','keyup','input','change'])
+ document.addEventListener(type,e=>events.push({type,id:e.target.id,value:e.target.value,index:e.target.selectedIndex,key:e.key,trusted:e.isTrusted}));
+</script>

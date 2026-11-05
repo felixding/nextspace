@@ -76,6 +76,13 @@ class NativeControlServer:
         self.generations = {}
         self.range_capabilities=0
         self.popup_capabilities=0
+        self.popup_open_capabilities=0
+        if hasattr(native,'nxs_control_popup_open_capabilities'):
+            native.nxs_control_popup_open_capabilities.argtypes=[]
+            native.nxs_control_popup_open_capabilities.restype=C.c_uint
+            self.popup_open_capabilities=native.nxs_control_popup_open_capabilities()
+            native.nxs_control_popup_open.argtypes=[C.c_void_p,C.c_int]
+            native.nxs_control_popup_open.restype=C.c_int
         self.source_capabilities=0
         if hasattr(native,'nxs_native_ui_source_capabilities'):
             native.nxs_native_ui_source_capabilities.argtypes=[]
@@ -127,6 +134,13 @@ class NativeControlServer:
             return -1
         self.event_deadline = self.native.nxs_native_ui_dispatch_events(maximum_wait)
         for state in self.controls.values():
+            if state['key'][2]==6 and not state['destroy']:
+                visible=bool(self.native.nxs_control_popup_state(state['native']).visible)
+                if visible!=state.get('popup_visible',False):
+                    state['popup_visible']=visible
+                    process,control,kind=state['key']
+                    self.generations[process]=self.generations.get(process,0)+1
+                    self.log('native-popup-visibility',process=process,control=control,visible=visible,generation=self.generations[process])
             if state['destroy'] or state.get('invalidated'):
                 continue
             if self.native.nxs_control_needs_display(state['native']):
@@ -264,7 +278,7 @@ class NativeControlServer:
                          width=req.width, height=req.height)
             current = self.native.nxs_control_state(state['native'])
             config = ControlConfig(C.sizeof(ControlConfig), req.width, req.height, req.minimum, req.maximum,
-                                   current.value if current.tracking else req.value, req.enabled,
+                                   current.value if current.tracking or req.kind==6 else req.value, req.enabled,
                                    current.state if current.tracking else req.state, req.indeterminate, title)
             if not self.native.nxs_control_sync(state['native'], C.byref(config)):
                 self._respond(client, req)
@@ -280,6 +294,10 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==14 and req.kind==6 and self.popup_open_capabilities:
+                accepted=self.native.nxs_control_popup_open(state['native'],req.state)
+                self._respond(client,req,state,input_result=accepted)
+                return
             if req.operation==12 and req.kind==6 and self.popup_capabilities:
                 rectangle=ControlRect()
                 if req.x==int(req.x) and 0<=req.x<65536:
@@ -288,6 +306,10 @@ class NativeControlServer:
                 return
             if req.operation==13 and self.popup_capabilities:
                 accepted=self.native.nxs_control_set_screen_origin(state['native'],req.x,req.y)
+                if accepted and state.get('screen_origin')!=(req.x,req.y):
+                    state['screen_origin']=(req.x,req.y)
+                    self.log('native-control-screen-origin',process=req.process,control=req.control,
+                             x=req.x,y=req.y)
                 self._respond(client,req,state,input_result=accepted)
                 return
             if req.operation == 2 and self.idle():

@@ -89,3 +89,7 @@ NXSEventSource *nxs_native_ui_source_create(int descriptor)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_create)?p->event_source_create(descriptor):NULL;}
 int nxs_native_ui_source_destroy(NXSEventSource *source)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_destroy)?p->event_source_destroy(source):0;}
+unsigned nxs_control_popup_open_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_open)?1:0;}
+int nxs_control_popup_open(NXSControl *c,int open)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_open)?p->control_popup_open(c,open):0;}

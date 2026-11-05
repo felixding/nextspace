@@ -333,6 +333,39 @@ and origin requests through optional operations 11–13, with item payloads up t
 64 KiB. Native descriptor readiness services IPC and native window events while
 idle. Eighteen independent transport checks pass; see the
 [provider menu contract](../../Libraries/NativeUI/README.md). These methods are
-not yet wired to HTML selects or browser chrome. Browser-relative placement and
-the Chromium/Firefox adapters remain implementation work. The transport checks
-do not establish browser popup support.
+now wired experimentally to classic HTML selects as described below. Browser
+frontend menus and the Firefox adapter remain implementation work.
+
+## Native HTML selects
+
+`NEXTSPACE_CHROMIUM_POPUPS=1`, together with the existing forms/input flags,
+binds the pinned binary's classic single-selection controls to actual
+`NSPopUpButton`/`NSMenu` objects. The engine supplies ordered option/group data,
+labels, disabled state, selection identities and screen-coordinate conversion.
+NativeUI supplies drawing, menu geometry, highlight movement, key handling and
+tracking. Native actions call Chromium's real popup-selection method and emit
+trusted application input/change events. The engine's own popup lifecycle
+retains `:open`, mutation observers and its accessibility notifications.
+Application `showPicker()`/hide requests use optional native operation 14;
+they do not synthesize a particular opening key.
+
+`check-popups.py` passes 29 checks, including seven full control images,
+keyboard/mouse selection, cancellation, focus navigation, application opening
+and blur, duplicate labels, disabled items, stale option identities and
+removal/reinsertion during callbacks. References come directly from NativeUI;
+the mouse test waits for the native highlight and uses native item rectangles.
+The disabled image comparison explicitly sets CSS opacity to 1: Chromium's
+default disabled-select opacity still alters native output and remains a gap.
+All 232 existing browser checks and the shared provider's compatibility,
+transport and 30 unchanged scrollbar image comparisons also pass.
+
+This remains partial support for one exact binary at 100% scale, with no browser
+or underlying UI-library rebuild. Live model replacement while open currently
+rejects stale actions rather than updating the displayed menu. Default disabled
+opacity, automatic metrics/layout, styled selects/listboxes, physical auxiliary
+window input latency, browser window parenting and compositor-global anchor
+agreement after moving/resizing, multiple outputs/scales, touch and full
+accessibility remain unfinished. The renderer's existing deadline watcher can
+delay auxiliary-window actions when there is no native timer; descriptor-based
+invalidation notification is still needed. No browser frontend or derivative
+coverage follows from this fixture. See [`popup-qualification.json`](popup-qualification.json).

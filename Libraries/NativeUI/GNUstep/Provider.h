@@ -30,3 +30,4 @@ NXSRect nxs_gnustep_control_popup_item_rect(NXSControl *,int);
 int nxs_gnustep_control_set_screen_origin(NXSControl *,double,double);
 NXSEventSource *nxs_gnustep_source_create(int);
 int nxs_gnustep_source_destroy(NXSEventSource *);
+int nxs_gnustep_control_popup_open(NXSControl *,int);

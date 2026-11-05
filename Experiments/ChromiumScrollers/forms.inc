@@ -10,6 +10,13 @@ struct NativeForm {
   struct Rect rect;
   char *title;
   double actions_before,actions_seen,value,generation,minimum,maximum,step;
+  char *popup_model;
+  size_t popup_size;
+  int *popup_indices;
+  void **popup_nodes;
+  unsigned popup_count;
+  int popup_selected,popup_open;
+  void *popup_engine;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
@@ -26,6 +33,8 @@ static int forms_input_enabled;
 static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
+static int forms_popups_enabled;
+static __thread const void *popup_mouse_event;
 static unsigned forms_input_capabilities;
 static struct SizeI form_sizes[4];
 static int (*original_checkbox)(void*,const void*,const void*,const void*,const void*,const struct Rect*);
@@ -53,6 +62,11 @@ static int refresh_form_watch(void);
 static int sync_slider_model(struct NativeForm *);
 static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
 static int slider_mouse_default(void *,void *);
+static int popup_element(void *);
+static struct NXSResponse *sync_popup_model(struct NativeForm *,struct NXSResponse *);
+static void popup_after_input(struct NativeForm *,struct NXSResponse *);
+static void popup_free_model(struct NativeForm *);
+static void popup_sync_origin(struct NativeForm *);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -111,6 +125,7 @@ static char *form_title(void *node) {
   return result;
 }
 static struct NXSResponse *form_request(struct NativeForm *form,int operation,double x,double y,unsigned modifiers) {
+  if(operation==1&&form->kind==NXS_POPUP)popup_sync_origin(form);
   size_t title_size=operation==1&&form->title?strlen(form->title):0;
   size_t size=sizeof(struct NXSControlRequest)+title_size;
   struct NXSControlRequest *req=calloc(1,size);if(!req)return NULL;
@@ -127,6 +142,7 @@ static struct NXSResponse *form_request(struct NativeForm *form,int operation,do
       .process=identity(),.kind=NXS_SLIDER,.control=form->control,.step=form->step};
     response=exchange_bytes(&step,sizeof(step));
   }
+  if(operation==1&&form->kind==NXS_POPUP&&response)response=sync_popup_model(form,response);
   return response;
 }
 static void invalidate_form(struct NativeForm *form) {
@@ -191,7 +207,7 @@ static void box_paint(void *self,const void *info) {
   void *previous=native_parent;native_parent=node;
   original_box_paint(self,info);native_parent=previous;
 }
-static int native_button_parent(void) {struct NativeForm *f=find_form(native_parent);return f&&f->kind==1&&f->painted;}
+static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON||f->kind==NXS_POPUP)&&f->painted;}
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
 static void block_children(void*s,const void*i,uint64_t offset)
@@ -215,6 +231,7 @@ static void finish_form(double x,double y,unsigned modifiers) {
     response=form_request(form,5,0,0,0);
   }
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
+  if(form->kind==NXS_POPUP){click_form=NULL;popup_after_input(form,response);refresh_form_watch();return;}
   if(form->kind==NXS_SLIDER){
     void *node=form->node;uint64_t control=form->control;click_form=NULL;
     apply_slider_value(form,response,2);
@@ -227,6 +244,25 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     const void *last,void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up) {
   uintptr_t atom=*(const uintptr_t *)type;
   unsigned modifiers=event_modifiers(event);
+  if(forms_popups_enabled){
+    int down_popup=same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0;
+    void *node=down_popup&&target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
+    struct NativeForm *popup=down_popup?form_ancestor(node):active_form;
+    if(popup&&popup->kind==NXS_POPUP){
+      if(down_popup){
+        if(active_form)finish_form(-10000,-10000,0);
+        const void *previous=popup_mouse_event;popup_mouse_event=event;
+        struct MouseDispatchResult result=original_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up);
+        popup_mouse_event=previous;return result;
+      }
+      if(active_form==popup&&same_atom(atom,0x123a5600)){
+        struct FloatPoint point=form_point(popup,event);form_request(popup,3,point.x,point.y,modifiers);
+      } else if(active_form==popup&&same_atom(atom,0x123a5608)&&*(const int *)((const char *)event+120)==0){
+        struct FloatPoint point=form_point(popup,event);finish_form(point.x,point.y,modifiers);
+      }
+      return original_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up);
+    }
+  }
   int slider_up=active_form&&active_form->kind==NXS_SLIDER&&same_atom(atom,0x123a5608)&&*(const int *)((const char *)event+120)==0;
   void *slider_node=slider_up?active_form->node:NULL;
   uint64_t slider_control=slider_up?active_form->control:0;
@@ -325,13 +361,14 @@ static void element_detach(void *node,int reattach) {
   if(form) {
     if(active_form==form)active_form=NULL;
     if(click_form==form)click_form=NULL;
-    form_request(form,6,0,0,0);*cursor=form->next;free(form->title);free(form);
+    form_request(form,6,0,0,0);*cursor=form->next;popup_free_model(form);free(form->title);free(form);
     refresh_form_watch();
   }
   original_element_detach(node,reattach);
 }
 #include "forms-input.inc"
 #include "forms-sliders.inc"
+#include "forms-popups.inc"
 #include "forms-progress.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
@@ -349,8 +386,10 @@ static struct Detour form_detours[]={
 static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
-  (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)));}
+  (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
+  (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)));}
 static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
-  if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));}
+  if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
+  if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));}

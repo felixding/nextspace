@@ -182,8 +182,11 @@ NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
   NXSViewHost *host=calloc(1,sizeof(*host));
   if(!host)return NULL;
   host->view=[view retain];host->pump=pump;host->context=context;
+  /* Keep geometry in NSWindow until a native auxiliary window is shown. An
+   * unmapped backend window cannot acknowledge moves; its stale frame would
+   * otherwise anchor native menus at the old screen position. */
   NXSBackingWindow *window=[[NXSBackingWindow alloc] initWithContentRect:[view bounds]
-    styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
+    styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:YES];
   window->control=host;host->window=window;
   [window setReleasedWhenClosed:NO];
   NXSInputFallback *fallback=[NXSInputFallback new];fallback->control=host;

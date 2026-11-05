@@ -24,6 +24,7 @@ parser.add_argument('--previous-loader', type=Path, help='Previous loader direct
 parser.add_argument('--previous-event-provider', type=Path, help='Provider predating optional event dispatch')
 parser.add_argument('--previous-range-provider', type=Path, help='Provider predating optional slider step configuration')
 parser.add_argument('--previous-popup-provider', type=Path, help='Provider predating optional popup/menu configuration')
+parser.add_argument('--previous-popup-open-provider',type=Path,help='Popup provider predating optional explicit open/close')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
@@ -148,6 +149,11 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         popup_output=held_probe(args.build/'native-ui/native-popup-probe',[str(args.output)],
                                 'NXS_NATIVE_UI_POPUP_HOLD','popup')
         checks['native_popup']=json.loads(popup_output)
+        if args.previous_popup_open_provider:
+            previous=subprocess.run([str(args.build/'native-ui/native-popup-probe'),'--expect-no-popup-open']+backend,
+                env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_popup_open_provider.resolve())),text=True,capture_output=True,timeout=10)
+            assert previous.returncode==0,(previous.returncode,previous.stderr)
+            checks['previous_popup_provider_accepted_without_explicit_open']=json.loads(previous.stdout)
         for path in args.output.glob('popup-*.argb'):
             scale=1.5 if path.stem.endswith('-150') else 1
             Image.frombytes('RGBA',(round(180*scale),round(24*scale)),path.read_bytes(),'raw','BGRA').save(path.with_suffix('.png'))

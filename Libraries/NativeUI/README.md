@@ -1,5 +1,11 @@
 # Shared native UI provider
 
+The goal is to make whole non-GNUstep applications look and behave native in
+NEXTSPACE, including GTK, Qt/KDE and browser applications. Scrollbars are the
+starting integration, not the acceptance criterion. Controls, detached menus,
+editing, focus, shortcuts and dialogs must use the shared native UI library.
+See the [application-wide scope and coverage](../../docs/Native-Control-Integration.md).
+
 The bridge and the underlying UI implementation are separate libraries:
 
 - `libnextspace-native-ui.so.1` loads a provider and forwards the C API. It has no
@@ -232,23 +238,37 @@ and input events while idle and leaves active native tracking in charge of its
 queue. The helper can wait on native window events and IPC without a widget
 polling interval.
 
-These fields extend ABI 1 from 200 to 248 bytes on ARM64: popup methods end at
-232, followed by two descriptor-source methods. Older providers advertise no
-unavailable capabilities, and old loaders/clients work unchanged.
-`--previous-popup-provider` checks a saved pre-extension provider.
+The popup and descriptor fields extend ABI 1 from 200 to 248 bytes on ARM64.
+Explicit `nxs_control_popup_open(control, open)` appends another method, making
+the current table 256 bytes. Query `nxs_control_popup_open_capabilities()` first.
+The provider uses `NSPopUpButtonCell`'s public attach/dismiss methods, so an
+application's show/hide request does not assume a keyboard binding. Unfocused
+opening, repeated open/close, disabled/empty rejection and native closure pass
+direct checks and helper round trips. Older providers advertise no unavailable
+capabilities; old loaders/clients work unchanged. `--previous-popup-provider`
+checks a pre-popup provider; `--previous-popup-open-provider` checks the 248-byte
+popup provider without explicit visibility methods.
 `Tests/NativeUI/run.py --transport` runs the existing mouse, focus, keyboard and
-animation transport checks plus 18 popup checks. They cover complete
+animation transport checks plus 20 popup checks. They cover complete
 normal/focused images against direct native references, native menu mapping
 without further RPCs, keys and mouse selection, disabled items/controls,
 duplicate labels, cancellation, isolation, invalid models and destruction.
 The helper used zero CPU time during the test's 200 ms idle-menu sample;
 broader performance remains unqualified.
 
-This is the shared menu contract for browser adapters. HTML selects, browser
-menus and Chromium/Firefox frontend bindings remain to implement. The isolated
-menu has no browser parent, and its compositor placement can differ from its
-native anchor request. Browser-relative placement, multiple outputs, scales,
-submenus and failure recovery remain to qualify. One earlier helper RPC timed
-out; later provider/transport and full compatibility runs passed. Its cause is
-unresolved, and the verifier captures helper backtraces on future failures.
-See [`popup-qualification.json`](popup-qualification.json).
+The view host now defers backend creation for its private backing window. This
+keeps NSWindow's geometry synchronous while it remains unmapped, fixing the
+stale origin that placed native menus at the compositor's origin. Synchronizing
+an unchanged selection also leaves live native highlight/selection intact, and
+model replacement restores the configured enabled state through native methods.
+These checks and the 30 legacy scrollbar image comparisons pass.
+
+An optional pinned Chromium adapter now binds classic HTML selects to this
+contract. Its 29 fixture checks and 232 existing browser checks pass. Default
+disabled CSS opacity, live model changes, browser window parenting/coordinates
+across movement, outputs/scales and frontend menus remain unfinished; this is
+partial browser coverage. One provider run timed out loading a progress image
+in AppKit's resource lookup; the saved backtrace establishes that location, not
+the underlying cause. A later complete compatibility/transport run passed.
+See the original [`popup-qualification.json`](popup-qualification.json) and the
+new [select qualification](../../Experiments/ChromiumScrollers/popup-qualification.json).

@@ -1,0 +1,235 @@
+{
+  "date": "2026-11-05",
+  "base_commit": "11f2538f5fabf35513d5f5d7b00f20d574496c3c",
+  "status": "experimental classic HTML select binding in one pinned ARM64 Chromium build; application-wide native integration remains unfinished",
+  "opt_in": [
+    "NEXTSPACE_CHROMIUM_FORMS=1",
+    "NEXTSPACE_CHROMIUM_INPUT=1",
+    "NEXTSPACE_CHROMIUM_POPUPS=1"
+  ],
+  "architecture": {
+    "native_controls": [
+      "NSPopUpButton",
+      "NSMenu",
+      "NSMenuItem",
+      "NSMenuView"
+    ],
+    "bridge_owns": "application data, identity/lifecycle and transport only",
+    "native_drawing_geometry_tracking_and_key_rules_copied": false,
+    "chromium_rebuilt": false,
+    "underlying_UI_library_rebuilt": false,
+    "provider_ABI": 1,
+    "provider_table_bytes_ARM64": 256,
+    "prior_popup_provider_table_bytes_ARM64": 248
+  },
+  "browser": {
+    "version": "156.0.8078.79-1~deb13u1",
+    "upstream_revision": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e"
+  },
+  "environment": {
+    "runtime_sha256": {
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-chromium-prototype/native/libnextspace-chromium-hook.so": "54b68fb8a2f5acfb6215e3cd5751f10f61e0787f82f45ef3d3857e84764640ce",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui.so.1": "2551a40c9769e43f185becc08e238cb6874529994d0073c8b4cb6bf9a6d12f31",
+      "/var/tmp/nextspace-native-ui/bridge-build/native-ui/libnextspace-native-ui-gnustep.so.1": "3910ac26e67c1cdaa019d03dafd3f529db933752bdd18383a0f2db22f470f055"
+    },
+    "renderers": [
+      {
+        "pid": 49927,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 49938,
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 49940,
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "package_inventory_unchanged": true,
+    "package_count": 1051
+  },
+  "qualification": {
+    "display": "private headless Wayland/Pixman",
+    "scale": 1,
+    "browser_checks": 29,
+    "native_control_images": 7,
+    "default_disabled_presentation_qualified": false,
+    "disabled_pixel_case": "explicit author CSS opacity 1; default UA opacity 0.7 remains unresolved",
+    "existing_browser_checks": [
+      {
+        "case": "sliders",
+        "passed": 50
+      },
+      {
+        "case": "input",
+        "passed": 62
+      },
+      {
+        "case": "mouse",
+        "passed": 33
+      },
+      {
+        "case": "progress",
+        "passed": 20
+      },
+      {
+        "case": "animation",
+        "passed": 59
+      },
+      {
+        "case": "scrollbars",
+        "passed": 8
+      }
+    ],
+    "legacy_scrollbar_image_comparisons": 30,
+    "popup_transport_checks": 20,
+    "provider_results": "Libraries/NativeUI/README.md; raw results in evidence paths below",
+    "older_popup_provider_without_open": {
+      "older_popup_provider_without_explicit_open": true
+    },
+    "native_popup_trace": {
+      "passed": true,
+      "native_controls": 1,
+      "native_destructions": 1,
+      "native_value_changed_actions": 2,
+      "keyboard_selection": 3,
+      "mouse_selection": 4,
+      "native_presses": 1,
+      "native_releases": 1,
+      "model_updates": 4
+    },
+    "menu_placement": "real native menu follows the engine-supplied anchor in the recorded fixture; global alignment with the actual browser window and movement are not qualified"
+  },
+  "remaining": [
+    "Default disabled-select UA opacity alters native output",
+    "Live model replacement while a menu is open; stale actions are rejected but displayed model remains stale",
+    "Native auxiliary-window action latency: renderer watcher can wait up to its existing one-second recovery bound; descriptor notifications are needed",
+    "Browser window parenting and compositor-global coordinate agreement, including moving/resizing and multiple windows",
+    "Automatic native metrics/layout, styled selects, listboxes and multiple selection",
+    "Physical auxiliary-window pointer/keyboard input across focus changes, outputs and scales",
+    "Touch, IME and complete accessibility integration",
+    "Browser frontend controls and menus, derivatives, Firefox/Gecko, GTK/Qt and remaining non-GNUstep applications",
+    "Earlier first-frame scrollbar/progress fallback observations remain unresolved"
+  ],
+  "observed_failure": {
+    "raw_path": ".build/native-ui/select-browser/provider-timeout-04",
+    "failure": "first animation transport draw exceeded its three-second RPC timeout",
+    "backtrace": "AppKit progress drawing inside NSImage/NSBundle resource lookup",
+    "underlying_cause": "unresolved",
+    "subsequent_complete_run": "popup-select-provider-05 passed; failure retained"
+  },
+  "source_receipts": {
+    "chromium": [
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_select_element.h",
+        "sha256": "48bb4d8ea57e621f37d521b633473abc4194c6156c73836a1787423410da58c6"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_select_element.cc",
+        "sha256": "6fff11afc90ef8421468d4df1fc811895930c3c64989c83dfdc0ae71c35dfea9"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/select_type.h",
+        "sha256": "8f60939219f21ae7dc2c1bf14888e858c4cfd3a97b8fdf92311708192fa8d226"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/select_type.cc",
+        "sha256": "4035930d41acda98c183d9e8615060d3643138a464536c1aa1547b04927a94b0"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/external_popup_menu.cc",
+        "sha256": "b91ecf02b756e59960c70da8c81b92de93f4215d6848bda50f2c863914b0227a"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_option_element.h",
+        "sha256": "31b520f2159381b0e4cd48a52f3865284b3d1e52446e1f5d5387a5fcca05f7d1"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_option_element.cc",
+        "sha256": "fd700bb3bde15c4f4bc9367c4f981b2d5eaaeee612bf07ec64103650c1b85274"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/internal_popup_menu.h",
+        "sha256": "1bf5a3332db6231efad6880fabfc73d668870282af1f2cd4ff37883c2240603d"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/internal_popup_menu.cc",
+        "sha256": "2abacb49e53428ff0a8926ae1c604c32b4c389bb11710025b2c24835e3392c9c"
+      }
+    ],
+    "gnustep": [
+      {
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSPopUpButton.m",
+        "sha256": "7fc45bba7270f525e80c07948597dba07ba6e7a21440c69ac87abc0f85c7324f"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSPopUpButtonCell.m",
+        "sha256": "fa4f07c83c57a6d86f355c119eee34ec13225d1b31b08223efc4af2701074b7d"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSMenu.m",
+        "sha256": "db15ecc3067c18bea86a64e071b721ffb8a50b76189ed999e6bb99c50add0b3a"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSMenuView.m",
+        "sha256": "f46ad3734a4cfdf5d7ae9af67011c9515f12427df54da6b55b8ade532e7c0933"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSWindow.m",
+        "sha256": "c72eadb69804a2163d22c37c22475fda1f1fc5a7dd148df84210064ead7cd53d"
+      },
+      {
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSMenuItemCell.m",
+        "sha256": "d2b1aeb5ecf6a8cd7720b7e0d06baea2e8851c3393c4ce12d06a33ce49fbd656"
+      }
+    ]
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "460eb2f91b85ce375c432459d0191b877d8a47c224df30b5e5d4b6ed31605f70",
+    "Experiments/ChromiumScrollers/check-control-popup.py": "d2b910a651871438c0f567d14179d2ccc477d9ecf226ad1bb2633f13dc5ba181",
+    "Experiments/ChromiumScrollers/forms-input.inc": "78d41d012604d83a8e9e70870fd40027ec3b956dbdcb66f1142f6f93eb67ed4a",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "0e05833c8158876e9a5edfb23737e9810e6d928987ed4942e996113ba77661e4",
+    "Experiments/ChromiumScrollers/forms.inc": "4cf4f7180248d6bbb7ea677ec7a37b377381be1b568f49108c2fdb9997d050fc",
+    "Experiments/ChromiumScrollers/helper.py": "dbc8552edf3c2f9c909d718d496f4c15d3d8c5b5cd4dde01a6c1d7a331468f09",
+    "Experiments/ChromiumScrollers/hook.c": "55746cbd59a6ae9eb20d25b1dedbf4db20a596d92947943bd840dd7d40d17f3f",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "12fb438c443b05879772e83c51daf4b0044eea9c8959433f73010eaa176a5ea0",
+    "Experiments/ChromiumScrollers/native_controls.py": "f78742f628e597bd2e3e7cc18d4bb65c21dfa4b93eb49843b1ce301c50935d30",
+    "Experiments/ChromiumScrollers/protocol.h": "4533c5dc8e22a1053d28f1d3192dd53b22c0a3a696c614ddd061d1ff36b52555",
+    "Libraries/NativeUI/GNUstep/Controls.m": "ebcf3cb90de9cab2fad19172cf8545da19ed55f4881fd04fe278d85b0199ba65",
+    "Libraries/NativeUI/GNUstep/Provider.h": "eb7a5911d61a2e4ff8de5cc8d77ca584d1c65f3df5ffa57071a0249257f13a6e",
+    "Libraries/NativeUI/GNUstep/Provider.m": "ba1701989b8cb460e6ad4a781366aa90e05a64fdbfdd8779d78a423302613293",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "9f0e3bf1660500ead29ee8de50429406abae5866fc0f7ecf1963596a56ff60c3",
+    "Libraries/NativeUI/Loader.c": "e823191537edf9db07d3d0de3ca57f95cd6936cc1732796d6df72cfef848cd17",
+    "Libraries/NativeUI/NativeUI.h": "f5b04a24a3f9d56ab14148526a8d1381dcc63bdd1bc49f66d53e5790bd7c3e08",
+    "Libraries/NativeUI/README.md": "df0d3944f903e563c7d7ae13d2a12663b2eb71ddf3226c5f09c2db12246af1e9",
+    "Tests/NativeUI/popup-probe.m": "d803556292daa048cf3f850f1789e9b81d2243177f585beeda8f09c06c756cbf",
+    "Tests/NativeUI/run.py": "080bc43781287f3f1d2241b6ce212851782e9f0e1d5cd64c75688c1f7115efe6",
+    "docs/Foreign-Scrollbars-Status.md": "dc12ddc9838ca26296aabf0d7da58dbfcd430dfd11c97e59690fbd68aa25ba32",
+    "docs/Native-Control-Integration.md": "986d99d3d6d7b488ebec0f49354824be42499e6f35e8aea887ccf74169db7d3d",
+    "Experiments/ChromiumScrollers/check-popups.py": "fcc10a6eeb07cfe73394969aba94ba4ac5d930fbeffcf23e421e7966cd799860",
+    "Experiments/ChromiumScrollers/forms-popups.inc": "fd329ae842efe1104a3ba3a17b24ce737d91b47f043adc209173b527a04a3a0f",
+    "Experiments/ChromiumScrollers/inspect-popup.py": "146668340ec89ef0cbdfafa6cacd8c8e0fa33464182157c324c74a22894801a1",
+    "Experiments/ChromiumScrollers/pinned-popups.h": "235dc43c093f4c45ab8101e2bfc0381b4839988da9e3081167c8524654fa1782",
+    "Experiments/ChromiumScrollers/popup-controls.json": "9c8486a8d239889bf8573d643081f4207e695f7e13f55975b07db773b9d64639",
+    "Experiments/ChromiumScrollers/test-popups.html": "1dfcfdf8e65ed31c7d2249c9f85e7226d63c602138e4154f829a9e10d48e5505"
+  },
+  "evidence_sha256": {
+    ".build/native-ui/select-browser/run-09/results.json": "9944443ad208150947fe6ba97dbb852576c2121a3f662b3f9fb432ecdadbbb4d",
+    ".build/native-ui/select-browser/run-09/limitations.json": "4dd74424967e75d969aa08b03299a54480188a8e887da46acdb722b1ab87b699",
+    ".build/native-ui/select-browser/regressions/summary.json": "11ab10b4ae18f6f0832c9aa185a59f0dc2b534f8796849c5f233457388ee4e88",
+    ".build/native-ui/select-browser/provider-final/results.json": "00502c25f20d6b47aa49fc565de37d091aefdfb92e6878de5b28226ce90eeadc",
+    ".build/native-ui/select-browser/provider-final/native-popup-trace.json": "def673c924fb83bbaaaff4ef31743d1bfa60ab989d6e4f993d430c5d10516130",
+    ".build/native-ui/select-browser/native-helper.jsonl": "5455adfc183597cff76e22c20c5ef0280fe0b707ca7ef21a45205c516058b8e4",
+    ".build/native-ui/select-browser/native-hook.log": "8984672f0c8c77b41189f5f47eec564b1650ef09aad12d3435eedcb6ce42539f",
+    ".build/native-ui/select-browser/mapped-windows-terminal.txt": "25dfa039b29bfa59eaefa518360ae42c1b253a1b36ef3bb867efe560e63cb427",
+    ".build/native-ui/select-browser/select-environment.json": "07a3f92474baf6b20983706d426f0c33e0d664bc8598ad3cf5330bb41d2d96ed",
+    ".build/native-ui/select-browser/select-cleanup.json": "63825dbeb0379daf4ba1fc70b336caf28ddd5c30c94a82c3527a2611d86bd04d",
+    ".build/native-ui/select-browser/provider-timeout-04/helper-timeout.txt": "510e2b5618b0013de75f7d69289ce0ce28d1eccbd13917d31b67fec99f982051"
+  }
+}

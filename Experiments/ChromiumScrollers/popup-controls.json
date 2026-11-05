@@ -1,0 +1,10 @@
+[
+  {"id":"select","kind":6,"title":"","width":200,"height":26,"enabled":1,"state":0,"selected":0,
+   "items":[{"title":"First"},{"title":"Second"},{"title":"Third"}]},
+  {"id":"disabled","kind":6,"title":"","width":200,"height":26,"enabled":0,"state":0,"selected":0,
+   "items":[{"title":"Unavailable","enabled":0}]},
+  {"id":"grouped","kind":6,"title":"","width":200,"height":26,"enabled":1,"state":0,"selected":1,
+   "items":[{"title":"Group","enabled":0},{"title":"    Repeated"},{"title":"    Disabled option","enabled":0},
+            {"title":"    Repeated"},{"title":"","separator":1,"enabled":0},{"title":"Last"}]},
+  {"id":"empty","kind":6,"title":"","width":200,"height":26,"enabled":1,"state":0,"selected":-1,"items":[]}
+]

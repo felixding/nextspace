@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -40,6 +40,11 @@ for item in json.loads(args.controls.read_text()):
                                item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
                                item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
+        if item['kind']==6:
+            model=item['items'];titles=[entry['title'].encode('utf-8') for entry in model]
+            entries=(PopupItem*len(model))(*[PopupItem(C.sizeof(PopupItem),title,
+                entry.get('enabled',1),entry.get('separator',0)) for entry,title in zip(model,titles)])
+            assert native.nxs_control_popup_items(pointer,entries,len(model),item['selected'])
         if 'step' in item:
             assert api.range_capabilities and native.nxs_control_set_step(pointer,item['step'])
         if args.focus and item['enabled'] and item['kind'] != 5:
@@ -49,7 +54,17 @@ for item in json.loads(args.controls.read_text()):
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],
                             preferred=[preferred.width, preferred.height]))
-        if item['enabled'] and item['kind'] != 5:
+        if item['kind']==6 and item['enabled'] and item['items']:
+            assert native.nxs_control_set_screen_origin(pointer,240,160)
+            assert native.nxs_control_popup_open(pointer,1)
+            native.nxs_native_ui_dispatch_events(0)
+            rectangles=[]
+            for index in range(len(item['items'])):
+                rect=native.nxs_control_popup_item_rect(pointer,index)
+                rectangles.append({key:getattr(rect,key) for key in ('x','y','width','height')})
+            results[-1]['native_item_rects']=rectangles
+            assert native.nxs_control_popup_open(pointer,0)
+        if item['enabled'] and item['kind'] not in (5,6):
             native.nxs_control_track(pointer, item['width'] / 2, item['height'] / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))

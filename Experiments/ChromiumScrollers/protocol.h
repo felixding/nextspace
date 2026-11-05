@@ -60,7 +60,9 @@ struct NXSControlStepRequest {
  * Generic part 5.y reports native highlight; part 6 reports the native menu
  * frame. Operation 12 uses the ordinary request's x as item index and returns
  * that item's native rectangle in part 6. Operation 13 sets screen origin x/y.
- * Model/origin acceptance uses part 3.x. No menu metrics live in the wire. */
+ * Bootstrap part 6.height advertises explicit open/close operation 14, using
+ * the ordinary request's state as the desired visibility.
+ * Model/origin/open acceptance uses part 3.x. No menu metrics live in the wire. */
 struct NXSControlPopupRequest {
   uint32_t magic,operation,process,kind;
   uint64_t control;

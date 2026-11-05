@@ -22,6 +22,7 @@ static int form_focused(const void *node) {
 static int input_form_kind(void *node) {
   uintptr_t table=*(const uintptr_t *)node;
   if(table==base+0x11cf3500+16)return NXS_BUTTON;
+  if(forms_popups_enabled&&popup_element(node))return NXS_POPUP;
   if(table!=base+0x11dc01d8+16)return 0;
   const void *atom=((const void *(*)(const void *))(base+0xefa0da4))(node);
   char *type=atom?string_text(*(void *const *)atom):NULL;
@@ -34,6 +35,7 @@ static int input_form_kind(void *node) {
 static struct NativeForm *bind_input_form(void *node) {
   struct NativeForm *form=find_form(node);if(form)return form;
   int kind=input_form_kind(node);
+  if(kind==NXS_POPUP)return NULL; /* The native theme paint establishes classic select ownership. */
   if(!kind||!decode_member((const char *)node+48))return NULL;
   /* Keyboard focus can precede the first paint. Use the engine's layout box
    * and semantic control type to create the native object at that boundary. */
@@ -158,6 +160,11 @@ static int default_form_key(void *node,void *event) {
   if(!response){*flags|=0x40;note("native keyboard transport unavailable; action cancelled");return 1;}
   int result=response->parts[3].x,action=response->parts[0].width>before;
   invalidate_form(form);
+  if(form->kind==NXS_POPUP){
+    if(result==NXS_INPUT_NEXT||result==NXS_INPUT_PREVIOUS)advance_form_focus(node,event,result);
+    if(result!=NXS_INPUT_UNHANDLED||action||up)*flags|=0x40;
+    popup_after_input(form,response);return 1;
+  }
   if(result==NXS_INPUT_NEXT||result==NXS_INPUT_PREVIOUS) {
     advance_form_focus(node,event,result);*flags|=0x40;
   } else if(result==NXS_INPUT_HANDLED||action||up)*flags|=0x40;

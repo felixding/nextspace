@@ -102,6 +102,7 @@ typedef struct {
   int (*control_set_screen_origin)(NXSControl *, double, double);
   NXSEventSource *(*event_source_create)(int descriptor);
   int (*event_source_destroy)(NXSEventSource *);
+  int (*control_popup_open)(NXSControl *, int);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -149,6 +150,10 @@ int nxs_control_set_screen_origin(NXSControl *, double x, double y);
 unsigned nxs_native_ui_source_capabilities(void);
 NXSEventSource *nxs_native_ui_source_create(int descriptor);
 int nxs_native_ui_source_destroy(NXSEventSource *);
+unsigned nxs_control_popup_open_capabilities(void);
+/* Change popup visibility through the native control's methods, without
+ * assuming a keyboard binding. Busy native tracking rejects this request. */
+int nxs_control_popup_open(NXSControl *, int open);
 
 #ifdef __cplusplus
 }

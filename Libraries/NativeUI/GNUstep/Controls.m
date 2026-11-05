@@ -116,7 +116,10 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
       slider_model(control);
     } else if(control->kind==NXS_POPUP) {
       NSPopUpButton *view=(NSPopUpButton *)control->view;
-      if(config->value>=-1&&config->value<[view numberOfItems]&&floor(config->value)==config->value)
+      /* Selecting even the same item synchronizes the native highlighted item
+       * into selection. Leave live menu input entirely with the native menu. */
+      if(![[[view menu] window] isVisible]&&config->value!=[view indexOfSelectedItem]&&
+         config->value>=-1&&config->value<[view numberOfItems]&&floor(config->value)==config->value)
         [view selectItemAtIndex:(NSInteger)config->value];
     } else {
       NSButton *view=(NSButton *)control->view;
@@ -194,6 +197,7 @@ int nxs_gnustep_control_popup_items(NXSControl *control,const NXSPopupItem *item
   nxs_host_unbind_input_windows(control->host);
   [view setMenu:menu];[menu release];
   [view selectItemAtIndex:selected];[view synchronizeTitleAndSelectedItem];
+  [view setEnabled:control->enabled];
   [pool drain];return 1;
 }
 NXSPopupState nxs_gnustep_control_popup_state(NXSControl *control)
@@ -216,4 +220,16 @@ int nxs_gnustep_control_set_screen_origin(NXSControl *control,double x,double y)
   if(!control)return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   int result=nxs_host_set_screen_origin(control->host,x,y);[pool drain];return result;
+}
+int nxs_gnustep_control_popup_open(NXSControl *control,int open)
+{
+  if(!control||control->kind!=NXS_POPUP||nxs_host_tracking(control->host)||(open&&!control->enabled))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSPopUpButton *view=(NSPopUpButton *)control->view;
+  NSPopUpButtonCell *cell=(NSPopUpButtonCell *)[view cell];
+  if(open) {
+    if(![view numberOfItems]){[pool drain];return 0;}
+    if(![[[view menu] window] isVisible])[cell attachPopUpWithFrame:[view bounds] inView:view];
+  } else [cell dismissPopUp];
+  [pool drain];return 1;
 }

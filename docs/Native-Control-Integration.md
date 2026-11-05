@@ -10,9 +10,10 @@ with the desktop's window decorations and commands.
 Reuse the actual NEXTSPACE control implementations. Keep toolkit/application
 adapters and the shared bridge separate from the underlying UI library, so
 appearance and interaction can be changed in that library in one place.
-Recompiling each application is excluded. The historical `left-scrollbars`
-branch name identifies the starting experiment; acceptance is application-wide
-native integration across foreign toolkits and frontends.
+Recompiling each application is excluded. The branch is now
+`codex/native-app-integration`; its former `codex/left-scrollbars` name identified
+the starting experiment. Acceptance is application-wide native integration
+across foreign toolkits and frontends.
 
 Implementation priority, 2026-11-05: first make the Chromium-based and
 Firefox-based browser families native, including their application interfaces
@@ -39,7 +40,7 @@ required integration surfaces differ:
 | GTK applications | Toolkit controls, layout, editing, menus, commands, dialogs and input adapters | Existing GTK3/GTK4 adapters cover scrollbars only. |
 | Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
 | Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
-| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider integration and native progress animation. |
+| Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration and native progress animation. |
 | Chrome/Chromium browser UI | Views controls, text editing and menu models | No native-control adapter implemented. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | No adapter implemented. An unchanged ARM64 Firefox ESR binary is pinned for initial work; runtime/native UI support is unqualified. |
@@ -184,8 +185,19 @@ window event dispatch. Its optional descriptor-source API integrates browser
 transport descriptors with the native run loop. Eighteen helper checks verify
 native pixels, menu mapping while idle, keys, mouse selection, disabled items,
 models and destruction. Existing Chromium checks remain green. This is the
-common menu contract; HTML select and browser application-menu bindings, browser
-parent/placement, command models and Gecko integration remain unfinished. See
+common menu contract; browser application menus, browser parent/placement,
+command models and Gecko integration remain unfinished. See
 [`popup-qualification.json`](../Libraries/NativeUI/popup-qualification.json).
 Firefox binary preparation is recorded separately in
 [`Experiments/FirefoxNativeUI`](../Experiments/FirefoxNativeUI/README.md).
+
+The first optional classic HTML select binding now passes 29 browser checks
+through that same native provider, including trusted selection events,
+keyboard/mouse cancellation, application `showPicker()`, blur and DOM lifecycle
+changes. Existing browser regressions still pass 232 checks. The shared host's
+deferred private window fixes stale native anchor geometry without copying menu
+placement. Default disabled CSS opacity, live menu-model updates, auxiliary
+input latency, browser window parenting/global coordinates and broader layout,
+accessibility, frontend and build coverage remain open. The disabled native
+image test uses explicit CSS opacity 1; default disabled presentation is not
+qualified. See the [select qualification](../Experiments/ChromiumScrollers/popup-qualification.json).
