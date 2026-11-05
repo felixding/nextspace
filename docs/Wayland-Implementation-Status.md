@@ -8,8 +8,8 @@ artifact digests and qualification boundaries. The full plan remains incomplete.
 
 ## Current ARM64 qualification
 
-Both full ARM64 jobs pass at `00fe1e7c` in
-[run 42050392096](https://github.com/felixding/nextspace/actions/runs/42050392096).
+Both full ARM64 jobs pass at `3b1dfdd1` in
+[run 42072708773](https://github.com/felixding/nextspace/actions/runs/42072708773).
 The native job builds and exercises the toolkit, compositor, applications,
 transfers, input methods, portals and session supervisor. The package job covers
 cold build, network-disabled source replay, installation, live upgrade and removal.
@@ -24,7 +24,10 @@ archives. The 4,209 desktop and 721 compositor input entries match their receipt
 and the exact committed Git blobs. The ci1 and ci2 source maps agree. An independent
 extracted replay passes. This inspection does not infer physical hardware behavior.
 
-The audited ci2 packages are now installed in the 2 GiB Debian 13 development VM.
+The audited ci2 packages are installed in the Debian 13 development VM.
+Installation and PAM qualification ran at 2 GiB; the shared guest was subsequently
+restarted at 4 GiB for a separate development experiment. These resource
+conditions are recorded separately from the existing MacBook preview.
 The installation verifies 4,396 regular payload files and 120 literal symlinks,
 while preserving five configuration files. The prior native106 DEBs and configuration
 backups remain available for rollback. Xorg, Xwayland and Xvfb are absent; the unused
@@ -76,6 +79,12 @@ attribution. Both subsequent bounded runs of the unchanged 45-case Review matrix
 pass, as do the normal ARM64 CI jobs. The independent five-density
 Workspace/Preferences/OpenUp/Dock suite also passes with the rebuilt backend.
 No cases are added.
+
+The unused X11-dependent `libwraster` library and its tests are removed (51 files),
+along with CoreFoundation's obsolete X11 run-loop demo and `-lX11` test link.
+The standalone Xft font-comparison test and probe are also removed. Maintained
+builds do not use these components. The existing native font checks continue
+to use their fixed original-design references; no replacement coverage is added.
 
 Seven unchanged original title-font and application-hint files remain under
 `Tests/Wayland/fixtures/title-reference/originals`, with provenance, licenses and

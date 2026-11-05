@@ -784,13 +784,6 @@ failure without weakening behavior assertions or deadlines.
   metrics and exact 1x glyph pixels. The [reference manifest and maintenance
   instructions](fixtures/title-reference/README.md) pin source/font hashes and
   rendering options. Native CI does not start or require an X server.
-- The optional historical `font_config.py` reference tool compares matched
-  Fontconfig properties with actual Xft:
-  global antialias/hinting rules, explicit face files, hinting/autohint/bitmap
-  settings and the legacy antialias fallback. Metrics stay logical across five
-  densities; complete 1x glyph pixels match, and CJK font fallback is checked.
-  Matrix, variation and subpixel properties, legacy XLFD names and complete
-  frame raster parity remain open.
 - `title_appearance.py` checks actual trusted-shell font/antialias/justification
   changes against the same fixed original glyph pixels, including explicit hinting and
   face-file changes, an actually stopped

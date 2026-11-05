@@ -17,14 +17,14 @@
   "ci": {
     "workflow": ".github/workflows/wayland.yml",
     "runner": "ubuntu-24.04-arm",
-    "run": "https://github.com/felixding/nextspace/actions/runs/42050392096",
-    "head": "00fe1e7c4c5fab48aefbb030e49bd6064b471d7f",
+    "run": "https://github.com/felixding/nextspace/actions/runs/42072708773",
+    "head": "3b1dfdd1a0ac9d195ca40d6fb0ba0ce2668468c8",
     "native": {
-      "job": 127324631317,
+      "job": 127404632539,
       "conclusion": "success"
     },
     "desktop_packages": {
-      "job": 127324632072,
+      "job": 127404631462,
       "conclusion": "success"
     },
     "obsolete_x11_workflow_files_removed": 5,
@@ -367,7 +367,12 @@
     "unused_historical_backend_patch_files_removed": 12,
     "unused_xvfb_server_removed_from_development_vm": true,
     "development_vm_xorg_xwayland_xvfb_executables_absent": true,
-    "development_vm_memory_matches_existing_2gib_macbook_preview": true
+    "development_vm_memory_matches_existing_2gib_macbook_preview": false,
+    "unused_x11_raster_library_files_removed": 51,
+    "obsolete_corefoundation_x11_demo_and_test_link_removed": true,
+    "unused_xft_comparison_test_and_probe_removed": true,
+    "development_vm_current_memory_gib": 4,
+    "installation_and_pam_qualification_memory_gib": 2
   },
   "remaining": [
     "Controlled virtual-DRM performance qualification on the current ARM64 runtime",
