@@ -22,6 +22,8 @@ parser.add_argument('--native-menus', action='store_true',
                     help='Bind the pinned application menu model to GNUstep menus; also enables native Views')
 parser.add_argument('--native-frame', action='store_true',
                     help='Use the compositor frame through the existing system-decoration preference')
+parser.add_argument('--native-tabs', action='store_true',
+                    help='Bind the experimental browser tab container to GNUstep NSTabView; also enables native Views')
 parser.add_argument('--log-directory', type=Path, required=True)
 parser.add_argument('arguments', nargs=argparse.REMAINDER)
 args = parser.parse_args()
@@ -75,11 +77,13 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
             environment.update(LD_PRELOAD=str(args.hook.resolve()),
                                NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),
                                NEXTSPACE_CHROMIUM_LOG=str((args.log_directory / 'hook.log').resolve()))
-            if args.native_views or args.native_menus:
+            if args.native_views or args.native_menus or args.native_tabs:
                 environment.update(NEXTSPACE_CHROMIUM_FORMS='1', NEXTSPACE_CHROMIUM_INPUT='1',
                                    NEXTSPACE_CHROMIUM_TEXT='1', NEXTSPACE_CHROMIUM_VIEWS='1')
             if args.native_menus:
                 environment['NEXTSPACE_CHROMIUM_MENUS'] = '1'
+            if args.native_tabs:
+                environment['NEXTSPACE_CHROMIUM_TABS'] = '1'
             if args.native_frame:
                 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Libraries/NativeUI/Bridge'))
                 from browser_frames import prepare_native_frame

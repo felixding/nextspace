@@ -1,0 +1,253 @@
+{
+  "date": "2026-11-07",
+  "baseline": "f6a5c8f8",
+  "qualification": "tab-qualification.json",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "15ed60d0aa870b7213ad667d7a38b4ffb5d73062e8c70b1d9675b761b962de63",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "6346eee6a28bcd18e5b878574e4e602515a8b90ff37292f3aab5c2cf59b1eb8b",
+    "Experiments/ChromiumScrollers/global-menu-keys.inc": "e2adca964e8c288761a2c4cead820013c594463f804471ccafaac3014319501a",
+    "Experiments/ChromiumScrollers/hook.c": "add5c7e39bd5938eb3a7d8050f30a5f264dfd2702373edf035ef052d77f799a3",
+    "Experiments/ChromiumScrollers/native_controls.py": "2e2108b96a40facedf4ec61ab30c48752e3735012fdb67b7ead31b6a65616af9",
+    "Experiments/ChromiumScrollers/pinned-tabs.h": "eb978474f5ad7827dd66bf70cf6439d6f3c0977424e16df17b48fa4cdc470772",
+    "Experiments/ChromiumScrollers/run.py": "e51c55d4c3ff1f8bb140545eea7e7e64f590f68d17f6d1ce2a5972c595a54285",
+    "Experiments/ChromiumScrollers/views-tabs.inc": "b76f38a90ad5e242d97ec9ab646af29a3abb116da733955318e0337647b494d4",
+    "Experiments/ChromiumScrollers/views-text.inc": "c1e4d7b7b620deae08dd7daf817d6ecb72b2abbb1cc7e4c9286379407a6d9537",
+    "Libraries/NativeUI/Bridge/Protocol.h": "963a3f04c90fc4d928d895767f314d2e02b4f9a03fd281c4cfe4657c1d930671",
+    "Libraries/NativeUI/Bridge/Tabs.inc": "387cab3e88363d6f060ec17f583c16f7f09171be9e42a2c2ac28db4b14daca0f",
+    "Libraries/NativeUI/GNUstep/Controls.m": "786b0c929bb0d88d11d7e1401c13147862e89a9dde2d014755c451c901357483",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "868ea70fa2dc7909ef215c7ef674b77d9db56594a92a6260135923e0b9a9baa6",
+    "Libraries/NativeUI/NativeUI.h": "8f1bbe4431d6383c7ab5746c20e3d1cbc7e5411d5972da6ea82142f6d0b44b76",
+    "Libraries/NativeUI/README.md": "532fc25d3f1cc7b715cc34a4ac393e0dd87968ec780ef57b3e04247596423d63",
+    "Libraries/NativeUI/tab-source-audit.json": "2299149b32d9c60f385613d2304c29eb41b774015a89cc2053ef03c9b5be007a",
+    "Tests/NativeUI/check-tab-transport.py": "cc1316da885f1e43d16d18789690a512a6f5fcab64e827c28c7dde4996b6b3ed",
+    "Tests/NativeUI/check-tabs.py": "755fe05a605945953178ca5fe00dd74d62b3d3887c84961b89c29ec66ebca303",
+    "Tests/NativeUI/render-tab-reference.py": "3b5189bff1ef87d2a363214f2537c2a6327864c70e993f6a6b94ec0c1658a32f",
+    "Tests/NativeUI/tab-probe.m": "19e249a334a5b165c0d5c9b85ec257038fbf62c2449e94612122c5fed1bde3b1",
+    "Tests/NativeUI/tab-transport-probe.c": "ea8963223b77f954960a6229321cfdcd4ce039287d54ca40883d062d19c1d4b6",
+    "Tests/Wayland/browser_frame_actions.py": "995aa66f93b8e79e596ba4ce3273bb664753ee16127071427fabfc03fe5b5dea",
+    "Tests/Wayland/browser_tabs.py": "066e3c94850d69636faac6d68155a7e8f9b57d5f3ce27782e0d288f44a59f35b",
+    "Tests/Wayland/native_ui_desktop_chromium.py": "ae02f099cb48b22ebbb7ac62545ceaaaef9508c11d8573f66977822eec811687",
+    "docs/Native-Control-Integration.md": "83cf963b3ce2664cacda6e5fd808d47d3c748cb6162e4cc43aab484b93ee0bcf"
+  },
+  "upstream_sources": [
+    {
+      "path": "tab_strip.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab_strip.cc",
+      "sha256": "7c487c96c8952ed3823a0ede4b3768778418396a43bf2a955e55bdc8e7e0c6ed",
+      "bytes": 93345
+    },
+    {
+      "path": "tab_strip.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab_strip.h",
+      "sha256": "3431478a5967b05c064c222cdbbf1157927c35cc0890ad2a6e7f491b6ccebb78",
+      "bytes": 19345
+    },
+    {
+      "path": "tab_container.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab_container.cc",
+      "sha256": "79e81f1b74d39b37c5609f51edec2e760d49f32fa3dd00b0ceba716d02f5a5e4",
+      "bytes": 1105
+    },
+    {
+      "path": "tab.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab.cc",
+      "sha256": "eb503dd063907a7f48780fa4556d2e7e0f556893d3f5a8d62954677ec8b6ed46",
+      "bytes": 60127
+    },
+    {
+      "path": "browser_tab_strip_controller.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/browser_tab_strip_controller.cc",
+      "sha256": "4b1342595a74c509b319b0aee8e7b919505aa1029b7d88d0094f846255b40f9e",
+      "bytes": 33870
+    },
+    {
+      "path": "chrome/browser/ui/views/tabs/tab_container_impl.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab_container_impl.cc",
+      "sha256": "718b6fb857c0fbf43802bd91255cd999caf31d9497318e0ac554bd5ce81fd2ed",
+      "bytes": 65195
+    },
+    {
+      "path": "chrome/browser/ui/views/tabs/tab.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab.h",
+      "sha256": "0d1ffdffe8ff788a24b3bcf8c43d996caae10a2b5a584133307e8b09ace08be7",
+      "bytes": 14196
+    },
+    {
+      "path": "chrome/browser/ui/views/tabs/tab/tab_title.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab/tab_title.h",
+      "sha256": "9f25e0a50fd2747226b15a249443d40dd8fa64ad515ccf55efb2c95abfc25e9d",
+      "bytes": 570
+    },
+    {
+      "path": "ui/views/view.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/view.cc",
+      "sha256": "cfdcf42d0b8db697b127efca28ccb1b66b2e863a718ea332e63a50685f3df433",
+      "bytes": 131343
+    },
+    {
+      "path": "ui/views/view.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/view.h",
+      "sha256": "994c58f94e502a6ead3a802549d459b4fbbe65f132527434758920bb997bf79b",
+      "bytes": 120844
+    },
+    {
+      "path": "ui/views/paint_info.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/paint_info.h",
+      "sha256": "54309ee262e07cbf7e378c6630f0ab5840ae1c0d7b44d77024e13569c8912ea0",
+      "bytes": 4638
+    },
+    {
+      "path": "tab_strip_region_view.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/tab_strip_region_view.cc",
+      "sha256": "f8458fdadf7d7c8dc33d0d67d03afe45becadf808da2bc4b4452958478c1f34d",
+      "bytes": 310
+    },
+    {
+      "path": "horizontal_tab_strip_region_view.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/horizontal_tab_strip_region_view.cc",
+      "sha256": "6d764e2f48093d780514e7e5c6c47aa7e1222b0c80e0a6a47b1a858f1deb4944",
+      "bytes": 43211
+    },
+    {
+      "path": "base_tab_strip_region_view.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/base_tab_strip_region_view.cc",
+      "sha256": "bccb1a2de5355591c6563fe4824e580d5de730d982f8aa0c7159877c4cb8e551",
+      "bytes": 23767
+    },
+    {
+      "path": "chrome/browser/ui/views/tabs/tab/tab_icon.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/tabs/tab/tab_icon.cc",
+      "sha256": "e78d13aeeef9b7b13879c56924c89c60d7682d39dc21f345d026d867e82e6c3c",
+      "bytes": 22116
+    },
+    {
+      "path": "Source/NSTabView.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTabView.m",
+      "sha256": "69692303e09d946ad171fb7a29d784309990e86bb1912804a26e30d1736d9ae4"
+    },
+    {
+      "path": "Source/NSTabViewItem.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTabViewItem.m",
+      "sha256": "6076f931362171266ed0f9122565202c28692a10d04f772ce12a22cf8621759b"
+    },
+    {
+      "path": "Source/NSView.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSView.m",
+      "sha256": "eb91e6fd77166969bbb5d03bb9c2ddb5e669ebb4b625d4769c51aaf7b0ac2f81"
+    }
+  ],
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "guards": "pinned-tabs.h verifies exact compiled entry/load/layout instructions before activation, plus original primary vtable slots. Main executable build ID is checked by the existing initializer.",
+  "separation": {
+    "actual_NSTabView": true,
+    "no_copied_widget_drawing_layout_hit_testing_or_keys": true,
+    "shared_client_model_serializer": "Libraries/NativeUI/Bridge/Tabs.inc",
+    "opaque_uint64_ids": true,
+    "controller": "Original TabStrip::SelectTab; resolve native selected ID against current live engine model after RPC.",
+    "menu_policy": "Focused owner PID and acknowledged host in shared Workspace; no app-name branch."
+  },
+  "findings": [
+    "TabStrip container +864, controller +840, Tab title Label +1536 and tab View adjustment +24 are proven compiled loads, not assumed C++ layout.",
+    "ConvertPointToWidget plus actual compositor placement/frame insets gives actual desktop coordinates; cached engine screen origin differs under Wayland.",
+    "An owned native tab container must remain client content. Original IsRectInContentArea treated its new event target as empty caption space, causing rapid clicks to maximize the window. The guarded engine classifier now respects native container ownership.",
+    "Five original parent bottom-corner overlap terms must be neutralized to preserve the complete native rectangle; cropping mismatches is invalid.",
+    "Model changes can damage only the old title area. Existing Tab::OnTabDataChanged and controller model-change boundaries schedule the whole native owner.",
+    "CanPaintThrobberToLayer is inlined into callers. A single guarded eligibility load in original TabIcon::UpdateThrobber is set false; Chromium retains layer teardown and the old icon stays in the replaced child-paint path. No native spinner is added.",
+    "NSTabViewItem creates an empty plain NSView in initWithIdentifier. Its no-op display invalidation must be consumed after native parent drawing; actual control subclasses retain invalidation.",
+    "Owner callbacks during RPC can mutate the engine tab list. Resolve selected opaque ID against the current live list; never use a cached index.",
+    "Temporary Chromium AppMenuModel retirement queues recreation of its original model without waiting for focus/key input; desktop selection policy remains generic.",
+    "Independent ordinary native provider comparisons remain at 1x/2x; this browser binding is only scale-1 qualified."
+  ],
+  "runtime_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "bytes": 308415392
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "bytes": 549896
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "bytes": 171640536
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "bytes": 10063865
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac",
+      "bytes": 78144
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/browser-frame-compositor-01/nextspace-compositor",
+      "sha256": "4f792c2d33c4a90e91caa13d386c3807d47c2a2b6895ea6499ed1cec6f3e0d9d",
+      "bytes": 1313072
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6",
+      "bytes": 1258024
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-13-hook.so",
+      "sha256": "1123178556bbb18aea081cb0467db7c8d2b16a4fc3566a989e182157c50cf3c2",
+      "bytes": 166600
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-menu-restore-01-hook.so",
+      "sha256": "3cb1e5d50716a4b15d991e797a2b5fdc76040f344715dcb3b96a0db65597976e",
+      "bytes": 153824
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "sha256": "4a09b4725034e9552e704ba21e2e89aa450e3b7dd9dab9eacb259b7447ead6e2",
+      "bytes": 1041800
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0",
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0",
+      "bytes": 1186176
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-02/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1",
+      "sha256": "f34c7c3874adf69984943f175aaae64b772fad28d15244d3f292679157a50936",
+      "bytes": 69968
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-02/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1",
+      "sha256": "8428123359dc92a4632d5e97e3d91394a794fb50eab79ef129ea96fa89b91012",
+      "bytes": 72856
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-02/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1",
+      "sha256": "510912a70a7363d1bab5f5e8e00d28de63db3ba63725ea99137196e105cfc3f5",
+      "bytes": 232456
+    },
+    "chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558",
+      "bytes": 166448
+    }
+  },
+  "unchanged_runtime": [
+    "chromium",
+    "firefox",
+    "libxul",
+    "appkit",
+    "supervisor",
+    "compositor",
+    "workspace",
+    "firefox_adapter",
+    "backend",
+    "gtk3"
+  ],
+  "package_count": 1050,
+  "runtime_audit": ".build/native-ui/chromium-tabs-runtime-audit.json"
+}

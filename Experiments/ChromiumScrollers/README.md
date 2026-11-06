@@ -769,3 +769,31 @@ close/minimize controls, move/resize, shade and fullscreen behavior share the
 desktop implementation; no browser hook or control drawing is added. The
 actual Workspace desktop fixture accepts the same flag. Browser tabs/toolbars,
 other builds/derivatives and installed-profile migration remain separate work.
+
+`run.py --native-tabs` enables the experimental tab-container binding and its
+required native Views/text bindings. The pinned browser's existing displayed
+titles and ordered tab objects become application data for the shared ordinary
+GNUstep `NSTabView`. AppKit supplies the complete image and pointer hit testing;
+native selection invokes Chromium's original `TabStrip::SelectTab` controller.
+Opaque monotonic IDs stay stable across reorder and retire before browser view
+allocations can be reused. Browser pointers do not cross the tab transport.
+The shared serializer is [`Bridge/Tabs.inc`](../../Libraries/NativeUI/Bridge/Tabs.inc).
+
+The adapter replaces the container's child-painting/targeting paths, classifies
+the owned native rectangle as client content and removes five
+guarded legacy corner-overlap terms from the existing parent layout. It adds no
+native drawing, tab layout, font, artwork or key-binding implementation. Browser
+close/reorder/next-tab commands still use the browser's real controller. When
+tab input retires Chromium's temporary application-menu model, the existing UI
+queue recreates that real model without waiting for another key or focus change.
+The original icon-layer lifecycle also keeps replaced loading indicators inside
+the container paint boundary, including calls with inlined layer eligibility.
+
+The [tab qualification](tab-qualification.json) records 81 actual Workspace
+checks, including twelve complete native tab images, real pointer selection,
+close/replacement/reorder, rapid tab clicks that retain client-area semantics, loading and later title changes, idle behavior, menu/model recovery, host replacement,
+resize and fullscreen restoration. Shared-provider and both existing browser
+regressions also pass. This is a tab-container prototype for the pinned scale-1
+build: favicons/alerts, per-tab close buttons, context menus, dragging/touch,
+overflow/groups, full pane/toolbar layout, accessibility and browser scaling
+remain unfinished, as do Firefox tabs, derivatives and installed deployment.

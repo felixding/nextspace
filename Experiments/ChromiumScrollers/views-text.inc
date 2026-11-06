@@ -153,6 +153,7 @@ static void views_blur(void *view) {
   if(f&&f->owned)form_input_request(&f->transport,7,0,0,0,NULL,NULL,0,0);
 }
 static void views_destroy(void *view) {
+  tabs_forget(view);
   struct ViewsField **cursor=&views_fields;
   while(*cursor&&(*cursor)->transport.node!=view)cursor=&(*cursor)->next;
   struct ViewsField *f=*cursor;

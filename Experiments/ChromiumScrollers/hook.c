@@ -170,6 +170,10 @@ static void configure(uintptr_t offset) {
 }
 static void form_native_work(void *controller);
 static int views_enabled,views_trace_enabled;
+static int tabs_enabled,tabs_trace_enabled;
+static int tabs_watch_needed(void);
+static void tabs_native_work(int);
+static void tabs_forget(void *);
 static int menus_enabled,menus_trace_enabled;
 static int menu_keys_enabled;
 static int app_menu_views_key(void *,const void *);
@@ -183,6 +187,7 @@ static void views_native_work(int failed);
 #include "input.inc"
 #include "forms.inc"
 #include "views-text.inc"
+#include "views-tabs.inc"
 #include "app-menus.inc"
 #include "global-menu-keys.inc"
 static int chromium_application_command(const struct NXSNativeCommand *command,const char *selector) {
@@ -255,6 +260,9 @@ __attribute__((constructor)) static void initialize(void) {
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
   views_enabled=forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");
+  const char *tabs=getenv("NEXTSPACE_CHROMIUM_TABS"),*tabs_trace=getenv("NEXTSPACE_CHROMIUM_TABS_TRACE");
+  tabs_enabled=views_enabled&&tabs&&!strcmp(tabs,"1")&&((unsigned)metrics->parts[4].x&NXS_TAB_ITEMS);
+  tabs_trace_enabled=tabs_enabled&&tabs_trace&&!strcmp(tabs_trace,"1");
   const char *menus=getenv("NEXTSPACE_CHROMIUM_MENUS"),*menu_trace=getenv("NEXTSPACE_CHROMIUM_MENUS_TRACE");
   menus_enabled=views_enabled&&menus&&!strcmp(menus,"1")&&((unsigned)metrics->parts[5].height&1);
   menus_trace_enabled=menus_enabled&&menu_trace&&!strcmp(menu_trace,"1");
@@ -268,6 +276,7 @@ __attribute__((constructor)) static void initialize(void) {
   if(!prepare_input()){note("input guard failed; unchanged");return;}
   if(forms_available&&!prepare_forms()){note("form guard failed; unchanged");return;}
   if(views_enabled&&(!guard_views_calls()||!prepare_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours)))){note("Views guard failed; unchanged");return;}
+  if(tabs_enabled&&!prepare_tabs()){note("tab binding guard failed; unchanged");return;}
   if(menus_enabled&&!prepare_app_menus()){note("application menu guard failed; unchanged");return;}
   if(menu_keys_enabled&&!prepare_global_menu_keys()){note("global menu key guard failed; unchanged");return;}
   const uint32_t patch[]={0xd503245f,0x52800020,0xd65f03c0};
@@ -283,6 +292,7 @@ __attribute__((constructor)) static void initialize(void) {
   if(forms_multiline_viewport_enabled)note("experimental native multiline viewport enabled");
   if(forms_wheel_enabled)note("experimental native wheel dispatch enabled");
   if(views_enabled){activate_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours));note("experimental native address-bar fields enabled");}
+  if(tabs_enabled){activate_tabs();note("experimental native browser tabs enabled");}
   if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));note("experimental native application menu binding enabled");}
   if(menu_keys_enabled){activate_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));note("experimental native global menu keys enabled");}
 }

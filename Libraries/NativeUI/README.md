@@ -746,6 +746,14 @@ AppKit retains all image representation and cache policy.
 The [tab qualification](tab-qualification.json) records 89 direct/compatibility
 checks, 66 transport checks and twenty complete ordinary-desktop/native image
 comparisons. Both existing browser desktop suites and all 35 NativeUI regression
-sections pass with the updated library. Browser tab-strip models, layout and
-commands are not connected to this control yet; native browser tabs/toolbars and
-the remaining application-wide requirements are unfinished.
+sections pass with the updated library. That receipt qualifies the foundation.
+The later [Chromium tab-container binding](../../Experiments/ChromiumScrollers/tab-qualification.json)
+uses the same control and shared client serializer; Firefox tabs, full browser
+tabs/toolbars and the remaining application-wide requirements are unfinished.
+
+Browser embedding also exposed an empty-pane invalidation that the foundation
+had not checked. Native tab items create ordinary `NSView` panes, whose
+`drawRect:` is guaranteed empty. The host acknowledges those no-op pane displays
+after drawing the parent; control subclasses keep their own dirty flags. The
+updated probe requires native drawing to consume invalidation and retains all
+ten full 1x/2x ordinary-desktop comparisons. AppKit rendering remains unchanged.

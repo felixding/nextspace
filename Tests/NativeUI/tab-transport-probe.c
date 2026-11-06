@@ -9,6 +9,7 @@
 #include <math.h>
 static void note(const char *message){fprintf(stderr,"%s\n",message);}
 #include "Bridge/Transport.inc"
+#include "Bridge/Tabs.inc"
 _Static_assert(sizeof(struct NXSControlTabsRequest)==56,"Tab model wire ABI");
 _Static_assert(offsetof(struct NXSControlTabsRequest,count)==32,"Tab count offset");
 _Static_assert(offsetof(struct NXSControlTabsRequest,selected)==40,"Tab identity offset");
@@ -97,6 +98,12 @@ int main(int argc,char **argv)
   } else {
     check("native-tab-capability-crosses-IPC",caps==NXS_TAB_ITEMS);
     r=request(1,400,100,1);check("native-tab-creation",r->width==400&&r->height==100&&r->parts[2].y==NXS_TAB_ITEMS);
+    NXSTabItem shared_items[]={{sizeof(NXSTabItem),1,"One","First page"},{sizeof(NXSTabItem),2,"One",NULL},{sizeof(NXSTabItem),large_id,"日本語",NULL}};
+    r=native_tabs_model(1,shared_items,3,large_id,1);
+    struct NXSTabWireState shared_state;struct NXSRectD shared_rect;
+    check("shared-application-model-serializer",r&&native_tabs_state(1,&shared_state)&&shared_state.selected==large_id&&shared_state.count==3);
+    check("shared-native-item-geometry-query",native_tabs_item_rect(1,large_id,&shared_rect)&&shared_rect.width>0);
+    check("shared-serializer-preserves-state-on-rejection",!native_tabs_model(1,shared_items,3,42,1)&&native_tabs_state(1,&shared_state)&&shared_state.selected==large_id);
     for(int scale=1;scale<=2;scale++) {
       r=request(1,400,100,1);assert(r->width==400*(scale==1?1:2));
       r=model(0,0,1,scale,0);assert(r->parts[3].x==1);image(r,scale==1?"initial-1":"initial-2",400*scale,100*scale);

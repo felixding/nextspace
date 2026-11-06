@@ -45,6 +45,11 @@ static void compare(struct Probe *p,const char *name,const NXSTabItem *items,uns
   [window setReleasedWhenClosed:NO];[[window contentView] addSubview:reference];
   [window setTitle:[NSString stringWithFormat:@"Native tab reference %s",name]];[window orderFront:nil];
   NXSBitmap actual=nxs_control_draw(p->control,p->scale);
+  if(nxs_control_needs_display(p->control)) {
+    NSLog(@"Native tab draw root dirty: %d",[observed needsDisplay]);
+    for(NSView *child in [observed subviews])NSLog(@"Native tab child %@ dirty: %d",NSStringFromClass([child class]),[child needsDisplay]);
+  }
+  check(p,"native-draw-consumes-invalidation",!nxs_control_needs_display(p->control));
   BOOL equal=actual.pixels&&actual.width==lround(width*p->scale)&&actual.height==lround(height*p->scale);
   if(p->directory) {
     char path[1024];snprintf(path,sizeof(path),"%s/%s-native.argb",p->directory,name);FILE *out=fopen(path,"wb");assert(out);

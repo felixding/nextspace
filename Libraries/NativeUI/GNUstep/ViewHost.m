@@ -413,6 +413,15 @@ static int view_needs_display(NSView *view)
   for(NSView *child in [view subviews])if(view_needs_display(child))return 1;
   return 0;
 }
+static void acknowledge_empty_panes(NSView *view)
+{
+  /* Plain NSView's drawRect: is guaranteed empty. Native tab items
+   * create these panes; their application content belongs to the embedding.
+   * Consume only that no-op display after drawing the native parent. Actual
+   * control subclasses keep their own invalidation and rendering behavior. */
+  if([view class]==[NSView class])[view setNeedsDisplay:NO];
+  for(NSView *child in [view subviews])acknowledge_empty_panes(child);
+}
 int nxs_host_needs_display(NXSViewHost *host)
 {return host&&view_needs_display(host->view);}
 NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
@@ -459,6 +468,7 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   } @finally {end_draw_density(&density);}
   [context unlockFocusView:control->view needsFlush:NO];
   [control->view setNeedsDisplay:NO];
+  acknowledge_empty_panes(control->view);
   [NSGraphicsContext saveGraphicsState];
   [transform invert]; [transform concat];
   bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0,0,width,height)];

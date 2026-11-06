@@ -21,6 +21,13 @@ and web controls. Then continue with the remaining non-GNUstep applications.
 Both stages use the same native UI library and keep the no-duplication and
 no-application-recompile requirements.
 
+Detached-menu visibility is an application-agnostic desktop policy: present
+the active application's menu and hide inactive applications' menus. Workspace
+uses the focused window's owner PID and the acknowledged shared menu host;
+application names and toolkit identities do not select this behavior. TimeMon
+in the earlier failure capture identifies the visible symptom, not the scope
+of the fix.
+
 Workspace's version-19 shell connection now selects the active window's menu
 address and forwards it through an optional inherited native-host role. The
 live two-window Firefox check follows focus to TextEdit and back without copied
@@ -455,6 +462,18 @@ Stable 64-bit application identities survive reorder and transport; no tab layou
 rendering, hit testing or key behavior is copied. Twenty whole images match actual
 ordinary native desktop tabs at 100% and 200%. Direct/compatibility and C transport
 checks pass, along with the existing browser desktop and NativeUI regressions.
-See [tab qualification](../Libraries/NativeUI/tab-qualification.json). Connecting
-each browser's real tab model, selection commands and layout remains open; the
-current browser tab strips have not been replaced by this foundation.
+See [tab qualification](../Libraries/NativeUI/tab-qualification.json).
+
+The opt-in pinned Chromium adapter now presents its tab container through that
+same NSTabView. Existing engine getters supply displayed titles/order; opaque
+IDs survive reorder and retire with browser views. Native pointer selection
+calls the original browser controller, while normal next/close/reorder commands
+update the native model. Twelve complete tab-container images match the public
+NativeUI reference in the actual desktop, including loading/title changes, host
+recovery and resize.
+The shared provider still matches ordinary native desktop tabs at 1x/2x.
+See [Chromium tab qualification](../Experiments/ChromiumScrollers/tab-qualification.json).
+This does not finish the browser interface: native tab icons/close/context/drag/
+overflow/group features, pane/toolbar layout, broader input/accessibility/scaling,
+Firefox tabs, derivatives and installed deployment remain open. GTK/Qt/KDE follow
+the browser work. No native component is duplicated or browser recompiled.

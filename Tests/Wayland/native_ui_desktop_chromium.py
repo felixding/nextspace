@@ -14,6 +14,7 @@ parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--port',type=int,default=9246)
 parser.add_argument('--activation-fallback',action='store_true',help='Verify proxy menus decline menu-only activation and retain document focus')
 parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through the Chromium profile preference')
+parser.add_argument('--native-tabs',action='store_true',help='Verify the experimental shared native tab container')
 args=parser.parse_args()
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','chromium']:
@@ -103,6 +104,7 @@ try:
  browser_env=dict(env,**published());url=(repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
  current=dict(browser_env,LD_PRELOAD=str(args.hook))
  current['NEXTSPACE_CHROMIUM_SOCKET']=browser_env['NEXTSPACE_NATIVE_UI_SOCKET'];current['NEXTSPACE_CHROMIUM_LOG']=str(root/'chromium-hook.log')
+ if args.native_tabs:current.update(NEXTSPACE_CHROMIUM_TABS='1',NEXTSPACE_CHROMIUM_TABS_TRACE='1')
  if args.native_frame:
   prepare_native_frame('chromium',runtime/'chromium-profile',current)
  for flag in ['FORMS','INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','VIEWS','PROGRESS','ANIMATION','SLIDERS','POPUPS','MENUS','MENU_KEYS']:current['NEXTSPACE_CHROMIUM_'+flag]='1'
@@ -169,6 +171,9 @@ try:
   check(label+'-original-document-retained',any(page['url']==url for page in after))
   assert command('focus '+str(window['id']))['ok']
  initial=browser_menu('chromium-menu')
+ if args.native_tabs:
+  from browser_tabs import run as tab_checks
+  tabs=tab_checks(command,wait,check,desktop,pages,root,window,args,browser_env,repo)
  if args.activation_fallback:initial=menu_title_click('chromium-menu-title-retains-focus',initial)
  documents={w['pid']:w for w in initial if w['pid']!=browser.pid and w['accepts_focus'] and w['level']==0 and not w['legacy']}
  check('multiple-native-desktop-applications',len(documents)>=2,applications=list(documents))
@@ -194,9 +199,10 @@ try:
  browser_menu('final-chromium-menu')
  wait(lambda:desktop('final-chromium-menu-pixels'),lambda image:ImageChops.difference(image.crop(menu_box),before_replacement).getbbox() is None)
  check('complete-native-menu-pixels-after-recovered-command',True)
+ if args.native_tabs:tabs.recovered()
  if args.native_frame:
   from browser_frame_actions import run as frame_actions
-  frame_actions(command,wait,check,desktop,window['id'])
+  frame_actions(command,wait,check,desktop,window['id'],tabs.pixels if args.native_tabs else None)
  print(json.dumps(dict(passed=len(rows))),flush=True)
  stop(browser)
 

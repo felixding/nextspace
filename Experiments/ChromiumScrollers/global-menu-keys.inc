@@ -10,6 +10,7 @@ struct MenuBrowser {
   int active,pending;
 };
 static struct MenuBrowser *menu_browsers;
+static void menu_browser_schedule(struct MenuBrowser *);
 static uint64_t next_menu_browser;
 static __thread struct MenuBrowser *creating_menu_browser;
 static __thread unsigned menu_key_preflight;
@@ -41,7 +42,13 @@ static uint64_t app_menu_browser_created(void *browser,uint64_t control) {
 }
 static void app_menu_browser_removed(uint64_t identity,uint64_t control) {
   struct MenuBrowser *b=menu_browser_find(NULL,identity);
-  if(b&&b->menu==control)b->menu=0;
+  if(b&&b->menu==control) {
+    b->menu=0;
+    /* Chromium can retire its temporary AppMenu when tab input cancels the
+     * old runner. Recreate its real model on the existing UI queue while the
+     * browser stays active, without waiting for a key or focus transition. */
+    if(b->active)menu_browser_schedule(b);
+  }
 }
 static int app_menu_browser_visible(uint64_t identity) {
   if(!menu_keys_enabled)return 1;

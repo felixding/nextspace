@@ -2,7 +2,7 @@
 from titlebar import title_click
 
 
-def run(command, wait, check, desktop, identifier):
+def run(command, wait, check, desktop, identifier, content_check=None):
     def window():
         return next(w for w in command('windows') if w['id'] == identifier)
 
@@ -52,16 +52,19 @@ def run(command, wait, check, desktop, identifier):
     title_click(command, window, count=2)
     wait(window, lambda w: not w['shaded'])
     check('native-frame-double-click-unshades', not window()['shaded'])
-    before = window()
+    before = wait(window, lambda w: not w['shaded'] and w['frame_height'] > w['frame_top'] + w['frame_bottom'] and
+        command(f"hit {w['x'] + w['frame_width'] - 5} {w['y'] + w['frame_height'] - 5}")['id'] == identifier)
     x, y = before['x'] + before['frame_width'] - 5, before['y'] + before['frame_height'] - 5
     point(x, y)
     button(1)
-    check('native-frame-resize-starts', command('move-state') == dict(id=identifier, mode=2))
+    moving = command('move-state')
+    check('native-frame-resize-starts', moving == dict(id=identifier, mode=2), state=moving, window=before)
     point(x + 32, y + 20)
     button(0)
     resized = wait(window, lambda w: (w['frame_width'], w['frame_height']) == (before['frame_width'] + 32, before['frame_height'] + 20))
     check('native-frame-resizes-browser-content', (resized['surface_width'], resized['surface_height']) == (before['surface_width'] + 32, before['surface_height'] + 20))
     desktop('native-frame-resized')
+    if content_check:content_check('resized')
     for event in ['key 87 1', 'key 87 0']:
         assert command(event)['ok']
     head = command('outputs')[0]
@@ -76,6 +79,7 @@ def run(command, wait, check, desktop, identifier):
     restored = wait(window, lambda w: not w['fullscreen'] and w['server_decorated'] and
         (w['frame_width'], w['frame_height']) == (resized['frame_width'], resized['frame_height']))
     check('native-frame-restored-after-fullscreen', restored['server_decorated'] and (restored['frame_width'], restored['frame_height']) == (resized['frame_width'], resized['frame_height']))
+    if content_check:content_check('restored-fullscreen')
     point(restored['x'] + 10, restored['y'] + 10)
     assert command('button 272')['ok']
     wait(window, lambda w: w['minimized'])

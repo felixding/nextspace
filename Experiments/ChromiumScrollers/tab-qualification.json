@@ -1,0 +1,122 @@
+{
+  "date": "2026-11-07",
+  "baseline": "f6a5c8f8",
+  "status": "Qualified opt-in pinned Chromium scale-1 NSTabView tab-container binding; full browser and other frontend/toolkit requirements remain unfinished.",
+  "checks": 383,
+  "whole_native_images": 189,
+  "native_ui_regression_sections": 35,
+  "api": {
+    "version": 1,
+    "bytes": 448,
+    "tabs": 1,
+    "changed_since_baseline": false
+  },
+  "runs": [
+    {
+      "path": "/var/tmp/nxs-tabs-invalidation-03",
+      "passed": 96,
+      "whole_native_images": 10,
+      "cleanup": [
+        {
+          "pid": 117878,
+          "exit": 0
+        },
+        {
+          "pid": 117881,
+          "exit": -15
+        },
+        {
+          "pid": 117882,
+          "exit": 0
+        },
+        {
+          "pid": 117883,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-tabs-client-helpers-01",
+      "passed": 69,
+      "whole_native_images": 10,
+      "cleanup": [
+        {
+          "pid": 118655,
+          "exit": 0
+        },
+        {
+          "pid": 118658,
+          "exit": -15
+        },
+        {
+          "pid": 118660,
+          "exit": 0
+        },
+        {
+          "pid": 118662,
+          "exit": -15
+        },
+        {
+          "pid": 118664,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-chromium-tabs-16",
+      "passed": 81,
+      "whole_native_images": 14,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      }
+    },
+    {
+      "path": "/var/tmp/nxs-tabs-invalidation-firefox-01",
+      "passed": 82,
+      "whole_native_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      }
+    },
+    {
+      "path": "/var/tmp/nxs-tabs-invalidation-chromium-02",
+      "passed": 55,
+      "whole_native_images": 2,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      }
+    }
+  ],
+  "coverage": [
+    "Actual Workspace desktop and unchanged Chromium executable; full tab rectangle RGB comparisons with the previously independently qualified public NSTabView provider.",
+    "Pointer selection invokes original browser controller once; clicking the selected item emits no second command; rapid repeated clicks stay client content without maximize/shade/geometry changes.",
+    "Next-tab, close, replacement and reorder commands retain current browser model and opaque native IDs; retired tab addresses cannot reuse IDs.",
+    "Loading document title, later script title update and stable identity; no independent legacy loading layer leaks over the native component.",
+    "Idle native control does not create a perpetual repaint loop.",
+    "Detached menu model recovers after tab input without refocusing; application-agnostic Workspace visibility remains unchanged.",
+    "Native images and selection after shared host replacement, resized window and fullscreen restoration.",
+    "96 direct checks and ten complete ordinary NSTabView desktop/provider comparisons at 100% and 200%; drawing consumes empty native pane invalidation.",
+    "69 C transport checks use the production shared Tabs.inc serializer; ten complete transport/reference images; old provider declines optional tab capability.",
+    "Existing Firefox desktop controls/menus/frames regressions, final Chromium adapter with tabs disabled and all 35 NativeUI regression sections."
+  ],
+  "limitations": [
+    "Only pinned Linux ARM64 Chromium build eeeef03b83096958e9eb6385a4a92aa8d2aa404e at scale 1 is qualified for this browser binding.",
+    "Native tab icons/loading indicators/alerts, per-tab close buttons, context menus, dragging/touch, overflow/groups, complete native pane/toolbar layout, accessibility and browser mixed-DPI remain unfinished.",
+    "Firefox tab model binding, Chrome/Vivaldi/other derivatives and installed deployment remain unfinished.",
+    "Remaining application-wide browser controls and GTK/Qt/KDE integration remain within the active goal."
+  ],
+  "runtime_audit": ".build/native-ui/chromium-tabs-runtime-audit.json",
+  "archive": ".build/evidence/components/native-chromium-tabs-20261107-v1-evidence.tar.gz"
+}
