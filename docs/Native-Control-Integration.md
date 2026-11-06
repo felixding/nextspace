@@ -21,6 +21,15 @@ and web controls. Then continue with the remaining non-GNUstep applications.
 Both stages use the same native UI library and keep the no-duplication and
 no-application-recompile requirements.
 
+Workspace's version-19 shell connection now selects the active window's menu
+address and forwards it through an optional inherited native-host role. The
+live two-window Firefox check follows focus to TextEdit and back without copied
+controls. This uses the actual Workspace connection classes, not a production
+session deployment: host launch/packaging and registrar supervision are still
+open. Global native shortcuts outside text fields are also unimplemented; a
+page-body Alt+T failure is retained. See the
+[association qualification](../Experiments/DBusMenus/workspace-qualification.json).
+
 ## Shared implementation and distinct integration boundaries
 
 Keep one native host in `Libraries/NativeUI` using installed GNUstep/AppKit and

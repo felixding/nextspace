@@ -135,6 +135,13 @@ static void shellWindowInfo(void *data, struct nextspace_shell_v1 *shell, uint32
     shellNumber(titleHeight), @"title_height", shellNumber(level), @"level", nil]
     identifier:shellNumber(identifier)];
 }
+static void shellWindowAppmenu(void *data, struct nextspace_shell_v1 *shell,
+    uint32_t identifier, const char *service, const char *path)
+{
+  [(WSShellConnection *)data recordWindowInfo:[NSDictionary dictionaryWithObjectsAndKeys:
+    shellString(service), @"appmenu_service", shellString(path), @"appmenu_path", nil]
+    identifier:shellNumber(identifier)];
+}
 static void shellPointerFocus(void *data, struct nextspace_shell_v1 *shell, uint32_t identifier)
 { [(WSShellConnection *)data recordPointerWindow:identifier]; }
 static void shellOutputsReset(void *data, struct nextspace_shell_v1 *shell, uint32_t revision)
@@ -247,7 +254,7 @@ static const struct nextspace_shell_v1_listener shellListener = {
   .input_settings = shellInputs, .input_result = shellInputResult, .background = shellBackground,
   .desktops = shellDesktops, .window_desktop = shellWindowDesktop, .interactive_move = shellInteractiveMove,
   .output_work_area = shellWorkArea, .output_gamma = shellOutputGamma,
-  .output_gamma_result = shellGammaResult
+  .output_gamma_result = shellGammaResult, .window_appmenu = shellWindowAppmenu
 };
 static void registryGlobal(void *data, struct wl_registry *registry, uint32_t name,
     const char *interface, uint32_t version)
@@ -437,11 +444,28 @@ static BOOL shellRoundtrip(struct wl_display *display)
   /* Callers can dispatch nested loops while inspecting this immutable state. */
   return [[[_windows objectForKey:identifier] retain] autorelease];
 }
+- (NSDictionary *)activeApplicationMenu
+{
+  for (NSDictionary *window in [self windows]) {
+    uint32_t flags = [[window objectForKey:@"flags"] unsignedIntValue];
+    if (!(flags & 1) || (flags & (2 | 8 | 32))) continue;
+    NSString *service = [window objectForKey:@"appmenu_service"];
+    NSString *path = [window objectForKey:@"appmenu_path"];
+    if ([[window objectForKey:@"pid"] intValue] <= 1 || ![service length] || ![path length]) return nil;
+    NSString *title = [window objectForKey:@"app_id"];
+    if (![title length]) title = [window objectForKey:@"title"];
+    if ([title length] > 256) title = [title substringToIndex:256];
+    return [NSDictionary dictionaryWithObjectsAndKeys:@"bind", @"operation",
+      [window objectForKey:@"id"], @"window", [window objectForKey:@"pid"], @"pid",
+      service, @"service", path, @"path", title ?: @"", @"title", nil];
+  }
+  return nil;
+}
 - (void)bindRegistry:(struct wl_registry *)registry name:(uint32_t)name version:(uint32_t)version
 {
   if (_shell || version < 7) return;
   _global = name;
-  _shell = wl_registry_bind(registry, name, &nextspace_shell_v1_interface, MIN(version, 18));
+  _shell = wl_registry_bind(registry, name, &nextspace_shell_v1_interface, MIN(version, 19));
   nextspace_shell_v1_add_listener(_shell, &shellListener, self);
 }
 - (void)removeGlobal:(uint32_t)name

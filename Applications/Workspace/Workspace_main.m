@@ -24,6 +24,7 @@
 #import "Session.h"
 #ifdef NEXTSPACE_BUILD_WAYLAND
 #import "WSShellConnection.h"
+#import "WSNativeMenuConnection.h"
 #endif
 #include <unistd.h>
 #include <stdlib.h>
@@ -34,6 +35,7 @@ dispatch_queue_t workspace_q;
 WorkspaceExitCode ws_quit_code = WSLogoutOnQuit;
 static BOOL usesX11Session = YES;
 int ws_shell_descriptor = -1;
+int ws_native_menu_descriptor = -1;
 
 void WSUncaughtExceptionHandler(NSException *e)
 {
@@ -88,6 +90,7 @@ int main(int argc, const char **argv)
   }
   fprintf(stderr, "=== Starting Workspace ===\n");
 #ifdef NEXTSPACE_BUILD_WAYLAND
+  ws_native_menu_descriptor = WSConsumeNativeMenuDescriptor();
   if (usesX11Session) {
     fprintf(stderr, "[Workspace] This build requires the native Wayland backend.\n");
     [pool drain]; return 1;
@@ -117,6 +120,7 @@ int main(int argc, const char **argv)
   if (usesX11Session) WSFinishX11Session();
 #endif
   if (ws_shell_descriptor >= 0) close(ws_shell_descriptor);
+  if (ws_native_menu_descriptor >= 0) close(ws_native_menu_descriptor);
   [pool drain];
   return ws_quit_code;
 }

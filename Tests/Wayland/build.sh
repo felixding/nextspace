@@ -33,6 +33,7 @@ cp "$repo/Tests/GNUstep-GUI/GNUmakefile" "$repo/Tests/GNUstep-GUI/NotificationCe
 . "$repo/Packaging/Sources/native-display.sh"
 copy_sources "$repo/Tests/GNUstep-GUI" "$build/fixture"
 cp "$repo/Applications/Workspace/WSShellConnection.h" "$repo/Applications/Workspace/WSShellConnection.m" "$build/fixture/"
+cp "$repo/Applications/Workspace/WSNativeMenuConnection.h" "$repo/Applications/Workspace/WSNativeMenuConnection.m" "$build/fixture/"
 cp "$repo/Frameworks/SystemKit/OSESessionSettings.h" "$build/fixture/"
 cp "$repo/Applications/Workspace/WSDockSettings.h" "$repo/Applications/Workspace/WSDockSettings.m" "$build/fixture/"
 cp "$repo/Applications/Login/GreetdClient.h" "$repo/Applications/Login/GreetdClient.m" \

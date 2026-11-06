@@ -14,6 +14,7 @@ typedef enum WorkspaceExitCode {
 } WorkspaceExitCode;
 extern WorkspaceExitCode ws_quit_code;
 extern int ws_shell_descriptor;
+extern int ws_native_menu_descriptor;
 
 #ifdef __OBJC__
 #import <Foundation/NSString.h>

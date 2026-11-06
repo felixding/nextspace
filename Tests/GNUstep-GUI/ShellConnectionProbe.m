@@ -2,6 +2,7 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/NSApplication.h>
 #import "WSShellConnection.h"
+#import "WSNativeMenuConnection.h"
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
@@ -63,6 +64,7 @@ int main(int argc, char **argv)
     for (;;) pause();
   }
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
+  int menuDescriptor = WSConsumeNativeMenuDescriptor();
   int descriptor = WSConsumeShellDescriptor();
   if (descriptor < 0) { [pool drain]; return 2; }
   if (getenv("NEXTSPACE_SHELL_SOCKET") || !(fcntl(descriptor, F_GETFD) & FD_CLOEXEC)) return 4;
@@ -70,8 +72,17 @@ int main(int argc, char **argv)
     arguments:[NSArray arrayWithObjects:@"--fd-is-closed", [NSString stringWithFormat:@"%d", descriptor], nil]];
   [helper waitUntilExit];
   if ([helper terminationStatus]) return 7;
+  if (menuDescriptor >= 0) {
+    helper = [NSTask launchedTaskWithLaunchPath:[[[NSProcessInfo processInfo] arguments] objectAtIndex:0]
+      arguments:@[@"--fd-is-closed", [NSString stringWithFormat:@"%d", menuDescriptor]]];
+    [helper waitUntilExit];
+    if ([helper terminationStatus]) return 9;
+  }
   WSShellConnection *connection = [[WSShellConnection alloc] initWithFileDescriptor:descriptor];
   if (!connection) { [pool drain]; return 3; }
+  WSNativeMenuConnection *menus = menuDescriptor >= 0 ?
+    [[WSNativeMenuConnection alloc] initWithShell:connection fileDescriptor:menuDescriptor] : nil;
+  if (menuDescriptor >= 0 && !menus) { [connection release]; [pool drain]; return 8; }
   ShellObserver *observer = [ShellObserver new];
   [[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(changed:)
     name:WSShellWindowsDidChangeNotification object:connection];
@@ -202,6 +213,6 @@ int main(int argc, char **argv)
   }
   [[NSNotificationCenter defaultCenter] removeObserver:observer];
   BOOL disconnected = ![connection isConnected];
-  [observer release]; [connection release]; [pool drain];
+  [observer release]; [menus release]; [connection release]; [pool drain];
   return disconnected ? 3 : 0;
 }

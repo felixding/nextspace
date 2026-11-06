@@ -4,6 +4,7 @@
 #import <GNUstepGUI/GSDisplayServer.h>
 #import "WindowManager.h"
 #import "WSShellConnection.h"
+#import "WSNativeMenuConnection.h"
 #import "Session.h"
 #import "Recycler.h"
 #import "RecyclerIcon.h"
@@ -42,6 +43,7 @@ static NSArray *windowManagerRunLoopModes(void)
 @interface WSWaylandWindowManager : NSObject <WSWindowManager, OSESessionSettings>
 {
   WSShellConnection *_connection;
+  WSNativeMenuConnection *_nativeMenus;
   NSNotificationCenter *_center;
   ProcessManager *_processManager;
   NSWindow *_recyclerIcon;
@@ -210,6 +212,10 @@ static NSString *commandForPID(pid_t pid)
     [NSException raise:NSInternalInconsistencyException format:@"Cannot connect to the session compositor shell interface"];
     return nil;
   }
+  int menuDescriptor = ws_native_menu_descriptor;
+  ws_native_menu_descriptor = -1;
+  if (menuDescriptor >= 0)
+    _nativeMenus = [[WSNativeMenuConnection alloc] initWithShell:_connection fileDescriptor:menuDescriptor];
   OSERegisterSessionSettings(self);
   _center = [[[NSWorkspace sharedWorkspace] notificationCenter] retain];
   _foreignApplications = [NSMutableDictionary new];
@@ -257,6 +263,7 @@ static NSString *commandForPID(pid_t pid)
 { [_connection setTitleAppearance:[_dockSettings titleAppearance]]; }
 - (void)dealloc
 {
+  [_nativeMenus release];
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
@@ -270,6 +277,7 @@ static NSString *commandForPID(pid_t pid)
 }
 - (void)prepareForTermination
 {
+  [_nativeMenus invalidate];
   _stopping = YES;
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
   [[NSNotificationCenter defaultCenter] removeObserver:self];

@@ -11,7 +11,7 @@ set -u
 . "$repo/Packaging/Sources/copy-sources.sh"
 copy_sources "$repo/Tests/GNUstep-GUI" "$build/source"
 cp "$repo/Frameworks/SystemKit/OSESessionSettings.h" "$build/source/"
-for name in WSShellConnection WSDockSettings WSIconTileView; do
+for name in WSShellConnection WSNativeMenuConnection WSDockSettings WSIconTileView; do
   cp "$repo/Applications/Workspace/$name.h" "$repo/Applications/Workspace/$name.m" "$build/source/"
 done
 cp "$repo/Applications/Terminal/TerminalIcon.h" "$repo/Applications/Terminal/TerminalIcon.m" "$build/source/"

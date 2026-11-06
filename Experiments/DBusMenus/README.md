@@ -121,11 +121,39 @@ field-command callback assertions remain intact. Shared snapshots use the
 inherited descriptor; signals may wait while Python is inside a blocking native
 dispatch. The owner-loss check requires the shared helper to remain alive.
 
-The current experiment does not complete browser integration. The fixture binds
-one owned browser window; production shell selection/focus association remains
-unimplemented. Ambiguous rebuilt sibling identities, changes to an already
-visible branch, special-key metadata, bus recovery and other browser/toolkit
-controls remain open. See [shared-host qualification](shared-host-qualification.json).
+## Workspace window association
+
+Workspace now binds shell protocol 19 and receives each real window's advertised
+address in its complete private compositor batch. `activeApplicationMenu` selects
+the focused native Wayland window; legacy/unpresented/minimized and no-menu
+applications do not supply a foreign menu. `WSNativeMenuConnection` forwards the
+selection over an optional `--nextspace-native-menu-fd` inherited SEQPACKET role.
+Workspace consumes it before AppKit can start helpers and marks it CLOEXEC.
+The helper retains unique D-Bus-owner/PID authentication.
+
+This connection uses native run-loop descriptor events, nonblocking writes and
+one outstanding reply. Later focus changes coalesce to the latest address.
+Geometry updates do not rebind. Rejecting the current address clears the old
+application's menu and suppresses retries of that unchanged rejected identity.
+Shell/channel loss clears the menu while the field helper survives. The role
+packet limit is 8192 bytes, accommodating bounded protocol address metadata.
+
+`run-frontend-fixture.py --export-menus --shared-menus --menu-shell-probe PATH`
+uses the actual Workspace connection classes rather than manually sending bind
+requests. `check-workspace.py` verifies two Firefox windows, real native menu
+commands from their address fields, switching to TextEdit and back, and shell
+role loss. `Tests/Wayland/appmenu.py --workspace-probe PATH` independently checks
+metadata, rejection, delayed replies/coalescing and descriptor inheritance.
+
+The current experiment does not complete browser integration. Standard session
+supervision still needs to launch/package the shared host and supply its role;
+the installed desktop is not automatically enabled by this change. A retained
+live failure also establishes that shortcuts from the webpage body never reach
+the helper: current keyboard hooks cover native fields only. Global browser
+shortcut routing, ambiguous rebuilt sibling identities, changes to an already
+visible branch, special-key metadata, registrar/bus recovery and other
+browser/toolkit controls remain open. See [Workspace association qualification](workspace-qualification.json)
+and the preceding [shared-host qualification](shared-host-qualification.json).
 
 See the Firefox [menu lifecycle qualification](../FirefoxNativeUI/menu-lifecycle-qualification.json)
 for the current toolbar, root-window and event-delivery fixes.

@@ -330,6 +330,12 @@ responder host. Physical Undo/Redo and Emacs navigation are qualified in both
 webpage and address fields; the 83-check clipboard run also passes through the
 real exported application menu. `check-shortcuts.py` and
 `check-shared-host.py` live in `Experiments/DBusMenus`. The inherited registration
-descriptor is separate from renderer input connections. Production shell
-association, remaining browser controls and derivative qualification remain
-incomplete. See [shared-host qualification](../DBusMenus/shared-host-qualification.json).
+descriptor is separate from renderer input connections. The additional
+`--menu-shell-probe PATH` fixture option uses Workspace's actual shell/menu
+connections to follow focus and advertised address changes automatically.
+Two-window/native-application transitions are qualified separately. Native menu
+shortcuts currently require a native field: a page-body Alt+T failure is retained
+as missing global keyboard routing. Session host startup/packaging, registrar
+recovery, remaining controls and derivative qualification remain incomplete.
+See [Workspace qualification](../DBusMenus/workspace-qualification.json) and the
+preceding [shared-host qualification](../DBusMenus/shared-host-qualification.json).

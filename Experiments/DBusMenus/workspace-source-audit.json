@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-06",
+  "baseline": "a6fe2584",
+  "scope": "Forward actual Workspace active-window menu metadata to the shared native host",
+  "implementation": {
+    "metadata": "WSShellConnection binds protocol 19, merges window_appmenu into complete compositor batches and selects the focused native Wayland window.",
+    "role": "Optional inherited Unix SEQPACKET role is consumed before AppKit helpers and marked CLOEXEC. Workspace window-manager lifetime owns the connection.",
+    "scheduling": "Native run-loop descriptor callbacks, nonblocking sends and one pending acknowledgement. Focus changes coalesce; geometry-only changes do not rebind.",
+    "rejection": "Failed current address clears stale menu and caches rejected identity to prevent native-window mapping retry loops. Changed selection may be tried.",
+    "separation": "No widget drawing, layout, native shortcut interpretation or native component copy. Existing helper authenticates D-Bus owner and uses NativeUI/GNUstep menus.",
+    "qualification_boundary": "Private probe links the actual production connection classes. Workspace main/window-manager compile syntax is checked; full Workspace deployment and standard session host startup remain open."
+  },
+  "source_sha256": {
+    "Applications/Workspace/WSNativeMenuConnection.h": "fa8f58f82fffc98525935666de8cc71f4b4f0df097a47702cd7000b2c4766565",
+    "Applications/Workspace/WSNativeMenuConnection.m": "a1fee2fdf9775ea41a55734a345fdcafc971c7bf0e78f555e5e72520d0860fc2",
+    "Applications/Workspace/WSShellConnection.h": "bf844148c1c01a7331923f1a6796b80f7caab3d6613199c39167f6dd7eb2ccc4",
+    "Applications/Workspace/WSShellConnection.m": "37aa733467d50a3fcdf25eda97fe1e105c10abfb900408119c289e7ba7ff98fe",
+    "Applications/Workspace/Workspace_main.m": "4962319385f3828eebafee35bf312101bde5fcbe24eee052c1154bd101503da6",
+    "Applications/Workspace/WaylandWindowManager.m": "c6914b9b6d595584a9a396a4a9d8bcc867a5f9bd550748ba317b3efb810c5027",
+    "Applications/Workspace/GNUmakefile": "a3831b84d793d9cbfd84289c617ad7963d4cb59640d0a47b77b891a8c3db1b04",
+    "Applications/Workspace/Session.h": "1236ae799a8a7bd2a15df959839ca6d1fa88b2884be1c29f49836dc502a45ceb",
+    "Tests/GNUstep-GUI/ShellConnectionProbe.m": "f2e812a2e1c451b202409502584d1f9bb2dce703a0fb5ec72021aee33c3fa9a5",
+    "Tests/GNUstep-GUI/GNUmakefile": "5a08faf7f01f701dae27e5f39f3efa2cbdb9b089e32c5cd2853731d63fb54c41",
+    "Tests/Wayland/shell.py": "ab0b9984551bfc77f5f8166e2ef103714325cfd3865387bd1ef0816e30a460c7",
+    "Tests/Wayland/appmenu.py": "a96db885b26377f523f246361356f2a741596604d561bbd39670aebb54aa42ec",
+    "Tests/Wayland/build.sh": "d5ce936e9a4d34d210080d5212aa1c84dad53d74495f26661ad244365a976df3",
+    "Tests/Wayland/desktop-probes.sh": "4dabb21ec6935667a7fbd5cd5c799904eb7c0f435bbcbae0235b54c81a8c68a0",
+    "Experiments/DBusMenus/broker.py": "b4c5315f986761813bd477b81cb3aa978fc180f242cbdbb57cf8f03f992c1d4a",
+    "Experiments/DBusMenus/check-workspace.py": "3464154050f0a3d0e517f6ac8489b52b1e99493ac48a0893f51b79341f0973ce",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "ac56ef1fcc1e94e30bb1f73b4f3bdcec0c037777743370b1c9c5c36ca6a34b1a"
+  },
+  "qualification": "workspace-qualification.json",
+  "remaining": [
+    "Standard session launch/packaging/supervision of the shared host and its private role; full installed Workspace application deployment is not qualified.",
+    "Browser global native menu keyboard routing outside native text fields. The page-body Alt+T failure is retained; successful association checks explicitly focus the native address field.",
+    "Production registrar, bus recovery and retry policy for previously rejected addresses.",
+    "Other browser controls/dialogs, special-key/multi-chord menu metadata, IME, accessibility and mixed scaling.",
+    "Chrome/Vivaldi/Firefox derivative frontends and complete GTK/Qt/KDE application integration."
+  ]
+}

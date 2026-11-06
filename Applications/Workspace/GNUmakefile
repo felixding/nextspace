@@ -30,7 +30,7 @@ SUBPROJECTS = \
 	Preferences/Desktops
 
 $(APP_NAME)_OBJC_FILES = \
-	$(filter-out DisplayProfile.m ScreenCastChooser.m WSShellConnection.m WaylandWindowManager.m,$(wildcard *.m)) \
+	$(filter-out DisplayProfile.m ScreenCastChooser.m WSShellConnection.m WSNativeMenuConnection.m WaylandWindowManager.m,$(wildcard *.m)) \
 	$(wildcard Viewers/*.m) \
 	$(wildcard Operations/*.m) \
 	$(wildcard Processes/*.m)
@@ -38,7 +38,7 @@ $(APP_NAME)_OBJC_FILES = \
 # The supported desktop is native Wayland. Historical X11 sources are excluded.
 ifeq ($(NEXTSPACE_BUILD_WAYLAND),1)
 $(APP_NAME)_OBJC_FILES := $(filter-out X11Session.m X11WindowManager.m Workspace+WM.m WMNotificationCenter.m RecyclerIcon.m Processes/ProcessManager+X11.m,$($(APP_NAME)_OBJC_FILES))
-$(APP_NAME)_OBJC_FILES += WSShellConnection.m WaylandWindowManager.m
+$(APP_NAME)_OBJC_FILES += WSShellConnection.m WSNativeMenuConnection.m WaylandWindowManager.m
 ADDITIONAL_CPPFLAGS += -DNEXTSPACE_BUILD_WAYLAND=1
 NEXTSPACE_FRAMEWORKS_DIR ?= ../../Frameworks
 ADDITIONAL_INCLUDE_DIRS += -I$(NEXTSPACE_FRAMEWORKS_DIR)

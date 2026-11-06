@@ -13,7 +13,7 @@ from integration import until
 
 
 class Shell:
-    def __init__(self, executable, broker, env, directory, index, version=4, workspace_mode=None):
+    def __init__(self, executable, broker, env, directory, index, version=4, workspace_mode=None, menu_endpoint=None):
         server, client = socket.socketpair()
         broker.sendmsg([b"C"], [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [server.fileno()]))])
         server.close()
@@ -21,9 +21,12 @@ class Shell:
         with (directory / f"shell-{index}.stderr").open("w") as errors:
             arguments = [str(workspace_mode), "--nextspace-shell-fd", str(client.fileno())] if self.workspace else (
                 [f"--version{version}"] if version != 4 else [])
+            if menu_endpoint is not None:
+                assert self.workspace
+                arguments += ['--nextspace-native-menu-fd',str(menu_endpoint.fileno())]
             connection_env = dict(env) if self.workspace else dict(env, WAYLAND_SOCKET=str(client.fileno()))
             self.process = subprocess.Popen([executable, *arguments], env=connection_env,
-                pass_fds=[client.fileno()], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors)
+                pass_fds=[client.fileno()]+([menu_endpoint.fileno()] if menu_endpoint is not None else []), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors)
         client.close()
         os.set_blocking(self.process.stdout.fileno(), False)
         self.wait(lambda: self.global_id is not None, "authorized shell binding")

@@ -25,7 +25,7 @@ class MenuBroker:
         if self.pending is not _UNCHANGED and self.pending:self.pending['binding'].stop()
 
     def receive(self):
-        try:data,ancillary,flags,_=self.control.recvmsg(4096,0,socket.MSG_DONTWAIT)
+        try:data,ancillary,flags,_=self.control.recvmsg(8192,0,socket.MSG_DONTWAIT)
         except BlockingIOError:return
         except ConnectionResetError:data=b'';ancillary=[];flags=0
         if not data:

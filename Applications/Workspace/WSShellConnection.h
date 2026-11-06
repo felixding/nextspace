@@ -62,6 +62,9 @@ int WSConsumeShellDescriptor(void);
 - (NSArray *)windows;
 - (NSNumber *)pointerWindow;
 - (NSDictionary *)windowForID:(NSNumber *)identifier;
+/* Selected from the complete private shell batch; nil for native/no-menu or
+   legacy clients. The receiver must still authenticate the D-Bus owner PID. */
+- (NSDictionary *)activeApplicationMenu;
 - (void)activateWindow:(NSNumber *)identifier;
 - (void)closeWindow:(NSNumber *)identifier;
 - (void)moveWindow:(NSNumber *)identifier toPoint:(NSPoint)point;

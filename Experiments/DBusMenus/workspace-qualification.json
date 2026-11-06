@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "a6fe2584",
+  "status": "Actual Workspace connection classes qualify active-window association in an isolated Firefox fixture; full objective incomplete",
+  "verification": {
+    "application_menu_protocol": {
+      "recorded_assertion_rows": 21,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "public-client-cannot-bind-shell",
+          "passed": true
+        },
+        {
+          "case": "address-before-map-reaches-authorized-shell",
+          "passed": true,
+          "event": {
+            "event": "window-appmenu",
+            "id": 1,
+            "service": ":1.42",
+            "path": "/test/menu"
+          }
+        },
+        {
+          "case": "address-shares-window-batch",
+          "passed": true
+        },
+        {
+          "case": "address-update",
+          "passed": true
+        },
+        {
+          "case": "surface-before-appmenu-release-is-safe",
+          "passed": true
+        },
+        {
+          "case": "release-clears-address",
+          "passed": true
+        },
+        {
+          "case": "owner-exit-retires-window",
+          "passed": true
+        },
+        {
+          "case": "version18-client-receives-no-new-event",
+          "passed": true
+        },
+        {
+          "case": "duplicate-owned-surface-object-rejected",
+          "passed": true,
+          "stderr": "org_kde_kwin_appmenu_manager#6: error 0: surface already has an app-menu object\n"
+        },
+        {
+          "case": "compositor-survives-rejected-client",
+          "passed": true
+        },
+        {
+          "case": "workspace-authenticated-menu-metadata",
+          "passed": true
+        },
+        {
+          "case": "workspace-focus-selects-second-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-focus-restores-first-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-active-address-update",
+          "passed": true
+        },
+        {
+          "case": "rejected-active-address-clears-previous-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-remains-responsive-during-delayed-menu-reply",
+          "passed": true
+        },
+        {
+          "case": "pending-focus-updates-coalesce-to-latest-address",
+          "passed": true
+        },
+        {
+          "case": "unchanged-window-metadata-does-not-rebind",
+          "passed": true
+        },
+        {
+          "case": "workspace-address-removal-clears-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-closed-owner-retires-menu",
+          "passed": true
+        },
+        {
+          "case": "menu-peer-loss-preserves-workspace",
+          "passed": true
+        }
+      ]
+    },
+    "live_firefox_association": {
+      "recorded_assertion_rows": 19,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "workspace-automatically-binds-real-browser-window",
+          "passed": true
+        },
+        {
+          "case": "native-root-is-existing-helper-window",
+          "passed": true
+        },
+        {
+          "case": "first-window-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "first-window-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-follows-second-browser-window",
+          "passed": true
+        },
+        {
+          "case": "second-window-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "second-window-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "return-to-first-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "return-to-first-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "geometry-update-does-not-recreate-native-menu",
+          "passed": true
+        },
+        {
+          "case": "native-application-focus-clears-foreign-menu",
+          "passed": true
+        },
+        {
+          "case": "menu-removal-preserves-shared-control-helper",
+          "passed": true
+        },
+        {
+          "case": "browser-focus-restores-its-native-menu",
+          "passed": true
+        },
+        {
+          "case": "after-native-app-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "after-native-app-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-role-loss-clears-native-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-role-loss-preserves-control-helper",
+          "passed": true
+        },
+        {
+          "case": "no-menu-callback-errors",
+          "passed": true
+        }
+      ]
+    },
+    "shell_regression": {
+      "passed": [
+        "public registry and guessed bind rejected",
+        "spoofed app ID has no authority",
+        "snapshot, activate, move and close",
+        "invalid broker fds released",
+        "window snapshots survive reentrant metadata replacement",
+        "focus preserves floating level",
+        "minimize and restore",
+        "connection replacement",
+        "shell crash and state recovery",
+        "version 1/2/3/4/5 compatibility",
+        "retained shell presentation and hit testing",
+        "broker revocation",
+        "input-authorized activation and single-use tokens",
+        "desktop visibility, sticky windows, retained minimization, count reduction and activation",
+        "Control desktop shortcuts and safe Alt+Escape",
+        "native redraw after a density change on an inactive desktop"
+      ],
+      "workspace_run_loop_modes": 4,
+      "gui_probe_used": false
+    },
+    "compilation": {
+      "private_probe_compiled_and_linked": true,
+      "probe_sha256": "6d6335078a63e11a9e29dad3137bdab1804bbb32cb65115ed9f279545abd3c3e",
+      "Workspace_main_and_window_manager_syntax_checked": true,
+      "no_compiler_diagnostics": true,
+      "full_Workspace_binary_built": false
+    },
+    "native_menu_callback_errors": []
+  },
+  "environment": {
+    "unchanged_binary_sha256": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "5e9fc5247ed636263ff0155c60f2fb38364f0860e11453cd397d6a52cb75aab3",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "observed_firefox_tab_processes": 5,
+    "all_tab_seccomp_2_and_no_new_privs_1": true,
+    "package_count": 1050
+  },
+  "cleanup": {
+    "fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-workspace-menu-01",
+        "pids": [
+          18538,
+          18541,
+          18542,
+          18546,
+          18547,
+          18549,
+          18552,
+          18553,
+          18657,
+          18660,
+          18670,
+          18679,
+          18707,
+          18748,
+          18760,
+          18812,
+          18953,
+          18975,
+          19009,
+          19049,
+          19098
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-workspace-menu-02",
+        "pids": [
+          19356,
+          19359,
+          19360,
+          19364,
+          19365,
+          19367,
+          19368,
+          19369,
+          19454,
+          19457,
+          19475,
+          19484,
+          19508,
+          19552,
+          19562,
+          19564,
+          19576,
+          19821
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      }
+    ],
+    "backend_alias_removed": true,
+    "protocol_children": [
+      {
+        "pid": 19337,
+        "exit": 0
+      },
+      {
+        "pid": 19341,
+        "exit": 3
+      },
+      {
+        "pid": 19342,
+        "exit": 0
+      },
+      {
+        "pid": 19343,
+        "exit": 3
+      },
+      {
+        "pid": 19344,
+        "exit": 1
+      },
+      {
+        "pid": 19345,
+        "exit": 0
+      },
+      {
+        "pid": 19348,
+        "exit": -15
+      },
+      {
+        "pid": 19349,
+        "exit": 0
+      }
+    ]
+  },
+  "diagnostics": [
+    "The first live body-focus Alt+T produced no native application-menu action and left the real tab count at 1. This is missing global keyboard routing, not an invalid test; the test artifact with three completed rows remains retained.",
+    "The field-focused association check initially raced TextEdit icon/menu mapping before a focusable document appeared. The final check waits for the document that accepts focus.",
+    "The initial retry assumed exactly two browser windows despite an earlier window still existing. A helper cleanup attempt also used content-context tab handles as window handles. The final check uses chrome context and identifies only its newly created window by set difference; it cleans up that window.",
+    "The final fresh Firefox cohort passes all 19 checks with the final Workspace classes, without rebuilding Firefox, its adapter, libxul, browser archive, AppKit or NativeUI.",
+    "A rejected active address clears the previous menu and is suppressed until the selected identity changes. This is not a general D-Bus restart/recovery implementation."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/workspace-menu-evidence",
+    "/var/tmp/nextspace-native-ui/workspace-menu-protocol-01",
+    "/var/tmp/nextspace-native-ui/workspace-menu-protocol-02",
+    "/var/tmp/nextspace-native-ui/workspace-menu-shell-regression-01",
+    "/var/tmp/nextspace-native-ui/workspace-menu-shell-regression-02",
+    "/var/tmp/nextspace-native-ui/firefox-workspace-menu-01",
+    "/var/tmp/nextspace-native-ui/firefox-workspace-menu-02",
+    "/var/tmp/nextspace-native-ui/shell-menu-probe-02"
+  ],
+  "remaining": [
+    "Standard session launch/packaging/supervision of the shared host and its private role; full installed Workspace application deployment is not qualified.",
+    "Browser global native menu keyboard routing outside native text fields. The page-body Alt+T failure is retained; successful association checks explicitly focus the native address field.",
+    "Production registrar, bus recovery and retry policy for previously rejected addresses.",
+    "Other browser controls/dialogs, special-key/multi-chord menu metadata, IME, accessibility and mixed scaling.",
+    "Chrome/Vivaldi/Firefox derivative frontends and complete GTK/Qt/KDE application integration."
+  ],
+  "source_sha256": {
+    "Applications/Workspace/WSNativeMenuConnection.h": "fa8f58f82fffc98525935666de8cc71f4b4f0df097a47702cd7000b2c4766565",
+    "Applications/Workspace/WSNativeMenuConnection.m": "a1fee2fdf9775ea41a55734a345fdcafc971c7bf0e78f555e5e72520d0860fc2",
+    "Applications/Workspace/WSShellConnection.h": "bf844148c1c01a7331923f1a6796b80f7caab3d6613199c39167f6dd7eb2ccc4",
+    "Applications/Workspace/WSShellConnection.m": "37aa733467d50a3fcdf25eda97fe1e105c10abfb900408119c289e7ba7ff98fe",
+    "Applications/Workspace/Workspace_main.m": "4962319385f3828eebafee35bf312101bde5fcbe24eee052c1154bd101503da6",
+    "Applications/Workspace/WaylandWindowManager.m": "c6914b9b6d595584a9a396a4a9d8bcc867a5f9bd550748ba317b3efb810c5027",
+    "Applications/Workspace/GNUmakefile": "a3831b84d793d9cbfd84289c617ad7963d4cb59640d0a47b77b891a8c3db1b04",
+    "Applications/Workspace/Session.h": "1236ae799a8a7bd2a15df959839ca6d1fa88b2884be1c29f49836dc502a45ceb",
+    "Tests/GNUstep-GUI/ShellConnectionProbe.m": "f2e812a2e1c451b202409502584d1f9bb2dce703a0fb5ec72021aee33c3fa9a5",
+    "Tests/GNUstep-GUI/GNUmakefile": "5a08faf7f01f701dae27e5f39f3efa2cbdb9b089e32c5cd2853731d63fb54c41",
+    "Tests/Wayland/shell.py": "ab0b9984551bfc77f5f8166e2ef103714325cfd3865387bd1ef0816e30a460c7",
+    "Tests/Wayland/appmenu.py": "a96db885b26377f523f246361356f2a741596604d561bbd39670aebb54aa42ec",
+    "Tests/Wayland/build.sh": "d5ce936e9a4d34d210080d5212aa1c84dad53d74495f26661ad244365a976df3",
+    "Tests/Wayland/desktop-probes.sh": "4dabb21ec6935667a7fbd5cd5c799904eb7c0f435bbcbae0235b54c81a8c68a0",
+    "Experiments/DBusMenus/broker.py": "b4c5315f986761813bd477b81cb3aa978fc180f242cbdbb57cf8f03f992c1d4a",
+    "Experiments/DBusMenus/check-workspace.py": "3464154050f0a3d0e517f6ac8489b52b1e99493ac48a0893f51b79341f0973ce",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "ac56ef1fcc1e94e30bb1f73b4f3bdcec0c037777743370b1c9c5c36ca6a34b1a"
+  }
+}
