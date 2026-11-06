@@ -2,7 +2,7 @@
 """Experimental renderer transport to the independent native UI provider."""
 import argparse,array,ctypes as C,fcntl,itertools,json,os,select,signal,socket,struct,sys,time
 from pathlib import Path
-from native_controls import MAGIC as CONTROL_MAGIC, NativeControlServer
+from native_controls import MAGIC as CONTROL_MAGIC, NativeControlServer, ControlInputRequest
 class Request(C.Structure):
     _fields_=[('magic',C.c_uint32),('operation',C.c_uint32),('process',C.c_uint32),('layer',C.c_uint32),('control',C.c_uint64),('horizontal',C.c_int32),('reserved',C.c_int32),('length',C.c_double),('total',C.c_double),('page',C.c_double),('value',C.c_double)]
 class Rect(C.Structure):
@@ -27,7 +27,7 @@ def send_response(client,response,data=b''):
         client.sendmsg([bytes(response)],[(socket.SOL_SOCKET,socket.SCM_RIGHTS,array.array('i',[descriptor]))])
     finally:os.close(descriptor)
 
-def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
+def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activation=None):
     started=time.monotonic()
     native=C.CDLL(str(library));native.nxs_scroller_create.argtypes=[C.c_int,Changed,Pump,C.c_void_p];native.nxs_scroller_create.restype=C.c_void_p
     native.nxs_scroller_width.argtypes=[];native.nxs_scroller_width.restype=C.c_double
@@ -41,6 +41,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
     server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET)
     server.setblocking(False)
     clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={};menu_broker=None;menu_sources=set()
+    native_dispatch_depth=0;deferred_keys=set()
     def add_source(connection):
         if forms and forms.source_capabilities:
             source=native.nxs_native_ui_source_create(connection if isinstance(connection,int) else connection.fileno())
@@ -56,7 +57,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
         state=contexts[context];state['value']=value
         log('native-action',process=state['key'][0],control=state['key'][1],value=value)
     @Pump
-    def pump(context):dispatch(0)
+    def pump(context):reentrant_dispatch(0)
     def response(client,req,state,pixels=False,scroller_width=0):
         result=Response();result.magic=req.magic;result.reserved=req.reserved
         result.parts[0].width=scroller_width
@@ -85,9 +86,39 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
             data=C.string_at(bitmap.pixels,bitmap.stride*bitmap.height)
         if forms:forms.send(client,result,data)
         else:send_response(client,result,data)
+    def emit_response(client,result,data=b''):
+        if activation and not activation.before_reply(client,result):return
+        send_response(client,result,data)
     def message(client,data,descriptors,sender_pid):
         if len(data)>=4 and int.from_bytes(data[:4],'little')==CONTROL_MAGIC:
-            if forms:forms.message(client,data,descriptors,sender_pid)
+            if forms:
+                if (native_dispatch_depth and len(data)>=C.sizeof(ControlInputRequest) and int.from_bytes(data[4:8],'little')==8 and not descriptors
+                        and client not in deferred_keys and len(deferred_keys)<128
+                        and (forms.menus.busy() or menu_broker and menu_broker.busy())):
+                    # NSMenu is validating/tracking on the native stack. A
+                    # temporary refusal is not an unhandled application key.
+                    # Preserve the original packet/sequence, then revalidate
+                    # its lifetime and focus after that native call returns.
+                    deferred_keys.add(client)
+                    deadline=time.monotonic()+1
+                    def later():
+                        deferred_keys.discard(client)
+                        if client in clients:
+                            if time.monotonic()>=deadline:
+                                # Never apply an input after the caller's
+                                # bounded RPC wait could have fallen back.
+                                forms._respond(client,ControlInputRequest.from_buffer_copy(data))
+                                log('native-key-expired')
+                            else:message(client,data,(),sender_pid)
+                    pending.append(later);log('native-key-deferred')
+                    return
+                previous=activation.pending if activation else None
+                if activation:
+                    operation=int.from_bytes(data[4:8],'little')
+                    activation.pending=(client,int.from_bytes(data[8:12],'little')) if operation in (15,16,19,20,23,24) else None
+                try:forms.message(client,data,descriptors,sender_pid)
+                finally:
+                    if activation:activation.pending=previous
             return
         if descriptors:return
         if len(data)!=C.sizeof(Request):return
@@ -124,6 +155,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
         else:response(client,req,None)
     def dispatch(timeout,native_events=True):
         nonlocal menu_sources
+        if pending:timeout=0
         readers,writers,menu_delay=set(),set(),None
         if menu_broker:
             menu_broker.pump();readers,writers,menu_delay=menu_broker.poll()
@@ -138,9 +170,13 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
         if native_wait>=0:
             timeout=native_wait if timeout is None else min(timeout,native_wait)
         if menu_delay is not None:timeout=menu_delay if timeout is None else min(timeout,menu_delay)
-        ready,writable,_=select.select([server]+clients+list(readers)+(forms.notification_fds()+forms.text_filter_fds() if forms else []),list(writers),[],timeout)
+        readable=([server] if server else [])+([] if activation and activation.restoring else clients)+list(readers)+(forms.notification_fds()+forms.text_filter_fds() if forms else [])
+        if activation:readable.insert(0,activation.channel)
+        ready,writable,_=select.select(readable,list(writers),[],timeout)
         if writable:menu_broker.pump()
         for client in ready:
+            if activation and client is activation.channel:
+                activation.receive();continue
             if isinstance(client,int):
                 if client in readers:menu_broker.ready(client)
                 elif client in forms.text_filter_fds():forms.text_filter_ready(client)
@@ -175,7 +211,14 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
                     state['destroy']=True
                     if native.nxs_scroller_tracking(state['native']):native.nxs_scroller_send(state['native'],1,0,0,0)
             if forms:forms.disconnect(client)
+            if activation:activation.forget(client)
             clients.remove(client);remove_source(client);client.close()
+        if activation:activation.synchronize()
+    def reentrant_dispatch(timeout,native_events=True):
+        nonlocal native_dispatch_depth
+        native_dispatch_depth+=1
+        try:dispatch(timeout,native_events)
+        finally:native_dispatch_depth-=1
     def track_scroller(state,x,y,modifiers):
         nonlocal active
         state['starting']=False
@@ -185,14 +228,14 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
         finally:active=None
         log('native-release',process=state['key'][0],control=state['key'][1],value=state['value'])
     if hasattr(native,'nxs_control_create'):
-        forms=NativeControlServer(native,Bitmap,Response,Pump,dispatch,pending,send_response,
+        forms=NativeControlServer(native,Bitmap,Response,Pump,reentrant_dispatch,pending,emit_response,
                                   lambda: not pending and active is None and forms.active is None,log)
         forms.prepare()
     if menu_descriptor is not None:
         if not forms or not forms.notification_capabilities:raise RuntimeError('Shared menus require authenticated native owner notifications')
         sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'DBusMenus'))
         from broker import MenuBroker
-        menu_broker=MenuBroker(native,menu_descriptor,menu_output or path.parent/'menus',dispatch,log)
+        menu_broker=MenuBroker(native,menu_descriptor,menu_output or path.parent/'menus',reentrant_dispatch,log,models=forms.menus)
         forms.input_owner=menu_broker.allows_input
         if menu_broker.key_capabilities:
             forms.menus.application_key=menu_broker.key;forms.menus.capabilities|=2
@@ -205,8 +248,13 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
             if not native.nxs_scroller_draw(pointer,1).pixels:raise RuntimeError('Native scroller drawing failed')
         finally:native.nxs_scroller_destroy(pointer)
     if prepared:prepared(native)
-    server.bind(str(path));os.chmod(path,0o600);server.listen(20)
-    add_source(server)
+    if activation:
+        server.close();server=None
+        def adopt(connection):clients.append(connection);add_source(connection)
+        activation.start(forms,adopt);add_source(activation.channel)
+    else:
+        server.bind(str(path));os.chmod(path,0o600);server.listen(20)
+        add_source(server)
     log('ready',socket=str(path),request_size=C.sizeof(Request),response_size=C.sizeof(Response),preparation_seconds=time.monotonic()-started)
     try:
         while True:
@@ -219,12 +267,18 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
             if forms:forms.cleanup()
             if menu_broker:menu_broker.tick()
     finally:
+        # Record the original failure before closing the private roles. A
+        # supervisor reacting to EOF must not obscure its diagnostic cause.
+        import traceback
+        exception_type,_,exception_trace=sys.exc_info()
+        log('transport-stopping',exception=exception_type.__name__ if exception_type else None,
+            frames=[dict(file=frame.filename,line=frame.lineno,function=frame.name) for frame in traceback.extract_tb(exception_trace)])
         for connection in list(sources):remove_source(connection)
         if menu_broker:menu_broker.close()
         if forms:forms.close()
         for state in controls.values():native.nxs_scroller_destroy(state['native'])
         for client in clients:client.close()
-        server.close();path.unlink(missing_ok=True)
+        if server:server.close();path.unlink(missing_ok=True)
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--library',type=Path,required=True);p.add_argument('--socket',type=Path,required=True)
     p.add_argument('--dbus-menu-fd',type=int);p.add_argument('--dbus-menu-output',type=Path)

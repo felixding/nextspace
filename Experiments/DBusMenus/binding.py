@@ -317,9 +317,8 @@ class MenuBinding:
                 if projection(pending_root)==projection(native_root):pending_root = None
                 else:
                     array = array_for(pending_root)
-                    if native.nxs_menu_items(menu,array,len(array)):
+                    if native.nxs_menu_items(menu,array,len(array)) and native.nxs_menu_show(menu,1):
                         native_root,pending_root = pending_root,None
-                        if not native.nxs_menu_show(menu,1):raise RuntimeError('Native menu could not be shown')
                         dump_states()
                         log('native-menu',owner=owner,pid=actual_pid,count=len(array),revision=revision)
 

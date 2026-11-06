@@ -9,8 +9,11 @@ See the [application-wide scope and coverage](../../docs/Native-Control-Integrat
 The optional [session host](Host/README.md) now starts through the user launcher
 and supervisor when installed. It reuses the shared bridge and this provider,
 with no copied control implementation. Its staged session checks and remaining
-deployment/reconnection gaps are recorded in the
-[session qualification](../../Applications/Session/native-ui-qualification.json).
+deployment gaps are recorded in the
+[recovery qualification](../../Applications/Session/native-ui-recovery-qualification.json).
+The supervisor retains original browser connections and owner capabilities
+across host loss; adapters reconstruct native objects from live application
+models without copying controls or replaying actions.
 
 The bridge and the underlying UI implementation are separate libraries:
 

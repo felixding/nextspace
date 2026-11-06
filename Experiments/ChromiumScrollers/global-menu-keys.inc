@@ -59,7 +59,9 @@ static void app_menu_browser_task(uint64_t identity) {
   }
   menu_browser_hide_others(identity);
   struct AppMenuBinding *menu=menu_browser_model(b);
-  if(menu){native_menu_request(menu->control,26,1);
+  if(menu){
+    struct NXSResponse *response=native_menu_request(menu->control,26,1);
+    if(response&&response->parts[3].x!=1)app_menu_bind(menu);
     if(log_fd>=0)dprintf(log_fd,"%d app-menu-browser-selected id=%llu active=1\n",getpid(),(unsigned long long)identity);
     return;}
   /* The real method creates and initializes the real AppMenuModel. Its
@@ -107,6 +109,13 @@ static int menu_browser_key(struct MenuBrowser *b,const void *event,int execute)
   if(!b||!b->active||!b->manager||*(const unsigned char *)((char *)b->manager+72)||
       *(const int *)((const char *)event+8)!=7)return 0;
   struct AppMenuBinding *menu=menu_browser_model(b);if(!menu)return 0;
+  /* The session can retain this connection while replacing the native host.
+   * Re-project the actual engine model if its native object was lost. Never
+   * replay a command or keep a second implementation of menu behavior. */
+  struct NXSResponse *state=native_menu_request(menu->control,28,-1);
+  if(!state||state->parts[3].x!=1) {
+    if(!state||!app_menu_bind(menu))return 0;
+  }
   uint16_t text_unit=((uint16_t (*)(const void *))(base+NXS_KEY_TEXT_OFFSET))(event);
   uint16_t plain_unit=((uint16_t (*)(const void *))(base+NXS_KEY_UNMODIFIED_OFFSET))(event);
   char *text=encode_text(&text_unit,text_unit?1:0,0),*plain=encode_text(&plain_unit,plain_unit?1:0,0);

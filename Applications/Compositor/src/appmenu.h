@@ -81,16 +81,16 @@ static void appmenu_create(struct wl_client *client, struct wl_resource *resourc
     wl_resource_post_error(resource, 0, "app-menu surface belongs to another client"); return;
   }
   struct wlr_surface *surface = wlr_surface_from_resource(surface_resource);
-  if (appmenu_for_surface(server, surface)) {
-    wl_resource_post_error(resource, 0, "surface already has an app-menu object"); return;
-  }
   struct nextspace_appmenu *menu = calloc(1, sizeof(*menu));
   if (!menu) { wl_client_post_no_memory(client); return; }
   menu->resource = wl_resource_create(client, &org_kde_kwin_appmenu_interface,
     wl_resource_get_version(resource), id);
   if (!menu->resource) { free(menu); wl_client_post_no_memory(client); return; }
   menu->server = server; menu->surface = surface;
-  wl_list_insert(&server->appmenus, &menu->link);
+  /* Clients may create a replacement before releasing the old object. Keep
+   * the first surviving object's address until its owner releases it, as in
+   * KWin; neither the protocol nor that lifecycle requires uniqueness. */
+  wl_list_insert(server->appmenus.prev, &menu->link);
   menu->surface_destroy.notify = appmenu_surface_destroy;
   wl_signal_add(&surface->events.destroy, &menu->surface_destroy);
   wl_resource_set_implementation(menu->resource, &appmenu_impl, menu, appmenu_destroy);

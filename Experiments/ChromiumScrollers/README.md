@@ -625,6 +625,29 @@ no new shortcut table, widget renderer, menu tracker or browser rebuild.
 synthetic and unmatched events, foreign connections, two-window focus and
 window teardown. The source audit is [here](global-menu-source-audit.json),
 and the qualification is [here](global-menu-qualification.json).
+
+## Shared-host recovery and real seat input
+
+The session supervisor now retains the original client and callback endpoints
+across native host loss. The pinned browser reconstructs its native fields and
+application menu from live engine models. A missing native menu is reprojected
+on focus or key handling, and a queued menu action from an older host epoch is
+discarded. No browser rebuild or control implementation is involved.
+
+Real Wayland Control-letter events can carry an ASCII control character in
+Blink's unmodified-text field, while automation supplies the DOM key. For
+Control-only letter events, the adapter uses the existing DOM key as the
+native event's unmodified characters. GNUstep interprets the binding; the
+adapter adds no key table. Alt/Super and logical key paths retain their data.
+The shared host also defers keys received inside native menu validation until
+that call returns, with expiry before the adapter's fallback deadline.
+
+The [recovery qualification](../../Applications/Session/native-ui-recovery-qualification.json)
+covers real compositor-seat keys for normal/password webpage fields and the
+Omnibox before and after host replacement, native application commands and
+switching to Firefox and back. These checks apply to the pinned Chromium build;
+other Views controls, IME, automatic installation and derivative frontends
+remain open.
 This remains an optional adapter for the recorded Linux ARM64 executable.
 Chrome, Vivaldi, other Chromium versions, the remaining browser frontend,
 full desktop session integration and other toolkits still require work.

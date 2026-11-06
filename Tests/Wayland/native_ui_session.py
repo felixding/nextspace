@@ -33,8 +33,9 @@ p.add_argument('--launcher',type=Path,help='Exercise the user launcher and its a
 p.add_argument('--backend-bundle',type=Path,help='Select a staged backend in a private GNUstep library without changing installed aliases')
 p.add_argument('--library-path',action='append',default=[])
 p.add_argument('--port',type=int,default=2834)
+p.add_argument('--hold',action='store_true',help='Expose a private control socket for an additional owned browser test before teardown')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
-rows=[];observed=set();session=None;client=None;state=None
+rows=[];observed=set();session=None;client=None;state=None;native_probe=None
 def check(case,passed,**values):
     rows.append(dict(case=case,passed=bool(passed),**values))
     (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert passed,rows[-1]
@@ -117,6 +118,23 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
     def context(value):client.command('Marionette:SetContext',dict(value=value))
     def js(code):return client.command('WebDriver:ExecuteScript',dict(script=code,args=[]))['value']
     def handles():return client.command('WebDriver:GetWindowHandles')
+    def edit_key(value,modifier=None):
+        actions=([dict(type='keyDown',value=modifier)] if modifier else [])+[dict(type='keyDown',value=value),dict(type='keyUp',value=value)]+([dict(type='keyUp',value=modifier)] if modifier else [])
+        client.command('WebDriver:PerformActions',dict(actions=[dict(type='key',id='recovery-keyboard',actions=actions)]))
+    def fields(label):
+        for surface,identifier in [('content','normal'),('content','password'),('chrome','urlbar-input')]:
+            context(surface)
+            js("let e=document.getElementById("+json.dumps(identifier)+");e.focus();e.value='Alpha beta';e.setSelectionRange(3,3);return true")
+            def field_state():
+                return js("let e=document.getElementById("+json.dumps(identifier)+");return {value:e.value,start:e.selectionStart,end:e.selectionEnd}")
+            edit_key('a','\ue009')
+            actual=field_state();check(label+'-'+identifier+'-native-emacs',actual==dict(value='Alpha beta',start=0,end=0),state=actual)
+            edit_key('Z');actual=field_state()
+            check(label+'-'+identifier+'-native-transaction',actual==dict(value='ZAlpha beta',start=1,end=1),state=actual)
+            js("document.getElementById("+json.dumps(identifier)+").addEventListener('beforeinput',e=>e.preventDefault(),{once:true});return true")
+            edit_key('Q');actual=field_state()
+            check(label+'-'+identifier+'-cancellation-retained',actual==dict(value='ZAlpha beta',start=1,end=1),state=actual)
+        context('content');js('document.body.focus();return true')
     try:
         session=subprocess.Popen([
             str(a.launcher or a.supervisor),*(['--private-bus','--native-ui-host',str(host)] if not a.launcher else []),
@@ -131,6 +149,11 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
             query.settimeout(5);query.connect(str(endpoint));query.send(bytes(Request(magic=0x4e585343,operation=7)))
             response=Response.from_buffer_copy(query.recv(65536))
             check('shared-model-and-global-key-capabilities',int(response.parts[5].height)==7)
+        native_probe=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET);native_probe.settimeout(5);native_probe.connect(str(endpoint))
+        import struct
+        peer_pid,peer_uid,_=struct.unpack('3i',native_probe.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
+        native_inode=os.fstat(native_probe.fileno()).st_ino
+        check('session-retains-original-client-endpoint',peer_pid==session.pid and peer_uid==os.getuid())
         bus_env=dict(environment,**published)
         inherited=subprocess.check_output(['gdbus','call','--session','--dest','org.nextspace.ValidationEnvironment',
             '--object-path','/org/nextspace/ValidationEnvironment','--method','org.nextspace.ValidationEnvironment.GetEnvironment'],env=bus_env,text=True)
@@ -188,13 +211,50 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
         wait(windows,lambda ws:any(w['pid']==host_pid() and shown(w) for w in ws))
         check('workspace-restarts-with-new-private-menu-role',shell_pid()!=old_shell and any(w['pid']==browser_pid for w in windows()))
         shortcut('workspace-recovery')
+        fields('before-host-loss')
+        js("normal.__recoveryMarker='same-frame';password.__recoveryMarker='same-frame';return true")
         old_host=host_pid();unchanged_shell=shell_pid();start=len(pump());os.kill(old_host,signal.SIGKILL)
         replacement=wait(host_pid,lambda pid:pid and pid!=old_host)
         wait(pump,lambda rs:any(e.get('event')=='dbus-menu-bound' and e['pid']==browser_pid for e in rs[start:]))
         wait(windows,lambda ws:any(w['pid']==replacement and shown(w) for w in ws))
         check('host-restart-replays-current-native-menu',shell_pid()==unchanged_shell and any(w['pid']==browser_pid for w in windows()))
-        # Existing browser request-socket recovery is a separate, unqualified
-        # adapter contract. This check proves native menu export/role recovery.
+        check('host-restart-preserves-live-field-models',js("return normal.__recoveryMarker==='same-frame' && password.__recoveryMarker==='same-frame' && normal.value==='ZAlpha beta' && password.value==='ZAlpha beta'"))
+        native_probe.send(bytes(Request(magic=0x4e585343,operation=7)))
+        restored_api=Response.from_buffer_copy(native_probe.recv(65536))
+        check('same-client-socket-serves-replacement-host',os.fstat(native_probe.fileno()).st_ino==native_inode and int(restored_api.parts[5].height)==7)
+        shortcut('native-host-recovery')
+        fields('after-host-loss')
+        if a.hold:
+            control_path=a.output/'control.sock'
+            with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as control:
+                control.bind(str(control_path));os.chmod(control_path,0o600);control.listen(1)
+                print(json.dumps(dict(event='fixture-ready',control=str(control_path))),flush=True)
+                try:
+                    done=False
+                    while not done:
+                        ready,_,_=select.select([control,session.stdout],[],[],.1);pump();process_tree()
+                        if control not in ready:continue
+                        connection,_=control.accept()
+                        with connection:
+                            request=json.loads(connection.recv(8192));operation=request['operation']
+                            if operation=='status':
+                                result=dict(host=host_pid(),shell=shell_pid(),browser=browser_pid,session=session.pid,windows=windows(),environment=published)
+                            elif operation=='keyboard':keyboard(request['text']);result=dict(ok=True)
+                            elif operation=='shell':command(request['text']);result=dict(ok=True)
+                            elif operation=='restart-host':os.kill(host_pid(),signal.SIGKILL);result=dict(ok=True)
+                            elif operation=='verify-firefox':
+                                before=len(rows)
+                                window=next(w for w in windows() if w['pid']==browser_pid and w['level']==0)
+                                command('activate '+str(window['id']))
+                                wait(windows,lambda ws:any(w['pid']==browser_pid and w['flags']&1 for w in ws))
+                                wait(windows,lambda ws:sum(w['pid']==host_pid() and w['level']==20 and shown(w) for w in ws)==1)
+                                shortcut('after-chromium-host-loss-switch')
+                                fields('after-chromium-host-loss-switch')
+                                result=dict(ok=True,passed=len(rows)-before)
+                            elif operation=='quit':done=True;result=dict(ok=True)
+                            else:raise ValueError(operation)
+                            connection.send(json.dumps(result).encode())
+                finally:control_path.unlink(missing_ok=True)
         snapshot=process_tree();(a.output/'processes.json').write_text(json.dumps(snapshot,indent=2)+'\n')
         contents=[v for v in snapshot if v['arguments'].rstrip().endswith(' tab')]
         check('browser-sandbox-retained',bool(contents) and all(v['seccomp']=='2' and v['no_new_privs']=='1' for v in contents))
@@ -202,8 +262,11 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
         client.close();client=None
         command('quit');session.wait(timeout=15)
         check('ordinary-session-exit',session.returncode==0)
+        diagnostics=(a.output/'session.stderr').read_text()
+        check('native-host-stops-before-display-teardown','Native UI host stopped with 0.' in diagnostics and 'Fatal Python error' not in diagnostics)
         check('session-removes-native-endpoint-and-state',not state.exists())
     finally:
+        if native_probe:native_probe.close()
         if client:
             try:client.close()
             except (EOFError,ConnectionError):

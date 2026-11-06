@@ -14,20 +14,21 @@ for key in ['supervisor','compositor','shell-probe','output']:p.add_argument('--
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);rows=[]
 def check(case,passed,**data):
     rows.append(dict(case=case,passed=bool(passed),**data));(a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert passed,rows[-1]
-for mode in ['without-private-bus','greeter','failed-host','foreign-listener']:
+for mode in ['without-private-bus','greeter','failed-host','foreign-ready-sender']:
     out=a.output/mode;out.mkdir()
     with tempfile.TemporaryDirectory(prefix='native-ui-failure-') as runtime:
         env=dict(os.environ,XDG_RUNTIME_DIR=runtime,XDG_SESSION_CLASS='greeter' if mode=='greeter' else 'user',WLR_BACKENDS='headless',WLR_RENDERER='pixman')
         for name in ['DISPLAY','WAYLAND_DISPLAY','WAYLAND_SOCKET','LD_PRELOAD']:env.pop(name,None)
         host='/bin/false'
-        if mode=='foreign-listener':
+        if mode=='foreign-ready-sender':
             script=out/'foreign-host';script.write_text('''#!/usr/bin/python3
-import os,socket,time
+import os,socket,time,signal,struct
 from pathlib import Path
+signal.signal(signal.SIGTERM,signal.SIG_IGN)
 pid=os.fork()
 if not pid:
- s=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET);s.bind(os.environ['NEXTSPACE_NATIVE_UI_SOCKET']);os.chmod(os.environ['NEXTSPACE_NATIVE_UI_SOCKET'],0o600);s.listen(30)
- Path('''+repr(str(out/'listening'))+''').write_text(str(os.getpid()))
+ s=socket.socket(fileno=os.dup(4));s.send(struct.pack('=IIQIiII',0x4e584146,1,0,0,0,0,0))
+ Path('''+repr(str(out/'sent-ready'))+''').write_text(str(os.getpid()))
  while True:time.sleep(1)
 else:os.waitpid(pid,0)
 ''');script.chmod(0o700);host=str(script)
@@ -83,14 +84,14 @@ else:os.waitpid(pid,0)
                 check('failed-host-keeps-desktop-and-normal-exit',session.returncode==0)
                 check('runtime-cleanup-does-not-follow-symlinks',(protected/'keep').read_text()=='Preserve this file\n' and not directories[0].exists())
             else:
-                wait(lambda:(out/'listening').exists())
+                wait(lambda:(out/'sent-ready').exists())
                 # Give the real supervisor multiple polls after the foreign
-                # listener becomes live. Matching uid/path alone is insufficient.
+                # descendant sends readiness. Matching uid/role alone is insufficient.
                 end=time.monotonic()+.5
                 while time.monotonic()<end:pump();time.sleep(.02)
-                check('different-listener-pid-is-not-ready',not any(e.get('event')=='ready' and 'windows' in e for e in events) and not any(l.startswith('NEXTSPACE_NATIVE_UI_SOCKET=') for l in lines))
+                check('different-readiness-sender-pid-is-rejected',not any(e.get('event')=='ready' and 'windows' in e for e in events) and not any(l.startswith('NEXTSPACE_NATIVE_UI_SOCKET=') for l in lines))
                 children();session.terminate();session.wait(timeout=15);pump()
-                check('foreign-listener-session-cleans-runtime',session.returncode==0 and not list(Path(runtime).glob('nextspace-native-ui-*')))
+                check('foreign-sender-session-cleans-runtime',session.returncode==0 and not list(Path(runtime).glob('nextspace-native-ui-*')))
         finally:
             if session.poll() is None:
                 children();session.terminate()

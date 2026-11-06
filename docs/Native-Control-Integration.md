@@ -37,6 +37,15 @@ native matching. Derivative builds remain unqualified. See the
 [Chromium global-key qualification](../Experiments/ChromiumScrollers/global-menu-qualification.json)
 and [session qualification](../Applications/Session/native-ui-qualification.json).
 
+The shared session host now retains the original browser connections across
+host loss, including sandboxed renderer subscriptions. Pinned Chromium and
+Firefox checks preserve native text transactions, Emacs navigation, cancellation
+and application menu commands after replacement, then switch between the two
+menu transports without competing roots. AppKit and browser executables remain
+unchanged. See the [recovery qualification](../Applications/Session/native-ui-recovery-qualification.json).
+This closes the measured connection-recovery gap, while broader control,
+frontend, derivative and installed-desktop requirements remain unfinished.
+
 ## Shared implementation and distinct integration boundaries
 
 Keep one native host in `Libraries/NativeUI` using installed GNUstep/AppKit and

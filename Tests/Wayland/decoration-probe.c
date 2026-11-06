@@ -16,6 +16,7 @@
 struct probe {
   struct org_kde_kwin_appmenu_manager *appmenu_manager;
   struct org_kde_kwin_appmenu *appmenu;
+  struct org_kde_kwin_appmenu *appmenu_extra;
   struct wl_compositor *compositor;
   struct wl_shm *shm;
   struct xdg_wm_base *shell;
@@ -205,12 +206,20 @@ int main(int argc, char **argv)
       unsigned mode, left, top, right, bottom;
       char action[32];
       char service[256], path[4097];
-      if (sscanf(line, "menu %255s %4096s", service, path) == 2 && probe.appmenu) {
+      if (!strncmp(line, "menu ", 5) && sscanf(line, "menu %255s %4096s", service, path) == 2 && probe.appmenu) {
         org_kde_kwin_appmenu_set_address(probe.appmenu, service, path);
       } else if (!strncmp(line, "menu-release", 12) && probe.appmenu) {
         org_kde_kwin_appmenu_release(probe.appmenu); probe.appmenu = NULL;
       } else if (!strncmp(line, "menu-duplicate", 14) && probe.appmenu) {
-        org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
+        probe.appmenu_extra = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
+        org_kde_kwin_appmenu_set_address(probe.appmenu_extra, ":1.44", "/replacement/menu");
+      } else if (!strncmp(line, "menu-promote", 12) && probe.appmenu && probe.appmenu_extra) {
+        org_kde_kwin_appmenu_release(probe.appmenu);
+        probe.appmenu = probe.appmenu_extra; probe.appmenu_extra = NULL;
+      } else if (sscanf(line, "menu-replace %255s %4096s", service, path) == 2 && probe.appmenu) {
+        struct org_kde_kwin_appmenu *replacement = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
+        org_kde_kwin_appmenu_release(probe.appmenu);
+        org_kde_kwin_appmenu_set_address(replacement, service, path); probe.appmenu = replacement;
       } else if (!strncmp(line, "menu-orphan", 11) && probe.appmenu_manager) {
         struct wl_surface *surface = wl_compositor_create_surface(probe.compositor);
         struct org_kde_kwin_appmenu *menu = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, surface);

@@ -74,6 +74,16 @@ requires current input ownership; both paths authenticate the controlling
 connection and sender's lifetime. See the browser application-menu bindings
 for current startup, focus and idle command integration.
 
+In supervised sessions, generation metadata in response part 4.x also carries
+the host epoch in its upper 32 bits. Callback serials start above that epoch's
+floor. The transport observes newer epochs and drops older nonzero-epoch edit,
+command and menu proposals before invoking an application handler. Legacy
+standalone epoch-zero peers retain their existing behavior. Chromium's queued
+menu UI tasks also check the captured epoch before executing. This rejects
+stale work; it does not replay an interrupted action. The supervisor retains
+the original socket/callback capabilities, so sandboxed renderers need no new
+socket connection. See the [session host](../Host/README.md).
+
 These are internal source includes, not a stable engine plugin ABI. Every
 consumer must audit its own binary, signatures, layouts and lifecycle. Sharing
 this machinery does not establish coverage for another engine or browser build.

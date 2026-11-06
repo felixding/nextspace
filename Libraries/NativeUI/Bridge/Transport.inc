@@ -29,6 +29,7 @@ static pid_t native_command_pid;
 static int (*native_menu_handler)(const struct NXSNativeMenuCommand *);
 static pid_t native_menu_pid;
 static uint64_t native_callback_generation;
+static _Atomic uint32_t native_host_epoch;
 static __thread uint32_t native_request_sequence;
 /* Invalidation workers share this process and request socket, but application
  * models and their native command/edit callbacks belong to the registering UI
@@ -68,6 +69,12 @@ static int dispatch_native_edit(int *owns_mutex) {
     memmove(command,text+edit.text_size,edit.command_size);text[edit.text_size]=0;command[edit.command_size]=0;
     serial=edit.serial;magic=edit.magic;
   }
+  /* A retained callback endpoint may contain a packet from the dead host.
+   * Once a newer host is observed, discard its predecessor's proposals and
+   * commands rather than applying them to a reconstructed application model. */
+  uint32_t epoch=serial>>32,observed=atomic_load(&native_host_epoch);
+  if(epoch&&epoch<observed){free(data);return 1;}
+  while(epoch>observed&&!atomic_compare_exchange_weak(&native_host_epoch,&observed,epoch)){}
   /* The separately owned proposal survives nested requests and their borrowed
    * response buffers while the engine runs its normal edit transaction. */
   /* The helper withholds the outer key reply until this decision. Let engine
@@ -204,6 +211,13 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
         memcpy(response+1,mapped,pixels);munmap(mapped,pixels);bytes=response->size;
       }
       break;
+    }
+  }
+  if(bytes>=(ssize_t)sizeof(*response)&&response->magic==NXS_CHROMIUM_CONTROL_MAGIC&&response->size==bytes) {
+    double generation=response->parts[4].x;
+    if(generation>=4294967296.0&&generation<=4503599627370496.0) {
+      uint32_t epoch=(uint64_t)generation>>32,observed=atomic_load(&native_host_epoch);
+      while(epoch>observed&&!atomic_compare_exchange_weak(&native_host_epoch,&observed,epoch)){}
     }
   }
   if(owns_mutex)pthread_mutex_unlock(&shared->mutex);

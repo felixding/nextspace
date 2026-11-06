@@ -1,4 +1,5 @@
 /* Independent text client/input method modes of registry-probe. MIT license. */
+#include <time.h>
 struct text_probe {
   struct globals *globals;
   struct zwp_text_input_v3 *text;
@@ -175,8 +176,10 @@ static int test_text_input(struct globals *globals)
         if (size <= 0 || size > 1024*1024 || lseek(fd, 0, SEEK_SET) < 0) { close(fd); return 2; }
         zwp_virtual_keyboard_v1_keymap(probe.keyboard, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, fd, size);
         close(fd); puts("{\"event\":\"keymap\"}");
-      } else if (sscanf(line, "forward %u %u", &key, &state) == 2)
-        zwp_virtual_keyboard_v1_key(probe.keyboard, 1, key, state);
+      } else if (sscanf(line, "forward %u %u", &key, &state) == 2) {
+        struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+        zwp_virtual_keyboard_v1_key(probe.keyboard, (uint32_t)(now.tv_sec*1000+now.tv_nsec/1000000), key, state);
+      }
       else if (sscanf(line, "forward-modifiers %u %u %u %u", &before, &after, &key, &state) == 4)
         zwp_virtual_keyboard_v1_modifiers(probe.keyboard, before, after, key, state);
       else if (!strcmp(line, "popup")) {

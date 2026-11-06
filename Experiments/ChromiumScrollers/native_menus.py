@@ -21,6 +21,7 @@ MenuCommand=C.CFUNCTYPE(C.c_int,C.c_void_p,C.c_uint64,C.c_uint)
 class NativeMenuServer:
     def __init__(self,server,pump_type):
         self.server,self.native=server,server.native;self.states={};self.capabilities=0;self.application_key=None
+        self.presentation=None;self.selected=None
         self.command=MenuCommand(self._command)
         if server.notification_capabilities and hasattr(self.native,'nxs_native_ui_menu_capabilities') and self.native.nxs_native_ui_menu_capabilities()&3==3:
             self.capabilities=1
@@ -38,8 +39,28 @@ class NativeMenuServer:
         owner=self.server.notifiers.get(req.process);entry=self.server.text_filters.get(req.process)
         return bool(self.capabilities and owner and owner['client'] is client and owner['pid']==pid and
             entry and entry.get('menus') and entry.get('socket') and not req.kind and req.control)
+    def owned_models(self,pid):
+        for state in list(self.states.values()):
+            owner=self.server.notifiers.get(state['key'][0])
+            if not state['destroy'] and owner and owner['client'] is state['client'] and owner['pid']==pid and not select.select([owner['lifetime']],[],[],0)[0]:
+                yield state
+    def has_owner(self,pid):return bool(pid and next(self.owned_models(pid),None))
+    def busy(self):
+        return any(self.native.nxs_menu_state(state['native'],-1).tracking for state in list(self.states.values()) if not state['destroy'])
+    def select_owner(self,pid):
+        chosen=next((state for state in self.owned_models(pid) if state.get('requested_visible')),None) if pid else None
+        if chosen is self.selected:return
+        for state in list(self.states.values()):
+            if state is not chosen:self.native.nxs_menu_cancel(state['native'])
+        self.selected=chosen if not chosen or self.native.nxs_menu_show(chosen['native'],1) else None
+    def selected_key(self,pid,event,execute):
+        state=self.selected
+        if not state or not any(candidate is state for candidate in self.owned_models(pid)):return 0
+        call=self.native.nxs_menu_key if execute else self.native.nxs_menu_key_query
+        return call(state['native'],C.byref(event))
     def respond(self,client,req,state=None,accepted=0,index=-1):
         result=self.server.response_type();result.magic=MAGIC;result.reserved=req.reserved;result.parts[3].x=accepted
+        result.parts[4].x=self.server.generations.get(req.process,0)
         if state:
             native=self.native.nxs_menu_state(state['native'],index)
             result.parts[0].x=state['actions'];result.parts[0].y=native.tracking
@@ -118,9 +139,13 @@ class NativeMenuServer:
             key=self.native.nxs_menu_key_query if req.focused==-1 else self.native.nxs_menu_key
             accepted=key(state['native'],C.byref(event))
         elif req.text_size or len(data)!=C.sizeof(req):self.respond(client,req);return
-        elif operation==26 and req.state in (0,1):accepted=self.native.nxs_menu_show(state['native'],req.state)
+        elif operation==26 and req.state in (0,1):
+            state['requested_visible']=bool(req.state)
+            if self.presentation:accepted=self.presentation(state,pid,req.state)
+            else:accepted=self.native.nxs_menu_show(state['native'],req.state)
         elif operation==28:accepted=1;index=req.state
         elif operation in (29,30):
+            state['requested_visible']=False
             accepted=self.native.nxs_menu_cancel(state['native'])
             if operation==29:state['destroy']=True
         self.respond(client,req,state,accepted,index)

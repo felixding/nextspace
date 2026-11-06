@@ -26,7 +26,8 @@ SOURCE_DIRS = ('Applications/Compositor', 'Applications/Session', 'Protocols',
 
 def source_files(repo):
     return collect_sources(repo, SOURCE_DIRS,
-        ['LICENSE', 'Libraries/gnustep/back/Source/cairo/WaylandCapture.h',
+        ['LICENSE', 'Libraries/NativeUI/Host/Activation.h',
+         'Libraries/gnustep/back/Source/cairo/WaylandCapture.h',
          'Libraries/gnustep/gnustep-gui-images.tar.gz',
          'Applications/Artwork/CheckGlyphs.svg',
          'Packaging/Sources/vector_art.py',

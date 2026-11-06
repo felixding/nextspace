@@ -436,7 +436,8 @@ int main(int argc, char **argv)
 {
   const char *compositor = "nextspace-compositor";
   char *locker_command = NULL, *profile_command = NULL, *hook_command = NULL;
-  struct native_ui_host native = {.pid=-1, .control=-1, .workspace=-1};
+  struct native_ui_host native = {.pid=-1, .control=-1, .workspace=-1,
+    .connections={.listener=-1, .role=-1, .epoll=-1}};
   struct session_service method = {.name = "Input method", .role = 'I', .pid = -1};
   struct session_service capture = {.name = "Capture backend", .role = 'V', .persistent = true, .pid = -1};
   bool want_private_bus = false;
@@ -623,9 +624,13 @@ int main(int argc, char **argv)
     native_ui_timeout(&native, &timeout);
     struct pollfd descriptors[] = {{signals, POLLIN, 0}, {output[0], POLLIN, 0}, {broker[0], POLLIN, 0}, logind_poll,
       {native.control, POLLIN | ((native.ready && !native.inflight && native.sent != native.serial) ? POLLOUT : 0), 0},
-      {native.workspace, POLLIN | (native.reply_size ? POLLOUT : 0), 0}};
-    if (poll(descriptors, 6, timeout) < 0) { if (errno == EINTR) continue; break; }
+      {native.workspace, POLLIN | (native.reply_size ? POLLOUT : 0), 0},
+      {native.connections.epoll, POLLIN, 0}};
+    if (poll(descriptors, 7, timeout) < 0) { if (errno == EINTR) continue; break; }
     native_ui_dispatch(&native, descriptors[4].revents, descriptors[5].revents);
+    if (descriptors[6].revents && !native_connections_dispatch(&native.connections)) {
+      fprintf(stderr, "[session] Native activation role failed.\n"); native_ui_failed(&native);
+    }
     if (descriptors[1].revents & (POLLHUP | POLLERR | POLLNVAL)) { result = 1; break; }
     if ((descriptors[1].revents & POLLIN) && !read_ready(output[0], &wayland)) { result = 1; break; }
     if (descriptors[2].revents) {
@@ -711,6 +716,7 @@ cleanup:
     result |= hook_status;
   }
   close(broker[0]); close(output[0]);
+  native_ui_stop(&native);
   if (!stop_children()) result = 1;
   if (!native_ui_finish(&native)) result = 1;
   close(signals);

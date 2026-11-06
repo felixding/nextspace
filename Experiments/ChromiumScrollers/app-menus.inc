@@ -29,7 +29,7 @@ static uint64_t app_menu_browser_created(void *,uint64_t);
 static void app_menu_browser_removed(uint64_t,uint64_t);
 static int app_menu_browser_visible(uint64_t);
 struct MenuTaskLocation {const char *function,*file;int line,padding;const void *pc;};
-struct MenuTask {unsigned char state[32];int descriptor,padding;uint64_t generation,control,command,browser;};
+struct MenuTask {unsigned char state[32];int descriptor;uint32_t epoch;uint64_t generation,control,command,browser;};
 static int app_menu_ensure_watch(void);
 static int app_menu_post_task(int,uint64_t,uint64_t,uint64_t,uint64_t);
 static void (*original_app_menu_ctor)(void *,void *,void *,int,void *);
@@ -188,7 +188,7 @@ static void app_menu_task(void *state) {
   struct MenuTask *task=state;
   if(task->browser){app_menu_browser_task(task->browser);return;}
   if(log_fd>=0)dprintf(log_fd,"%d app-menu-task owner=%d\n",getpid(),native_callback_owner());
-  int current=native_callback_owner()&&task->descriptor==native_edit_channel&&task->generation==native_callback_generation;
+  int current=native_callback_owner()&&task->descriptor==native_edit_channel&&task->generation==native_callback_generation&&task->epoch==atomic_load(&native_host_epoch);
   if(task->command){if(current)app_menu_execute(task->control,task->command);}
   else {
     app_menu_watch=0;
@@ -211,6 +211,7 @@ static int app_menu_post_task(int descriptor,uint64_t generation,uint64_t contro
   ((void (*)(void *,void (*)(void *),void (*)(const void *)))(base+NXS_TASK_BIND_STATE_CTOR_OFFSET))
     (state,app_menu_task,app_menu_task_destroy);
   state->descriptor=descriptor;state->generation=generation;
+  state->epoch=atomic_load(&native_host_epoch);
   state->control=control;state->command=command;state->browser=browser;
   struct MenuTaskLocation location=((struct MenuTaskLocation (*)(const char *,const char *,int))
     (base+NXS_TASK_LOCATION_OFFSET))("app_menu_task","../../NEXTSPACE-native-menu",1);

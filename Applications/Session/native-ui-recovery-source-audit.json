@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-06",
+  "baseline": "925efb61",
+  "scope": "Surviving browser native fields, command transport and menu ownership across shared-host loss",
+  "implementation": {
+    "retained_connections": "Supervisor owns mode-0600 listener and retains accepted server endpoints. Original sockets and SCM_CREDENTIALS survive host replacement; no browser reconnect syscall or RPC proxy is introduced.",
+    "restoration": "Private inherited role 4 transfers client endpoints and verified eventfd/pidfd/callback capabilities. Authenticated PREPARED/EPOCH/READY completes restoration before browser requests resume. Dead original owners are skipped.",
+    "epoch": "Callback serial floor is epoch << 32; response generation advertises it. Shared transport rejects older nonzero epochs after observing a newer one. Chromium UI command tasks also compare captured epoch. No edits or commands are replayed by the supervisor.",
+    "epoll": "Explicitly remove watches before closing shared open-file descriptions; unique tokens prevent stale numeric-descriptor reuse within a pending event batch.",
+    "menus": "Shell-selected authenticated direct models take precedence over the same process D-Bus export. Both use existing native NSMenu objects. Native show refusal is retried; the bridge contains no second menu/control implementation.",
+    "key_deferral": "While inside a native menu validation/tracking callback, defer the original key packet until the native stack returns. At most one per client, 128 clients, one-second expiry before the two-second RPC fallback. Revalidate input ownership and focus when executing; expired keys do not mutate native text.",
+    "control_character": "Real seat Ctrl+A carried unmodified ASCII 1 while DOM key was a. Control-only nonlogical events reuse the existing DOM key for GNUstep charactersIgnoringModifiers. No binding table or Emacs policy is copied.",
+    "appmenu_objects": "Permit replacement object creation before old object release. Keep first surviving object, promote on release and retain cross-client ownership checks, matching protocol and KWin lifecycle.",
+    "shutdown": "Private STOP drains native teardown before display/bus removal, followed by bounded TERM/KILL escalation if needed. Record original exception frames before role EOF so a supervisor reaction does not mask it.",
+    "install": "Install connections.py with reused host/helper modules; include Activation.h in Wayland package source snapshot."
+  },
+  "provider_source_unchanged_since": "925efb61",
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/KDE/plasma-wayland-protocols/master/src/protocols/appmenu.xml",
+      "finding": "create and release define no unique-per-surface object error"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/KDE/kwin/master/src/wayland/appmenu.cpp",
+      "finding": "create appends; appMenuForSurface returns the first matching object; release removes that object"
+    }
+  ],
+  "source_sha256": {
+    "Applications/Compositor/src/appmenu.h": "9018e700b2a51d9a70cea3533487983edb34c4be74308652ac45ab65892f8535",
+    "Applications/Session/README.md": "a98fcdad4147cd3b44b6d9e692d93a6661b309c5e4b3aa71dff140443216a81c",
+    "Applications/Session/main.c": "452c73b84bdfcddaa01d3bbe7b0425507ada94abc39ef21f5ad8dc36c34afb20",
+    "Applications/Session/native-ui-clients.h": "9b8207fd3735f9c35a0c41a3b2dc2c5a07eb9b70b48b33d1d5c994107bf5ce49",
+    "Applications/Session/native-ui.h": "1c40e5ac5f9aa91f190dde28636f19a94fd15e8f58d3b3991de06d1b8157b5cf",
+    "Experiments/ChromiumScrollers/README.md": "2b4be97ccf7226e15e28ee6709233063cd94511c7fdc80f4cfe383ecfaeef259",
+    "Experiments/ChromiumScrollers/app-menus.inc": "2ea2d9e8a2c44bff1916c92ca535a0f356f3a684c5eef1214497a80d7803e904",
+    "Experiments/ChromiumScrollers/forms-text.inc": "85ed3df3b1efe07ed5cf3e8e403e1d0bbe97613e73a7c7f2a770db42940ba4ce",
+    "Experiments/ChromiumScrollers/global-menu-keys.inc": "545062451b3bc41b4085accee8a14f8a096f61a455943ffe5fcea1a370ec7275",
+    "Experiments/ChromiumScrollers/helper.py": "c2ad37459b0422010bf52c7ffd7984966d618bbb3d85a27f34f9dd970f5b9c82",
+    "Experiments/ChromiumScrollers/native_menus.py": "f32b4fc02ef54f6606141445bfe27a517903adcba984c2a1b8384e723676a384",
+    "Experiments/DBusMenus/binding.py": "f84baf6349d6b2b778a8cd94494535a29e6c8105b5c02364da3c02f255e2a8fd",
+    "Experiments/DBusMenus/broker.py": "64301cebfa3e070d25b8750feedb0c9730351e7b7f26fe3125b96f73c42a63b3",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "347deb56cea90e6d6091d5da9fcedf67350adc356622e70c568a9b89fe0f55f6",
+    "Libraries/NativeUI/Bridge/README.md": "8f028956ba38b427b78a93a49fe7228f58aa0be3090de8b8068f278c43d32e22",
+    "Libraries/NativeUI/Bridge/Transport.inc": "f3ec6a0b4718b5ecb20cc9142d33b2b965e32d9e327fbfcac7f60af93ab369d3",
+    "Libraries/NativeUI/CMakeLists.txt": "6c21c024a603ac5c2819f9a54a2ddb640b7057d7c5e1da913626fc9847c9fba8",
+    "Libraries/NativeUI/Host/Activation.h": "920cd8fc3e5aa83671f029dc500acda6b8963d63ad64259bf5b71ee117aa3462",
+    "Libraries/NativeUI/Host/README.md": "8c5afccd0b289ea046c15d6e16d9682c60e0255dc4fe1fc7010c1a8079145975",
+    "Libraries/NativeUI/Host/connections.py": "c125590956895367e203b777c385cfe51899765913aee5d564db427192b41ba3",
+    "Libraries/NativeUI/Host/main.py": "d16bfefb34b92cb26037643ec011d3aafdec34f0503020745a363c3a78f8017a",
+    "Libraries/NativeUI/README.md": "768028c69718872867efd971ed1d9f7fc337bb8f0eab449c23c455944b340ee4",
+    "Packaging/Debian/build-wayland.py": "d278341393dacb702642e56928299c97fcac33ec61f6f68073816e1287ed1223",
+    "Tests/NativeUI/host-generation-probe.c": "1e272fbbf4cf02be9dd835a17e8e29bc64060bdc0af1725677099a6409be29a6",
+    "Tests/Wayland/appmenu.py": "82e6961ba37cc855eb7acf6f34eac50223c589129c2d5cf54d50ceb24ecadc83",
+    "Tests/Wayland/decoration-probe.c": "1bb885267c0acdcd4d45de3f3792d3beb1e1521562a89b3399183faf3978c597",
+    "Tests/Wayland/native_ui_chromium.py": "4fb03c1103601f56173e67fa6118eaf9bd6f9acd907a791fd542825c5200dc31",
+    "Tests/Wayland/native_ui_failures.py": "deb4b1db30f0429ee4347fd7173b23b8890714cea3f619f97b10bdabdffbc43a",
+    "Tests/Wayland/native_ui_session.py": "c4e9caba9d86ffc0e7bff4f28e4f59d3d96f31aa53f32bf38e7c9da1b5bd8a79",
+    "Tests/Wayland/text-input-probe.h": "567b0a671c79e77a819ceff4a0dd77219aa7063187455f3afe25c5d6205a5f6b",
+    "docs/Native-Control-Integration.md": "d12c57c854c769a9fbebf52a53fc936f884b85bc0310a42d1dd44a78575148cf"
+  },
+  "qualification": "native-ui-recovery-qualification.json",
+  "remaining": [
+    "Complete browser engine/frontend controls, dialogs, IME, accessibility and mixed-scale layout/input.",
+    "Automatic adapter installation and audited build selection; Chrome, Vivaldi and Firefox derivatives remain unqualified.",
+    "Host death during an outstanding native command/edit, before the browser has observed the replacement epoch, and held pointer/IME transactions need dedicated recovery qualification. Current stale-callback checks establish rejection after a newer epoch is observed.",
+    "Full installed Workspace/PAM deployment and complete GTK/Qt Debian package build; this uses actual Workspace connection classes in a test executable and a no-op Login/Logout hook.",
+    "Continue whole-application native integration for GTK, Qt/KDE and other non-GNUstep applications after the browser families."
+  ]
+}

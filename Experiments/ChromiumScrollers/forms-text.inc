@@ -274,7 +274,11 @@ static int default_text_key(void *node,void *event) {
   if(press&&(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))){free(key);return 0;}
   if(form->text_tracking)end_text_pointer(form,1);
   char *text=(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))&&!logical?strdup(key):keyboard_text(web,102,"");
-  char *unmodified=keyboard_text(web,110,"");free(key);
+  /* Linux supplies a derived control character in unmodifiedText for real
+   * Control-letter events. GNUstep expects the key's character here; Blink's
+   * DOM key already supplies it. Keep Alt/AltGr and logical-key data intact. */
+  char *unmodified=text&&!logical&&(modifiers&NXS_CONTROL)&&!(modifiers&(NXS_ALT|NXS_SUPER))?
+    strdup(text):keyboard_text(web,110,"");free(key);
   struct BlinkTextModel before={0};
   if(!text||!unmodified||!text_model(node,&before)){free(text);free(unmodified);return 0;}
   uint64_t control=form->control;

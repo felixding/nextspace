@@ -18,7 +18,7 @@ target_include_directories(native-scroller-probe PRIVATE ${CMAKE_CURRENT_SOURCE_
 target_compile_options(native-scroller-probe PRIVATE -UNDEBUG)
 install(TARGETS nextspace-native-scroller LIBRARY DESTINATION lib/nextspace-scrollbars)
 install(PROGRAMS ../NativeUI/Host/nextspace-native-ui-host DESTINATION bin)
-install(FILES ../NativeUI/Host/main.py ../NativeUI/Host/menu_service.py DESTINATION libexec/nextspace-native-ui)
+install(FILES ../NativeUI/Host/main.py ../NativeUI/Host/menu_service.py ../NativeUI/Host/connections.py DESTINATION libexec/nextspace-native-ui)
 install(FILES ../../Experiments/ChromiumScrollers/helper.py ../../Experiments/ChromiumScrollers/native_controls.py
   ../../Experiments/ChromiumScrollers/native_menus.py DESTINATION libexec/nextspace-native-ui/ChromiumScrollers)
 install(FILES ../../Experiments/DBusMenus/binding.py ../../Experiments/DBusMenus/broker.py

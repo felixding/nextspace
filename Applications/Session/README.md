@@ -178,11 +178,12 @@ disables that selection. An explicit supervisor invocation can instead pass
 arguments. This option requires an authenticated user session and is rejected
 for the greeter or without a private bus.
 
-The supervisor creates a private directory and publishes
-`NEXTSPACE_NATIVE_UI_SOCKET` to ordinary children and D-Bus activation. It waits
-for a listening, mode-0600 socket whose kernel peer PID and UID identify the
-owned foreground host before starting LoginHook or Workspace. The host receives
-a private menu role on descriptor 3; Workspace receives its separate relay as
+The supervisor creates a private directory, owns the mode-0600 listener and
+publishes `NEXTSPACE_NATIVE_UI_SOCKET` to ordinary children and D-Bus activation.
+Before starting LoginHook or Workspace, it waits for the owned host's
+authenticated preparation and restoration handshake. The host receives a
+private menu role on descriptor 3 and a connection activation role on descriptor
+4; Workspace receives its separate menu relay as
 `--nextspace-native-menu-fd 4`, alongside its shell descriptor 3. Neither receives
 the compositor broker, and inherited capabilities close on child execution.
 
@@ -197,16 +198,36 @@ After three failures the optional host is disabled and desktop startup proceeds.
 Ordinary teardown stops owned processes and removes the private native state
 without following symlinks.
 
+Accepted client sockets and verified owner capabilities remain in the supervisor
+across host loss. A replacement receives duplicates of those original endpoints,
+eventfds, pidfds and callback sockets. Sandboxed renderers keep their existing
+connection and original kernel sender credentials; they do not reconnect or
+gain another sandbox permission. The supervisor stores no control, text or menu
+model and never proxies application RPCs. Dead owners are discarded. A new host
+epoch invalidates older callback proposals and queued Chromium menu actions;
+the adapters rebuild native objects from their live application models. Edits
+and commands are not replayed. Ordinary teardown asks the host to stop before
+its display and private bus are removed, with bounded signal escalation.
+
+The shared host selects one application menu for the active process. An
+authenticated direct browser model takes precedence over that process's D-Bus
+exporter. Both paths use the same native menu implementation. Keys received
+reentrantly during native menu validation wait for that native call to return;
+expired keys return unhandled without applying a late edit.
+
 The host advertises the real Wayland menu consumer on the private bus. Its
 availability service explicitly rejects X11 window registration. Only these
 read-only availability calls use a worker; native models, widgets and actions
 stay on the host UI thread. See [host details](../../Libraries/NativeUI/Host/README.md).
 
-The headless staged check uses actual Workspace connection classes and an
-unchanged Firefox binary. It covers native Alt+T, shell recovery, host menu
-replay, activation inheritance, retained renderer sandboxing and complete
-teardown. It also exercises the normal user launcher with a private backend
-configuration and a no-op test hook. This does not qualify a full installed
-Workspace/PAM login, every browser build or toolkit, or existing browser field
-RPC reconnection after host loss. Browser adapter installation/selection remains
-separate. See [session qualification](native-ui-qualification.json).
+The headless staged checks use actual Workspace connection classes and unchanged
+Firefox and Chromium binaries. They cover native fields and application menu
+commands before and after host loss, switching between the two browsers,
+activation inheritance, retained Firefox renderer sandboxing and complete
+teardown. Chromium's recovery keys enter through the real compositor seat;
+Firefox field transactions use Marionette and its menu keys use that seat.
+The normal user launcher runs with a private backend configuration and a no-op
+test hook. Full installed Workspace/PAM login, automatic browser adapter
+installation/selection, additional controls and derivative builds remain open.
+See the [recovery qualification](native-ui-recovery-qualification.json) and
+[earlier startup qualification](native-ui-qualification.json).
