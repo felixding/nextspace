@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Verify native browser pixels in the actual Workspace desktop output."""
 from pathlib import Path
-import hashlib,json,os,shlex,socket,subprocess,sys,tempfile,time,uuid
+import hashlib,json,os,shlex,signal,socket,subprocess,sys,tempfile,time,uuid
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from gnustep import private_defaults
 from PIL import Image,ImageChops
@@ -14,6 +14,8 @@ for name in ['supervisor','compositor','workspace','capture-probe','library','ho
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--port',type=int,default=2863)
 parser.add_argument('--no-frontend',action='store_true')
+parser.add_argument('--document',type=Path,help='Optional owned HTML control fixture')
+parser.add_argument('--restart-host',action='store_true',help='Verify actual desktop native pixels after owned host replacement')
 args=parser.parse_args()
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','firefox']:
@@ -98,7 +100,7 @@ try:
  wait(lambda:(root/'session.stderr').read_text(),lambda s:'Workspace is ready' in s,60)
  wait(frames,lambda rows:any(v.get('event')=='ready' and v.get('manager_visible') for v in rows))
  heads=command('outputs');head=heads[0];assert command('resize-output '+head['name']+' 1600 1000')['ok']
- browser_env=dict(env,**published());url=(repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
+ browser_env=dict(env,**published());url=(args.document.resolve() if args.document else repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
  family='firefox'
  current=dict(browser_env);prefix='NEXTSPACE_'+family.upper()+'_';current[prefix+'SOCKET']=browser_env['NEXTSPACE_NATIVE_UI_SOCKET'];current[prefix+'LOG']=str(root/(family+'-hook.log'))
  profile=runtime/'firefox-profile';profile.mkdir();prefs={'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True,'gfx.webrender.software':True}
@@ -145,13 +147,15 @@ try:
   image.save(root/(label+'.png'));raw.unlink();return image
  def compare(label):
   chrome=js('return gBrowser.selectedBrowser.getBoundingClientRect().toJSON()','chrome')
-  models=js("return ['title','password','notes','check','radio','range','progress','button'].map(id=>{let e=document.getElementById(id);return {id,rect:e.getBoundingClientRect().toJSON(),value:e.value,checked:e.checked,enabled:!e.disabled,top:e.scrollTop}})")
+  models=js("return ['title','password','notes','check','radio','range','progress','button',...Array.from(document.querySelectorAll('button[data-native-control]'),e=>e.id)].map(id=>{let e=document.getElementById(id);return {id,rect:e.getBoundingClientRect().toJSON(),value:e.localName==='button'?e.innerText:e.value,checked:e.checked,enabled:!e.matches(':disabled'),top:e.scrollTop,auto:e.hasAttribute('data-native-auto')}})")
   controls=[]
   kinds=dict(title=7,password=8,notes=9,check=2,radio=3,range=4,progress=5,button=1)
   for model in models:
-   identifier=model['id'];rect=model['rect'];item=dict(id=identifier,kind=kinds[identifier],width=rect['width'],height=rect['height'],enabled=int(model['enabled']),state=int(model.get('checked') or 0),title='')
+   identifier=model['id'];rect=model['rect'];kind=kinds.get(identifier,1);item=dict(id=identifier,kind=kind,width=rect['width'],height=rect['height'],enabled=int(model['enabled']),state=int(model.get('checked') or 0),title='')
    if identifier in ('title','password','notes'):item.update(text=model['value'],scroll=[0,model['top']])
-   elif identifier=='button':item['title']=model['value']
+   elif kind==1:
+    item['title']=model['value']
+    if model['auto']:item['preferred_size']=True
    elif identifier=='range':item.update(minimum=0,maximum=100,value=float(model['value']),step=1)
    elif identifier=='progress':item.update(value=float(model['value'])/100)
    controls.append(item)
@@ -171,7 +175,41 @@ try:
   check(label+'-actual-desktop-native-pixels',all(d['difference'] is None for d in differences),controls=differences)
  js('document.body.tabIndex=-1;document.body.focus({preventScroll:true});notes.scrollTop=73;return true')
  compare('initial')
- js('title.value="Updated desktop title";notes.value="Updated notes\\n"+notes.value;notes.scrollTop=150;check.checked=false;radio.checked=false;range.value=75;progress.value=35;button.value="Updated action";title.style.width="440px";notes.style.width="620px";return true')
+ if js('return !!document.getElementById("nested-label")'):
+  def click(selector):
+   element=client.command('WebDriver:FindElement',dict(using='css selector',value=selector))['value']
+   client.command('WebDriver:ElementClick',dict(id=next(iter(element.values()))))
+  def key(value):
+   client.command('WebDriver:PerformActions',dict(actions=[dict(type='key',id='html-keyboard',actions=[dict(type='keyDown',value=value),dict(type='keyUp',value=value)])]))
+  click('#nested-label')
+  check('html-descendant-hit-target-preserved',js('return htmlEvents.some(e=>e.type==="click"&&e.trusted&&e.button==="nested"&&e.id!=="nested")') is True)
+  js('window.htmlEvents=[];return true');click('#submit')
+  check('html-trusted-native-submit',js('return htmlEvents.filter(e=>e.type==="submit"&&e.id==="submit"&&e.trusted).length')==1)
+  js('window.htmlEvents=[];return true');key(' ')
+  html_events=js('return htmlEvents')
+  check('html-native-keyboard-submit-once',len([e for e in html_events if e['type']=='submit' and e['id']=='submit' and e['trusted']])==1,events=html_events)
+  js('window.htmlEvents=[];document.getElementById("submit").addEventListener("keydown",e=>e.preventDefault(),{once:true});return true');key(' ')
+  check('html-page-cancels-keyboard-activation',js('return htmlEvents.filter(e=>e.type==="submit").length')==0)
+  js('window.htmlEvents=[];document.getElementById("submit").addEventListener("click",e=>e.preventDefault(),{once:true});return true');click('#submit')
+  check('html-page-cancels-submit-click',js('return htmlEvents.filter(e=>e.type==="submit").length')==0)
+  js('window.htmlEvents=[];document.getElementById("formValue").value="modified";return true');click('#reset')
+  check('html-native-reset-uses-real-form',js('return document.getElementById("formValue").value==="original"&&htmlEvents.some(e=>e.type==="reset"&&e.trusted)') is True)
+  js('window.htmlEvents=[];return true');click('#disabled')
+  check('html-disabled-button-does-not-activate',js('return htmlEvents.filter(e=>e.type==="click").length')==0)
+  js('document.body.focus({preventScroll:true});return true')
+  compare('after-html-actions')
+  js('let e=document.getElementById("button");e.style.cssText="appearance:none;border:2px solid black;background:#fc0;color:#246;font:16px serif;width:180px;height:28px";let p=e.cloneNode(true);p.id="styled-peer";e.after(p);return true')
+  chrome=js('return gBrowser.selectedBrowser.getBoundingClientRect().toJSON()','chrome')
+  rectangles=js('return ["button","styled-peer"].map(id=>document.getElementById(id).getBoundingClientRect().toJSON())')
+  time.sleep(1);screen=desktop('html-style-fallback');crops=[]
+  current_window=next(w for w in command('windows') if w['id']==window['id'])
+  for rect in rectangles:
+   x,y=round(current_window['x']+chrome['x']+rect['x']),round(current_window['y']+chrome['y']+rect['y'])
+   crops.append(screen.crop((x,y,x+round(rect['width']),y+round(rect['height']))))
+  check('html-author-style-restores-complete-engine-control',ImageChops.difference(*crops).getbbox() is None)
+  js('document.getElementById("styled-peer").remove();document.getElementById("button").style.cssText="";return true')
+  compare('html-native-style-restored')
+ js('title.value="Updated desktop title";notes.value="Updated notes\\n"+notes.value;notes.scrollTop=150;check.checked=false;radio.checked=false;range.value=75;progress.value=35;if(button.localName==="button")button.textContent="Updated action";else button.value="Updated action";title.style.width="440px";notes.style.width="620px";return true')
  compare('updated-and-resized')
  check('programmatic-updates-preserve-events',js('return events.length')==0)
  element=client.command('WebDriver:FindElement',dict(using='css selector',value='#button'))['value']
@@ -189,6 +227,15 @@ try:
  wait(lambda:js('return document.readyState'),lambda value:value=='complete')
  js('document.body.tabIndex=-1;document.body.focus({preventScroll:true});notes.scrollTop=73;return true')
  compare('reloaded')
+ if args.restart_host:
+  def owned_hosts():
+   processes=sample_processes()
+   return [pid for pid,value in processes.items() if pid in observed and str(repo/'Libraries/NativeUI/Host/main.py') in value['arguments'] and not value['state'].startswith('Z')]
+  old_hosts=owned_hosts();check('one-owned-native-host',len(old_hosts)==1,hosts=old_hosts)
+  js('window.__nativeDesktopMarker="retained";return true');os.kill(old_hosts[0],signal.SIGKILL)
+  replacement=wait(owned_hosts,lambda pids:len(pids)==1 and pids[0]!=old_hosts[0])
+  check('owned-host-replacement-retains-document',js('return window.__nativeDesktopMarker')=='retained',old_host=old_hosts[0],new_host=replacement[0])
+  compare('host-replaced')
  client.command('WebDriver:Navigate',dict(url='about:blank'))
  check('navigation-away',client.command('WebDriver:GetTitle')['value']=='')
  print(json.dumps(dict(passed=len(rows),native_images=sum(len(r.get('controls',[])) for r in rows))),flush=True)

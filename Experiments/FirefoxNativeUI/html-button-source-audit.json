@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-07",
+  "baseline": "fed90910",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsRange.cpp",
+      "sha256": "cc6f96e4688f9850649d6cb210fc7a29e45ec37e723edec2548cbd9a54a811dd"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsRange.h",
+      "sha256": "4fdb66d2e66ff917a06db358103ca78ed8e3eca98b93e763995bbfd6e40efca5"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLButtonElement.cpp",
+      "sha256": "6975b1efee2ae57a16ba0697d2ecc0a55b6cc618d08bb2f01c0d4f630d1aee8d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/nsGenericHTMLElement.cpp",
+      "sha256": "c9a878dc04a3d8741d1e0412ada7ddd1d12f4df852cc84d214161eaa342ef742"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/painting/nsDisplayList.cpp",
+      "sha256": "a08da875d2991a795d99d79770aa7df970c81688dd4d9a65d8a9207ece3c4daa"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShell.cpp",
+      "sha256": "ed828332158b15815aa400b160b64eac30cac1b9e83a02e7e12c2b2710af0353"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShell.h",
+      "sha256": "17673f584ff27b91d242a5873a200dc42c50106a185582de9afb98e8f97ac809"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.cpp",
+      "sha256": "b5e257715d6e59815c06df5273c0b258d4606054a615dffc55ec9b798c4ec6ac"
+    }
+  ],
+  "compiled": {
+    "element_vtable": "HTMLButtonElement 0xa008c98, address point +16; reuse existing primary-frame +96 and frame content +24",
+    "label": "nsRange::GetInnerTextNoFlush 0x473bd70; nsAString/ErrorResult/nsIContent pointers; original Finalize and ErrorResult cleanup",
+    "ancestor": "nsINode::IsInclusiveDescendantOf 0x487d668; use the engine tree predicate for retained text items and native pointer ownership",
+    "keyboard": "HTMLButtonElement::PostHandleEvent 0x585a1d4 delegates to the same widget_post helper as HTMLInputElement; original DispatchSimulatedClick 0x58ce09c retains trusted keyboard activation and form behavior",
+    "painting": "nsDisplayText::Paint 0x6fef74c and CreateWebRenderCommands 0x6fefc14; retain actual items and hit testing, suppress only owned native title drawing",
+    "reflow": "PresShell::FrameNeedsReflow 0x6d4d9f8; original caller 0x6e84a04 supplies IntrinsicDirty=2, dirty bit 0x400, ReflowRootHandling=2; caller loads frame+40 then PresContext+32 at 0x6e84a28",
+    "completed_layout": "nsIFrame::DidReflow 0x6e8413c: forward first, then clear only the matching HTML button pending flag",
+    "guards": "pinned-html-buttons.h guards ten 20-byte function/call sequences before any detour activates; existing ELF build ID and launcher full-file hashes remain required"
+  },
+  "ownership": {
+    "components": "Existing NSButton objects and NativeUI ABI/provider only; no new control, drawing or key-binding implementation",
+    "model": "Cache only the last title successfully sent to the provider and actual native preferred metrics. Free the title with the existing frame/process binding.",
+    "rendering": "A title change can retain Gecko's old bezel item; invalidate it once after a different canonical title reaches the native model. The native bitmap remains the only owner of title rendering.",
+    "pending": "Keep the completed native model while its requested reflow is pending; otherwise dirty rendered text oscillates between a complete label and empty, producing another size request.",
+    "measurement": "Keep an HTML measurement binding when the initial engine rectangle is fractional; native preferred sizing can then complete without copying font or geometry rules."
+  },
+  "qualification": "html-button-qualification.json",
+  "remaining": [
+    "Images/SVG/pseudo/shadow button content and full rich layout",
+    "Automatic flex/grid sizing and default-button policy",
+    "Accessibility, IME, other scales/builds and full browser/application integration",
+    "Full Workspace detached-menu presentation after host replacement: current full capture shows TimeMon while Firefox remains focused and its menu model is bound"
+  ]
+}

@@ -2,8 +2,6 @@
 #include "pinned-text.h"
 #include "frontend.inc"
 #include "commands.inc"
-struct GeckoError {uint32_t result,padding;uint64_t extra;};
-_Static_assert(sizeof(struct GeckoError)==16,"Pinned release ErrorResult ABI");
 struct TextModel {char *value;uint32_t start,end;int editable;};
 struct TextTransaction {
   void *node,*editor;

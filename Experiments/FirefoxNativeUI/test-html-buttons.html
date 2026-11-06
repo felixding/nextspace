@@ -1,0 +1,46 @@
+<!doctype html><meta charset="utf-8"><title>Native controls on the desktop</title>
+<style>
+body {margin:28px;background:white;color:black;font:15px sans-serif}
+label {display:block;margin:12px 0 6px}
+input,textarea {margin:0}
+input[type=text],input[type=password] {display:block;box-sizing:border-box;width:360px;height:28px}
+textarea {display:block;width:540px;height:180px}
+.row {display:flex;align-items:center;gap:24px;margin:14px 0}
+input[type=range] {width:180px;height:24px}
+input[type=button] {width:160px;height:28px}
+progress {width:240px;height:24px}
+button {box-sizing:border-box;width:180px;height:28px;padding:0}
+.extras {display:grid;grid-template-columns:repeat(4,180px);gap:10px;margin-top:14px}
+#auto {width:auto;height:auto}
+.auto-row {margin-top:10px}
+</style>
+<h1>Native controls on the desktop</h1>
+<label for=title>Title</label><input id=title type=text value="Desktop project notes">
+<label for=password>Password</label><input id=password type=password value="secret">
+<label for=notes>Notes</label><textarea id=notes spellcheck=false></textarea>
+<div class=row><input id=check type=checkbox checked><span>Keep on desktop</span><input id=radio type=radio checked><span>Normal priority</span></div>
+<div class=row><input id=range type=range min=0 max=100 step=1 value=40><progress id=progress max=100 value=65></progress></div>
+<form id=actions><input id=formValue name=note value="original" hidden>
+<button id=button type=button>Save note</button>
+<div class=extras>
+<button data-native-control id=submit type=submit>Send form</button>
+<button data-native-control id=reset type=reset>Reset form</button>
+<button data-native-control id=disabled type=button disabled>Unavailable</button>
+<button data-native-control id=empty type=button></button>
+<button data-native-control id=unicode type=button>日本語Café🙂</button>
+<button data-native-control id=nested type=button><span id=nested-label>Nested <strong>label</strong></span><span hidden>ignored</span></button>
+<button data-native-control id=flex type=button style="display:inline-flex">Flex button</button>
+<button data-native-control id=grid type=button style="display:inline-grid">Grid button</button>
+</div>
+<div class=auto-row><button data-native-control data-native-auto id=auto type=button>Automatic title</button></div>
+</form>
+<script>
+notes.value=Array.from({length:40},(_,i)=>'Line '+(i+1)+' - Native text and scrolling.').join('\n');
+window.events=[];
+window.action=null;window.htmlEvents=[];
+button.addEventListener('click',e=>{window.action={trusted:e.isTrusted,value:button.value}});
+for(const type of ['beforeinput','input','change'])document.addEventListener(type,e=>events.push({type,id:e.target.id,trusted:e.isTrusted}));
+actions.addEventListener('submit',e=>{e.preventDefault();htmlEvents.push({type:'submit',id:e.submitter.id,trusted:e.isTrusted})});
+actions.addEventListener('reset',e=>htmlEvents.push({type:'reset',trusted:e.isTrusted}));
+for(const type of ['click','keydown','keyup','mousedown','mouseup'])actions.addEventListener(type,e=>htmlEvents.push({type,id:e.target.id,button:e.target.closest('button')?.id,trusted:e.isTrusted,key:e.key}));
+</script>

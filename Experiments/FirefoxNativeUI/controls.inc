@@ -2,6 +2,10 @@
  * focus, tracking and key interpretation in the independent NativeUI host. */
 #include "pinned-input.h"
 #include "pinned-multiline.h"
+#include "pinned-html-buttons.h"
+struct GeckoError {uint32_t result,padding;uint64_t extra;};
+_Static_assert(sizeof(struct GeckoError)==16,"Pinned release ErrorResult ABI");
+static void clear_text_error(struct GeckoError *);
 struct Widget {
   struct Widget *next;
   void *frame,*node;
@@ -9,6 +13,10 @@ struct Widget {
   int kind,painted;
   double width,height,actions;
   uint32_t *button_pixels;int button_width,button_height,button_label_owned,button_focused;
+  double button_preferred_width,button_preferred_height;
+  int button_reflow_pending;
+  char *button_model_title;
+  int button_model_changed;
   double range_step,range_x,range_y;int range_tracking,range_keypress;
   int text_owned,text_tracking;
   double text_width,text_height;
@@ -39,6 +47,7 @@ static char *utf8_text(const uint16_t *,uint32_t);
 static int prepare_button_image(void *);
 static struct Widget *bind_input_widget(void *);
 static int native_button_frame(const void *);
+static struct Widget *html_button_owner(const void *);
 static int button_cache_update(struct Widget *,const struct NXSResponse *);
 static int button_cache_available(const struct Widget *);
 static char *button_title(const struct Widget *);
@@ -72,7 +81,11 @@ static void (*original_frame_destroy)(void *,void *);
 static void (*original_freeze)(void *,int);
 static void (*original_active)(void *,int);
 
+static int html_button_node(const void *node) {
+  return buttons_enabled&&node&&*(const uintptr_t *)node==base+0xa008c98+16;
+}
 static int node_kind(const void *node) {
+  if(html_button_node(node))return NXS_BUTTON;
   if(node&&multiline_enabled&&*(const uintptr_t *)node==base+NXS_GECKO_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
   unsigned type=*((const unsigned char *)node+144);
@@ -115,10 +128,15 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
   size_t size=sizeof(request)+length;unsigned char *data=malloc(size);
   if(!data){free(title);return NULL;}
   memcpy(data,&request,sizeof(request));if(length)memcpy(data+sizeof(request),title,length);
-  struct NXSResponse *response=exchange_bytes(data,size);free(data);free(title);return response;
+  struct NXSResponse *response=exchange_bytes(data,size);free(data);
+  if(response&&title&&(!w->button_model_title||strcmp(w->button_model_title,title))) {
+    free(w->button_model_title);w->button_model_title=title;title=NULL;w->button_model_changed=1;
+  }
+  free(title);return response;
 }
 static struct NXSResponse *widget_sync(struct Widget *w) {
   if(text_kind(w->kind))return sync_text_widget(w);
+  if(w->button_reflow_pending)return widget_request(w,5,0,0,0);
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)return NULL;
   if(w->kind==NXS_SLIDER&&response->parts[5].x!=w->range_step) {
@@ -144,7 +162,7 @@ static void drain_widget_notifier(void) {
 static void reset_widget_process(void) {
   if(widget_pid!=getpid()) {
     remove_text_watch();
-    while(widgets){struct Widget *next=widgets->next;free(widgets->button_pixels);free(widgets);widgets=next;}
+    while(widgets){struct Widget *next=widgets->next;free(widgets->button_pixels);free(widgets->button_model_title);free(widgets);widgets=next;}
     active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
     if(widget_notifier>=0)close(widget_notifier);
     widget_notifier=-1;widget_pid=getpid();
@@ -303,8 +321,11 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
       return text_pointer_post(self,context,event,frame,status,override,text_frame);
   }
   void *down_node=NULL;
-  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(frame)&&frame_kind(frame)!=NXS_SLIDER) {
-    down_node=*(void **)((char *)frame+24);
+  void *target_frame=frame;
+  struct Widget *button_owner=frame?html_button_owner(*(void **)((char *)frame+24)):NULL;
+  if(button_owner)target_frame=button_owner->frame;
+  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(target_frame)&&frame_kind(target_frame)!=NXS_SLIDER) {
+    down_node=*(void **)((char *)target_frame+24);
     ((unsigned (*)(void *))(base+0x3b9f0e4))(down_node);
   }
   if(trusted&&active_widget&&(message==13||message==14)) {
@@ -341,7 +362,10 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   return result;
 }
 static uint32_t click_events(void *self,void *shell,void *event,int *status,void *target,void *override) {
-  if(click_gate.event==event&&click_gate.node==target&&!click_gate.allowed){note("native Gecko gesture cancelled activation");return 0;}
+  if(click_gate.event==event&&!click_gate.allowed&&(click_gate.node==target||
+     (html_button_node(click_gate.node)&&target&&((int (*)(const void *,const void *))(base+NXS_GECKO_HTML_BUTTON_DESCENDANT_OFFSET))(target,click_gate.node)))) {
+    note("native Gecko gesture cancelled activation");return 0;
+  }
   return original_click_events(self,shell,event,status,target,override);
 }
 static unsigned logical_key(unsigned code) {
@@ -396,9 +420,9 @@ static void text_post_keyboard(void *node,void *visitor) {
         if(dispatch_text_key(node,event,NULL))*status=1;
     }
 }
-static uint32_t input_post(void *node,void *visitor) {
+static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *,void *)) {
   if(text_kind(node_kind(node))) {
-    text_post_keyboard(node,visitor);return original_input_post(node,visitor);
+    text_post_keyboard(node,visitor);return original(node,visitor);
   }
   void *event=*(void **)((char *)visitor+8);
   unsigned message=*(const uint16_t *)((char *)event+18);
@@ -411,21 +435,21 @@ static uint32_t input_post(void *node,void *visitor) {
     w=bind_input_widget(*(void **)((char *)node+96));
   int *status=(int *)((char *)visitor+24);
   if(!w||!w->painted||message<2||message>4||!(*(uint8_t *)((char *)event+48)&1)||*status==1||!widget_focused(w))
-    return original_input_post(node,visitor);
-  if(message==2)return w->kind==NXS_SLIDER&&w->range_keypress?original_input_post(node,visitor):0;
+    return original(node,visitor);
+  if(message==2)return w->kind==NXS_SLIDER&&w->range_keypress?original(node,visitor):0;
   struct NXSResponse *response=widget_sync(w);
-  if(!response||!response->parts[2].x)return original_input_post(node,visitor);
+  if(!response||!response->parts[2].x)return original(node,visitor);
   double actions=response->parts[0].width;
-  char *text=key_text(event);if(!text)return original_input_post(node,visitor);
+  char *text=key_text(event);if(!text)return original(node,visitor);
   size_t length=strlen(text),size=sizeof(struct NXSControlInputRequest)+2*length;
-  struct NXSControlInputRequest *request=calloc(1,size);if(!request){free(text);return original_input_post(node,visitor);}
+  struct NXSControlInputRequest *request=calloc(1,size);if(!request){free(text);return original(node,visitor);}
   *request=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=8,.process=identity(),
     .kind=w->kind,.control=w->id,.type=message==4?NXS_KEY_DOWN:NXS_KEY_UP,
     .modifiers=widget_modifiers(event),.key=logical_key(*(uint32_t *)((char *)event+200)),
     .repeat=!!*((uint8_t *)event+223),.text_size=length,.unmodified_size=length};
   memcpy(request+1,text,length);memcpy((char *)(request+1)+length,text,length);
   response=exchange_bytes(request,size);free(request);free(text);
-  if(!response)return original_input_post(node,visitor);
+  if(!response)return original(node,visitor);
   int handled=response->parts[3].x,activate=response->parts[0].width>actions;
   if(w->kind==NXS_SLIDER)w->range_keypress=handled==NXS_INPUT_UNHANDLED;
   invalidate_widget(w);drain_widget_notifier();
@@ -439,10 +463,13 @@ static uint32_t input_post(void *node,void *visitor) {
   }
   return 0;
 }
+static uint32_t input_post(void *node,void *visitor) {
+  return widget_post(node,visitor,original_input_post);
+}
 static void forget_widget(struct Widget **cursor) {
   struct Widget *w=*cursor;
   if(active_widget==w)active_widget=NULL;
-  widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w);
+  widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w->button_model_title);free(w);
   if(!widgets&&widget_notifier>=0) {
     remove_text_watch();
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};

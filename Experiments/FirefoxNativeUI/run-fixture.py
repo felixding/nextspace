@@ -28,6 +28,8 @@ if args.click_counts and not args.text:parser.error('--click-counts requires --t
 mode='text' if args.text else 'sliders' if args.sliders else 'buttons' if args.buttons else 'controls' if args.controls else 'progress'
 reference_model='text-controls.json' if args.text else 'range-controls.json' if args.sliders else 'button-controls.json' if args.buttons else 'input-controls.json' if args.controls else 'progress-controls.json'
 interactive=args.controls or args.buttons or args.sliders or args.text
+# The button fixture now also binds its ordinary HTML action button.
+expected_live_controls=7 if args.buttons else 6 if interactive else 0
 pin=json.loads((here/'binary-pin.json').read_text())
 def digest(path):
     with path.open('rb') as source:return hashlib.file_digest(source,'sha256').hexdigest()
@@ -167,7 +169,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
                     fields=dict(line.split(':',1) for line in Path('/proc',str(ancestor),'status').read_text().splitlines() if ':' in line)
                     ancestor=int(fields['PPid'])
                 assert ancestor==browser.pid
-                before_trace,live,_,_=native_ledger();assert len(live)==6,live
+                before_trace,live,_,_=native_ledger();assert len(live)==expected_live_controls,live
                 process=next(iter(live))[0]
                 os.kill(pid,signal.SIGKILL)
                 deadline=time.monotonic()+3
@@ -187,7 +189,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
             before=loss_client.command('WebDriver:TakeScreenshot',dict(full=False))
             (args.output/'before-helper-loss.png').write_bytes(base64.b64decode(before['value']))
             _,helper_reclaimed,_,_=native_ledger()
-            assert len(helper_reclaimed)==(6 if interactive else 0),helper_reclaimed
+            assert len(helper_reclaimed)==expected_live_controls,helper_reclaimed
             helper.kill();helper.wait(timeout=5)
             started=time.monotonic()
             script='document.getElementById("normal").value="Fallback";document.getElementById("normal").focus();document.getElementById("normal").setSelectionRange(8,8);return true' if args.text else 'document.getElementById("normal").value=61;document.getElementById("normal").focus();return true' if args.sliders else 'document.getElementById("button").value="Fallback label";document.getElementById("button").focus();return true' if args.buttons else 'document.getElementById("check").checked=true;document.getElementById("check").focus();return true' if args.controls else 'document.getElementById("normal").value=61;return true'

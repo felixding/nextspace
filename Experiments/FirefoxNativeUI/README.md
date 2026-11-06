@@ -486,6 +486,42 @@ Marionette port; `--no-frontend` additionally verifies ordinary web controls
 without the address-field binding. The
 [desktop qualification](desktop-qualification.json) records both runs and the
 old adapter's expected failure. The [source audit](desktop-source-audit.json)
-records the exact compiled boundaries. Full browser chrome, HTML button/select
-bindings, root-document scrolling, broader CSS, other scales/builds and
+records the exact compiled boundaries. Full browser chrome, rich button content,
+select bindings, root-document scrolling, broader CSS, other scales/builds and
 derivatives remain unfinished.
+
+## HTML buttons
+
+With the existing `NEXTSPACE_FIREFOX_BUTTONS=1` option, ordinary HTML buttons
+now use the same actual `NSButton` as input buttons. Gecko's rendered-text
+accessor supplies labels, including nested textual content, hidden descendants,
+Unicode and whitespace processing. Native button cells supply drawing and
+preferred dimensions. The existing input adapter supplies native tracking,
+keyboard interpretation and focus traversal; Gecko retains trusted click,
+submit/reset and cancellation behavior. Text display items remain in Gecko's
+display list for descendant hit testing, while the native button owns title
+painting. No HTML text renderer or widget key policy is copied.
+
+Rendered text is incomplete during reflow. The adapter retains the completed
+native model until Gecko's original `DidReflow` finishes, then obtains fresh
+native metrics and uses Gecko's existing reflow request when they change.
+Fractional first-layout frames retain their measurement binding until native
+automatic sizing settles. A committed title change invalidates the separate
+background display item once, so retained display lists do not leave an old
+native title on screen.
+
+The desktop runner accepts `--document Experiments/FirefoxNativeUI/test-html-buttons.html`
+and `--restart-host` for the expanded fixture. It compares complete native
+images on the actual desktop, checks descendant targets, real form actions,
+keyboard/click cancellation, disabled controls, author-style fallback and
+restoration, label/model changes, resizing, editing, reload and host replacement.
+See [qualification](html-button-qualification.json) and
+[source audit](html-button-source-audit.json). This qualifies text-label buttons
+on the pinned horizontal scale-1 build. Image/SVG/pseudo/shadow content,
+automatic flex/grid sizing, default-button policy, accessibility and broader
+layout/scale/build coverage remain open.
+
+The host-replacement control images pass, but the full desktop capture still
+shows TimeMon's detached menu while Firefox remains focused and its D-Bus menu
+model is bound. Actual Workspace menu presentation/recovery needs a separate
+fix; the control-image assertions do not qualify it.

@@ -58,6 +58,20 @@ provider and UI library. See the
 Full installed deployment and the remaining application-wide requirements are
 still open.
 
+Pinned Firefox HTML text-label buttons now reuse the existing `NSButton`
+provider and input adapter. Native cells supply preferred size and full title/
+bezel images; Gecko supplies rendered label text, descendant hit testing and
+real form activation/cancellation. Actual desktop checks include automatic
+block sizing, fixed flex/grid buttons, Unicode/nested labels, model changes,
+native editing and host replacement. The bridge preserves its completed model
+across reflow and invalidates retained backgrounds after committed title changes.
+See the [HTML button qualification](../Experiments/FirefoxNativeUI/html-button-qualification.json).
+Rich button content, select controls and the broader browser/application scope
+remain unfinished.
+The full host-replacement capture also shows a menu-presentation gap: Firefox
+remains focused and its D-Bus menu is bound, while the detached menu shows
+TimeMon. Native control-image recovery does not qualify that menu behavior.
+
 The provider now also supplies an ordinary `NSTextView`/`NSScrollView` multiline
 control, including native document/viewport geometry. Opt-in bindings for both
 pinned browsers pass real-seat multiline editing, event cancellation and

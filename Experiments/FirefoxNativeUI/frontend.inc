@@ -27,6 +27,7 @@ static int frontend_item_owned(void *frame) {
 }
 static int frontend_webrender(void *item,void *builder,void *resources,void *stacking,void *manager,void *display_builder) {
   void *frame=frontend_item_frame(item);
+  if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   /* The active nsITheme can be GTK even for web content. Select Gecko's
    * existing fallback at the display item, before virtual theme dispatch. */
   if(frontend_item_owned(frame)||eligible(frame,*((const unsigned char *)item+156)))return 0;
@@ -34,6 +35,7 @@ static int frontend_webrender(void *item,void *builder,void *resources,void *sta
 }
 static void frontend_paint(void *item,void *builder,void *context) {
   void *frame=frontend_item_frame(item);
+  if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   if(frontend_item_owned(frame)) {
     /* GetDrawTarget is inlined at Theme::DrawWidgetBackground (+216).
      * mBackgroundRect (+120) and StyleFrame's virtual slot are independently
