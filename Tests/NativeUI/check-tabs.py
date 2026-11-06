@@ -69,7 +69,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
     code=actor.wait(timeout=5)
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
    assert code==0,(code,(out/'probe.stdout').read_text()[-1500:],(out/'probe.stderr').read_text()[-2500:])
-   assert checks[-1]['images']==5 and checks[-1]['api_bytes']==448
+   assert checks[-1]['images']==5 and checks[-1]['api_bytes']==472
    assert all(row['passed'] for row in rows),[row for row in rows if not row['passed']]
   if a.previous_provider:
    old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_provider))

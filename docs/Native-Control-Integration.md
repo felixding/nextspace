@@ -491,3 +491,17 @@ The NativeUI provider and AppKit are unchanged. This adds the second engine
 binding; native new-tab/close buttons and the remaining tab features, whole
 browser interfaces,
 derivatives/deployment and subsequent GTK/Qt/KDE integration remain unfinished.
+
+
+The next shared component is a native toolbar foundation: ordinary NSToolbar,
+NSToolbarItem and GSToolbarView supply buttons, standard spaces/separators,
+layout and the overflow menu. The provider accepts application IDs/labels/state;
+AppKit owns presentation and interaction. Complete ordinary desktop comparisons
+cover 100% and 200% toolbar images. Optional Cairo device-density readback reuses
+its existing readback implementation, and the shared Wayland backend acknowledges
+geometry immediately for windows without a compositor role so embedded menu
+placement agrees with actual surface position. Neither change names an app.
+See [toolbar qualification](../Libraries/NativeUI/toolbar-qualification.json).
+Toolbar IPC, native composition with address fields and both browser toolbar
+bindings remain unfinished. The browser/derivative/deployment requirements and
+subsequent GTK/Qt/KDE integration remain open under the original objective.

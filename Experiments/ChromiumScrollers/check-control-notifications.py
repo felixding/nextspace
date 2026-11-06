@@ -48,6 +48,17 @@ def helper_identities():
         except FileNotFoundError:pass
     return found
 try:
+    # Queue registration as the very first packet, without a warm-up RPC.
+    # Sender credentials must survive packets sent before the server accepts.
+    for trial in range(128):
+        peer=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET);peer.settimeout(3)
+        peer.connect(str(a.socket));descriptor=os.eventfd(0,os.EFD_NONBLOCK|os.EFD_CLOEXEC)
+        try:
+            owner=0x52454700+trial
+            assert register(descriptor,owner,generation=0,client=peer), ('first-packet-registration',trial)
+            assert request(16,owner=owner,kind=0,control=0,client=peer).parts[3].x==1
+        finally:os.close(descriptor);peer.close()
+    check('fresh-connection-first-packet-credentials',True,connections=128)
     request(1);request(1,owner=other)
     focus=ControlInputRequest(magic=MAGIC,operation=7,process=process,kind=1,control=1,focused=1)
     assert exchange(focus).parts[3].y==1

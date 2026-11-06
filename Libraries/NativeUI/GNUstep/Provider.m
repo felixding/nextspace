@@ -44,7 +44,10 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_wheel=nxs_gnustep_control_wheel,
     .control_tab_items=nxs_gnustep_control_tab_items,
     .control_tab_state=nxs_gnustep_control_tab_state,
-    .control_tab_item_rect=nxs_gnustep_control_tab_item_rect
+    .control_tab_item_rect=nxs_gnustep_control_tab_item_rect,
+    .control_toolbar_items=nxs_gnustep_control_toolbar_items,
+    .control_toolbar_state=nxs_gnustep_control_toolbar_state,
+    .control_toolbar_item_rect=nxs_gnustep_control_toolbar_item_rect
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

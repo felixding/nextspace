@@ -728,7 +728,7 @@ item rectangles. Application models supply unique nonzero 64-bit identities,
 UTF8 titles/tooltips and selection. Programmatic updates emit no user action;
 native pointer selection emits `NXS_VALUE_CHANGED` with the selected index.
 Native items survive reorder/title changes. Empty models use selected ID zero.
-The ABI remains version 1; its append-only table is now 448 bytes on ARM64.
+The tabs extension retains ABI version 1 and first extended its table to 448 bytes on ARM64.
 Earlier providers safely report no tabs capability.
 
 AppKit supplies `minimumSize`, `contentRect`, cached `_tabRect`, drawing and
@@ -758,3 +758,40 @@ had not checked. Native tab items create ordinary `NSView` panes, whose
 after drawing the parent; control subclasses keep their own dirty flags. The
 updated probe requires native drawing to consume invalidation and retains all
 ten full 1x/2x ordinary-desktop comparisons. AppKit rendering remains unchanged.
+
+
+## Shared native toolbar foundation
+
+`NXS_TOOLBAR` embeds the ordinary `NSToolbar` representation and its original
+`NSToolbarItem` buttons, spaces, separators and overflow menu. Application models
+supply opaque nonzero `uint64` IDs, labels, tooltips, native image names and
+availability. AppKit owns layout, preferred height, clipping, validation, hit
+testing, highlighting and tracking. Native target/action reports the current
+ordered index through `NXS_ACTIVATE`; `toolbar_state.command` retains the exact
+64-bit identity. Model updates emit no action and reject invalid data atomically.
+Native action items retain their identity across reorder/title changes.
+
+Three optional methods append to ABI 1, making the table 472 bytes on ARM64.
+Earlier providers report no toolbar capability. Earlier 448-byte tab clients and
+loaders remain usable with the expanded provider. Native visible-item and open
+menu rectangles use control-relative logical coordinates with a top-left origin.
+The host supplies pointer events to the ordinary and transient menu windows;
+AppKit's existing menu implementation owns placement and selection.
+
+Compound controls use AppKit's recursive display into their actual backing.
+The Cairo backend's optional `GSReadRectAtBackingScale:` reuses its existing
+readback implementation to return device pixels at the surface's density.
+The original `GSReadRect:` contract stays unchanged. The provider transports
+those pixels; it contains no toolbar renderer or duplicated child drawing code.
+Native window invalidation tracks visible work without consuming clipped native
+children's dirty flags. The shared Wayland backend acknowledges stored positions
+for windows without a compositor role; their menus then agree with the actual
+compositor surface position. No application identity participates in this policy.
+
+`Tests/NativeUI/check-toolbars.py` compares four complete ordinary toolbar images
+at both 100% and 200%, alongside native actions, cancellation, disabled state,
+standard item types, exact IDs and empty/restore lifecycle checks. The
+[toolbar qualification](toolbar-qualification.json) records the measured scope.
+Toolbar IPC and browser toolbar bindings remain unfinished. This foundation does
+not make either complete browser interface native; GTK/Qt/KDE integration and the
+remaining browser/derivative/deployment requirements remain open.

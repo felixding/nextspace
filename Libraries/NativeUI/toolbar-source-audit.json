@@ -1,0 +1,90 @@
+{
+  "date": "2026-11-07",
+  "baseline": "3c81790a",
+  "qualification": "toolbar-qualification.json",
+  "source_sha256": {
+    "Libraries/NativeUI/CMakeLists.txt": "a77703e5fc947e65176fcdd762b4c894ef4ac753650643d36c1c3be8d85f9412",
+    "Libraries/NativeUI/NativeUI.h": "f82a8351e80f36ca16a834a4cdcb00adf1325698f4971bd371ca71b6f617a61d",
+    "Libraries/NativeUI/Loader.c": "bceb410a890f04893484b92196e4f9bd21d39143323c764aa2ffb4e72cee8003",
+    "Libraries/NativeUI/GNUstep/Provider.h": "a635d72407294a5ced34065bf1043f4d9dc040083875cafa1b2db639fa76753a",
+    "Libraries/NativeUI/GNUstep/Provider.m": "cb3d0314a7abab5e88962ebc8f2fafaabcebb03f1c03f4b7d768f4bed2f3dbe7",
+    "Libraries/NativeUI/GNUstep/Controls.m": "6a3f7e31422cc1df9b59e7dd8d88a25c7231932ced3a784b7530c0586ea60291",
+    "Libraries/NativeUI/GNUstep/Toolbar.inc": "89b3ba460243d812b4c347143985ba9627c8546aed77f08246a3fce845027ecd",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "439e0713ec5b13c3c30bc6998ddebe0a37626407a35d8b9c411a44e767db4e51",
+    "Libraries/gnustep/back/Source/cairo/CairoContext.h": "f2de2d412a12efebf962f1808d9bc6b059c99ade77e5d67ba3025b3bce63bea9",
+    "Libraries/gnustep/back/Source/cairo/CairoContext.m": "bc55c25b83bbb0ab7c6d9eb5c561db9d1def1e82e95d3faf4d4128828938aa95",
+    "Libraries/gnustep/back/Source/cairo/CairoGState.h": "c491a9624596f176bdd6cfda1edaa65ade2740cdf1b30b57cd98f55461bedb94",
+    "Libraries/gnustep/back/Source/cairo/CairoGState.m": "03e3959ba3873c7c459aca5ef251fcdf72046b3bef0b8ab33cfbc97dcfb72bc8",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer.m": "6915683da3f4ffef54c36180f77cee66a39ca4d11869b85fe6b6e53c811b2b5f",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer+Application.m": "e2870b8ec20be590818b195687fc2d673febf5654acffb71ccef60978f6170ed",
+    "Experiments/ChromiumScrollers/helper.py": "8b02238e42d039584c80d6fe7173a6f2de7288b91a0208d70f6c74ddfd382330",
+    "Experiments/ChromiumScrollers/native_controls.py": "4289e93ef199957aec203e8ffe397cce69f105b18eb1cfa7d5c9f3e81b8e09d4",
+    "Experiments/ChromiumScrollers/check-control-notifications.py": "8e0596ad61d389c1ba36281b31aae4e9a03ccf15a8a9b78243d689ecac5c3a53",
+    "Tests/NativeUI/toolbar-probe.m": "881ba84c1078bf6abded29f6288b27216770b325025cfc27ac8c3ca7390eb5d0",
+    "Tests/NativeUI/check-toolbars.py": "f9bf3dc63367892a84bafdd9c2988533c720c21204e0ed540280da460425de75",
+    "Tests/NativeUI/check-tabs.py": "e546f876b0969c7f2c7a92494f7409b87eab055c05f265e34ce570a0af71660d"
+  },
+  "upstream_sources": [
+    {
+      "path": "Source/NSToolbar.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSToolbar.m",
+      "sha256": "3a7f1496bad25711c10db2b401dd6cde704d4e5fb41de446feacb90cb73c4f69",
+      "bytes": 37493
+    },
+    {
+      "path": "Source/NSToolbarItem.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSToolbarItem.m",
+      "sha256": "cc644de650f7a4e142a61aff37f981e1afdb01b5dc3fdd435c00d71a3b41bc59",
+      "bytes": 44505
+    },
+    {
+      "path": "Source/GSToolbarView.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/GSToolbarView.m",
+      "sha256": "1b452a1ddc81865bfc7bf5b25efd200975a541320483a48797fd2dcd9bee3c99",
+      "bytes": 26026
+    },
+    {
+      "path": "Headers/AppKit/NSToolbar.h",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Headers/AppKit/NSToolbar.h",
+      "sha256": "dfdcbf6867e894e2a5cd562e69523ddefc7c863c1bf4732b317d841eef463753",
+      "bytes": 5211
+    },
+    {
+      "path": "Headers/AppKit/NSToolbarItem.h",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Headers/AppKit/NSToolbarItem.h",
+      "sha256": "9d8b5693be9cbab9fb1abcf3354c65ddd08baac9a448ce5ab9e65e48fd052a1d",
+      "bytes": 4295
+    },
+    {
+      "path": "Headers/Additions/GNUstepGUI/GSToolbarView.h",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Headers/Additions/GNUstepGUI/GSToolbarView.h",
+      "sha256": "094a60aaf263d95bd3d2257377604f2823d3de0ed6d6d995a4aa4f23dbd8afbf",
+      "bytes": 2386
+    }
+  ],
+  "separation": {
+    "actual_native_toolbar_items_buttons_spaces_overflow": true,
+    "no_copied_control_rendering_layout_hit_testing_key_matching_tracking": true,
+    "existing_API_prefix_unchanged": true,
+    "one_backend_readback_implementation": true,
+    "original_logical_readback_contract_unchanged": true,
+    "no_application_identity_branch": true,
+    "no_browser_or_appkit_recompile": true
+  },
+  "findings": [
+    "Compound native views need recursive native display and original child hit testing; flat root drawRect does not draw their children.",
+    "Existing native backing readback is logical-sized; optional device-density readback shares its implementation and returns exact surface pixels.",
+    "Native window display flags distinguish visible display work from clipped child invalidations.",
+    "Transient menus query their ordinary window pointer before tracking begins; native item-add/tracking notifications bind both original native windows to the owner input stream.",
+    "Unmapped backings cannot receive compositor position acknowledgements. Shared backend move handling now reports its already authoritative stored geometry; real menu captures must corroborate native state.",
+    "A fresh empty toolbar differs from an emptied existing toolbar; compare the same native lifecycle. Reference double-painting is a fixture error, not a reason to change native drawing.",
+    "The standalone helper must enable SO_PASSCRED on its listener before accept; otherwise a first queued registration can report sender PID zero. Session-owned listeners already do this. Keep owner validation unchanged."
+  ],
+  "runtime_audit": ".build/native-ui/toolbar-runtime-audit.json",
+  "remaining_scope": [
+    "Toolbar IPC and native composition with browser address fields",
+    "Chromium and Firefox toolbar bindings and remaining tab/control features",
+    "Browser derivatives, multiple-window coverage, broader DPI/IME/accessibility and installed deployment",
+    "Subsequent full GTK/Qt/KDE integration"
+  ]
+}

@@ -33,6 +33,8 @@
 @interface CairoContext : GSContext
 {
 }
+/* Read the existing surface at device density without changing GSReadRect. */
+- (NSDictionary *) GSReadRectAtBackingScale: (NSRect)rect;
 @end
 
 #endif

@@ -255,6 +255,9 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
         def adopt(connection):clients.append(connection);add_source(connection)
         activation.start(forms,adopt);add_source(activation.channel)
     else:
+        # A client can queue its first packet before accept(). Enable kernel
+        # credentials on the listener so that packet retains its real sender.
+        if forms and forms.notification_capabilities:server.setsockopt(socket.SOL_SOCKET,socket.SO_PASSCRED,1)
         server.bind(str(path));os.chmod(path,0o600);server.listen(20)
         add_source(server)
     log('ready',socket=str(path),request_size=C.sizeof(Request),response_size=C.sizeof(Response),preparation_seconds=time.monotonic()-started)

@@ -164,3 +164,12 @@ NXSTabState nxs_control_tab_state(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_tab_state)?p->control_tab_state(c):(NXSTabState){.size=sizeof(NXSTabState),.selected_index=-1};}
 NXSRect nxs_control_tab_item_rect(NXSControl *c,uint64_t identifier)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_tab_item_rect)?p->control_tab_item_rect(c,identifier):(NXSRect){0};}
+
+unsigned nxs_control_toolbar_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_items)&&HAS_INPUT(p,control_toolbar_state)&&HAS_INPUT(p,control_toolbar_item_rect)?NXS_TOOLBAR_ITEMS:0;}
+int nxs_control_toolbar_items(NXSControl *c,const NXSToolbarItem *items,uint32_t count,uint32_t mode,uint32_t size)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_items)?p->control_toolbar_items(c,items,count,mode,size):0;}
+NXSToolbarState nxs_control_toolbar_state(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_state)?p->control_toolbar_state(c):(NXSToolbarState){.size=sizeof(NXSToolbarState),.highlighted=-1};}
+NXSRect nxs_control_toolbar_item_rect(NXSControl *c,uint64_t identifier)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_item_rect)?p->control_toolbar_item_rect(c,identifier):(NXSRect){0};}

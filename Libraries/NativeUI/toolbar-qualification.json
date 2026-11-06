@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-07",
+  "baseline": "3c81790a",
+  "status": "Qualified native toolbar provider foundation; toolbar IPC, browser composition and bindings remain unfinished.",
+  "api": {
+    "version": 1,
+    "bytes": 472,
+    "preceding_prefix_bytes": 448,
+    "toolbar_capability": 1,
+    "stable_identifiers": "uint64",
+    "item_bytes": 48,
+    "state_bytes": 112
+  },
+  "checks": 503,
+  "whole_native_images": 211,
+  "native_ui_regression_sections": 35,
+  "runs": [
+    {
+      "path": "/var/tmp/nxs-toolbar-provider-17",
+      "passed": 117,
+      "native_ui_sections": null,
+      "whole_native_images": 8,
+      "cleanup": [
+        {
+          "pid": 130389,
+          "exit": 0
+        },
+        {
+          "pid": 130392,
+          "exit": -15
+        },
+        {
+          "pid": 130393,
+          "exit": 0
+        },
+        {
+          "pid": 130396,
+          "exit": 0
+        },
+        {
+          "pid": 130397,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-toolbar-tabs-current-02",
+      "passed": 96,
+      "native_ui_sections": null,
+      "whole_native_images": 10,
+      "cleanup": [
+        {
+          "pid": 130537,
+          "exit": 0
+        },
+        {
+          "pid": 130540,
+          "exit": -15
+        },
+        {
+          "pid": 130541,
+          "exit": 0
+        },
+        {
+          "pid": 130542,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-toolbar-tabs-previous-02",
+      "passed": 96,
+      "native_ui_sections": null,
+      "whole_native_images": 10,
+      "cleanup": [
+        {
+          "pid": 130544,
+          "exit": 0
+        },
+        {
+          "pid": 130547,
+          "exit": -15
+        },
+        {
+          "pid": 130548,
+          "exit": 0
+        },
+        {
+          "pid": 130549,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-toolbar-native-suite-04",
+      "passed": null,
+      "native_ui_sections": 35,
+      "whole_native_images": 0,
+      "cleanup": null
+    },
+    {
+      "path": "/var/tmp/nxs-toolbar-chromium-02",
+      "passed": 81,
+      "native_ui_sections": null,
+      "whole_native_images": 14,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      }
+    },
+    {
+      "path": "/var/tmp/nxs-toolbar-firefox-02",
+      "passed": 113,
+      "native_ui_sections": null,
+      "whole_native_images": 169,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      }
+    }
+  ],
+  "additional_registration_stress": {
+    "path": "/var/tmp/nxs-toolbar-registrations-02",
+    "fresh_connections": 1000,
+    "passed_requests": 2000
+  },
+  "scope": [
+    "Actual NSToolbar/NSToolbarItem/GSToolbarView, native actions and overflow tracking, built-in spaces and separators",
+    "Eight complete ordinary-desktop toolbar image comparisons at 100 and 200 percent; two actual menu captures with compositor/native geometry agreement",
+    "Atomic invalid model rejection, disabled/re-enabled root, exact 64-bit commands, empty/restore and reorder retention",
+    "New provider with existing 448-byte tab client/loader; new toolbar client safely rejects an older provider",
+    "Existing NativeUI and both pinned browser desktop regressions with the new backend/provider"
+  ],
+  "unfinished": [
+    "Toolbar IPC and native composition with browser address fields",
+    "Chromium and Firefox toolbar bindings and remaining tab/control features",
+    "Browser derivatives, multiple-window coverage, broader DPI/IME/accessibility and installed deployment",
+    "Subsequent full GTK/Qt/KDE integration"
+  ]
+}

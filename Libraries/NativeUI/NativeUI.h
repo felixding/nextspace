@@ -22,7 +22,7 @@ enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
-  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW
+  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 typedef struct {
@@ -51,6 +51,29 @@ typedef struct {
   uint64_t selected;
   NXSRect content; /* Native logical content rectangle, with a top-left origin. */
 } NXSTabState;
+
+enum NXSToolbarCapability { NXS_TOOLBAR_ITEMS = 1 };
+enum NXSToolbarItemType { NXS_TOOLBAR_ACTION, NXS_TOOLBAR_SPACE,
+  NXS_TOOLBAR_FLEXIBLE_SPACE, NXS_TOOLBAR_SEPARATOR };
+enum NXSToolbarDisplay { NXS_TOOLBAR_DEFAULT_DISPLAY, NXS_TOOLBAR_IMAGE_AND_LABEL,
+  NXS_TOOLBAR_IMAGE_ONLY, NXS_TOOLBAR_LABEL_ONLY };
+enum NXSToolbarSize { NXS_TOOLBAR_DEFAULT_SIZE, NXS_TOOLBAR_REGULAR, NXS_TOOLBAR_SMALL };
+enum NXSToolbarFlag { NXS_TOOLBAR_MENU_VISIBLE=1, NXS_TOOLBAR_TRACKING=2 };
+typedef struct {
+  uint32_t size,type;
+  uint64_t identifier;
+  const char *title,*tooltip,*image_name;
+  int32_t enabled;
+  uint32_t reserved;
+} NXSToolbarItem;
+typedef struct {
+  uint32_t size,count,visible_count,flags;
+  uint64_t command; /* Last native activation; zero before any action. */
+  NXSSize preferred; /* Configured width and native layout height. */
+  NXSRect overflow,menu; /* Native rectangles in control top-left coordinates. */
+  int32_t highlighted;
+  uint32_t reserved;
+} NXSToolbarState;
 
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
 enum NXSPointerCapability { NXS_POINTER_CLICK_COUNT = 1 };
@@ -227,6 +250,9 @@ typedef struct {
   int (*control_tab_items)(NXSControl *,const NXSTabItem *,uint32_t,uint64_t);
   NXSTabState (*control_tab_state)(NXSControl *);
   NXSRect (*control_tab_item_rect)(NXSControl *,uint64_t);
+  int (*control_toolbar_items)(NXSControl *,const NXSToolbarItem *,uint32_t,uint32_t,uint32_t);
+  NXSToolbarState (*control_toolbar_state)(NXSControl *);
+  NXSRect (*control_toolbar_item_rect)(NXSControl *,uint64_t);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -264,6 +290,17 @@ NXSTabState nxs_control_tab_state(NXSControl *);
 /* Native cached item geometry from the latest native draw; no layout algorithm
  * is reproduced. Unknown/undrawn items return an empty rectangle. */
 NXSRect nxs_control_tab_item_rect(NXSControl *,uint64_t identifier);
+unsigned nxs_control_toolbar_capabilities(void);
+/* Item data uses unique nonzero opaque IDs. Native NSToolbar owns buttons,
+ * layout, sizing, images and overflow menus; model updates emit no action.
+ * Native activation emits ACTIVATE with the current ordered index in value;
+ * toolbar_state.command preserves its exact 64-bit application identity. */
+int nxs_control_toolbar_items(NXSControl *,const NXSToolbarItem *,uint32_t count,
+  uint32_t display_mode,uint32_t size_mode);
+NXSToolbarState nxs_control_toolbar_state(NXSControl *);
+/* Return the native visible item rectangle, including an open overflow menu.
+ * Unknown or currently hidden items return an empty rectangle. */
+NXSRect nxs_control_toolbar_item_rect(NXSControl *,uint64_t identifier);
 unsigned nxs_control_input_capabilities(void);
 int nxs_control_focus(NXSControl *control, int focused);
 int nxs_control_focused(NXSControl *control);

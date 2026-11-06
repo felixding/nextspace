@@ -971,11 +971,21 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
 
 - (NSDictionary *) GSReadRect: (NSRect)r
 {
+  return [self _readRect: r atBackingScale: NO];
+}
+
+- (NSDictionary *) GSReadRectAtBackingScale: (NSRect)r
+{
+  return [self _readRect: r atBackingScale: YES];
+}
+
+- (NSDictionary *) _readRect: (NSRect)r atBackingScale: (BOOL)backing
+{
   static NSDictionary *baseDict = nil;
   NSMutableDictionary *dict;
   NSSize ssize;
   NSAffineTransform *matrix;
-  double x, y;
+  double x, y, scaleX = 1, scaleY = 1;
   int ix, iy;
   cairo_format_t format = CAIRO_FORMAT_ARGB32;
   cairo_surface_t *surface;
@@ -993,11 +1003,14 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
       return nil;
     }
 
+  surface = cairo_get_target(_ct);
+  if (backing)
+    cairo_surface_get_device_scale(surface, &scaleX, &scaleY);
   r = [ctm rectInMatrixSpace: r];
   x = NSWidth(r);
   y = NSHeight(r);
-  ix = fabs(floor(x));
-  iy = fabs(floor(y));
+  ix = fabs(floor(x * scaleX));
+  iy = fabs(floor(y * scaleY));
   ssize = NSMakeSize(ix, iy);
 
   if (!baseDict)
@@ -1036,6 +1049,7 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
       return nil;
     }
 
+  cairo_surface_set_device_scale(isurface, scaleX, scaleY);
   ct = cairo_create(isurface);
   status = cairo_status(ct);
   if (status != CAIRO_STATUS_SUCCESS)
@@ -1055,7 +1069,7 @@ static inline cairo_filter_t cairoFilterFromNSImageInterpolation(NSImageInterpol
     }
   cairo_set_source_surface(ct, surface, -r.origin.x, 
                            -ssize.height + r.size.height + r.origin.y);
-  cairo_rectangle(ct, 0, 0, ix, iy);
+  cairo_rectangle(ct, 0, 0, ix / scaleX, iy / scaleY);
   cairo_paint(ct);
   cairo_destroy(ct);
   cairo_surface_destroy(isurface);

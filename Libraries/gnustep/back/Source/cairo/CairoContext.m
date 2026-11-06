@@ -82,6 +82,11 @@
 
 @implementation CairoContext
 
+- (NSDictionary *) GSReadRectAtBackingScale: (NSRect)rect
+{
+  return [CGSTATE GSReadRectAtBackingScale: rect];
+}
+
 + (void) initializeBackend
 {
   [NSGraphicsContext setDefaultContextClass: self];

@@ -41,7 +41,7 @@ void WaylandSetupApplicationManager(WaylandConfig *config)
 void WaylandReportPosition(struct window *w)
 {
   NSWindow *window = GSWindowWithNumber(w->window_id);
-  if (!window || w->terminated || (!w->application_window && !w->popup)) return;
+  if (!window || w->terminated) return;
   NSRect frame = [w->instance windowbounds:w->window_id];
   if (NSEqualPoints([window frame].origin, frame.origin)) return;
   NSEvent *event = [NSEvent otherEventWithType:NSAppKitDefined

@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <objc/runtime.h>
+@interface NSGraphicsContext (NXSBackingReadback)
+- (NSDictionary *)GSReadRectAtBackingScale:(NSRect)rect;
+@end
 struct NXSViewHost {
   NSView *view;
   NSWindow *window;
@@ -68,7 +71,7 @@ static void end_draw_density(struct NXSDrawDensity *scope)
   if(scope->window){object_setClass(scope->window,scope->original);draw_density=scope->previous;[scope->window release];}
 }
 static BOOL native_backing(NSView *view)
-{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]];}
+{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
 static NSView *focus_view(NXSViewHost *host)
 {return [host->view isKindOfClass:[NSScrollView class]]?[(NSScrollView *)host->view documentView]:host->view;}
 static NXSMenuLoop *menu_loop;
@@ -358,7 +361,7 @@ void nxs_host_resize(NXSViewHost *host,NSSize size)
   /* The backing covers complete device pixels; the actual native view keeps
    * its logical fractional bounds. Its parent must cover the antialiased edge. */
   [host->window setContentSize:NSMakeSize(ceil(size.width),ceil(size.height))];
-  [host->view setFrameSize:size];
+  [host->view setFrame:NSMakeRect(0,0,size.width,size.height)];
 }
 int nxs_host_set_screen_origin(NXSViewHost *host,double x,double y)
 {
@@ -423,7 +426,13 @@ static void acknowledge_empty_panes(NSView *view)
   for(NSView *child in [view subviews])acknowledge_empty_panes(child);
 }
 int nxs_host_needs_display(NXSViewHost *host)
-{return host&&view_needs_display(host->view);}
+{
+  if(!host)return 0;
+  /* Native windows track visible display work separately from clipped child
+   * dirty flags. Hidden toolbar/scroll content keeps its invalidation until
+   * visible; it must not create an embedding repaint loop. */
+  return native_backing(host->view)?([host->window viewsNeedDisplay]||[host->view needsDisplay]):view_needs_display(host->view);
+}
 NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 {
   NXSBitmap result = {0};
@@ -445,8 +454,21 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
     [backing unlockFocus];
     [control->view displayRectIgnoringOpacity:[control->view bounds]];
     [control->view lockFocus];
-    bitmap=[[NSBitmapImageRep alloc] initWithFocusedViewRect:[control->view bounds]];
+    NSGraphicsContext *context=[NSGraphicsContext currentContext];
+    if([context respondsToSelector:@selector(GSReadRectAtBackingScale:)]) {
+      NSDictionary *readback=[context GSReadRectAtBackingScale:[control->view bounds]];
+      NSSize dimensions=[[readback objectForKey:@"Size"] sizeValue];
+      NSData *data=[readback objectForKey:@"Data"];
+      bitmap=[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL pixelsWide:dimensions.width pixelsHigh:dimensions.height
+        bitsPerSample:8 samplesPerPixel:4 hasAlpha:YES isPlanar:NO colorSpaceName:NSDeviceRGBColorSpace
+        bytesPerRow:dimensions.width*4 bitsPerPixel:32];
+      if(bitmap&&[data length]==[bitmap bytesPerRow]*[bitmap pixelsHigh])memcpy([bitmap bitmapData],[data bytes],[data length]);
+      else { [bitmap release];bitmap=nil; }
+    } else bitmap=[[NSBitmapImageRep alloc] initWithFocusedViewRect:[control->view bounds]];
     [control->view unlockFocus];[control->view setNeedsDisplay:NO];
+    /* These private windows remain unmapped, so NSWindow::displayIfNeeded
+     * cannot acknowledge the completed native display for us. */
+    [control->window setViewsNeedDisplay:NO];
     /* Native readback defines pixel rounding, including exact half units. */
     width=[bitmap pixelsWide];height=[bitmap pixelsHigh];
     if(width<1||height<1||(size_t)width*height>8*1024*1024){[bitmap release];[pool drain];return result;}
@@ -504,7 +526,7 @@ int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifi
   active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;control->click_count=clicks;
   NSEvent *event=mouse(control,NSLeftMouseDown,x,y,modifiers);control->pointer=[event locationInWindow];
   NSView *target=control->view;
-  if([target isKindOfClass:[NSScrollView class]])
+  if([target isKindOfClass:[NSScrollView class]]||[target isKindOfClass:NSClassFromString(@"GSToolbarView")])
     target=[target hitTest:[[target superview] convertPoint:[event locationInWindow] fromView:nil]];
   @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:target]; }
   @finally { control->tracking = NO; active = NULL; }

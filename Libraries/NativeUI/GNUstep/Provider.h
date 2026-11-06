@@ -55,3 +55,7 @@ NXSMenuState nxs_gnustep_menu_state(NXSMenu *,int);
 int nxs_gnustep_menu_cancel(NXSMenu *);
 int nxs_gnustep_menu_lifecycle(NXSMenu *,NXSMenuLifecycle,void *);
 int nxs_gnustep_menu_branch_items(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_t);
+
+int nxs_gnustep_control_toolbar_items(NXSControl *,const NXSToolbarItem *,uint32_t,uint32_t,uint32_t);
+NXSToolbarState nxs_gnustep_control_toolbar_state(NXSControl *);
+NXSRect nxs_gnustep_control_toolbar_item_rect(NXSControl *,uint64_t);

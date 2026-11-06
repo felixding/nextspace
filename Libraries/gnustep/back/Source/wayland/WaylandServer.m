@@ -1114,6 +1114,10 @@ WaylandServer (WindowOps)
 	  {
 	    NSDebugLog(@"[%d] placewindow: newpos=%fx%f", win, window->pos_x,
 		       window->pos_y);
+    /* An unrealized shell has no compositor position event. Its stored
+     * geometry is already authoritative, including private view backings. */
+    if (!window->application_window && !window->popup)
+      WaylandReportPosition(window);
 	  }
 	wl_display_flush(wlconfig->display);
 }

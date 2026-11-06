@@ -47,6 +47,8 @@
 - (BOOL) GSdrawImageRep: (NSImageRep *)rep fromRect: (NSRect)source
                 toRect: (NSRect)destination operation: (NSCompositingOperation)operation
               fraction: (CGFloat)fraction;
+/* Read the existing surface at device density without changing GSReadRect. */
+- (NSDictionary *) GSReadRectAtBackingScale: (NSRect)rect;
 @end
 
 #endif

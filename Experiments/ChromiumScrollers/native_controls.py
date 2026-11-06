@@ -475,7 +475,7 @@ class NativeControlServer:
         self.signal(process)
 
     def notification_message(self,client,req,descriptors,sender_pid):
-        accepted=0
+        accepted=0;reason="request-or-owner"
         previous=self.notifiers.get(req.process)
         owned=not previous or (previous['client'] is client and previous['pid']==sender_pid)
         if req.kind==0 and req.control==0 and not req.text_size and owned:
@@ -484,6 +484,7 @@ class NativeControlServer:
                 accepted=1
             elif (req.operation==15 and self.notification_capabilities and sender_pid and sender_pid>0 and len(descriptors)==1 and
                   math.isfinite(req.value) and 0<=req.value<=self.generations.get(req.process,0)):
+                reason="eventfd-validation"
                 descriptor=descriptors[0]
                 try:
                     # Only write to a caller-owned, nonblocking eventfd. Never
@@ -498,6 +499,7 @@ class NativeControlServer:
                         # sandboxed renderers all see namespace-local PID 1.
                         # pidfd readiness also covers crashes while the shared
                         # browser connection remains open in other processes.
+                        reason="notification-source"
                         lifetime=os.pidfd_open(sender_pid,0)
                         source=self.native.nxs_native_ui_source_create(lifetime)
                         if not source:os.close(lifetime);raise OSError('Cannot watch notification owner')
@@ -511,7 +513,8 @@ class NativeControlServer:
                         # Cover the race between the renderer's generation
                         # snapshot and registration without polling or timers.
                         if self.generations.get(req.process,0)>req.value:self.signal(req.process)
-                except (OSError,KeyError,ValueError):pass
+                except (OSError,KeyError,ValueError) as error:reason=type(error).__name__+":"+str(error)
+        if not accepted:self.log('native-notifier-rejected',reason=reason,sender_pid=sender_pid,descriptors=len(descriptors))
         self.log('native-notifier',process=req.process,operation=req.operation,accepted=accepted,
                  active=len(self.notifiers))
         self._respond(client,req,input_result=accepted)
