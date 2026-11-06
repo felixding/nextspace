@@ -2,6 +2,7 @@
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
+#include <ftw.h>
 #include <getopt.h>
 #include <limits.h>
 #include <poll.h>
@@ -47,16 +48,21 @@ static void install_fd(int source, int target)
   } else if (dup2(source, target) < 0) _exit(126);
 }
 
-static pid_t launch(char *const arguments[], int descriptor, int output, char role)
+static pid_t launch_fds(char *const arguments[], int descriptor, int extra, int output, char role)
 {
   pid_t parent = getpid();
   pid_t pid = fork();
   if (pid != 0) return pid;
   if (prctl(PR_SET_PDEATHSIG, SIGTERM) < 0 || getppid() != parent) _exit(126);
   if (output >= 0) install_fd(output, STDOUT_FILENO);
+  /* Copy both capabilities above their target slots before either dup2.
+     Neither source can be clobbered when the other is installed. */
+  if (descriptor >= 0 && (descriptor = fcntl(descriptor, F_DUPFD_CLOEXEC, 5)) < 0) _exit(126);
+  if (extra >= 0 && (extra = fcntl(extra, F_DUPFD_CLOEXEC, 5)) < 0) _exit(126);
   if (descriptor >= 0) install_fd(descriptor, 3);
+  if (extra >= 0) install_fd(extra, 4);
   if ((role == 'I' || role == 'L' || role == 'V') && setenv("WAYLAND_SOCKET", "3", 1) < 0) _exit(126);
-  if (close_range(descriptor >= 0 ? 4 : 3, UINT_MAX, 0) < 0) _exit(126);
+  if (close_range(extra >= 0 ? 5 : descriptor >= 0 ? 4 : 3, UINT_MAX, 0) < 0) _exit(126);
   sigset_t empty;
   sigemptyset(&empty);
   /* Packaged swaylock treats SIGUSR1 as an unauthenticated unlock. Keep it
@@ -69,8 +75,10 @@ static pid_t launch(char *const arguments[], int descriptor, int output, char ro
   fprintf(stderr, "[session] Cannot execute %s: %s\n", arguments[0], strerror(errno));
   _exit(127);
 }
+static pid_t launch(char *const arguments[], int descriptor, int output, char role)
+{ return launch_fds(arguments, descriptor, -1, output, role); }
 
-static pid_t launch_client(int broker, char role, char *const arguments[])
+static pid_t launch_client_fds(int broker, char role, char *const arguments[], int extra)
 {
   int endpoints[2];
   if (socketpair(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, endpoints) < 0) return -1;
@@ -85,12 +93,14 @@ static pid_t launch_client(int broker, char role, char *const arguments[])
   memcpy(CMSG_DATA(header), &endpoints[0], sizeof(int));
   pid_t pid = -1;
   if (sendmsg(broker, &message, MSG_NOSIGNAL) == 1)
-    pid = launch(arguments, endpoints[1], -1, role);
+    pid = launch_fds(arguments, endpoints[1], extra, -1, role);
   close(endpoints[0]); close(endpoints[1]);
   return pid;
 }
+static pid_t launch_client(int broker, char role, char *const arguments[])
+{ return launch_client_fds(broker, role, arguments, -1); }
 
-static pid_t launch_workspace(int broker, char *const arguments[], bool initial)
+static pid_t launch_workspace(int broker, char *const arguments[], bool initial, int native_menu)
 {
   /* Login does not consume the Workspace protocol. Do not grant it a shell
      connection that toolkit helpers could inherit before it is marked CLOEXEC. */
@@ -100,13 +110,18 @@ static pid_t launch_workspace(int broker, char *const arguments[], bool initial)
   pid_t pid = -1;
   size_t count = 0;
   while (arguments[count]) count++;
-  char **shell_arguments = calloc(count + 4, sizeof(char *));
+  char **shell_arguments = calloc(count + 6, sizeof(char *));
   if (shell_arguments) {
     memcpy(shell_arguments, arguments, count * sizeof(char *));
     shell_arguments[count] = "--nextspace-shell-fd";
     shell_arguments[count + 1] = "3";
-    if (initial) shell_arguments[count + 2] = "--nextspace-restore-settings";
-    pid = launch_client(broker, 'C', shell_arguments);
+    size_t next = count + 2;
+    if (native_menu >= 0) {
+      shell_arguments[next++] = "--nextspace-native-menu-fd";
+      shell_arguments[next++] = "4";
+    }
+    if (initial) shell_arguments[next] = "--nextspace-restore-settings";
+    pid = launch_client_fds(broker, 'C', shell_arguments, native_menu);
     free(shell_arguments);
   }
   return pid;
@@ -172,6 +187,8 @@ static void service_timeout(struct session_service *service, bool blocked, int *
   if (*timeout < 0 || delay < *timeout) *timeout = (int)delay;
 }
 
+#include "native-ui.h"
+
 static bool environment(void)
 {
   const char *runtime = getenv("XDG_RUNTIME_DIR");
@@ -194,6 +211,7 @@ static bool environment(void)
     snprintf(identifier + 8 + index * 2, 3, "%02x", random[index]);
   unsetenv("DISPLAY"); unsetenv("WAYLAND_DISPLAY"); unsetenv("WAYLAND_SOCKET");
   unsetenv("NEXTSPACE_SHELL_SOCKET"); unsetenv("XAUTHORITY");
+  unsetenv("NEXTSPACE_NATIVE_UI_SOCKET");
   const char *session_class = getenv("XDG_SESSION_CLASS");
   if ((!session_class || !*session_class) && setenv("XDG_SESSION_CLASS", "user", 1) < 0) return false;
   const char *cursor_theme = getenv("XCURSOR_THEME");
@@ -280,7 +298,8 @@ static bool publish_activation_environment(void)
 {
   char *arguments[] = {"dbus-update-activation-environment", "NEXTSPACE_SESSION_ID",
     "NEXTSPACE_GS_BACKEND", "WAYLAND_DISPLAY", "XDG_RUNTIME_DIR", "XDG_SESSION_TYPE", "XDG_SESSION_CLASS",
-    "XDG_SESSION_DESKTOP", "XDG_CURRENT_DESKTOP", "DESKTOP_SESSION", "XCURSOR_THEME", NULL};
+    "XDG_SESSION_DESKTOP", "XDG_CURRENT_DESKTOP", "DESKTOP_SESSION", "XCURSOR_THEME", NULL, NULL};
+  if (getenv("NEXTSPACE_NATIVE_UI_SOCKET")) arguments[11] = "NEXTSPACE_NATIVE_UI_SOCKET";
   pid_t child = launch(arguments, -1, -1, false);
   if (child < 0) return false;
   int64_t deadline = milliseconds() + 5000;
@@ -417,6 +436,7 @@ int main(int argc, char **argv)
 {
   const char *compositor = "nextspace-compositor";
   char *locker_command = NULL, *profile_command = NULL, *hook_command = NULL;
+  struct native_ui_host native = {.pid=-1, .control=-1, .workspace=-1};
   struct session_service method = {.name = "Input method", .role = 'I', .pid = -1};
   struct session_service capture = {.name = "Capture backend", .role = 'V', .persistent = true, .pid = -1};
   bool want_private_bus = false;
@@ -428,10 +448,11 @@ int main(int argc, char **argv)
     {"greeter-profile", required_argument, NULL, 'p'},
     {"private-bus", no_argument, NULL, 'd'},
     {"session-hook", required_argument, NULL, 'u'},
+    {"native-ui-host", required_argument, NULL, 'n'},
     {"help", no_argument, NULL, 'h'}, {NULL, 0, NULL, 0}
   };
   int option;
-  while ((option = getopt_long(argc, argv, "+c:i:v:l:u:p:dh", options, NULL)) != -1) {
+  while ((option = getopt_long(argc, argv, "+c:i:v:l:u:p:n:dh", options, NULL)) != -1) {
     if (option == 'c') compositor = optarg;
     else if (option == 'i') method.command = optarg;
     else if (option == 'v') capture.command = optarg;
@@ -439,12 +460,16 @@ int main(int argc, char **argv)
     else if (option == 'p') profile_command = optarg;
     else if (option == 'd') want_private_bus = true;
     else if (option == 'u') hook_command = optarg;
+    else if (option == 'n') native.command = optarg;
     else {
-      fprintf(stderr, "Usage: %s [--compositor PATH] [--input-method EXECUTABLE] [--capture-backend EXECUTABLE] [--locker EXECUTABLE] [--greeter-profile EXECUTABLE] [--session-hook EXECUTABLE] [--private-bus] -- WORKSPACE [ARGUMENTS...]\n", argv[0]);
+      fprintf(stderr, "Usage: %s [--compositor PATH] [--input-method EXECUTABLE] [--capture-backend EXECUTABLE] [--locker EXECUTABLE] [--greeter-profile EXECUTABLE] [--session-hook EXECUTABLE] [--native-ui-host EXECUTABLE] [--private-bus] -- WORKSPACE [ARGUMENTS...]\n", argv[0]);
       return option == 'h' ? 0 : 1;
     }
   }
   if (optind == argc || !environment()) return 1;
+  if (native.command && (!want_private_bus || strcmp(getenv("XDG_SESSION_CLASS"), "user"))) {
+    fprintf(stderr, "[session] Native UI hosting requires a private authenticated user bus.\n"); return 1;
+  }
   if (hook_command && strcmp(getenv("XDG_SESSION_CLASS"), "user") != 0) {
     fprintf(stderr, "[session] Hooks require an authenticated user session.\n"); return 1;
   }
@@ -476,6 +501,7 @@ int main(int argc, char **argv)
   int result = 1;
   int hook_status = 0;
   bool hooks_started = false;
+  if (!native_ui_prepare(&native)) goto cleanup;
   if (want_private_bus && !start_private_bus(&bus, &bus_directory)) {
     fprintf(stderr, "[session] Cannot start a private D-Bus session.\n");
     close(broker[1]); close(output[1]);
@@ -527,7 +553,9 @@ int main(int argc, char **argv)
       activation_ready = true;
       printf("DBUS_SESSION_BUS_ADDRESS=%s\n", getenv("DBUS_SESSION_BUS_ADDRESS")); fflush(stdout);
     }
-    if (hook_command && !hooks_started && wayland && activation_ready) {
+    if (wayland && activation_ready) native_ui_tick(&native);
+    bool native_ready = !native.command || native.ready;
+    if (hook_command && !hooks_started && wayland && activation_ready && native_ready) {
       hooks_started = true;
       int stop_result = -1;
       int code = run_hook(hook_command, "LoginHook", signals, output[0], &stop_result);
@@ -561,8 +589,10 @@ int main(int argc, char **argv)
       fprintf(stderr, "[session] Locker startup timed out; desktop remains locked.\n");
       kill(locker, SIGKILL); lock_deadline = 0;
     }
-    if (workspace < 0 && wayland && activation_ready && profile_ready && milliseconds() >= restart) {
-      workspace = launch_workspace(broker[0], argv + optind, initial);
+    if (workspace < 0 && wayland && activation_ready && profile_ready && native_ready && milliseconds() >= restart) {
+      int menu = native_ui_workspace(&native);
+      workspace = launch_workspace(broker[0], argv + optind, initial, menu);
+      if (menu >= 0) close(menu);
       if (workspace < 0) break;
       initial = false;
     }
@@ -573,6 +603,7 @@ int main(int argc, char **argv)
       }
       timeout = 0;
     }
+    if (workspace < 0 && wayland && !native_ready) timeout = -1;
     if (!profile_ready && profile >= 0) {
       int delay = (int)(profile_deadline - milliseconds());
       timeout = profile_deadline ? (delay > 0 ? delay : 0) : -1;
@@ -589,8 +620,12 @@ int main(int argc, char **argv)
       if (timeout < 0 || delay < timeout) timeout = delay;
     }
     struct pollfd logind_poll = session_logind_poll(&logind, &timeout);
-    struct pollfd descriptors[] = {{signals, POLLIN, 0}, {output[0], POLLIN, 0}, {broker[0], POLLIN, 0}, logind_poll};
-    if (poll(descriptors, 4, timeout) < 0) { if (errno == EINTR) continue; break; }
+    native_ui_timeout(&native, &timeout);
+    struct pollfd descriptors[] = {{signals, POLLIN, 0}, {output[0], POLLIN, 0}, {broker[0], POLLIN, 0}, logind_poll,
+      {native.control, POLLIN | ((native.ready && !native.inflight && native.sent != native.serial) ? POLLOUT : 0), 0},
+      {native.workspace, POLLIN | (native.reply_size ? POLLOUT : 0), 0}};
+    if (poll(descriptors, 6, timeout) < 0) { if (errno == EINTR) continue; break; }
+    native_ui_dispatch(&native, descriptors[4].revents, descriptors[5].revents);
     if (descriptors[1].revents & (POLLHUP | POLLERR | POLLNVAL)) { result = 1; break; }
     if ((descriptors[1].revents & POLLIN) && !read_ready(output[0], &wayland)) { result = 1; break; }
     if (descriptors[2].revents) {
@@ -648,7 +683,12 @@ int main(int argc, char **argv)
       }
       else if (child == method.pid) service_exited(&method, false);
       else if (child == capture.pid) service_exited(&capture, lock_requested || lock_confirmed);
+      else if (child == native.pid) {
+        fprintf(stderr, "[session] Native UI host exited with %d.\n", WIFEXITED(status) ? WEXITSTATUS(status) : 128+WTERMSIG(status));
+        native_ui_exited(&native);
+      }
       else if (child == workspace && !stopping) {
+        native_ui_workspace_closed(&native);
         workspace = -1;
         int code = WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status);
         if (code == 0 || code == 129) { result = code; stopping = true; continue; }
@@ -672,6 +712,7 @@ cleanup:
   }
   close(broker[0]); close(output[0]);
   if (!stop_children()) result = 1;
+  if (!native_ui_finish(&native)) result = 1;
   close(signals);
   session_logind_finish(&logind);
   if (!remove_private_bus(bus_directory)) {

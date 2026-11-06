@@ -24,13 +24,18 @@ no-application-recompile requirements.
 Workspace's version-19 shell connection now selects the active window's menu
 address and forwards it through an optional inherited native-host role. The
 live two-window Firefox check follows focus to TextEdit and back without copied
-controls. This uses the actual Workspace connection classes, not a production
-session deployment: host launch/packaging and registrar supervision are still
-open. Pinned Firefox global shortcuts now use native menu matching at Gecko's
+controls. The session supervisor now owns the shared host, publishes its endpoint
+to children and activation, and relays Workspace's private menu role across host
+restarts. Headless staged checks exercise the user launcher and actual Workspace
+connection classes; full installed Workspace/PAM deployment remains open.
+Pinned Firefox global shortcuts now use native menu matching at Gecko's
 real command boundary, including outside text fields and after web cancellation
 checks. The earlier page-body Alt+T failure is retained as historical evidence;
-Chromium/derivative global integration still needs work. See the
-[association qualification](../Experiments/DBusMenus/workspace-qualification.json).
+Pinned Chromium also binds its startup application menu and global keys to
+native matching. Derivative builds remain unqualified. See the
+[association qualification](../Experiments/DBusMenus/workspace-qualification.json),
+[Chromium global-key qualification](../Experiments/ChromiumScrollers/global-menu-qualification.json)
+and [session qualification](../Applications/Session/native-ui-qualification.json).
 
 ## Shared implementation and distinct integration boundaries
 

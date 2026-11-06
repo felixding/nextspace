@@ -6,6 +6,12 @@ starting integration, not the acceptance criterion. Controls, detached menus,
 editing, focus, shortcuts and dialogs must use the shared native UI library.
 See the [application-wide scope and coverage](../../docs/Native-Control-Integration.md).
 
+The optional [session host](Host/README.md) now starts through the user launcher
+and supervisor when installed. It reuses the shared bridge and this provider,
+with no copied control implementation. Its staged session checks and remaining
+deployment/reconnection gaps are recorded in the
+[session qualification](../../Applications/Session/native-ui-qualification.json).
+
 The bridge and the underlying UI implementation are separate libraries:
 
 - `libnextspace-native-ui.so.1` loads a provider and forwards the C API. It has no

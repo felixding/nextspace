@@ -698,6 +698,12 @@ static void keyboard_handle_key(
 	}
 }
 
+static void update_input_capabilities(struct nextspace_server *server) {
+  uint32_t caps = WL_SEAT_CAPABILITY_POINTER;
+  if (!wl_list_empty(&server->keyboards)) caps |= WL_SEAT_CAPABILITY_KEYBOARD;
+  wlr_seat_set_capabilities(server->seat, caps);
+}
+
 static void keyboard_handle_destroy(struct wl_listener *listener, void *data) {
 	/* This event is raised by the keyboard base wlr_input_device to signal
 	 * the destruction of the wlr_keyboard. It will no longer receive events
@@ -722,7 +728,8 @@ static void keyboard_handle_destroy(struct wl_listener *listener, void *data) {
     wlr_seat_set_keyboard(server->seat, replacement);
     if (server->locked) session_lock_focus(server, NULL);
   }
-	free(keyboard);
+  update_input_capabilities(server);
+  free(keyboard);
 }
 
 static void server_new_keyboard(struct nextspace_server *server,
@@ -752,6 +759,9 @@ static void server_new_keyboard(struct nextspace_server *server,
 
 	/* And add the keyboard to our list of keyboards */
 	wl_list_insert(&server->keyboards, &keyboard->link);
+  /* Virtual keyboards enter through the input-method path too, without a
+   * backend new_input event. Announce their capability on headless seats. */
+  update_input_capabilities(server);
   if (server->locked) session_lock_focus(server, NULL);
 }
 
@@ -780,11 +790,7 @@ static void server_new_input(struct wl_listener *listener, void *data) {
 	/* We need to let the wlr_seat know what our capabilities are, which is
 	 * communiciated to the client. In TinyWL we always have a cursor, even if
 	 * there are no pointer devices, so we always include that capability. */
-	uint32_t caps = WL_SEAT_CAPABILITY_POINTER;
-	if (!wl_list_empty(&server->keyboards)) {
-		caps |= WL_SEAT_CAPABILITY_KEYBOARD;
-	}
-	wlr_seat_set_capabilities(server->seat, caps);
+  update_input_capabilities(server);
 }
 
 static void client_cursor_destroy(struct wl_listener *listener, void *data) {

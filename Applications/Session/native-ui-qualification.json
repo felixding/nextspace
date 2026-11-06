@@ -1,0 +1,616 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "f85e1a65",
+  "status": "Shared host installation and headless user-session startup/recovery qualified; complete native application objective remains unfinished",
+  "verification": {
+    "staged_user_launcher": {
+      "assertion_rows": 17,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "session-starts-shared-native-host",
+          "passed": true
+        },
+        {
+          "case": "session-private-endpoint",
+          "passed": true
+        },
+        {
+          "case": "shared-model-and-global-key-capabilities",
+          "passed": true
+        },
+        {
+          "case": "dbus-activation-inherits-native-endpoint",
+          "passed": true
+        },
+        {
+          "case": "real-host-advertises-wayland-consumer",
+          "passed": true,
+          "result": "(@a(uso) [],)"
+        },
+        {
+          "case": "host-does-not-claim-x11-registration",
+          "passed": true
+        },
+        {
+          "case": "headless-keyboard-keymap-ready",
+          "passed": true
+        },
+        {
+          "case": "browser-launched-by-workspace",
+          "passed": true
+        },
+        {
+          "case": "unchanged-browser-owned-session",
+          "passed": true
+        },
+        {
+          "case": "workspace-automatically-selects-native-menu",
+          "passed": true
+        },
+        {
+          "case": "session-startup-one-native-application-command",
+          "passed": true
+        },
+        {
+          "case": "workspace-restarts-with-new-private-menu-role",
+          "passed": true
+        },
+        {
+          "case": "workspace-recovery-one-native-application-command",
+          "passed": true
+        },
+        {
+          "case": "host-restart-replays-current-native-menu",
+          "passed": true
+        },
+        {
+          "case": "browser-sandbox-retained",
+          "passed": true
+        },
+        {
+          "case": "ordinary-session-exit",
+          "passed": true
+        },
+        {
+          "case": "session-removes-native-endpoint-and-state",
+          "passed": true
+        }
+      ],
+      "backend": "wayland, mapped to the current staged bundle by a private GNUstep configuration; existing installed user alias preserved",
+      "hook": "No-op staged test hook; real Login/Logout hooks were not executed",
+      "workspace": "ShellConnectionProbe links the actual Workspace shell/menu connection classes; full Workspace executable not deployed"
+    },
+    "host_failure_policy": {
+      "assertion_rows": 8,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "without-private-bus-rejected-before-display",
+          "passed": true
+        },
+        {
+          "case": "greeter-rejected-before-display",
+          "passed": true
+        },
+        {
+          "case": "three-failed-hosts-disable-optional-service",
+          "passed": true
+        },
+        {
+          "case": "failed-host-leaves-no-listening-endpoint",
+          "passed": true
+        },
+        {
+          "case": "failed-host-keeps-desktop-and-normal-exit",
+          "passed": true
+        },
+        {
+          "case": "runtime-cleanup-does-not-follow-symlinks",
+          "passed": true
+        },
+        {
+          "case": "different-listener-pid-is-not-ready",
+          "passed": true
+        },
+        {
+          "case": "foreign-listener-session-cleans-runtime",
+          "passed": true
+        }
+      ]
+    },
+    "existing_supervisor_regression": {
+      "environment": {
+        "NEXTSPACE_SESSION_ID": "wayland-9cbc6cfd4a40f257396c520446fe935e",
+        "WAYLAND_DISPLAY": "wayland-0",
+        "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/nextspace-supervisor-%25%2c%20vgo2rtor/nextspace-bus-ryttMa/bus,guid=69bb6d919b9359dd27f38bff6aed7ff4"
+      },
+      "recovered": [
+        {
+          "style": 0,
+          "level": 0,
+          "y": 0,
+          "client_id": 0,
+          "id": 1,
+          "pid": 33927,
+          "title_height": 0,
+          "flags": 4,
+          "desktop": 0,
+          "width": 64,
+          "title": "NativeSessionClient",
+          "sticky": false,
+          "appmenu_path": "",
+          "x": 0,
+          "height": 64,
+          "appmenu_service": "",
+          "app_id": "Workspace"
+        }
+      ],
+      "private_bus": true,
+      "bus_loss": false,
+      "activated_pid": 33923,
+      "lifetime": {
+        "started_unix": 1793949684.3538418,
+        "stopped_unix": 1793949688.0333397
+      },
+      "supervisor": {
+        "path": "/var/tmp/nextspace-native-ui/session-host-compositor-build-01/nextspace-session",
+        "sha256": "b1ccea03d2bcd3acee0be44d7a9038a7b585749c085da6f5198cc71be6a9e841"
+      },
+      "launcher": null,
+      "runtime": {
+        "shell_initial": {
+          "pid": 33913,
+          "executable": "/var/tmp/nextspace-native-ui/shell-menu-probe-02/ShellConnectionProbe",
+          "libraries": [
+            "/Library/Libraries/libgnustep-base.so.1.31.1",
+            "/Library/Libraries/libgnustep-gui.so.0.32.0",
+            "/usr/NextSpace/lib/libobjc.so.4.6"
+          ]
+        },
+        "compositor": {
+          "pid": 33902,
+          "executable": "/var/tmp/nextspace-native-ui/session-host-compositor-build-01/nextspace-compositor",
+          "libraries": [
+            "/usr/lib/aarch64-linux-gnu/libgio-2.0.so.0.8400.4",
+            "/var/tmp/nextspace-native-ui/appmenu-wlroots/wlroots-build-f3b474846be29fb5/libwlroots-0.18.so"
+          ]
+        },
+        "activated_service": {
+          "pid": 33923,
+          "executable": "/var/tmp/nextspace-native-ui/session-host-baseline-04/activation/session-activation-probe",
+          "libraries": [
+            "/usr/lib/aarch64-linux-gnu/libgio-2.0.so.0.8400.4"
+          ]
+        },
+        "shell_recovered": {
+          "pid": 33936,
+          "executable": "/var/tmp/nextspace-native-ui/shell-menu-probe-02/ShellConnectionProbe",
+          "libraries": [
+            "/Library/Libraries/libgnustep-base.so.1.31.1",
+            "/Library/Libraries/libgnustep-gui.so.0.32.0",
+            "/usr/NextSpace/lib/libobjc.so.4.6"
+          ]
+        }
+      },
+      "passed": [
+        "fresh session environment",
+        "private capability delivery",
+        "inherited descriptors closed",
+        "automatic shell restart preserves native client",
+        "normal shell exit ends session",
+        "orphan reaping and forced owned-child cleanup",
+        "actual D-Bus activation environment",
+        "uncooperative activated client reaped",
+        "private socket directory removed"
+      ]
+    },
+    "shared_menu_transport_regression": {
+      "assertion_rows": 21,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "pending-reply-survives-nested-menu-RPC",
+          "passed": true
+        },
+        {
+          "case": "idle-owner-acknowledges-while-worker-awaits-reply",
+          "passed": true
+        },
+        {
+          "case": "owner-RPC-services-callback-before-worker-lock",
+          "passed": true
+        },
+        {
+          "case": "menu-model-crosses-IPC",
+          "passed": true
+        },
+        {
+          "case": "native-query-matches-without-action",
+          "passed": true
+        },
+        {
+          "case": "native-query-consumes-disabled-match-without-action",
+          "passed": true
+        },
+        {
+          "case": "native-state-crosses-IPC",
+          "passed": true
+        },
+        {
+          "case": "idle-native-action-runs-on-owner",
+          "passed": true
+        },
+        {
+          "case": "application-command-executes-once",
+          "passed": true
+        },
+        {
+          "case": "application-validation-rejects-disabled",
+          "passed": true
+        },
+        {
+          "case": "native-key-matching-through-IPC",
+          "passed": true
+        },
+        {
+          "case": "bad-model-preserves-live-menu",
+          "passed": true
+        },
+        {
+          "case": "bad-count-preserves-live-menu",
+          "passed": true
+        },
+        {
+          "case": "foreign-owner-request-rejected",
+          "passed": true
+        },
+        {
+          "case": "replacement-endpoint-survives-old-decision",
+          "passed": true
+        },
+        {
+          "case": "late-menu-reply-after-destroy-drained",
+          "passed": true
+        },
+        {
+          "case": "callback-peer-loss-removes-menu",
+          "passed": true
+        },
+        {
+          "case": "expiry-removes-native-menu",
+          "passed": true
+        },
+        {
+          "case": "expired-validation-does-not-execute",
+          "passed": true
+        },
+        {
+          "case": "owner-exit-removes-native-menu",
+          "passed": true
+        },
+        {
+          "case": "helper-remains-live",
+          "passed": true
+        }
+      ]
+    },
+    "renderer_sandbox": {
+      "processes": [
+        {
+          "pid": 34180,
+          "seccomp": "2",
+          "no_new_privs": "1"
+        },
+        {
+          "pid": 34085,
+          "seccomp": "2",
+          "no_new_privs": "1"
+        },
+        {
+          "pid": 34225,
+          "seccomp": "2",
+          "no_new_privs": "1"
+        },
+        {
+          "pid": 34228,
+          "seccomp": "2",
+          "no_new_privs": "1"
+        },
+        {
+          "pid": 34237,
+          "seccomp": "2",
+          "no_new_privs": "1"
+        },
+        {
+          "pid": 34121,
+          "seccomp": "2",
+          "no_new_privs": "1"
+        }
+      ]
+    },
+    "staged_install": "CMake NEXTSPACE_BUILD_TOOLKIT_ADAPTERS=OFF; staged modules match current source byte-for-byte. Full GTK/Qt package was not built or installed.",
+    "static_checks": [
+      "Python compilation with a writable temporary bytecode prefix",
+      "Host/user launcher shell syntax",
+      "git diff --check"
+    ]
+  },
+  "runtime": {
+    "binary_sha256": {
+      "/var/tmp/nextspace-native-ui/session-host-compositor-build-01/nextspace-session": "b1ccea03d2bcd3acee0be44d7a9038a7b585749c085da6f5198cc71be6a9e841",
+      "/var/tmp/nextspace-native-ui/session-host-compositor-build-01/nextspace-compositor": "ecbb1377d560969dfd1b2ee04c39b0ee430ed28830cb3acc57bd8214d481948a",
+      "/var/tmp/nextspace-native-ui/session-host-compositor-build-01/registry-probe": "c4d9d14df49086afa9834466843f6de4d2aecfeadd852712d38fa0b0cc802f1d",
+      "/var/tmp/nextspace-native-ui/session-host-stage-03/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "bb7c273e28bd5aac924d54b5fb22c7d4b1c6de396525c63520d45d7476d1143a",
+      "/var/tmp/nextspace-native-ui/session-host-stage-03/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "7c1c4ae7945e7ebfbe21ad110ae41b445a7ef4e0bf80c4aa86551532f4e57cdf",
+      "/var/tmp/nextspace-native-ui/session-host-stage-03/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "4091a99606aca442ccd4397c3375575e5f283b3d486550b24bfbbb7a1437954a",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "/var/tmp/nextspace-native-ui/firefox-global-menu-03-hook.so": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-native-ui/chromium-global-menu-04-hook.so": "a89390c95d9cbbc841a00d62d769e39a7ae3c8a39c3742b8788a1de38209eb1f"
+    },
+    "installed_module_matches": {
+      "ChromiumScrollers/helper.py": {
+        "stage_sha256": "99bb8f051be9852b86cdee87af6cb01a8c045072262ceabe3e304a0050bdacd1",
+        "source_sha256": "99bb8f051be9852b86cdee87af6cb01a8c045072262ceabe3e304a0050bdacd1"
+      },
+      "ChromiumScrollers/native_controls.py": {
+        "stage_sha256": "e0d161e822902f7dae952219e6adcd8f4304126350f0ec776cddc656db462078",
+        "source_sha256": "e0d161e822902f7dae952219e6adcd8f4304126350f0ec776cddc656db462078"
+      },
+      "ChromiumScrollers/native_menus.py": {
+        "stage_sha256": "53c6e1944b8e8fdb0e144bde803360df3899b4a36a8397f365c587074f3f2050",
+        "source_sha256": "53c6e1944b8e8fdb0e144bde803360df3899b4a36a8397f365c587074f3f2050"
+      },
+      "DBusMenus/binding.py": {
+        "stage_sha256": "f5f4654dbee3c21b76679f62963e3753454fb9d7538eda37931a0c69d928c017",
+        "source_sha256": "f5f4654dbee3c21b76679f62963e3753454fb9d7538eda37931a0c69d928c017"
+      },
+      "DBusMenus/broker.py": {
+        "stage_sha256": "e039b016771a5c9cc4ae7c8dfaf537325acc73d8d21bfc69a89f9577fcba51c5",
+        "source_sha256": "e039b016771a5c9cc4ae7c8dfaf537325acc73d8d21bfc69a89f9577fcba51c5"
+      },
+      "DBusMenus/glib_loop.py": {
+        "stage_sha256": "2c7ed23a2e4f82c30fda97803c226c82c1a398a05ffd782d0d2f3d2254bb7e5e",
+        "source_sha256": "2c7ed23a2e4f82c30fda97803c226c82c1a398a05ffd782d0d2f3d2254bb7e5e"
+      },
+      "DBusMenus/menu_events.py": {
+        "stage_sha256": "91d0a4336a95d692e03549329f03678ac9bec637fa190db01f87b402680402e5",
+        "source_sha256": "91d0a4336a95d692e03549329f03678ac9bec637fa190db01f87b402680402e5"
+      },
+      "DBusMenus/menu_model.py": {
+        "stage_sha256": "b48aec7300fad682d4e54f2fb4d43757ee7a51e139ebc4f778a79e12ac0b0a43",
+        "source_sha256": "b48aec7300fad682d4e54f2fb4d43757ee7a51e139ebc4f778a79e12ac0b0a43"
+      },
+      "main.py": {
+        "stage_sha256": "8810b04a93e3591c68725d34d80e6ceb906c595dc25677b1b284907646b5e8c2",
+        "source_sha256": "8810b04a93e3591c68725d34d80e6ceb906c595dc25677b1b284907646b5e8c2"
+      },
+      "menu_service.py": {
+        "stage_sha256": "c5756d1490e3979f5ae96cf7d9e6bd059760ac9d473ef0ff790043f5437fc0db",
+        "source_sha256": "c5756d1490e3979f5ae96cf7d9e6bd059760ac9d473ef0ff790043f5437fc0db"
+      }
+    },
+    "package_count": 1050,
+    "backend_alias": "/var/tmp/nextspace-native-ui/menu-remap-backend/stage/Library/Bundles/libgnustep-wayland-032.bundle",
+    "preserved_user_backend_alias": "libgnustep-wayland-title-state-032.bundle"
+  },
+  "provider_source_unchanged_since": "f85e1a65",
+  "binary_boundary": "Staged loader/provider/shim were rebuilt from unchanged native UI source and installed with staging RPATHs. AppKit and both browser executables/adapters retain previous hashes. Chromium was not run in this session test.",
+  "cleanup": {
+    "recorded": {
+      "session-host-21-final/cleanup.json": {
+        "pids": [
+          33037,
+          33038,
+          33039,
+          33043,
+          33044,
+          33048,
+          33053,
+          33061,
+          33073,
+          33078,
+          33114,
+          33122,
+          33128,
+          33134,
+          33179,
+          33182,
+          33192,
+          33201,
+          33242,
+          33282,
+          33288,
+          33301,
+          33306,
+          33352,
+          33354,
+          33401,
+          33432
+        ],
+        "live": []
+      },
+      "session-host-22-launcher/cleanup.json": {
+        "pids": [
+          33470,
+          33473,
+          33474,
+          33478,
+          33479,
+          33483,
+          33489,
+          33497,
+          33509,
+          33514,
+          33550,
+          33557,
+          33564,
+          33570,
+          33592,
+          33595,
+          33613,
+          33622,
+          33650,
+          33690,
+          33704,
+          33727,
+          33728,
+          33729,
+          33730,
+          33761,
+          33766,
+          33808,
+          33838
+        ],
+        "live": []
+      },
+      "session-host-23-final-launcher/cleanup.json": {
+        "pids": [
+          33895,
+          33898,
+          33899,
+          33909,
+          33910,
+          33938,
+          33945,
+          33954,
+          33966,
+          33971,
+          34007,
+          34015,
+          34022,
+          34028,
+          34049,
+          34052,
+          34085,
+          34092,
+          34121,
+          34167,
+          34180,
+          34225,
+          34226,
+          34228,
+          34232,
+          34237,
+          34238,
+          34326,
+          34361
+        ],
+        "live": []
+      },
+      "session-host-failures-02/failed-host/cleanup.json": {
+        "pids": [
+          33875,
+          33876,
+          33877,
+          33915
+        ],
+        "live": []
+      },
+      "session-host-failures-02/foreign-listener/cleanup.json": {
+        "pids": [
+          33928,
+          33929,
+          33930,
+          33934,
+          33935
+        ],
+        "live": []
+      }
+    },
+    "menu_transport": [
+      {
+        "pid": 34382,
+        "exit": 0
+      },
+      {
+        "pid": 34388,
+        "exit": -15
+      },
+      {
+        "pid": 34389,
+        "exit": -15
+      },
+      {
+        "pid": 34392,
+        "exit": 0
+      },
+      {
+        "pid": 34393,
+        "exit": 0
+      },
+      {
+        "pid": 34395,
+        "exit": 0
+      },
+      {
+        "pid": 34397,
+        "exit": 0
+      },
+      {
+        "pid": 34398,
+        "exit": 0
+      },
+      {
+        "pid": 34399,
+        "exit": -9
+      }
+    ],
+    "backend_alias_removed": "/Library/Bundles/libgnustep-nextspace-native-ui-session-032.bundle",
+    "preserved_user_alias": "/home/felixding.guest/Library/Bundles/libgnustep-wayland-032.bundle -> libgnustep-wayland-title-state-032.bundle",
+    "final_scan": "No live fixture processes matching session-host, native-ui-session, gdb or strace",
+    "package_count": 1050
+  },
+  "retained_failures": {
+    "default_backend": "session-host-20-launcher: default wayland name resolved through an existing older user test alias; host aborted during native metrics preparation and degraded after three failures. Private test configuration selects the current staged bundle without changing that alias.",
+    "early_cleanup": "session-host-16 completed sixteen assertion rows but automation close ran after Firefox termination and the checker exited with EOFError; corrected checker closes automation before ordinary session exit.",
+    "earlier_host_startup": "Original Python-only backend selection and a shadowed callback variable failed; original argument-vector selection and prepared(native) fixed these.",
+    "earlier_availability": "Main/default GLib context availability calls timed out while native runMode waited. Owned read-only service context/thread passes subsequent real session checks.",
+    "earlier_keyboard": "Actual session virtual keyboard had no announced seat keyboard capability; compositor insertion/removal updates now deliver native commands."
+  },
+  "raw_evidence": ".build/native-ui/session-host-evidence",
+  "raw_sha256": {
+    "runtime.json": "56ccea4422c8552492c030ea0f12d4a598bdb5ccd29b451d5d16161f8a5301ff",
+    "session-host-20-launcher/cleanup.json": "6abf90186b871ff8dc0f66aba896c27e6323351e600b2bf0070c1fb6b7541eb8",
+    "session-host-20-launcher/results.json": "33557432af3feb91b39d9c793085ada9bd1f80f4d54bef8e2abfc35d87e1bc0b",
+    "session-host-21-final/cleanup.json": "9c41e823531d48359e2b72605f4cec92664c1aa41c5e09a87f43e02f651b07af",
+    "session-host-21-final/results.json": "4d73a96310e9d1adadaa496a9310f1f8a1f9a6de512e417a25f744e8d33cf21e",
+    "session-host-22-launcher/cleanup.json": "ee84d63927fce5567a79636df1db7a5f64cb1948a2073d2a7265b8a8de43e99a",
+    "session-host-22-launcher/results.json": "4d73a96310e9d1adadaa496a9310f1f8a1f9a6de512e417a25f744e8d33cf21e",
+    "session-host-23-final-launcher/cleanup.json": "088ba0a74a3ffb9691a6b3f9ce55ac0e7bc8a4a3c71ba72f89fd2f27b1b7fb7f",
+    "session-host-23-final-launcher/results.json": "4d73a96310e9d1adadaa496a9310f1f8a1f9a6de512e417a25f744e8d33cf21e",
+    "session-host-baseline-04/activation/results.json": "4e29ce2cea5d941d1afe071daaee273295600107fb0e1eb8ec8f37e5b55a6fb1",
+    "session-host-baseline-04/results.json": "2d7ce1156469dd5b7e6e63b13c27212a4a51811501d160a4202f31c433fccee8",
+    "session-host-failures-02/failed-host/cleanup.json": "828571f2a0c4e3ef33754f355791b85ee2a6f0f2027f577570166bddbbea867d",
+    "session-host-failures-02/foreign-listener/cleanup.json": "17df29e366a3b61f86ea5163b0c05a2075ac0f4a2a5ed6b87cce1657e9c46b41",
+    "session-host-failures-02/results.json": "72f714e177e16003bea02305acc572a45394e60c0db48f0dda4fc2eedf283c80",
+    "session-host-menu-transport-01/cleanup.json": "013e72b50995c3c2084e9bf15a040cd7f28b31b21ed2df54bade491e33553e97",
+    "session-host-menu-transport-01/results.json": "a1463163e56dc7802e09ff14999a893d64bc8feecb0af05fce399d8c58278420"
+  },
+  "source_sha256": {
+    "Applications/Session/main.c": "efd454211bc339264cdc5fc950f87f6dbd6b883964c47f7ca2bef6643cff7afa",
+    "Applications/Session/native-ui.h": "d38f06d152ede96799d02932291e932405b581fcbc625f35a8f97ca042a54d21",
+    "Applications/Compositor/src/main.c": "b5dadf31e1b72549d7b075e31c0e69fd1c1aaf143b45d37636b319aa46f4eae9",
+    "Libraries/NativeUI/Host/main.py": "8810b04a93e3591c68725d34d80e6ceb906c595dc25677b1b284907646b5e8c2",
+    "Libraries/NativeUI/Host/menu_service.py": "c5756d1490e3979f5ae96cf7d9e6bd059760ac9d473ef0ff790043f5437fc0db",
+    "Libraries/NativeUI/Host/nextspace-native-ui-host": "c704725832cf8a6a7ee907345de6b139ee5e3e6dd19bc807da1756ec7233af0d",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "c6d5df1ba5af1281775a2d498d798d1916ee3a2672dbcdec9dedb72e972889ff",
+    "Experiments/ChromiumScrollers/helper.py": "99bb8f051be9852b86cdee87af6cb01a8c045072262ceabe3e304a0050bdacd1",
+    "OS/Linux/usr/NextSpace/bin/nextspace-wayland-session": "aad746c7cf9928c39050aa2df42add7833d16990ee0328b2697772bcd2a5d1f7",
+    "Packaging/Debian/build-foreign-scrollbars.py": "efef54808311113bb0c47f85945526ef13ae7f1e4facbe80df58c57a24de2549",
+    "Tests/Wayland/native_ui_session.py": "a1ba3a9cbf5f9be9524c1082108a99e98684a9b1a2c5aa72705d1c851b470a50",
+    "Tests/Wayland/native_ui_failures.py": "c7a3ee587d7345f5be25a05590cc7c5fd3d9c28aec3402eb7e917174c7b34f54",
+    "Tests/Wayland/session-activation-probe.c": "fc62476c334bd2766d2278471923625908ab7da453483b9c62dcae4f3cbad587",
+    "Tests/Wayland/text-input-probe.h": "6a70f3d96e26f436a89c7cc8efac14d61b8734f0fef591967a3ca9f25e03017a"
+  },
+  "remaining": [
+    "Recover surviving browser request, notification and callback sockets after host loss; native menu replay alone does not establish field/global-key recovery.",
+    "Automatic browser adapter installation and audited build selection; Chrome, Vivaldi and Firefox derivatives remain unqualified.",
+    "Complete browser web/frontend controls, dialogs, IME, accessibility and output scaling.",
+    "Full installed Workspace and PAM/login deployment, production backend namespace and complete GTK/Qt Debian package build.",
+    "Continue application-wide native integration for GTK, Qt/KDE and other non-GNUstep applications after the browser families."
+  ]
+}

@@ -138,6 +138,7 @@ preserve the safe layout. Failure or a ten-second timeout closes the preparation
 connection and still starts Login, which receives no shell descriptor. The
 default greeter launcher selects this helper; ordinary user sessions reject the
 option and continue restoring settings through Workspace.
+
 An ordinary Workspace exit ends the session; exit 129 retains the existing
 power-off result. Native Workspace sends the power request through the shared
 SystemKit/logind API after applications agree to quit. The bounded request runs
@@ -167,3 +168,45 @@ termination, then force-stops and reaps remaining owned children. Shared user
 daemons must be placed outside the graphical session's ownership during Login
 integration; concurrent user-service lifecycles and logind scopes remain
 unqualified. No workstation login/session entry is installed by this prototype.
+
+## Shared native UI host
+
+The user launcher automatically selects a sibling `nextspace-native-ui-host`
+when the optional foreign-control package installs it. `NEXTSPACE_NATIVE_UI=off`
+disables that selection. An explicit supervisor invocation can instead pass
+`--private-bus --native-ui-host EXECUTABLE`; use a foreground wrapper for host
+arguments. This option requires an authenticated user session and is rejected
+for the greeter or without a private bus.
+
+The supervisor creates a private directory and publishes
+`NEXTSPACE_NATIVE_UI_SOCKET` to ordinary children and D-Bus activation. It waits
+for a listening, mode-0600 socket whose kernel peer PID and UID identify the
+owned foreground host before starting LoginHook or Workspace. The host receives
+a private menu role on descriptor 3; Workspace receives its separate relay as
+`--nextspace-native-menu-fd 4`, alongside its shell descriptor 3. Neither receives
+the compositor broker, and inherited capabilities close on child execution.
+
+Workspace supplies active-window menu addresses through the relay. The host
+uses the shared bridge and actual GNUstep controls; the supervisor interprets
+no menu models. The latest opaque selection is replayed after host restart.
+Workspace restart replaces its private role while preserving the browser and
+host. Serial correlation prevents replies to an obsolete request from reaching
+a replacement shell. One request is in flight; request/reply sizes and waits
+are bounded. Startup has a ten-second deadline; a menu reply has thirty seconds.
+After three failures the optional host is disabled and desktop startup proceeds.
+Ordinary teardown stops owned processes and removes the private native state
+without following symlinks.
+
+The host advertises the real Wayland menu consumer on the private bus. Its
+availability service explicitly rejects X11 window registration. Only these
+read-only availability calls use a worker; native models, widgets and actions
+stay on the host UI thread. See [host details](../../Libraries/NativeUI/Host/README.md).
+
+The headless staged check uses actual Workspace connection classes and an
+unchanged Firefox binary. It covers native Alt+T, shell recovery, host menu
+replay, activation inheritance, retained renderer sandboxing and complete
+teardown. It also exercises the normal user launcher with a private backend
+configuration and a no-op test hook. This does not qualify a full installed
+Workspace/PAM login, every browser build or toolkit, or existing browser field
+RPC reconnection after host loss. Browser adapter installation/selection remains
+separate. See [session qualification](native-ui-qualification.json).

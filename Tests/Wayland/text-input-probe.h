@@ -168,8 +168,17 @@ static int test_text_input(struct globals *globals)
       else if (!strcmp(line, "grab")) {
         probe.grab = zwp_input_method_v2_grab_keyboard(probe.method);
         zwp_input_method_keyboard_grab_v2_add_listener(probe.grab, &method_keyboard_listener, &probe);
+      } else if (!strncmp(line, "keymap ", 7)) {
+        int fd = open(line+7, O_RDONLY|O_CLOEXEC);
+        if (fd < 0) return 2;
+        off_t size = lseek(fd, 0, SEEK_END);
+        if (size <= 0 || size > 1024*1024 || lseek(fd, 0, SEEK_SET) < 0) { close(fd); return 2; }
+        zwp_virtual_keyboard_v1_keymap(probe.keyboard, WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1, fd, size);
+        close(fd); puts("{\"event\":\"keymap\"}");
       } else if (sscanf(line, "forward %u %u", &key, &state) == 2)
         zwp_virtual_keyboard_v1_key(probe.keyboard, 1, key, state);
+      else if (sscanf(line, "forward-modifiers %u %u %u %u", &before, &after, &key, &state) == 4)
+        zwp_virtual_keyboard_v1_modifiers(probe.keyboard, before, after, key, state);
       else if (!strcmp(line, "popup")) {
         if (!create_surface(globals, &probe.popup)) return 1;
         probe.popup_role = zwp_input_method_v2_get_input_popup_surface(probe.method, probe.popup.surface);

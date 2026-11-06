@@ -17,7 +17,8 @@ def build(repo, work, output, version):
     subprocess.run(['dpkg','--validate-version',version],check=True)
     work.mkdir(parents=True)
     output.mkdir(parents=True,exist_ok=True)
-    files=source_files(repo,('Libraries/ForeignScrollers','Libraries/NativeUI','Tests/ForeignScrollers','Tests/NativeUI'),
+    files=source_files(repo,('Libraries/ForeignScrollers','Libraries/NativeUI','Tests/ForeignScrollers','Tests/NativeUI',
+        'Experiments/ChromiumScrollers','Experiments/DBusMenus'),
         ['LICENSE','Packaging/Debian/build-foreign-scrollbars.py','Packaging/Debian/common.py'])
     expected={name:source_digest(path) for name,path in sorted(files.items())}
     snapshot=work/'source'
@@ -51,7 +52,7 @@ def build(repo, work, output, version):
     (stage/'DEBIAN').rmdir()
     (work/'dependencies.log').write_text(dependencies.stdout+dependencies.stderr)
     dependencies.check_returncode()
-    depends=dependencies.stdout.strip().removeprefix('shlibs:Depends=')
+    depends=dependencies.stdout.strip().removeprefix('shlibs:Depends=')+', python3, python3-gi, gir1.2-glib-2.0'
     docs=stage/'usr/share/doc'/PACKAGE;docs.mkdir(parents=True)
     shutil.copy2(snapshot/'LICENSE',docs/'LICENSE.nextspace')
     shutil.copy2(snapshot/'Libraries/ForeignScrollers/README.md',docs/'README.md')
@@ -60,7 +61,8 @@ def build(repo, work, output, version):
     package=output/(name+'.deb')
     result=write_binary(stage,package,dict(Package=PACKAGE,Version=version,Architecture=architecture,
         Section='gui',Priority='optional',Maintainer=maintainer,Depends=depends),
-        'Use the existing NEXTSPACE NSScroller in GTK3, GTK4 and Qt6 Widgets applications.\n'
+        'Use existing NEXTSPACE controls through GTK3, GTK4 and Qt6 scrollbar adapters.\n'
+        'Also supplies the optional session-owned native UI transport host.\n'
         'Applications keep their binaries, text direction, content and scroll models.')
     assert all(source_digest(snapshot/name)==value for name,value in expected.items()),'Changed source snapshot'
     source=output/(name+'.source.tar.gz')

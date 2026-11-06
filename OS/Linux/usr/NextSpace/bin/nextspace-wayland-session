@@ -12,4 +12,7 @@ if [ "$#" -eq 0 ]; then
   set -- --locker "$bindir/nextspace-wayland-locker" --capture-backend "$bindir/nextspace-wayland-capture" \
     -- /usr/NextSpace/Apps/Workspace.app/Workspace
 fi
+if [ "${NEXTSPACE_NATIVE_UI:-on}" != off ] && [ -x "$bindir/nextspace-native-ui-host" ]; then
+  set -- --native-ui-host "$bindir/nextspace-native-ui-host" "$@"
+fi
 exec "$bindir/nextspace-session" --private-bus --session-hook "$bindir/nextspace-session-hook" "$@"

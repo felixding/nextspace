@@ -68,6 +68,17 @@ the existing launcher behavior. Existing GTK modules, Qt plugins and preload
 entries are preserved. No system loader configuration or application profiles
 are overwritten.
 
+The install also supplies the [shared native UI host](../NativeUI/Host/README.md)
+and its transport modules. The current user launcher automatically starts this
+foreground host through the session supervisor when present; set
+`NEXTSPACE_NATIVE_UI=off` to disable it independently of toolkit scrollbars.
+Python 3, PyGObject and GLib/Gio introspection are runtime dependencies. Native
+widgets remain in the separate provider library. Browser adapters still require
+their individual build checks and launch configuration; installing this package
+does not by itself make browser controls native. The host install is verified in
+a toolkit-disabled staging prefix; the full GTK/Qt Debian package has not been
+rebuilt for this addition.
+
 ## Coverage boundary
 
 This integrates GTK3/GTK4 scrollbars and Qt6 Widgets scrollbars. It cannot replace

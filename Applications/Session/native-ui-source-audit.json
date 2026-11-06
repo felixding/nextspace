@@ -1,0 +1,40 @@
+{
+  "date": "2026-11-06",
+  "baseline": "f85e1a65",
+  "scope": "Session ownership and staged installation of the shared native UI transport host",
+  "implementation": {
+    "separation": "Supervisor relays opaque menu addresses; host reuses existing helper and D-Bus binding modules. GNUstep/AppKit controls and native policy remain in the independent UI library.",
+    "capabilities": "Two source descriptors are duplicated above child destination slots before installation. Workspace gets independent shell and menu roles; host gets only its private menu role. Capabilities close on subsequent exec.",
+    "readiness": "Fresh private directory, mode-0600 listening socket, kernel SO_PEERCRED PID and UID tied to the foreground host. Class user and private D-Bus required.",
+    "recovery": "Stable Workspace relay, one in-flight bounded request, serial-correlated replies, latest desired address replay. Three failures disable the optional host. Startup/reply/termination deadlines are bounded.",
+    "availability": "Owned GLib context/thread handles availability queries only. Native model, rendering, actions and callbacks stay on the main UI owner thread. X11 registration is explicitly unsupported.",
+    "keyboard": "Virtual keyboard insertion/removal updates real seat capabilities; headless test keymap comes from libxkbcommon rather than a copied binding table.",
+    "cleanup": "Only the successfully created private runtime is recursively removed, after owned-child teardown, without following symlinks.",
+    "install": "ForeignScrollers installs host, reused source modules, shim and independent provider. User launcher selects sibling host when installed; NEXTSPACE_NATIVE_UI=off opts out.",
+    "boundary": "Headless staged session with actual Workspace connection classes, not a full installed Workspace/PAM deployment. Existing browser transport reconnection is not implemented."
+  },
+  "source_sha256": {
+    "Applications/Session/main.c": "efd454211bc339264cdc5fc950f87f6dbd6b883964c47f7ca2bef6643cff7afa",
+    "Applications/Session/native-ui.h": "d38f06d152ede96799d02932291e932405b581fcbc625f35a8f97ca042a54d21",
+    "Applications/Compositor/src/main.c": "b5dadf31e1b72549d7b075e31c0e69fd1c1aaf143b45d37636b319aa46f4eae9",
+    "Libraries/NativeUI/Host/main.py": "8810b04a93e3591c68725d34d80e6ceb906c595dc25677b1b284907646b5e8c2",
+    "Libraries/NativeUI/Host/menu_service.py": "c5756d1490e3979f5ae96cf7d9e6bd059760ac9d473ef0ff790043f5437fc0db",
+    "Libraries/NativeUI/Host/nextspace-native-ui-host": "c704725832cf8a6a7ee907345de6b139ee5e3e6dd19bc807da1756ec7233af0d",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "c6d5df1ba5af1281775a2d498d798d1916ee3a2672dbcdec9dedb72e972889ff",
+    "Experiments/ChromiumScrollers/helper.py": "99bb8f051be9852b86cdee87af6cb01a8c045072262ceabe3e304a0050bdacd1",
+    "OS/Linux/usr/NextSpace/bin/nextspace-wayland-session": "aad746c7cf9928c39050aa2df42add7833d16990ee0328b2697772bcd2a5d1f7",
+    "Packaging/Debian/build-foreign-scrollbars.py": "efef54808311113bb0c47f85945526ef13ae7f1e4facbe80df58c57a24de2549",
+    "Tests/Wayland/native_ui_session.py": "a1ba3a9cbf5f9be9524c1082108a99e98684a9b1a2c5aa72705d1c851b470a50",
+    "Tests/Wayland/native_ui_failures.py": "c7a3ee587d7345f5be25a05590cc7c5fd3d9c28aec3402eb7e917174c7b34f54",
+    "Tests/Wayland/session-activation-probe.c": "fc62476c334bd2766d2278471923625908ab7da453483b9c62dcae4f3cbad587",
+    "Tests/Wayland/text-input-probe.h": "6a70f3d96e26f436a89c7cc8efac14d61b8734f0fef591967a3ca9f25e03017a"
+  },
+  "qualification": "native-ui-qualification.json",
+  "remaining": [
+    "Recover surviving browser request, notification and callback sockets after host loss; native menu replay alone does not establish field/global-key recovery.",
+    "Automatic browser adapter installation and audited build selection; Chrome, Vivaldi and Firefox derivatives remain unqualified.",
+    "Complete browser web/frontend controls, dialogs, IME, accessibility and output scaling.",
+    "Full installed Workspace and PAM/login deployment, production backend namespace and complete GTK/Qt Debian package build.",
+    "Continue application-wide native integration for GTK, Qt/KDE and other non-GNUstep applications after the browser families."
+  ]
+}

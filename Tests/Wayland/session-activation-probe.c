@@ -10,7 +10,7 @@ static void call(GDBusConnection *connection, const gchar *sender, const gchar *
 {
   GVariantBuilder values;
   g_variant_builder_init(&values, G_VARIANT_TYPE("a{ss}"));
-  const char *names[] = {"NEXTSPACE_SESSION_ID", "NEXTSPACE_GS_BACKEND", "WAYLAND_DISPLAY", "DISPLAY",
+  const char *names[] = {"NEXTSPACE_SESSION_ID", "NEXTSPACE_GS_BACKEND", "NEXTSPACE_NATIVE_UI_SOCKET", "WAYLAND_DISPLAY", "DISPLAY",
     "XAUTHORITY", "WAYLAND_SOCKET", "NEXTSPACE_SHELL_SOCKET", "XDG_RUNTIME_DIR", "XDG_SESSION_TYPE", "XDG_SESSION_CLASS", "XDG_SESSION_DESKTOP",
     "XDG_CURRENT_DESKTOP", "DESKTOP_SESSION", "GREETD_SOCK", "DBUS_SESSION_BUS_ADDRESS", "DBUS_STARTER_BUS_TYPE", "XCURSOR_THEME"};
   for (unsigned i = 0; i < G_N_ELEMENTS(names); i++) {

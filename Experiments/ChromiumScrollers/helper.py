@@ -27,7 +27,7 @@ def send_response(client,response,data=b''):
         client.sendmsg([bytes(response)],[(socket.SOL_SOCKET,socket.SCM_RIGHTS,array.array('i',[descriptor]))])
     finally:os.close(descriptor)
 
-def run(library,path,menu_descriptor=None,menu_output=None):
+def run(library,path,menu_descriptor=None,menu_output=None,prepared=None):
     started=time.monotonic()
     native=C.CDLL(str(library));native.nxs_scroller_create.argtypes=[C.c_int,Changed,Pump,C.c_void_p];native.nxs_scroller_create.restype=C.c_void_p
     native.nxs_scroller_width.argtypes=[];native.nxs_scroller_width.restype=C.c_double
@@ -204,6 +204,7 @@ def run(library,path,menu_descriptor=None,menu_output=None):
             native.nxs_scroller_sync(pointer,128,0,100,20,1,20,0,1)
             if not native.nxs_scroller_draw(pointer,1).pixels:raise RuntimeError('Native scroller drawing failed')
         finally:native.nxs_scroller_destroy(pointer)
+    if prepared:prepared(native)
     server.bind(str(path));os.chmod(path,0o600);server.listen(20)
     add_source(server)
     log('ready',socket=str(path),request_size=C.sizeof(Request),response_size=C.sizeof(Response),preparation_seconds=time.monotonic()-started)

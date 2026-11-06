@@ -1,0 +1,7 @@
+#!/bin/sh
+# Transport startup only; all controls remain in the selected native UI library.
+set -eu
+bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec /usr/bin/python3 "$bindir/../libexec/nextspace-native-ui/main.py" \
+  --library "$bindir/../lib/nextspace-scrollbars/libnextspace-native-scroller.so.1" \
+  -GSBackend "${NEXTSPACE_GS_BACKEND:-wayland}" "$@"
