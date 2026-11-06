@@ -1,6 +1,7 @@
 /* Gecko model/event adapter only. NSButton owns button/checkbox/radio rendering,
  * focus, tracking and key interpretation in the independent NativeUI host. */
 #include "pinned-input.h"
+#include "pinned-multiline.h"
 struct Widget {
   struct Widget *next;
   void *frame,*node;
@@ -15,6 +16,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
+static int multiline_enabled;
 static int frontend_requested;
 static int text_command_reporting;
 static int application_commands;
@@ -48,6 +50,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *);
 static void remove_text_watch(void);
 static int dispatch_text_key(void *,void *,void *);
 static int text_modifier_event(const void *);
+static int text_kind(int);
 static void *text_pointer_frame(void *);
 static uint32_t text_pointer_post(void *,void *,void *,void *,int *,void *,void *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
@@ -61,6 +64,7 @@ static void (*original_freeze)(void *,int);
 static void (*original_active)(void *,int);
 
 static int node_kind(const void *node) {
+  if(node&&multiline_enabled&&*(const uintptr_t *)node==base+NXS_GECKO_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
   unsigned type=*((const unsigned char *)node+144);
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
@@ -105,7 +109,7 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
   struct NXSResponse *response=exchange_bytes(data,size);free(data);free(title);return response;
 }
 static struct NXSResponse *widget_sync(struct Widget *w) {
-  if(w->kind==NXS_TEXTFIELD||w->kind==NXS_PASSWORD)return sync_text_widget(w);
+  if(text_kind(w->kind))return sync_text_widget(w);
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)return NULL;
   if(w->kind==NXS_SLIDER&&response->parts[5].x!=w->range_step) {
@@ -163,7 +167,7 @@ static struct Widget *bind_widget(void *frame) {
   int native;
   if(kind==NXS_BUTTON)native=native_button_frame(frame);
   else if(kind==NXS_SLIDER)native=native_range_frame(frame);
-  else if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD)native=native_text_frame(frame);
+  else if(text_kind(kind))native=native_text_frame(frame);
   else {metric_probe=1;native=original_intrinsic(frame,NULL,0);metric_probe=0;}
   if(!native||!ensure_widget_lifetime())return NULL;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
@@ -193,7 +197,7 @@ static int draw_text_image(void *target,void *frame,const struct RectF *area) {
 }
 static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
   int kind=frame_kind(frame);
-  int is_text=kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;
+  int is_text=text_kind(kind);
   if(is_text&&(!native_text_frame(frame)||!widget_for_frame(frame)||!widget_for_frame(frame)->text_owned))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   if(kind==NXS_SLIDER&&!prepare_range_image(frame))
@@ -263,7 +267,7 @@ static struct PointI widget_point(struct Widget *w,const void *event) {
 }
 static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,const void *event) {
   struct PointI point=widget_point(w,event);
-  if(operation==2&&(w->kind==NXS_TEXTFIELD||w->kind==NXS_PASSWORD)) {
+  if(operation==2&&(text_kind(w->kind))) {
     /* AssignMouseEventDataOnly copies the source's uint32_t mClickCount at
      * +236 in this exact libxul. No local click aggregation or word rules. */
     unsigned clicks=*(const uint32_t *)((const char *)event+236);
@@ -277,7 +281,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
   if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
     void *text_frame=text_pointer_frame(frame);
-    if(text_frame||(active_widget&&(active_widget->kind==NXS_TEXTFIELD||active_widget->kind==NXS_PASSWORD)))
+    if(text_frame||(active_widget&&(text_kind(active_widget->kind))))
       return text_pointer_post(self,context,event,frame,status,override,text_frame);
   }
   void *down_node=NULL;
@@ -359,8 +363,7 @@ static int advance_focus(void *node,int result) {
   if(focused)((unsigned (*)(void *))(base+0x47ba6b8))(focused);
   return !(status&0x80000000u);
 }
-static uint32_t input_post(void *node,void *visitor) {
-  if(node_kind(node)==NXS_TEXTFIELD||node_kind(node)==NXS_PASSWORD) {
+static void text_post_keyboard(void *node,void *visitor) {
     void *event=*(void **)((char *)visitor+8);int *status=(int *)((char *)visitor+24);
     unsigned message=*(const uint16_t *)((char *)event+18);
     /* Accelerators and navigation may never produce keypress. Take their
@@ -374,7 +377,10 @@ static uint32_t input_post(void *node,void *visitor) {
       if((modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))||code==8||code==9||code==46||(code>=33&&code<=40))
         if(dispatch_text_key(node,event,NULL))*status=1;
     }
-    return original_input_post(node,visitor);
+}
+static uint32_t input_post(void *node,void *visitor) {
+  if(text_kind(node_kind(node))) {
+    text_post_keyboard(node,visitor);return original_input_post(node,visitor);
   }
   void *event=*(void **)((char *)visitor+8);
   unsigned message=*(const uint16_t *)((char *)event+18);
@@ -473,6 +479,8 @@ static void prepare_widget_metrics(void) {
   prepare_range_bindings(response);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
+  const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
+  multiline_enabled=texts_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)response->parts[6].y&NXS_TEXT_MULTILINE);
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
   application_menu_keys=!!((unsigned)response->parts[5].height&2);

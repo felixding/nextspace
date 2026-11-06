@@ -21,7 +21,7 @@ enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
-  NXS_TEXTFIELD, NXS_PASSWORD
+  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 typedef struct {
@@ -65,7 +65,13 @@ typedef struct {
   /* NUL-terminated UTF-8. NULL text is empty; NULL unmodified_text uses text. */
   const char *text, *unmodified_text;
 } NXSKeyEvent;
-enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4 };
+enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4,
+  NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16 };
+typedef struct {
+  uint32_t size;
+  NXSRect visible;
+  NXSSize content;
+} NXSTextViewport;
 #define NXS_TEXT_NO_SELECTION UINT64_MAX
 /* Selection and marked ranges use native NSString/UTF16 code units. A model
  * with NO_SELECTION leaves initial selection to the native responder. */
@@ -182,6 +188,9 @@ typedef struct {
   int (*menu_lifecycle)(NXSMenu *,NXSMenuLifecycle,void *);
   int (*menu_branch_items)(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_t);
   int (*menu_key_query)(NXSMenu *,const NXSKeyEvent *);
+  unsigned (*control_text_capabilities)(void);
+  NXSTextViewport (*control_text_viewport)(NXSControl *);
+  int (*control_text_scroll)(NXSControl *,double,double);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -240,6 +249,10 @@ unsigned nxs_control_popup_open_capabilities(void);
  * assuming a keyboard binding. Busy native tracking rejects this request. */
 int nxs_control_popup_open(NXSControl *, int open);
 unsigned nxs_control_text_capabilities(void);
+/* Multiline native document geometry. Logical coordinates run from the
+ * document's top left. Native clipping supplies scrolling and bounds. */
+NXSTextViewport nxs_control_text_viewport(NXSControl *);
+int nxs_control_text_scroll(NXSControl *,double x,double y);
 /* Application model updates do not emit user-edit events. Native editing
  * emits NXS_TEXT_CHANGED; the application reads the actual native text/range.
  * NXS_ACTIVATE retains the text field's native action (for example Return). */

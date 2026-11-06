@@ -40,6 +40,8 @@ parser.add_argument('--previous-menu-cancel-provider',type=Path,help='Menu provi
 parser.add_argument('--previous-pointer-provider',type=Path,help='Provider predating optional native click-count metadata')
 parser.add_argument('--previous-input-client',type=Path,help='Unchanged earlier focus/keyboard client')
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
+parser.add_argument('--multiline',action='store_true',help='Qualify native multiline controls, images and optional transport')
+parser.add_argument('--previous-multiline-provider',type=Path,help='Provider predating optional multiline controls')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -178,6 +180,24 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         text_output=held_probe(args.build/'native-ui/native-text-probe',[str(args.output)],
                                 'NXS_NATIVE_UI_TEXT_HOLD','text')
         checks['native_text']=json.loads(text_output)
+        if args.multiline:
+            directories={name:args.output/'multiline'/name for name in ['reference','provider']}
+            for directory in directories.values():directory.mkdir(parents=True,exist_ok=True)
+            for name in ['reference','provider']:
+                extra=['--reference'] if name=='reference' else []
+                code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-multiline-probe'),*extra,str(directories[name])]+backend,
+                    environment,'multiline-'+name,timeout=20)
+                assert code==0,(code,stderr);checks['multiline_'+name]=json.loads(stdout)
+            for name,width in [('short',180),('scrolling',180),('wrapped',100)]:
+                actual=directories['provider']/(name+'.argb');expected=directories['reference']/(name+'.argb')
+                assert actual.read_bytes()==expected.read_bytes(),name
+                checks['multiline_'+name+'_native_pixels']=True
+                Image.frombytes('RGBA',(width,96),actual.read_bytes(),'raw','BGRA').save(actual.with_suffix('.png'))
+            if args.previous_multiline_provider:
+                code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-multiline-probe'),'--expect-no-multiline']+backend,
+                    dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_multiline_provider.resolve())),
+                    'previous-multiline-provider',timeout=10)
+                assert code==0,(code,stderr);checks['previous_provider_without_multiline']=json.loads(stdout)
         if args.previous_text_client:
             old_env=dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str((args.build/'native-ui/libnextspace-native-ui-gnustep.so.1').resolve()))
             if args.previous_loader:old_env['LD_LIBRARY_PATH']=str(args.previous_loader.resolve())
@@ -356,6 +376,13 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                 (args.output/'transport-text-filter.stderr').write_text(filter_probe.stderr)
                 assert filter_probe.returncode==0,(filter_probe.returncode,filter_probe.stderr)
                 checks['transport_text_filter']=json.loads(filter_probe.stdout)
+                if args.multiline:
+                    multiline_probe=subprocess.run([str(args.build/'native-ui/native-text-transport-probe'),str(endpoint),str(helper.pid),'--multiline'],
+                        env=environment,text=True,capture_output=True,timeout=20)
+                    (args.output/'transport-multiline.stdout').write_text(multiline_probe.stdout)
+                    (args.output/'transport-multiline.stderr').write_text(multiline_probe.stderr)
+                    assert multiline_probe.returncode==0,(multiline_probe.returncode,multiline_probe.stderr)
+                    checks['transport_multiline']=json.loads(multiline_probe.stdout)
             finally:
                 if sys.exc_info()[0] is not None and helper.poll() is None:
                     with (args.output/'helper-timeout.txt').open('w') as trace:

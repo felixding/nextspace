@@ -18,7 +18,12 @@ static void *original_text_delete_subaction;
 static uint32_t (*original_text_frame_event)(void *,void *,void *,int *);
 static unsigned text_watch;
 static int (*text_watch_remove)(unsigned);
-static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;}
+static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA;}
+static void *text_control_state(void *node)
+{return *(void **)((char *)node+(node_kind(node)==NXS_TEXTAREA?304:352));}
+static uint32_t (*original_textarea_post)(void *,void *);
+static uint32_t textarea_post(void *node,void *visitor)
+{if(multiline_enabled)text_post_keyboard(node,visitor);return original_textarea_post(node,visitor);}
 static void clear_text_error(struct GeckoError *error)
 {((void (*)(void *))(base+NXS_GECKO_TEXT_CLEAR_ERROR_OFFSET))(error);}
 static int native_text_frame(const void *frame) {
@@ -30,13 +35,20 @@ static int native_text_frame(const void *frame) {
 static int text_model(void *node,struct TextModel *model) {
   static const uint16_t empty;
   struct GeckoString value={.data=&empty,.flags=1};
-  ((void (*)(void *,void *,unsigned))(base+NXS_GECKO_TEXT_VALUE_OFFSET))(node,&value,0);
+  if(node_kind(node)==NXS_TEXTAREA)
+    ((void (*)(void *,void *))(base+NXS_GECKO_MULTILINE_VALUE_OFFSET))(node,&value);
+  else ((void (*)(void *,void *,unsigned))(base+NXS_GECKO_TEXT_VALUE_OFFSET))(node,&value,0);
   model->value=utf8_text(value.data,value.length);
   ((void (*)(void *))(base+0x3826f2c))(&value);
   if(!model->value)return 0;
   struct GeckoError error={0};
-  model->start=((uint32_t (*)(void *,void *))(base+NXS_GECKO_TEXT_SELECTION_START_OFFSET))(node,&error);
-  model->end=((uint32_t (*)(void *,void *))(base+NXS_GECKO_TEXT_SELECTION_END_OFFSET))(node,&error);
+  if(node_kind(node)==NXS_TEXTAREA) {
+    ((void (*)(void *,uint32_t *,uint32_t *,void *))(base+NXS_GECKO_MULTILINE_SELECTION_OFFSET))
+      (text_control_state(node),&model->start,&model->end,&error);
+  } else {
+    model->start=((uint32_t (*)(void *,void *))(base+NXS_GECKO_TEXT_SELECTION_START_OFFSET))(node,&error);
+    model->end=((uint32_t (*)(void *,void *))(base+NXS_GECKO_TEXT_SELECTION_END_OFFSET))(node,&error);
+  }
   int okay=!(error.result&0x80000000u)&&model->start<=model->end&&strlen(model->value)<=65536;
   clear_text_error(&error);
   model->editable=!(*(const uint64_t *)((const char *)node+112)&0x800010u);
@@ -44,7 +56,7 @@ static int text_model(void *node,struct TextModel *model) {
 }
 static int text_selection(void *node,uint64_t start,uint64_t length) {
   if(!text_kind(node_kind(node))||start>UINT32_MAX||length>UINT32_MAX-start)return 0;
-  void *state=*(void **)((char *)node+352);if(!state)return 0;
+  void *state=text_control_state(node);if(!state)return 0;
   struct GeckoError error={0};
   ((void (*)(void *,uint32_t,uint32_t,unsigned,void *,unsigned))(base+NXS_GECKO_TEXT_SELECTION_SET_OFFSET))
     (state,start,start+length,0,&error,1);
@@ -203,7 +215,10 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
   if(application_text_command(transaction->node,command)) {
     /* The existing controller may dispatch asynchronous paste or application
      * callbacks. Never perform a second edit in the native helper. */
-  } else if(!command||!strcmp(command,"insertText:")||!strcmp(command,"yank:")) {
+  } else if(command&&!strcmp(command,"insertNewline:")&&node_kind(transaction->node)==NXS_TEXTAREA) {
+    result=((uint32_t (*)(void *,void *))(base+NXS_GECKO_MULTILINE_NEWLINE_OFFSET))(transaction->editor,NULL);
+  } else if(!command||!strcmp(command,"insertText:")||!strcmp(command,"yank:")||
+      (node_kind(transaction->node)==NXS_TEXTAREA&&!strcmp(command,"insertTab:"))) {
     uint32_t length=0;uint16_t *data=text_utf16(replacement,&length);if(!data)return 0;
     struct GeckoString value={.data=data,.length=length,.flags=1};
     result=((uint32_t (*)(void *,const void *,void *))(base+NXS_GECKO_TEXT_INSERT_ACTION_OFFSET))(transaction->editor,&value,NULL);
@@ -290,7 +305,7 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   if(!node||!manager||node!=*(void **)((char *)manager+128)||!text_kind(node_kind(node))||
      !(*(const uint8_t *)((char *)event+48)&1)||(*((const uint8_t *)event+49)&2)||text_transaction)return 0;
   ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
-  void *editor=((void *(*)(void *))(base+NXS_GECKO_TEXT_EDITOR_OFFSET))(node);
+  void *editor=((void *(*)(void *))(base+(node_kind(node)==NXS_TEXTAREA?NXS_GECKO_MULTILINE_EDITOR_OFFSET:NXS_GECKO_TEXT_EDITOR_OFFSET)))(node);
   if(!editor||(listener&&editor!=*(void **)((char *)listener+16)))goto fallback;
   ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_ADDREF_OFFSET))(editor);
   if(listener&&!((int (*)(void *,void *))(*(uintptr_t **)editor)[76])(editor,event))goto release_editor;
@@ -337,7 +352,7 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_RELEASE_OFFSET))(editor);
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);
   if(modifier)return 0;
-  if(handled!=NXS_INPUT_UNHANDLED&&*(const uint32_t *)((char *)event+200)!=13) {
+  if(handled!=NXS_INPUT_UNHANDLED&&(*(const uint32_t *)((char *)event+200)!=13||node_kind(node)==NXS_TEXTAREA)) {
     ((void (*)(void *,int,void *))(base+NXS_GECKO_TEXT_PREVENT_DEFAULT_OFFSET))(event,1,NULL);
   }
   return handled;
@@ -350,6 +365,7 @@ static uint32_t text_keypress(void *listener,void *event) {
   return original_text_keypress(listener,event);
 }
 static struct Detour text_detours[]={
+  {NXS_GECKO_MULTILINE_POST_OFFSET,gecko_multiline_post_bytes,textarea_post,(void **)&original_textarea_post},
   {NXS_GECKO_TEXT_FRAME_EVENT_OFFSET,gecko_text_frame_event_bytes,text_frame_event,(void **)&original_text_frame_event},
   {NXS_GECKO_TEXT_SCROLL_DISPLAY_OFFSET,gecko_text_scroll_display_bytes,text_scroll_display,(void **)&original_text_scroll_display},
   {NXS_GECKO_TEXT_KEYPRESS_OFFSET,gecko_text_keypress_bytes,text_keypress,(void **)&original_text_keypress},

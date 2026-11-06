@@ -25,6 +25,10 @@ struct NXSViewHost {
   void *command_context;
 };
 static NXSViewHost *active,*focused;
+static BOOL native_backing(NSView *view)
+{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]];}
+static NSView *focus_view(NXSViewHost *host)
+{return [host->view isKindOfClass:[NSScrollView class]]?[(NSScrollView *)host->view documentView]:host->view;}
 static NXSMenuLoop *menu_loop;
 void nxs_host_menu_begin(NXSMenuLoop *scope)
 {scope->previous=menu_loop;menu_loop=scope;}
@@ -280,7 +284,7 @@ NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context)
    * otherwise anchor native menus at the old screen position. */
   NXSBackingWindow *window=[[NXSBackingWindow alloc] initWithContentRect:[view bounds]
     styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered
-    defer:![view isKindOfClass:[NSTextField class]]];
+    defer:!native_backing(view)];
   window->control=host;host->window=window;
   [window setReleasedWhenClosed:NO];
   NXSInputFallback *fallback=[NXSInputFallback new];fallback->control=host;
@@ -373,7 +377,7 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   int width = (int)floor(size.width * scale + .5), height = (int)floor(size.height * scale + .5);
   if (width < 1 || height < 1 || (size_t)width * height > 8 * 1024 * 1024) { [pool drain]; return result; }
   NSBitmapImageRep *bitmap;
-  if([control->view isKindOfClass:[NSTextField class]]) {
+  if(native_backing(control->view)) {
     /* AppKit's recursive display restores the window's gstate even with an
      * explicit image context. Render/read the real native backing instead.
      * Its field editor, selection and caret remain wholly native. */
@@ -436,7 +440,10 @@ int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifi
   if([control->view needsDisplay])nxs_host_draw(control,1);
   active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;control->click_count=clicks;
   NSEvent *event=mouse(control,NSLeftMouseDown,x,y,modifiers);control->pointer=[event locationInWindow];
-  @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:control->view]; }
+  NSView *target=control->view;
+  if([target isKindOfClass:[NSScrollView class]])
+    target=[target hitTest:[[target superview] convertPoint:[event locationInWindow] fromView:nil]];
+  @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:target]; }
   @finally { control->tracking = NO; active = NULL; }
   [pool drain];
   return 1;
@@ -466,7 +473,7 @@ int nxs_host_focused(NXSViewHost *host)
 {
   if(!host||focused!=host)return 0;
   NSResponder *responder=[host->window firstResponder];
-  return responder==host->view||([host->view isKindOfClass:[NSControl class]]&&
+  return responder==focus_view(host)||([host->view isKindOfClass:[NSControl class]]&&
     [(NSControl *)host->view currentEditor]==responder);
 }
 int nxs_host_focus(NXSViewHost *host,int focus)
@@ -478,12 +485,12 @@ int nxs_host_focus(NXSViewHost *host,int focus)
   host->dispatch_depth++;
   if(previous&&previous!=host)previous->dispatch_depth++;
   if(focus) {
-    if(![host->view acceptsFirstResponder])accepted=0;
+    if(![focus_view(host) acceptsFirstResponder])accepted=0;
     else {
       if(previous&&previous!=host&&![previous->window makeFirstResponder:nil])accepted=0;
-      else if(![host->window makeFirstResponder:host->view]) {
+      else if(![host->window makeFirstResponder:focus_view(host)]) {
         accepted=0;
-        if(previous)[previous->window makeFirstResponder:previous->view];
+        if(previous)[previous->window makeFirstResponder:focus_view(previous)];
       } else {
         focused=host;
         NSResponder *responder=[host->window firstResponder];

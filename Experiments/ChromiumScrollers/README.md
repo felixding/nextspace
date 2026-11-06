@@ -648,6 +648,26 @@ Omnibox before and after host replacement, native application commands and
 switching to Firefox and back. These checks apply to the pinned Chromium build;
 other Views controls, IME, automatic installation and derivative frontends
 remain open.
+
+## Experimental multiline fields
+
+`NEXTSPACE_CHROMIUM_MULTILINE=1`, alongside the existing forms/input/text flags,
+enables text areas when the provider advertises native multiline support.
+The exact-build adapter uses the real `HTMLTextAreaElement::Value()` getter and
+default-event boundary, the shared `TextControlElement` selection methods and
+the existing engine edit transactions. The textarea painter tail-calls the
+already guarded text-field painter in this binary. Newline and Tab selectors
+invoke the engine's `InsertNewline` and `InsertTab` commands; cancellation and
+trusted events remain in Blink. No Chromium or AppKit rebuild is involved.
+
+The [multiline qualification](../../Libraries/NativeUI/multiline-qualification.json)
+records 18 real-seat checks before/after native host loss: native line navigation,
+newline insertion and veto, ordinary insertion, Unicode ranges, key cancellation,
+clipboard controllers and read-only values. This is experimental coverage of
+the pinned build. Browser DOM scrolling, native viewport/layout synchronization,
+wrap modes, complete scrollbar ownership, IME and other frontend controls remain
+unfinished; the feature stays opt-in.
+
 This remains an optional adapter for the recorded Linux ARM64 executable.
 Chrome, Vivaldi, other Chromium versions, the remaining browser frontend,
 full desktop session integration and other toolkits still require work.

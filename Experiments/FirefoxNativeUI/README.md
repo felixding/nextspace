@@ -212,7 +212,7 @@ is required. See [text source audit](text-source-audit.json) and
 This is an opt-in fixed integer-size, scale-1 binding for one exact binary.
 Clipboard command/web-event integration, native
 undo-menu routing, IME/composition, other text types, intrinsic sizing,
-multiline/rich text, accessibility and broader styling remain open. Address
+multiline viewport/layout integration, rich text, accessibility and broader styling remain open. Address
 bars and other browser application interfaces remain separate work. A native
 field editor does not automatically provide all application behaviors.
 
@@ -345,3 +345,32 @@ Session host startup/packaging, registrar
 recovery, remaining controls and derivative qualification remain incomplete.
 See [Workspace qualification](../DBusMenus/workspace-qualification.json) and the
 preceding [shared-host qualification](../DBusMenus/shared-host-qualification.json).
+
+## Experimental multiline fields
+
+`NEXTSPACE_FIREFOX_MULTILINE=1`, alongside the existing input/text flags,
+enables text areas when the provider advertises native multiline support.
+The same `nsTextControlFrame` display path draws the shared `NSTextView` and
+`NSScrollView`. The exact-build adapter uses textarea-specific value, editor,
+post-event and controller methods. Its `TextControlState` is at offset 304;
+the single-line input's state is at 352. Selection reads use the real common
+`TextControlState::GetSelectionRange`, avoiding the textarea's nontrivial
+`Nullable<uint32_t>` return ABI. Selection writes reuse the existing common
+method. All new calls are guarded after libxul is loaded and its build ID is
+verified.
+
+The native newline selector calls `TextEditor::InsertLineBreakAsAction`; native
+Tab uses the real text insertion action. The existing controller callback owns
+Copy/Cut/Paste, with textarea-specific controller lookup for validation. The
+engine retains trusted events, pre-edit cancellation, undo and its data model.
+Neither Firefox nor AppKit is rebuilt, and no native text-control code is copied.
+
+The [multiline qualification](../../Libraries/NativeUI/multiline-qualification.json)
+records 18 real-seat checks before/after shared-host replacement. The fixture
+selects the actual browser pane before content focus; `document.hasFocus()`
+alone did not establish that real keys had left the address editor. Independent
+cases also dismiss Firefox's original auto-hidden menu bar when Alt release
+activates it, following the existing clipboard fixture. That original menu
+interaction remains an integration gap. Browser DOM scrolling/native viewport
+layout, wrap modes, rich text, IME and derivative coverage are still unfinished;
+multiline support remains opt-in.

@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-06",
+  "baseline": "570c5947",
+  "scope": "Native multiline provider and experimental pinned-browser editing bindings",
+  "implementation": {
+    "native": "Ordinary NSTextView inside ordinary NSScrollView. Native layout, wrapping, selection, key interpretation, scrollbar placement/tracking and clipping remain in installed GNUstep/AppKit.",
+    "host": "Composite recursive native backing and hit testing; focus targets the document view. No native controls or UI algorithms copied into adapters.",
+    "viewport": "Optional native document/visible-rect query and NSClipView constraint/scroll forwarding; transport operations 32/33 preserve ownership and original request layout. Browser layout/DOM synchronization remains open.",
+    "compatibility": "ABI 1 append-only extension: 384 to 408 bytes on ARM64, text capabilities 31. Older provider rejects kind 9, reports no multiline and returns unavailable viewport operations. Existing field/password text, filter, command, menu, range and input regressions pass.",
+    "chromium": "Exact textarea vtable/value/default-event boundaries; inherited TextControlElement selection methods. Compiled textarea painter tail-calls existing guarded text-field painter. Native selectors map to real InsertNewline/InsertTab engine commands, preserving beforeinput/undo/controller paths.",
+    "firefox": "Exact textarea value/editor/post-event/controller calls. Common TextControlState selection getter avoids nontrivial Nullable return ABI; state at +304 versus input +352. Newline calls real InsertLineBreakAsAction. Native clipboard validation uses textarea-specific GetControllers; execution reuses common DoCommandCallback.",
+    "guards": "Existing build-ID guard plus fresh bounded instruction guards. Firefox guards run after libxul is loaded, rather than in the preload constructor. No browser debug symbols loaded into GDB; a small compositor trace confirmed delivery while diagnosing test focus.",
+    "browser_scope": "Opt-in on the pinned browser binaries. Native multiline transactions and real-seat keyboard behavior qualified in the synthetic fixture; whole text-area/browser integration remains unfinished."
+  },
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_text_area_element.cc",
+      "sha256": "b393ff12f481e304293c8f1f58221a150b69b3febd0a66894c6e223297c56f82"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_text_area_element.h",
+      "sha256": "62fb6c7dc268464b4f9119e5e5fba1870e3d14639825f36d9f77206fca54d38f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_control_element.cc",
+      "sha256": "608155d99ce17c08282c9cf3d3a0a31cb2f2e40b6deba2a30e9ed693eab34849"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_control_element.h",
+      "sha256": "600daea6344e3146ec9084fd058c4b5f0ebeda3e2705c4e152bf1f4e489cb87a"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLTextAreaElement.h",
+      "sha256": "dbfd9e1c15a4da7911450c31a1bb0187a275b3b8a25ee21956d0f21cbffba69c"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLTextAreaElement.cpp",
+      "sha256": "a7bd834dc89f06d780eab2e3d7c00396affbf6ba58d928ddd9063c3e64ad152f"
+    }
+  ],
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "86a1595f29c3f7b2e6621c82443761f16810131e072391d97892fcb48e610068",
+    "Experiments/ChromiumScrollers/forms-input.inc": "acb0c7b96066793050d46947ab2bd83968c77b6e9f496006827e8669858eb1b2",
+    "Experiments/ChromiumScrollers/forms-text.inc": "17296b4411380225e9c01ab4380a2036860abe68cd5c16fa824798c8c371ac0d",
+    "Experiments/ChromiumScrollers/forms.inc": "66553e4039a0c538c919f374ecab3f1b72dc744e7a7a7c760b4765e5553eda32",
+    "Experiments/ChromiumScrollers/hook.c": "008fd858e3a760752d627578c5668f1205a6cb2c6cc157dc8ec281081fbb3e41",
+    "Experiments/ChromiumScrollers/native_controls.py": "33ab543a17942175bbe62d350cb460d6da3b4e229d4a233a0c8db55171fd405f",
+    "Experiments/ChromiumScrollers/pinned-multiline.h": "887074e79cbf6780004a9329740bfb92a86eb5cea3e28dc4fdcd9b6fc9191cce",
+    "Experiments/ChromiumScrollers/test-multiline.html": "21faedbcc4f959372e8fd6c3cd827951a6e19b01d9b4d771404701eb1100f765",
+    "Experiments/FirefoxNativeUI/README.md": "e406b93fa93673b414df21e3948ec444536c2f1b47c36e1d85197a42829ae78e",
+    "Experiments/FirefoxNativeUI/commands.inc": "e1c7b6d31d4554f8cd1bbdc504c59cc6d447278fd48997fa1e7dc57abaf9331e",
+    "Experiments/FirefoxNativeUI/controls.inc": "474071607477fd9fae6191c6dc9255aa1a4d711b5a3d5a75489f6a162e2b5ee9",
+    "Experiments/FirefoxNativeUI/hook.c": "2ff6adde1eb5dd901d972a3938f844ff86080b2daec19537fb860273dd4fb1a8",
+    "Experiments/FirefoxNativeUI/pinned-multiline.h": "87dbccb067b00d11b1803aa60bf1c5af6a4b47a54ad77d454e5751d181b51035",
+    "Experiments/FirefoxNativeUI/text.inc": "8ad481a8f836859c99c20601821dc1c1fe75371a0a5e6d6871293d846c3f83a8",
+    "Libraries/NativeUI/Bridge/Protocol.h": "a6755f7ac1461fa50bdfb7c8b596a2c12ab3041929998b1be7e974526dbec346",
+    "Libraries/NativeUI/Bridge/README.md": "5481d60f778c9ccb0bd137ebb3bf7ac8c18733a16b23988f8d1af6814fc1012b",
+    "Libraries/NativeUI/CMakeLists.txt": "4035899f258563529db84f48041cc82091f7028baad25c22d40e91e32ea6a2aa",
+    "Libraries/NativeUI/GNUstep/Controls.m": "f5a4c48ad2c68c96dd94ad9b3a8b8de39fe732b066c3bc6096bb2f6a2171af08",
+    "Libraries/NativeUI/GNUstep/Provider.h": "b4fbeab8c2d74af3d5b69f19c0b558065458b3b12b9a3ae02327930fbe57aa92",
+    "Libraries/NativeUI/GNUstep/Provider.m": "3d9ab0048195b0e2e73e6e1c265d81d09f9ff0b169a31562aa3808f1399e32b3",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "0f7e74097e720d326c4bafc72e093703115b98d65ad2d972d2dfa5a2674185ad",
+    "Libraries/NativeUI/Loader.c": "866e5a2bd179189a99984d1bd0c7dc7e75f71ba99bdd69aec3a74f215b4a1005",
+    "Libraries/NativeUI/NativeUI.h": "c154acb368b379562ee7c2218aee4b774b7c639059e5d2803dfe094560698b6d",
+    "Libraries/NativeUI/README.md": "0f5452575eaad8ba81f422bc7e7d79240ee05712ec3444dac9f62eddc65bb583",
+    "Tests/NativeUI/multiline-probe.m": "f1370906f6f8a9b3961043122b9062c74b867dc00fff52e4e6bcdfe9327a207b",
+    "Tests/NativeUI/run.py": "36fbf2086a7af06294f75c069ce100c19b59524940b759265ac6c34deabd12f1",
+    "Tests/NativeUI/text-transport-probe.c": "822a54952645f39b6cfd23de6decabf1817273fc1aa137f9c36612e172d85aa7",
+    "Tests/Wayland/native_ui_multiline.py": "4ad233a2526f7f886fa79b460735e2e0f4f9be37fabe956448d4356b141e9b37",
+    "Tests/Wayland/native_ui_session.py": "5f99bc8fcab82a42b8bf11e993a46144d3f671872a0b1ccd95a5cf7aa3bab391",
+    "docs/Native-Control-Integration.md": "74065437274a8bf41a9574682af3d3e306b9002e45ebeb9031997aad2d3867e8"
+  },
+  "qualification": "multiline-qualification.json",
+  "remaining": [
+    "Connect native viewport/document geometry to each browser DOM scroll and layout contract, including scrollTop/scrollLeft/scrollHeight, complete scrollbar ownership and scroll events.",
+    "Qualify textarea browser pixels, pointer dragging/autoscroll, resize, disabled state, wrap modes and styling; current independent pixel and native-scrollbar pointer references qualify the provider, not the complete browser embedding.",
+    "Remove Firefox original auto-hidden menu-bar interference after native Alt shortcuts. The independent clipboard cases currently dismiss it and select the actual browser pane before content focus.",
+    "Multiline Undo/Redo and broader text commands; IME, rich text/contenteditable, accessibility, mixed output scaling, other browser frontend controls, dialogs and installed-desktop integration.",
+    "Automatic adapter installation/build selection; Chrome, Vivaldi and Firefox derivatives remain unqualified. Continue remaining GTK/Qt/KDE applications after the browser families."
+  ]
+}

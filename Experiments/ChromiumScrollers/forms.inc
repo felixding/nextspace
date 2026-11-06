@@ -1,6 +1,7 @@
 /* Blink element/model and event bindings only. Native controls stay in the
  * separately loaded UI provider. Exact Chromium build; GPL-2.0-or-later. */
 #include "pinned-forms.h"
+#include "pinned-multiline.h"
 #include "../../Libraries/NativeUI/NativeUI.h"
 struct NativeForm {
   struct NativeForm *next;
@@ -38,6 +39,7 @@ static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled;
 static int forms_text_enabled;
+static int forms_multiline_enabled;
 static int forms_notifications_enabled;
 static __thread const void *popup_mouse_event;
 static unsigned forms_input_capabilities;

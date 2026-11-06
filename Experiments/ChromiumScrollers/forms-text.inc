@@ -49,13 +49,17 @@ static int (*original_text_mouse_release)(void *,const void *,const void *);
 static int (*original_text_mouse_drag)(void *,const void *);
 static int (*original_text_pointer_up)(void *,const void *);
 static void *text_pointer_controller,*text_pointer_frame,*text_pointer_handler;
-static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD;}
+static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA;}
+static void (*original_textarea_default)(void *,void *);
+static void textarea_default(void *node,void *event)
+{if(!forms_multiline_enabled||!default_text_key(node,event))original_textarea_default(node,event);}
 static void *text_frame(void *node) {
   void *document=node_document(node),*window=document?decode_member((char *)document+264):NULL;
   return window?decode_member((char *)window+32):NULL;
 }
 static int text_model(void *node,struct BlinkTextModel *model) {
-  void *value=((void *(*)(const void *))(base+NXS_CHROMIUM_TEXT_VALUE_OFFSET))(node);
+  uintptr_t getter=input_form_kind(node)==NXS_TEXTAREA?NXS_TEXTAREA_VALUE_OFFSET:NXS_CHROMIUM_TEXT_VALUE_OFFSET;
+  void *value=((void *(*)(const void *))(base+getter))(node);
   model->value=string_text(value);
   ((void (*)(void *))(base+0x7246038))(&value);
   if(!model->value)return 0;
@@ -219,7 +223,7 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
       {"deleteBackward:","DeleteBackward"},{"deleteForward:","DeleteForward"},
       {"deleteWordBackward:","DeleteWordBackward"},{"deleteWordForward:","DeleteWordForward"},
       {"deleteToBeginningOfLine:","DeleteToBeginningOfLine"},{"deleteToEndOfLine:","DeleteToEndOfLine"},
-      {"delete:","Delete"}};
+      {"delete:","Delete"},{"insertNewline:","InsertNewline"},{"insertTab:","InsertTab"}};
     int found=0;
     for(size_t i=0;i<sizeof(commands)/sizeof(*commands);i++)if(!strcmp(command,commands[i].native)) {
       void *name=((void *(*)(const char *,size_t))(base+NXS_CHROMIUM_TEXT_FROM_UTF8_OFFSET))
@@ -304,7 +308,7 @@ static int default_text_key(void *node,void *event) {
     sync_text_form(form,form_request(form,1,0,0,0));invalidate_form(form);
   }
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS)advance_form_focus(node,event,handled);
-  if(handled&&logical!=NXS_KEY_ENTER){*flags|=0x40;return 1;}
+  if(handled&&(logical!=NXS_KEY_ENTER||input_form_kind(node)==NXS_TEXTAREA)){*flags|=0x40;return 1;}
   return 0;
 }
 static int paint_text_field(void *self,const void *element,const void *style,const void *info,const struct Rect *rect) {
@@ -334,6 +338,7 @@ static int text_selection_changed(void *node,unsigned start,unsigned end,int dir
   return changed;
 }
 static struct Detour text_detours[]={
+  {NXS_TEXTAREA_DEFAULT_OFFSET,nxs_textarea_default_bytes,textarea_default,(void **)&original_textarea_default},
   {NXS_CHROMIUM_TEXT_MOUSE_PRESS_OFFSET,chromium_text_mouse_press_bytes,text_mouse_press,(void **)&original_text_mouse_press},
   {NXS_CHROMIUM_TEXT_MOUSE_DRAG_OFFSET,chromium_text_mouse_drag_bytes,text_mouse_drag,(void **)&original_text_mouse_drag},
   {NXS_CHROMIUM_TEXT_MOUSE_RELEASE_OFFSET,chromium_text_mouse_release_bytes,text_mouse_release,(void **)&original_text_mouse_release},

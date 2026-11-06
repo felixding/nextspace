@@ -37,7 +37,8 @@ The C loader rejects an absent, incompatible or incomplete provider. Its error
 is available through `nxs_native_ui_error()`; it does not emulate a control.
 
 The API supports native push buttons, checkboxes, radio buttons, sliders,
-progress indicators, popup buttons/menus, single-line text/password fields and the existing scrollbar contract. Normal/disabled state,
+progress indicators, popup buttons/menus, single-line text/password fields,
+multiline text areas and the existing scrollbar contract. Normal/disabled state,
 model updates, native preferred metrics, bitmap output and synchronous mouse
 tracking are exposed. The application owns its data model; the native control
 owns its actual input loop. The event pump services application/transport events
@@ -87,6 +88,32 @@ Browser text editing, broader engine/frontend focus and keyboard routing, IME, a
 general application menus, lists/trees, tabs,
 and engine/frontend adapters for the new control types remain to implement.
 The provider ABI is under development until that broader contract is qualified.
+
+## Native multiline editor
+
+`NXS_TEXTAREA` creates an ordinary `NSTextView` inside an ordinary `NSScrollView`.
+GNUstep supplies wrapping, selection, line navigation, insertion, undo, scrollbar
+placement and tracking. The provider forwards its existing text model, pre-edit
+and command contracts to that editor. It adds no text layout, key-binding or
+scrollbar implementation. Composite drawing uses native recursive backing;
+focus goes to the document view and native hit testing selects its subviews.
+
+`NXS_TEXT_MULTILINE` is advertised through an optional append-only provider
+capability query. `NXS_TEXT_VIEWPORT` additionally exposes the native document
+and visible rectangle through `nxs_control_text_viewport()`. The scroll operation
+uses `NSClipView`'s existing constraint and scroll methods. These are native
+geometry and scrolling interfaces for adapters, without copied layout rules.
+The ABI remains version 1; an older provider rejects the new kind and reports
+neither capability. Existing single-line/password clients keep their prefix.
+
+Full short, scrolling and wrapped images match independent direct GNUstep
+references. Tests cover actual scrollbar clicking, double/triple-click selection,
+native line navigation, newline/Tab insertion, UTF-16 selection, pre-edit veto,
+read-only/disabled state and reentrant transport. The unchanged pinned Chromium
+and Firefox builds also have experimental multiline drawing and engine editing
+bindings, including real-seat keyboard checks across host replacement.
+Browser DOM scroll/layout synchronization, wrap modes, IME and broader frontend
+coverage remain unfinished. See the [multiline qualification](multiline-qualification.json).
 
 ## Native application menu foundation
 

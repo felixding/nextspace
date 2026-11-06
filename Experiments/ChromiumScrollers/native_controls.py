@@ -86,6 +86,9 @@ class ControlState(C.Structure):
 class Size(C.Structure):
     _fields_ = [('width', C.c_double), ('height', C.c_double)]
 
+class TextViewport(C.Structure):
+    _fields_ = [('size',C.c_uint32),('visible',ControlRect),('content',Size)]
+
 ControlChanged = C.CFUNCTYPE(None, C.c_void_p, C.c_int, C.POINTER(ControlState))
 
 class NativeControlServer:
@@ -153,6 +156,12 @@ class NativeControlServer:
             if self.text_capabilities&2:
                 native.nxs_control_text_filter.argtypes=[C.c_void_p,TextShouldChange,C.c_void_p]
                 native.nxs_control_text_filter.restype=C.c_int
+        self.text_kinds=(7,8,9) if self.text_capabilities&8 else (7,8)
+        if self.text_capabilities&16:
+            native.nxs_control_text_viewport.argtypes=[C.c_void_p]
+            native.nxs_control_text_viewport.restype=TextViewport
+            native.nxs_control_text_scroll.argtypes=[C.c_void_p,C.c_double,C.c_double]
+            native.nxs_control_text_scroll.restype=C.c_int
         if hasattr(native,'nxs_control_popup_open_capabilities'):
             native.nxs_control_popup_open_capabilities.argtypes=[]
             native.nxs_control_popup_open_capabilities.restype=C.c_uint
@@ -277,7 +286,7 @@ class NativeControlServer:
 
     def update_text_filters(self,process):
         for state in self.controls.values():
-            if state['key'][0]!=process or state['key'][2] not in (7,8):continue
+            if state['key'][0]!=process or state['key'][2] not in self.text_kinds:continue
             enabled=process in self.text_filters
             if state.get('text_filter',False)!=enabled and self.native.nxs_control_text_filter(state['native'],self.text_filter if enabled else TextShouldChange(),state['context']):
                 state['text_filter']=enabled
@@ -499,7 +508,7 @@ class NativeControlServer:
         # those native draws before publishing the service, rather than make
         # an application's first paint wait inside a bounded RPC.
         kinds=list(range(1,7 if self.popup_capabilities else 6))
-        if self.text_capabilities:kinds.extend((7,8))
+        if self.text_capabilities:kinds.extend(self.text_kinds)
         for kind in kinds:self.preferred(kind)
 
     def preferred(self, kind):
@@ -535,7 +544,7 @@ class NativeControlServer:
     def _tracking(self, state):
         return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
 
-    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None, payload=b''):
+    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None, payload=b'',viewport=None):
         response = self.response_type()
         response.magic, response.reserved = MAGIC, req.reserved
         response.parts[3].x = input_result
@@ -556,7 +565,7 @@ class NativeControlServer:
             preferred = self.native.nxs_control_size(state['native'])
             response.parts[1].width, response.parts[1].height = preferred.width, preferred.height
             response.parts[2].x = current.enabled
-            if req.kind in (7,8):
+            if req.kind in self.text_kinds:
                 response.parts[2].width=state.get('edits',0)
                 response.parts[2].height=state.get('activations',0)
             if self.input_capabilities & 1:
@@ -572,6 +581,9 @@ class NativeControlServer:
                     response.width, response.height, response.stride = bitmap.width, bitmap.height, bitmap.stride
                     data = C.string_at(bitmap.pixels, bitmap.stride * bitmap.height)
                     state['invalidated'] = False
+        if viewport is not None:
+            for field in ('x','y','width','height'):setattr(response.parts[5],field,getattr(viewport.visible,field))
+            response.parts[6].width=viewport.content.width;response.parts[6].height=viewport.content.height
         self.send(client, response, data)
 
     def message(self, client, data, descriptors=(),sender_pid=None):
@@ -629,8 +641,8 @@ class NativeControlServer:
             self._respond(client, req)
             return
         if req.operation == 1:
-            if (not 1 <= req.kind <= 8 or (req.kind==6 and not self.popup_capabilities) or
-                (req.kind in (7,8) and not self.text_capabilities) or
+            if (not 1 <= req.kind <= 9 or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
+                (req.kind in self.text_kinds and not self.text_capabilities) or
                 not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value))):
                 self._respond(client, req)
                 return
@@ -654,7 +666,7 @@ class NativeControlServer:
                     return
                 state = dict(key=key, native=pointer, context=context, client=client, actions=0, destroy=False)
                 self.controls[key] = self.contexts[context] = state
-                if req.kind in (7,8) and req.process in self.text_filters:self.update_text_filters(req.process)
+                if req.kind in self.text_kinds and req.process in self.text_filters:self.update_text_filters(req.process)
                 self.log('native-form-control', process=req.process, control=req.control, kind=req.kind,
                          width=req.width, height=req.height)
             current = self.native.nxs_control_state(state['native'])
@@ -675,6 +687,11 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation in (32,33) and req.kind==9 and self.text_capabilities&16 and not req.text_size:
+                accepted=state['client'] is client and (req.operation==32 or self.native.nxs_control_text_scroll(state['native'],req.x,req.y))
+                viewport=self.native.nxs_control_text_viewport(state['native']) if accepted else None
+                self._respond(client,req,state,input_result=int(accepted),viewport=viewport)
+                return
             if req.operation==22:
                 accepted=bool(self.pointer_capabilities&1 and not req.text_size and req.kind!=5 and
                     req.state>0 and self.idle() and not self._tracking(state) and
@@ -684,11 +701,11 @@ class NativeControlServer:
                     self.pending.append(lambda:self.track(state,req.x,req.y,req.modifiers,req.state))
                 self._respond(client,req,state,input_result=int(accepted))
                 return
-            if req.operation==21 and req.kind in (7,8) and self.text_capabilities&4 and not req.text_size:
+            if req.operation==21 and req.kind in self.text_kinds and self.text_capabilities&4 and not req.text_size:
                 command=self.native.nxs_control_text_command(state['native']) or b''
                 self._respond(client,req,state,input_result=1,payload=command)
                 return
-            if req.operation==18 and req.kind in (7,8) and self.text_capabilities and not req.text_size:
+            if req.operation==18 and req.kind in self.text_kinds and self.text_capabilities and not req.text_size:
                 current=TextState(size=C.sizeof(TextState))
                 required=self.native.nxs_control_text_get(state['native'],None,0,C.byref(current))
                 if not 0<required<=32*1024*1024-C.sizeof(TextResponse):
@@ -728,12 +745,12 @@ class NativeControlServer:
                 if self.active is state:
                     self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
-        self._respond(client, req, state, pixels=req.operation==5 and req.kind in (7,8))
+        self._respond(client, req, state, pixels=req.operation==5 and req.kind in self.text_kinds)
 
     def text_message(self,client,data):
         if len(data)<C.sizeof(ControlTextRequest):return
         req=ControlTextRequest.from_buffer_copy(data)
-        if req.magic!=MAGIC or req.kind not in (7,8) or req.text_size!=len(data)-C.sizeof(req) or req.text_size>65536:
+        if req.magic!=MAGIC or req.kind not in self.text_kinds or req.text_size!=len(data)-C.sizeof(req) or req.text_size>65536:
             self._respond(client,req);return
         state=self.controls.get((req.process,req.control,req.kind))
         if not state or state['destroy'] or not self.text_capabilities:

@@ -108,7 +108,13 @@ int nxs_control_popup_open(NXSControl *c,int open)
 unsigned nxs_control_text_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_sync)&&HAS_INPUT(p,control_text_get)?
   NXS_TEXT_EDITING|(HAS_INPUT(p,control_text_filter)?NXS_TEXT_FILTER:0)|
-  (HAS_INPUT(p,control_text_command)?NXS_TEXT_COMMAND:0):0;}
+  (HAS_INPUT(p,control_text_command)?NXS_TEXT_COMMAND:0)|
+  (HAS_INPUT(p,control_text_capabilities)?p->control_text_capabilities():0)|
+  (HAS_INPUT(p,control_text_viewport)&&HAS_INPUT(p,control_text_scroll)?NXS_TEXT_VIEWPORT:0):0;}
+NXSTextViewport nxs_control_text_viewport(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_viewport)?p->control_text_viewport(c):(NXSTextViewport){0};}
+int nxs_control_text_scroll(NXSControl *c,double x,double y)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_scroll)?p->control_text_scroll(c,x,y):0;}
 int nxs_control_text_sync(NXSControl *c,const NXSTextModel *model)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_sync)?p->control_text_sync(c,model):0;}
 size_t nxs_control_text_get(NXSControl *c,char *buffer,size_t capacity,NXSTextState *state)

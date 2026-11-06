@@ -46,6 +46,15 @@ unchanged. See the [recovery qualification](../Applications/Session/native-ui-re
 This closes the measured connection-recovery gap, while broader control,
 frontend, derivative and installed-desktop requirements remain unfinished.
 
+The provider now also supplies an ordinary `NSTextView`/`NSScrollView` multiline
+control, including native document/viewport geometry. Opt-in bindings for both
+pinned browsers pass real-seat multiline editing, event cancellation and
+clipboard checks across host replacement. Complete images match independent
+direct GNUstep controls in the provider checks. Browser DOM scroll/layout,
+wrap modes, full scrollbar ownership and Firefox's original Alt/menu-bar
+interaction remain open, so this does not establish complete text-area support.
+See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json).
+
 ## Shared implementation and distinct integration boundaries
 
 Keep one native host in `Libraries/NativeUI` using installed GNUstep/AppKit and

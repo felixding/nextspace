@@ -242,6 +242,10 @@ __attribute__((constructor)) static void initialize(void) {
   forms_popups_enabled=forms_input_enabled&&popups&&!strcmp(popups,"1")&&metrics->parts[4].height==1&&metrics->parts[6].width==1&&metrics->parts[6].height==1;
   const char *text=getenv("NEXTSPACE_CHROMIUM_TEXT");
   forms_text_enabled=forms_input_enabled&&text&&!strcmp(text,"1")&&metrics->parts[6].x==1&&((unsigned)metrics->parts[6].y&3)==3;
+  const char *multiline=getenv("NEXTSPACE_CHROMIUM_MULTILINE");
+  forms_multiline_enabled=forms_text_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_MULTILINE)&&
+    !memcmp((void *)(base+NXS_TEXTAREA_VALUE_OFFSET),nxs_textarea_value_bytes,20)&&
+    !memcmp((void *)(base+NXS_TEXTAREA_PAINT_OFFSET),nxs_textarea_paint_bytes,8);
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
   views_enabled=forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");

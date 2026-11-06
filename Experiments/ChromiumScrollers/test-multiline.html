@@ -1,0 +1,19 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Blink native multiline transport</title>
+<style>
+body { margin: 24px; font: 14px sans-serif; }
+label { display: block; margin-bottom: 20px; }
+textarea { display: block; width: 240px; height: 120px; }
+</style>
+<label>Multiline text<textarea id="normal">Alpha
+Beta</textarea></label>
+<label>Read only<textarea id="readonly" readonly>Read only
+Second line</textarea></label>
+<label>Disabled<textarea id="disabled" disabled>Disabled
+Second line</textarea></label>
+<script>
+window.events=[];
+for (const type of ['keydown','keypress','beforeinput','input','change','select'])
+  document.addEventListener(type,e=>events.push({type,id:e.target.id,key:e.key,inputType:e.inputType,data:e.data,trusted:e.isTrusted}));
+</script>

@@ -23,6 +23,7 @@ static int input_form_kind(void *node) {
   uintptr_t table=*(const uintptr_t *)node;
   if(table==base+0x11cf3500+16)return NXS_BUTTON;
   if(forms_popups_enabled&&popup_element(node))return NXS_POPUP;
+  if(forms_multiline_enabled&&table==base+NXS_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(table!=base+0x11dc01d8+16)return 0;
   const void *atom=((const void *(*)(const void *))(base+0xefa0da4))(node);
   char *type=atom?string_text(*(void *const *)atom):NULL;

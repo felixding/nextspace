@@ -90,3 +90,12 @@ this machinery does not establish coverage for another engine or browser build.
 The existing Chromium control suite passed all 261 checks after the extraction;
 the first Firefox binding is documented in
 [`Experiments/FirefoxNativeUI`](../../../Experiments/FirefoxNativeUI).
+
+Text capability 8 advertises multiline kind 9, using the existing text model,
+selection, pre-edit and command envelopes. Capability 16 additionally permits
+ordinary requests 32 (viewport query) and 33 (native scroll to x/y). Part 5 is
+the actual native visible rectangle and part 6.width/height is its document
+size. The helper requires the originating control connection for these requests.
+The provider owns clipping and bounds. Browser adapters must still connect this
+native geometry to their layout and DOM scroll contracts; exposing it alone
+does not synchronize a browser text area.

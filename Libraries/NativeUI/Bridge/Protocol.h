@@ -182,4 +182,9 @@ struct NXSNativeMenuAck {
  * Part 3.x reports acceptance. Native invalidations make this
  * descriptor readable; the renderer then queries operation 9 and schedules
  * its own UI thread. No widget timer or unsolicited shared-channel reply. */
+/* Optional multiline viewport (text capability 16), kind 9. Ordinary request
+ * 32 reads native document/clip geometry; 33 scrolls to x/y through native
+ * clipping. Part 3.x reports acceptance, part 5 is the actual visible rect,
+ * and part 6.width/height is native document size. No control layout or
+ * scrolling rules are implemented by this protocol. */
 #endif

@@ -145,6 +145,7 @@ static void install(void) {
      memcmp((void *)(base+0x6a7782c),(unsigned char[]){0x00,0x0f,0x40,0xf9},4)||
      memcmp((void *)(base+0x589f280),(unsigned char[]){0x5f,0x24,0x03,0xd5,0x00,0x10,0x7e,0x1e},8)||
      !prepare_detours(detours,sizeof(detours)/sizeof(*detours))) {note("Gecko layout/instruction guard failed; unchanged");return;}
+  if(multiline_enabled&&!guard_multiline_calls()){note("Gecko multiline guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
   if(buttons_enabled&&!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours))){note("Gecko button guard failed; unchanged");return;}
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}

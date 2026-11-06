@@ -3,6 +3,7 @@
 #import "ViewHost.h"
 #include "Provider.h"
 #include <math.h>
+#include <float.h>
 #include <stdlib.h>
 #include <string.h>
 #include <objc/runtime.h>
@@ -18,10 +19,35 @@ struct NXSControl {
   NXSTextShouldChange text_filter;
   void *text_filter_context;
   SEL text_command;
-  BOOL text_selection_pending,destroying;
+  BOOL text_selection_pending,text_editable,destroying;
 };
 static int text_control(NXSControl *control)
-{return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD);}
+{return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD||control->kind==NXS_TEXTAREA);}
+static NSTextView *text_editor(NXSControl *control)
+{return control->kind==NXS_TEXTAREA?(NSTextView *)[(NSScrollView *)control->view documentView]:
+  (NSTextView *)[(NSTextField *)control->view currentEditor];}
+unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE;}
+NXSTextViewport nxs_gnustep_control_text_viewport(NXSControl *control)
+{
+  NXSTextViewport state={.size=sizeof(state)};
+  if(!control||control->kind!=NXS_TEXTAREA||control->destroying)return state;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSView *view=text_editor(control);
+  NSRect visible=[[(NSScrollView *)control->view contentView] documentVisibleRect];
+  NSSize content=[view bounds].size;
+  state.visible=(NXSRect){visible.origin.x,[view isFlipped]?visible.origin.y:content.height-NSMaxY(visible),visible.size.width,visible.size.height};
+  state.content=(NXSSize){content.width,content.height};[pool drain];return state;
+}
+int nxs_gnustep_control_text_scroll(NXSControl *control,double x,double y)
+{
+  if(!control||control->kind!=NXS_TEXTAREA||control->destroying||!isfinite(x)||!isfinite(y)||nxs_host_tracking(control->host))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSScrollView *scroll=(NSScrollView *)control->view;NSClipView *clip=[scroll contentView];
+  NSView *view=[scroll documentView];
+  NSPoint point=NSMakePoint(x,[view isFlipped]?y:[view bounds].size.height-y-[clip bounds].size.height);
+  [clip scrollToPoint:[clip constrainScrollPoint:point]];[scroll reflectScrolledClipView:clip];
+  [control->view setNeedsDisplay:YES];[pool drain];return 1;
+}
 static void slider_model(NXSControl *control)
 {
   NSSlider *view=(NSSlider *)control->view;
@@ -55,8 +81,9 @@ static void slider_model(NXSControl *control)
  else [super forwardInvocation:invocation];}
 - (void)bindTextEditor
 {
-  NSTextView *editor=(NSTextView *)[(NSTextField *)control->view currentEditor];
+  NSTextView *editor=text_editor(control);
   if(!editor)return;
+  if(control->kind==NXS_TEXTAREA){if([editor delegate]!=self)[editor setDelegate:(id)self];return;}
   if(control->text_filter) {
     if([editor delegate]!=self) {
       id previous=[[editor delegate] retain];[editor_delegate release];editor_delegate=previous;
@@ -80,6 +107,13 @@ static void slider_model(NXSControl *control)
 }
 - (BOOL)control:(NSControl *)view textView:(NSTextView *)editor doCommandBySelector:(SEL)selector
 {control->text_command=selector;return nxs_host_command(control->host,selector,NXS_COMMAND_EXECUTE)>=0;}
+- (BOOL)textView:(NSTextView *)editor doCommandBySelector:(SEL)selector
+{
+  if(control->kind!=NXS_TEXTAREA)
+    return [editor_delegate respondsToSelector:_cmd]&&[editor_delegate textView:editor doCommandBySelector:selector];
+  control->text_command=selector;return nxs_host_command(control->host,selector,NXS_COMMAND_EXECUTE)>=0;
+}
+- (void)textDidChange:(NSNotification *)notification {[self controlTextDidChange:notification];}
 - (void)willSendTextAction:(NSNotification *)notification
 {if(nxs_host_focused(control->host))control->text_command=[[[notification userInfo] objectForKey:@"MenuItem"] action];}
 - (void)controlTextDidBeginEditing:(NSNotification *)notification {[self bindTextEditor];}
@@ -108,13 +142,24 @@ static void slider_model(NXSControl *control)
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_PASSWORD)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_TEXTAREA)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD) {
+  if(kind==NXS_TEXTAREA) {
+    NSScrollView *scroll=[[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,180,96)];
+    [scroll setBorderType:NSBezelBorder];[scroll setHasVerticalScroller:YES];
+    [scroll setAutohidesScrollers:YES];
+    NSTextView *editor=[[NSTextView alloc] initWithFrame:NSMakeRect(0,0,[scroll contentSize].width,[scroll contentSize].height)];
+    [editor setRichText:NO];[editor setAllowsUndo:YES];
+    [editor setMinSize:NSZeroSize];[editor setMaxSize:NSMakeSize(FLT_MAX,FLT_MAX)];
+    [editor setHorizontallyResizable:NO];[editor setVerticallyResizable:YES];
+    [editor setAutoresizingMask:NSViewWidthSizable];
+    [[editor textContainer] setWidthTracksTextView:YES];
+    [scroll setDocumentView:editor];[editor release];view=scroll;
+  } else if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD) {
     view=kind==NXS_PASSWORD?[[NSSecureTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)]:
       [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)];
   } else if(kind==NXS_POPUP) {
@@ -135,13 +180,14 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   }
   control->host=nxs_host_create(view,pump,context);control->view=view;[view release];
   if(!control->host){free(control);[pool drain];return NULL;}
-  control->kind=kind;control->enabled=1;control->changed=changed;control->context=context;
+  control->kind=kind;control->enabled=1;control->text_editable=YES;control->changed=changed;control->context=context;
   control->text_selection=NSMakeRange(NSNotFound,0);
   if(kind!=NXS_PROGRESS) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
-    [(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];
+    if(kind!=NXS_TEXTAREA){[(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];}
     if(text_control(control)) {
-      [(NSTextField *)view setDelegate:(id)target];
+      if(kind==NXS_TEXTAREA)[text_editor(control) setDelegate:(id)target];
+      else [(NSTextField *)view setDelegate:(id)target];
       [[NSNotificationCenter defaultCenter] addObserver:target selector:@selector(willSendTextAction:)
         name:NSMenuWillSendActionNotification object:[NSTextView defaultMenu]];
     }
@@ -162,7 +208,8 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   }
   NSView *view=[control->view retain];
   if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
-  if(text_control(control))[(NSTextField *)view setDelegate:nil];
+  if(control->kind==NXS_TEXTAREA)[(NSTextView *)[(NSScrollView *)view documentView] setDelegate:nil];
+  else if(text_control(control))[(NSTextField *)view setDelegate:nil];
   if(control->kind==NXS_POPUP||text_control(control))[[NSNotificationCenter defaultCenter] removeObserver:control->target];
   if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
   [view release];
@@ -181,7 +228,11 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     if(!title){[pool drain];return 0;}
   }
   nxs_host_resize(control->host,NSMakeSize(config->width,config->height));control->enabled=!!config->enabled;
-  if(control->kind==NXS_PROGRESS) {
+  if(control->kind==NXS_TEXTAREA) {
+    NSTextView *editor=text_editor(control);
+    [editor setEditable:control->enabled&&control->text_editable];[editor setSelectable:control->enabled];
+    [editor sizeToFit];
+  } else if(control->kind==NXS_PROGRESS) {
     NSProgressIndicator *view=(NSProgressIndicator *)control->view;
     [view setMinValue:config->minimum];[view setMaxValue:config->maximum];[view setDoubleValue:config->value];
     [view setIndeterminate:!!config->indeterminate];
@@ -224,7 +275,7 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
 NXSSize nxs_gnustep_control_size(NXSControl *control)
 {
   if(!control)return (NXSSize){0};
-  NSSize size=control->kind==NXS_PROGRESS?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
+  NSSize size=(control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
   return (NXSSize){size.width,size.height};
 }
 NXSBitmap nxs_gnustep_control_draw(NXSControl *control,double scale)
@@ -241,7 +292,7 @@ int nxs_gnustep_control_focus(NXSControl *control,int focused)
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   int accepted=nxs_host_focus(control->host,focused);
   if(accepted&&focused&&text_control(control)&&control->text_selection_pending) {
-    [[(NSTextField *)control->view currentEditor] setSelectedRange:control->text_selection];
+    [text_editor(control) setSelectedRange:control->text_selection];
     control->text_selection_pending=NO;
   }
   if(accepted&&focused&&text_control(control))[(NXSControlAction *)control->target bindTextEditor];
@@ -345,26 +396,34 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
      (model->selection_start>[text length]||model->selection_length>[text length]-model->selection_start))) {
     [pool drain];return 0;
   }
-  NSTextField *view=(NSTextField *)control->view;
-  NSString *current=[view currentEditor]?[[view currentEditor] string]:[view stringValue];
-  if(![current isEqualToString:text])[view setStringValue:text];
-  if([view isEditable]!=!!model->editable)[view setEditable:!!model->editable];
+  NSTextView *editor=text_editor(control);
+  NSString *current=editor?[editor string]:[(NSTextField *)control->view stringValue];
+  if(![current isEqualToString:text]) {
+    if(control->kind==NXS_TEXTAREA){[editor setString:text];[editor sizeToFit];}
+    else [(NSTextField *)control->view setStringValue:text];
+  }
+  control->text_editable=!!model->editable;
+  if(control->kind==NXS_TEXTAREA)[editor setEditable:control->enabled&&control->text_editable];
+  else if([(NSTextField *)control->view isEditable]!=control->text_editable)
+    [(NSTextField *)control->view setEditable:control->text_editable];
   [(NXSControlAction *)control->target bindTextEditor];
   control->text_selection=model->selection_start==NXS_TEXT_NO_SELECTION?NSMakeRange(NSNotFound,0):
     NSMakeRange(model->selection_start,model->selection_length);
-  NSText *editor=[view currentEditor];
+  /* NSTextField may end editing when its value changes. Read its current
+   * editor again so a subsequent native focus applies the pending range. */
+  editor=text_editor(control);
   control->text_selection_pending=!editor&&control->text_selection.location!=NSNotFound;
   if(editor&&control->text_selection.location!=NSNotFound&&
      !NSEqualRanges([editor selectedRange],control->text_selection))
     [editor setSelectedRange:control->text_selection];
-  [view setNeedsDisplay:YES];[pool drain];return 1;
+  [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
 size_t nxs_gnustep_control_text_get(NXSControl *control,char *buffer,size_t capacity,NXSTextState *state)
 {
   if(!text_control(control)||(state&&state->size<sizeof(*state)))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  NSTextField *view=(NSTextField *)control->view;NSTextView *editor=(NSTextView *)[view currentEditor];
-  NSString *text=editor?[editor string]:[view stringValue];
+  NSTextView *editor=text_editor(control);
+  NSString *text=editor?[editor string]:[(NSTextField *)control->view stringValue];
   const char *utf8=[text UTF8String];size_t required=utf8?strlen(utf8)+1:0;
   if(editor)control->text_selection=[editor selectedRange];
   NSRange marked=editor&&[editor hasMarkedText]?[editor markedRange]:NSMakeRange(NSNotFound,0);
@@ -372,7 +431,8 @@ size_t nxs_gnustep_control_text_get(NXSControl *control,char *buffer,size_t capa
     .selection_start=control->text_selection.location==NSNotFound?NXS_TEXT_NO_SELECTION:control->text_selection.location,
     .selection_length=control->text_selection.length,
     .marked_start=marked.location==NSNotFound?NXS_TEXT_NO_SELECTION:marked.location,.marked_length=marked.length,
-    .editing=editor!=nil,.editable=[view isEditable],.secure=control->kind==NXS_PASSWORD};
+    .editing=control->kind==NXS_TEXTAREA?nxs_host_focused(control->host):editor!=nil,
+    .editable=control->text_editable,.secure=control->kind==NXS_PASSWORD};
   if(buffer&&capacity){if(required&&capacity>=required)memcpy(buffer,utf8,required);else buffer[0]=0;}
   [pool drain];return required;
 }

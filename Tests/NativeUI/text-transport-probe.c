@@ -12,6 +12,7 @@ static void note(const char *message){fprintf(stderr,"%s\n",message);}
 #include "Bridge/Transport.inc"
 _Static_assert(sizeof(struct NXSNativeTextEdit)==72,"Text proposal wire ABI");
 _Static_assert(sizeof(struct NXSNativeTextDecision)==16,"Text decision wire ABI");
+static int transport_kind=NXS_TEXTFIELD;
 static int proposals,allow,destroy_on_edit,delay_decision;
 static const char *expected_value,*expected_text,*expected_command;
 static uint64_t expected_start,expected_length;
@@ -20,7 +21,7 @@ static int mixed_late_command;
 static struct NXSResponse *request(unsigned operation)
 {
   struct NXSControlRequest req={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),
-    .kind=NXS_TEXTFIELD,.control=1,.width=180,.height=24,.enabled=1,.maximum=1};
+    .kind=transport_kind,.control=1,.width=180,.height=transport_kind==NXS_TEXTAREA?96:24,.enabled=1,.maximum=1};
   struct NXSResponse *r=exchange_bytes(&req,sizeof(req));assert(r);return r;
 }
 static void value(const char *expected)
@@ -36,13 +37,13 @@ static int model(const char *text,uint64_t start,uint64_t length)
   size_t size=sizeof(struct NXSControlTextRequest)+strlen(text);
   struct NXSControlTextRequest *req=calloc(1,size);assert(req);
   *req=(struct NXSControlTextRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=17,.process=identity(),
-    .kind=NXS_TEXTFIELD,.control=1,.text_size=strlen(text),.selection_start=start,.selection_length=length,.editable=1};
+    .kind=transport_kind,.control=1,.text_size=strlen(text),.selection_start=start,.selection_length=length,.editable=1};
   memcpy(req+1,text,strlen(text));struct NXSResponse *r=exchange_bytes(req,size);free(req);assert(r);return r->parts[3].x==1;
 }
 static int filter(const struct NXSNativeTextEdit *edit,const char *text,const char *command)
 {
   proposals++;
-  assert(edit->process==identity()&&edit->control==1&&edit->kind==NXS_TEXTFIELD);
+  assert(edit->process==identity()&&edit->control==1&&edit->kind==transport_kind);
   assert(edit->range_start==expected_start&&edit->range_length==expected_length);
   assert(!strcmp(text,expected_text));
   assert(expected_command?(command&&!strcmp(command,expected_command)):!command);
@@ -64,7 +65,7 @@ static int filter(const struct NXSNativeTextEdit *edit,const char *text,const ch
 }
 static int command_filter(const struct NXSNativeCommand *command,const char *selector)
 {
-  assert(command->process==identity()&&command->control==1&&command->kind==NXS_TEXTFIELD);
+  assert(command->process==identity()&&command->control==1&&command->kind==transport_kind);
   if(strcmp(selector,"paste:"))return -1;
   value("Hello");assert(!model("Reentrant",0,0));
   if(command->phase==NXS_COMMAND_VALIDATE){command_queries++;return command_enabled;}
@@ -80,7 +81,7 @@ static void key_with_modifiers(unsigned logical,const char *text,unsigned modifi
   size_t length=text?strlen(text):0,size=sizeof(struct NXSControlInputRequest)+2*length;
   struct NXSControlInputRequest *req=calloc(1,size);assert(req);
   *req=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=8,.process=identity(),
-    .kind=NXS_TEXTFIELD,.control=1,.text_size=length,.unmodified_size=length,.key=logical,.modifiers=modifiers};
+    .kind=transport_kind,.control=1,.text_size=length,.unmodified_size=length,.key=logical,.modifiers=modifiers};
   if(length){memcpy(req+1,text,length);memcpy((char *)(req+1)+length,text,length);}
   struct NXSResponse *r=exchange_bytes(req,size);free(req);assert(r&&r->parts[3].x==NXS_INPUT_HANDLED);
 }
@@ -93,15 +94,24 @@ static void idle_cpu(pid_t helper)
 }
 int main(int argc,char **argv)
 {
+  if(argc>3&&!strcmp(argv[3],"--multiline"))transport_kind=NXS_TEXTAREA;
   assert(argc>=3&&bridge_connect(argv[1]));pid_t helper=atoi(argv[2]);assert(helper>0);
   int notifier=eventfd(0,EFD_CLOEXEC|EFD_NONBLOCK);assert(notifier>=0);
   struct NXSControlRequest owner={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=15,.process=identity()};
   struct NXSResponse *r=exchange_bytes_descriptor(&owner,sizeof(owner),notifier);assert(r&&r->parts[3].x==1);
   assert(native_text_filter_register(filter));
-  r=request(1);assert(r->width==180&&r->height==24);
+  r=request(1);assert(r->width==180&&r->height==(transport_kind==NXS_TEXTAREA?96:24));
+  if(transport_kind==NXS_TEXTAREA) {
+    assert(model("First\nSecond\nThird\nFourth\nFifth\nSixth\nSeventh\nEighth\nNinth\nTenth\n",0,0));
+    r=request(32);assert(r->parts[3].x==1&&r->parts[6].height>r->parts[5].height);
+    struct NXSControlRequest scroll={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=33,.process=identity(),
+      .kind=transport_kind,.control=1,.x=1e9,.y=1e9};
+    r=exchange_bytes(&scroll,sizeof(scroll));assert(r&&r->parts[3].x==1&&r->parts[5].y>0);
+    r=request(33);assert(r->parts[3].x==1&&r->parts[5].y==0);
+  }
   assert(model("Hello",1,2));
   struct NXSControlInputRequest focus={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=7,.process=identity(),
-    .kind=NXS_TEXTFIELD,.control=1,.focused=1};
+    .kind=transport_kind,.control=1,.focused=1};
   r=exchange_bytes(&focus,sizeof(focus));assert(r&&r->parts[3].x==1);
   expected_value="Hello";expected_start=1;expected_length=2;expected_text="X";
   key(NXS_KEY_TEXT,"X");value("Hello");assert(proposals==1&&request(5)->parts[2].width==0);

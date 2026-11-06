@@ -1,0 +1,1502 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "570c5947",
+  "status": "Native multiline provider, transport and pinned-browser keyboard/edit transactions qualified; browser viewport/layout integration and full objective remain unfinished",
+  "provider": {
+    "result": {
+      "native_multiline": true,
+      "images": 3,
+      "native_viewport_and_clamping": true,
+      "native_scrollbar_pointer": true,
+      "native_double_triple_click": true,
+      "line_navigation": true,
+      "newline": true,
+      "native_tab": true,
+      "preedit_veto": true,
+      "utf16": true,
+      "read_only": true,
+      "disabled": true,
+      "busy_destruction_rejected": true
+    },
+    "independent_reference": {
+      "native_reference_images": 3
+    },
+    "pixel_equality": {
+      "short": true,
+      "scrolling": true,
+      "wrapped": true
+    },
+    "older_provider": {
+      "older_provider_rejects_multiline": true
+    }
+  },
+  "transport": {
+    "native_pre_edit_ipc": true,
+    "proposals": 8,
+    "nested_reads": 16,
+    "nested_mutations_rejected": 8,
+    "other_process_request_during_validation": true,
+    "cancelled_typing_and_deletion": true,
+    "accepted_typing_and_deletion": true,
+    "callback_peer_loss_veto": true,
+    "expired_decision_veto": true,
+    "destroy_during_validation": true,
+    "idle_after_expiry_and_destroy": true,
+    "explicit_unregister": true,
+    "native_application_command_ipc": true,
+    "application_command_validation": true,
+    "command_nested_reads_and_mutation_rejection": true,
+    "command_peer_loss_veto": true,
+    "command_expiry_veto": true,
+    "command_frame_destruction": true,
+    "command_idle_after_expiry_and_destroy": true,
+    "late_command_before_current_edit_decision": true,
+    "late_menu_before_current_edit_decision": true
+  },
+  "existing_regressions": {
+    "sections": 32,
+    "native_text": {
+      "native_text_controls": 2,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    "native_text_filter": {
+      "native_filter_controls": 2,
+      "pre_mutation_value": true,
+      "native_ranges_and_selectors": true,
+      "typing_veto": true,
+      "deletion_veto": true,
+      "cut_veto": true,
+      "paste_proposal": true,
+      "unicode": true,
+      "focus_transfer": true,
+      "model_rebind": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "native_command_filter": {
+      "native_controls": 2,
+      "empty_clipboard_command": true,
+      "application_validation": true,
+      "native_copy_fallback": true,
+      "secure_copy_protected": true,
+      "no_second_edit": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    "legacy_tracking": {
+      "tracked_value": 541.463,
+      "slow_value": 358.537,
+      "alternate_arrow_value": 480
+    },
+    "no_mapped_backing_window": true,
+    "raw": "multiline-suite-01/results.json"
+  },
+  "browsers": {
+    "firefox": {
+      "assertion_rows": 18,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "before-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 6,
+            "end": 6,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\nZ",
+            "start": 12,
+            "end": 12,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42Z\nNext",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 8,
+            "end": 8,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "value": "Beta",
+            "start": 4,
+            "end": 4,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "paste",
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "value": "Read only\nSecond",
+            "start": 0,
+            "end": 0,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 6,
+            "end": 6,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\nZ",
+            "start": 12,
+            "end": 12,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42Z\nNext",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 8,
+            "end": 8,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "value": "Beta",
+            "start": 4,
+            "end": 4,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "paste",
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "value": "Read only\nSecond",
+            "start": 0,
+            "end": 0,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        }
+      ],
+      "raw_file": ".build/native-ui/firefox-multiline-check-04/results.json",
+      "sha256": "eb79aa192088621471e05eb316158bf37f6f699c0febe9fff882497b5d0200c9"
+    },
+    "chromium": {
+      "assertion_rows": 18,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "before-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "end": 6,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 6,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "before-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 10,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "before-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "before-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "before-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "end": 12,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 12,
+            "value": "Alpha\nBeta\nZ"
+          }
+        },
+        {
+          "case": "before-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 10,
+            "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42Z\nNext"
+          }
+        },
+        {
+          "case": "before-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "end": 8,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 8,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "before-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "end": 4,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "paste"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 4,
+            "value": "Beta"
+          }
+        },
+        {
+          "case": "before-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 0,
+            "value": "Read only\nSecond"
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "end": 6,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 6,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 10,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "after-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "after-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "after-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "end": 12,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 12,
+            "value": "Alpha\nBeta\nZ"
+          }
+        },
+        {
+          "case": "after-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 10,
+            "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42Z\nNext"
+          }
+        },
+        {
+          "case": "after-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "end": 8,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 8,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "after-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "end": 4,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "paste"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 4,
+            "value": "Beta"
+          }
+        },
+        {
+          "case": "after-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 0,
+            "value": "Read only\nSecond"
+          }
+        }
+      ],
+      "raw_file": ".build/native-ui/chromium-multiline-check-01/results.json",
+      "sha256": "ccd2287a752a451fd77bb9bae91cb021f238f5350c23b1cfd70846aadd8b255e"
+    }
+  },
+  "session": {
+    "assertion_rows": 40,
+    "all_passed": true,
+    "cases": [
+      {
+        "case": "session-starts-shared-native-host",
+        "passed": true
+      },
+      {
+        "case": "session-private-endpoint",
+        "passed": true
+      },
+      {
+        "case": "shared-model-and-global-key-capabilities",
+        "passed": true
+      },
+      {
+        "case": "session-retains-original-client-endpoint",
+        "passed": true
+      },
+      {
+        "case": "dbus-activation-inherits-native-endpoint",
+        "passed": true
+      },
+      {
+        "case": "real-host-advertises-wayland-consumer",
+        "passed": true,
+        "result": "(@a(uso) [],)"
+      },
+      {
+        "case": "host-does-not-claim-x11-registration",
+        "passed": true
+      },
+      {
+        "case": "headless-keyboard-keymap-ready",
+        "passed": true
+      },
+      {
+        "case": "browser-launched-by-workspace",
+        "passed": true
+      },
+      {
+        "case": "unchanged-browser-owned-session",
+        "passed": true
+      },
+      {
+        "case": "workspace-automatically-selects-native-menu",
+        "passed": true
+      },
+      {
+        "case": "session-startup-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "workspace-restarts-with-new-private-menu-role",
+        "passed": true
+      },
+      {
+        "case": "workspace-recovery-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "before-host-loss-normal-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "before-host-loss-normal-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-normal-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-password-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "before-host-loss-password-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-password-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-urlbar-input-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "before-host-loss-urlbar-input-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-urlbar-input-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "host-restart-replays-current-native-menu",
+        "passed": true
+      },
+      {
+        "case": "host-restart-preserves-live-field-models",
+        "passed": true
+      },
+      {
+        "case": "same-client-socket-serves-replacement-host",
+        "passed": true
+      },
+      {
+        "case": "native-host-recovery-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "after-host-loss-normal-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-host-loss-normal-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-normal-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-password-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-host-loss-password-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-password-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-urlbar-input-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-host-loss-urlbar-input-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-urlbar-input-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "browser-sandbox-retained",
+        "passed": true
+      },
+      {
+        "case": "ordinary-session-exit",
+        "passed": true
+      },
+      {
+        "case": "native-host-stops-before-display-teardown",
+        "passed": true
+      },
+      {
+        "case": "session-removes-native-endpoint-and-state",
+        "passed": true
+      }
+    ],
+    "workspace": "Actual Workspace connection classes in ShellConnectionProbe; no full Workspace/PAM deployment",
+    "hook": "No-op session hook"
+  },
+  "focus_setup": "Firefox checker selects gBrowser.selectedBrowser before content DOM focus, and dismisses its original auto-hidden menu bar between independent Alt/clipboard cases. DOM focus alone did not prove actual keyboard routing. This setup does not close the original menu integration gap.",
+  "runtime": {
+    "sha256": {
+      "/var/tmp/nextspace-native-ui/chromium-multiline-02-hook.so": "2745e843185d584ce5aac6a80806d2c55d53cfb5afb7d1709805bff914c38b00",
+      "/var/tmp/nextspace-native-ui/firefox-multiline-02-hook.so": "fb846fb161a904e2e052d37ff67be9db1a8472a696b5ff87e5a26de5de00691c",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-native-ui/multiline-stage-02/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "7928ced320d52d5ab411f2e61d877352d22fc8eaf9bb6261368a656246da8ec8",
+      "/var/tmp/nextspace-native-ui/multiline-stage-02/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "e3c7d15d9df237644fe4c82c4aa483674372cd2afb4a2d90a2f36c791c9ce6cc",
+      "/var/tmp/nextspace-native-ui/multiline-stage-02/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "c1b816553a6e174560052e839e7ffd99049a3c61feca318902c47bef555bdfa1"
+    },
+    "package_count": 1050,
+    "api": {
+      "version": 1,
+      "previous_bytes": 384,
+      "current_bytes": 408
+    },
+    "staged_modules_match_source": {
+      "ChromiumScrollers/native_controls.py": "Experiments/ChromiumScrollers/native_controls.py",
+      "ChromiumScrollers/helper.py": "Experiments/ChromiumScrollers/helper.py"
+    }
+  },
+  "binary_boundary": "Only provider/loader/shim, small probes and browser preload adapters rebuilt. Both browser executables, libxul and installed AppKit retain previous hashes; no browser or AppKit source rebuild.",
+  "sandbox": [
+    {
+      "pid": 46223,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46229,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46239,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46251,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46896,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46904,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46137,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46905,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 46183,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    }
+  ],
+  "cleanup": {
+    "session": {
+      "pids": [
+        45986,
+        45989,
+        45990,
+        45994,
+        45995,
+        45999,
+        46005,
+        46013,
+        46025,
+        46030,
+        46066,
+        46073,
+        46079,
+        46086,
+        46108,
+        46111,
+        46137,
+        46144,
+        46183,
+        46221,
+        46223,
+        46229,
+        46239,
+        46251,
+        46331,
+        46337,
+        46345,
+        46354,
+        46382,
+        46736,
+        46785,
+        46816,
+        46819,
+        46821,
+        46825,
+        46826,
+        46828,
+        46860,
+        46863,
+        46864,
+        46883,
+        46896,
+        46904,
+        46905,
+        46978,
+        46999,
+        47023,
+        47024
+      ],
+      "live": []
+    },
+    "process_scan": "No live multiline-browser, multiline-suite, gdb or strace fixture processes. Both task CDP forwards cancelled; Chromium automation detached before ordinary session teardown.",
+    "package_count": 1050
+  },
+  "retained_failures": {
+    "default_compiler": "Initial fresh CMake build selected GCC, which rejected the installed GNUstep runtime flags. Fresh build-02 explicitly selects clang, matching the existing build configuration.",
+    "readonly_result": "Initial probe required every key to return handled. Native read-only NSTextView forwards ordinary typing as unhandled while keeping its value; corrected fixture checks that native result and no mutation.",
+    "single_line_selection": "Caching currentEditor before NSTextField.setStringValue broke pre-edit deletion after a model update. Re-read the native editor after the update to retain the existing pending-selection policy; full regression passes.",
+    "scrolling_setup": "Initial independent reference/provider images matched but both clipped long text. Native maximum/minimum sizing must be configured before resizability, and programmatic model updates call native sizeToFit. Corrected reference asserts document height exceeds viewport and proves real native scrollbar clicking.",
+    "firefox_startup": "Calling new libxul instruction guards during preload initialization read an unresolved base. Move them into the existing post-load, build-ID-verified install path.",
+    "firefox_focus": "Early actual-seat test sent keys to the real address editor despite content document.hasFocus(). Explicit actual browser-pane focus fixes test setup; native 9 line navigation then passes.",
+    "clipboard_ordering": "Wait for the actual copy event before replacing the application value; dismiss the existing Firefox auto-hidden menu bar between independent cases. Original menu-bar integration remains open."
+  },
+  "raw_evidence": ".build/native-ui/multiline-evidence",
+  "raw_sha256": {
+    "multiline-browser-05/cleanup.json": "2e8a0573e5e552232adbf5a477284015733575359771fe1e469dd1deb0a2c83c",
+    "multiline-browser-05/results.json": "ecbc479f5ab1982dfb42002f11e2d2b8bfc94c872ba345f427ceb655a3ad0259",
+    "multiline-browser-05/session.stderr": "583557e6ff3caf5e89014e1e0cc07891975c454183507e5db2bc739da59571e0",
+    "multiline-provider-check-06/cleanup.json": "a1dbf725d8d5f1f9125af07701c7ff4343871d38cbbe2f1ec25fa044091a94c7",
+    "multiline-provider-check-06/results.json": "1bd5d887167ce8c05ac7040ecb9b467fb431169cfdab6c747a22bcbc418008a4",
+    "multiline-suite-01/results.json": "68e904f3a53e82ca83beb39da537c5f076b33994116c4d5ff663cc9b0a71fccb",
+    "multiline-suite-01/transport-animation/results.json": "9ebfa7826969fca11485e31b044e372514cf1e7d17a348028586bf779c3e6115",
+    "multiline-suite-01/transport-notifications/results.json": "79de5b3ba448daad531869aec468706290a9eca093d218e65d9fe003c4714d39",
+    "multiline-suite-01/transport-popup/results.json": "57f7da5ddfef8df2b04b04d34db02bf1c2e3ba6dd39b3a2690e185cfd98bc825",
+    "multiline-suite-01/transport-text/results.json": "7bfdd8c72b8f6863fee69ab087bf11c796888f76d2d78824ef19676f4fb8e1db",
+    "multiline-suite-01/transport-transport/results.json": "fa092247283cd0dd44b1baab6e7cdb116591e6797d1da26f0e2b33529d9d113f",
+    "runtime.json": "133ea612087d4452b8144b8d1d21fb81f5b0613d3d6fa40407a1703012bbf834"
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "86a1595f29c3f7b2e6621c82443761f16810131e072391d97892fcb48e610068",
+    "Experiments/ChromiumScrollers/forms-input.inc": "acb0c7b96066793050d46947ab2bd83968c77b6e9f496006827e8669858eb1b2",
+    "Experiments/ChromiumScrollers/forms-text.inc": "17296b4411380225e9c01ab4380a2036860abe68cd5c16fa824798c8c371ac0d",
+    "Experiments/ChromiumScrollers/forms.inc": "66553e4039a0c538c919f374ecab3f1b72dc744e7a7a7c760b4765e5553eda32",
+    "Experiments/ChromiumScrollers/hook.c": "008fd858e3a760752d627578c5668f1205a6cb2c6cc157dc8ec281081fbb3e41",
+    "Experiments/ChromiumScrollers/native_controls.py": "33ab543a17942175bbe62d350cb460d6da3b4e229d4a233a0c8db55171fd405f",
+    "Experiments/ChromiumScrollers/pinned-multiline.h": "887074e79cbf6780004a9329740bfb92a86eb5cea3e28dc4fdcd9b6fc9191cce",
+    "Experiments/ChromiumScrollers/test-multiline.html": "21faedbcc4f959372e8fd6c3cd827951a6e19b01d9b4d771404701eb1100f765",
+    "Experiments/FirefoxNativeUI/README.md": "e406b93fa93673b414df21e3948ec444536c2f1b47c36e1d85197a42829ae78e",
+    "Experiments/FirefoxNativeUI/commands.inc": "e1c7b6d31d4554f8cd1bbdc504c59cc6d447278fd48997fa1e7dc57abaf9331e",
+    "Experiments/FirefoxNativeUI/controls.inc": "474071607477fd9fae6191c6dc9255aa1a4d711b5a3d5a75489f6a162e2b5ee9",
+    "Experiments/FirefoxNativeUI/hook.c": "2ff6adde1eb5dd901d972a3938f844ff86080b2daec19537fb860273dd4fb1a8",
+    "Experiments/FirefoxNativeUI/pinned-multiline.h": "87dbccb067b00d11b1803aa60bf1c5af6a4b47a54ad77d454e5751d181b51035",
+    "Experiments/FirefoxNativeUI/text.inc": "8ad481a8f836859c99c20601821dc1c1fe75371a0a5e6d6871293d846c3f83a8",
+    "Libraries/NativeUI/Bridge/Protocol.h": "a6755f7ac1461fa50bdfb7c8b596a2c12ab3041929998b1be7e974526dbec346",
+    "Libraries/NativeUI/Bridge/README.md": "5481d60f778c9ccb0bd137ebb3bf7ac8c18733a16b23988f8d1af6814fc1012b",
+    "Libraries/NativeUI/CMakeLists.txt": "4035899f258563529db84f48041cc82091f7028baad25c22d40e91e32ea6a2aa",
+    "Libraries/NativeUI/GNUstep/Controls.m": "f5a4c48ad2c68c96dd94ad9b3a8b8de39fe732b066c3bc6096bb2f6a2171af08",
+    "Libraries/NativeUI/GNUstep/Provider.h": "b4fbeab8c2d74af3d5b69f19c0b558065458b3b12b9a3ae02327930fbe57aa92",
+    "Libraries/NativeUI/GNUstep/Provider.m": "3d9ab0048195b0e2e73e6e1c265d81d09f9ff0b169a31562aa3808f1399e32b3",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "0f7e74097e720d326c4bafc72e093703115b98d65ad2d972d2dfa5a2674185ad",
+    "Libraries/NativeUI/Loader.c": "866e5a2bd179189a99984d1bd0c7dc7e75f71ba99bdd69aec3a74f215b4a1005",
+    "Libraries/NativeUI/NativeUI.h": "c154acb368b379562ee7c2218aee4b774b7c639059e5d2803dfe094560698b6d",
+    "Libraries/NativeUI/README.md": "0f5452575eaad8ba81f422bc7e7d79240ee05712ec3444dac9f62eddc65bb583",
+    "Tests/NativeUI/multiline-probe.m": "f1370906f6f8a9b3961043122b9062c74b867dc00fff52e4e6bcdfe9327a207b",
+    "Tests/NativeUI/run.py": "36fbf2086a7af06294f75c069ce100c19b59524940b759265ac6c34deabd12f1",
+    "Tests/NativeUI/text-transport-probe.c": "822a54952645f39b6cfd23de6decabf1817273fc1aa137f9c36612e172d85aa7",
+    "Tests/Wayland/native_ui_multiline.py": "4ad233a2526f7f886fa79b460735e2e0f4f9be37fabe956448d4356b141e9b37",
+    "Tests/Wayland/native_ui_session.py": "5f99bc8fcab82a42b8bf11e993a46144d3f671872a0b1ccd95a5cf7aa3bab391",
+    "docs/Native-Control-Integration.md": "74065437274a8bf41a9574682af3d3e306b9002e45ebeb9031997aad2d3867e8"
+  },
+  "remaining": [
+    "Connect native viewport/document geometry to each browser DOM scroll and layout contract, including scrollTop/scrollLeft/scrollHeight, complete scrollbar ownership and scroll events.",
+    "Qualify textarea browser pixels, pointer dragging/autoscroll, resize, disabled state, wrap modes and styling; current independent pixel and native-scrollbar pointer references qualify the provider, not the complete browser embedding.",
+    "Remove Firefox original auto-hidden menu-bar interference after native Alt shortcuts. The independent clipboard cases currently dismiss it and select the actual browser pane before content focus.",
+    "Multiline Undo/Redo and broader text commands; IME, rich text/contenteditable, accessibility, mixed output scaling, other browser frontend controls, dialogs and installed-desktop integration.",
+    "Automatic adapter installation/build selection; Chrome, Vivaldi and Firefox derivatives remain unqualified. Continue remaining GTK/Qt/KDE applications after the browser families."
+  ]
+}

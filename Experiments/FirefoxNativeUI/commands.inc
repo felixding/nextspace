@@ -39,7 +39,8 @@ static int application_text_command_enabled(void *node,const char *selector) {
     if(!strcmp(selector,text_commands[n].selector)){name=text_commands[n].name;break;}
   if(!name)return -1;
   void *controllers=NULL,*controller=NULL;uint8_t enabled=0;
-  uint32_t status=((uint32_t (*)(void *,void **))(base+0x589119c))(node,&controllers);
+  uintptr_t getter=node_kind(node)==NXS_TEXTAREA?NXS_GECKO_MULTILINE_CONTROLLERS_OFFSET:0x589119c;
+  uint32_t status=((uint32_t (*)(void *,void **))(base+getter))(node,&controllers);
   if(!(status&0x80000000u)&&controllers) {
     status=((uint32_t (*)(void *,const char *,void **))(*(uintptr_t **)controllers)[3])(controllers,name,&controller);
     if(!(status&0x80000000u)&&controller) {
