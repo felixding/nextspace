@@ -48,14 +48,35 @@ its owned Marionette session, while a native submenu is held.
 
 The retained runs verify actual File > New Tab activation, native menubar and
 submenu mapping, browser exit during a held submenu and clean native-host exit.
-The existing 83 Firefox clipboard checks pass with menu export enabled. See
+The earlier static-menu fixture passed 83 Firefox clipboard checks with export enabled. See
 [source receipts](source-audit.json) and [qualification](qualification.json).
 
-This remains a single-window experiment. Automatic active-window/shell
-association, a production registrar, and keyboard routing shared with the native
-text-editor host are not connected. Native submenu lifecycle callbacks are needed
-for Firefox's lazy bookmarks/history and Edit command updates. Do not replace
-those callbacks by opening every application submenu during initialization.
-Live property/hierarchy handling, complete special-key and multi-chord metadata,
-window/bus replacement and broader application integration remain unqualified.
-The 99 projected entries do not prove that every menu command works.
+## Native submenu lifecycle
+
+Pass `--lifecycle` with a provider advertising `NXS_MENU_LIFECYCLE` to prepare
+lazy submenus through real native open/close callbacks. This sends the exporter
+its actual opened/closed events, then reads the current layout. Only the branch
+being opened is replaced before GNUstep sizes and tracks it.
+
+Firefox may rebuild every exported item when a submenu opens. `menu_model.py`
+keeps opaque native identities separate from exporter IDs. It matches stable
+IDs first, then uniquely matching sibling metadata, and retires ambiguous
+identities. Layout updates continue during tracking; command execution resolves
+the latest exporter ID. The model contains no native widget implementation.
+
+`check-lifecycle.py` uses an owned Firefox fixture to exercise native Edit Undo
+and Redo and a three-level real Places bookmark menu. Clear the navigation
+fragment and await the exported fixture model before each bookmark gesture.
+`Tests/NativeUI/check-dbus-menu-model.py` checks identity churn and atomic
+rejection independently of the browser.
+
+The current experiment does not complete browser integration. After menu
+interactions, the existing Firefox clipboard suite can stop because Escape does
+not restore the internal menubar's inactive state. Native keyboard routing and
+browser focus/lifecycle integration need further work. Ambiguous rebuilt sibling
+identities, changes to an already visible branch, special-key metadata, desktop
+association, bus recovery and other browser/toolkit controls remain open.
+
+See [lifecycle qualification](lifecycle-qualification.json) for current results
+and retained failures; [qualification.json](qualification.json) records the
+earlier static menu checkpoint.

@@ -104,7 +104,8 @@ enum NXSMenuFlag {
 enum NXSMenuModifier {
   NXS_MENU_COMMAND=1, NXS_MENU_SHIFT=2, NXS_MENU_CONTROL=4, NXS_MENU_ALTERNATE=8
 };
-enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2 };
+enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2, NXS_MENU_LIFECYCLE=4 };
+enum NXSMenuLifecyclePhase { NXS_MENU_WILL_OPEN, NXS_MENU_DID_CLOSE };
 typedef struct {
   uint32_t size;
   int32_t parent; /* -1 for root; otherwise an earlier SUBMENU item index. */
@@ -120,6 +121,10 @@ typedef struct {
 /* Return one for enabled/executed, zero for rejected. Commands are opaque
  * application IDs; native menus own matching, validation and action dispatch. */
 typedef int (*NXSMenuCommand)(void *context,uint64_t command,unsigned phase);
+/* WILL_OPEN may refresh this branch before native layout/tracking enters it.
+ * Return zero to cancel opening. DID_CLOSE balances each WILL_OPEN, including
+ * rejected/cancelled preparation; its return value is ignored. */
+typedef int (*NXSMenuLifecycle)(void *context,uint64_t branch,unsigned phase);
 
 /* The provider owns all native objects, metrics, drawing and interaction.
  * Consumers own application models and translate events through this C ABI.
@@ -174,6 +179,8 @@ typedef struct {
   int (*menu_key)(NXSMenu *,const NXSKeyEvent *);
   NXSMenuState (*menu_state)(NXSMenu *,int);
   int (*menu_cancel)(NXSMenu *);
+  int (*menu_lifecycle)(NXSMenu *,NXSMenuLifecycle,void *);
+  int (*menu_branch_items)(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_t);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -269,6 +276,16 @@ NXSMenuState nxs_menu_state(NXSMenu *,int index);
  * command execution, ends the native tracking loop and hides owned menus;
  * destruction remains deferred until dispatch returns. */
 int nxs_menu_cancel(NXSMenu *);
+/* Optional native submenu lifecycle. Register while hidden and idle. With a
+ * lifecycle handler, every non-separator item, including SUBMENU, needs a
+ * unique nonzero opaque command ID. Root ID zero is reserved. */
+int nxs_menu_lifecycle(NXSMenu *,NXSMenuLifecycle,void *);
+/* Replace only an invisible branch's children. Parent indices are relative
+ * to the supplied branch model, with -1 for direct children. During tracking
+ * this is allowed only for the branch's own WILL_OPEN callback. Other model
+ * mutation remains rejected. Successful replacement invalidates flattened
+ * item indices, but preserves the branch object and surrounding native menus. */
+int nxs_menu_branch_items(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_t);
 
 #ifdef __cplusplus
 }

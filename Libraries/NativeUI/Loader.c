@@ -122,7 +122,7 @@ unsigned nxs_control_command_capabilities(void)
 int nxs_control_command_filter(NXSControl *c,NXSCommandFilter filter,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_command_filter)?p->control_command_filter(c,filter,context):0;}
 unsigned nxs_native_ui_menu_capabilities(void)
-{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_create)&&HAS_INPUT(p,menu_destroy)&&HAS_INPUT(p,menu_items)&&HAS_INPUT(p,menu_show)&&HAS_INPUT(p,menu_key)&&HAS_INPUT(p,menu_state)?NXS_MENU_MODELS|(HAS_INPUT(p,menu_cancel)?NXS_MENU_CANCEL:0):0;}
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_create)&&HAS_INPUT(p,menu_destroy)&&HAS_INPUT(p,menu_items)&&HAS_INPUT(p,menu_show)&&HAS_INPUT(p,menu_key)&&HAS_INPUT(p,menu_state)?NXS_MENU_MODELS|(HAS_INPUT(p,menu_cancel)?NXS_MENU_CANCEL:0)|(HAS_INPUT(p,menu_lifecycle)&&HAS_INPUT(p,menu_branch_items)?NXS_MENU_LIFECYCLE:0):0;}
 NXSMenu *nxs_menu_create(const char *title,NXSMenuCommand command,NXSPump pump,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return nxs_native_ui_menu_capabilities()?p->menu_create(title,command,pump,context):NULL;}
 int nxs_menu_destroy(NXSMenu *menu)
@@ -137,3 +137,7 @@ NXSMenuState nxs_menu_state(NXSMenu *menu,int index)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_state)?p->menu_state(menu,index):(NXSMenuState){.size=sizeof(NXSMenuState),.highlighted=-1};}
 int nxs_menu_cancel(NXSMenu *menu)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_cancel)?p->menu_cancel(menu):0;}
+int nxs_menu_lifecycle(NXSMenu *menu,NXSMenuLifecycle callback,void *context)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_lifecycle)?p->menu_lifecycle(menu,callback,context):0;}
+int nxs_menu_branch_items(NXSMenu *menu,uint64_t branch,const NXSMenuItem *items,uint32_t count)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_branch_items)?p->menu_branch_items(menu,branch,items,count):0;}

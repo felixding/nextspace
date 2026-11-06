@@ -44,3 +44,5 @@ int nxs_gnustep_menu_show(NXSMenu *,int);
 int nxs_gnustep_menu_key(NXSMenu *,const NXSKeyEvent *);
 NXSMenuState nxs_gnustep_menu_state(NXSMenu *,int);
 int nxs_gnustep_menu_cancel(NXSMenu *);
+int nxs_gnustep_menu_lifecycle(NXSMenu *,NXSMenuLifecycle,void *);
+int nxs_gnustep_menu_branch_items(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_t);

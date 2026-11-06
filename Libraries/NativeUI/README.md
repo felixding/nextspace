@@ -120,6 +120,19 @@ Application callbacks enter the same pump scope as native tracking, so nested
 event dispatch cannot start another native input operation before returning an
 outer validation RPC.
 
+The optional `NXS_MENU_LIFECYCLE` capability appends two functions, growing the
+ARM64 API to 376 bytes without changing ABI 1 or earlier offsets.
+`nxs_menu_lifecycle()` registers balanced open/close callbacks while the menu is
+hidden. `nxs_menu_branch_items()` replaces an invisible branch's children,
+including from its own WILL_OPEN callback before native sizing. Other mutations
+remain forbidden while tracking. Non-separator items, including submenu parents,
+need unique nonzero opaque IDs; flattened indices can change after replacement.
+The provider adds lifecycle calls around inherited `NSMenuView` attachment and
+`NSMenu` display/close methods. GNUstep continues to implement the controls.
+`Tests/NativeUI/check-menu-lifecycle.py` compares lifecycle-enabled root/submenu
+pixels with the original eager native menus, then exercises lazy/nested
+preparation, rejection, cancellation and compatibility with the 360-byte provider.
+
 The shared browser helper now transports menu models and owner callbacks. It
 advertises menu transport in bootstrap part 5.height only when cancellation is
 available. Operations 24–30 register callbacks, replace model data, show/hide,

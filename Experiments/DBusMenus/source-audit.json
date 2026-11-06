@@ -44,20 +44,23 @@
   ],
   "application_boundary": "Firefox NativeMenuSupport creates its existing MenubarModelDBus when global-menu preferences and libdbusmenu are available. The actual application exports labels, hierarchy, accelerator/toggle/availability metadata and activation callbacks. No menu ELF hooks, DOM extraction or browser rebuild are added.",
   "wayland_boundary": "Firefox checks registrar name ownership, then sets its D-Bus address through org_kde_kwin_appmenu. The compositor retains metadata on the owning surface and sends it only to the authorized shell through version 19. Existing application controls and standard Wayland ownership stay separate.",
-  "native_boundary": "The generic Python importer calls the existing NativeUI menu C API, backed by installed GNUstep NSMenu/NSMenuItem objects. It sends the existing D-Bus Event(clicked) method asynchronously; the browser owns command behavior. There is no widget drawing/layout/tracking or browser command shortcut table.",
+  "native_boundary": "The generic importer binds application data to actual installed GNUstep NSMenu/NSMenuItem controls through NativeUI. The opt-in lifecycle path prepares an invisible branch before inherited native sizing/tracking and balances opened/closed events. NativeMenuView attachment and NSMenu display/close methods add lifecycle calls around inherited behavior. No layout, drawing, hit testing, tracking loop or shortcut table is copied.",
   "authentication": "Resolve a unique session-bus owner, compare GetConnectionUnixProcessID with the compositor-provided window PID, and pin calls/signals to that unique owner. Wayland address metadata by itself is not D-Bus authentication.",
   "findings": [
     "Firefox Wayland export requires both widget.gtk.global-menu.enabled and widget.gtk.global-menu.wayland.enabled, two libdbusmenu runtime libraries, a registrar name and the KDE Wayland app-menu manager. Test preferences affect only isolated profiles.",
     "The two Debian packages were extracted under /var/tmp without installation. The public fixture name holder implements no X11 registration methods and is not a production desktop registrar.",
-    "Firefox MenubarModelDBus uses opened/closed events for popup lifecycle. Native submenu lifecycle callbacks are still required for lazy contents and correct Edit command updates; opening every submenu at initialization would substitute different behavior.",
+    "Firefox MenubarModelDBus uses opened/closed events for popup lifecycle and can rebuild every remote item ID when a lazy branch opens. NativeUI supplies real native lifecycle callbacks; opaque native identities remain separate from exporter IDs, with ambiguous rebuilt identities retired.",
     "The compositor keeps an inert protocol object after surface destruction, and rejects duplicate objects on one owned surface. Metadata update/release invalidates the regular window snapshot rather than maintaining a second string cache.",
-    "Compositor frame acknowledgment can precede AppKit visibility/highlight changes. Tests must request and await a fresh NativeUI snapshot before using item geometry or releasing a highlighted leaf."
+    "Compositor frame acknowledgment can precede AppKit visibility/highlight changes. Tests must request and await a fresh NativeUI snapshot before using item geometry or releasing a highlighted leaf.",
+    "The API appends lifecycle/branch replacement slots after byte 360, retaining ABI 1 with a 376-byte ARM64 struct and menu capabilities 7. The 360-byte provider rejects lifecycle safely.",
+    "GNUstep menuNeedsUpdate is also called outside submenu opening, so it cannot substitute for actual native attach/display lifecycle. The provider subclasses only the lifecycle seam, retaining native superclass behavior.",
+    "Fourteen physical lifecycle checks include pixel equality with the original eager native menus. Ten Firefox checks qualify native Undo/Redo and real nested Places bookmark navigation; the separate clipboard suite currently stops at the internal menubar dismissal precondition."
   ],
   "remaining": [
-    "Automatic authenticated shell/window/focus association and a production registrar.",
-    "Native open/close callbacks for lazy menus and correct Edit/Undo availability; full live hierarchy/property behavior.",
-    "Keyboard routing shared with the native editor host, complete key/mnemonic/multi-chord metadata.",
-    "Window replacement, bus replacement/recovery, scaling/accessibility and the remaining browser controls/dialogs.",
+    "Native keyboard routing shared with the editor helper and correct Firefox menubar/focus lifecycle after native menu interactions.",
+    "Automatic authenticated desktop application/window/focus association and production registrar.",
+    "Ambiguous rebuilt sibling identities, live updates to already visible branches, complete special-key and multi-chord metadata, icons and torn-off menus.",
+    "Bus/window replacement and recovery, remaining browser controls/dialogs, IME, accessibility and scaling.",
     "Chrome/Vivaldi/Firefox derivatives and complete GTK/Qt/KDE integration."
   ]
 }

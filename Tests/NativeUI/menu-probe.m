@@ -100,7 +100,7 @@ int main(int argc,char **argv)
  }
  NSAutoreleasePool *pool=[NSAutoreleasePool new];
  struct Probe p={.allow=1};p.menu=nxs_menu_create("Native menu fixture",command,pump,&p);assert(p.menu);
- assert(nxs_native_ui_menu_capabilities()==(NXS_MENU_MODELS|NXS_MENU_CANCEL));
+ assert((nxs_native_ui_menu_capabilities()&(NXS_MENU_MODELS|NXS_MENU_CANCEL))==(NXS_MENU_MODELS|NXS_MENU_CANCEL));
  if(argc>1&&!strcmp(argv[1],"--reference")) {
   assert(nxs_menu_destroy(p.menu));reference();puts("{\"event\":\"reference-live\"}");
   while(!feof(stdin)) {

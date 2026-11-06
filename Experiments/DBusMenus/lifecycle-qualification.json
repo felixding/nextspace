@@ -1,0 +1,1237 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "9583cb2d",
+  "status": "Experimental native lazy menus and Firefox Edit/bookmark actions; full native browser/toolkit integration remains incomplete",
+  "api": {
+    "abi": 1,
+    "arm64_bytes": 376,
+    "menu_capabilities": 7,
+    "previous_360_byte_capabilities": 3
+  },
+  "verification": {
+    "native_lifecycle": [
+      {
+        "case": "lifecycle-inherits-native-root-pixels",
+        "passed": true
+      },
+      {
+        "case": "lifecycle-inherits-native-submenu-pixels",
+        "passed": true
+      },
+      {
+        "case": "older-provider-rejects-lifecycle",
+        "passed": true,
+        "stdout": "{\"unsupported_lifecycle_rejected\":true}\n",
+        "stderr": ""
+      },
+      {
+        "case": "empty-lazy-branch-enabled",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": 0,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0,
+            0,
+            123,
+            63
+          ],
+          "item": [
+            1,
+            23,
+            122,
+            20
+          ],
+          "opens": 0,
+          "closes": 0,
+          "actions": 0,
+          "last": 0
+        }
+      },
+      {
+        "case": "native-open-populates-branch",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": 1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            123,
+            0,
+            94,
+            83
+          ],
+          "item": [
+            124,
+            23,
+            93,
+            20
+          ],
+          "opens": 1,
+          "closes": 0,
+          "actions": 0,
+          "last": 0
+        }
+      },
+      {
+        "case": "refreshed-native-disabled-item",
+        "passed": true
+      },
+      {
+        "case": "unrelated-branch-retained",
+        "passed": true
+      },
+      {
+        "case": "prepared-native-action",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": -1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0,
+            0,
+            123,
+            63
+          ],
+          "item": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "opens": 1,
+          "closes": 1,
+          "actions": 1,
+          "last": 200
+        }
+      },
+      {
+        "case": "nested-native-prepare",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": 4,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            217,
+            0,
+            137,
+            43
+          ],
+          "item": [
+            218,
+            23,
+            136,
+            20
+          ],
+          "opens": 3,
+          "closes": 1,
+          "actions": 1,
+          "last": 200
+        }
+      },
+      {
+        "case": "nested-native-action-and-close",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": -1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0,
+            0,
+            123,
+            63
+          ],
+          "item": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "opens": 3,
+          "closes": 3,
+          "actions": 2,
+          "last": 204
+        }
+      },
+      {
+        "case": "reject-balances-lifecycle",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": -1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": 0,
+          "frame": [
+            0,
+            0,
+            123,
+            63
+          ],
+          "item": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "opens": 1,
+          "closes": 1,
+          "actions": 0,
+          "last": 0
+        }
+      },
+      {
+        "case": "reject-maps-no-submenu",
+        "passed": true
+      },
+      {
+        "case": "cancel-balances-lifecycle",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "index": -1,
+          "visible": 0,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "item": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "opens": 1,
+          "closes": 1,
+          "actions": 0,
+          "last": 0
+        }
+      },
+      {
+        "case": "cancel-maps-no-submenu",
+        "passed": true
+      }
+    ],
+    "transport": [
+      {
+        "case": "pending-reply-survives-nested-menu-RPC",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 0,
+          "idle_callbacks": 0,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "idle-owner-acknowledges-while-worker-awaits-reply",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": 1,
+          "actions": 1,
+          "idle_callbacks": 1,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "owner-RPC-services-callback-before-worker-lock",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": 1,
+          "actions": 1,
+          "idle_callbacks": 0,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "menu-model-crosses-IPC",
+        "passed": true
+      },
+      {
+        "case": "native-state-crosses-IPC",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 0,
+          "idle_callbacks": 0,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            1.0,
+            43.0,
+            123.0,
+            20.0
+          ]
+        }
+      },
+      {
+        "case": "idle-native-action-runs-on-owner",
+        "passed": true,
+        "event": {
+          "event": "menu-command",
+          "command": 2,
+          "phase": 1,
+          "idle": 1
+        }
+      },
+      {
+        "case": "application-command-executes-once",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 1,
+          "idle_callbacks": 2,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "application-validation-rejects-disabled",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 1,
+          "idle_callbacks": 2,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "native-key-matching-through-IPC",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 2,
+          "idle_callbacks": 2,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "bad-model-preserves-live-menu",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 2,
+          "idle_callbacks": 2,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "bad-count-preserves-live-menu",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 2,
+          "idle_callbacks": 2,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "foreign-owner-request-rejected",
+        "passed": true
+      },
+      {
+        "case": "replacement-endpoint-survives-old-decision",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 4,
+          "idle_callbacks": 6,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "late-menu-reply-after-destroy-drained",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 6,
+          "idle_callbacks": 8,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "callback-peer-loss-removes-menu",
+        "passed": true
+      },
+      {
+        "case": "expiry-removes-native-menu",
+        "passed": true
+      },
+      {
+        "case": "expired-validation-does-not-execute",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 0,
+          "visible": 0,
+          "tracking": 0,
+          "enabled": 0,
+          "highlighted": 0,
+          "actions": 0,
+          "idle_callbacks": 1,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "owner-exit-removes-native-menu",
+        "passed": true
+      },
+      {
+        "case": "helper-remains-live",
+        "passed": true
+      }
+    ],
+    "native_reference": [
+      {
+        "case": "provider-startup",
+        "passed": true
+      },
+      {
+        "case": "detached-native-root",
+        "passed": true,
+        "source": {
+          "index": 0,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0.0,
+            0.0,
+            143.0,
+            123.0
+          ],
+          "item": [
+            1.0,
+            23.0,
+            142.0,
+            20.0
+          ],
+          "actions": 0,
+          "last": 0,
+          "pumps": 0
+        }
+      },
+      {
+        "case": "native-tracking-pumps-owner",
+        "passed": true,
+        "source": {
+          "index": -1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": 0,
+          "frame": [
+            0.0,
+            0.0,
+            143.0,
+            123.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actions": 0,
+          "last": 0,
+          "pumps": 1
+        }
+      },
+      {
+        "case": "held-model-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "held-hide-rejected",
+        "passed": true
+      },
+      {
+        "case": "actual-native-submenu-action",
+        "passed": true,
+        "source": {
+          "index": -1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0.0,
+            0.0,
+            143.0,
+            123.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actions": 1,
+          "last": 64,
+          "pumps": 23
+        }
+      },
+      {
+        "case": "live-application-availability",
+        "passed": true
+      },
+      {
+        "case": "hide-native-window",
+        "passed": true
+      },
+      {
+        "case": "reshow-native-window",
+        "passed": true
+      },
+      {
+        "case": "cancel-held-menu",
+        "passed": true
+      },
+      {
+        "case": "cancel-suppresses-command",
+        "passed": true,
+        "source": {
+          "index": -1,
+          "visible": 0,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actions": 1,
+          "last": 64,
+          "pumps": 48
+        }
+      },
+      {
+        "case": "cancel-removes-native-popup",
+        "passed": true
+      },
+      {
+        "case": "provider-clean-exit",
+        "passed": true,
+        "code": 0
+      },
+      {
+        "case": "reference-startup",
+        "passed": true
+      },
+      {
+        "case": "reference-submenu-remaps",
+        "passed": true
+      },
+      {
+        "case": "reference-clean-exit",
+        "passed": true,
+        "code": 0
+      },
+      {
+        "case": "complete-native-pixels-root",
+        "passed": true
+      },
+      {
+        "case": "complete-native-pixels-submenu",
+        "passed": true
+      }
+    ],
+    "legacy": {
+      "passed": 30,
+      "baseline": "/var/tmp/nextspace-native-ui/command-build",
+      "cases": [
+        "False-normal-1",
+        "False-disabled-1",
+        "False-fitting-1",
+        "False-normal-1.25",
+        "False-disabled-1.25",
+        "False-fitting-1.25",
+        "False-normal-1.5",
+        "False-disabled-1.5",
+        "False-fitting-1.5",
+        "False-normal-1.75",
+        "False-disabled-1.75",
+        "False-fitting-1.75",
+        "False-normal-2",
+        "False-disabled-2",
+        "False-fitting-2",
+        "True-normal-1",
+        "True-disabled-1",
+        "True-fitting-1",
+        "True-normal-1.25",
+        "True-disabled-1.25",
+        "True-fitting-1.25",
+        "True-normal-1.5",
+        "True-disabled-1.5",
+        "True-fitting-1.5",
+        "True-normal-1.75",
+        "True-disabled-1.75",
+        "True-fitting-1.75",
+        "True-normal-2",
+        "True-disabled-2",
+        "True-fitting-2"
+      ]
+    },
+    "firefox_lifecycle": [
+      {
+        "case": "owned-browser",
+        "passed": true
+      },
+      {
+        "case": "owned-original-tab",
+        "passed": true
+      },
+      {
+        "case": "engine-cut-established",
+        "passed": true
+      },
+      {
+        "case": "actual-undo-controller-enabled",
+        "passed": true
+      },
+      {
+        "case": "native-edit-menu-undo",
+        "passed": true,
+        "value": "Undo target"
+      },
+      {
+        "case": "native-edit-menu-redo",
+        "passed": true,
+        "value": ""
+      },
+      {
+        "case": "real-bookmark-fixture-created",
+        "passed": true,
+        "bookmarks": {
+          "folder": "L4tHRzQXORew",
+          "link": "zXCURHllSajy"
+        }
+      },
+      {
+        "case": "native-lazy-bookmark-command",
+        "passed": true,
+        "url": "file:///workspace/Experiments/FirefoxNativeUI/test-text.html#native-menu-bookmark"
+      },
+      {
+        "case": "native-lifecycle-delivers-real-branches",
+        "passed": true,
+        "prepared": 16,
+        "closed": 16
+      },
+      {
+        "case": "no-stale-command-errors",
+        "passed": true
+      }
+    ],
+    "firefox_text_incomplete": [
+      {
+        "case": "owned-browser",
+        "passed": true
+      }
+    ],
+    "shared_suite": {
+      "sections": [
+        "controls",
+        "legacy_tracking",
+        "no_mapped_backing_window",
+        "native_input",
+        "native_backing",
+        "native_mouse",
+        "native_text",
+        "native_command_filter",
+        "native_menu",
+        "previous_provider_without_menus",
+        "previous_provider_without_menu_cancel",
+        "native_command_thread",
+        "native_text_filter",
+        "native_range",
+        "native_popup",
+        "native_animation",
+        "previous_provider_accepted_without_input_extension",
+        "previous_client_unchanged_with_new_provider",
+        "previous_loader_and_client_unchanged_with_new_provider",
+        "alternate_provider_same_client_and_native_behavior",
+        "wrong_provider_abi_rejected",
+        "loader_has_no_ui_toolkit_dependency",
+        "provider_internals_not_exported",
+        "transport_transport",
+        "transport_input",
+        "transport_animation",
+        "transport_notifications",
+        "transport_popup",
+        "transport_text",
+        "transport_text_filter"
+      ],
+      "passed_assertions": 109,
+      "all_assertions_passed": true,
+      "raw": "/var/tmp/nextspace-native-ui/menu-lifecycle-shared-01/results.json"
+    },
+    "identity_model": {
+      "passed": 11,
+      "cases": [
+        {
+          "case": "whole-exporter-rebuild-retains-unique-identities",
+          "passed": true
+        },
+        {
+          "case": "live-properties-and-remote-identifiers-update",
+          "passed": true
+        },
+        {
+          "case": "stable-remote-id-survives-label-change",
+          "passed": true
+        },
+        {
+          "case": "removed-command-token-is-retired",
+          "passed": true
+        },
+        {
+          "case": "native-snapshot-branch-replacement-preserves-original",
+          "passed": true
+        },
+        {
+          "case": "ambiguous-rebuilt-siblings-never-alias",
+          "passed": true
+        },
+        {
+          "case": "stable-ids-disambiguate-duplicate-labels",
+          "passed": true
+        },
+        {
+          "case": "duplicate-id-atomic-rejection",
+          "passed": true
+        },
+        {
+          "case": "bad-child-atomic-rejection",
+          "passed": true
+        },
+        {
+          "case": "bad-shortcut-atomic-rejection",
+          "passed": true
+        },
+        {
+          "case": "bad-root-atomic-rejection",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "environment": {
+    "hashes": {
+      "provider": "42a635d76f5706256502445e7a375fea7abed8b02d0cf48c251be758912fed30",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "5a861aff8636ade7a8a86f3f896f2fbfaa009b8395a76fbaee55c4a3f93b1292",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "1cacfc2edabb6e5f0d6fca54935f0ab75539fa4c1051df585162711e10dea190",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "processes": [
+      {
+        "pid": 13208,
+        "ppid": 13200,
+        "name": "nextspace-compo",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "/var/tmp/nextspace-native-ui/appmenu-compositor-build/nextspace-compositor -c 4 -S 6 "
+      },
+      {
+        "pid": 13211,
+        "ppid": 13200,
+        "name": "dbus-daemon",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "dbus-daemon --session --nofork --print-address=1 "
+      },
+      {
+        "pid": 13212,
+        "ppid": 13200,
+        "name": "python3",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "python3 /workspace/Tests/NativeUI/dbus-menu-registrar.py "
+      },
+      {
+        "pid": 13216,
+        "ppid": 13200,
+        "name": "capture-probe",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "/var/tmp/nextspace-native-ui/appmenu-compositor-build/capture-probe "
+      },
+      {
+        "pid": 13220,
+        "ppid": 13200,
+        "name": "python3",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "python3 /workspace/Experiments/ChromiumScrollers/helper.py --library /var/tmp/nextspace-native-ui/menu-lifecycle-clang-build/libnextspace-native-scroller.so.0.1 --socket /tmp/native-gecko-frontend-5kdinov3/native.sock -GSBackend nextspace-native-ui-lifecycle "
+      },
+      {
+        "pid": 13226,
+        "ppid": 13200,
+        "name": "firefox-esr",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr --no-remote --profile /tmp/native-gecko-frontend-5kdinov3/profile --marionette --remote-allow-system-access file:///workspace/Experiments/FirefoxNativeUI/test-text.html "
+      },
+      {
+        "pid": 13313,
+        "ppid": 13226,
+        "name": "forkserver",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -ipcHandle 0 -signalPipe 1 -initialChannelId {ac57777b-7cac-42df-a88a-2446f5889341} -parentPid 13226 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 1 forkserver "
+      },
+      {
+        "pid": 13316,
+        "ppid": 13313,
+        "name": "Socket Process",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20261022211647 -prefsHandle 0:27142 -prefMapHandle 1:288002 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {fe68d293-6388-4308-a26f-fb26b867464e} -parentPid 13226 -crashHelperPid 13232 -crashHelper 5 -crashReporter 6 -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 2 socket "
+      },
+      {
+        "pid": 13333,
+        "ppid": 13313,
+        "name": "WebExtensions",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -isForBrowser -prefsHandle 0:27773 -prefMapHandle 1:288002 -jsInitHandle 2:156236 -parentBuildID 20261022211647 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {08818b69-3581-42bd-9bc6-1526fe27e827} -parentPid 13226 -crashHelperPid 13232 -crashHelper 6 -crashReporter 7 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 3 tab "
+      },
+      {
+        "pid": 13340,
+        "ppid": 13313,
+        "name": "RDD Process",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20261022211647 -prefsHandle 0:27818 -prefMapHandle 1:288002 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {626d19c9-0133-46b6-99df-d68126b43ba5} -parentPid 13226 -crashHelperPid 13232 -crashHelper 5 -crashReporter 6 -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 4 rdd "
+      },
+      {
+        "pid": 13386,
+        "ppid": 13313,
+        "name": "file:// Content",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -isForBrowser -prefsHandle 0:28175 -prefMapHandle 1:288002 -jsInitHandle 2:156236 -parentBuildID 20261022211647 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {2f570e35-25a2-4e2b-b726-28b9161700b0} -parentPid 13226 -crashHelperPid 13232 -crashHelper 6 -crashReporter 7 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 5 tab "
+      },
+      {
+        "pid": 13424,
+        "ppid": 13313,
+        "name": "Utility Process",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -parentBuildID 20261022211647 -sandboxingKind 0 -prefsHandle 0:43717 -prefMapHandle 1:288002 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {2b55cd9e-4b68-4133-b744-3daf5641bf83} -parentPid 13226 -crashHelperPid 13232 -crashHelper 5 -crashReporter 6 -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 6 utility "
+      },
+      {
+        "pid": 13427,
+        "ppid": 13313,
+        "name": "Web Content",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -isForBrowser -prefsHandle 0:41929 -prefMapHandle 1:288002 -jsInitHandle 2:156236 -parentBuildID 20261022211647 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {2905d353-2112-43e8-914d-a7d04decd301} -parentPid 13226 -crashHelperPid 13232 -crashHelper 6 -crashReporter 7 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 7 tab "
+      },
+      {
+        "pid": 13435,
+        "ppid": 13313,
+        "name": "Web Content",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -isForBrowser -prefsHandle 0:41929 -prefMapHandle 1:288002 -jsInitHandle 2:156236 -parentBuildID 20261022211647 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {05573378-706f-4a4b-b162-6c98f9b44327} -parentPid 13226 -crashHelperPid 13232 -crashHelper 6 -crashReporter 7 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 8 tab "
+      },
+      {
+        "pid": 13441,
+        "ppid": 13313,
+        "name": "Web Content",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -isForBrowser -prefsHandle 0:41975 -prefMapHandle 1:288002 -jsInitHandle 2:156236 -parentBuildID 20261022211647 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {463172d8-b787-46e1-862a-50aa378d50d8} -parentPid 13226 -crashHelperPid 13232 -crashHelper 6 -crashReporter 7 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 9 tab "
+      },
+      {
+        "pid": 13470,
+        "ppid": 13313,
+        "name": "Privileged Cont",
+        "seccomp": "2",
+        "no_new_privs": "1",
+        "arguments": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr -contentproc -isForBrowser -prefsHandle 0:43773 -prefMapHandle 1:288002 -jsInitHandle 2:156236 -parentBuildID 20261022211647 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {cae28950-e523-449c-b1ef-99409174999f} -parentPid 13226 -crashHelperPid 13232 -crashHelper 6 -crashReporter 7 -greomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/omni.ja -appomni /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja -appDir /var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser 10 tab "
+      },
+      {
+        "pid": 13688,
+        "ppid": 13687,
+        "name": "python3",
+        "seccomp": "0",
+        "no_new_privs": "0",
+        "arguments": "python3 /workspace/Experiments/DBusMenus/host.py --library /var/tmp/nextspace-native-ui/menu-lifecycle-clang-build/libnextspace-native-scroller.so.1 --service :1.1 --path /com/canonical/menu/0 --owner 13226 --title Firefox --output /var/tmp/nextspace-native-ui/firefox-menu-lifecycle-01/second-native-menu --lifecycle -GSBackend nextspace-native-ui-lifecycle "
+      }
+    ],
+    "gpbs": {
+      "pid": 13218,
+      "executable": "/Library/bin/gpbs-wayland",
+      "libraries": [
+        "/Library/Libraries/libgnustep-base.so.1.31.1",
+        "/Library/Libraries/libgnustep-gui.so.0.32.0",
+        "/usr/NextSpace/lib/libBlocksRuntime.so",
+        "/usr/NextSpace/lib/libdispatch.so",
+        "/usr/NextSpace/lib/libobjc.so.4.6",
+        "/usr/lib/aarch64-linux-gnu/gconv/UTF-16.so",
+        "/usr/lib/aarch64-linux-gnu/gconv/UTF-32.so",
+        "/usr/lib/aarch64-linux-gnu/ld-linux-aarch64.so.1",
+        "/usr/lib/aarch64-linux-gnu/libLerc.so.4",
+        "/usr/lib/aarch64-linux-gnu/libMagickCore-7.Q16.so.10.0.2",
+        "/usr/lib/aarch64-linux-gnu/libX11.so.6.4.0",
+        "/usr/lib/aarch64-linux-gnu/libXau.so.6.0.0",
+        "/usr/lib/aarch64-linux-gnu/libXdmcp.so.6.0.0",
+        "/usr/lib/aarch64-linux-gnu/libXext.so.6.4.0",
+        "/usr/lib/aarch64-linux-gnu/libXrender.so.1.3.0",
+        "/usr/lib/aarch64-linux-gnu/libatomic.so.1.2.0",
+        "/usr/lib/aarch64-linux-gnu/libavahi-client.so.3.2.9",
+        "/usr/lib/aarch64-linux-gnu/libavahi-common.so.3.5.4",
+        "/usr/lib/aarch64-linux-gnu/libbrotlicommon.so.1.1.0",
+        "/usr/lib/aarch64-linux-gnu/libbrotlidec.so.1.1.0",
+        "/usr/lib/aarch64-linux-gnu/libbz2.so.1.0.4",
+        "/usr/lib/aarch64-linux-gnu/libc.so.6",
+        "/usr/lib/aarch64-linux-gnu/libcairo.so.2.11804.4",
+        "/usr/lib/aarch64-linux-gnu/libcap.so.2.75",
+        "/usr/lib/aarch64-linux-gnu/libcom_err.so.2.1",
+        "/usr/lib/aarch64-linux-gnu/libcrypto.so.3",
+        "/usr/lib/aarch64-linux-gnu/libcurl-gnutls.so.4.8.0",
+        "/usr/lib/aarch64-linux-gnu/libdbus-1.so.3.38.3",
+        "/usr/lib/aarch64-linux-gnu/libdeflate.so.0",
+        "/usr/lib/aarch64-linux-gnu/libexpat.so.1.13.0",
+        "/usr/lib/aarch64-linux-gnu/libffi.so.8.1.4",
+        "/usr/lib/aarch64-linux-gnu/libfftw3.so.3.6.10",
+        "/usr/lib/aarch64-linux-gnu/libfontconfig.so.1.12.1",
+        "/usr/lib/aarch64-linux-gnu/libfreetype.so.6.20.2",
+        "/usr/lib/aarch64-linux-gnu/libgcc_s.so.1",
+        "/usr/lib/aarch64-linux-gnu/libgif.so.7.2.0",
+        "/usr/lib/aarch64-linux-gnu/libglib-2.0.so.0.8400.4",
+        "/usr/lib/aarch64-linux-gnu/libgmp.so.10.5.0",
+        "/usr/lib/aarch64-linux-gnu/libgnutls.so.30.40.3",
+        "/usr/lib/aarch64-linux-gnu/libgomp.so.1.0.0",
+        "/usr/lib/aarch64-linux-gnu/libgssapi_krb5.so.2.2",
+        "/usr/lib/aarch64-linux-gnu/libhogweed.so.6.10",
+        "/usr/lib/aarch64-linux-gnu/libicudata.so.76.1",
+        "/usr/lib/aarch64-linux-gnu/libicui18n.so.76.1",
+        "/usr/lib/aarch64-linux-gnu/libicuuc.so.76.1",
+        "/usr/lib/aarch64-linux-gnu/libidn2.so.0.4.0",
+        "/usr/lib/aarch64-linux-gnu/libjbig.so.0",
+        "/usr/lib/aarch64-linux-gnu/libjpeg.so.62.3.0",
+        "/usr/lib/aarch64-linux-gnu/libk5crypto.so.3.1",
+        "/usr/lib/aarch64-linux-gnu/libkeyutils.so.1.10",
+        "/usr/lib/aarch64-linux-gnu/libkrb5.so.3.3",
+        "/usr/lib/aarch64-linux-gnu/libkrb5support.so.0.1",
+        "/usr/lib/aarch64-linux-gnu/liblber.so.2.0.200",
+        "/usr/lib/aarch64-linux-gnu/liblcms2.so.2.0.16",
+        "/usr/lib/aarch64-linux-gnu/libldap.so.2.0.200",
+        "/usr/lib/aarch64-linux-gnu/liblqr-1.so.0.3.2",
+        "/usr/lib/aarch64-linux-gnu/libltdl.so.7.3.3",
+        "/usr/lib/aarch64-linux-gnu/liblzma.so.5.8.1",
+        "/usr/lib/aarch64-linux-gnu/libm.so.6",
+        "/usr/lib/aarch64-linux-gnu/libnettle.so.8.10",
+        "/usr/lib/aarch64-linux-gnu/libnghttp2.so.14.28.3",
+        "/usr/lib/aarch64-linux-gnu/libnghttp3.so.9.2.6",
+        "/usr/lib/aarch64-linux-gnu/libngtcp2.so.16.2.9",
+        "/usr/lib/aarch64-linux-gnu/libngtcp2_crypto_gnutls.so.8.2.0",
+        "/usr/lib/aarch64-linux-gnu/libp11-kit.so.0.4.1",
+        "/usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.14.0",
+        "/usr/lib/aarch64-linux-gnu/libpixman-1.so.0.44.0",
+        "/usr/lib/aarch64-linux-gnu/libpng16.so.16.48.0",
+        "/usr/lib/aarch64-linux-gnu/libpsl.so.5.3.4",
+        "/usr/lib/aarch64-linux-gnu/libresolv.so.2",
+        "/usr/lib/aarch64-linux-gnu/librtmp.so.1",
+        "/usr/lib/aarch64-linux-gnu/libsasl2.so.2.0.25",
+        "/usr/lib/aarch64-linux-gnu/libsharpyuv.so.0.1.1",
+        "/usr/lib/aarch64-linux-gnu/libssh2.so.1.0.1",
+        "/usr/lib/aarch64-linux-gnu/libssl.so.3",
+        "/usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.33",
+        "/usr/lib/aarch64-linux-gnu/libsystemd.so.0.40.0",
+        "/usr/lib/aarch64-linux-gnu/libtasn1.so.6.6.4",
+        "/usr/lib/aarch64-linux-gnu/libtiff.so.6.1.0",
+        "/usr/lib/aarch64-linux-gnu/libunistring.so.5.2.0",
+        "/usr/lib/aarch64-linux-gnu/libwayland-client.so.0.23.1",
+        "/usr/lib/aarch64-linux-gnu/libwayland-cursor.so.0.23.1",
+        "/usr/lib/aarch64-linux-gnu/libwebp.so.7.1.10",
+        "/usr/lib/aarch64-linux-gnu/libxcb-render.so.0.0.0",
+        "/usr/lib/aarch64-linux-gnu/libxcb-shm.so.0.0.0",
+        "/usr/lib/aarch64-linux-gnu/libxcb.so.1.1.0",
+        "/usr/lib/aarch64-linux-gnu/libxkbcommon.so.0.0.0",
+        "/usr/lib/aarch64-linux-gnu/libxml2.so.2.9.14",
+        "/usr/lib/aarch64-linux-gnu/libxslt.so.1.1.35",
+        "/usr/lib/aarch64-linux-gnu/libz.so.1.3.1",
+        "/usr/lib/aarch64-linux-gnu/libzstd.so.1.5.7"
+      ]
+    },
+    "package_count": 1050
+  },
+  "diagnostics": [
+    "The first SDK build selected system cc and rejected pinned GNUstep Objective-C flags. The immutable menu-lifecycle-clang-build explicitly uses clang and the pinned GNUstep configuration.",
+    "A retained first menu host sent New Tab to an expired Firefox exporter ID. The importer now processes layout signals during native tracking and resolves the current remote ID immediately before executing. The second host passes the physical New Tab check and native Edit/bookmark actions.",
+    "The first lifecycle browser check read close counts before asynchronous callbacks completed. The final check awaits balanced open/close delivery.",
+    "Two repeat bookmark checks pressed a native root before asynchronous Places export reached the importer. The final check waits for the actual projected folder, and clears the URL fragment before navigation to avoid an already visited target satisfying the assertion.",
+    "The Firefox 83-check clipboard suite stopped at its initial menubar dismissal precondition after native menu interactions. Only the owned-browser assertion passed; this run does not qualify those 83 behaviors. A physical Escape diagnostic reached browser keydown/keyup listeners but did not restore toolbar-menubar inactive. This remains an integration failure."
+  ],
+  "remaining": [
+    "Native keyboard routing shared with the editor helper and correct Firefox menubar/focus lifecycle after native menu interactions.",
+    "Automatic authenticated desktop application/window/focus association and production registrar.",
+    "Ambiguous rebuilt sibling identities, live updates to already visible branches, complete special-key and multi-chord metadata, icons and torn-off menus.",
+    "Bus/window replacement and recovery, remaining browser controls/dialogs, IME, accessibility and scaling.",
+    "Chrome/Vivaldi/Firefox derivatives and complete GTK/Qt/KDE integration."
+  ],
+  "live_fixture": {
+    "path": "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-01",
+    "browser_pid": 13226,
+    "menu_host_pid": 13688,
+    "compositor_pid": 13208,
+    "reason": "Retained for the verified Firefox keyboard/focus investigation; do not rebuild mapped provider libraries in place",
+    "backend_alias": "/home/felixding.guest/Library/Bundles/libgnustep-nextspace-native-ui-lifecycle-032.bundle"
+  },
+  "raw_evidence": [
+    ".build/native-ui/menu-lifecycle-evidence",
+    "/var/tmp/nextspace-native-ui/menu-lifecycle-shared-01",
+    "/var/tmp/nextspace-native-ui/menu-lifecycle-pixels-02",
+    "/var/tmp/nextspace-native-ui/menu-lifecycle-transport-01",
+    "/var/tmp/nextspace-native-ui/menu-lifecycle-native-reference-01",
+    "/var/tmp/nextspace-native-ui/menu-lifecycle-legacy-01",
+    "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-01"
+  ],
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "d79165d4d47446a023be8993654cca615dafb73a7356541d20d7de81e463dbf0",
+    "Libraries/NativeUI/Loader.c": "a48955e79fd51662e576da8e41515e5e38eaff9fefbcfe3182e8093bac21fb4e",
+    "Libraries/NativeUI/GNUstep/Menu.m": "e3a5ad9e99f075cf2b4f37f3725c8c27549596d60141a372ec2321218c23d069",
+    "Libraries/NativeUI/GNUstep/Provider.h": "a97e63b612cfcbb457fc8fe7947186b5f9124502d52b1d21bfeaeaab64b28665",
+    "Libraries/NativeUI/GNUstep/Provider.m": "6535d2f8e7b52d668503061f1a32d3c2e8abd40d06f9cb7d112d0d8128aa7608",
+    "Libraries/NativeUI/CMakeLists.txt": "dd01982b358349199b219678d255b5b054bbb1a45d7a6bd2bc7c9139533ac053",
+    "Tests/NativeUI/menu-lifecycle-probe.c": "92b5576fcd7f4c2ee53a6347bb6fa052617727d12e886b4c20362035ed110dcf",
+    "Tests/NativeUI/check-menu-lifecycle.py": "5856b8166f044dacf5227445f56a11d27221d7ed383b6c735376c9971acbac3f",
+    "Tests/NativeUI/menu-probe.m": "63a91659b57a794287123da82a64948fca433d593d3ddbacabb132ff7cc89747",
+    "Experiments/DBusMenus/host.py": "30dd9f8bff12ef46a65388cfcb83ff51a2e106cbe68ce39d5600ea15ad90845b",
+    "Experiments/DBusMenus/menu_model.py": "b48aec7300fad682d4e54f2fb4d43757ee7a51e139ebc4f778a79e12ac0b0a43",
+    "Experiments/DBusMenus/check-lifecycle.py": "bdb62c21b61f431ec19e15016828174a4dc7d20c80e8b7d719e3a46fff88b596",
+    "Tests/NativeUI/check-dbus-menu-model.py": "22ddb8d022dcd369d469988222bbf2feb0b248542a702c2985c3f114d7d62bc8"
+  }
+}

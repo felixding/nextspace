@@ -3,7 +3,7 @@
 
 The caller supplies an owned window's PID and advertised session-bus address.
 There is no browser DOM inspection, widget implementation or shortcut table.
-Automatic shell association and native submenu lifecycle integration remain open.
+Automatic shell association remains open; submenu lifecycle is opt-in.
 """
 import argparse
 import ctypes as C
@@ -16,6 +16,7 @@ from gi.repository import Gio, GLib
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'ChromiumScrollers'))
 from native_menus import MenuItem, MenuState
+from menu_model import MenuModel, flattened, replace_children
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--library', required=True)
@@ -24,6 +25,7 @@ p.add_argument('--path', required=True)
 p.add_argument('--owner', type=int, required=True)
 p.add_argument('--title', required=True)
 p.add_argument('--output', type=Path, required=True)
+p.add_argument('--lifecycle', action='store_true', help='Refresh submenus through native lifecycle callbacks')
 a, native_args = p.parse_known_args()
 a.output.mkdir(parents=True, exist_ok=True)
 if not Gio.dbus_is_name(a.service) or not GLib.Variant.is_object_path(a.path) or a.owner <= 0:
@@ -71,152 +73,215 @@ if native.nxs_native_ui_menu_capabilities() & 3 != 3:
     raise SystemExit('Native menu model/cancellation support is required')
 
 context = GLib.MainContext.default()
-items, properties, strings = [], {}, []
+model = MenuModel()
+native_root = pending_root = None
 menu = None
 alive, dirty, fetching = True, True, False
-pending_model = None
+generation = 0
 revision = None
+opened = {}
+
+
+def projection(root):
+    result = []
+    for parent,node in flattened(root):
+        values = node.properties
+        flags = (1 if values.get('type')=='separator' else 0)
+        flags |= 0 if values.get('enabled',True) else 2
+        flags |= 4 if values.get('toggle-state')==1 else 8 if values.get('toggle-state')==-1 else 0
+        flags |= 16 if values.get('children-display')=='submenu' or node.children else 0
+        key,modifiers = shortcut(values.get('shortcut'))
+        result.append((parent,0 if flags&1 else node.native,values.get('label','').encode(),key,modifiers,flags))
+    return result
+
+
+def array_for(root):
+    values = projection(root)
+    return (MenuItem*len(values))(*(MenuItem(C.sizeof(MenuItem),*value) for value in values))
 
 
 def dump_states(*unused):
     states = []
-    for index, item in enumerate(items):
-        state = native.nxs_menu_state(menu, index)
-        states.append(dict(index=index, command=item.command, title=item.title.decode(),
-            visible=state.visible, tracking=state.tracking, highlighted=state.highlighted,
+    for index,(_,node) in enumerate(flattened(native_root)):
+        state = native.nxs_menu_state(menu,index)
+        states.append(dict(index=index,command=node.native,remote=node.remote,title=node.properties.get('label',''),
+            visible=state.visible,tracking=state.tracking,highlighted=state.highlighted,
             frame=[state.item_frame.x,state.item_frame.y,state.item_frame.width,state.item_frame.height]))
-    temporary = a.output / 'native-items.next'
-    temporary.write_text(json.dumps(states, indent=2) + '\n')
-    temporary.replace(a.output / 'native-items.json')
+    temporary = a.output/'native-items.next'
+    temporary.write_text(json.dumps(states,indent=2)+'\n')
+    temporary.replace(a.output/'native-items.json')
 
 
 def shortcut(value):
     """Translate protocol key metadata, never application command names."""
-    if not value or len(value[0]) == 0:
-        return b'', 0
+    if not value or len(value)!=1 or not value[0]:
+        return b'',0
     sequence = value[0]
     key = sequence[-1]
-    if len(key) != 1:
-        # Special key names need a shared toolkit/native key conversion.
-        return b'', 0
+    if len(key)!=1:
+        return b'',0
     modifiers = 0
     for modifier in sequence[:-1]:
-        if modifier in ('Control', 'Super', 'Meta'):
-            modifiers |= 1  # Native primary Command role.
-        elif modifier == 'Shift':
-            modifiers |= 2
-        elif modifier == 'Alt':
-            modifiers |= 8
-        else:
-            return b'', 0
-    key = key.upper() if modifiers & 2 else key.lower()
-    return key.encode(), modifiers
+        if modifier in ('Control','Super','Meta'):modifiers |= 1
+        elif modifier=='Shift':modifiers |= 2
+        elif modifier=='Alt':modifiers |= 8
+        else:return b'',0
+    return (key.upper() if modifiers&2 else key.lower()).encode(),modifiers
 
 
-def project(root):
-    model, props, text = [], {}, []
-    seen = set()
-
-    def visit(node, parent, depth):
-        identifier, values, children = node
-        if depth > 16 or len(model) >= 4096 or identifier < 0 or identifier in seen:
-            raise ValueError('Invalid or excessive D-Bus menu hierarchy')
-        seen.add(identifier)
-        if not values.get('visible', True):
-            return
-        flags = 0
-        if values.get('type') == 'separator':
-            flags |= 1
-        if not values.get('enabled', True):
-            flags |= 2
-        if values.get('toggle-state') == 1:
-            flags |= 4
-        if values.get('toggle-state') == -1:
-            flags |= 8
-        if values.get('children-display') == 'submenu' or children:
-            flags |= 16
-        title = values.get('label', '').encode()
-        key, modifiers = shortcut(values.get('shortcut'))
-        text.extend([title, key])
-        index = len(model)
-        model.append(MenuItem(C.sizeof(MenuItem), parent, 0 if flags & 17 else identifier + 1,
-                              title, key, modifiers, flags))
-        props[identifier] = values
-        for child in children:
-            visit(child, index, depth + 1)
-
-    for child in root[2]:
-        visit(child, -1, 0)
-    return model, props, text
-
-
-def complete_call(connection, result, label):
+def complete_call(connection,result,label):
     try:
         connection.call_finish(result)
-        log('application-replied', operation=label)
+        log('application-replied',operation=label)
     except GLib.Error as error:
-        log('application-error', operation=label, message=str(error))
+        log('application-error',operation=label,message=str(error))
 
 
-def command(unused, identifier, phase):
+def event(identifier,name,callback=complete_call,data=None):
+    bus.call(owner,a.path,'com.canonical.dbusmenu','Event',
+        GLib.Variant('(isvu)',(identifier,name,GLib.Variant('i',0),0)),
+        GLib.VariantType.new('()'),Gio.DBusCallFlags.NONE,3000,None,callback,data or name)
+
+
+def command(unused,identifier,phase):
+    global generation,fetching
     try:
-        identifier -= 1
-        values = properties.get(identifier)
-        enabled = alive and values is not None and values.get('enabled', True) and values.get('visible', True)
-        if enabled and phase == 1:
-            bus.call(owner, a.path, 'com.canonical.dbusmenu', 'Event',
-                GLib.Variant('(isvu)', (identifier, 'clicked', GLib.Variant('i', 0), 0)),
-                GLib.VariantType.new('()'), Gio.DBusCallFlags.NONE, 3000, None,
-                complete_call, 'clicked')
-            log('application-command', identifier=identifier)
+        if phase==1 and a.lifecycle:
+            generation += 1;fetching = False
+            accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
+        node = model.nodes.get(identifier)
+        enabled = alive and node is not None and node.properties.get('enabled',True) and node.properties.get('visible',True)
+        if enabled and phase==1:
+            if a.lifecycle:
+                awaiting('Event',GLib.Variant('(isvu)',(node.remote,'clicked',GLib.Variant('i',0),0)))
+            else:event(node.remote,'clicked')
+            log('application-command',identifier=node.remote,native=identifier)
         return int(bool(enabled))
     except Exception as error:
-        log('callback-error', message=str(error))
-        return 0
+        log('callback-error',message=str(error));return 0
 
 
 def pump(unused):
-    # GNUstep keeps native input/tracking. Only descriptor work is nested here;
-    # hierarchy replacement waits until dispatch returns to the outer loop.
-    while context.pending():
-        context.iteration(False)
+    # Native input/tracking stays in GNUstep while descriptor work is serviced.
+    while context.pending():context.iteration(False)
 
 
-def fetched(connection, result, unused):
-    global fetching, pending_model, revision, alive
-    fetching = False
+def awaiting(method,parameters):
+    response = {}
+    def completed(connection,result,unused):
+        try:response['value'] = connection.call_finish(result).unpack()
+        except GLib.Error as error:response['error'] = error
+    bus.call(owner,a.path,'com.canonical.dbusmenu',method,parameters,None,
+        Gio.DBusCallFlags.NONE,3000,None,completed,None)
+    deadline = time.monotonic()+3.2
+    while alive and not response and time.monotonic()<deadline:
+        pump(None);time.sleep(.001)
+    if 'error' in response:raise response['error']
+    if not alive or not response:
+        raise RuntimeError('Menu owner unavailable or request expired')
+    return response['value']
+
+
+def accept_layout(value):
+    global pending_root,revision
+    incoming,root = value
+    if revision is not None and incoming<revision:return
+    revision = incoming
+    pending_root = model.reconcile(root)
+    (a.output/'layout.json').write_text(json.dumps(dict(revision=revision,root=root),indent=2)+'\n')
+
+
+def lifecycle(unused,token,phase):
+    global native_root,pending_root,generation,fetching,dirty
     try:
-        revision, root = connection.call_finish(result).unpack()
-        pending_model = project(root)
-        (a.output / 'layout.json').write_text(json.dumps(dict(revision=revision, root=root), indent=2) + '\n')
-    except (GLib.Error, ValueError, TypeError) as error:
-        log('layout-error', message=str(error))
-        alive = False
-        native.nxs_menu_cancel(menu)
+        if phase==1:
+            if alive:
+                generation += 1;fetching = False
+                accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
+            node = model.nodes.get(token)
+            previous = opened.pop(token,None)
+            remote = node.remote if node is not None else previous
+            if alive and remote is not None:
+                awaiting('Event',GLib.Variant('(isvu)',(remote,'closed',GLib.Variant('i',0),0)))
+            log('native-submenu-closed',native=token,remote=remote)
+            return 1
+        node = model.nodes.get(token)
+        if not alive or node is None:return 0
+        opened[token] = node.remote
+        # Invalidate earlier asynchronous root reads before this preparation.
+        generation += 1;fetching = False
+        awaiting('Event',GLib.Variant('(isvu)',(node.remote,'opened',GLib.Variant('i',0),0)))
+        accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
+        node = model.nodes.get(token)
+        if node is None:
+            log('native-submenu-identity-replaced',native=token)
+            return 0
+        opened[token] = node.remote
+        branch = array_for(node)
+        if not native.nxs_menu_branch_items(menu,token,branch,len(branch)):return 0
+        native_root = replace_children(native_root,token,node.children)
+        dirty = False
+        log('native-submenu-prepared',native=token,remote=node.remote,count=len(branch),revision=revision)
+        return 1
+    except Exception as error:
+        log('native-submenu-error',message=str(error));return 0
+
+
+def fetched(connection,result,epoch):
+    global fetching,alive
+    try:
+        value = connection.call_finish(result).unpack()
+        if epoch==generation:
+            fetching = False
+            accept_layout(value)
+    except (GLib.Error,ValueError,TypeError) as error:
+        if epoch==generation:
+            fetching = False;alive = False
+            native.nxs_menu_cancel(menu)
+            log('layout-error',message=str(error))
 
 
 def changed(*unused):
     global dirty
     dirty = True
+    request_layout()
 
 
-def name_changed(connection, sender, path, interface, member, parameters, unused):
+def request_layout():
+    global dirty,fetching
+    if not alive or fetching:return
+    dirty,fetching = False,True
+    bus.call(owner,a.path,'com.canonical.dbusmenu','GetLayout',
+        GLib.Variant('(iias)',(0,-1,[])),None,Gio.DBusCallFlags.NONE,
+        3000,None,fetched,generation)
+
+
+def name_changed(connection,sender,path,interface,member,parameters,unused):
     global alive
-    name, old, new = parameters.unpack()
-    if name == owner and old and not new:
+    name,old,new = parameters.unpack()
+    if name==owner and old and not new:
         alive = False
         native.nxs_menu_cancel(menu)
         log('owner-lost')
 
 
-command_callback, pump_callback = Command(command), Pump(pump)
-menu = native.nxs_menu_create(a.title.encode(), command_callback, pump_callback, None)
-if not menu:
-    raise SystemExit('Native menu host initialization failed')
-subscriptions = [bus.signal_subscribe(owner, 'com.canonical.dbusmenu', member, a.path,
-    None, Gio.DBusSignalFlags.NONE, changed, None) for member in ('LayoutUpdated', 'ItemsPropertiesUpdated')]
-subscriptions.append(bus.signal_subscribe('org.freedesktop.DBus', 'org.freedesktop.DBus',
-    'NameOwnerChanged', '/org/freedesktop/DBus', owner, Gio.DBusSignalFlags.NONE, name_changed, None))
+command_callback,pump_callback = Command(command),Pump(pump)
+menu = native.nxs_menu_create(a.title.encode(),command_callback,pump_callback,None)
+if not menu:raise SystemExit('Native menu host initialization failed')
+if a.lifecycle:
+    if not native.nxs_native_ui_menu_capabilities()&4:
+        raise SystemExit('Native submenu lifecycle support is required')
+    Lifecycle = C.CFUNCTYPE(C.c_int,C.c_void_p,C.c_uint64,C.c_uint)
+    lifecycle_callback = Lifecycle(lifecycle)
+    native.nxs_menu_lifecycle.argtypes = [C.c_void_p,Lifecycle,C.c_void_p]
+    native.nxs_menu_lifecycle.restype = C.c_int
+    native.nxs_menu_branch_items.argtypes = [C.c_void_p,C.c_uint64,C.POINTER(MenuItem),C.c_uint32]
+    native.nxs_menu_branch_items.restype = C.c_int
+    assert native.nxs_menu_lifecycle(menu,lifecycle_callback,None)
+subscriptions = [bus.signal_subscribe(owner,'com.canonical.dbusmenu',member,a.path,None,
+    Gio.DBusSignalFlags.NONE,changed,None) for member in ('LayoutUpdated','ItemsPropertiesUpdated')]
+subscriptions.append(bus.signal_subscribe('org.freedesktop.DBus','org.freedesktop.DBus',
+    'NameOwnerChanged','/org/freedesktop/DBus',owner,Gio.DBusSignalFlags.NONE,name_changed,None))
 
 
 def stop(*unused):
@@ -225,35 +290,29 @@ def stop(*unused):
     native.nxs_menu_cancel(menu)
 
 
-bus.connect('closed', lambda *unused: stop())
-signal.signal(signal.SIGTERM, stop)
-signal.signal(signal.SIGINT, stop)
-signal.signal(signal.SIGUSR1, dump_states)
+bus.connect('closed',lambda *unused:stop())
+signal.signal(signal.SIGTERM,stop)
+signal.signal(signal.SIGINT,stop)
+signal.signal(signal.SIGUSR1,dump_states)
 try:
     while alive:
         pump(None)
-        if not alive:
-            break
+        if not alive:break
         if dirty and not fetching:
-            dirty, fetching = False, True
-            bus.call(owner, a.path, 'com.canonical.dbusmenu', 'GetLayout',
-                GLib.Variant('(iias)', (0, -1, [])), None, Gio.DBusCallFlags.NONE,
-                3000, None, fetched, None)
-        if pending_model is not None:
-            model, props, text = pending_model
-            array = (MenuItem * len(model))(*model)
-            if native.nxs_menu_items(menu, array, len(model)):
-                items, properties, strings = model, props, text
-                pending_model = None
-                if not native.nxs_menu_show(menu, 1):
-                    raise RuntimeError('Native menu could not be shown')
-                dump_states()
-                log('native-menu', owner=owner, pid=actual_pid, count=len(model), revision=revision)
+            request_layout()
+        if pending_root is not None:
+            if projection(pending_root)==projection(native_root):pending_root = None
+            else:
+                array = array_for(pending_root)
+                if native.nxs_menu_items(menu,array,len(array)):
+                    native_root,pending_root = pending_root,None
+                    if not native.nxs_menu_show(menu,1):raise RuntimeError('Native menu could not be shown')
+                    dump_states()
+                    log('native-menu',owner=owner,pid=actual_pid,count=len(array),revision=revision)
         native.nxs_native_ui_dispatch_events(.005)
         time.sleep(.001)
 finally:
     native.nxs_menu_cancel(menu)
-    for subscription in subscriptions:
-        bus.signal_unsubscribe(subscription)
+    for subscription in subscriptions:bus.signal_unsubscribe(subscription)
     assert native.nxs_menu_destroy(menu)
     log('stopped')
