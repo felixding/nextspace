@@ -558,8 +558,42 @@ assertions. Complete native field images and native TextEdit clipboard exchange
 are included. All 26 recorded owner processes exited, and the private sockets,
 backend alias and owned automation connection were closed.
 
-This remains a partial binding for one exact Chromium build. Native application
-menus and Undo/Redo availability, clipboard owner/focus lifetimes, other clipboard
+This remains a partial binding for one exact Chromium build. Complete application
+menu coverage and Undo/Redo availability, clipboard owner/focus lifetimes, other clipboard
 formats, IME, accessibility, scaling, remaining browser controls and dialogs,
 derivative builds and GTK/Qt/KDE applications still require integration. The
 shared command boundary also serves the separately qualified Firefox binding.
+
+## Application menu models
+
+`run.py --native-menus` opts the pinned legacy Chromium application menu into
+real GNUstep `NSMenu`/`NSMenuItem` objects and enables the required native Views
+bindings. Activating the existing toolbar menu button projects Chromium's actual
+model. The browser still owns localized labels, live command availability and
+command execution. Icon-button labels use its existing accessibility helper;
+mnemonic removal uses its existing text utility. GNUstep owns menu sizing,
+tracking, submenu placement and native key-equivalent matching. The bridge and
+UI provider remain separate. Chromium and AppKit are not rebuilt.
+
+Native execution queues the actual model activation through Chromium's real UI
+task runner. A synchronous native paint RPC can dispatch a callback on the UI
+thread while Chromium is midway through a frame, so executing a browser mutation
+inline is unsafe. The shared transport also services owner callbacks before
+blocking on a worker-held RPC mutex; otherwise an idle menu acknowledgment can
+form a wait cycle. The retained earlier transport fails that new regression.
+
+`check-app-menus.py` runs after `check-text-commands.py` on the owned English
+`test-text.html` fixture, with `NEXTSPACE_CHROMIUM_MENUS_TRACE=1` enabled for model
+assertions. It verifies actual tabs, page zoom, trusted clipboard events, engine
+undo, a native Command key from a text field, and menu replacement. Its observed
+fixture coordinates never enter production code. Model tracing is opt-in because
+application labels can contain user data. Exact source receipts, ABI guards and
+runtime results are in [the source audit](app-menu-source-audit.json) and
+[qualification](app-menu-qualification.json).
+
+This is partial integration for one exact build. Automatic startup and active-app
+menu association, the full original menu lifecycle, lazy bookmark/tab-group
+models, dynamic structure and checkmarks, icons/torn-off menus, actionable
+submenus, additional key encodings and global shortcut dispatch remain required.
+The alternate `ActionAppMenu` path, Firefox menus, derivative browsers and
+GTK/Qt/KDE bindings are not implemented by this change.

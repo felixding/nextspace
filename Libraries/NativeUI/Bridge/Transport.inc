@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <poll.h>
 #include <stdatomic.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
@@ -99,6 +100,26 @@ static int dispatch_native_edit(int *owns_mutex) {
   }
   return generation!=native_callback_generation||accepted_reply;
 }
+/* A worker can hold the shared request lock while the helper waits for an
+ * idle menu acknowledgment. An owner entering another RPC must service its
+ * callback endpoint before blocking on that worker's lock. */
+static int native_request_lock(void) {
+  for(;;) {
+    int locked=pthread_mutex_trylock(&shared->mutex);
+    if(locked!=EBUSY)return locked;
+    if(!native_callback_owner()||native_edit_channel<0)return pthread_mutex_lock(&shared->mutex);
+    struct pollfd ready={.fd=native_edit_channel,.events=POLLIN};
+    int result;do result=poll(&ready,1,5);while(result<0&&errno==EINTR);
+    if(result<0)return errno;
+    if(result>0) {
+      int owns_mutex=0;
+      if(!dispatch_native_edit(&owns_mutex)) {
+        close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;native_menu_pid=0;
+      }
+      if(owns_mutex)return 0;
+    }
+  }
+}
 /* Renderer PID namespaces may all report PID 1. Allocate a transport identity
  * after each fork rather than using that namespace-local PID as the key. */
 static uint32_t identity(void) {
@@ -118,7 +139,7 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
   if(channel<0||!shared)return NULL;
   if(!packet){packet_capacity=1024*1024;packet=malloc(packet_capacity);}
   if(!packet)return NULL;
-  int locked=pthread_mutex_lock(&shared->mutex);
+  int locked=native_request_lock();
   if(locked==EOWNERDEAD)pthread_mutex_consistent(&shared->mutex);
   else if(locked)return NULL;
   int owns_mutex=1;

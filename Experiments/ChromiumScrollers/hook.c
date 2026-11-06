@@ -167,6 +167,8 @@ static void configure(uintptr_t offset) {
 }
 static void form_native_work(void *controller);
 static int views_enabled,views_trace_enabled;
+static int menus_enabled,menus_trace_enabled;
+static int app_menus_watch_needed(void);
 static unsigned forms_pointer_capabilities;
 static int forms_commands_enabled;
 static int chromium_application_command(const struct NXSNativeCommand *,const char *);
@@ -175,6 +177,7 @@ static void views_native_work(int failed);
 #include "input.inc"
 #include "forms.inc"
 #include "views-text.inc"
+#include "app-menus.inc"
 static int chromium_application_command(const struct NXSNativeCommand *command,const char *selector) {
   if(views_transaction)return views_application_command(command,selector);
   return blink_application_command(command,selector);
@@ -236,6 +239,9 @@ __attribute__((constructor)) static void initialize(void) {
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
   views_enabled=forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");
+  const char *menus=getenv("NEXTSPACE_CHROMIUM_MENUS"),*menu_trace=getenv("NEXTSPACE_CHROMIUM_MENUS_TRACE");
+  menus_enabled=views_enabled&&menus&&!strcmp(menus,"1")&&metrics->parts[5].height==1;
+  menus_trace_enabled=menus_enabled&&menu_trace&&!strcmp(menu_trace,"1");
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};
@@ -244,6 +250,7 @@ __attribute__((constructor)) static void initialize(void) {
   if(!prepare_input()){note("input guard failed; unchanged");return;}
   if(forms_available&&!prepare_forms()){note("form guard failed; unchanged");return;}
   if(views_enabled&&(!guard_views_calls()||!prepare_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours)))){note("Views guard failed; unchanged");return;}
+  if(menus_enabled&&!prepare_app_menus()){note("application menu guard failed; unchanged");return;}
   const uint32_t patch[]={0xd503245f,0x52800020,0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
@@ -255,4 +262,5 @@ __attribute__((constructor)) static void initialize(void) {
   if(forms_popups_enabled)note("experimental native select popups enabled");
   if(forms_text_enabled)note("experimental native text fields enabled");
   if(views_enabled){activate_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours));note("experimental native address-bar fields enabled");}
+  if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));note("experimental native application menu binding enabled");}
 }

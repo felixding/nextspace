@@ -79,7 +79,7 @@ int main(int argc,char **argv) {
       char line[64];if(!fgets(line,sizeof(line),stdin)||!strncmp(line,"quit",4)){done=1;continue;}
       if(!strncmp(line,"pause",5))paused=1;
       else if(!strncmp(line,"resume-with-rpc",15))paused=0;
-      else if(!strncmp(line,"worker-with-menu",16)) {
+      else if(!strncmp(line,"worker-with-menu",16)||!strncmp(line,"worker-with-rpc",15)) {
         paused=0;pthread_t worker;assert(!pthread_create(&worker,NULL,worker_request,NULL));
         struct timespec start,now;clock_gettime(CLOCK_MONOTONIC,&start);
         for(;;) {
@@ -88,8 +88,11 @@ int main(int argc,char **argv) {
           assert(!result);pthread_mutex_unlock(&shared->mutex);sched_yield();
           clock_gettime(CLOCK_MONOTONIC,&now);assert(now.tv_sec-start.tv_sec<2);
         }
-        assert(native_callbacks_dispatch()>0);assert(!pthread_join(worker,NULL));
-        puts("{\"event\":\"worker-reply\",\"owner_callbacks\":true}");
+        int via_rpc=!strncmp(line,"worker-with-rpc",15);
+        if(via_rpc){struct NXSResponse *reply=request(28,-1);assert(reply&&reply->parts[3].x==1);}
+        else assert(native_callbacks_dispatch()>0);
+        assert(!pthread_join(worker,NULL));
+        printf("{\"event\":\"worker-reply\",\"owner_callbacks\":true,\"via_rpc\":%s}\n",via_rpc?"true":"false");
       }
       else if(!strncmp(line,"key ",4)) {
         struct {struct NXSControlInputRequest request;char text[2];} packet={

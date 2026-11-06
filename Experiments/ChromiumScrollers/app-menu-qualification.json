@@ -1,0 +1,221 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "2763f84b",
+  "status": "Partial native Chromium application-menu binding; full goal remains open",
+  "api": {
+    "abi": 1,
+    "bytes": 360,
+    "menu_capabilities": 3,
+    "wire_unchanged": true
+  },
+  "verification": {
+    "extracted_model_entries": 88,
+    "native_browser_menu_checks": 18,
+    "menu_cases": [
+      "owned-fixture",
+      "actual-model-projected",
+      "detached-native-window",
+      "native-new-tab",
+      "fixture-selected",
+      "initial-zoom",
+      "native-button-model-zoom-in",
+      "native-button-model-zoom-out",
+      "native-copy-trusted",
+      "native-copy-preserves-model",
+      "native-cut",
+      "native-paste-engine-events",
+      "native-paste-preserves-engine-undo",
+      "native-cut-preserves-engine-undo",
+      "native-command-key-from-text-field",
+      "native-menu-replacement",
+      "browser-alive",
+      "no-menu-callback-expiry"
+    ],
+    "menu_transport_checks": 19,
+    "transport_cases": [
+      "pending-reply-survives-nested-menu-RPC",
+      "idle-owner-acknowledges-while-worker-awaits-reply",
+      "owner-RPC-services-callback-before-worker-lock",
+      "menu-model-crosses-IPC",
+      "native-state-crosses-IPC",
+      "idle-native-action-runs-on-owner",
+      "application-command-executes-once",
+      "application-validation-rejects-disabled",
+      "native-key-matching-through-IPC",
+      "bad-model-preserves-live-menu",
+      "bad-count-preserves-live-menu",
+      "foreign-owner-request-rejected",
+      "replacement-endpoint-survives-old-decision",
+      "late-menu-reply-after-destroy-drained",
+      "callback-peer-loss-removes-menu",
+      "expiry-removes-native-menu",
+      "expired-validation-does-not-execute",
+      "owner-exit-removes-native-menu",
+      "helper-remains-live"
+    ],
+    "chromium_clipboard_assertions": 44,
+    "firefox_clipboard_assertions": 83,
+    "legacy_scrollbar_images": 30,
+    "native_suite": [
+      "controls",
+      "legacy_tracking",
+      "no_mapped_backing_window",
+      "native_input",
+      "native_backing",
+      "native_mouse",
+      "native_text",
+      "native_command_filter",
+      "native_menu",
+      "previous_provider_without_menus",
+      "previous_provider_without_menu_cancel",
+      "native_command_thread",
+      "native_text_filter",
+      "native_range",
+      "native_popup",
+      "native_animation",
+      "previous_provider_accepted_without_input_extension",
+      "previous_client_unchanged_with_new_provider",
+      "previous_loader_and_client_unchanged_with_new_provider",
+      "alternate_provider_same_client_and_native_behavior",
+      "wrong_provider_abi_rejected",
+      "loader_has_no_ui_toolkit_dependency",
+      "provider_internals_not_exported",
+      "transport_transport",
+      "transport_input",
+      "transport_animation",
+      "transport_notifications",
+      "transport_popup",
+      "transport_text",
+      "transport_text_filter"
+    ],
+    "pre_edit_proposals": 8,
+    "nested_reads": 16
+  },
+  "negative_control": {
+    "previous_transport": "2763f84b Libraries/NativeUI/Bridge/Transport.inc",
+    "case": "owner-RPC-services-callback-before-worker-lock",
+    "result": "Earlier cases pass; new owner-RPC case aborts in worker_request after menu callback expires. Current transport passes all 19.",
+    "evidence": "/var/tmp/nextspace-native-ui/app-menu-lock-negative"
+  },
+  "diagnostics": [
+    "Two pre-fix cohorts created a new tab and hit a Chromium cc draw-property assertion when executing a menu command inline during a paint RPC. The real command now runs in a separately queued Chromium UI task.",
+    "An intermediate integration-test assertion accidentally included renderer endpoint-closure diagnostics from the earlier page-reload regression stage. Final checks use menu-stage scope and helper menu failure records.",
+    "Current provider and shim hashes differ from the preceding report. Their target mtimes precede these browser cohorts. This report qualifies measured current binaries and makes no hash-continuity claim."
+  ],
+  "environment": {
+    "hashes": {
+      "/var/tmp/nextspace-native-ui/chromium-app-menu-09-hook.so": "27b23eb5d0cda7d2f6821e21c9ad74bfecd3eef444b304c02017c327da2e91a3",
+      "/var/tmp/nextspace-native-ui/firefox-app-menu-regression-09-hook.so": "1cacfc2edabb6e5f0d6fca54935f0ab75539fa4c1051df585162711e10dea190",
+      "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "/var/tmp/nextspace-native-ui/menu-wire-final-build/native-ui/libnextspace-native-ui-gnustep.so.1": "845267c0a9d372252de7877b2f7bc61a47cdfb947cd73f6015537b65f0a9c088",
+      "/var/tmp/nextspace-native-ui/menu-wire-final-build/native-ui/libnextspace-native-ui.so.1": "c899af3fa64de9732ab98cc5780c826243310902322b741353ad1bd4fe46eed0",
+      "/var/tmp/nextspace-native-ui/menu-wire-final-build/libnextspace-native-scroller.so.1": "b03d1e25ad6bfdbf82d89e6a795d4707a9edc3f265e1758c7e8da31dafbc3262"
+    },
+    "package_count": 1050,
+    "sandbox": {
+      "chromium_renderers": [
+        {
+          "pid": 8449,
+          "role": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8467,
+          "role": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8929,
+          "role": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 9073,
+          "role": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox_tab_processes": [
+        {
+          "pid": 8571,
+          "role": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8611,
+          "role": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8659,
+          "role": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8677,
+          "role": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8685,
+          "role": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 8717,
+          "role": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "backend": "Private staged menu-remap backend from 2763f84b; installed backend unchanged"
+  },
+  "cleanup": {
+    "recorded_guest_pids": 133,
+    "all_stopped": true,
+    "backend_alias_removed": true,
+    "final_control_sockets_absent": true,
+    "owned_CDP_forwarding_removed": true,
+    "owned_agent_browser_daemon_stopped": true
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/app-menus.inc": "42f60cfd1bfb501ac7645344d7b698c500076ef8f96b120e82def006f351cdbc",
+    "Experiments/ChromiumScrollers/pinned-app-menu.h": "4541c945f9315dcb5079db4d144a7d06b08559362c32be78aa25aa6a04159129",
+    "Experiments/ChromiumScrollers/hook.c": "89a8a055f8d832c2f424a9751f1b90a4975ed831ed51315567ae49e5db41465d",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "9009391346cb8b10fe4f3b77fe4ab35c8da6c24fc0beaf531df391f3d0325ac3",
+    "Experiments/ChromiumScrollers/run.py": "3bb22d9c72a08570f96ba36d0627ba3d48588c51c256aa51d980286189441535",
+    "Experiments/ChromiumScrollers/check-app-menus.py": "4850d4678f897015f82ae3d782c2abd46e27944019f84048aea9aa717931f6a0",
+    "Libraries/NativeUI/Bridge/Menu.inc": "6ac6d71b9716e162fab5ebf5b60c72a64e53e29e4140c40bb6ce0d49b3e99142",
+    "Libraries/NativeUI/Bridge/Transport.inc": "f97276c843fb23ace10f97c224fc2eecee83667974295dabe9b5869de5c41854",
+    "Tests/NativeUI/menu-transport-probe.c": "fdb7260c4f1d0ed2326081159f55e408d738319d0755f0a7dbe15a51e3e2989b",
+    "Tests/NativeUI/check-menu-transport.py": "805f56cd96a3c630b6154e357086782f413b479cd901b210e9ac7a9f3ebd9a7b"
+  },
+  "raw_evidence": [
+    ".build/native-ui/app-menu-evidence",
+    "/var/tmp/nextspace-native-ui/app-menu-chromium-09",
+    "/var/tmp/nextspace-native-ui/app-menu-firefox-09",
+    "/var/tmp/nextspace-native-ui/app-menu-transport-09",
+    "/var/tmp/nextspace-native-ui/app-menu-shared-regression-09",
+    "/var/tmp/nextspace-native-ui/app-menu-legacy-09"
+  ],
+  "remaining": [
+    "Only this exact Linux ARM64 Chromium build; Chrome, Vivaldi and other derivative/version bindings remain required.",
+    "Menu is bound on toolbar activation, not startup; focus/application association and complete original AppMenu lifecycle remain incomplete.",
+    "Lazy bookmarks/tab groups, dynamic structure/checked state, icons/torn-off behavior and actionable submenus remain incomplete. Unsupported model types retain the original menu.",
+    "Accelerator metadata conversion currently covers letters, digits, F1-F24 and two punctuation keys. Zoom button delegates return no usable key equivalent in this fixture; broader special keys/global dispatch remain required.",
+    "Firefox menu extraction is not implemented. Existing Firefox native text commands are regression coverage only."
+  ]
+}

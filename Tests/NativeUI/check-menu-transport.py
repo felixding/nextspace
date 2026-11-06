@@ -9,7 +9,9 @@ from text_input import Client
 from gnustep import pasteboard_storage
 from native_controls import ControlRequest
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--build',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-p.add_argument('--capture-probe',type=Path,required=True);p.add_argument('--backend',required=True);p.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+p.add_argument('--capture-probe',type=Path,required=True);p.add_argument('--backend',required=True);p.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
+p.add_argument('--actor-binary',type=Path,help='Optional earlier transport client for a controlled regression comparison')
+a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
 rows=[];children=[]
 def check(case,passed,**data):
  rows.append(dict(case=case,passed=bool(passed),**data));(a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert passed,rows[-1]
@@ -28,7 +30,7 @@ def until(read,predicate,timeout=6):
 class Actor:
  def __init__(self,endpoint,env,name,extra=()):
   self.out=a.output/name;self.out.mkdir(exist_ok=True);self.events=[];self.pending=b''
-  self.child=subprocess.Popen([str(a.build/'native-ui/native-menu-transport-probe'),str(endpoint),*extra],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=(self.out/'stderr').open('w'));children.append(self.child)
+  self.child=subprocess.Popen([str(a.actor_binary or a.build/'native-ui/native-menu-transport-probe'),str(endpoint),*extra],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=(self.out/'stderr').open('w'));children.append(self.child)
   os.set_blocking(self.child.stdout.fileno(),False)
   self.ready=self.wait(lambda e:e.get('event')=='menu-live',0)
  def pump(self):
@@ -88,13 +90,15 @@ with tempfile.TemporaryDirectory(prefix='nxs-menu-wire-') as runtime:
    any(e['event']=='native-menu-reply-deferred' for e in barrier_events) and
    any(e['event']=='native-menu-reply-resumed' and e['replies']>0 for e in barrier_events),source=resumed)
   pending.finish();until(windows,lambda w:not w)
-  worker=Actor(endpoint,env,'worker-reply');until(windows,lambda w:len(w)==1)
-  x,y=point(worker,2);worker.request('pause');offset=(a.output/'helper.jsonl').stat().st_size
-  assert control(f'pointer {x} {y}')['ok'];assert control('button 272 1')['ok'];assert control('button 272 0')['ok']
-  until(lambda:(a.output/'helper.jsonl').read_text()[offset:],lambda text:'"event": "native-menu-awaiting-owner"' in text)
-  state=worker.request('worker-with-menu');event=worker.wait(lambda e:e.get('event')=='worker-reply',0)
-  check('idle-owner-acknowledges-while-worker-awaits-reply',state['accepted'] and event['owner_callbacks'],source=state)
-  worker.wait(lambda e:e.get('event')=='menu-command' and e['phase']==1,0);worker.finish();until(windows,lambda w:not w)
+  for name,command,case in [('worker-reply','worker-with-menu','idle-owner-acknowledges-while-worker-awaits-reply'),
+                            ('owner-rpc','worker-with-rpc','owner-RPC-services-callback-before-worker-lock')]:
+   worker=Actor(endpoint,env,name);until(windows,lambda w:len(w)==1)
+   x,y=point(worker,2);worker.request('pause');offset=(a.output/'helper.jsonl').stat().st_size
+   assert control(f'pointer {x} {y}')['ok'];assert control('button 272 1')['ok'];assert control('button 272 0')['ok']
+   until(lambda:(a.output/'helper.jsonl').read_text()[offset:],lambda text:'"event": "native-menu-awaiting-owner"' in text)
+   state=worker.request(command);event=worker.wait(lambda e:e.get('event')=='worker-reply',0)
+   check(case,state['accepted'] and event['owner_callbacks'] and event['via_rpc']==(command=='worker-with-rpc'),source=state)
+   worker.wait(lambda e:e.get('event')=='menu-command' and e['phase']==1,0);worker.finish();until(windows,lambda w:not w)
   actor=Actor(endpoint,env,'owner');check('menu-model-crosses-IPC',actor.ready['pid']==actor.child.pid)
   until(windows,lambda w:len(w)==1);initial=actor.request('state 2');check('native-state-crosses-IPC',initial['visible'] and initial['item'][2]>0,source=initial)
   start=len(actor.events);event=click(actor,2,2);check('idle-native-action-runs-on-owner',event['idle']==1,event=event)

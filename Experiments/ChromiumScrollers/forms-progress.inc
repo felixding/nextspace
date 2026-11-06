@@ -71,6 +71,7 @@ static int refresh_form_watch(void) {
   if(!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
   int needed=active_form&&active_form->kind==NXS_SLIDER;double generation=needed?active_form->generation:0;
   if(views_watch_needed())needed=1;
+  if(app_menus_watch_needed())needed=1;
   for(struct NativeForm *f=native_forms;f;f=f->next)
     if((f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted)||(f->kind==NXS_POPUP&&f->popup_open)||(text_kind(f->kind)&&f->painted)){needed=1;generation=fmax(generation,f->generation);}
   pthread_mutex_lock(&form_watch.mutex);

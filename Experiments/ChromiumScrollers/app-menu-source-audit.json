@@ -1,0 +1,258 @@
+{
+  "date": "2026-11-06",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "sources": [
+    {
+      "path": "chrome/browser/ui/views/toolbar/app_menu.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/toolbar/app_menu.cc",
+      "sha256": "a1ae686b91a6fe3ec26255fde3105f3edaefa1580884e8d5309918aa0ee48c79",
+      "bytes": 69869
+    },
+    {
+      "path": "chrome/browser/ui/views/toolbar/app_menu.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/toolbar/app_menu.h",
+      "sha256": "9c43abb811cadd1f5634ac17b6feca6bc59d15002c7b3146b68addfd36d53cbc",
+      "bytes": 9985
+    },
+    {
+      "path": "chrome/browser/ui/toolbar/app_menu_model.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/toolbar/app_menu_model.h",
+      "sha256": "81f4a7bf489a9abe10837cba039c23dc4d69d72bbdb85527416a6aa9af8381a6",
+      "bytes": 16005
+    },
+    {
+      "path": "chrome/browser/ui/toolbar/app_menu_model.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/toolbar/app_menu_model.cc",
+      "sha256": "8525a482a7b363245a9550546261c7439e022ffa1855920e0fec2f0778efcb57",
+      "bytes": 106376
+    },
+    {
+      "path": "ui/views/controls/menu/menu_runner.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner.cc",
+      "sha256": "53cc34a4b139b5b8d58d99c9418c5cddf710ca9c00df1896012ecd5de1810a74",
+      "bytes": 3811
+    },
+    {
+      "path": "ui/views/controls/menu/menu_model_adapter.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_model_adapter.cc",
+      "sha256": "481959f17e3843562cba92bab450b4531b319f3150e7d64251c8d216c5cf4d4c",
+      "bytes": 12485
+    },
+    {
+      "path": "chrome/browser/ui/views/toolbar/browser_app_menu_button.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/toolbar/browser_app_menu_button.cc",
+      "sha256": "ff2400032798206de047fa4fe06454ba2f24b6a809fa491508346286fd3b603b",
+      "bytes": 11726
+    },
+    {
+      "path": "ui/menus/simple_menu_model.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/menus/simple_menu_model.h",
+      "sha256": "09d2fc46647ee5de1dc6350ffcf95ee84ea22eedd7db1ab752464a2bf00ad47a",
+      "bytes": 16349
+    },
+    {
+      "path": "chrome/browser/ui/views/app_menu/action_app_menu.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/app_menu/action_app_menu.cc",
+      "sha256": "425d206c5003428f84ffb926f059199e74c1ec29d95c21a345d0a88566cc7403",
+      "bytes": 25739
+    },
+    {
+      "path": "chrome/browser/ui/views/app_menu/action_app_menu.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/app_menu/action_app_menu.h",
+      "sha256": "b6f185a365e9575aec48f7ebdd76169ecada9442901beeec3ce202446d64e8cc",
+      "bytes": 5331
+    },
+    {
+      "path": "chrome/browser/ui/ui_features.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/ui_features.cc",
+      "sha256": "6e21b5cb3f7d28e487aa68ae1c592c4c8e8f88e848e37628f0e345c4d63dbaad",
+      "bytes": 23009
+    },
+    {
+      "path": "ui/base/models/menu_model.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/models/menu_model.h",
+      "sha256": "e8aa7fef7e75805d1997d641117510b4712718e189254c936b40001a032a66df",
+      "bytes": 9996
+    },
+    {
+      "path": "ui/base/models/button_menu_item_model.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/models/button_menu_item_model.h",
+      "sha256": "fb214dcc16a08c59da4c82e0c78f321572a21fea4b5f04abaadd311ae838bfcf",
+      "bytes": 4258
+    },
+    {
+      "path": "ui/base/models/button_menu_item_model.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/models/button_menu_item_model.cc",
+      "sha256": "e34da3fea6cb7daf00ee41d73fc83b35e127dec6a42eaa92a548bb6cd86dbcd2",
+      "bytes": 3624
+    },
+    {
+      "path": "ui/base/accelerators/accelerator.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/accelerators/accelerator.h",
+      "sha256": "59fe8ee09ba5e6848be88ccc981a81f2eb662083753465f3248d162df21c1878",
+      "bytes": 9885
+    },
+    {
+      "path": "ui/base/accelerators/accelerator.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/base/accelerators/accelerator.cc",
+      "sha256": "9bb2106daf3516f74527054d3fd8577880fa8e88e02343ce9b58b5e620e9897f",
+      "bytes": 15679
+    },
+    {
+      "path": "ui/gfx/text_utils.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/gfx/text_utils.cc",
+      "sha256": "4a6ab012c9d8eb5ddb8885b3249de78bfd4c83c0845fc4cf4aed7020b028c2a9",
+      "bytes": 7250
+    },
+    {
+      "path": "base/functional/callback_internal.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/functional/callback_internal.h",
+      "sha256": "7c32e5555b73c9e8a5e9875650c82bd678e412cb36457f5f05ca2b6284fbade4",
+      "bytes": 9306
+    },
+    {
+      "path": "base/functional/callback_internal.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/functional/callback_internal.cc",
+      "sha256": "d4f3cb8073a88c3c2fc092222853a8a59fdea569a5f0f037a713a1c4a2d8b39f",
+      "bytes": 1898
+    },
+    {
+      "path": "base/functional/callback.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/functional/callback.h",
+      "sha256": "78970910986e6b76405562c62aef83d61954b74baace67c78c242395fa1c794e",
+      "bytes": 19851
+    },
+    {
+      "path": "base/task/task_runner.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/task/task_runner.h",
+      "sha256": "9536dcb971b674686d78cf77177d936e0ca81866b7f75241725fb1ad0b02ecef",
+      "bytes": 7424
+    },
+    {
+      "path": "base/task/single_thread_task_runner.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/task/single_thread_task_runner.h",
+      "sha256": "d7eab1b988d35b2317c6e65120b87388d6011ee8f9e7d23dc3b23ac1468e3e4a",
+      "bytes": 8248
+    },
+    {
+      "path": "base/location.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/location.h",
+      "sha256": "c0487e4e0ef3bf50950669bc04d02cc88893c51022c24ce75dcef7102ec0fdfd",
+      "bytes": 4595
+    },
+    {
+      "path": "content/public/browser/browser_task_traits.h",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/content/public/browser/browser_task_traits.h",
+      "sha256": "5e6d42e03062b22643077d82bddbdf2ebc4e6e875ba6e5e8ef1cb6884645acff",
+      "bytes": 3644
+    },
+    {
+      "path": "base/message_loop/message_pump_glib.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/message_loop/message_pump_glib.cc",
+      "sha256": "0c1918d66f497199b2f5d94893f43e9180e8e50e16695382260c5b730b1b3d8b",
+      "bytes": 36032
+    },
+    {
+      "path": "cc/trees/draw_property_utils.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/cc/trees/draw_property_utils.cc",
+      "sha256": "c48047b4a6face0982ff6dbdd0fd6ab7f9c2166bab541a4fdeda4c9c897927e8",
+      "bytes": 78562
+    },
+    {
+      "path": "chrome/browser/ui/views/frame/app_menu_button.cc",
+      "url": "https://github.com/chromium/chromium/blob/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/app_menu_button.cc",
+      "sha256": "cbb6ca1f7647601cc5f0df17a5eb27039fde288a7b653f313d96525c319d0709",
+      "bytes": 6394
+    }
+  ],
+  "compiled_guards": [
+    {
+      "name": "NXS_APP_MENU_CTOR",
+      "address": "0x93a566c",
+      "first_20_bytes": "3f2303d5ffc301d1fd7b01a9a88a04f0a98a04d0"
+    },
+    {
+      "name": "NXS_APP_MENU_DTOR",
+      "address": "0x93a7cdc",
+      "first_20_bytes": "3f2303d5fd7bbca9084c40f9f44f03a9f30300aa"
+    },
+    {
+      "name": "NXS_APP_MENU_RUN",
+      "address": "0x93a8180",
+      "first_20_bytes": "3f2303d5ff4302d1fd7b06a9a88a0490fd830191"
+    },
+    {
+      "name": "NXS_APP_MENU_RUN_ANCHOR",
+      "address": "0x93a8324",
+      "first_20_bytes": "3f2303d5ff4302d1fd7b05a9a88a0490fd430191"
+    },
+    {
+      "name": "NXS_APP_MENU_ACCESSIBLE_NAME",
+      "address": "0x93ac180",
+      "first_20_bytes": "3f2303d5ff0303d1fd7b08a9898a0490fd030291"
+    },
+    {
+      "name": "NXS_APP_MENU_REMOVE_MNEMONIC",
+      "address": "0xb033d00",
+      "first_20_bytes": "3f2303d5ff0303d1fd7b06a900e4006ffd830191"
+    },
+    {
+      "name": "NXS_TASK_BIND_STATE_CTOR",
+      "address": "0xa25cf7c",
+      "first_20_bytes": "5f2403d528008052018800a9080000b96808fff0"
+    },
+    {
+      "name": "NXS_TASK_POST",
+      "address": "0xa2e8b00",
+      "first_20_bytes": "5f2403d5080040f9e3031faa100140f900021fd6"
+    },
+    {
+      "name": "NXS_TASK_UI_RUNNER",
+      "address": "0x608fc50",
+      "first_20_bytes": "3f2303d5fd7bbea968300690f30b00f9fd030091"
+    },
+    {
+      "name": "NXS_TASK_LOCATION",
+      "address": "0xa261760",
+      "first_20_bytes": "3f2303d5fe0f1ff8ff2003d529180091021100b9"
+    }
+  ],
+  "top_model_vptr": "base + 0x11b63b38 + 16",
+  "model_virtual_slots": {
+    "3": "GetItemCount",
+    "4": "GetTypeAt",
+    "6": "GetCommandIdAt",
+    "7": "GetLabelAt",
+    "17": "GetAcceleratorAt",
+    "19": "IsItemCheckedAt",
+    "22": "GetButtonMenuItemAt",
+    "23": "IsEnabledAt",
+    "24": "IsVisibleAt",
+    "29": "GetSubmenuModelAt",
+    "31": "ActivatedAt(index,event_flags)"
+  },
+  "compiled_vtable_evidence": "Resolved ELF SHT_RELA addends at vtable slots; do not interpret unrelocated PIE bytes as function addresses. ICF symbol aliases were checked against source declaration order.",
+  "native_boundary": "Use existing NativeUI menu model transport and GNUstep NSMenu/NSMenuItem. Application owns labels, available commands, validation and activation. GNUstep owns controls, layout, tracking and key equivalents.",
+  "ui_task_boundary": "Call actual Chromium BindStateBase constructor, Location::Current, GetUIThreadTaskRunner and TaskRunner::PostTask. Native EXECUTE queues an engine UI task, revalidates the live binding and invokes the actual MenuModel or ButtonMenuItemModel delegate. Opaque task state and scoped engine runner reference are pinned ABI glue, not a scheduler implementation.",
+  "findings": [
+    "A callback dispatched during a synchronous native paint RPC can be on the right thread but the wrong stack. New-tab mutation on that stack triggered Chromium cc draw-property checks in two retained diagnostic cohorts. Posting only the descriptor drain did not prevent the transport from dispatching inline. The actual command mutation must be posted separately.",
+    "A worker may own the shared request mutex while the helper waits for a UI-owner menu acknowledgment. The UI owner must service callback readiness before blocking on that mutex when entering another RPC. The earlier transport fails the new controlled owner-RPC regression.",
+    "Localized accessible button names come from the existing Chromium helper. Mnemonic removal calls actual gfx::RemoveAcceleratorChar, including CJK suffix handling. No resource-ID-to-label table is introduced.",
+    "Real browser clipboard commands preserve trusted DOM events and engine undo; an empty helper pasteboard is not proof the browser platform clipboard is empty.",
+    "Default kAppMenuGlowUp is disabled in the pinned source; the separate ActionAppMenu variant is not bound. No browser feature is disabled to force the tested path."
+  ],
+  "limitations": [
+    "Only this exact Linux ARM64 Chromium build; Chrome, Vivaldi and other derivative/version bindings remain required.",
+    "Menu is bound on toolbar activation, not startup; focus/application association and complete original AppMenu lifecycle remain incomplete.",
+    "Lazy bookmarks/tab groups, dynamic structure/checked state, icons/torn-off behavior and actionable submenus remain incomplete. Unsupported model types retain the original menu.",
+    "Accelerator metadata conversion currently covers letters, digits, F1-F24 and two punctuation keys. Zoom button delegates return no usable key equivalent in this fixture; broader special keys/global dispatch remain required.",
+    "Firefox menu extraction is not implemented. Existing Firefox native text commands are regression coverage only."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/chromium-menu-source",
+    ".build/native-ui/app-menu-evidence",
+    "/var/tmp/nextspace-native-ui/app-menu-chromium-01 through -09",
+    "/var/tmp/nextspace-native-ui/app-menu-lock-negative"
+  ]
+}
