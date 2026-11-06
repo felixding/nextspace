@@ -1,0 +1,483 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "9f72f19e",
+  "status": "Shared real GNUstep application menu and text responder host verified on pinned Firefox; overall objective remains incomplete",
+  "api": {
+    "abi": 1,
+    "arm64_bytes": 376,
+    "menu_capabilities": 7
+  },
+  "verification": {
+    "firefox_lifecycle": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true
+    },
+    "firefox_shortcuts": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "native-menu-and-editors-share-helper",
+          "passed": true,
+          "pid": 17236
+        },
+        {
+          "case": "web-cut-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 24
+        },
+        {
+          "case": "web-undo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 0,
+            "end": 15
+          },
+          "native": 21
+        },
+        {
+          "case": "web-redo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 22
+        },
+        {
+          "case": "web-restore-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 0,
+            "end": 15
+          },
+          "native": 21
+        },
+        {
+          "case": "web-native-emacs-control-a",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "web-native-emacs-control-e",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 15,
+            "end": 15
+          }
+        },
+        {
+          "case": "web-emacs-navigation-executes-no-menu-command",
+          "passed": true
+        },
+        {
+          "case": "address-cut-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 24
+        },
+        {
+          "case": "address-undo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 19,
+            "end": 19
+          },
+          "native": 21
+        },
+        {
+          "case": "address-redo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 22
+        },
+        {
+          "case": "address-restore-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 19,
+            "end": 19
+          },
+          "native": 21
+        },
+        {
+          "case": "address-native-emacs-control-a",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "address-native-emacs-control-e",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 19,
+            "end": 19
+          }
+        },
+        {
+          "case": "address-emacs-navigation-executes-no-menu-command",
+          "passed": true
+        }
+      ]
+    },
+    "firefox_clipboard": {
+      "recorded_assertion_rows": 83,
+      "all_passed": true
+    },
+    "shared_host": {
+      "recorded_assertion_rows": 13,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "wrong-window-owner-pid-rejected",
+          "passed": true
+        },
+        {
+          "case": "rejected-address-preserves-native-menu",
+          "passed": true
+        },
+        {
+          "case": "malformed-address-rejected",
+          "passed": true
+        },
+        {
+          "case": "unknown-broker-operation-rejected",
+          "passed": true
+        },
+        {
+          "case": "forged-input-target-is-an-existing-control",
+          "passed": true
+        },
+        {
+          "case": "other-client-cannot-focus",
+          "passed": true
+        },
+        {
+          "case": "other-client-cannot-execute-menu-key",
+          "passed": true
+        },
+        {
+          "case": "rejected-input-queues-no-application-command",
+          "passed": true
+        },
+        {
+          "case": "trusted-source-can-clear-menu",
+          "passed": true
+        },
+        {
+          "case": "shared-helper-survives-menu-removal",
+          "passed": true
+        },
+        {
+          "case": "trusted-source-can-rebind-real-address",
+          "passed": true
+        },
+        {
+          "case": "rebound-menu-is-a-real-native-window",
+          "passed": true
+        },
+        {
+          "case": "shared-native-host-does-not-spin-while-idle",
+          "passed": true,
+          "cpu_seconds": 0.0
+        }
+      ]
+    },
+    "firefox_shortcuts_rebound": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true
+    },
+    "firefox_owner_exit": {
+      "recorded_assertion_rows": 10,
+      "all_passed": true
+    },
+    "standalone_lifecycle": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true
+    },
+    "standalone_owner_exit": {
+      "recorded_assertion_rows": 10,
+      "all_passed": true
+    },
+    "chromium_clipboard": {
+      "recorded_assertion_rows": 44,
+      "all_passed": true
+    },
+    "chromium_menus": {
+      "recorded_assertion_rows": 18,
+      "all_passed": true
+    },
+    "ordinary_helper": {
+      "recorded_boolean_values": 205,
+      "all_passed": true,
+      "scope": "Full NativeUI --transport suite with ordinary helper before the opt-in notifier gate strengthening; final ordinary-helper path additionally verified by Chromium clipboard/menu runs."
+    }
+  },
+  "environment": {
+    "firefox_hashes": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "5e9fc5247ed636263ff0155c60f2fb38364f0860e11453cd397d6a52cb75aab3",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "chromium_hashes": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "adapter": "27b23eb5d0cda7d2f6821e21c9ad74bfecd3eef444b304c02017c327da2e91a3",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "firefox_tab_processes": {
+      "observed": 6,
+      "all_seccomp_2_and_no_new_privs_1": true
+    },
+    "chromium_sandbox": {
+      "observed_renderers": 4,
+      "all_seccomp_2_and_no_new_privs_1": true
+    },
+    "package_count": 1050
+  },
+  "cleanup": {
+    "fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-shared-menu-01",
+        "pids": [
+          16209,
+          16212,
+          16213,
+          16217,
+          16218,
+          16221,
+          16224
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-shared-menu-02",
+        "pids": [
+          16612,
+          16615,
+          16616,
+          16620,
+          16621,
+          16625,
+          16628,
+          16720,
+          16723,
+          16736,
+          16745,
+          16785,
+          16826,
+          16832,
+          16839,
+          16848,
+          16856,
+          17076
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-shared-menu-03",
+        "pids": [
+          17223,
+          17226,
+          17227,
+          17231,
+          17232,
+          17236,
+          17239,
+          17319,
+          17322,
+          17344,
+          17352,
+          17389,
+          17438,
+          17444,
+          17447,
+          17472,
+          17499,
+          17580
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-menu-binding-cli-01",
+        "pids": [
+          17632,
+          17635,
+          17636,
+          17640,
+          17641,
+          17643,
+          17644,
+          17972
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-shared-menu-regression-01",
+        "pids": [
+          18002,
+          18005,
+          18006,
+          18009,
+          18010,
+          18018,
+          18019,
+          18021,
+          18050,
+          18054,
+          18056,
+          18074,
+          18088,
+          18097,
+          18258,
+          18348
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      }
+    ],
+    "backend_alias_removed": true,
+    "standalone_host": {
+      "pid": 17972,
+      "exit": 0
+    },
+    "named_agent_browser_session_closed": true,
+    "owned_CDP_forward_canceled": true
+  },
+  "diagnostics": [
+    "Initial shared-menu cohort retained a nested native dispatch/timeout failure; descriptor-only embedding pumping fixes the reentrancy boundary.",
+    "SIGUSR1 snapshot delivery could wait while Python was inside blocked native dispatch; shared checks use the inherited descriptor snapshot command.",
+    "The original field-filter provenance assertion failed after successful shared-menu Paste because NSMenu now handled it. The opt-in shared check requires exactly one native queue and actual exporter activation; the original ordinary-helper assertions remain unchanged.",
+    "The final shared03 cohort verifies current notifier client/kernel PID/pidfd and final-parenthesis proc parsing checks. No browser, adapter, provider, loader, shim or AppKit rebuild was needed.",
+    "After normal-path verification, a native-menu initialization failure was changed from SystemExit to RuntimeError so the broker can reject it through its existing exception path; this exceptional failure was not injected live."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/shared-menu-evidence",
+    "/var/tmp/nextspace-native-ui/firefox-shared-menu-01",
+    "/var/tmp/nextspace-native-ui/firefox-shared-menu-02",
+    "/var/tmp/nextspace-native-ui/firefox-shared-menu-03",
+    "/var/tmp/nextspace-native-ui/firefox-menu-binding-cli-01",
+    "/var/tmp/nextspace-native-ui/chromium-shared-menu-regression-01",
+    "/var/tmp/nextspace-native-ui/shared-menu-helper-regression-01"
+  ],
+  "remaining": [
+    "Production authenticated shell window/focus selection, registrar and helper lifecycle; fixture currently binds one owned browser window.",
+    "Special-key and multi-chord metadata, ambiguous rebuilt siblings, visible-branch updates, icons and torn-off menus.",
+    "Remaining browser/frontend controls and dialogs, IME, accessibility and mixed scaling.",
+    "Chrome, Vivaldi and Firefox derivatives; complete GTK, Qt/KDE and other application coverage."
+  ],
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "fc2775f474ce65736d7952f8243da5e28d771005117952836fe2bf603123a442",
+    "Experiments/ChromiumScrollers/native_controls.py": "e0d161e822902f7dae952219e6adcd8f4304126350f0ec776cddc656db462078",
+    "Experiments/DBusMenus/host.py": "b737e17fa2c7dcce41a13b60e1b7f6456ce8770609e2b5ccab6a9b6e73dfcbe5",
+    "Experiments/DBusMenus/binding.py": "f5f4654dbee3c21b76679f62963e3753454fb9d7538eda37931a0c69d928c017",
+    "Experiments/DBusMenus/broker.py": "0485fe0f803dec92f4fb0b8817909c03f323912f65e64f06070a46dc56cb5b12",
+    "Experiments/DBusMenus/glib_loop.py": "2c7ed23a2e4f82c30fda97803c226c82c1a398a05ffd782d0d2f3d2254bb7e5e",
+    "Experiments/DBusMenus/check-shortcuts.py": "2f62a5afde5090486a6b1999140323e6cc52d789845880013091e5e8d8d0e7b0",
+    "Experiments/DBusMenus/check-shared-host.py": "507bb71144551ea9e7e319e74ee50e1fe324b0f0f0b59d7247ad2019c98e95c2",
+    "Experiments/DBusMenus/check-firefox.py": "f4beffdb17cf89528ed7381ab9f6b533a73fb938333dc1c19ccc508a4dcea4d9",
+    "Experiments/DBusMenus/check-lifecycle.py": "a47551193d6d30e9314925e98fad520e57b6825d3f52b1ff8663e6e6bc5be441",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "5dd5f6760865567132ed8daec1d9e8360fbcb3fc775ff68df4f68ffd1e372185",
+    "Experiments/FirefoxNativeUI/check-text-commands.py": "b35318816744b7835677131a5e4bc97337e017aa5c5a5cd3f9197eff0d9dd090"
+  }
+}

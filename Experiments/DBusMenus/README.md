@@ -11,7 +11,8 @@ Firefox's pinned Linux build already exports its real menubar when both
 true. Its runtime also needs `libdbusmenu-glib.so.4`, `libdbusmenu-gtk3.so.4`, a
 session-bus registrar name and `org_kde_kwin_appmenu_manager`. The two small Debian
 runtime packages were extracted privately for the fixture. Firefox, libxul and
-AppKit were not rebuilt. No additional Firefox binary hooks were added for menus.
+AppKit were not rebuilt. Menu extraction uses that existing exporter; the
+optional lifecycle callback binding is described below.
 
 The compositor accepts the standard app-menu address only for the requesting
 client's own surface. The authorized shell receives it with the window PID in a
@@ -84,10 +85,47 @@ explicitly rejects that exact ID before queueing any event. Recovery is bounded;
 uncertain results, timeouts and disconnects are never retried. Its protocol test
 is `Tests/NativeUI/check-dbus-menu-events.py`.
 
-The current experiment does not complete browser integration. Native keyboard
-routing and automatic desktop association need further work. Ambiguous rebuilt sibling
-identities, changes to an already visible branch, special-key metadata, desktop
-association, bus recovery and other browser/toolkit controls remain open.
+## Share the native text and menu responder host
+
+`binding.py` contains the single reusable D-Bus model binding. `host.py` runs it
+as a standalone CLI; the existing control helper can host the same binding in
+its own `NSApplication`. This lets GNUstep's real application menu match key
+equivalents before its real field editor interprets editing keys. The bridge
+translates exported shortcut metadata and contains no application shortcut table.
+
+`FirefoxNativeUI/run-frontend-fixture.py --export-menus --shared-menus` supplies
+the owned browser's real compositor window/address metadata through an inherited
+Unix SEQPACKET descriptor. The helper accepts this opt-in role through
+`--dbus-menu-fd`; renderer connections cannot register application menus.
+Each address is authenticated against the unique D-Bus owner's kernel PID.
+Text focus/key requests additionally require the control's own connection, its
+authenticated notification connection and live PID, and ancestry under the
+bound browser. A rejected replacement preserves the existing menu. Clear,
+replacement, channel loss and application exit cancel and dispose the binding
+without shutting down the shared field helper.
+
+Key-triggered application actions are queued until the helper has returned the
+native input RPC reply. Their opaque identities are then resolved against the
+current real exporter before delivery. Waiting synchronously inside that RPC
+would deadlock a browser UI thread awaiting the helper. GLib's public poll
+descriptors/deadlines join the provider's existing native descriptor sources;
+there is no widget polling timer. The embedding pump services descriptors
+without recursively dispatching native tracking events.
+
+`check-shortcuts.py` verifies physical native Undo/Redo and Emacs navigation in
+both webpage and address fields. `check-shared-host.py` checks ownership,
+rejection, clear/rebind and idle behavior. The existing clipboard checker adds
+`--command-filter --application-menus` to require exactly one native menu queue
+and actual exported activation for Paste with empty helper storage. Its default
+field-command callback assertions remain intact. Shared snapshots use the
+inherited descriptor; signals may wait while Python is inside a blocking native
+dispatch. The owner-loss check requires the shared helper to remain alive.
+
+The current experiment does not complete browser integration. The fixture binds
+one owned browser window; production shell selection/focus association remains
+unimplemented. Ambiguous rebuilt sibling identities, changes to an already
+visible branch, special-key metadata, bus recovery and other browser/toolkit
+controls remain open. See [shared-host qualification](shared-host-qualification.json).
 
 See the Firefox [menu lifecycle qualification](../FirefoxNativeUI/menu-lifecycle-qualification.json)
 for the current toolbar, root-window and event-delivery fixes.

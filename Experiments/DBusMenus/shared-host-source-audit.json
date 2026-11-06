@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-06",
+  "baseline": "9f72f19e",
+  "scope": "Reuse the same D-Bus model binding in the existing native field host, without duplicating controls or rebuilding browsers",
+  "implementation": {
+    "binding": "One MenuBinding implementation serves standalone host.py and inherited-role MenuBroker.",
+    "native_components": "Existing NSApplication/NSMenu/NSMenuItem and field editor implementations remain in GNUstep/NativeUI.",
+    "keyboard": "Exported shortcut metadata feeds native key matching; field keys use native editing. No application command-name or key-binding table is added.",
+    "scheduling": "Key command callbacks enqueue an opaque token and return. Outer helper tick resolves and sends the real exporter action after the native input RPC reply.",
+    "loop": "GLib public prepare/query descriptors and deadlines join existing native source descriptors. Nested menu pumping services descriptors without native event reentry.",
+    "authority": "Private inherited SEQPACKET role supplies compositor window metadata; D-Bus unique owner PID must match. Focus/key input requires owning client and authenticated notifier PID/pidfd plus browser ancestry.",
+    "lifecycle": "Binding stop invalidates in-flight generations and queued commands; idle close destroys native menu and drops subscriptions. Menu removal/owner exit preserve shared helper."
+  },
+  "unchanged_binary_receipts": {
+    "firefox": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "5e9fc5247ed636263ff0155c60f2fb38364f0860e11453cd397d6a52cb75aab3",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "chromium": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "adapter": "27b23eb5d0cda7d2f6821e21c9ad74bfecd3eef444b304c02017c327da2e91a3",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    }
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "fc2775f474ce65736d7952f8243da5e28d771005117952836fe2bf603123a442",
+    "Experiments/ChromiumScrollers/native_controls.py": "e0d161e822902f7dae952219e6adcd8f4304126350f0ec776cddc656db462078",
+    "Experiments/DBusMenus/host.py": "b737e17fa2c7dcce41a13b60e1b7f6456ce8770609e2b5ccab6a9b6e73dfcbe5",
+    "Experiments/DBusMenus/binding.py": "f5f4654dbee3c21b76679f62963e3753454fb9d7538eda37931a0c69d928c017",
+    "Experiments/DBusMenus/broker.py": "0485fe0f803dec92f4fb0b8817909c03f323912f65e64f06070a46dc56cb5b12",
+    "Experiments/DBusMenus/glib_loop.py": "2c7ed23a2e4f82c30fda97803c226c82c1a398a05ffd782d0d2f3d2254bb7e5e",
+    "Experiments/DBusMenus/check-shortcuts.py": "2f62a5afde5090486a6b1999140323e6cc52d789845880013091e5e8d8d0e7b0",
+    "Experiments/DBusMenus/check-shared-host.py": "507bb71144551ea9e7e319e74ee50e1fe324b0f0f0b59d7247ad2019c98e95c2",
+    "Experiments/DBusMenus/check-firefox.py": "f4beffdb17cf89528ed7381ab9f6b533a73fb938333dc1c19ccc508a4dcea4d9",
+    "Experiments/DBusMenus/check-lifecycle.py": "a47551193d6d30e9314925e98fad520e57b6825d3f52b1ff8663e6e6bc5be441",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "5dd5f6760865567132ed8daec1d9e8360fbcb3fc775ff68df4f68ffd1e372185",
+    "Experiments/FirefoxNativeUI/check-text-commands.py": "b35318816744b7835677131a5e4bc97337e017aa5c5a5cd3f9197eff0d9dd090"
+  },
+  "qualification": "shared-host-qualification.json",
+  "remaining": [
+    "Production authenticated shell window/focus selection, registrar and helper lifecycle; fixture currently binds one owned browser window.",
+    "Special-key and multi-chord metadata, ambiguous rebuilt siblings, visible-branch updates, icons and torn-off menus.",
+    "Remaining browser/frontend controls and dialogs, IME, accessibility and mixed scaling.",
+    "Chrome, Vivaldi and Firefox derivatives; complete GTK, Qt/KDE and other application coverage."
+  ]
+}

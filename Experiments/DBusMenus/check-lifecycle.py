@@ -5,7 +5,11 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'FirefoxNativeUI'))
 from marionette import Marionette
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,required=True);p.add_argument('--expected-pid',type=int,required=True);p.add_argument('--menu-host',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--require-menu-lifecycle-binding',action='store_true');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);rows=[]
-host=json.loads(a.menu_host.read_text());native_output=Path(host['arguments'][host['arguments'].index('--output')+1]);assert '--lifecycle' in host['arguments']
+host=json.loads(a.menu_host.read_text())
+if host.get('shared_helper'):
+ native_output=Path(host['output']);assert host['owner']==a.expected_pid
+else:
+ native_output=Path(host['arguments'][host['arguments'].index('--output')+1]);assert '--lifecycle' in host['arguments']
 launch=json.loads((a.fixture/'launch.json').read_text());assert launch['pids'][-1]==a.expected_pid
 held=False
 
@@ -21,7 +25,9 @@ def wait(read,predicate):
   assert time.monotonic()<end,v
   time.sleep(.015)
 def states():
- path=native_output/'native-items.json';s=path.stat();stamp=(s.st_ino,s.st_mtime_ns);os.kill(host['pid'],signal.SIGUSR1)
+ path=native_output/'native-items.json';s=path.stat();stamp=(s.st_ino,s.st_mtime_ns)
+ if host.get('shared_helper'):assert control('menu-broker '+json.dumps(dict(operation='snapshot')))['accepted']
+ else:os.kill(host['pid'],signal.SIGUSR1)
  wait(lambda:(path.stat().st_ino,path.stat().st_mtime_ns),lambda v:v!=stamp)
  return json.loads(path.read_text())
 def item(title):
@@ -88,7 +94,8 @@ try:
  # Inspect real popup delivery; the bridge has no DOM knowledge.
  events=js('return window.__nativePopupProbe??[]');(a.output/'browser-popup-events.json').write_text(json.dumps(events,indent=2)+'\n')
  prefix=a.menu_host.with_name(a.menu_host.name.removesuffix('-host.json'))
- trace=wait(lambda:Path(str(prefix)+'.stdout').read_text(),lambda text:text.count('"event": "native-submenu-prepared"')==text.count('"event": "native-submenu-closed"'))
+ log_path=Path(host['log']) if host.get('shared_helper') else Path(str(prefix)+'.stdout')
+ trace=wait(log_path.read_text,lambda text:text.count('"event": "native-submenu-prepared"')==text.count('"event": "native-submenu-closed"'))
  (a.output/'menu.log').write_text(trace)
  prepared=[json.loads(l) for l in trace.splitlines() if '"event": "native-submenu-prepared"' in l];closed=[json.loads(l) for l in trace.splitlines() if '"event": "native-submenu-closed"' in l]
  check('native-lifecycle-delivers-real-branches',len(prepared)>=5 and len(closed)>=5,prepared=len(prepared),closed=len(closed))

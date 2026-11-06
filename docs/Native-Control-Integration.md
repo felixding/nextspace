@@ -41,10 +41,10 @@ required integration surfaces differ:
 | Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
 | Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing, editing keys and single/Shift/double/triple-click selection and dragging connected to real Blink transactions. Native clipboard validation/execution now uses the existing Blink commands. IME, sizing/scaling and broader commands remain open. |
-| Chrome/Chromium browser UI | Views controls, text editing and menu models | The pinned Chromium Omnibox now uses the shared native text field for complete pixels, editing keys, native-interpreted clipboard commands, single/Shift/double/triple-click selection and dragging. Undo/availability, IME, other Views controls and menus remain open; Chrome builds are not qualified. |
+| Chrome/Chromium browser UI | Views controls, text editing and menu models | The pinned Chromium Omnibox uses the shared native field for pixels, editing, clipboard and pointer selection. Its real application menu model also binds to native detached menus. Broader command availability, IME and other Views controls remain open; Chrome builds are not qualified. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single/Shift/double/triple-click selection and dragging through the shared provider. Native clipboard validation/execution now uses the existing Gecko controllers. Selected-text data dragging, IME, other controls, scaled output and broader input remain open. |
-| Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | The pinned Firefox address editor now uses the shared native field for complete pixels, editing keys and pointer selection, including multiple clicks. Native clipboard validation/execution now uses the actual URL-bar controllers. Menus, Undo/Redo availability, other frontend controls and wider qualification remain open. |
+| Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | The pinned Firefox address editor uses the shared native field for pixels, editing and pointer selection. Its actual D-Bus menu model supplies native detached menus, lazy bookmark branches and real commands. Sharing the menu and field host now qualifies native Undo/Redo shortcuts, Emacs navigation and clipboard commands in webpage/address fields. Production desktop association, other frontend controls and wider qualification remain open. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
 Chromium's own documentation describes its Linux GTK integration as primarily
@@ -90,8 +90,10 @@ keys to real engine text transactions. Chromium's address field now also binds
 complete pixels and native editing keys to its real Views model, with clipboard
 selectors routed through the actual Omnibox commands. Its single primary-click,
 Shift-click and selection dragging now use the same actual native tracking loop.
-Multiple-click metadata and undo/menu availability remain open, as does Firefox's address bar. Provider
-and transport checks alone cannot establish browser text integration.
+Multiple-click selection and Firefox's address field have separate browser
+qualification. The shared menu/field responder host now also qualifies native
+Firefox Undo/Redo shortcuts. Provider and transport checks alone cannot
+establish browser text integration.
 The shared editor now also exposes native pre-edit proposals and cancellation
 through a reentrant process-owned channel. The pinned Firefox adapter runs its
 actual engine edit transaction during that callback, retains `beforeinput`

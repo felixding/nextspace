@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Experimental renderer transport to the independent native UI provider."""
-import argparse,array,ctypes as C,fcntl,itertools,json,os,select,socket,struct,time
+import argparse,array,ctypes as C,fcntl,itertools,json,os,select,signal,socket,struct,sys,time
 from pathlib import Path
 from native_controls import MAGIC as CONTROL_MAGIC, NativeControlServer
 class Request(C.Structure):
@@ -27,7 +27,7 @@ def send_response(client,response,data=b''):
         client.sendmsg([bytes(response)],[(socket.SOL_SOCKET,socket.SCM_RIGHTS,array.array('i',[descriptor]))])
     finally:os.close(descriptor)
 
-def run(library,path):
+def run(library,path,menu_descriptor=None,menu_output=None):
     started=time.monotonic()
     native=C.CDLL(str(library));native.nxs_scroller_create.argtypes=[C.c_int,Changed,Pump,C.c_void_p];native.nxs_scroller_create.restype=C.c_void_p
     native.nxs_scroller_width.argtypes=[];native.nxs_scroller_width.restype=C.c_double
@@ -40,10 +40,10 @@ def run(library,path):
     native.nxs_scroller_send.argtypes=[C.c_void_p,C.c_int,C.c_double,C.c_double,C.c_uint]
     server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET)
     server.setblocking(False)
-    clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={}
+    clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={};menu_broker=None;menu_sources=set()
     def add_source(connection):
         if forms and forms.source_capabilities:
-            source=native.nxs_native_ui_source_create(connection.fileno())
+            source=native.nxs_native_ui_source_create(connection if isinstance(connection,int) else connection.fileno())
             if not source:raise RuntimeError('Cannot register embedding descriptor with native loop')
             sources[connection]=source
     def remove_source(connection):
@@ -122,15 +122,28 @@ def run(library,path):
                 if native.nxs_scroller_tracking(state['native']):native.nxs_scroller_send(state['native'],1,0,0,0)
             response(client,req,state)
         else:response(client,req,None)
-    def dispatch(timeout):
-        native_wait=forms.dispatch_events(60 if timeout is None and sources else 0) if forms else -1
+    def dispatch(timeout,native_events=True):
+        nonlocal menu_sources
+        readers,writers,menu_delay=set(),set(),None
+        if menu_broker:
+            menu_broker.pump();readers,writers,menu_delay=menu_broker.poll()
+            for descriptor in menu_sources-readers:remove_source(descriptor)
+            for descriptor in readers-menu_sources:add_source(descriptor)
+            menu_sources=readers
+        maximum=60 if timeout is None and sources else 0
+        if menu_delay is not None:maximum=min(maximum,menu_delay)
+        if writers:maximum=0
+        native_wait=forms.dispatch_events(maximum) if forms and native_events else -1
         if sources:timeout=0
         if native_wait>=0:
             timeout=native_wait if timeout is None else min(timeout,native_wait)
-        ready,_,_=select.select([server]+clients+(forms.notification_fds()+forms.text_filter_fds() if forms else []),[],[],timeout)
+        if menu_delay is not None:timeout=menu_delay if timeout is None else min(timeout,menu_delay)
+        ready,writable,_=select.select([server]+clients+list(readers)+(forms.notification_fds()+forms.text_filter_fds() if forms else []),list(writers),[],timeout)
+        if writable:menu_broker.pump()
         for client in ready:
             if isinstance(client,int):
-                if client in forms.text_filter_fds():forms.text_filter_ready(client)
+                if client in readers:menu_broker.ready(client)
+                elif client in forms.text_filter_fds():forms.text_filter_ready(client)
                 else:forms.owner_exited(client)
                 continue
             if client is server:
@@ -175,6 +188,13 @@ def run(library,path):
         forms=NativeControlServer(native,Bitmap,Response,Pump,dispatch,pending,send_response,
                                   lambda: not pending and active is None and forms.active is None,log)
         forms.prepare()
+    if menu_descriptor is not None:
+        if not forms or not forms.notification_capabilities:raise RuntimeError('Shared menus require authenticated native owner notifications')
+        sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'DBusMenus'))
+        from broker import MenuBroker
+        menu_broker=MenuBroker(native,menu_descriptor,menu_output or path.parent/'menus',dispatch,log)
+        forms.input_owner=menu_broker.allows_input
+        signal.signal(signal.SIGUSR1,lambda *unused:menu_broker.current and menu_broker.current['binding'].dump_states())
     for horizontal in (0,1):
         pointer=native.nxs_scroller_create(horizontal,Changed(),Pump(),None)
         if not pointer:raise RuntimeError('Native scroller preparation failed')
@@ -194,11 +214,15 @@ def run(library,path):
                 if state['destroy'] and not native.nxs_scroller_tracking(state['native']):
                     native.nxs_scroller_destroy(state['native']);state['native']=None;del controls[key];del contexts[state['context']]
             if forms:forms.cleanup()
+            if menu_broker:menu_broker.tick()
     finally:
         for connection in list(sources):remove_source(connection)
+        if menu_broker:menu_broker.close()
         if forms:forms.close()
         for state in controls.values():native.nxs_scroller_destroy(state['native'])
         for client in clients:client.close()
         server.close();path.unlink(missing_ok=True)
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--library',type=Path,required=True);p.add_argument('--socket',type=Path,required=True);args,remaining=p.parse_known_args();run(args.library,args.socket)
+    p=argparse.ArgumentParser();p.add_argument('--library',type=Path,required=True);p.add_argument('--socket',type=Path,required=True)
+    p.add_argument('--dbus-menu-fd',type=int);p.add_argument('--dbus-menu-output',type=Path)
+    args,remaining=p.parse_known_args();run(args.library,args.socket,args.dbus_menu_fd,args.dbus_menu_output)

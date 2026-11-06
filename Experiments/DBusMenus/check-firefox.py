@@ -33,15 +33,20 @@ def wait(read,predicate):
 def native_states():
  path=host_output/'native-items.json'
  before=path.stat();stamp=(before.st_ino,before.st_mtime_ns)
- os.kill(host['pid'],signal.SIGUSR1)
+ if host.get('shared_helper'):assert control('menu-broker '+json.dumps(dict(operation='snapshot')))['accepted']
+ else:os.kill(host['pid'],signal.SIGUSR1)
  def refreshed():
   after=path.stat();return (after.st_ino,after.st_mtime_ns)!=stamp
  wait(refreshed,bool)
  return json.loads(path.read_text())
 launch=json.loads((a.fixture/'launch.json').read_text());host=json.loads(a.menu_host.read_text())
 assert a.expected_pid==launch['pids'][-1]
-assert host['arguments'][host['arguments'].index('--owner')+1]==str(a.expected_pid)
-host_output=Path(host['arguments'][host['arguments'].index('--output')+1])
+if host.get('shared_helper'):
+ assert host['owner']==a.expected_pid
+ host_output=Path(host['output'])
+else:
+ assert host['arguments'][host['arguments'].index('--owner')+1]==str(a.expected_pid)
+ host_output=Path(host['arguments'][host['arguments'].index('--output')+1])
 items=json.loads((host_output/'native-items.json').read_text());file=next(i for i in items if i['title']=='File')
 layout=json.loads((host_output/'layout.json').read_text())['root'];file_model=next(c for c in layout[2] if c[1].get('label')=='File')
 check('real-exported-first-command',file_model[2][0][1].get('label')=='New Tab')
@@ -77,14 +82,18 @@ try:
 finally:m.close()
 if a.owner_loss:
  popup=open_file();check('held-submenu-before-owner-exit',bool(popup))
- os.kill(a.expected_pid,signal.SIGTERM)
  prefix=a.menu_host.with_name(a.menu_host.name.removesuffix('-host.json'))
- log=Path(str(prefix)+'.stdout')
- wait(lambda:log.read_text(),lambda t:'"event": "owner-lost"' in t and '"event": "stopped"' in t)
+ log=Path(host['log']) if host.get('shared_helper') else Path(str(prefix)+'.stdout')
+ start=len(log.read_text());os.kill(a.expected_pid,signal.SIGTERM)
+ wait(lambda:log.read_text()[start:],lambda t:'"event": "stopped"' in t and (host.get('shared_helper') or '"event": "owner-lost"' in t))
  wait(lambda:control('windows'),lambda ws:not any(w['pid']==host['pid'] for w in ws))
  control('button 272 0')
  check('owner-exit-removes-native-menu',not control('popups'))
- cleanup_path=Path(str(prefix)+'-cleanup.json')
- cleanup=wait(lambda:json.loads(cleanup_path.read_text()) if cleanup_path.exists() else None,bool)
- check('native-host-exits-cleanly',cleanup['exit']==0,cleanup=cleanup)
+ if host.get('shared_helper'):
+  state=Path('/proc',str(host['pid']),'stat').read_text().split(') ',1)[1].split()[0]
+  check('shared-host-survives-application-owner-exit',state not in ('Z','X'),pid=host['pid'])
+ else:
+  cleanup_path=Path(str(prefix)+'-cleanup.json')
+  cleanup=wait(lambda:json.loads(cleanup_path.read_text()) if cleanup_path.exists() else None,bool)
+  check('native-host-exits-cleanly',cleanup['exit']==0,cleanup=cleanup)
 print(json.dumps(dict(passed=len(rows))))

@@ -323,5 +323,13 @@ attribute changes or a copied toolbar implementation.
 
 See [the generic bridge](../DBusMenus/README.md) and the
 [lifecycle qualification](menu-lifecycle-qualification.json) for native
-Undo/Redo/bookmark and owner-loss evidence. Shared native keyboard routing,
-remaining browser controls and production shell association remain incomplete.
+Undo/Redo/bookmark and owner-loss evidence. Add `--shared-menus` to the export
+fixture to bind that same model in the existing native field/control helper.
+GNUstep then supplies application menu key matching and field editing in one
+responder host. Physical Undo/Redo and Emacs navigation are qualified in both
+webpage and address fields; the 83-check clipboard run also passes through the
+real exported application menu. `check-shortcuts.py` and
+`check-shared-host.py` live in `Experiments/DBusMenus`. The inherited registration
+descriptor is separate from renderer input connections. Production shell
+association, remaining browser controls and derivative qualification remain
+incomplete. See [shared-host qualification](../DBusMenus/shared-host-qualification.json).

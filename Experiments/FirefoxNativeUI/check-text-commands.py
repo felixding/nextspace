@@ -9,7 +9,12 @@ p.add_argument('--fixture',type=Path,required=True);p.add_argument('--pasteboard
 p.add_argument('--native-text-app',type=Path,required=True);p.add_argument('--backend',required=True)
 p.add_argument('--output',type=Path,required=True)
 p.add_argument('--command-filter',action='store_true',help='Require application command validation with empty helper storage')
+p.add_argument('--application-menus',action='store_true',help='Require the shared native menu queue and exported activation path')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);results=[];m=Marionette(a.port);native_app=None
+if a.application_menus:
+ if not a.command_filter:p.error('--application-menus requires --command-filter')
+ menu_binding=json.loads((a.fixture/'menu-binding.json').read_text())
+ assert menu_binding['shared_helper'] and menu_binding['owner']==a.expected_pid
 runtime=dict(os.environ,**json.loads((a.fixture/'runtime.json').read_text()));runtime.pop('LD_PRELOAD',None)
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as s:
@@ -94,11 +99,20 @@ try:
    subprocess.run([str(a.pasteboard_probe),'--empty'],env=runtime,check=True,timeout=5)
    empty=subprocess.run([str(a.pasteboard_probe),'--export-text'],env=runtime,capture_output=True,text=True,timeout=5)
    check(name+'-helper-storage-empty',empty.returncode==1 and not empty.stdout)
+   if a.application_menus:
+    control_snapshot=command('menu-broker '+json.dumps(dict(operation='snapshot')));assert control_snapshot['accepted']
+    paste_identity=next(i['command'] for i in json.loads((Path(menu_binding['output'])/'native-items.json').read_text()) if i['title']=='Paste')
    before=len((a.fixture/'helper.jsonl').read_text().splitlines());key('paste');wait(lambda:read()['value']==expected)
    actual=read();length=len(expected.encode('utf-16-le'))//2
    check(name+'-paste-without-helper-data',actual==dict(value=expected,start=length,end=length),state=actual)
-   callbacks=[json.loads(line) for line in (a.fixture/'helper.jsonl').read_text().splitlines()[before:] if '"event": "native-command"' in line]
-   check(name+'-native-application-command-callbacks',any(r['phase']==0 and r['result']==1 for r in callbacks) and any(r['phase']==1 for r in callbacks),callbacks=callbacks)
+   trace=[json.loads(line) for line in (a.fixture/'helper.jsonl').read_text().splitlines()[before:]]
+   if a.application_menus:
+    queued=[r for r in trace if r['event']=='application-command-queued' and r.get('native')==paste_identity]
+    executed=[r for r in trace if r['event']=='application-command' and r.get('native')==paste_identity]
+    check(name+'-native-application-menu-command',len(queued)==len(executed)==1,queued=queued,executed=executed)
+   else:
+    callbacks=[r for r in trace if r['event']=='native-command']
+    check(name+'-native-application-command-callbacks',any(r['phase']==0 and r['result']==1 for r in callbacks) and any(r['phase']==1 for r in callbacks),callbacks=callbacks)
  native_text='Native source: 日本語, 한글, emoji 😸';source=a.output/'native-source.txt';source.write_text(native_text)
  log=(a.output/'native-app.log').open('w')
  native_app=subprocess.Popen([str(a.native_text_app),'-NSUseRunningCopy','NO','-GSBackend',a.backend,'-NSOpen',str(source)],env=dict(runtime,WAYLAND_DEBUG='client'),stdout=log,stderr=log)

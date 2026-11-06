@@ -16,10 +16,12 @@ parser.add_argument('--backend',required=True)
 parser.add_argument('--capture-probe',type=Path,required=True)
 parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--export-menus',action='store_true',help='Enable Firefox menu export on a private test bus; requires the app-menu Wayland protocol')
+parser.add_argument('--shared-menus',action='store_true',help='Bind the exported menu in the existing native text/control helper')
 parser.add_argument('--port',type=int,default=2833)
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--hold',action='store_true',help='Keep the owned test/control fixture open until quit')
 a=parser.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
+if a.shared_menus and not a.export_menus:parser.error('--shared-menus requires --export-menus')
 pin=json.loads((Path(__file__).with_name('binary-pin.json')).read_text())
 import hashlib
 for name,path in [('firefox-esr',a.firefox),('libxul.so',a.firefox.parent/'libxul.so')]:
@@ -27,7 +29,7 @@ for name,path in [('firefox-esr',a.firefox),('libxul.so',a.firefox.parent/'libxu
 with socket.socket() as port_probe:port_probe.bind(('127.0.0.1',a.port))
 def interrupted(signum,frame):raise KeyboardInterrupt
 signal.signal(signal.SIGTERM,interrupted)
-children=[];services=ExitStack();capture=None
+children=[];services=ExitStack();capture=None;menu_parent=menu_child=None
 
 def stop(p):
  if p.poll() is None:
@@ -60,7 +62,12 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   assert capture.events[0]['manager_visible']
   services.enter_context(pasteboard_storage(Path('/Library/bin/gpbs-wayland'),a.library.resolve().parent/'native-ui/native-pasteboard-probe',env,out))
   endpoint=runtime/'native.sock'
-  helper=subprocess.Popen(['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/helper.py'),'--library',str(a.library.resolve()),'--socket',str(endpoint),'-GSBackend',a.backend],env=env,stdout=(out/'helper.jsonl').open('w'),stderr=(out/'helper.stderr').open('w'));children.append(helper)
+  helper_args=['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/helper.py'),'--library',str(a.library.resolve()),'--socket',str(endpoint),'-GSBackend',a.backend]
+  if a.shared_menus:
+   menu_parent,menu_child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);menu_parent.settimeout(8)
+   helper_args+=['--dbus-menu-fd',str(menu_child.fileno()),'--dbus-menu-output',str(out/'shared-menus')]
+  helper=subprocess.Popen(helper_args,env=env,pass_fds=[menu_child.fileno()] if menu_child else [],stdout=(out/'helper.jsonl').open('w'),stderr=(out/'helper.stderr').open('w'));children.append(helper)
+  if menu_child:menu_child.close()
   deadline=time.monotonic()+30
   while not endpoint.exists():
    assert helper.poll() is None and time.monotonic()<deadline;time.sleep(.02)
@@ -75,6 +82,21 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   args=[str(a.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',Path(__file__).with_name('test-text.html').resolve().as_uri()]
   browser=subprocess.Popen(args,env=env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'));children.append(browser)
   (out/'launch.json').write_text(json.dumps(dict(pids=[p.pid for p in children],capture=capture.process.pid,command=args),indent=2)+'\n')
+  if a.shared_menus:
+   deadline=time.monotonic()+30
+   while True:
+    assert browser.poll() is None and helper.poll() is None and time.monotonic()<deadline
+    window=next((w for w in command('windows') if w['pid']==browser.pid and w.get('appmenu_service') and w.get('appmenu_path')),None)
+    if window:break
+    time.sleep(.02)
+   menu_parent.send(json.dumps(dict(operation='bind',window=window['id'],pid=window['pid'],
+       service=window['appmenu_service'],path=window['appmenu_path'],title='Firefox')).encode())
+   assert json.loads(menu_parent.recv(4096))['accepted']
+   menu_output=out/'shared-menus'/str(window['id'])
+   while not (menu_output/'native-items.json').exists():
+    assert helper.poll() is None and time.monotonic()<deadline;time.sleep(.02)
+   (out/'menu-binding.json').write_text(json.dumps(dict(shared_helper=True,pid=helper.pid,owner=browser.pid,
+       window=window['id'],output=str(menu_output),log=str(out/'helper.jsonl'),arguments=helper_args),indent=2)+'\n')
   print('Owned Firefox frontend fixture ready',flush=True)
   if not a.hold:
    sys.path.insert(0,str(Path(__file__).resolve().parent))
@@ -93,6 +115,9 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
    with connection:
     request=json.loads(connection.recv(65536));text=request['command']
     if text=='quit':connection.send(json.dumps(dict(ok=True)).encode());break
+    if text.startswith('menu-broker ') and menu_parent:
+     menu_parent.send(text.split(' ',1)[1].encode());connection.send(menu_parent.recv(4096))
+     continue
     if text.startswith('reference '):
      spec=json.loads(text.split(' ',1)[1]);path=out/'references-controls.json';path.write_text(json.dumps(spec['controls']))
      location=out/spec['name'];reference_env=dict(env);reference_env.pop('LD_PRELOAD',None)
@@ -104,6 +129,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
      connection.send(json.dumps(dict(event=event,path=str(path),output=head)).encode())
     else:connection.send(json.dumps(command(text)).encode())
  finally:
+  if menu_parent:menu_parent.close()
   if capture:capture.stop()
   for p in reversed(children[1:]):stop(p)
   services.close()

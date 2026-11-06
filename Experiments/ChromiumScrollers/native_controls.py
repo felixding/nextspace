@@ -94,6 +94,7 @@ class NativeControlServer:
         self.pending, self._send, self.idle, self.log = pending, send, idle, log
         self.reply_barriers={};self.menu_reply_barriers={}
         self.dispatch=dispatch
+        self.input_owner=None
         self.controls, self.contexts = {}, {}
         self.identities = itertools.count(1)
         self.active = None
@@ -602,7 +603,7 @@ class NativeControlServer:
             else:self._respond(client,req)
             return
         if len(data) >= 8 and int.from_bytes(data[4:8], 'little') in (7, 8):
-            self.input_message(client, data)
+            self.input_message(client, data,sender_pid)
             return
         if len(data) < C.sizeof(ControlRequest):
             return
@@ -768,14 +769,19 @@ class NativeControlServer:
         if accepted:self.log('native-popup-model',process=req.process,control=req.control,count=req.count,selected=req.selected)
         self._respond(client,req,state,pixels=bool(accepted),input_result=accepted)
 
-    def input_message(self, client, data):
+    def input_message(self, client, data,sender_pid=None):
         if len(data) < C.sizeof(ControlInputRequest):
             return
         req = ControlInputRequest.from_buffer_copy(data)
         if req.magic != MAGIC or req.text_size + req.unmodified_size != len(data) - C.sizeof(req):
             return
         state = self.controls.get((req.process, req.control, req.kind))
-        if not state or state['destroy'] or req.text_size + req.unmodified_size > 65536:
+        owner=self.notifiers.get(req.process) if self.input_owner else None
+        authorized=(not self.input_owner or owner and owner['client'] is client and owner['pid']==sender_pid
+                    and not select.select([owner['lifetime']],[],[],0)[0] and self.input_owner(sender_pid))
+        if (not state or state['destroy'] or state['client'] is not client
+                or req.text_size + req.unmodified_size > 65536
+                or not authorized):
             self._respond(client, req)
             return
         result = 0
