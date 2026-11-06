@@ -460,3 +460,32 @@ text, offscreen insertion, cancelled insertion, complete native images and host
 replacement on the pinned 100% scale build. Pointer autoscroll, ancestor-page
 reveal, richer edits/async clipboard commands, selection-direction metadata,
 IME/accessibility and other scales/builds still need qualification.
+
+## Actual desktop rendering
+
+The first complete Workspace screenshots exposed a gap in the earlier image
+checks: Marionette's content screenshots showed native fields, while the actual
+desktop showed empty text fields and several original Firefox controls. The
+active `nsITheme` can be GTK for web content as well as the browser frontend.
+Intercepting only `Theme::CreateWebRenderCommandsForWidget` did not reach that
+on-screen path. The adapter now selects Gecko's existing paint fallback at the
+shared `nsDisplayThemedBackground` boundary, before virtual theme dispatch.
+Owned webpage text fields also use the existing native display-item painter.
+These bindings apply even when frontend integration is disabled. No native
+control, UI renderer, browser or AppKit implementation was copied or rebuilt.
+
+[`native_ui_desktop.py`](../../Tests/Wayland/native_ui_desktop.py) runs an actual
+Workspace desktop with the session supervisor, NativeUI host and pinned Firefox.
+It receives the compositor's authorized screencopy role and compares full RGB
+control rectangles with independent direct GNUstep references. It never requests
+a browser screenshot. Arguments select the existing supervisor, compositor,
+Workspace, capture probe, provider, adapter, browser and backend bundle; run
+`python3 Tests/Wayland/native_ui_desktop.py --help` for the complete interface.
+The runner isolates defaults, browser profile, session bus, control sockets and
+Marionette port; `--no-frontend` additionally verifies ordinary web controls
+without the address-field binding. The
+[desktop qualification](desktop-qualification.json) records both runs and the
+old adapter's expected failure. The [source audit](desktop-source-audit.json)
+records the exact compiled boundaries. Full browser chrome, HTML button/select
+bindings, root-document scrolling, broader CSS, other scales/builds and
+derivatives remain unfinished.

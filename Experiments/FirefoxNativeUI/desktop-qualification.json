@@ -1,0 +1,454 @@
+{
+  "date": "2026-11-07",
+  "baseline": "5bc94f44",
+  "status": "Pinned Firefox native controls now render on the actual staged Workspace desktop; full browser/application integration remains incomplete.",
+  "implementation": {
+    "boundary": "Install the shared themed-background display-item hooks independently of optional parent frontend integration. Select the existing Gecko fallback before GTK/generic virtual theme dispatch, and reuse the existing native text item painter for owned web fields.",
+    "rebuilt": "Only the optional Firefox ARM64 adapter",
+    "unchanged": "Browser executables/libxul, AppKit, shared bridge transport, NativeUI loader/provider and private backend",
+    "ui_components_copied": false
+  },
+  "desktop": {
+    "frontend": {
+      "path": "/var/tmp/nxs-display-final05/frontend",
+      "assertions": 10,
+      "passed": 10,
+      "complete_native_images": 40,
+      "checks": [
+        {
+          "case": "owned-browser-session",
+          "passed": true
+        },
+        {
+          "case": "initial-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "updated-and-resized-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "programmatic-updates-preserve-events",
+          "passed": true
+        },
+        {
+          "case": "trusted-native-button-action",
+          "passed": true
+        },
+        {
+          "case": "after-native-action-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "native-edit-retains-engine-value-and-trusted-events",
+          "passed": true
+        },
+        {
+          "case": "after-native-edit-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "reloaded-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "navigation-away",
+          "passed": true
+        }
+      ],
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      },
+      "sandbox_content_processes": 6,
+      "complete_check_details": "results.json in the corresponding archived runs/desktop directory"
+    },
+    "no_frontend": {
+      "path": "/var/tmp/nxs-display-final05/no-frontend",
+      "assertions": 10,
+      "passed": 10,
+      "complete_native_images": 40,
+      "checks": [
+        {
+          "case": "owned-browser-session",
+          "passed": true
+        },
+        {
+          "case": "initial-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "updated-and-resized-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "programmatic-updates-preserve-events",
+          "passed": true
+        },
+        {
+          "case": "trusted-native-button-action",
+          "passed": true
+        },
+        {
+          "case": "after-native-action-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "native-edit-retains-engine-value-and-trusted-events",
+          "passed": true
+        },
+        {
+          "case": "after-native-edit-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "reloaded-actual-desktop-native-pixels",
+          "passed": true,
+          "native_control_comparisons": 8
+        },
+        {
+          "case": "navigation-away",
+          "passed": true
+        }
+      ],
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      },
+      "sandbox_content_processes": 6,
+      "complete_check_details": "results.json in the corresponding archived runs/desktop directory"
+    },
+    "old_adapter_expected_failure": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-display-qualification-02/baseline",
+      "assertions": 2,
+      "passed": 1,
+      "complete_native_images": 0,
+      "checks": [
+        {
+          "case": "owned-browser-session",
+          "passed": true
+        },
+        {
+          "case": "initial-actual-desktop-native-pixels",
+          "passed": false,
+          "native_control_comparisons": 8,
+          "differences": {
+            "title": [
+              0,
+              0,
+              360,
+              28
+            ],
+            "password": [
+              0,
+              0,
+              360,
+              28
+            ],
+            "notes": [
+              0,
+              0,
+              548,
+              188
+            ],
+            "check": null,
+            "radio": [
+              0,
+              0,
+              19,
+              16
+            ],
+            "range": [
+              0,
+              0,
+              180,
+              24
+            ],
+            "progress": [
+              0,
+              0,
+              242,
+              25
+            ],
+            "button": [
+              0,
+              0,
+              160,
+              28
+            ]
+          }
+        }
+      ],
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      },
+      "sandbox_content_processes": 6,
+      "complete_check_details": "results.json in the corresponding archived runs/desktop directory"
+    }
+  },
+  "regressions": {
+    "progress": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-display-qualification-02/progress",
+      "checks": 21,
+      "sandbox": [
+        {
+          "pid": 86771,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 67,
+      "native_destroyed": 67,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 0.61,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.09910847800347256,
+        "native_objects_reclaimed_by_helper_exit": 0,
+        "mouse_and_key_retained": false
+      },
+      "renderer_crash": null,
+      "owned_live": []
+    },
+    "controls": {
+      "path": "/var/tmp/nxs-display-reg04/controls",
+      "checks": 40,
+      "sandbox": [
+        {
+          "pid": 88030,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 88205,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 129,
+      "native_destroyed": 123,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": true,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.15692583400232252,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 88030,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "owned_live": []
+    },
+    "buttons": {
+      "path": "/var/tmp/nxs-display-reg04/buttons",
+      "checks": 54,
+      "sandbox": [
+        {
+          "pid": 88360,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 88526,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 163,
+      "native_destroyed": 157,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 2,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.28550393100158544,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 88360,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "owned_live": []
+    },
+    "sliders": {
+      "path": "/var/tmp/nxs-display-reg04/sliders",
+      "checks": 57,
+      "sandbox": [
+        {
+          "pid": 88742,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 88904,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 151,
+      "native_destroyed": 145,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 50,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.4399773190016276,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 88742,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "owned_live": []
+    },
+    "text": {
+      "path": "/var/tmp/nxs-display-reg04/text",
+      "checks": 151,
+      "sandbox": [
+        {
+          "pid": 89120,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 89317,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 596,
+      "native_destroyed": 590,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": "FallbackXY",
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.2947938549987157,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 89120,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "owned_live": []
+    },
+    "controls-baseline": {
+      "path": "/var/tmp/nxs-display-reg04/controls-baseline",
+      "checks": 40,
+      "sandbox": [
+        {
+          "pid": 87719,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 87880,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 107,
+      "native_destroyed": 101,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": true,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.16049268400092842,
+        "native_objects_reclaimed_by_helper_exit": 6,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 87719,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 6,
+        "kernel_owner_exit": true
+      },
+      "owned_live": []
+    }
+  },
+  "passing_final_assertions": 343,
+  "complete_actual_desktop_native_images": 80,
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+    "/var/tmp/nextspace-native-ui/chromium-caret-03-hook.so": "601a3a1e9ee02fb57cebd563a4f8dec58e046c1fa05fd8b621a1a33eb2d7542c",
+    "/var/tmp/nextspace-native-ui/firefox-caret-02-hook.so": "99a48e6fdc87f01911faeaf170c65f647af72ffe9caf8846a86f13d924c9f663",
+    "/var/tmp/nextspace-native-ui/caret-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "f2249a87620df1e8119d89c17754fa79715e20d13bf4db5d6fd178f107fa38eb",
+    "/var/tmp/nextspace-native-ui/caret-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "3187df6842887ee62bc97fba81c063b0d8f3d800a823fdcb65c180954b625880",
+    "/var/tmp/nextspace-native-ui/caret-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "6984d14aed14e61f3c5157c70475d9b1729f9d1598aa861d3a0505138051fd94",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/stamp.make": "186a17c9c1ef6c1acfbdd3b998a26604652f60be33fa987fb5f2711a39c610e3",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032": "3f90db625da9cadf932a740f9af0463eaff8016738294c53e5893548a3a6a8f5",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Info-gnustep.plist": "2808cd013cf4d0e97c31ea5f6ca26c276c4f124a9a3bc2927f93fc887ece162a",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Swedish.lproj/nfontFaceNames.strings": "14541896e5f50164cac8e8456cda6bc6bb5d92d1c4d03e36a8a34b85e1fb1917",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/English.lproj/nfontFaceNames.strings": "82a4412800f0bdc1bdb803899134312ffec96e2d4de829dcb5c0e9bd23a8af7f",
+    "/var/tmp/nextspace-native-ui/firefox-display-02-hook.so": "11a5cf634cad8b75da0a85720ad7e5c4d9cf1765d661c2c1e85c3b292cad6b86",
+    "/var/tmp/nextspace-native-ui/caret-sdk-build-01/libnextspace-native-scroller.so.1": "c0a722d46df66019c1990febc4813a010b0a6470ee837af021ae13300cb390ff",
+    "/var/tmp/nextspace-native-ui/desktop-preview-workspace-01/Workspace/Workspace.app/Workspace": "dc9a47bd4cc5a2e04a10c2216df98995d7f000c82105c15004a048ad85c5e08c"
+  },
+  "unchanged_preceding_paths": true,
+  "package_count": 1050,
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/hook.c": "4fe26b650e173553d0bafcfa9eab4fe8d4554a0aecdc25b6c3c4f39b092e1a79",
+    "Experiments/FirefoxNativeUI/frontend.inc": "bc21e728c02fd49c0cf2c53f13046cdf5ad9d5da537100f56d6af08636c8025d",
+    "Experiments/FirefoxNativeUI/input-controls.json": "e7902c2067e8e69b2e5c0f4c470c7b2b3e8d5560ba670bfdee309617792f4fec",
+    "Experiments/FirefoxNativeUI/test-desktop.html": "e41756c538c0c2137cce5336df385a13c6038d07e934959b9b65ec5fc985ba0a",
+    "Experiments/FirefoxNativeUI/README.md": "e2204fc4db0589b806ecea5d18530eb3c79247568bd786bbc28e991c2222191f",
+    "Experiments/FirefoxNativeUI/desktop-source-audit.json": "082f5e477c2c39b7a9f4e81814983f851ce6ca8d83850cf614482a220b2df0c3",
+    "Tests/Wayland/native_ui_desktop.py": "7c7134390a2e140097b67f36d1a76531e44814e3009549181eca961775121db7",
+    "docs/Native-Control-Integration.md": "b6771959b8730b5f79041a9e2d431789652c3a3d002c33e81dfd39dc62dd1d0e"
+  },
+  "retained_failures": [
+    "The preceding adapter fails seven of eight complete desktop control rectangles; native hook logs and browser content screenshot parity had not proved the displayed result.",
+    "A first qualification output path nested runtime sockets too deeply and timed out before compositor startup. The new desktop runner uses a separate short private temporary runtime.",
+    "The old isolated checkbox/radio fixture fixed auto-size reference dimensions to an earlier UI configuration. Its new preferred_size setting asks the existing native reference generator for actual control metrics. Both preceding and final adapters pass forty control assertions. A second long-path startup failure in the old runner was resolved by shortening its owned artifact path."
+  ],
+  "remaining": [
+    "HTML button/select bindings, remaining browser frontend controls, tabs/toolbars, and native root-document scrollbars",
+    "Full on-screen host-replacement and broader CSS/layout coverage",
+    "Other browser builds and derivatives, IME, accessibility and mixed/fractional scales",
+    "Installed desktop deployment and GTK/Qt/KDE application integration"
+  ],
+  "lessons": "/Users/felixding/.codex/worktrees/wayland-ci/nextspace/docs/Desktop-Environment-Development-Lessons.md",
+  "evidence_archive": {
+    "path": ".build/evidence/components/native-desktop-rendering-20261107-v1-evidence.tar.gz",
+    "bytes": 3956811,
+    "sha256": "fe5c1c8e1d36aeb48f45be1e931d473b7f356f058c74e39e71f9c004f0b00b86",
+    "verified_file_members": 805
+  }
+}

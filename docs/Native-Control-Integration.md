@@ -46,6 +46,18 @@ unchanged. See the [recovery qualification](../Applications/Session/native-ui-re
 This closes the measured connection-recovery gap, while broader control,
 frontend, derivative and installed-desktop requirements remain unfinished.
 
+Actual full Workspace desktop captures exposed a Firefox rendering gap that
+content-only browser screenshots had hidden: native text models existed while
+the visible fields were blank. The pinned adapter now routes eligible themed
+display items into Gecko's existing fallback before GTK theme dispatch. The
+new desktop fixture compares compositor screencopy pixels with independently
+rendered GNUstep controls, including changes, resizing, editing and reload,
+with frontend integration both enabled and disabled. This reuses the same
+provider and UI library. See the
+[desktop rendering qualification](../Experiments/FirefoxNativeUI/desktop-qualification.json).
+Full installed deployment and the remaining application-wide requirements are
+still open.
+
 The provider now also supplies an ordinary `NSTextView`/`NSScrollView` multiline
 control, including native document/viewport geometry. Opt-in bindings for both
 pinned browsers pass real-seat multiline editing, event cancellation and

@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-07",
+  "baseline": "5bc94f44",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "path": "nsDisplayList.cpp",
+      "sha256": "a08da875d2991a795d99d79770aa7df970c81688dd4d9a65d8a9207ece3c4daa",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/painting/nsDisplayList.cpp"
+    },
+    {
+      "path": "nsDisplayList.h",
+      "sha256": "32fb43b630810d1c6d6a7e9e52b2a37e05a380353c071963719a4e7bcf966021",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/painting/nsDisplayList.h"
+    },
+    {
+      "path": "gfxContext.h",
+      "sha256": "b6369ec9eb1bf671193e249963e215c967f72b7f6aef2e78ee2035d40aca17bc",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/thebes/gfxContext.h"
+    }
+  ],
+  "compiled": {
+    "display_paint": "nsDisplayThemedBackground::Paint 0x6fe2358, guarded 20-byte entry",
+    "display_webrender": "nsDisplayThemedBackground::CreateWebRenderCommands 0x6fe2464, guarded 20-byte entry",
+    "style_frame": "Virtual slot +160; additionally guard compiled load 0x6fe2490: 08 51 40 f9",
+    "appearance": "Byte +156; additionally guard compiled load 0x6fe24bc: c6 72 42 39",
+    "rectangle": "mBackgroundRect +120, shared with the preceding frontend audit; actual NSRectToSnappedRect owns device conversion",
+    "draw_target": "gfxContext mDT +216; guard original wrapper 0x6a5fbac: 5f 24 03 d5 21 6c 40 f9"
+  },
+  "findings": [
+    "Actual desktop screencopy contradicts the old content-only screenshot result: seven of eight native controls differ, including blank title, password and multiline text.",
+    "The active GTK theme bypasses the previously intercepted generic Theme WebRender method. The existing display-item hook observes content items without any generic Theme WebRender trace.",
+    "Select the existing Gecko fallback at the display item for eligible controls. Reuse the existing native text item painter for owned web and frontend fields. The shared background hooks must be installed independently of the optional parent frontend predicate.",
+    "Existing isolated checkbox/radio models fixed sizes from an older UI configuration. Use the direct provider preferred-size option for auto-sized controls; both old and new adapters pass the corrected control fixture. Do not change the UI library to satisfy old test geometry."
+  ],
+  "separation": "Only the exact-build adapter and verification/docs change. Existing shared bridge transport, NativeUI provider, browser binaries and GNUstep UI library remain unchanged.",
+  "verification": "desktop-qualification.json"
+}

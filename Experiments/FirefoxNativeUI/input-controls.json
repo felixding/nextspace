@@ -9,7 +9,8 @@
     "title": "",
     "minimum": 0,
     "maximum": 1,
-    "value": 0
+    "value": 0,
+    "preferred_size": true
   },
   {
     "id": "checked",
@@ -21,7 +22,8 @@
     "title": "",
     "minimum": 0,
     "maximum": 1,
-    "value": 0
+    "value": 0,
+    "preferred_size": true
   },
   {
     "id": "mixed",
@@ -33,7 +35,8 @@
     "title": "",
     "minimum": 0,
     "maximum": 1,
-    "value": 0
+    "value": 0,
+    "preferred_size": true
   },
   {
     "id": "disabled",
@@ -45,7 +48,8 @@
     "title": "",
     "minimum": 0,
     "maximum": 1,
-    "value": 0
+    "value": 0,
+    "preferred_size": true
   },
   {
     "id": "radio",
@@ -57,7 +61,8 @@
     "title": "",
     "minimum": 0,
     "maximum": 1,
-    "value": 0
+    "value": 0,
+    "preferred_size": true
   },
   {
     "id": "selected",
@@ -69,6 +74,7 @@
     "title": "",
     "minimum": 0,
     "maximum": 1,
-    "value": 0
+    "value": 0,
+    "preferred_size": true
   }
 ]

@@ -37,6 +37,7 @@ typedef void (*ProgressPaint)(void *,void *,void *,const struct RectF *,const vo
 typedef int (*WebRenderPaint)(void *,void *,void *,void *,void *,void *,unsigned,const void *);
 static ProgressPaint original_progress;
 static WebRenderPaint original_webrender;
+static int eligible(void *,unsigned);
 
 static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pixels,int width,int height) {
   typedef void (*FillRect)(void *,const struct RectF *,const struct ColorPattern *,const struct DrawOptions *);
@@ -153,10 +154,12 @@ static void install(void) {
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
+  if(!prepare_background_bindings()){note("Gecko native background guard failed; unchanged");return;}
   if(frontend_requested&&!prepare_frontend_bindings()){note("Gecko frontend guard failed; unchanged");return;}
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
   if(!prepare_global_keys()){note("Gecko global menu key guard failed; unchanged");return;}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
+  activate_detours(background_detours,sizeof(background_detours)/sizeof(*background_detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
   if(buttons_enabled){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note("native Gecko input buttons installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
