@@ -16,6 +16,7 @@ parser.add_argument('--port',type=int,default=2863)
 parser.add_argument('--no-frontend',action='store_true')
 parser.add_argument('--document',type=Path,help='Optional owned HTML control fixture')
 parser.add_argument('--restart-host',action='store_true',help='Verify actual desktop native pixels after owned host replacement')
+parser.add_argument('--menus',action='store_true',help='Verify exclusive detached menus across the actual desktop applications')
 args=parser.parse_args()
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','firefox']:
@@ -100,6 +101,10 @@ try:
  wait(lambda:(root/'session.stderr').read_text(),lambda s:'Workspace is ready' in s,60)
  wait(frames,lambda rows:any(v.get('event')=='ready' and v.get('manager_visible') for v in rows))
  heads=command('outputs');head=heads[0];assert command('resize-output '+head['name']+' 1600 1000')['ok']
+ if args.menus:
+  # Workspace autolaunches native applications asynchronously. Let their
+  # document windows map before deliberately focusing the browser under test.
+  wait(lambda:command('windows'),lambda windows:len({w['pid'] for w in windows if w['accepts_focus'] and w['level']==0 and not w['legacy']})>=2)
  browser_env=dict(env,**published());url=(args.document.resolve() if args.document else repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
  family='firefox'
  current=dict(browser_env);prefix='NEXTSPACE_'+family.upper()+'_';current[prefix+'SOCKET']=browser_env['NEXTSPACE_NATIVE_UI_SOCKET'];current[prefix+'LOG']=str(root/(family+'-hook.log'))
@@ -145,6 +150,41 @@ try:
   frame=wait(frames,lambda values:sum(v.get('event')=='frame' for v in values)>before)[-1]
   image=Image.frombytes('RGBA' if frame['format']==0 else 'RGB',(frame['width'],frame['height']),raw.read_bytes(),'raw','BGRA' if frame['format']==0 else 'BGRX',frame['stride'],-1 if frame['flags']&1 else 1).convert('RGB')
   image.save(root/(label+'.png'));raw.unlink();return image
+ def owned_hosts():
+  processes=sample_processes()
+  return [pid for pid,value in processes.items() if pid in observed and str(repo/'Libraries/NativeUI/Host/main.py') in value['arguments'] and not value['state'].startswith('Z')]
+ def menu_selection(label,owner,focused):
+  def selected(windows):
+   roots=[w for w in windows if w['level']==20 and w['visible']]
+   return len(roots)==1 and roots[0]['pid']==owner and any(w['id']==focused and w['focused'] for w in windows)
+  try:windows=wait(lambda:command('windows'),selected)
+  except AssertionError:
+   (root/(label+'-failed-windows.json')).write_text(json.dumps(command('windows'),indent=2)+'\n')
+   (root/(label+'-failed-popups.json')).write_text(json.dumps(command('popups'),indent=2)+'\n')
+   desktop(label+'-failed');raise
+  check(label+'-only-active-main-menu',selected(windows),menus=[w for w in windows if w['level'] in (10,20)])
+  check(label+'-no-inactive-submenus',all(w['pid']==owner for w in windows if w['level']==10 and w['visible']))
+  (root/(label+'-windows.json')).write_text(json.dumps(windows,indent=2)+'\n')
+  desktop(label)
+  return windows
+ def browser_menu(label):
+  hosts=wait(owned_hosts,lambda pids:len(pids)==1)
+  windows=menu_selection(label,hosts[0],window['id'])
+  menu=next(w for w in windows if w['pid']==hosts[0] and w['level']==20 and w['visible'])
+  check(label+'-represented-application-title',menu['title']==window['app_id'],title=menu['title'])
+  return windows
+ def menu_shortcut(label):
+  js('document.body.focus({preventScroll:true});return true')
+  before=set(client.command('WebDriver:GetWindowHandles'))
+  start=len((root/'session.stdout').read_text())
+  for event in ['key 56 1','key 20 1','key 20 0','key 56 0']:assert command(event)['ok']
+  handles=wait(lambda:client.command('WebDriver:GetWindowHandles'),lambda handles:len(handles)==len(before)+1)
+  trace=[json.loads(line) for line in (root/'session.stdout').read_text()[start:].splitlines() if line.startswith('{')]
+  check(label+'-native-menu-command-once',sum(row.get('event')=='application-command' for row in trace)==1)
+  added=next(handle for handle in handles if handle not in before)
+  client.command('WebDriver:SwitchToWindow',dict(handle=added));client.command('WebDriver:CloseWindow')
+  client.command('WebDriver:SwitchToWindow',dict(handle=selected))
+  assert command('focus '+str(window['id']))['ok']
  def compare(label):
   chrome=js('return gBrowser.selectedBrowser.getBoundingClientRect().toJSON()','chrome')
   models=js("return ['title','password','notes','check','radio','range','progress','button',...Array.from(document.querySelectorAll('button[data-native-control]'),e=>e.id)].map(id=>{let e=document.getElementById(id);return {id,rect:e.getBoundingClientRect().toJSON(),value:e.localName==='button'?e.innerText:e.value,checked:e.checked,enabled:!e.matches(':disabled'),top:e.scrollTop,auto:e.hasAttribute('data-native-auto')}})")
@@ -175,6 +215,34 @@ try:
   check(label+'-actual-desktop-native-pixels',all(d['difference'] is None for d in differences),controls=differences)
  js('document.body.tabIndex=-1;document.body.focus({preventScroll:true});notes.scrollTop=73;return true')
  compare('initial')
+ if args.menus:
+  initial=browser_menu('browser-menu')
+  native_documents={w['pid']:w for w in initial if w['pid']!=browser.pid and w['accepts_focus'] and w['level']==0 and not w['legacy']}
+  check('multiple-native-desktop-applications',len(native_documents)>=2,applications=list(native_documents))
+  for index,(pid,document) in enumerate(native_documents.items()):
+   assert command('focus '+str(document['id']))['ok']
+   menu_selection('native-app-'+str(index),pid,document['id'])
+   assert command('focus '+str(window['id']))['ok']
+   browser_menu('browser-after-native-'+str(index))
+  # Coordinates come from the existing native menu's own layout, not a test
+  # implementation of menu geometry. Keep the submenu open during a switch.
+  menu_path=Path(browser_env['NEXTSPACE_NATIVE_UI_SOCKET']).parent/'menus'/str(window['id'])/'native-items.json'
+  items=json.loads(menu_path.read_text());item=next(item for item in items if item['title']=='File' and item['visible'])
+  x,y,w,h=item['frame'];assert command('pointer '+str(round(x+w/2))+' '+str(round(y+h/2)))['ok']
+  try:
+   assert command('button 272 1')['ok']
+   popups=wait(lambda:command('popups'),bool)
+   (root/'native-submenu-popups.json').write_text(json.dumps(popups,indent=2)+'\n')
+   windows=command('windows')
+   check('native-submenu-coexists-with-one-main-menu',len([w for w in windows if w['level']==20 and w['visible']])==1)
+   desktop('native-submenu')
+   pid,document=next(iter(native_documents.items()));assert command('focus '+str(document['id']))['ok']
+   menu_selection('native-app-during-submenu',pid,document['id'])
+   wait(lambda:command('popups'),lambda popups:not popups)
+   check('switch-dismisses-native-submenu',not command('popups'))
+  finally:assert command('button 272 0')['ok']
+  assert command('focus '+str(window['id']))['ok'];browser_menu('browser-after-submenu');menu_shortcut('desktop')
+  compare('after-native-tab-return')
  if js('return !!document.getElementById("nested-label")'):
   def click(selector):
    element=client.command('WebDriver:FindElement',dict(using='css selector',value=selector))['value']
@@ -228,13 +296,13 @@ try:
  js('document.body.tabIndex=-1;document.body.focus({preventScroll:true});notes.scrollTop=73;return true')
  compare('reloaded')
  if args.restart_host:
-  def owned_hosts():
-   processes=sample_processes()
-   return [pid for pid,value in processes.items() if pid in observed and str(repo/'Libraries/NativeUI/Host/main.py') in value['arguments'] and not value['state'].startswith('Z')]
   old_hosts=owned_hosts();check('one-owned-native-host',len(old_hosts)==1,hosts=old_hosts)
+  before_ready=(root/'session.stdout').read_text().count('NEXTSPACE_NATIVE_UI_SOCKET=')
   js('window.__nativeDesktopMarker="retained";return true');os.kill(old_hosts[0],signal.SIGKILL)
   replacement=wait(owned_hosts,lambda pids:len(pids)==1 and pids[0]!=old_hosts[0])
+  wait(lambda:(root/'session.stdout').read_text(),lambda text:text.count('NEXTSPACE_NATIVE_UI_SOCKET=')>before_ready)
   check('owned-host-replacement-retains-document',js('return window.__nativeDesktopMarker')=='retained',old_host=old_hosts[0],new_host=replacement[0])
+  if args.menus:browser_menu('host-replaced-menu');menu_shortcut('host-replaced')
   compare('host-replaced')
  client.command('WebDriver:Navigate',dict(url='about:blank'))
  check('navigation-away',client.command('WebDriver:GetTitle')['value']=='')

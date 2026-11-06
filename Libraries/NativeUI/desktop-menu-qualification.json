@@ -1,0 +1,240 @@
+{
+  "date": "2026-11-07",
+  "baseline": "29821bef",
+  "scope": "Application-agnostic detached-menu selection and native browser menu recovery in the real Workspace desktop",
+  "status": "qualified for the recorded private scale-1 pinned-browser fixtures; full native application integration remains incomplete",
+  "checks": 170,
+  "image_comparisons": {
+    "complete_actual_desktop_control_to_independent_native": 153,
+    "complete_menu_to_independent_native": 2,
+    "complete_chromium_menu_before_and_after_recovery": 2
+  },
+  "runs": {
+    "firefox": {
+      "path": "/var/tmp/nxs-menu-selection-09",
+      "checks": 50,
+      "native_control_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      },
+      "results_sha256": "4cd87dc58efc63d7c9942a7c35e3710506bee871c556251047885d17a41287e8"
+    },
+    "chromium": {
+      "path": "/var/tmp/nxs-menu-chromium-09",
+      "checks": 32,
+      "native_control_images": 0,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      },
+      "results_sha256": "377fd646d110c5507dd55fd829a4c9c2150b44f03499a3e44061985402bea267"
+    },
+    "native": {
+      "path": "/var/tmp/nxs-menu-native-02",
+      "checks": 20,
+      "native_control_images": 0,
+      "cleanup": [
+        {
+          "pid": 108362,
+          "exit": 0
+        },
+        {
+          "pid": 108368,
+          "exit": -15
+        },
+        {
+          "pid": 108369,
+          "exit": 0
+        },
+        {
+          "pid": 108373,
+          "exit": 0
+        }
+      ],
+      "results_sha256": "ab72baab68703b61480168a461cfb458421cfa54b440f69a1437a2259e2b481d"
+    },
+    "metadata": {
+      "path": "/var/tmp/nxs-menu-metadata-01",
+      "checks": 28,
+      "native_control_images": 0,
+      "cleanup": [
+        {
+          "pid": 102421,
+          "exit": 0
+        },
+        {
+          "pid": 102425,
+          "exit": 3
+        },
+        {
+          "pid": 102426,
+          "exit": 0
+        },
+        {
+          "pid": 102427,
+          "exit": 3
+        },
+        {
+          "pid": 102428,
+          "exit": 0
+        },
+        {
+          "pid": 102429,
+          "exit": 0
+        },
+        {
+          "pid": 102432,
+          "exit": -15
+        },
+        {
+          "pid": 102433,
+          "exit": 0
+        }
+      ],
+      "results_sha256": "e4e7a13a9fb9ba46d72a7d93d54644b292b9b05e7c2e65627376980809307271"
+    },
+    "session": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-session-01",
+      "checks": 40,
+      "native_control_images": 0,
+      "cleanup": {
+        "pids": [
+          105147,
+          105148,
+          105149,
+          105153,
+          105154,
+          105156,
+          105161,
+          105171,
+          105183,
+          105188,
+          105224,
+          105231,
+          105238,
+          105244,
+          105271,
+          105274,
+          105294,
+          105303,
+          105336,
+          105373,
+          105379,
+          105383,
+          105399,
+          105410,
+          105481,
+          105482,
+          105513,
+          105519
+        ],
+        "live": [],
+        "marionette_error": null
+      },
+      "results_sha256": "ecbc479f5ab1982dfb42002f11e2d2b8bfc94c872ba345f427ceb655a3ad0259"
+    }
+  },
+  "implementation": {
+    "selection": "Workspace selects native menu windows using focused-window peer ownership and the acknowledged ready native-host PID; no application names or window titles determine selection.",
+    "host_identity": "Session announces ready/absent/replacement host identity on its inherited private Workspace role independently of bounded selection acknowledgements.",
+    "popup_focus": "Dismiss other windows through the existing wlroots popup lifecycle before attempting keyboard focus; popup grabs otherwise ignore enter.",
+    "native_ui": "Existing NSMenu/NSMenuItem/NSMenuView own all drawing, sizing, key matching, validation and tracking. After main-menu adoption, install the existing lifecycle/query view, apply the represented title to its native window, and call native sizeToFit.",
+    "chromium": "Use the existing host-epoch notification and actual browser UI task queue to re-project the live AppMenuModel before another key; commands are not replayed.",
+    "firefox": "Restore the canonical engine scroll point when a new textarea binding is initialized as well as when the host epoch changes."
+  },
+  "runtime_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "bytes": 308415392
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "bytes": 549896
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "bytes": 171640536
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "bytes": 10063865
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac",
+      "bytes": 78144
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-compositor-01/nextspace-compositor",
+      "sha256": "3bc5ef434db930de39060ad11c8ddae0074bf47413ec3d6899ddf1358066ac52",
+      "bytes": 1311192
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6",
+      "bytes": 1258024
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-menu-restore-02-hook.so",
+      "sha256": "4e1ac473d53a3cf774343112446732cd9da27d635efce90e927baad1ec1cdaa4",
+      "bytes": 164472
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-menu-restore-01-hook.so",
+      "sha256": "3cb1e5d50716a4b15d991e797a2b5fdc76040f344715dcb3b96a0db65597976e",
+      "bytes": 153824
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-04/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1",
+      "sha256": "5261af30b4719e82217a34d82815f06211560149e5d325ab2c449a5ad5743ed9",
+      "bytes": 69968
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-04/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1",
+      "sha256": "f2249a87620df1e8119d89c17754fa79715e20d13bf4db5d6fd178f107fa38eb",
+      "bytes": 72664
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-04/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1",
+      "sha256": "7e2a3c1262b70a4b0c6a6c9f13972b3b1a2de4b1b53dc125a90d81fa99c8b1b7",
+      "bytes": 226200
+    }
+  },
+  "package_count": 1050,
+  "package_count_matches_preceding_checkpoint": true,
+  "older_package_snapshot_delta": {
+    "removed": [
+      "xvfb installed"
+    ],
+    "added": []
+  },
+  "evidence_archive": ".build/evidence/components/native-desktop-menus-20261107-v1-evidence.tar.gz",
+  "failures_retained": {
+    "inactive_roots": "/var/tmp/nxs-menu-desktop-01",
+    "popup_grab": "/var/tmp/nxs-menu-selection-03",
+    "retained_textarea": "/var/tmp/nxs-menu-selection-06",
+    "chromium_menu_recovery": "/var/tmp/nxs-menu-chromium-04",
+    "parallel_host_startup_deadline": "/var/tmp/nxs-menu-chromium-05",
+    "late_native_startup_focus": "/var/tmp/nxs-menu-chromium-06",
+    "unsized_replacement_menu_view": "/var/tmp/nxs-menu-chromium-07"
+  },
+  "remaining": [
+    "Activation of menu-only applications; the qualified rule is focus driven.",
+    "Cross-desktop menu placement and mixed-DPI output remain unqualified.",
+    "Other browser builds/derivatives, complete browser chrome, root-document scrolling, select and other remaining controls/shortcuts.",
+    "IME, accessibility, broader styles/layouts and scaled input/rendering.",
+    "Installed deployment; the coordinated private Session/Workspace host notices are tested with matching new components.",
+    "GTK/Qt/KDE native integration after the browser scope."
+  ]
+}

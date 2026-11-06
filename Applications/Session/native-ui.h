@@ -3,7 +3,7 @@
 #include "native-ui-clients.h"
 struct native_ui_host {
   char *command, *directory, *socket;
-  pid_t pid;
+  pid_t pid, announced;
   int control, workspace;
   bool ready, inflight, killing;
   unsigned failures;
@@ -35,7 +35,7 @@ static bool native_ui_prepare(struct native_ui_host *host)
 static void native_ui_workspace_closed(struct native_ui_host *host)
 {
   if (host->workspace >= 0) close(host->workspace);
-  host->workspace = -1; host->waiting = 0; host->reply_size = 0;
+  host->workspace = -1; host->waiting = 0; host->reply_size = 0; host->announced = -1;
   const char clear[] = "{\"operation\":\"clear\"}";
   native_ui_queue(host, clear, sizeof(clear)-1);
 }
@@ -133,6 +133,17 @@ static void native_ui_timeout(struct native_ui_host *host, int *timeout)
 }
 static void native_ui_dispatch(struct native_ui_host *host, short helper_events, short shell_events)
 {
+  /* The supervisor authenticates the process providing the selected menu.
+     Workspace must learn replacements even when its active window is unchanged.
+     Keep this separate from request acknowledgements and menu model contents. */
+  pid_t current = host->ready ? host->pid : 0;
+  if (host->workspace >= 0 && host->announced != current) {
+    char notice[80];
+    int length = snprintf(notice, sizeof(notice), "{\"operation\":\"host\",\"pid\":%d}", current);
+    ssize_t size = send(host->workspace, notice, length, MSG_DONTWAIT|MSG_NOSIGNAL);
+    if (size == length) host->announced = current;
+    else if (size >= 0 || (errno != EAGAIN && errno != EINTR)) native_ui_workspace_closed(host);
+  }
   if (host->workspace >= 0 && shell_events & POLLIN) {
     char bytes[8192];
     ssize_t size = recv(host->workspace, bytes, sizeof(bytes), MSG_DONTWAIT|MSG_TRUNC);

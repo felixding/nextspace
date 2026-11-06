@@ -43,6 +43,13 @@ process watch also release controls when their renderer crashes, even while a
 parent process retains the shared request socket. The helper now logs generic
 control destruction as well as progress/popup destruction.
 
+A recreated textarea binding restores the engine's retained scroll point even
+when the host epoch is unchanged. The full Workspace desktop fixture's
+`--menus --restart-host` sequence checks native menu commands, tab return,
+application switching, held-submenu dismissal, host replacement and native
+control pixels together. This catches binding-lifetime failures that a host-only
+recovery test misses.
+
 Qualification remains limited to this exact ARM64 build and scale 1 horizontal
 fixtures. Other scales retain Gecko's rendering until scaled native transport
 is connected. Native radio-group arrow navigation is still open: the provider

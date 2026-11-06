@@ -395,6 +395,23 @@ remain open. See [text qualification](../Experiments/FirefoxNativeUI/text-qualif
 
 ## Shared application menu foundation
 
+Workspace now selects detached-menu visibility for all applications by focused
+window ownership. It allows that application's own native menu windows or the
+acknowledged session host displaying its exported model, and hides other main
+menus and submenus through the existing window-presentation interface. No
+application names participate in this rule. The compositor dismisses other
+windows' existing popup grabs before switching keyboard focus, so an open menu
+cannot prevent the switch that selects the next application's menu.
+
+The provider still uses the existing NSMenu/NSMenuItem implementation. Its
+adoption hook applies the represented application's supplied title to the
+native menu window and asks native layout to size it. Browser bridges restore
+live models after native-host replacement; Firefox also restores a retained
+textarea's canonical scroll position when a tab recreates its native binding.
+See [desktop menu qualification](../Libraries/NativeUI/desktop-menu-qualification.json).
+Menu-only application activation, other builds/derivatives and remaining native
+browser/application controls still need qualification.
+
 The NativeUI provider now exposes optional application menus built from real
 GNUstep NSMenu/NSMenuItem controls. Application models supply titles, hierarchy,
 command IDs, state and native key-equivalent metadata; AppKit owns presentation

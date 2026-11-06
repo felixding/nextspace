@@ -84,7 +84,7 @@ static NSMenu *reference(void)
   [parent addItem:item];[items addObject:item];
   if(data.flags&NXS_MENU_SUBMENU)[item setSubmenu:[[[NSMenu alloc] initWithTitle:title] autorelease]];
  }
- [NSApp setMainMenu:root];[root display];return root;
+ [NSApp setMainMenu:root];[[root window] setTitle:@"Native menu fixture"];[root sizeToFit];[root display];return root;
 }
 int main(int argc,char **argv)
 {
@@ -139,6 +139,9 @@ int main(int argc,char **argv)
  key=event("z",NXS_ALT);key.type=NXS_KEY_UP;assert(!nxs_menu_key(p.menu,&key));key.type=NXS_KEY_DOWN;
  assert(nxs_menu_show(p.menu,1));assert([NSApp mainMenu]&&nxs_menu_state(p.menu,-1).visible);
  NSMenu *root=[NSApp mainMenu];assert([[root itemAtIndex:0] hasSubmenu]);
+ assert([[root title] isEqual:@"Native menu fixture"]);
+ [root setMain:YES];
+ assert([[[root window] title] isEqual:@"Native menu fixture"]);
  if(nxs_native_ui_menu_capabilities()&NXS_MENU_KEY_QUERY) {
   int actions=p.actions;
   NXSKeyEvent direct=event("d",NXS_ALT);

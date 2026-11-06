@@ -7,6 +7,14 @@ are not rebuilt or overwritten. The native wheel qualification also builds a
 private Wayland input backend with corrected axis normalization. Closing the isolated browser removes the memory patches.
 It is not enabled by the installed NEXTSPACE session.
 
+The active browser's real application-menu model is also re-projected after a
+native-host epoch change. The existing invalidation work loop schedules this on
+Chromium's own UI task queue before another key is required; commands are never
+replayed. `Tests/Wayland/native_ui_desktop_chromium.py` checks app switching,
+same-process host recovery, native New Tab once before/after recovery and complete
+menu pixels captured from the full Workspace desktop. Browser tabs, surrounding
+chrome and remaining shortcuts still need native integration.
+
 ## Native multiline viewport experiment
 
 For the exact browser pin below, `NEXTSPACE_CHROMIUM_MULTILINE_VIEWPORT=1`

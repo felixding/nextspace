@@ -174,6 +174,7 @@ static int menus_enabled,menus_trace_enabled;
 static int menu_keys_enabled;
 static int app_menu_views_key(void *,const void *);
 static int app_menus_watch_needed(void);
+static void app_menus_native_work(int);
 static unsigned forms_pointer_capabilities;
 static int forms_commands_enabled;
 static int chromium_application_command(const struct NXSNativeCommand *,const char *);

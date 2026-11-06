@@ -15,6 +15,7 @@ struct AppMenuBinding {
   NXSMenuItem *items;
   struct MenuEntry *entries;
   unsigned count;
+  uint32_t epoch;
   int bound;
 };
 static struct AppMenuBinding *app_menus;
@@ -248,6 +249,7 @@ static int app_menu_bind(struct AppMenuBinding *menu) {
   if(!app_menu_project(menu,menu->model,-1,0)||!refresh_form_watch()||form_watch.wake_fd<0||
      !native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())return 0;
   menu->bound=1;
+  menu->epoch=atomic_load(&native_host_epoch);
   if(!native_menu_model(menu->control,"Chromium",menu->items,menu->count)){menu->bound=0;return 0;}
   struct NXSResponse *response=native_menu_request(menu->control,26,app_menu_browser_visible(menu->browser));
   if(!response||response->parts[3].x!=1){native_menu_request(menu->control,29,0);menu->bound=0;return 0;}

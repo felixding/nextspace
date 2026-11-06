@@ -36,9 +36,12 @@ static int read_native_viewport(struct Widget *w) {
   w->viewport_ready=1;return 1;
 }
 static int sync_viewport_widget(struct Widget *w) {
+  int initialized=w->viewport_ready;
   if(!read_native_viewport(w))return 0;
   uint32_t epoch=atomic_load(&native_host_epoch);
-  if(w->text_epoch!=epoch) {
+  /* A tab can discard its native binding without replacing the host. Restore
+   * the engine's retained position for that new binding as well as a new host. */
+  if(!initialized||w->text_epoch!=epoch) {
     struct PointI position=viewport_engine_position(w->frame);
     struct NXSResponse *r=widget_request(w,33,position.x/60.,position.y/60.,0);
     if(!r||r->parts[3].x!=1||!read_native_viewport(w))return 0;

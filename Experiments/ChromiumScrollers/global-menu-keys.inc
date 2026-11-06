@@ -76,6 +76,18 @@ static void menu_browser_schedule(struct MenuBrowser *b) {
     if(!app_menu_post_task(-1,0,0,0,b->identity)){b->pending=0;note("browser menu UI task rejected");}
   }
 }
+static void app_menus_native_work(int failed) {
+  if(!menu_keys_enabled||failed)return;
+  uint32_t epoch=atomic_load(&native_host_epoch);
+  for(struct MenuBrowser *b=menu_browsers;b;b=b->next) {
+    if(!pthread_equal(b->owner,pthread_self()))continue;
+    struct AppMenuBinding *menu=menu_browser_model(b);
+    /* Host invalidation wakes the existing engine work loop. Re-project on
+     * its actual UI task queue before the next key, even without a focus or
+     * tab change. Reuse the live application model; never replay commands. */
+    if(menu&&menu->epoch!=epoch)menu_browser_schedule(b);
+  }
+}
 static void browser_menu_added(void *view) {
   original_browser_added(view);
   if(menu_browser_find(view,0))return;

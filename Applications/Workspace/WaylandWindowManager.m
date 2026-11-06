@@ -66,6 +66,7 @@ static NSArray *windowManagerRunLoopModes(void)
 - (void)mouseOptionsChanged:(NSNotification *)notification;
 - (void)appearanceChanged:(NSNotification *)notification;
 - (void)layoutIcons;
+- (void)layoutMenus;
 - (NSRect)primaryScreenFrame;
 - (NSInteger)dockScreenHeight;
 - (void)activateDockApplication:(NSString *)name;
@@ -230,6 +231,8 @@ static NSString *commandForPID(pid_t pid)
   _yardIcons = [NSMutableDictionary new]; _yardApplications = [NSMutableDictionary new];
   _dockCollapsed = [[[_dockSettings dock] objectForKey:@"Collapsed"] boolValue];
   NSNotificationCenter *local = [NSNotificationCenter defaultCenter];
+  [local addObserver:self selector:@selector(windowsChanged:)
+    name:WSNativeMenuSelectionDidChangeNotification object:_nativeMenus];
   [local addObserver:self selector:@selector(commandDidExit:)
     name:NSTaskDidTerminateNotification object:nil];
   [local addObserver:self selector:@selector(windowsChanged:)
@@ -263,10 +266,11 @@ static NSString *commandForPID(pid_t pid)
 { [_connection setTitleAppearance:[_dockSettings titleAppearance]]; }
 - (void)dealloc
 {
-  [_nativeMenus release];
+  _stopping = YES;
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+  [_nativeMenus release];
   [_connection release]; [_center release]; [_recyclerIcon release]; [_dockSettings release];
   [_dockEntries release]; [_dockIcons release]; [_dockWindowIDs release];
   [_yardIcons release]; [_yardApplications release];
@@ -277,8 +281,8 @@ static NSString *commandForPID(pid_t pid)
 }
 - (void)prepareForTermination
 {
-  [_nativeMenus invalidate];
   _stopping = YES;
+  [_nativeMenus invalidate];
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
@@ -951,6 +955,28 @@ static NSString *commandForPID(pid_t pid)
   }
   [self updateDockHover];
 }
+- (void)layoutMenus
+{
+  NSArray *windows = [_connection windows];
+  pid_t active = 0, host = [_nativeMenus selectedHostPID];
+  for (NSDictionary *window in windows)
+    if ([[window objectForKey:@"flags"] unsignedIntValue] & 1) {
+      active = [[window objectForKey:@"pid"] intValue]; break;
+    }
+  for (NSDictionary *window in windows) {
+    NSInteger level = [[window objectForKey:@"level"] integerValue];
+    unsigned flags = [[window objectForKey:@"flags"] unsignedIntValue];
+    pid_t pid = [[window objectForKey:@"pid"] intValue];
+    if ((flags & 2) || pid <= 1 ||
+        (level != NSMainMenuWindowLevel && level != NSSubmenuWindowLevel)) continue;
+    /* Native apps own their NSMenu objects. The acknowledged session host
+       supplies the selected foreign app's NSMenu; it never becomes that app's
+       keyboard-focus owner. Preserve client visibility while hiding peers. */
+    BOOL visible = pid == active || pid == host;
+    if ((!(flags & 32)) != visible)
+      [_connection setWindow:[window objectForKey:@"id"] presented:visible];
+  }
+}
 - (void)windowsChanged:(NSNotification *)notification
 {
   if (_updating || _stopping) return;
@@ -967,6 +993,7 @@ static NSString *commandForPID(pid_t pid)
     }
   }
   [self layoutIcons];
+  [self layoutMenus];
   if (_processManager && ![_processManager workspaceIsQuitting]) {
     NSMutableDictionary *present = [NSMutableDictionary dictionary];
     NSDictionary *active = nil;

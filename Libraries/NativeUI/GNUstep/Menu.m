@@ -76,6 +76,9 @@ static int lifecycle_callback(NXSModelMenu *part,unsigned phase)
   /* NSMenu may replace its representation when adopting the system's menu
    * interface style. Keep the adapter's lifecycle/query hooks on that view. */
   lifecycle_view(self);
+  /* Size the installed representation, including after a style change. Native
+   * adoption uses the host process name; the model supplies its actual title. */
+  if(flag){[[self window] setTitle:[self title]];[self sizeToFit];}
 }
 - (BOOL)validateMenuItem:(NSMenuItem *)item
 {

@@ -624,7 +624,8 @@ int main(int argc, char **argv)
     native_ui_timeout(&native, &timeout);
     struct pollfd descriptors[] = {{signals, POLLIN, 0}, {output[0], POLLIN, 0}, {broker[0], POLLIN, 0}, logind_poll,
       {native.control, POLLIN | ((native.ready && !native.inflight && native.sent != native.serial) ? POLLOUT : 0), 0},
-      {native.workspace, POLLIN | (native.reply_size ? POLLOUT : 0), 0},
+      {native.workspace, POLLIN | ((native.reply_size || native.announced !=
+        (native.ready ? native.pid : 0)) ? POLLOUT : 0), 0},
       {native.connections.epoll, POLLIN, 0}};
     if (poll(descriptors, 7, timeout) < 0) { if (errno == EINTR) continue; break; }
     native_ui_dispatch(&native, descriptors[4].revents, descriptors[5].revents);

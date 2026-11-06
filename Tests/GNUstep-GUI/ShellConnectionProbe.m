@@ -39,6 +39,10 @@ static void outputDesktops(WSShellConnection *connection, NSString *event)
 - (void)changed:(NSNotification *)notification
 { outputEvent(@"windows", [notification object]); }
 - (void)closed:(NSNotification *)notification { outputEvent(@"closed", nil); }
+- (void)menus:(NSNotification *)notification
+{
+  output(@{@"event":@"menu-selection",@"host_pid":@([[notification object] selectedHostPID])});
+}
 - (void)outputs:(NSNotification *)notification { outputScreens([notification object]); }
 - (void)desktops:(NSNotification *)notification { outputDesktops([notification object], @"desktops"); }
 - (void)inputs:(NSNotification *)notification
@@ -84,6 +88,8 @@ int main(int argc, char **argv)
     [[WSNativeMenuConnection alloc] initWithShell:connection fileDescriptor:menuDescriptor] : nil;
   if (menuDescriptor >= 0 && !menus) { [connection release]; [pool drain]; return 8; }
   ShellObserver *observer = [ShellObserver new];
+  if (menus) [[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(menus:)
+    name:WSNativeMenuSelectionDidChangeNotification object:menus];
   [[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(changed:)
     name:WSShellWindowsDidChangeNotification object:connection];
   [[NSNotificationCenter defaultCenter] addObserver:observer selector:@selector(closed:)

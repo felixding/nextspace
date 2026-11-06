@@ -507,6 +507,12 @@ static void focus_toplevel(struct nextspace_toplevel *toplevel, struct wlr_surfa
     policy_order(toplevel, true, NULL);
 		return;
 	}
+  /* A popup grab ignores keyboard-enter requests. Dismiss popups belonging
+     to other windows before switching focus, including menus displayed by a
+     separate native host. The existing popup lifecycle releases its grab. */
+  struct nextspace_toplevel *other;
+  wl_list_for_each(other, &server->toplevels, link)
+    if (other != toplevel) policy_dismiss_popups(other);
 	wlr_log(WLR_DEBUG, "Keyboard focus -> window %u", toplevel->id);
 	if (prev_surface) {
 		/*

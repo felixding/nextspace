@@ -190,6 +190,12 @@ the compositor broker, and inherited capabilities close on child execution.
 Workspace supplies active-window menu addresses through the relay. The host
 uses the shared bridge and actual GNUstep controls; the supervisor interprets
 no menu models. The latest opaque selection is replayed after host restart.
+The supervisor also announces its ready host's actual PID (zero while absent)
+as a separate `host` notice on the private Workspace role. This does not
+acknowledge a selection request. Workspace uses that authenticated identity to
+present the active foreign application's native menus and hide inactive native
+applications' menus. Replacement therefore works without changing browser focus
+or guessing ownership from a process name or window title.
 Workspace restart replaces its private role while preserving the browser and
 host. Serial correlation prevents replies to an obsolete request from reaching
 a replacement shell. One request is in flight; request/reply sizes and waits

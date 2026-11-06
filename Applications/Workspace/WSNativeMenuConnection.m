@@ -12,6 +12,8 @@
 #include <sys/un.h>
 #include <unistd.h>
 
+NSString * const WSNativeMenuSelectionDidChangeNotification = @"WSNativeMenuSelectionDidChangeNotification";
+
 int WSConsumeNativeMenuDescriptor(void)
 {
   static BOOL consumed = NO;
@@ -37,6 +39,16 @@ int WSConsumeNativeMenuDescriptor(void)
 }
 
 @implementation WSNativeMenuConnection
+- (pid_t)selectedHostPID
+{
+  return _descriptor >= 0 && !_waiting && [_desired isEqual:_sent] &&
+    [[_desired objectForKey:@"operation"] isEqual:@"bind"] ? _hostPID : 0;
+}
+- (void)selectionChanged
+{
+  [[NSNotificationCenter defaultCenter] postNotificationName:
+    WSNativeMenuSelectionDidChangeNotification object:self];
+}
 - (void)watchWrite:(BOOL)watch
 {
   if (_watchingWrite == watch || _descriptor < 0) return;
@@ -67,6 +79,7 @@ int WSConsumeNativeMenuDescriptor(void)
   if ([_desired isEqual:desired]) return;
   [_desired release]; _desired = [desired copy];
   [self sendDesired];
+  [self selectionChanged];
 }
 - (void)shellClosed:(NSNotification *)notification { [self invalidate]; }
 - (id)initWithShell:(WSShellConnection *)shell fileDescriptor:(int)descriptor
@@ -100,12 +113,19 @@ int WSConsumeNativeMenuDescriptor(void)
   char buffer[1024];
   ssize_t count = recv(_descriptor, buffer, sizeof(buffer), MSG_DONTWAIT | MSG_TRUNC);
   if (count < 0 && (errno == EAGAIN || errno == EINTR)) return;
-  if (count <= 0 || count > sizeof(buffer) || !_waiting) { [self invalidate]; return; }
+  if (count <= 0 || count > sizeof(buffer)) { [self invalidate]; return; }
   NSDictionary *reply = [NSJSONSerialization JSONObjectWithData:
     [NSData dataWithBytes:buffer length:count] options:0 error:NULL];
+  if ([reply isKindOfClass:[NSDictionary class]] && [[reply objectForKey:@"operation"] isEqual:@"host"]) {
+    id pid = [reply objectForKey:@"pid"];
+    if (![pid isKindOfClass:[NSNumber class]] || [pid longLongValue] < 0 ||
+        [pid longLongValue] == 1 || [pid longLongValue] > INT_MAX) { [self invalidate]; return; }
+    _hostPID = [pid intValue]; [self selectionChanged]; return;
+  }
   if (![reply isKindOfClass:[NSDictionary class]] || ![[reply objectForKey:@"accepted"] isKindOfClass:[NSNumber class]]) {
     [self invalidate]; return;
   }
+  if (!_waiting) { [self invalidate]; return; }
   _waiting = NO;
   if (![[reply objectForKey:@"accepted"] boolValue]) {
     NSLog(@"[Workspace] Native menu address rejected: %@", _sent);
@@ -115,6 +135,7 @@ int WSConsumeNativeMenuDescriptor(void)
     }
   }
   [self sendDesired];
+  [self selectionChanged];
 }
 - (void)invalidate
 {
@@ -126,6 +147,7 @@ int WSConsumeNativeMenuDescriptor(void)
     if (_watchingWrite) [_runLoop removeEvent:descriptor type:ET_WDESC forMode:mode all:NO];
   }
   close(_descriptor); _descriptor = -1; _watchingWrite = NO;
+  _hostPID = 0; [self selectionChanged];
 }
 - (void)dealloc
 {

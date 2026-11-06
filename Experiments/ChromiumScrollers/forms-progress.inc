@@ -118,6 +118,7 @@ static void form_native_work(void *controller) {
   pthread_mutex_unlock(&form_watch.mutex);
   if(!ready)return;
   views_native_work(failed);
+  app_menus_native_work(failed);
   if(failed){
     if(active_form)finish_form(-10000,-10000,0);
     for(;;){struct NativeForm *popup=native_forms;
