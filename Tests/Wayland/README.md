@@ -1636,3 +1636,24 @@ records all 136 passing checks, 153 whole-control desktop comparisons, four
 complete menu comparisons and owned-process cleanup. Broader builds/scales,
 custom Workspace placeholder icons and cross-desktop menu-only activation remain
 unqualified.
+
+`legacy_decorations.py --build COMPOSITOR_BUILD --output OUTPUT` compares the
+older GTK3/KDE decoration protocol with the existing xdg frame. Twenty-five
+checks cover creation before/after xdg-toplevel setup, client/none/server modes,
+release/recreation, xdg precedence and two complete titlebar RGB comparisons.
+Both protocols use the same compositor rendering and input code.
+
+The actual Workspace Firefox and Chromium desktop fixtures accept `--native-frame`.
+They use the shared browser-profile helper and `browser_frame_actions.py` to
+exercise real title drags, Escape rollback, double-click shade/unshade, corner
+resize, browser fullscreen requests, minimize and close. Normal frame metrics
+remain in inventory during fullscreen; checks use effective content bounds and
+frame visibility, then wait for restored client geometry. Firefox ends its
+automation session before the real close-button trial. The
+[frame qualification](../../Libraries/NativeUI/browser-frame-qualification.json)
+records 82 Firefox, 55 Chromium and 25 protocol checks, all 153 whole-control
+desktop comparisons and the separate existing five-density frame regression.
+The regression's title readiness accepts native four-color bitmap text; the
+preceding compositor has identical title RGB and also failed its old requirement
+for more than four colors. Browser mixed-DPI and broader control/build/deployment
+coverage remain open.

@@ -6,6 +6,15 @@ native control implementations and has no GNUstep, GTK or Qt dependency.
 Actual control drawing, metrics and input stay in the separate NativeUI
 provider and its underlying UI library.
 
+`browser_frames.py` selects existing system-decoration settings before an owned
+browser profile is launched. Chromium's `browser.custom_chrome_frame=false`
+requests xdg server decoration. Firefox uses `browser.tabs.inTitlebar=0`,
+`MOZ_GTK_TITLEBAR_DECORATION=system` and `GTK_CSD=0`; its packaged GTK3 runtime
+negotiates the older KDE protocol. The compositor supplies its existing shared
+frame and actions. The helper accepts a stopped, caller-owned profile; current
+launchers use disposable profiles. It does not change browser drawing or add a
+native control, and does not qualify other builds or installed-profile migration.
+
 `Protocol.h` preserves the existing request/reply layouts, including their
 historical Chromium-prefixed constant names. The old experimental `protocol.h`
 is a forwarding include. `Transport.inc` supplies the same fork-aware identities,

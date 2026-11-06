@@ -20,6 +20,8 @@ parser.add_argument('--native-views', action='store_true',
                     help='Enable the experimental native address field and its required form/text bindings')
 parser.add_argument('--native-menus', action='store_true',
                     help='Bind the pinned application menu model to GNUstep menus; also enables native Views')
+parser.add_argument('--native-frame', action='store_true',
+                    help='Use the compositor frame through the existing system-decoration preference')
 parser.add_argument('--log-directory', type=Path, required=True)
 parser.add_argument('arguments', nargs=argparse.REMAINDER)
 args = parser.parse_args()
@@ -78,6 +80,10 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
                                    NEXTSPACE_CHROMIUM_TEXT='1', NEXTSPACE_CHROMIUM_VIEWS='1')
             if args.native_menus:
                 environment['NEXTSPACE_CHROMIUM_MENUS'] = '1'
+            if args.native_frame:
+                sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Libraries/NativeUI/Bridge'))
+                from browser_frames import prepare_native_frame
+                prepare_native_frame('chromium', root / 'profile', environment)
             command = [str(args.chromium.resolve()), '--ozone-platform=wayland', '--gtk-version=4',
                        '--disable-gpu',
                        '--disable-features=OverlayScrollbar', '--no-first-run', '--no-default-browser-check',

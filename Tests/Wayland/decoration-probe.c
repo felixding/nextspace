@@ -3,6 +3,7 @@
 #include <wayland-client.h>
 #include "xdg-shell-client-protocol.h"
 #include "xdg-decoration-unstable-v1-client-protocol.h"
+#include "server-decoration-client-protocol.h"
 #include "nextspace-application-v1-client-protocol.h"
 #include "appmenu-client-protocol.h"
 #include <poll.h>
@@ -25,13 +26,15 @@ struct probe {
   struct xdg_surface *xdg;
   struct xdg_toplevel *top;
   struct zxdg_toplevel_decoration_v1 *decoration;
+  struct org_kde_kwin_server_decoration_manager *legacy_manager;
+  struct org_kde_kwin_server_decoration *legacy_decoration;
   struct wl_seat *seat;
   struct wl_pointer *pointer;
   struct nextspace_application_v1 *application;
   struct nextspace_window_v1 *owned;
   int width, height;
   uint32_t mode;
-  bool closed, fullscreen;
+  bool closed, fullscreen, legacy_mode;
 };
 
 struct buffer {
@@ -91,6 +94,16 @@ static const struct xdg_toplevel_listener top_listener = {.configure = size_conf
 static void mode_configured(void *data, struct zxdg_toplevel_decoration_v1 *decoration, uint32_t mode)
 { ((struct probe *)data)->mode = mode; }
 static const struct zxdg_toplevel_decoration_v1_listener decoration_listener = {.configure = mode_configured};
+static void legacy_default(void *data, struct org_kde_kwin_server_decoration_manager *manager, uint32_t mode) {}
+static const struct org_kde_kwin_server_decoration_manager_listener legacy_manager_listener = {.default_mode = legacy_default};
+static void legacy_mode(void *data, struct org_kde_kwin_server_decoration *decoration, uint32_t mode)
+{ ((struct probe *)data)->mode = mode; }
+static const struct org_kde_kwin_server_decoration_listener legacy_listener = {.mode = legacy_mode};
+static void create_legacy_decoration(struct probe *probe)
+{
+  probe->legacy_decoration = org_kde_kwin_server_decoration_manager_create(probe->legacy_manager, probe->surface);
+  org_kde_kwin_server_decoration_add_listener(probe->legacy_decoration, &legacy_listener, probe);
+}
 
 static void pointer_enter(void *data, struct wl_pointer *pointer, uint32_t serial,
     struct wl_surface *surface, wl_fixed_t x, wl_fixed_t y)
@@ -135,6 +148,10 @@ static const struct nextspace_window_v1_listener owned_listener = {.position = p
 static void global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
 {
   struct probe *probe = data;
+  if (probe->legacy_mode && !strcmp(interface, "org_kde_kwin_server_decoration_manager")) {
+    probe->legacy_manager = wl_registry_bind(registry, name, &org_kde_kwin_server_decoration_manager_interface, 1);
+    org_kde_kwin_server_decoration_manager_add_listener(probe->legacy_manager, &legacy_manager_listener, probe);
+  }
   if (!strcmp(interface, "org_kde_kwin_appmenu_manager"))
     probe->appmenu_manager = wl_registry_bind(registry, name, &org_kde_kwin_appmenu_manager_interface, version < 2 ? version : 2);
   if (!strcmp(interface, "wl_compositor")) probe->compositor = wl_registry_bind(registry, name, &wl_compositor_interface, 1);
@@ -167,12 +184,17 @@ int main(int argc, char **argv)
 {
   setvbuf(stdin, NULL, _IONBF, 0);
   struct probe probe = {.width = 321, .height = 241};
+  bool legacy_early = argc > 1 && !strcmp(argv[1], "--legacy-early");
+  bool legacy_dual = argc > 1 && !strcmp(argv[1], "--legacy-dual");
+  probe.legacy_mode = legacy_early || legacy_dual || (argc > 1 && !strcmp(argv[1], "--legacy"));
   struct wl_display *display = wl_display_connect(NULL);
   if (!display) return 1;
   struct wl_registry *registry = wl_display_get_registry(display);
   wl_registry_add_listener(registry, &registry_listener, &probe);
   if (wl_display_roundtrip(display) < 0 || !probe.compositor || !probe.shm || !probe.shell || !probe.manager) return 1;
   probe.surface = wl_compositor_create_surface(probe.compositor);
+  if (probe.legacy_mode && !probe.legacy_manager) return 1;
+  if (legacy_early) create_legacy_decoration(&probe);
   probe.xdg = xdg_wm_base_get_xdg_surface(probe.shell, probe.surface);
   probe.top = xdg_surface_get_toplevel(probe.xdg);
   xdg_toplevel_add_listener(probe.top, &top_listener, &probe);
@@ -186,14 +208,17 @@ int main(int argc, char **argv)
     nextspace_window_v1_set_metadata(probe.owned, 1, 15, 23);
     nextspace_window_v1_set_frame_extents(probe.owned, 1, 23, 1, 9);
   }
-  create_decoration(&probe);
+  if (probe.legacy_mode) {
+    if (!legacy_early) create_legacy_decoration(&probe);
+  } else create_decoration(&probe);
+  if (legacy_dual) create_decoration(&probe);
   bool appmenu = argc > 1 && !strcmp(argv[1], "--appmenu");
   if (appmenu) {
     if (!probe.appmenu_manager) return 1;
     probe.appmenu = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
     org_kde_kwin_appmenu_set_address(probe.appmenu, ":1.42", "/test/menu");
   }
-  if (argc > 1 && !metrics && !appmenu) zxdg_toplevel_decoration_v1_set_mode(probe.decoration, strtoul(argv[1], NULL, 10));
+  if (argc > 1 && !metrics && !appmenu && !probe.legacy_mode) zxdg_toplevel_decoration_v1_set_mode(probe.decoration, strtoul(argv[1], NULL, 10));
   wl_surface_commit(probe.surface);
   char line[128];
   while (!probe.closed && wl_display_dispatch_pending(display) >= 0) {
@@ -240,6 +265,15 @@ int main(int argc, char **argv)
         nextspace_window_v1_destroy(probe.owned); probe.owned = NULL;
       }
       else if (!strncmp(line, "commit", 6)) wl_surface_commit(probe.surface);
+      else if (sscanf(line, "legacy-mode %u", &mode) == 1 && probe.legacy_decoration) {
+        org_kde_kwin_server_decoration_request_mode(probe.legacy_decoration, mode);
+        wl_surface_commit(probe.surface);
+      } else if (!strncmp(line, "legacy-destroy", 14) && probe.legacy_decoration) {
+        org_kde_kwin_server_decoration_release(probe.legacy_decoration); probe.legacy_decoration = NULL;
+        wl_surface_commit(probe.surface);
+      } else if (!strncmp(line, "legacy-create", 13) && probe.legacy_mode && !probe.legacy_decoration) {
+        create_legacy_decoration(&probe); wl_surface_commit(probe.surface);
+      }
       else if (sscanf(line, "mode %u", &mode) == 1 && probe.decoration)
         zxdg_toplevel_decoration_v1_set_mode(probe.decoration, mode);
       else if (!strncmp(line, "unset", 5) && probe.decoration) zxdg_toplevel_decoration_v1_unset_mode(probe.decoration);
@@ -265,6 +299,7 @@ int main(int argc, char **argv)
       org_kde_kwin_appmenu_manager_release(probe.appmenu_manager);
     if (probe.owned) nextspace_window_v1_destroy(probe.owned);
     if (probe.decoration) zxdg_toplevel_decoration_v1_destroy(probe.decoration);
+    if (probe.legacy_decoration) org_kde_kwin_server_decoration_release(probe.legacy_decoration);
     xdg_toplevel_destroy(probe.top); xdg_surface_destroy(probe.xdg); wl_surface_destroy(probe.surface);
     wl_display_flush(display);
   }

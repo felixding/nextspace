@@ -47,6 +47,11 @@ decoration_client_header = custom_target('xdg-decoration-client-header', input: 
   output: 'xdg-decoration-unstable-v1-client-protocol.h', command: [scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
 decoration_code = custom_target('xdg-decoration-code', input: decoration_xml,
   output: 'xdg-decoration-unstable-v1-protocol.c', command: [scanner, 'private-code', '@INPUT@', '@OUTPUT@'])
+legacy_decoration_xml = '../../Protocols/server-decoration.xml'
+legacy_decoration_header = custom_target('legacy-decoration-client-header', input: legacy_decoration_xml,
+  output: 'server-decoration-client-protocol.h', command: [scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
+legacy_decoration_code = custom_target('legacy-decoration-code', input: legacy_decoration_xml,
+  output: 'server-decoration-protocol.c', command: [scanner, 'private-code', '@INPUT@', '@OUTPUT@'])
 activation_xml = '../../Libraries/gnustep/back/Source/wayland/protocols/xdg-activation-v1.xml'
 activation_header = custom_target('xdg-activation-client-header', input: activation_xml,
   output: 'xdg-activation-v1-client-protocol.h', command: [scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
@@ -99,7 +104,7 @@ executable('title-font-probe', '../../Tests/Wayland/title-font-probe.c',
   dependencies: title_dependencies)
 executable('decoration-probe', ['../../Tests/Wayland/decoration-probe.c', xdg_client_header,
   xdg_code, decoration_client_header, decoration_code, application_client_header, application_code,
-  appmenu_client_header, appmenu_code],
+  appmenu_client_header, appmenu_code, legacy_decoration_header, legacy_decoration_code],
   dependencies: dependency('wayland-client'))
 input_protocols = []
 foreach name, path : {

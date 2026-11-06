@@ -18,6 +18,7 @@ parser.add_argument('--document',type=Path,help='Optional owned HTML control fix
 parser.add_argument('--restart-host',action='store_true',help='Verify actual desktop native pixels after owned host replacement')
 parser.add_argument('--menus',action='store_true',help='Verify exclusive detached menus across the actual desktop applications')
 parser.add_argument('--menu-only-activation',action='store_true',help='Verify actual icon activation and native keys without a document window')
+parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through Firefox system-decoration settings')
 args=parser.parse_args()
 if args.menu_only_activation and not args.menus:parser.error('--menu-only-activation requires --menus')
 assert 1<=args.port<=65535
@@ -27,6 +28,8 @@ assert args.backend_bundle.is_dir()
 with socket.socket() as port_probe:port_probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);port_probe.bind(('127.0.0.1',args.port))
 root=args.output.resolve();root.mkdir(mode=0o700)
 repo=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(repo/'Libraries/NativeUI/Bridge'))
+from browser_frames import prepare_native_frame
 pin=json.loads((repo/'Experiments/FirefoxNativeUI/binary-pin.json').read_text())
 for name,path in [('firefox-esr',args.firefox),('libxul.so',args.firefox.parent/'libxul.so')]:
  assert hashlib.file_digest(path.open('rb'),'sha256').hexdigest()==pin['files_sha256']['usr/lib/firefox-esr/'+name],name
@@ -113,6 +116,7 @@ try:
  profile=runtime/'firefox-profile';profile.mkdir();prefs={'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True,'gfx.webrender.software':True}
  prefs.update({'marionette.port':args.port,'datareporting.policy.firstRunURL':'','browser.startup.firstrunSkipsHomepage':True})
  (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+','+json.dumps(v)+');\n' for k,v in prefs.items()))
+ if args.native_frame:prepare_native_frame('firefox',profile,current)
  current.update(LD_PRELOAD=str(args.hook),MOZ_ENABLE_WAYLAND='1')
  for flag in ['INPUT','TEXT','BUTTONS','SLIDERS','MULTILINE','MULTILINE_VIEWPORT','WHEEL','FRONTEND','MENU_LIFECYCLE','MENU_KEYS']:current[prefix+flag]='1'
  if args.no_frontend:current.pop(prefix+'FRONTEND')
@@ -121,6 +125,9 @@ try:
  children.append(browser)
  window=wait(lambda:command('windows'),lambda rows:any(w['pid']==browser.pid and w['level']==0 for w in rows))
  window=next(w for w in window if w['pid']==browser.pid and w['level']==0)
+ if args.native_frame:
+  window=next(w for w in wait(lambda:command('windows'),lambda windows:any(w['pid']==browser.pid and w['server_decorated'] for w in windows)) if w['pid']==browser.pid and w['level']==0)
+  check('browser-uses-shared-native-frame',window['server_decorated'],window=window)
  assert command('move '+str(window['id'])+' 240 80')['ok'];assert command('focus '+str(window['id']))['ok']
  # Wait for genuine native textarea painting and the asynchronous menu binding.
  wait(lambda:(root/(family+'-hook.log')).read_text() if (root/(family+'-hook.log')).exists() else '',lambda s:'native-text' in s,30)
@@ -209,8 +216,9 @@ try:
   current_window=next(w for w in command('windows') if w['id']==window['id'])
   (root/(label+'-geometry.json')).write_text(json.dumps(dict(chrome=chrome,window=current_window,models=models),indent=2)+'\n')
   differences=[]
+  left,top=(current_window['frame_left'],current_window['frame_top']) if current_window['server_decorated'] else (0,0)
   for model in models:
-   rect=model['rect'];x=round(current_window['x']+chrome['x']+rect['x']);y=round(current_window['y']+chrome['y']+rect['y']);w,h=round(rect['width']),round(rect['height'])
+   rect=model['rect'];x=round(current_window['x']+left+chrome['x']+rect['x']);y=round(current_window['y']+top+chrome['y']+rect['y']);w,h=round(rect['width']),round(rect['height'])
    actual=image.crop((x,y,x+w,y+h));actual.save(root/(label+'-'+model['id']+'-actual.png'))
    native=Image.open(references/(model['id']+'.png')).convert('RGBA');background=Image.new('RGBA',native.size,'white');background.alpha_composite(native)
    difference=ImageChops.difference(actual,background.convert('RGB')).getbbox() if actual.size==native.size else 'size'
@@ -297,8 +305,9 @@ try:
   rectangles=js('return ["button","styled-peer"].map(id=>document.getElementById(id).getBoundingClientRect().toJSON())')
   time.sleep(1);screen=desktop('html-style-fallback');crops=[]
   current_window=next(w for w in command('windows') if w['id']==window['id'])
+  left,top=(current_window['frame_left'],current_window['frame_top']) if current_window['server_decorated'] else (0,0)
   for rect in rectangles:
-   x,y=round(current_window['x']+chrome['x']+rect['x']),round(current_window['y']+chrome['y']+rect['y'])
+   x,y=round(current_window['x']+left+chrome['x']+rect['x']),round(current_window['y']+top+chrome['y']+rect['y'])
    crops.append(screen.crop((x,y,x+round(rect['width']),y+round(rect['height']))))
   check('html-author-style-restores-complete-engine-control',ImageChops.difference(*crops).getbbox() is None)
   js('document.getElementById("styled-peer").remove();document.getElementById("button").style.cssText="";return true')
@@ -332,8 +341,11 @@ try:
   compare('host-replaced')
  client.command('WebDriver:Navigate',dict(url='about:blank'))
  check('navigation-away',client.command('WebDriver:GetTitle')['value']=='')
- print(json.dumps(dict(passed=len(rows),native_images=sum(len(r.get('controls',[])) for r in rows))),flush=True)
  client.close();client=None
+ if args.native_frame:
+  from browser_frame_actions import run as frame_actions
+  frame_actions(command,wait,check,desktop,window['id'])
+ print(json.dumps(dict(passed=len(rows),native_images=sum(len(r.get('controls',[])) for r in rows))),flush=True)
  stop(browser)
 
 finally:

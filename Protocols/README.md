@@ -6,7 +6,7 @@ toplevel extents round to nearest with ties up. Shared edges round their absolut
 position once. Damage bounds round outward. Screen drawing uses Cairo's device
 scale; printing and PDF surfaces keep their existing transforms.
 
-Toolkit protocol XML has one source under
+GNUstep backend protocol XML has one source under
 `Libraries/gnustep/back/Source/wayland/protocols/`; the privileged shell contract
 lives in `Protocols/nextspace-shell-v1.xml`. Consumers
 generate headers from those sources; generated code is not committed. The upstream
@@ -17,6 +17,7 @@ XML retains its license notices. `manifest.json` records provenance and hashes.
 | wl_compositor v4 client / v5 server | Version-clamped surfaces, buffer damage, subsurfaces |
 | xdg-shell v1 client / v3 server | Ordinary windows and parent-relative popups |
 | xdg-decoration-unstable-v1 | Negotiated compositor frames for supporting clients; explicit client-side preferences are honored |
+| org_kde_kwin_server_decoration_manager v1 | GTK3 compatibility through wlroots' legacy negotiation; reuses the existing compositor frame |
 | fractional-scale-v1 v1 + viewporter v1 | Per-window density, buffer scale 1, logical viewport |
 | xdg-output v2 | Logical output layout, separate from physical mode pixels |
 | xdg-activation-v1 | Input-authorized activation of existing toplevels |
@@ -66,6 +67,15 @@ the hint revokes that fallback focus. The GNUstep backend opts main menus in so
 the existing AppKit icon activation works when an application has no document.
 NativeUI proxy menus opt out because their represented browser retains keyboard
 focus. No application name participates in this policy.
+
+GTK3 clients can also negotiate the existing frame through wlroots' older
+`org_kde_kwin_server_decoration_manager`. Its default is server decoration;
+client/none requests remove the frame at the next surface commit. Creation
+before the xdg-toplevel is resolved at commit, and release does not retain a
+legacy-object pointer. If both decoration protocols exist for the surface,
+xdg-decoration takes precedence. Both paths use the same frame renderer,
+geometry and input implementation. This compatibility path is needed by the
+recorded Firefox GTK3 runtime; it adds no screenshot or window-control authority.
 
 Other clients can negotiate server frames through xdg-decoration; an unspecified preference selects
 the compositor frame, while an explicit client-side preference keeps the client

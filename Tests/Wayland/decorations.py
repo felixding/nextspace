@@ -102,7 +102,9 @@ def run(compositor, probe, shell_probe, artifacts):
                     def captured():
                         try:
                             with Image.open(image_path) as image:
-                                return image.size == expected and len(image.convert("RGB").getcolors(image.width * image.height)) > 4
+                                # Native bitmap titles can use exactly four
+                                # grayscale colors, without antialiased shades.
+                                return image.size == expected and len(image.convert("RGB").getcolors(image.width * image.height)) >= 4
                         except OSError:
                             return False
                     until(captured, "rendered title, bevels and buttons at backing density")

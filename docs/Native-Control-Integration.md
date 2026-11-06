@@ -422,6 +422,17 @@ binaries are unchanged.
 Other builds/derivatives, cross-desktop menu-only activation and remaining native
 browser/application controls still need qualification.
 
+Both pinned browser families can now request the desktop's existing shared
+window frame through their system-decoration preferences. The compositor adds
+GTK3's older KDE negotiation alongside xdg-decoration, with one existing frame
+factory, renderer and input path. The bridge only prepares an owned stopped
+profile; it contains no titlebar or window-control drawing. The
+[frame qualification](../Libraries/NativeUI/browser-frame-qualification.json)
+records 162 passing browser/protocol checks, all 153 Firefox native-control
+desktop images, and the existing five-density frame regression. Tabs/toolbars,
+other remaining controls, other builds, browser mixed-DPI and installed deployment
+remain open.
+
 The NativeUI provider now exposes optional application menus built from real
 GNUstep NSMenu/NSMenuItem controls. Application models supply titles, hierarchy,
 command IDs, state and native key-equivalent metadata; AppKit owns presentation

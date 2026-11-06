@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-07",
+  "baseline": "4106eafd",
+  "qualification": "browser-frame-qualification.json",
+  "source_sha256": {
+    "Applications/Compositor/meson.build": "892806969e9037c9af051be656e20280f2e1b77ff5b806b2be9bba571a8bb19b",
+    "Applications/Compositor/src/decorations.h": "934f756adea13500f0051c92edaecfe524005cda9bbf3c5e1e752a54176e5752",
+    "Applications/Compositor/src/main.c": "02905e0d11e51dbd01cc95366707bc61b87d818315918c4712b3f38f77d1e3dc",
+    "Experiments/ChromiumScrollers/run.py": "6e9d2ef5d61936ccb469c8d2d643a1ed5f35de5a68d4d852df0ddccbdec84f1f",
+    "Experiments/FirefoxNativeUI/run-fixture.py": "ed19f574a2c48a67cd2d65920d9dc82077938069b73afe8f07ea27e13f8ab220",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "ab6c2998a115b2dadbe344a12d51b3fa437a2813c1ceab7e5313ae1ab194ad1a",
+    "Tests/Wayland/decoration-probe.c": "5bdb0dab464af9839958c43ba16d437007c7c86bedd0b2cce7984707323197a2",
+    "Tests/Wayland/decorations.py": "2ec08f063e938d3e0332e19b99f0670ec2ee6cf33204ccc8f7a2d485a82904e8",
+    "Tests/Wayland/native_ui_desktop.py": "1a8c2a0db3f2501ebecf290e2e3a0af6e8707bc498da6c017a26964c08d17a4d",
+    "Tests/Wayland/native_ui_desktop_chromium.py": "52bc403e7b0d36a63db7ee6a1d6a7495733b0fa25bc5d3fdb2a208acf10db24f",
+    "Tests/Wayland/text_input.py": "8065d234e5fecc627f26465768dbe8e2b8e35d5b3e3940eef52e15d70abb0661",
+    "Libraries/NativeUI/Bridge/browser_frames.py": "fc68428f886b258e9cd9c75faa4d835182f71f2c5d7b38f7b10de8a756f15a6a",
+    "Protocols/server-decoration.xml": "483544f149ecb5739317b7aaaa902c8137526b0fe2b0b0023e72053d92aa3d6a",
+    "Tests/Wayland/browser_frame_actions.py": "eeb24f65d5e8badf79a3337b16842a8d6ab92810aa90c77c577d1ffc1de50c3d",
+    "Tests/Wayland/legacy_decorations.py": "c8ad74a3bc4a9e459720566d889b6cbbee5f40925bd02fae1c6ea2d2b6c46133",
+    "Protocols/manifest.json": "6033fd50f78a35b7aeac39de8596f1d8e41180c5e7bb140e2ca7e0fe62706155"
+  },
+  "upstream_sources": [
+    {
+      "path": "chrome/browser/ui/views/frame/browser_desktop_window_tree_host_linux.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/browser_desktop_window_tree_host_linux.cc",
+      "sha256": "215282f092beb5b419924463f1f400636afa2102fccc1cdbce335d0512066d3f",
+      "bytes": 12686
+    },
+    {
+      "path": "ui/ozone/platform/wayland/host/wayland_toplevel_window.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_toplevel_window.cc",
+      "sha256": "4facb531247f8d2f6c3bcb007a613533a09e7c8ae06e6deedb655a07e2e21354",
+      "bytes": 39224
+    },
+    {
+      "path": "browser_native_widget_aura_linux.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/browser_native_widget_aura_linux.cc",
+      "sha256": "ca116fdc558d86c5e81b0e2597bffd49e16e331ba3097e57a1f331e227546263",
+      "bytes": 5364
+    },
+    {
+      "path": "browser_widget.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/browser_widget.cc",
+      "sha256": "ceed2ed74c2748c7f35b4343364d561e630d122cbf6238d5f1d9cf6f2198c63d",
+      "bytes": 24276
+    },
+    {
+      "path": ".build/native-ui/firefox-viewport-source/nsWindow.cpp",
+      "sha256": "64954b3a542c2a1678d5c38ef31024ce267f9e7dfee83667c155ee9ff4059738",
+      "finding": "GetSystemGtkWindowDecoration accepts the existing system override; SetCustomTitlebar uses normal window decorations in that mode.",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsWindow.cpp"
+    }
+  ],
+  "separation": {
+    "no_browser_appkit_hook_backend_or_provider_rebuild": true,
+    "no_new_frame_control_drawing": true,
+    "rendering_prefix_and_input_suffix_identical_to_baseline": true,
+    "shared_factory_reused_by_xdg_and_legacy_protocols": true,
+    "public_native_ui_header_unchanged": true
+  },
+  "findings": [
+    "The packaged Firefox GTK3 runtime advertises only the older KDE decoration interface; system preferences alone did not produce a frame with the preceding compositor.",
+    "Resolve legacy negotiation by owned surface at commit; xdg-decoration wins if both protocols exist. Both paths share the original frame factory, rendering and input.",
+    "Select the browsers existing system-decoration preferences before launching an owned disposable profile; do not patch browser drawing or duplicate controls.",
+    "Inventory retains normal frame metrics during fullscreen. Verify actual frame visibility/content bounds and wait for committed client geometry on restoration.",
+    "The older frame regression required more than four colors. The preceding compositor also failed it and its whole title RGB equals the new compositor; native bitmap titles legitimately use four grayscale colors."
+  ],
+  "runtime_audit": ".build/native-ui/browser-frame-runtime-audit.json",
+  "public_native_ui_header_sha256": "4b231220961a4ddc42fe58a0526ceb29cbd2143f87e50b425a9ca8a3ea6f7bf6",
+  "protocol_manifest_correction": "Record the upstream legacy XML and refresh the preceding v9 application source pin/version."
+}

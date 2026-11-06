@@ -528,7 +528,16 @@ on the pinned horizontal scale-1 build. Image/SVG/pseudo/shadow content,
 automatic flex/grid sizing, default-button policy, accessibility and broader
 layout/scale/build coverage remain open.
 
-The host-replacement control images pass, but the full desktop capture still
-shows TimeMon's detached menu while Firefox remains focused and its D-Bus menu
-model is bound. Actual Workspace menu presentation/recovery needs a separate
-fix; the control-image assertions do not qualify it.
+Shared Workspace menu selection and menu-only activation are now qualified
+separately using actual desktop focus, visibility and native input. See
+[desktop menus](../../Libraries/NativeUI/desktop-menu-qualification.json) and
+[menu activation](../../Libraries/NativeUI/menu-activation-qualification.json).
+These shared rules use window ownership and focus without application-name cases.
+
+The optional `--native-frame` flag in both Firefox fixture launchers selects
+Firefox's existing system-decoration settings through the shared
+[`browser_frames.py`](../../Libraries/NativeUI/Bridge/browser_frames.py) helper.
+The compositor's GTK3 legacy-decoration compatibility path supplies the existing
+desktop frame, including title drag, Escape rollback, shade/unshade, resize,
+fullscreen, minimize and close. This adds no browser hook or copied drawing.
+Tabs, toolbars and other remaining browser controls are still separate work.

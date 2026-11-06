@@ -21,6 +21,7 @@ parser.add_argument('--menu-shell-probe',type=Path,help='Use the actual Workspac
 parser.add_argument('--port',type=int,default=2833)
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--hold',action='store_true',help='Keep the owned test/control fixture open until quit')
+parser.add_argument('--native-frame',action='store_true',help='Use the compositor frame through the existing system-decoration settings')
 a=parser.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 if a.shared_menus and not a.export_menus:parser.error('--shared-menus requires --export-menus')
 if a.menu_shell_probe and not a.shared_menus:parser.error('--menu-shell-probe requires --shared-menus')
@@ -86,6 +87,10 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   prefs={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','datareporting.policy.dataSubmissionEnabled':False,'gfx.webrender.software':True}
   if a.export_menus:prefs.update({'widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True})
   (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in prefs.items()))
+  if a.native_frame:
+   sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge'))
+   from browser_frames import prepare_native_frame
+   prepare_native_frame('firefox',profile,env)
   env.update(LD_PRELOAD=str(a.hook.resolve()),NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1',NEXTSPACE_FIREFOX_FRONTEND='1')
   if a.export_menus:env['NEXTSPACE_FIREFOX_MENU_LIFECYCLE']='1'
   if a.shared_menus:env['NEXTSPACE_FIREFOX_MENU_KEYS']='1'

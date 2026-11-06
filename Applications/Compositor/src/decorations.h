@@ -293,11 +293,45 @@ static void decoration_set_title_appearance(struct nextspace_server *server,
   decoration_update_all(server);
 }
 
+static struct nextspace_decoration *decoration_get(struct nextspace_toplevel *view)
+{
+  struct nextspace_decoration *frame = view->decoration;
+  if (frame) return frame;
+  frame = calloc(1, sizeof(*frame));
+  if (!frame) { wl_client_post_no_memory(wl_resource_get_client(view_surface(view)->resource)); return NULL; }
+  view->decoration = frame;
+  frame->view = view;
+  frame->tree = wlr_scene_tree_create(view->scene_tree);
+  frame->title = wlr_scene_buffer_create(frame->tree, NULL);
+  const float black[] = {0, 0, 0, 1}, gray[] = {.67, .67, .67, 1};
+  frame->left = wlr_scene_rect_create(frame->tree, 1, 1, black);
+  frame->right = wlr_scene_rect_create(frame->tree, 1, 1, black);
+  frame->bottom = wlr_scene_rect_create(frame->tree, 1, 9, gray);
+  for (int n = 0; n < 2; n++) frame->grooves[n] = wlr_scene_rect_create(frame->tree, 1, 9, black);
+  const float white[] = {1, 1, 1, 1};
+  for (int n = 0; n < 3; n++) frame->selection[n] = wlr_scene_rect_create(frame->tree, 1, 1, white);
+  wlr_scene_node_set_enabled(&frame->tree->node, false);
+  return frame;
+}
+
 static void decoration_commit(struct nextspace_toplevel *view)
 {
   struct nextspace_decoration *frame = view->decoration;
+  bool legacy_enabled = false;
+  if (!frame || !frame->protocol) {
+    /* GTK3 negotiates the older protocol, sometimes before xdg-toplevel
+       creation. Resolve the owned surface at commit and reuse the same frame. */
+    struct wlr_server_decoration *decoration;
+    wl_list_for_each(decoration, &view->server->legacy_decorations->decorations, link)
+      if (decoration->surface == view_surface(view)) {
+        legacy_enabled = decoration->mode == WLR_SERVER_DECORATION_MANAGER_MODE_SERVER;
+        break;
+      }
+    if (legacy_enabled && !frame) frame = decoration_get(view);
+  }
   if (!frame) return;
-  bool enabled = frame->protocol && frame->protocol->current.mode == WLR_XDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE;
+  bool enabled = frame->protocol ?
+    frame->protocol->current.mode == WLR_XDG_TOPLEVEL_DECORATION_V1_MODE_SERVER_SIDE : legacy_enabled;
   if (enabled != view->server_decorated || view->frame_pending) {
     struct ns_frame_extents old = view->server_decorated ? view->frame : (struct ns_frame_extents){0};
     if (view->server->decoration_pressed == view) reset_cursor_mode(view->server);
@@ -369,23 +403,8 @@ static void decoration_new(struct wl_listener *listener, void *data)
     view = tree->node.data;
   }
   if (!view) return;
-  struct nextspace_decoration *frame = view->decoration;
-  if (!frame) {
-    frame = calloc(1, sizeof(*frame));
-    if (!frame) { wl_client_post_no_memory(wl_resource_get_client(protocol->resource)); return; }
-    view->decoration = frame;
-    frame->view = view;
-    frame->tree = wlr_scene_tree_create(view->scene_tree);
-    frame->title = wlr_scene_buffer_create(frame->tree, NULL);
-    const float black[] = {0, 0, 0, 1}, gray[] = {.67, .67, .67, 1};
-    frame->left = wlr_scene_rect_create(frame->tree, 1, 1, black);
-    frame->right = wlr_scene_rect_create(frame->tree, 1, 1, black);
-    frame->bottom = wlr_scene_rect_create(frame->tree, 1, 9, gray);
-    for (int n = 0; n < 2; n++) frame->grooves[n] = wlr_scene_rect_create(frame->tree, 1, 9, black);
-    const float white[] = {1, 1, 1, 1};
-    for (int n = 0; n < 3; n++) frame->selection[n] = wlr_scene_rect_create(frame->tree, 1, 1, white);
-    wlr_scene_node_set_enabled(&frame->tree->node, false);
-  }
+  struct nextspace_decoration *frame = decoration_get(view);
+  if (!frame) return;
   frame->protocol = protocol;
   frame->request.notify = decoration_request;
   frame->destroy.notify = decoration_destroy;

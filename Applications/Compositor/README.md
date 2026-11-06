@@ -47,7 +47,10 @@ verifies real inhibitor ownership/removal without suspending the guest.
 Clients using xdg-decoration can negotiate a compositor frame with a
 density-aware title, close/minimize controls and move/resize input. Explicit
 client-side preferences are honored; unspecified preferences select the server
-frame. GNUstep's application-v7 adapter preserves its logical frame metrics and
+frame. GTK3's older KDE decoration protocol is also advertised through wlroots;
+its committed mode selects this same frame. When both protocols exist,
+xdg-decoration takes precedence. No alternate renderer or window-action code is
+introduced. GNUstep's application-v7 adapter preserves its logical frame metrics and
 submits its content through a viewport while the compositor draws the frame.
 Owned edited-document metadata selects the existing NextSpace clean/broken-X
 close artwork, including its pressed variant. Bezel and artwork edges use the

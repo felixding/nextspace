@@ -760,3 +760,12 @@ unfinished; the feature stays opt-in.
 This remains an optional adapter for the recorded Linux ARM64 executable.
 Chrome, Vivaldi, other Chromium versions, the remaining browser frontend,
 full desktop session integration and other toolkits still require work.
+
+`run.py --native-frame` additionally selects Chromium's existing system-frame
+preference in its disposable profile through the shared
+[`browser_frames.py`](../../Libraries/NativeUI/Bridge/browser_frames.py) helper.
+The browser requests the compositor's existing xdg-decoration frame. Its title,
+close/minimize controls, move/resize, shade and fullscreen behavior share the
+desktop implementation; no browser hook or control drawing is added. The
+actual Workspace desktop fixture accepts the same flag. Browser tabs/toolbars,
+other builds/derivatives and installed-profile migration remain separate work.

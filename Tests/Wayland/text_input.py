@@ -23,7 +23,7 @@ def stop_process(process):
 
 
 class Client:
-    def __init__(self, executable, mode, env, artifacts, name, broker=None, broker_role=b"I"):
+    def __init__(self, executable, mode, env, artifacts, name, broker=None, broker_role=b"I", ready_event="ready"):
         self.events, self.pending = [], b""
         self.log = (artifacts / f"{name}.jsonl").open("w")
         connection = None
@@ -38,7 +38,7 @@ class Client:
                 stdout=subprocess.PIPE, stderr=errors)
         if connection: connection.close()
         os.set_blocking(self.process.stdout.fileno(), False)
-        self.wait("ready")
+        if ready_event: self.wait(ready_event)
 
     def pump(self):
         while select.select([self.process.stdout], [], [], 0)[0]:

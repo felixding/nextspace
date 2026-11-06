@@ -14,6 +14,7 @@
 #include <wlr/types/wlr_xdg_output_v1.h>
 #include <wlr/types/wlr_xdg_activation_v1.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
+#include <wlr/types/wlr_server_decoration.h>
 #include <wlr/types/wlr_session_lock_v1.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include "nextspace-geometry.h"
@@ -154,6 +155,7 @@ struct nextspace_server {
 
 	struct wlr_xdg_shell *xdg_shell;
   struct wl_listener new_decoration;
+  struct wlr_server_decoration_manager *legacy_decorations;
   struct nextspace_toplevel *decoration_pressed;
   unsigned decoration_button;
   uint32_t decoration_press_button;
@@ -1842,6 +1844,9 @@ int main(int argc, char *argv[]) {
   struct wlr_xdg_decoration_manager_v1 *decorations = wlr_xdg_decoration_manager_v1_create(server.wl_display);
   server.new_decoration.notify = decoration_new;
   wl_signal_add(&decorations->events.new_toplevel_decoration, &server.new_decoration);
+  server.legacy_decorations = wlr_server_decoration_manager_create(server.wl_display);
+  wlr_server_decoration_manager_set_default_mode(server.legacy_decorations,
+    WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 
 	/*
 	 * Creates a cursor, which is a wlroots utility for tracking the cursor

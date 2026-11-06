@@ -18,6 +18,7 @@ parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-composi
 parser.add_argument('--backend',required=True)
 parser.add_argument('--port',type=int,default=2829)
 parser.add_argument('--click-counts',action='store_true',help='Qualify native double/triple click selection')
+parser.add_argument('--native-frame',action='store_true',help='Use the compositor frame through the existing system-decoration settings')
 fixture_mode=parser.add_mutually_exclusive_group()
 fixture_mode.add_argument('--controls',action='store_true',help='Exercise the optional checkbox/radio input binding')
 fixture_mode.add_argument('--buttons',action='store_true',help='Exercise native input buttons through the same provider')
@@ -60,6 +61,10 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
         'datareporting.policy.dataSubmissionEnabled':False,'gfx.webrender.software':True}
     (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in preferences.items()))
     env=dict(os.environ,XDG_RUNTIME_DIR=str(runtime),WLR_BACKENDS='headless',WLR_RENDERER='pixman',MOZ_ENABLE_WAYLAND='1')
+    if args.native_frame:
+        sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge'))
+        from browser_frames import prepare_native_frame
+        prepare_native_frame('firefox',profile,env)
     for key in ('DISPLAY','WAYLAND_DISPLAY','WAYLAND_SOCKET','LD_PRELOAD','GTK_MODULES','QT_QPA_GENERIC_PLUGINS'):env.pop(key,None)
     if args.library_path:env['LD_LIBRARY_PATH']=':'.join(args.library_path)
     parent,child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);parent.settimeout(5)

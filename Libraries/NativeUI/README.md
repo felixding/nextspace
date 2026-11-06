@@ -702,3 +702,20 @@ replacement. It also retains 153 whole-control desktop comparisons and four
 complete native-menu comparisons. Browser/AppKit binaries and the public
 NativeUI ABI remain unchanged. Custom Workspace placeholder icons, cross-desktop
 menu-only activation and the wider application/control matrix remain unqualified.
+
+## Shared browser window frames
+
+The browser launchers' optional `--native-frame` setting uses the browsers'
+existing system-decoration paths through [`Bridge/browser_frames.py`](Bridge/browser_frames.py).
+Chromium requests xdg server decoration; the recorded Firefox GTK3 runtime uses
+the older KDE decoration protocol. The compositor resolves both through its
+existing shared frame, rendering and input implementation. NativeUI controls,
+browser hooks and browser binaries are unchanged.
+
+The [frame qualification](browser-frame-qualification.json) records 162 passing
+browser/protocol checks, including drag, Escape rollback, shade/unshade, resize,
+fullscreen, minimize and close. All 153 Firefox whole-control desktop comparisons
+and Chromium menu recovery comparisons pass. Independent legacy-protocol titles
+equal the existing xdg titles; the existing five-density frame regression also
+passes. Browser mixed-DPI, tabs/toolbars, remaining controls, derivatives and
+installed-profile/deployment integration remain unfinished.

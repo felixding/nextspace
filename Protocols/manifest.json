@@ -51,8 +51,8 @@
     },
     {
       "path": "Libraries/gnustep/back/Source/wayland/protocols/nextspace-application-v1.xml",
-      "sha256": "68e2b3e45a4ba8c1d8a42a9058ab1bb7d410ef2d6962a48dc122beeec766739a",
-      "source": "NEXTSPACE application extension versions 1-8",
+      "sha256": "4a177989a664a34c128ec3eed1de69b4f5e547c85ed1c6bc817b6695a4516597",
+      "source": "NEXTSPACE application extension versions 1-9",
       "license": "MIT"
     },
     {
@@ -106,6 +106,12 @@
       "sha256": "7d0251ee00d3d4bc7ee41e3cd1161beaf68a0c18c4f56f48ff1907a475846022",
       "source": "KDE/plasma-wayland-protocols git blob 02a72f7ef4c8111a3703a49f4386d3d462a416b8",
       "license": "MIT"
+    },
+    {
+      "path": "Protocols/server-decoration.xml",
+      "sha256": "483544f149ecb5739317b7aaaa902c8137526b0fe2b0b0023e72053d92aa3d6a",
+      "source": "wlroots 0.18.2 protocol/server-decoration.xml",
+      "license": "LGPL-2.1-or-later"
     }
   ],
   "desktop_portal": {

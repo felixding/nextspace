@@ -13,6 +13,7 @@ for name in ['supervisor','compositor','workspace','capture-probe','library','ho
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--port',type=int,default=9246)
 parser.add_argument('--activation-fallback',action='store_true',help='Verify proxy menus decline menu-only activation and retain document focus')
+parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through the Chromium profile preference')
 args=parser.parse_args()
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','chromium']:
@@ -21,6 +22,8 @@ assert args.backend_bundle.is_dir()
 with socket.socket() as port_probe:port_probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);port_probe.bind(('127.0.0.1',args.port))
 root=args.output.resolve();root.mkdir(mode=0o700)
 repo=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(repo/'Libraries/NativeUI/Bridge'))
+from browser_frames import prepare_native_frame
 assert hashlib.file_digest(args.chromium.open('rb'),'sha256').hexdigest()=='7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1'
 rows=[]
 observed={}
@@ -100,12 +103,17 @@ try:
  browser_env=dict(env,**published());url=(repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
  current=dict(browser_env,LD_PRELOAD=str(args.hook))
  current['NEXTSPACE_CHROMIUM_SOCKET']=browser_env['NEXTSPACE_NATIVE_UI_SOCKET'];current['NEXTSPACE_CHROMIUM_LOG']=str(root/'chromium-hook.log')
+ if args.native_frame:
+  prepare_native_frame('chromium',runtime/'chromium-profile',current)
  for flag in ['FORMS','INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','VIEWS','PROGRESS','ANIMATION','SLIDERS','POPUPS','MENUS','MENU_KEYS']:current['NEXTSPACE_CHROMIUM_'+flag]='1'
  launch=[str(args.chromium),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-sync','--disable-component-update','--password-store=basic','--remote-debugging-port='+str(args.port),'--window-size=1120,800','--user-data-dir='+str(runtime/'chromium-profile'),url]
  with (root/'chromium.stdout').open('w') as log,(root/'chromium.stderr').open('w') as error:browser=subprocess.Popen(launch,env=current,stdout=log,stderr=error)
  children.append(browser)
  windows=wait(lambda:command('windows'),lambda windows:any(w['pid']==browser.pid and w['level']==0 for w in windows))
  window=next(w for w in windows if w['pid']==browser.pid and w['level']==0)
+ if args.native_frame:
+  window=next(w for w in wait(lambda:command('windows'),lambda windows:any(w['pid']==browser.pid and w['server_decorated'] for w in windows)) if w['pid']==browser.pid and w['level']==0)
+  check('browser-uses-shared-native-frame',window['server_decorated'],window=window)
  assert command('move '+str(window['id'])+' 240 80')['ok'];assert command('focus '+str(window['id']))['ok']
  import urllib.request
  def pages():
@@ -186,6 +194,9 @@ try:
  browser_menu('final-chromium-menu')
  wait(lambda:desktop('final-chromium-menu-pixels'),lambda image:ImageChops.difference(image.crop(menu_box),before_replacement).getbbox() is None)
  check('complete-native-menu-pixels-after-recovered-command',True)
+ if args.native_frame:
+  from browser_frame_actions import run as frame_actions
+  frame_actions(command,wait,check,desktop,window['id'])
  print(json.dumps(dict(passed=len(rows))),flush=True)
  stop(browser)
 
