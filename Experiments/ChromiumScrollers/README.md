@@ -796,4 +796,6 @@ resize and fullscreen restoration. Shared-provider and both existing browser
 regressions also pass. This is a tab-container prototype for the pinned scale-1
 build: favicons/alerts, per-tab close buttons, context menus, dragging/touch,
 overflow/groups, full pane/toolbar layout, accessibility and browser scaling
-remain unfinished, as do Firefox tabs, derivatives and installed deployment.
+remain unfinished. The [Firefox binding](../FirefoxNativeUI/tab-qualification.json)
+now reuses the same provider and serializer. Derivatives and installed deployment
+also remain unfinished.

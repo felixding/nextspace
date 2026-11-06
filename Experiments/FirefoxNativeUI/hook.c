@@ -57,7 +57,15 @@ static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pi
     x=end;
   }
 }
+static int tabs_requested,tabs_trace_enabled;
+static int tabs_frame_owned(const void *);
+static int tabs_draw(void *,void *,const struct RectF *);
+static void tabs_forget(void *);
+static void tabs_native_notification(void);
+static uint64_t tabs_pointer_target(void *,void *);
+static void tabs_pointer_post(uint64_t,void *,int);
 #include "controls.inc"
+#include "tabs.inc"
 #include "menus.inc"
 #include "../../Libraries/NativeUI/Bridge/Menu.inc"
 #include "global-keys.inc"
@@ -156,6 +164,7 @@ static void install(void) {
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
   if(!prepare_background_bindings()){note("Gecko native background guard failed; unchanged");return;}
   if(frontend_requested&&!prepare_frontend_bindings()){note("Gecko frontend guard failed; unchanged");return;}
+  if(tabs_requested&&!prepare_tabs()){note("Gecko tab guard failed; unchanged");return;}
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
   if(!prepare_global_keys()){note("Gecko global menu key guard failed; unchanged");return;}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
@@ -167,6 +176,7 @@ static void install(void) {
   if(multiline_viewport_enabled){activate_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours));note("native Gecko multiline viewport installed");}
   if(wheel_enabled){activate_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours));note("native Gecko wheel binding installed");}
   if(frontend_requested){activate_detours(frontend_detours,sizeof(frontend_detours)/sizeof(*frontend_detours));note("native Gecko frontend text binding installed");}
+  if(tabs_requested){activate_detours(tabs_detours,sizeof(tabs_detours)/sizeof(*tabs_detours));note("experimental native Gecko tab container installed");}
   if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));note("native Gecko external menu lifecycle binding installed");}
   if(menu_keys_requested){activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));note("native Gecko global menu key binding installed");}
   installed=1;
@@ -188,6 +198,9 @@ __attribute__((constructor)) static void initialize(void) {
   const char *menus=getenv("NEXTSPACE_FIREFOX_MENU_LIFECYCLE");
   menu_lifecycle_requested=menus&&!strcmp(menus,"1");
   if(input&&!strcmp(input,"1"))prepare_widget_metrics();
+  const char *tabs=getenv("NEXTSPACE_FIREFOX_TABS"),*tab_trace=getenv("NEXTSPACE_FIREFOX_TABS_TRACE");
+  tabs_requested=frontend_requested&&tabs&&!strcmp(tabs,"1");
+  tabs_trace_enabled=tabs_requested&&tab_trace&&!strcmp(tab_trace,"1");
   const char *menu_keys=getenv("NEXTSPACE_FIREFOX_MENU_KEYS");
   menu_keys_requested=menu_keys&&!strcmp(menu_keys,"1")&&frontend_requested&&application_menu_keys;
   if(menu_keys&&!strcmp(menu_keys,"1")&&!menu_keys_requested)note("native global menu keys unavailable in this helper/configuration");

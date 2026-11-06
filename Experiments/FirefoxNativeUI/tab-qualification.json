@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-07",
+  "baseline": "b7f73e54",
+  "status": "Qualified opt-in pinned scale-1 Firefox NSTabView tab-container binding; full browser/toolkit requirements remain unfinished.",
+  "checks": 195,
+  "whole_native_images": 322,
+  "api": {
+    "version": 1,
+    "bytes": 448,
+    "provider_unchanged": true
+  },
+  "runs": [
+    {
+      "path": "/var/tmp/nxs-firefox-tabs-desktop-03",
+      "passed": 113,
+      "native_tab_images": 16,
+      "other_native_control_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      }
+    },
+    {
+      "path": "/var/tmp/nxs-firefox-tabs-disabled-01",
+      "passed": 82,
+      "native_tab_images": 0,
+      "other_native_control_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      }
+    }
+  ],
+  "coverage": [
+    "Actual Workspace desktop with the unchanged pinned Firefox executable and libxul; 16 complete tab rectangles match the existing independently qualified public NSTabView provider.",
+    "Native pointer selection uses original XUL activation and emits exactly one trusted browser TabSelect event; repeated selected clicks emit no second selection and remain client content.",
+    "Cancelled real pointer input keeps the browser selection and native image unchanged.",
+    "Actual next/close/replacement/reorder commands update native state; opaque retained identities survive remaining-model changes and retired identities are not reused.",
+    "Original tab-label model updates, streaming HTTP loading title and later document.title update reach the complete native image with stable identity.",
+    "Returning to the original document preserves identity and the native owner becomes idle without a repaint loop.",
+    "Native images and actual pointer selection after shared host replacement; complete tab images after window resize and fullscreen restoration.",
+    "Existing native HTML/address-field controls, Emacs editing, menus, application switching, menu-only activation and shared frames remain covered by the full desktop suite.",
+    "Final adapter with tabs disabled passes the 82-check existing suite and all 153 whole native control images."
+  ],
+  "limitations": [
+    "Only the pinned Debian Linux ARM64 Firefox ESR 153.6.0 libxul build ace600697490ec169e3e371fb456dcb542e3abef at scale 1 is qualified for this browser binding.",
+    "Native tab icons/loading indicators/alerts, new-tab and per-tab close buttons, context menus, dragging/touch, overflow/groups, hidden/pinned/vertical/split-tab modes and complete native pane/toolbar layout remain unfinished or unqualified.",
+    "Multiple-window lifecycle, browser mixed-DPI, accessibility/IME, derivatives and installed deployment remain unqualified.",
+    "The full remaining application-wide browser UI, Chromium/Firefox derivatives and later GTK/Qt/KDE integration remain within the active goal."
+  ],
+  "runtime_audit": ".build/native-ui/firefox-tabs-runtime-audit.json",
+  "archive": ".build/evidence/components/native-firefox-tabs-20261107-v1-evidence.tar.gz"
+}

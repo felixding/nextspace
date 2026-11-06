@@ -475,5 +475,19 @@ The shared provider still matches ordinary native desktop tabs at 1x/2x.
 See [Chromium tab qualification](../Experiments/ChromiumScrollers/tab-qualification.json).
 This does not finish the browser interface: native tab icons/close/context/drag/
 overflow/group features, pane/toolbar layout, broader input/accessibility/scaling,
-Firefox tabs, derivatives and installed deployment remain open. GTK/Qt/KDE follow
+The subsequent Firefox binding is described below; derivatives and installed
+deployment remain open. GTK/Qt/KDE follow
 the browser work. No native component is duplicated or browser recompiled.
+
+The opt-in pinned Firefox adapter now binds its real XUL tab collection to that
+same NSTabView and shared tab serializer. Gecko's native DOM getters supply the
+ordered model; native pointer selection calls the original trusted XUL activation
+and browser handlers. The original GLib UI queue invalidates the entire owner
+after model changes so Gecko's retained background cannot keep old title pixels.
+The actual Workspace fixture covers native images, cancellation, next/close/
+reorder, title changes and host recovery alongside existing fields and menus.
+See [Firefox tab qualification](../Experiments/FirefoxNativeUI/tab-qualification.json).
+The NativeUI provider and AppKit are unchanged. This adds the second engine
+binding; native new-tab/close buttons and the remaining tab features, whole
+browser interfaces,
+derivatives/deployment and subsequent GTK/Qt/KDE integration remain unfinished.

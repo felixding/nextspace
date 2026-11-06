@@ -19,7 +19,9 @@ parser.add_argument('--restart-host',action='store_true',help='Verify actual des
 parser.add_argument('--menus',action='store_true',help='Verify exclusive detached menus across the actual desktop applications')
 parser.add_argument('--menu-only-activation',action='store_true',help='Verify actual icon activation and native keys without a document window')
 parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through Firefox system-decoration settings')
+parser.add_argument('--native-tabs',action='store_true',help='Verify the opt-in shared native Firefox tab container')
 args=parser.parse_args()
+if args.native_tabs and args.no_frontend:parser.error('--native-tabs requires frontend integration')
 if args.menu_only_activation and not args.menus:parser.error('--menu-only-activation requires --menus')
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','firefox']:
@@ -119,6 +121,7 @@ try:
  if args.native_frame:prepare_native_frame('firefox',profile,current)
  current.update(LD_PRELOAD=str(args.hook),MOZ_ENABLE_WAYLAND='1')
  for flag in ['INPUT','TEXT','BUTTONS','SLIDERS','MULTILINE','MULTILINE_VIEWPORT','WHEEL','FRONTEND','MENU_LIFECYCLE','MENU_KEYS']:current[prefix+flag]='1'
+ if args.native_tabs:current.update(NEXTSPACE_FIREFOX_TABS='1',NEXTSPACE_FIREFOX_TABS_TRACE='1')
  if args.no_frontend:current.pop(prefix+'FRONTEND')
  browser_command=[str(args.firefox),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access','--width','1120','--height','800',url]
  with (root/(family+'.stdout')).open('w') as log,(root/(family+'.stderr')).open('w') as error:browser=subprocess.Popen(browser_command,env=current,stdout=log,stderr=error)
@@ -226,6 +229,12 @@ try:
   check(label+'-actual-desktop-native-pixels',all(d['difference'] is None for d in differences),controls=differences)
  js('document.body.tabIndex=-1;document.body.focus({preventScroll:true});notes.scrollTop=73;return true')
  compare('initial')
+ if args.native_tabs:
+  from firefox_tabs import Tabs
+  def tabs_js(script):
+   try:return js(script,'chrome')
+   finally:client.command('Marionette:SetContext',dict(value='content'))
+  tabs=Tabs(command,wait,check,desktop,tabs_js,root,window,args,browser_env,repo).run()
  if args.menus:
   initial=browser_menu('browser-menu')
   if args.menu_only_activation:
@@ -339,12 +348,19 @@ try:
   check('owned-host-replacement-retains-document',js('return window.__nativeDesktopMarker')=='retained',old_host=old_hosts[0],new_host=replacement[0])
   if args.menus:browser_menu('host-replaced-menu');menu_shortcut('host-replaced')
   compare('host-replaced')
+  if args.native_tabs:tabs.recovered()
  client.command('WebDriver:Navigate',dict(url='about:blank'))
  check('navigation-away',client.command('WebDriver:GetTitle')['value']=='')
- client.close();client=None
+ if not (args.native_tabs and args.native_frame):client.close();client=None
  if args.native_frame:
   from browser_frame_actions import run as frame_actions
-  frame_actions(command,wait,check,desktop,window['id'])
+  def frame_tabs(label):
+   global client
+   tabs.pixels('tabs-'+label)
+   # End the remote session after its last image check, while the actual
+   # browser is still open for the remaining physical frame actions.
+   if label=='restored-fullscreen':client.close();client=None
+  frame_actions(command,wait,check,desktop,window['id'],frame_tabs if args.native_tabs else None)
  print(json.dumps(dict(passed=len(rows),native_images=sum(len(r.get('controls',[])) for r in rows))),flush=True)
  stop(browser)
 

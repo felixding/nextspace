@@ -30,13 +30,13 @@ static int frontend_webrender(void *item,void *builder,void *resources,void *sta
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   /* The active nsITheme can be GTK even for web content. Select Gecko's
    * existing fallback at the display item, before virtual theme dispatch. */
-  if(frontend_item_owned(frame)||eligible(frame,*((const unsigned char *)item+156)))return 0;
+  if(tabs_frame_owned(frame)||frontend_item_owned(frame)||eligible(frame,*((const unsigned char *)item+156)))return 0;
   return original_frontend_webrender(item,builder,resources,stacking,manager,display_builder);
 }
 static void frontend_paint(void *item,void *builder,void *context) {
   void *frame=frontend_item_frame(item);
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
-  if(frontend_item_owned(frame)) {
+  if(tabs_frame_owned(frame)||frontend_item_owned(frame)) {
     /* GetDrawTarget is inlined at Theme::DrawWidgetBackground (+216).
      * mBackgroundRect (+120) and StyleFrame's virtual slot are independently
      * present in the actual nsDisplayThemedBackground::Paint disassembly. */
@@ -44,7 +44,7 @@ static void frontend_paint(void *item,void *builder,void *context) {
     void *pres_context=*(void **)((char *)frame+40);
     double units=*(int *)((char *)pres_context+200);
     struct RectF area=((struct RectF (*)(const void *,double,const void *))(base+0x6db633c))((char *)item+120,units,target);
-    if(draw_text_image(target,frame,&area))return;
+    if(tabs_draw(target,frame,&area)||draw_text_image(target,frame,&area))return;
   }
   original_frontend_paint(item,builder,context);
 }

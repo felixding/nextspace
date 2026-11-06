@@ -541,3 +541,33 @@ The compositor's GTK3 legacy-decoration compatibility path supplies the existing
 desktop frame, including title drag, Escape rollback, shade/unshade, resize,
 fullscreen, minimize and close. This adds no browser hook or copied drawing.
 Tabs, toolbars and other remaining browser controls are still separate work.
+
+`run-frontend-fixture.py --native-tabs` enables the experimental browser tab
+container binding. `NEXTSPACE_FIREFOX_TABS=1` also enables it when frontend/text
+integration is already configured. The unchanged pinned Gecko build supplies
+its real ordered XUL tab elements, displayed labels and selected state. The
+shared [`Bridge/Tabs.inc`](../../Libraries/NativeUI/Bridge/Tabs.inc) sends that
+application data to the same ordinary GNUstep `NSTabView` used by Chromium.
+Gecko's existing background display item carries the native image; the old
+child painting is replaced. There is no CSS theme or second tab renderer.
+
+AppKit supplies pointer behavior and item rectangles. Committed native selection
+calls Gecko's original `nsXULElement::ClickWithInputSource`, which dispatches the
+real trusted XUL activation through Firefox's browser handlers. Cancelled
+physical input preserves selection. Native IDs retain their DOM nodes until
+model retirement, and the binding identity survives original dispatch without
+using a stale frame pointer. Existing browser commands retain close, next-tab
+and reorder behavior. The original GLib UI queue invalidates the full native
+owner after model changes, including later titles in a loading document.
+
+The actual Workspace desktop fixture accepts `--native-tabs`. Its
+[tab qualification](tab-qualification.json) records full native-image comparisons
+and real-seat input alongside the existing controls, detached menus and host
+recovery. The native-tab run passes 113 checks, with sixteen whole native tab
+images and all 153 existing control images. The final adapter with tabs disabled
+also passes 82 checks and 153 complete control images. The shared NativeUI
+provider and AppKit remain unchanged.
+This is an opt-in pinned scale-1 tab-container prototype. Native tab icons,
+loading indicators, alerts, new-tab and per-tab close buttons, context menus,
+dragging/touch, overflow/groups, complete pane/toolbar layout, accessibility, broader scaling,
+derivatives and installed deployment remain unfinished.

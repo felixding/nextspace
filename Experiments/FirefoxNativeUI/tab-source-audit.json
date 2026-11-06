@@ -1,0 +1,206 @@
+{
+  "date": "2026-11-07",
+  "baseline": "b7f73e54",
+  "qualification": "tab-qualification.json",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "828af3f3cecbf9a6a72a8e0028b0d570fe338208855b8bf5551c32dc7ef85124",
+    "Experiments/FirefoxNativeUI/README.md": "f66dbb96432a2631828cad84d3c0b1e71fe450b2710d80064ab0f69fa12703e6",
+    "Experiments/FirefoxNativeUI/build.py": "d6a14be6b91cb8fa45b68af50c95b324425dcb4fbaae7844423c2cf7672ee6aa",
+    "Experiments/FirefoxNativeUI/controls.inc": "1cd6ccce61471d6b18912118d26a202f101b5d84e27c473891e905edeee471a8",
+    "Experiments/FirefoxNativeUI/frontend.inc": "10ceda3e25fbe8edcefd32df36e46d6c2da2f96c917a72ec0ba459ea0a01dd7a",
+    "Experiments/FirefoxNativeUI/hook.c": "d2f98a1309e63046a4636be03d3e54fb09e03a7311e03c39bfd48c33cf6958cc",
+    "Experiments/FirefoxNativeUI/pinned-tabs.h": "eae7d57ba0d3e9d1fdc414edcdee202d833a2ae672bf282ca5ead615c59b9a65",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "b2106162d96ca144f723b02c94bc156816d66719ee407d97221c8f085d5e68c0",
+    "Experiments/FirefoxNativeUI/tabs.inc": "38b469ff292eab69533a97844641dde9543b4fa4e808fd33afceb4cfe8b3ca0b",
+    "Experiments/FirefoxNativeUI/text.inc": "07ac092ecc739f76c95d0ff0f942280e9d1ef6e9001ec537941d408030486904",
+    "Libraries/NativeUI/Bridge/Protocol.h": "963a3f04c90fc4d928d895767f314d2e02b4f9a03fd281c4cfe4657c1d930671",
+    "Libraries/NativeUI/Bridge/Tabs.inc": "387cab3e88363d6f060ec17f583c16f7f09171be9e42a2c2ac28db4b14daca0f",
+    "Libraries/NativeUI/GNUstep/Controls.m": "786b0c929bb0d88d11d7e1401c13147862e89a9dde2d014755c451c901357483",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "868ea70fa2dc7909ef215c7ef674b77d9db56594a92a6260135923e0b9a9baa6",
+    "Libraries/NativeUI/NativeUI.h": "8f1bbe4431d6383c7ab5746c20e3d1cbc7e5411d5972da6ea82142f6d0b44b76",
+    "Libraries/NativeUI/README.md": "ffbc53742ca45c43baba0582efcaa071fc59d2ded85a634deed584d4d17953b4",
+    "Tests/NativeUI/render-tab-reference.py": "3b5189bff1ef87d2a363214f2537c2a6327864c70e993f6a6b94ec0c1658a32f",
+    "Tests/Wayland/browser_frame_actions.py": "995aa66f93b8e79e596ba4ce3273bb664753ee16127071427fabfc03fe5b5dea",
+    "Tests/Wayland/firefox_tabs.py": "df0ff6e88549d395304be43e82bdbbb8e6157b8de4dfbce8a7e9cc9b749be741",
+    "Tests/Wayland/native_ui_desktop.py": "6069ba0b5767cf20c7bf36088e9f8717d17132ed236312c55dc544b4d5c76b76",
+    "docs/Native-Control-Integration.md": "ed030b2c1a6aca341743e3001de4c6cb963954bd71679efd2a07cba8ca734f68"
+  },
+  "upstream_sources": [
+    {
+      "path": "layout/generic/nsFlexContainerFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsFlexContainerFrame.cpp",
+      "sha256": "79c2c5a44d06ccaff2c5a391eacacdf8c17129f1141036da5412df3ac2b78813"
+    },
+    {
+      "path": "dom/base/Element.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.h",
+      "sha256": "5cc0edcb4db581904c270b740d15b34346004b5b27aaa35a66ed136afbb0bd82"
+    },
+    {
+      "path": "dom/base/nsINode.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsINode.h",
+      "sha256": "c11f55874f4191fbcbbd3942eb632cb3b47e8627b7bb4d35ec3c9c2e0cb87122"
+    },
+    {
+      "path": "layout/painting/nsDisplayList.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/painting/nsDisplayList.cpp",
+      "sha256": "a08da875d2991a795d99d79770aa7df970c81688dd4d9a65d8a9207ece3c4daa"
+    },
+    {
+      "path": "dom/base/Element.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.cpp",
+      "sha256": "9f23e869a6abae19240e780529cf5583efc2c54dd9b8aee7ce9d8d6e3d53518d"
+    },
+    {
+      "path": "dom/xul/nsXULElement.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/nsXULElement.cpp",
+      "sha256": "360833a55febba7cc4c6eaf96a2036916e3b82a6874f826928ff84ffbbc84f84"
+    },
+    {
+      "path": "dom/base/FragmentOrElement.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/FragmentOrElement.h",
+      "sha256": "3960f8c5aaa794cc7637a35ba83e3d74b2ab0769284ba317d290b8adeb87fec8"
+    },
+    {
+      "path": "dom/base/ChildIterator.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/ChildIterator.h",
+      "sha256": "1ee7ae7c1c8aedac01f12d787a5f8e66c81cca90b44a1f519a2da3474863850f"
+    },
+    {
+      "path": "dom/base/ContentList.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/ContentList.h",
+      "sha256": "1a7f79eb19ef5a9f9a50044f5bac093b0386977b22efbb9304e4dcfe075acf6e"
+    }
+  ],
+  "packaged_script_sha256": {
+    "chrome/browser/content/browser/tabbrowser/tab.js": "857c89257c632a9736e1d5eba763d9b65231b58e8be4731211a42a5cc2680677",
+    "chrome/browser/content/browser/tabbrowser/tabs.js": "765ae51d4e385c923f676e2c05d47344e71a52ac9e859f6051dc798de7d147eb",
+    "chrome/browser/content/browser/tabbrowser/tabbrowser.js": "7737c5c449c15f2ea5d2fbf758560c7c03f506121e13a27ffffc8077e0858731"
+  },
+  "library_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "guards": "Existing initializer verifies libxul build ID. pinned-tabs.h verifies 20 compiled bytes at the flex display entry and every new DOM/model/lifetime/activation call before activation. Existing frame, background, event and process-role guards remain in force. Optional shared tab capability is required before installation.",
+  "interfaces": {
+    "owner": "Live parent-process predicate, actual nsXULElement vtable at base+0xa0c34f8+16, native id attribute tabbrowser-tabs.",
+    "model": "Element::GetElementsByTagName, actual ContentList accessors and Element::GetAttr(label/selected).",
+    "lifetime": "Retain tab DOM nodes while represented; release old models on retirement and native frame destruction. Retain exact binding identity across original input dispatch.",
+    "rendering": "Existing nsDisplayThemedBackground fallback and DrawTarget bitmap transport; original flex children retain their model but do not duplicate native painting.",
+    "activation": "Committed native selection invokes original nsXULElement::ClickWithInputSource after uncancelled trusted physical input.",
+    "invalidation": "Original GLib idle queue invalidates the complete owner after model/selection/title/size changes and the display-list transaction commits."
+  },
+  "separation": {
+    "actual_NSTabView": true,
+    "shared_client_serializer": "Libraries/NativeUI/Bridge/Tabs.inc",
+    "no_copied_control_layout_drawing_hit_testing_or_keys": true,
+    "no_CSS_theme": true,
+    "provider_appkit_browser_binaries_unchanged": true,
+    "application_menu_visibility_policy_unchanged": true
+  },
+  "findings": [
+    "Firefox tabs are custom XUL browser elements, not GTK notebook controls. Use its actual DOM and activation APIs.",
+    "Native model logs did not prove visible correctness: initial complete pixels passed while additional tab labels remained stale. Deferred whole-owner invalidation fixes the retained native background image.",
+    "Gecko activation already dispatches down/up/click and invokes browser handlers; no duplicated gBrowser selection implementation is needed.",
+    "DOM node ownership prevents pointer reuse from reusing opaque IDs. Original dispatch can recreate frames; preserve the exact control identity rather than a borrowed frame address.",
+    "The first actual Workspace run reached host-replaced native pixels but the test left Marionette in chrome context. The tab test wrapper now restores content context before subsequent navigation.",
+    "The shared provider still has its separately qualified 1x/2x native behavior; only scale-1 Firefox embedding is qualified here."
+  ],
+  "runtime_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "bytes": 308415392
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "bytes": 549896
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "bytes": 171640536
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "bytes": 10063865
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac",
+      "bytes": 78144
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/browser-frame-compositor-01/nextspace-compositor",
+      "sha256": "4f792c2d33c4a90e91caa13d386c3807d47c2a2b6895ea6499ed1cec6f3e0d9d",
+      "bytes": 1313072
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6",
+      "bytes": 1258024
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-13-hook.so",
+      "sha256": "1123178556bbb18aea081cb0467db7c8d2b16a4fc3566a989e182157c50cf3c2",
+      "bytes": 166600
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-tabs-03-hook.so",
+      "sha256": "8993ad24448ae876cd11c462af794eba6796d83708d8877170458997b1e668d8",
+      "bytes": 155024
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "sha256": "4a09b4725034e9552e704ba21e2e89aa450e3b7dd9dab9eacb259b7447ead6e2",
+      "bytes": 1041800
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0",
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0",
+      "bytes": 1186176
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-02/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1",
+      "sha256": "f34c7c3874adf69984943f175aaae64b772fad28d15244d3f292679157a50936",
+      "bytes": 69968
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-02/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1",
+      "sha256": "8428123359dc92a4632d5e97e3d91394a794fb50eab79ef129ea96fa89b91012",
+      "bytes": 72856
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-02/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1",
+      "sha256": "510912a70a7363d1bab5f5e8e00d28de63db3ba63725ea99137196e105cfc3f5",
+      "bytes": 232456
+    },
+    "chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558",
+      "bytes": 166448
+    },
+    "firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "bytes": 54175769
+    }
+  },
+  "unchanged_runtime": [
+    "chromium",
+    "firefox",
+    "libxul",
+    "appkit",
+    "supervisor",
+    "compositor",
+    "workspace",
+    "chromium_adapter",
+    "backend",
+    "gtk3",
+    "native_shim",
+    "native_loader",
+    "native_provider",
+    "chromium_adapter_tabs_disabled_regression"
+  ],
+  "package_count": 1050,
+  "runtime_audit": ".build/native-ui/firefox-tabs-runtime-audit.json"
+}

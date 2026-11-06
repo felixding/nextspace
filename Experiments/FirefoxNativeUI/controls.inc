@@ -312,6 +312,7 @@ static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,c
   return widget_request(w,operation,point.x/60.,point.y/60.,widget_modifiers(event));
 }
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
+  uint64_t tab_target=tabs_pointer_target(frame,event);
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
   if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
@@ -344,6 +345,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
     }
   }
   uint32_t result=original_post_event(self,context,event,frame,status,override);
+  tabs_pointer_post(tab_target,event,*status);
   if(down_node&&*status!=1) {
     /* Focus handlers may destroy/reconstruct the original frame. Retain only
      * the semantic node across Gecko's dispatch, then obtain its live frame. */
@@ -477,6 +479,7 @@ static void forget_widget(struct Widget **cursor) {
   }
 }
 static void frame_destroy(void *frame,void *context) {
+  tabs_forget(frame);
   reset_widget_process();
   struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
   if(*cursor)forget_widget(cursor);

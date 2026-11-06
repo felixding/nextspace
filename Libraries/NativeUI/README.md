@@ -748,8 +748,9 @@ checks, 66 transport checks and twenty complete ordinary-desktop/native image
 comparisons. Both existing browser desktop suites and all 35 NativeUI regression
 sections pass with the updated library. That receipt qualifies the foundation.
 The later [Chromium tab-container binding](../../Experiments/ChromiumScrollers/tab-qualification.json)
-uses the same control and shared client serializer; Firefox tabs, full browser
-tabs/toolbars and the remaining application-wide requirements are unfinished.
+and [Firefox tab-container binding](../../Experiments/FirefoxNativeUI/tab-qualification.json)
+use the same control and shared client serializer. Complete browser tabs/toolbars
+and the remaining application-wide requirements are unfinished.
 
 Browser embedding also exposed an empty-pane invalidation that the foundation
 had not checked. Native tab items create ordinary `NSView` panes, whose
