@@ -21,6 +21,10 @@ measurements, and its real scroll setter retains DOM events while native
 `NSScrollView` supplies pixels and arrow tracking. This adds no UI-library,
 provider, loader or protocol implementation. See the scoped
 [Firefox viewport qualification](../../Experiments/FirefoxNativeUI/viewport-qualification.json).
+Its optional wheel binding also reuses the existing native responder operation,
+including pages without wheel listeners. Page cancellation and Firefox's APZ
+acknowledgement remain in the adapter; AppKit supplies scrolling behavior. See
+the [Firefox wheel qualification](../../Experiments/FirefoxNativeUI/wheel-qualification.json).
 
 The bridge and the underlying UI implementation are separate libraries:
 
@@ -144,8 +148,9 @@ The pinned Chromium adapter additionally connects native geometry and offsets to
 Blink's real scroll area. Twelve complete browser textarea images match provider
 output across scroll positions, resizing, wrapping and host replacement. Native
 arrow tracking and DOM scroll events also pass. This remains a separate opt-in
-experiment: native wheel handling, caret/autoscroll, Firefox viewport integration,
-wrap modes, IME and broader frontend coverage remain unfinished. See the
+experiment. Both pinned adapters now bind textarea viewports and wheel input to
+the shared native scroll view; root scrolling, caret/autoscroll, wrap modes, IME
+and broader frontend coverage remain unfinished. See the
 [multiline qualification](multiline-qualification.json) and
 [viewport qualification](multiline-viewport-qualification.json).
 

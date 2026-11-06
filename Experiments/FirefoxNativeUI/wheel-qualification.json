@@ -1,0 +1,4839 @@
+{
+  "date": "2026-11-06",
+  "baseline": "b71a3228",
+  "scope": "Exact unchanged pinned Debian Firefox ESR ARM64, software/headless Wayland at 100 percent scale, ordinary wrapped native textareas. Zoom fallback/restoration is not native scaled support.",
+  "implementation": {
+    "provider": "Existing ordinary NSTextView/NSScrollView through the unchanged NativeUI wheel operation. No copied control, geometry, clamping, line/page/Shift behavior or shortcut table.",
+    "hit_testing": "Use original nsIFrame hit info plus the existing eApzAwareListeners flag for owned native textareas, as the built-in range handler does. No dummy DOM listener or global APZ override.",
+    "default": "Real EventStateManager post-DOM/default boundary retains page cancellation. Original default-handler PreventDefault acknowledges native consumption to APZ while preserving the content defaultPrevented getter.",
+    "action": "Call original APZWheelActionFor; guarded exact-build Maybe::Some(Scroll) representation. Browser zoom/history preferences remain engine-owned.",
+    "normalization": "Pixel distance is retained; GTK discrete wheel ticks use ten surface units per step, matching the native backend. AppKit owns resulting native movement.",
+    "lifetime": "Retain semantic nodes across native/engine calls and revalidate node/control/frame identity before echoing native offsets through the original engine setter.",
+    "focus": "Track the focus represented by the cached native bitmap. A retained display-list paint refreshes native focus/pixels on transition, without transferring engine scroll offsets or drawing a caret.",
+    "recovery": "Existing viewport host-epoch restoration recreates the native object from retained live browser model. No input replay.",
+    "fixture": "Browser-family-neutral real-seat reference fixture; private browser port checked before launch. Session logs write directly to evidence files so synchronous browser/native RPCs cannot fill a log pipe; Marionette close errors no longer skip owned-tree teardown.",
+    "feature": "NEXTSPACE_FIREFOX_WHEEL=1 plus native multiline viewport, input/text/multiline flags, provider wheel capability and exact libxul build/instruction guards. Not installed as a desktop default."
+  },
+  "api": {
+    "version": 1,
+    "bytes": 424,
+    "wheel_capabilities": 1,
+    "text_capabilities": 63,
+    "event_bytes": 40
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+    "/var/tmp/nextspace-native-ui/chromium-wheel-05-hook.so": "3f4cc53e0705add10bc0fbde6a3c26ec3b76e1d15311c55b84ff1fba375d5b86",
+    "/var/tmp/nextspace-native-ui/firefox-wheel-04-hook.so": "ce7a1693324cf668054b8745fa2f6589e9361ab988ea61f8ab466b19f88900bf",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "f2249a87620df1e8119d89c17754fa79715e20d13bf4db5d6fd178f107fa38eb",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "91dfb77c4499cf2d32829fc2119ddcfeaf92b2b6abd5e900ffefaa9fbb9cbad9",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "ecd35d7ec0850a9accb7325356223ec2685f7752c0a1348b58f9766cf0c765ce",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/stamp.make": "186a17c9c1ef6c1acfbdd3b998a26604652f60be33fa987fb5f2711a39c610e3",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032": "3f90db625da9cadf932a740f9af0463eaff8016738294c53e5893548a3a6a8f5",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Info-gnustep.plist": "2808cd013cf4d0e97c31ea5f6ca26c276c4f124a9a3bc2927f93fc887ece162a",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Swedish.lproj/nfontFaceNames.strings": "14541896e5f50164cac8e8456cda6bc6bb5d92d1c4d03e36a8a34b85e1fb1917",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/English.lproj/nfontFaceNames.strings": "82a4412800f0bdc1bdb803899134312ffec96e2d4de829dcb5c0e9bd23a8af7f"
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "992b8fdee7d5639da74f13fe369fec6186a111f81020cde8f48cfb81f9ab3ffd",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "eb33e5fda5c066a0354f82d00f02216f9a20459d0d440b30b0f2b34d2a0caa81",
+    "Experiments/ChromiumScrollers/native_controls.py": "d3dcabf50c3cd3cc39c57b297dcb58d0b69dac07465e2c2d349861b5e5511d81",
+    "Experiments/FirefoxNativeUI/README.md": "ed31b320bd23be278876630c32e44809b3dd6fa3144cc3ac4ab405b27bf77afd",
+    "Experiments/FirefoxNativeUI/buttons.inc": "5b19055ee9367d0d0f0bf6926940fe58f3c9138c00b1ff257b3159dfcd7c9dc6",
+    "Experiments/FirefoxNativeUI/controls.inc": "5c4ce5abff9610ff4513f7271419426b04d79de9b3ed56a325aa319553914af1",
+    "Experiments/FirefoxNativeUI/hook.c": "16120593b52bc9b068dc259dc91a304c62f97148beeda06ad1ea0c46bd9dc2fc",
+    "Experiments/FirefoxNativeUI/pinned-viewport.h": "26fb4a3cecd0bcff8b941daef0f0e259ca89b302130b8b5ac23771f198b2a431",
+    "Experiments/FirefoxNativeUI/pinned-wheel.h": "81fa0150742e752b46fb1862b0b9747a683f0f4bff16d73b97620755af489bd6",
+    "Experiments/FirefoxNativeUI/text.inc": "b20927a72ecc124cbc46c426ed78cbb6a00bc97b70dbc5981336b661381f24f1",
+    "Experiments/FirefoxNativeUI/viewport.inc": "f2d9988b5f75e7588d68b775bb2ea37364b1ee3a504a5cdbc2704afeeb9c07c8",
+    "Experiments/FirefoxNativeUI/wheel.inc": "c6908eadc94ae0577c542e5ca789147ecd76873b4a22f4df4c0c72096c0745f8",
+    "Libraries/NativeUI/Bridge/AArch64Detours.inc": "835cb1280c40bd4b0df180507d299a64d0d367d0aa3bdefdc2c8b7e4ab2219e1",
+    "Libraries/NativeUI/Bridge/Protocol.h": "a6755f7ac1461fa50bdfb7c8b596a2c12ab3041929998b1be7e974526dbec346",
+    "Libraries/NativeUI/Bridge/Transport.inc": "f3ec6a0b4718b5ecb20cc9142d33b2b965e32d9e327fbfcac7f60af93ab369d3",
+    "Libraries/NativeUI/GNUstep/Controls.m": "48d67faeff404d77718fd0a221692b94f535f82aff0072e8d0a32c9cbb44c1d3",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "96d9c37edc3010f0f0e91a6ba49ee5e98220be369719cfd59147e8c885455a0c",
+    "Libraries/NativeUI/NativeUI.h": "4b231220961a4ddc42fe58a0526ceb29cbd2143f87e50b425a9ca8a3ea6f7bf6",
+    "Libraries/NativeUI/README.md": "c6faf72423a3bfb5d0518895702d93ec00c0c638d1cd79f8d4a4687c1ce2549a",
+    "Tests/Wayland/native_ui_firefox_viewport.py": "b0c281f5ebe15a0ad5a16e8d5cf507a060da4b817898117a08681e702a611453",
+    "Tests/Wayland/native_ui_firefox_wheel.py": "f7fb117278b9558100e76e8c9a0eb83f74cb7e21fd2b535dca3b8ff875104d93",
+    "Tests/Wayland/native_ui_session.py": "9fc208b4e14b5170c208b8d19da412b846c0220a6c3458476cbc077ae095c16b",
+    "Tests/Wayland/native_ui_wheel_session.py": "adbb325040f7baad754f7130cde1e59a92c0dece5947ed32f27a25be6ac0ccf8",
+    "docs/Native-Control-Integration.md": "b5c2ac8d5404e830ca2aee8730fc0a21a3b7bff1bce8240c26c557c12f52ea75"
+  },
+  "remaining": [
+    "Root-document wheel/native scrolling, touch momentum, horizontal/nowrap text and long-document caret/ancestor scrolling.",
+    "Native IME, accessibility, scaling/HiDPI, remaining browser frontend controls and detached-menu integration gaps.",
+    "Other Firefox/Chromium builds and derivatives, installed-desktop rollout, then GTK/Qt/KDE and other non-GNUstep applications."
+  ],
+  "checks": {
+    "wheel": {
+      "assertions": 40,
+      "cases": [
+        {
+          "case": "seat-scroll-1",
+          "passed": true,
+          "native": 300,
+          "browser": 300
+        },
+        {
+          "case": "seat-scroll--1",
+          "passed": true,
+          "native": 100,
+          "browser": 100
+        },
+        {
+          "case": "seat-scroll-v120-60",
+          "passed": true,
+          "native": 250,
+          "browser": 250
+        },
+        {
+          "case": "seat-scroll-v120--30",
+          "passed": true,
+          "native": 175,
+          "browser": 175
+        },
+        {
+          "case": "seat-scroll-v120-240",
+          "passed": true,
+          "native": 400,
+          "browser": 400
+        },
+        {
+          "case": "seat-scroll-v120--120",
+          "passed": true,
+          "native": 100,
+          "browser": 100
+        },
+        {
+          "case": "page-cancellation-keeps-native-offset",
+          "passed": true,
+          "state": {
+            "top": 200,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "down-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "down-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "down-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-down.png"
+        },
+        {
+          "case": "up-native-offset",
+          "passed": true,
+          "expected": 180.0,
+          "state": {
+            "top": 180,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 180,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "up-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 180,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 180,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "up-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-up.png"
+        },
+        {
+          "case": "end-native-offset",
+          "passed": true,
+          "expected": 776.0,
+          "state": {
+            "top": 776,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 776,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "end-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 776,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 776,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "end-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-end.png"
+        },
+        {
+          "case": "top-native-offset",
+          "passed": true,
+          "expected": 0.0,
+          "state": {
+            "top": 0,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "top-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 0,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "top-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-top.png"
+        },
+        {
+          "case": "shift-native-offset",
+          "passed": true,
+          "expected": 200.0,
+          "state": {
+            "top": 200,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "shift-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-shift.png"
+        },
+        {
+          "case": "native-alternate-native-offset",
+          "passed": true,
+          "expected": 314.0,
+          "state": {
+            "top": 314,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 314,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "native-alternate-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 314,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 314,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "native-alternate-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-native-alternate.png"
+        },
+        {
+          "case": "over-native-scroller-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "over-native-scroller-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "over-native-scroller-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-over-native-scroller.png"
+        },
+        {
+          "case": "read-only-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "read-only-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "read-only-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-read-only.png"
+        },
+        {
+          "case": "disabled-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "disabled-engine-scroll-event-policy",
+          "passed": true,
+          "native": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          },
+          "engine": {
+            "events": [],
+            "top": 220,
+            "left": 2
+          }
+        },
+        {
+          "case": "disabled-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-seat-05/firefox-wheel-final-direct-disabled.png"
+        },
+        {
+          "case": "native-ack-not-exposed-as-page-cancellation",
+          "passed": true
+        },
+        {
+          "case": "listener-removal-retains-native-wheel-region",
+          "passed": true
+        },
+        {
+          "case": "native-end-does-not-scroll-ancestor",
+          "passed": true,
+          "top": 776,
+          "page": 0
+        },
+        {
+          "case": "page-mutation-precedes-native-default",
+          "passed": true,
+          "state": {
+            "top": 0,
+            "start": 5,
+            "end": 5,
+            "value": "Short",
+            "events": [],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "removal-during-wheel-releases-binding",
+          "passed": true
+        },
+        {
+          "case": "reinserted-control-rebinds-native-region",
+          "passed": true
+        },
+        {
+          "case": "ordinary-scroll-area-retains-engine-default",
+          "passed": true
+        }
+      ]
+    },
+    "wheel_recovery": {
+      "assertions": 39,
+      "cases": [
+        {
+          "case": "page-cancellation-keeps-native-offset",
+          "passed": true,
+          "state": {
+            "top": 200,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": true
+              }
+            ],
+            "scroll": []
+          }
+        },
+        {
+          "case": "down-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "down-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "down-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-down.png"
+        },
+        {
+          "case": "up-native-offset",
+          "passed": true,
+          "expected": 180.0,
+          "state": {
+            "top": 180,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 180,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "up-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 180,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 180,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "up-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-up.png"
+        },
+        {
+          "case": "end-native-offset",
+          "passed": true,
+          "expected": 776.0,
+          "state": {
+            "top": 776,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 776,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "end-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 776,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 776,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "end-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-end.png"
+        },
+        {
+          "case": "top-native-offset",
+          "passed": true,
+          "expected": 0.0,
+          "state": {
+            "top": 0,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "top-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 0,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": -1000,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "top-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-top.png"
+        },
+        {
+          "case": "shift-native-offset",
+          "passed": true,
+          "expected": 200.0,
+          "state": {
+            "top": 200,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "shift-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-shift.png"
+        },
+        {
+          "case": "native-alternate-native-offset",
+          "passed": true,
+          "expected": 314.0,
+          "state": {
+            "top": 314,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 314,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "native-alternate-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 314,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 1,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 314,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "native-alternate-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-native-alternate.png"
+        },
+        {
+          "case": "over-native-scroller-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "over-native-scroller-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "over-native-scroller-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-over-native-scroller.png"
+        },
+        {
+          "case": "read-only-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "read-only-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "read-only-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-read-only.png"
+        },
+        {
+          "case": "disabled-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "disabled-engine-scroll-event-policy",
+          "passed": true,
+          "native": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ]
+          },
+          "engine": {
+            "events": [],
+            "top": 220,
+            "left": 2
+          }
+        },
+        {
+          "case": "disabled-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-disabled.png"
+        },
+        {
+          "case": "native-ack-not-exposed-as-page-cancellation",
+          "passed": true
+        },
+        {
+          "case": "listener-removal-retains-native-wheel-region",
+          "passed": true
+        },
+        {
+          "case": "native-end-does-not-scroll-ancestor",
+          "passed": true,
+          "top": 776,
+          "page": 0
+        },
+        {
+          "case": "page-mutation-precedes-native-default",
+          "passed": true,
+          "state": {
+            "top": 0,
+            "start": 5,
+            "end": 5,
+            "value": "Short",
+            "events": [],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "removal-during-wheel-releases-binding",
+          "passed": true
+        },
+        {
+          "case": "reinserted-control-rebinds-native-region",
+          "passed": true
+        },
+        {
+          "case": "ordinary-scroll-area-retains-engine-default",
+          "passed": true
+        },
+        {
+          "case": "host-replacement-retains-page-and-offset",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "recovered-native-default-without-page-listener",
+          "passed": true
+        },
+        {
+          "case": "recovered-wheel-native-offset",
+          "passed": true,
+          "expected": 220.0,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "recovered-wheel-trusted-events",
+          "passed": true,
+          "state": {
+            "top": 220,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [
+              {
+                "trusted": true,
+                "cancelable": true,
+                "dy": 2,
+                "mode": 0,
+                "prevented": false
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "recovered-wheel-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-recovery-recovered-wheel.png"
+        }
+      ]
+    },
+    "viewport": {
+      "assertions": 44,
+      "cases": [
+        {
+          "case": "initial-top-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 0,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 0.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "initial-top-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-initial-top.png"
+        },
+        {
+          "case": "initial-middle-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 73,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 73,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 73.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "initial-middle-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 73,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "initial-middle-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-initial-middle.png"
+        },
+        {
+          "case": "initial-end-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 326,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 326,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 326.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "initial-end-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 326,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "initial-end-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-initial-end.png"
+        },
+        {
+          "case": "initial-resized-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 366,
+            "left": 0,
+            "height": 450,
+            "width": 135,
+            "clientWidth": 135,
+            "clientHeight": 84,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 366,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 158,
+              "height": 88,
+              "top": 30,
+              "right": 188,
+              "bottom": 118,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              158,
+              88
+            ],
+            "preferred": [
+              158.0,
+              88.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 366.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "content": {
+              "width": 135.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 366.0
+            }
+          }
+        },
+        {
+          "case": "initial-resized-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 366,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "initial-resized-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-initial-resized.png"
+        },
+        {
+          "case": "initial-wrapped-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 135,
+            "clientWidth": 135,
+            "clientHeight": 84,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. ",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 158,
+              "height": 88,
+              "top": 30,
+              "right": 188,
+              "bottom": 118,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              158,
+              88
+            ],
+            "preferred": [
+              158.0,
+              88.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 0.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "content": {
+              "width": 135.0,
+              "height": 540.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 456.0
+            }
+          }
+        },
+        {
+          "case": "initial-wrapped-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-initial-wrapped.png"
+        },
+        {
+          "case": "initial-short-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 0,
+            "left": 0,
+            "height": 124,
+            "width": 244,
+            "clientWidth": 244,
+            "clientHeight": 124,
+            "clientLeft": 2,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Alpha\nBeta",
+            "events": [],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 0.0,
+              "width": 244.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 244.0,
+              "height": 124.0
+            },
+            "clip": {
+              "x": 2.0,
+              "y": 2.0,
+              "width": 244.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 0.0
+            }
+          }
+        },
+        {
+          "case": "initial-short-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-initial-short.png"
+        },
+        {
+          "case": "initial-native-arrow",
+          "passed": true,
+          "state": {
+            "top": 310,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 10,
+                "trusted": true
+              },
+              {
+                "top": 20,
+                "trusted": true
+              },
+              {
+                "top": 70,
+                "trusted": true
+              },
+              {
+                "top": 140,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              },
+              {
+                "top": 310,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          }
+        },
+        {
+          "case": "initial-native-arrow-repeat-release",
+          "passed": true,
+          "held": 326,
+          "released": 326,
+          "stopped": 326
+        },
+        {
+          "case": "host-replacement-retains-page-and-viewport",
+          "passed": true,
+          "before": {
+            "top": 326,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 10,
+                "trusted": true
+              },
+              {
+                "top": 20,
+                "trusted": true
+              },
+              {
+                "top": 70,
+                "trusted": true
+              },
+              {
+                "top": 140,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              },
+              {
+                "top": 310,
+                "trusted": true
+              },
+              {
+                "top": 320,
+                "trusted": true
+              },
+              {
+                "top": 326,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "after": {
+            "top": 326,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 10,
+                "trusted": true
+              },
+              {
+                "top": 20,
+                "trusted": true
+              },
+              {
+                "top": 70,
+                "trusted": true
+              },
+              {
+                "top": 140,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              },
+              {
+                "top": 310,
+                "trusted": true
+              },
+              {
+                "top": 320,
+                "trusted": true
+              },
+              {
+                "top": 326,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          }
+        },
+        {
+          "case": "recovered-top-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 0,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 0.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "recovered-top-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-recovered-top.png"
+        },
+        {
+          "case": "recovered-middle-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 73,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 73,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 73.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "recovered-middle-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 73,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "recovered-middle-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-recovered-middle.png"
+        },
+        {
+          "case": "recovered-end-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 326,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 326,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 326.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "recovered-end-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 326,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "recovered-end-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-recovered-end.png"
+        },
+        {
+          "case": "recovered-resized-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 366,
+            "left": 0,
+            "height": 450,
+            "width": 135,
+            "clientWidth": 135,
+            "clientHeight": 84,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 366,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 158,
+              "height": 88,
+              "top": 30,
+              "right": 188,
+              "bottom": 118,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              158,
+              88
+            ],
+            "preferred": [
+              158.0,
+              88.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 366.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "content": {
+              "width": 135.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 366.0
+            }
+          }
+        },
+        {
+          "case": "recovered-resized-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 366,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "recovered-resized-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-recovered-resized.png"
+        },
+        {
+          "case": "recovered-wrapped-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 135,
+            "clientWidth": 135,
+            "clientHeight": 84,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. An ordinary native text view wraps this sentence. ",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 158,
+              "height": 88,
+              "top": 30,
+              "right": 188,
+              "bottom": 118,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              158,
+              88
+            ],
+            "preferred": [
+              158.0,
+              88.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 0.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "content": {
+              "width": 135.0,
+              "height": 540.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 135.0,
+              "height": 84.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 456.0
+            }
+          }
+        },
+        {
+          "case": "recovered-wrapped-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-recovered-wrapped.png"
+        },
+        {
+          "case": "recovered-short-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 0,
+            "left": 0,
+            "height": 124,
+            "width": 244,
+            "clientWidth": 244,
+            "clientHeight": 124,
+            "clientLeft": 2,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Alpha\nBeta",
+            "events": [],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 0.0,
+              "width": 244.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 244.0,
+              "height": 124.0
+            },
+            "clip": {
+              "x": 2.0,
+              "y": 2.0,
+              "width": 244.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 0.0
+            }
+          }
+        },
+        {
+          "case": "recovered-short-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-recovered-short.png"
+        },
+        {
+          "case": "recovered-native-arrow",
+          "passed": true,
+          "state": {
+            "top": 260,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              },
+              {
+                "top": 10,
+                "trusted": true
+              },
+              {
+                "top": 50,
+                "trusted": true
+              },
+              {
+                "top": 80,
+                "trusted": true
+              },
+              {
+                "top": 110,
+                "trusted": true
+              },
+              {
+                "top": 140,
+                "trusted": true
+              },
+              {
+                "top": 190,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              },
+              {
+                "top": 260,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          }
+        },
+        {
+          "case": "recovered-native-arrow-repeat-release",
+          "passed": true,
+          "held": 326,
+          "released": 326,
+          "stopped": 326
+        },
+        {
+          "case": "scroll-event-removes-control",
+          "passed": true
+        },
+        {
+          "case": "reinserted-middle-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 73,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 73,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 73.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "reinserted-middle-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 73,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "reinserted-middle-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-reinserted-middle.png"
+        },
+        {
+          "case": "ordinary-scroll-container-retains-engine-model",
+          "passed": true,
+          "state": {
+            "top": 100,
+            "height": 2000
+          }
+        },
+        {
+          "case": "unsupported-zoom-retains-engine-viewport",
+          "passed": true,
+          "state": {
+            "top": 58.79999923706055,
+            "left": 0,
+            "height": 436,
+            "width": 244,
+            "clientWidth": 244,
+            "clientHeight": 124,
+            "clientLeft": 2,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 73,
+                "trusted": true
+              },
+              {
+                "top": 58.79999923706055,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 309,
+              "height": 159,
+              "top": 30,
+              "right": 339,
+              "bottom": 189,
+              "left": 30
+            }
+          }
+        },
+        {
+          "case": "restored-scale-middle-native-geometry",
+          "passed": true,
+          "dom": {
+            "top": 73,
+            "left": 0,
+            "height": 450,
+            "width": 225,
+            "clientWidth": 225,
+            "clientHeight": 124,
+            "clientLeft": 21,
+            "clientTop": 2,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+            "events": [
+              {
+                "top": 73,
+                "trusted": true
+              }
+            ],
+            "rect": {
+              "x": 30,
+              "y": 30,
+              "width": 248,
+              "height": 128,
+              "top": 30,
+              "right": 278,
+              "bottom": 158,
+              "left": 30
+            }
+          },
+          "native": {
+            "id": "textarea",
+            "size": [
+              248,
+              128
+            ],
+            "preferred": [
+              248.0,
+              128.0
+            ],
+            "viewport": {
+              "x": 0.0,
+              "y": 73.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "content": {
+              "width": 225.0,
+              "height": 450.0
+            },
+            "clip": {
+              "x": 21.0,
+              "y": 2.0,
+              "width": 225.0,
+              "height": 124.0
+            },
+            "maximum": {
+              "x": 0.0,
+              "y": 326.0
+            }
+          }
+        },
+        {
+          "case": "restored-scale-middle-trusted-scroll-event",
+          "passed": true,
+          "events": [
+            {
+              "top": 73,
+              "trusted": true
+            }
+          ]
+        },
+        {
+          "case": "restored-scale-middle-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null,
+          "screen": "/var/tmp/nextspace-native-ui/firefox-wheel-session-05/firefox-wheel-final-viewport-02-restored-scale-middle.png"
+        }
+      ]
+    },
+    "firefox_editing": {
+      "assertions": 18,
+      "cases": [
+        {
+          "case": "before-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 6,
+            "end": 6,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\nZ",
+            "start": 12,
+            "end": 12,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "value": "日本語Café🙂Z\nNext",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 8,
+            "end": 8,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "value": "Beta",
+            "start": 4,
+            "end": 4,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "paste",
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "before-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "value": "Read only\nSecond",
+            "start": 0,
+            "end": 0,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 6,
+            "end": 6,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\n",
+            "start": 11,
+            "end": 11,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta\nZ",
+            "start": 12,
+            "end": 12,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertLineBreak",
+                "trusted": true
+              },
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "value": "日本語Café🙂Z\nNext",
+            "start": 10,
+            "end": 10,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertText",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertText",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "value": "Alpha\nBeta",
+            "start": 8,
+            "end": 8,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "value": "Beta",
+            "start": 4,
+            "end": 4,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "paste",
+                "trusted": true
+              },
+              {
+                "type": "beforeinput",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              },
+              {
+                "type": "input",
+                "inputType": "insertFromPaste",
+                "trusted": true
+              }
+            ]
+          }
+        },
+        {
+          "case": "after-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "value": "Read only\nSecond",
+            "start": 0,
+            "end": 0,
+            "events": [
+              {
+                "type": "keydown",
+                "inputType": null,
+                "trusted": true
+              },
+              {
+                "type": "keypress",
+                "inputType": null,
+                "trusted": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "chromium_editing": {
+      "assertions": 18,
+      "cases": [
+        {
+          "case": "before-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "end": 6,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 6,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "before-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 10,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "before-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "before-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "before-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "end": 12,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 12,
+            "value": "Alpha\nBeta\nZ"
+          }
+        },
+        {
+          "case": "before-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 10,
+            "value": "日本語Café🙂Z\nNext"
+          }
+        },
+        {
+          "case": "before-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "end": 8,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 8,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "before-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "end": 4,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "paste"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 4,
+            "value": "Beta"
+          }
+        },
+        {
+          "case": "before-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 0,
+            "value": "Read only\nSecond"
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-start",
+          "passed": true,
+          "state": {
+            "end": 6,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 6,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "after-host-loss-native-line-end",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 10,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "after-host-loss-native-newline-events",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "after-host-loss-newline-cancellation",
+          "passed": true,
+          "state": {
+            "end": 11,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 11,
+            "value": "Alpha\nBeta\n"
+          }
+        },
+        {
+          "case": "after-host-loss-native-insertion",
+          "passed": true,
+          "state": {
+            "end": 12,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertLineBreak",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 12,
+            "value": "Alpha\nBeta\nZ"
+          }
+        },
+        {
+          "case": "after-host-loss-utf16-selection",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 10,
+            "value": "日本語Café🙂Z\nNext"
+          }
+        },
+        {
+          "case": "after-host-loss-keydown-cancellation",
+          "passed": true,
+          "state": {
+            "end": 8,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              }
+            ],
+            "start": 8,
+            "value": "Alpha\nBeta"
+          }
+        },
+        {
+          "case": "after-host-loss-native-clipboard-controller",
+          "passed": true,
+          "state": {
+            "end": 4,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "paste"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "beforeinput"
+              },
+              {
+                "inputType": "insertFromPaste",
+                "trusted": true,
+                "type": "input"
+              }
+            ],
+            "start": 4,
+            "value": "Beta"
+          }
+        },
+        {
+          "case": "after-host-loss-read-only",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "trusted": true,
+                "type": "keydown"
+              },
+              {
+                "trusted": true,
+                "type": "keypress"
+              },
+              {
+                "inputType": "insertText",
+                "trusted": true,
+                "type": "beforeinput"
+              }
+            ],
+            "start": 0,
+            "value": "Read only\nSecond"
+          }
+        }
+      ]
+    },
+    "chromium_wheel_fixture": {
+      "assertions": 33,
+      "cases": [
+        {
+          "case": "seat-scroll-1",
+          "passed": true,
+          "native": 300,
+          "browser": 300
+        },
+        {
+          "case": "seat-scroll--1",
+          "passed": true,
+          "native": 100,
+          "browser": 100
+        },
+        {
+          "case": "seat-scroll-v120-60",
+          "passed": true,
+          "native": 250,
+          "browser": 250
+        },
+        {
+          "case": "seat-scroll-v120--30",
+          "passed": true,
+          "native": 175,
+          "browser": 175
+        },
+        {
+          "case": "seat-scroll-v120-240",
+          "passed": true,
+          "native": 400,
+          "browser": 400
+        },
+        {
+          "case": "seat-scroll-v120--120",
+          "passed": true,
+          "native": 100,
+          "browser": 100
+        },
+        {
+          "case": "page-cancels-native-default",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 2,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 200,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "down-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 2,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 220,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 220.0
+        },
+        {
+          "case": "down-trusted-events",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 2,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 220,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "down-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "fractional-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 0.25,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 202,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 202,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 202.0
+        },
+        {
+          "case": "fractional-trusted-events",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 0.25,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 202,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 202,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "fractional-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "end-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 1000,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 778,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 778,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 778.0
+        },
+        {
+          "case": "end-trusted-events",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 1000,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 778,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 778,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "end-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "top-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": -1000,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 0.0
+        },
+        {
+          "case": "top-trusted-events",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": -1000,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 0,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "top-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "shift-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 2,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 200,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 200.0
+        },
+        {
+          "case": "shift-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "native-alternate-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 1,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 312,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 312,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 312.0
+        },
+        {
+          "case": "native-alternate-trusted-events",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 1,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 312,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 312,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "native-alternate-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "over-native-scroller-native-offset",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 2,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 220,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          },
+          "expected": 220.0
+        },
+        {
+          "case": "over-native-scroller-trusted-events",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "events": [
+              {
+                "cancelable": true,
+                "dy": 2,
+                "trusted": true
+              }
+            ],
+            "scroll": [
+              {
+                "top": 200,
+                "trusted": true
+              },
+              {
+                "top": 220,
+                "trusted": true
+              }
+            ],
+            "start": 0,
+            "top": 220,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59"
+          }
+        },
+        {
+          "case": "over-native-scroller-native-pixels",
+          "passed": true,
+          "equal": true,
+          "box": null
+        },
+        {
+          "case": "removing-page-listener-retains-native-region",
+          "passed": true
+        },
+        {
+          "case": "reload-rebinds-native-region",
+          "passed": true
+        },
+        {
+          "case": "other-scroll-area-retains-engine-default",
+          "passed": true,
+          "top": 20
+        },
+        {
+          "case": "page-mutation-precedes-native-default",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "events": [],
+            "scroll": [],
+            "start": 5,
+            "top": 0,
+            "value": "Short"
+          }
+        },
+        {
+          "case": "removal-during-wheel-releases-binding",
+          "passed": true
+        },
+        {
+          "case": "reinserted-control-rebinds-native-region",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "session": {
+    "assertions": 50,
+    "cases": [
+      {
+        "case": "session-starts-shared-native-host",
+        "passed": true
+      },
+      {
+        "case": "session-private-endpoint",
+        "passed": true
+      },
+      {
+        "case": "shared-model-and-global-key-capabilities",
+        "passed": true
+      },
+      {
+        "case": "session-retains-original-client-endpoint",
+        "passed": true
+      },
+      {
+        "case": "dbus-activation-inherits-native-endpoint",
+        "passed": true
+      },
+      {
+        "case": "real-host-advertises-wayland-consumer",
+        "passed": true,
+        "result": "(@a(uso) [],)"
+      },
+      {
+        "case": "host-does-not-claim-x11-registration",
+        "passed": true
+      },
+      {
+        "case": "headless-keyboard-keymap-ready",
+        "passed": true
+      },
+      {
+        "case": "browser-launched-by-workspace",
+        "passed": true
+      },
+      {
+        "case": "unchanged-browser-owned-session",
+        "passed": true
+      },
+      {
+        "case": "workspace-automatically-selects-native-menu",
+        "passed": true
+      },
+      {
+        "case": "session-startup-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "workspace-restarts-with-new-private-menu-role",
+        "passed": true
+      },
+      {
+        "case": "workspace-recovery-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "before-host-loss-normal-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "before-host-loss-normal-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-normal-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-password-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "before-host-loss-password-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-password-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-urlbar-input-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "before-host-loss-urlbar-input-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "before-host-loss-urlbar-input-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "host-restart-replays-current-native-menu",
+        "passed": true
+      },
+      {
+        "case": "host-restart-preserves-live-field-models",
+        "passed": true
+      },
+      {
+        "case": "same-client-socket-serves-replacement-host",
+        "passed": true
+      },
+      {
+        "case": "native-host-recovery-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "after-host-loss-normal-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-host-loss-normal-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-normal-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-password-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-host-loss-password-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-password-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-urlbar-input-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-host-loss-urlbar-input-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-host-loss-urlbar-input-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-one-native-application-command",
+        "passed": true
+      },
+      {
+        "case": "after-chromium-host-loss-switch-normal-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-normal-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-normal-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-password-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-password-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-password-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-urlbar-input-native-emacs",
+        "passed": true,
+        "state": {
+          "value": "Alpha beta",
+          "start": 0,
+          "end": 0
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-urlbar-input-native-transaction",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "after-chromium-host-loss-switch-urlbar-input-cancellation-retained",
+        "passed": true,
+        "state": {
+          "value": "ZAlpha beta",
+          "start": 1,
+          "end": 1
+        }
+      },
+      {
+        "case": "browser-sandbox-retained",
+        "passed": true
+      },
+      {
+        "case": "ordinary-session-exit",
+        "passed": true
+      },
+      {
+        "case": "native-host-stops-before-display-teardown",
+        "passed": true
+      },
+      {
+        "case": "session-removes-native-endpoint-and-state",
+        "passed": true
+      }
+    ]
+  },
+  "sandbox": [
+    {
+      "pid": 71307,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71084,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71761,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71261,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71774,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71775,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71269,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71283,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    },
+    {
+      "pid": 71030,
+      "seccomp": "2",
+      "no_new_privs": "1"
+    }
+  ],
+  "package_count": 1050,
+  "input_scope": "Six actual compositor-seat full/fractional wheel cases against an ordinary GNUstep window. Other Firefox wheel/modifier/cancellation/image checks use trusted fixture-owned Marionette/WebDriver input. Keyboard/clipboard regressions in both families use actual compositor-seat keys. No physical wheel-after-recovery or touch/momentum claim.",
+  "native_pixel_scope": "Nine complete RGB browser/provider comparisons in the direct Firefox wheel run, ten in the supervised/recovery run, fourteen in the viewport regression. The unchanged shared provider was independently compared with direct ordinary AppKit controls in the preceding NativeUI qualification.",
+  "binary_boundary": "Only the small Firefox adapter rebuilt for this checkpoint. Browser executables/libxul, installed AppKit, NativeUI loader/provider/shim and the private Wayland backend match the preceding viewport hashes.",
+  "retained_failures": {
+    "apz": "Initial DoScrollText hook was bypassed by compositor APZ ownership; replaced with the existing APZ-aware hit-test flag plus real post-DOM default and engine acknowledgement.",
+    "observer": "First recovery observer check failed after the test intentionally removed its page observer. Native wheel already worked. Reinstall the observer before requiring observer evidence.",
+    "disabled": "An initial disabled-case test demanded a scroll event; an independent appearance:none disabled engine control proves Firefox suppresses it. Preserve the engine policy.",
+    "viewport_fixture": "Old test demanded a new event while reapplying an unchanged offset and could crop an offscreen field on a reused page. Establish root zero and a committed distinct starting offset.",
+    "logging": "The old session-03 harness deadlocked when a synchronous request stopped draining its stdout pipe; the timeout then left DeleteSession out of sequence. Direct file logging and reliable cleanup pass the combined run.",
+    "blurred_caret": "Candidate 03 left a one-pixel cached native caret after retained-list blur. Candidate 04 tracks bitmap focus and refreshes the existing native focus/image; all fourteen viewport images now pass."
+  },
+  "cleanup": {
+    "firefox-wheel-seat-01": {
+      "exits": [
+        -15,
+        -15,
+        255
+      ],
+      "live": []
+    },
+    "firefox-wheel-seat-02": {
+      "exits": [
+        -15,
+        -15,
+        -15
+      ],
+      "live": []
+    },
+    "firefox-wheel-seat-03": {
+      "exits": [
+        -15,
+        -15,
+        -15
+      ],
+      "live": []
+    },
+    "firefox-wheel-seat-04": {
+      "exits": [
+        -15,
+        -15,
+        -15
+      ],
+      "live": []
+    },
+    "firefox-wheel-seat-05": {
+      "exits": [
+        -15,
+        -15,
+        -15
+      ],
+      "live": []
+    },
+    "firefox-wheel-session-03": {
+      "method": "Saved launch/window/hook process IDs plus unique runtime/output command-line scan; original harness did not produce a complete descendant cleanup receipt.",
+      "observed": [
+        67409,
+        67438,
+        67492,
+        67496,
+        67508,
+        67595,
+        67659,
+        67859,
+        68182,
+        68583,
+        69077,
+        69348,
+        69807,
+        69979
+      ],
+      "live": [],
+      "matching": []
+    },
+    "firefox-wheel-session-04": {
+      "pids": [
+        70157,
+        70160,
+        70161,
+        70165,
+        70166,
+        70174,
+        70182,
+        70194,
+        70199,
+        70235,
+        70242,
+        70249,
+        70255,
+        70280,
+        70283,
+        70306,
+        70314,
+        70344,
+        70391,
+        70397,
+        70398,
+        70414,
+        70447,
+        70505,
+        70506,
+        70524,
+        70532,
+        70551,
+        70554,
+        70556,
+        70560,
+        70561,
+        70565,
+        70595,
+        70597,
+        70599,
+        70615,
+        70634,
+        70645,
+        70646,
+        70771,
+        70805
+      ],
+      "live": [],
+      "marionette_error": null
+    },
+    "firefox-wheel-session-05": {
+      "pids": [
+        70850,
+        70853,
+        70854,
+        70858,
+        70859,
+        70867,
+        70879,
+        70893,
+        70899,
+        70936,
+        70944,
+        70950,
+        70956,
+        70987,
+        70990,
+        71030,
+        71038,
+        71084,
+        71254,
+        71261,
+        71269,
+        71283,
+        71307,
+        71398,
+        71506,
+        71549,
+        71577,
+        71665,
+        71670,
+        71672,
+        71676,
+        71677,
+        71681,
+        71716,
+        71718,
+        71720,
+        71731,
+        71761,
+        71774,
+        71775,
+        71863,
+        72029,
+        72316,
+        72391,
+        72393,
+        72412,
+        72461,
+        72503,
+        72524,
+        72525,
+        72537,
+        72538
+      ],
+      "live": [],
+      "marionette_error": null
+    },
+    "chromium-wheel-fixture-regression-01": {
+      "exits": [
+        -15,
+        -15,
+        0
+      ],
+      "live": []
+    }
+  },
+  "automation_cleanup": "Both owned Chromium agent-browser connections closed before teardown; task SSH forwards 9952/9248 and 9953/9249 cancelled. Session-03 lacks its original complete descendant cleanup receipt; the recorded follow-up audit covers saved launch/window/hook process IDs and unique runtime/output command lines, with no live matches.",
+  "lessons": {
+    "path": "/Users/felixding/.codex/worktrees/wayland-ci/nextspace/docs/Desktop-Environment-Development-Lessons.md",
+    "sha256": "160f28edb0e91793e73af384340792f56c42cb3b1423434ba93a50197ffa67f2"
+  },
+  "raw_evidence": ".build/native-ui/firefox-wheel-evidence"
+}

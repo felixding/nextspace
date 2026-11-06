@@ -12,11 +12,16 @@ from integration import process_runtime
 
 REPO=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__)
-for name in ['compositor','backend-bundle','build','library','chromium','hook','output']:
+for name in ['compositor','backend-bundle','build','library','hook','output']:
     p.add_argument('--'+name,type=Path,required=True)
+family=p.add_mutually_exclusive_group(required=True)
+family.add_argument('--chromium',type=Path)
+family.add_argument('--firefox',type=Path)
 p.add_argument('--library-path',action='append',default=[])
 p.add_argument('--port',type=int,default=9249)
-a=p.parse_args();out=a.output;children=[]
+a=p.parse_args();out=a.output;children=[];marionette=None
+if not 1<=a.port<=65535:p.error('Invalid private browser port')
+with socket.socket() as probe:probe.bind(('127.0.0.1',a.port))
 def stop(process):
     if process.poll() is None:
         process.terminate()
@@ -46,26 +51,58 @@ with headless_session(a.compositor,out,extra_env=dict(
             children.append(helper);end=time.monotonic()+30
             while not endpoint.exists():
                 assert helper.poll() is None and time.monotonic()<end;time.sleep(.02)
-            browser_env=dict(env,LD_PRELOAD=str(a.hook),NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),
-                NEXTSPACE_CHROMIUM_LOG=str(out/'hook.log'))
-            for flag in ['FORMS','INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','VIEWS']:
-                browser_env['NEXTSPACE_CHROMIUM_'+flag]='1'
-            args=[str(a.chromium),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu',
+            browser_env=dict(env,LD_PRELOAD=str(a.hook))
+            if a.chromium:
+                browser_env.update(NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),NEXTSPACE_CHROMIUM_LOG=str(out/'hook.log'))
+                for flag in ['FORMS','INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','VIEWS']:
+                    browser_env['NEXTSPACE_CHROMIUM_'+flag]='1'
+                args=[str(a.chromium),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu',
                 '--disable-dev-shm-usage','--no-first-run','--no-default-browser-check',
                 '--disable-background-networking','--disable-sync','--disable-component-update',
                 '--password-store=basic','--remote-debugging-port='+str(a.port),'--window-size=900,700',
                 '--user-data-dir='+env['XDG_RUNTIME_DIR']+'/profile',
-                (REPO/'Experiments/ChromiumScrollers/test-multiline.html').as_uri()]
+                    (REPO/'Experiments/ChromiumScrollers/test-multiline.html').as_uri()]
+            else:
+                sys.path.insert(0,str(REPO/'Experiments/FirefoxNativeUI'))
+                from marionette import Marionette
+                profile=Path(env['XDG_RUNTIME_DIR'])/'profile';profile.mkdir()
+                preferences={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,
+                    'browser.startup.page':0,'browser.aboutwelcome.enabled':False,
+                    'browser.startup.homepage_override.mstone':'ignore','gfx.webrender.software':True}
+                (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in preferences.items()))
+                browser_env.update(MOZ_ENABLE_WAYLAND='1',NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'))
+                for flag in ['INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','FRONTEND']:
+                    browser_env['NEXTSPACE_FIREFOX_'+flag]='1'
+                args=[str(a.firefox),'--no-remote','--profile',str(profile),'--marionette',
+                    '--remote-allow-system-access',(REPO/'Experiments/FirefoxNativeUI/test-text.html').as_uri()]
             browser=subprocess.Popen(args,env=browser_env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'))
             children.append(browser)
             (out/'launch.json').write_text(json.dumps(dict(pids=[c.pid for c in children],command=args),indent=2)+'\n')
+            if a.firefox:
+                end=time.monotonic()+30
+                while True:
+                    assert browser.poll() is None and time.monotonic()<end
+                    try:marionette=Marionette(a.port);break
+                    except (ConnectionError,OSError):time.sleep(.05)
+                marionette.command('WebDriver:NewSession',{})
             print(json.dumps(dict(event='wheel-fixture-ready',control=str(control_path))),flush=True)
             while True:
                 connection,_=server.accept()
                 with connection:
                     request=json.loads(connection.recv(65536));text=request['command']
                     if text=='quit':connection.send(json.dumps(dict(ok=True)).encode());break
-                    if text.startswith('native '):
+                    if text.startswith('firefox '):
+                        assert marionette
+                        spec=json.loads(text.split(' ',1)[1]);operation=spec['operation']
+                        marionette.command('Marionette:SetContext',dict(value=spec.get('context','content')))
+                        if operation=='eval':result=marionette.command('WebDriver:ExecuteScript',dict(script=spec['script'],args=[]))
+                        elif operation=='actions':result=marionette.command('WebDriver:PerformActions',dict(actions=spec['actions']))
+                        elif operation=='release-actions':result=marionette.command('WebDriver:ReleaseActions',{})
+                        elif operation=='screenshot':
+                            import base64
+                            target=out/'firefox.png';target.write_bytes(base64.b64decode(marionette.command('WebDriver:TakeScreenshot',dict(full=False))['value']));result=dict(path=str(target))
+                        else:raise ValueError(operation)
+                    elif text.startswith('native '):
                         native.stdin.write(text[7:]+'\n');native.stdin.flush()
                         assert select.select([native.stdout],[],[],10)[0]
                         result=json.loads(native.stdout.readline())
@@ -81,6 +118,9 @@ with headless_session(a.compositor,out,extra_env=dict(
                     else:result=command(text)
                     connection.send(json.dumps(result).encode())
         finally:
+            if marionette:
+                try:marionette.close()
+                except (EOFError,ConnectionError,OSError):pass
             (out/'processes.json').write_text(json.dumps([process_runtime(c.pid) for c in children if c.poll() is None],indent=2)+'\n')
             for child in reversed(children):stop(child)
             control_path.unlink(missing_ok=True)

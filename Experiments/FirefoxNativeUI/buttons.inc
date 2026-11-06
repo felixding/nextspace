@@ -67,7 +67,8 @@ static int button_cache_update(struct Widget *w,const struct NXSResponse *respon
      response->stride!=response->width*4||sizeof(*response)+(size_t)response->stride*response->height!=response->size)return 0;
   uint32_t *pixels=malloc((size_t)response->stride*response->height);if(!pixels)return 0;
   memcpy(pixels,response+1,(size_t)response->stride*response->height);free(w->button_pixels);
-  w->button_pixels=pixels;w->button_width=response->width;w->button_height=response->height;return 1;
+  w->button_pixels=pixels;w->button_width=response->width;w->button_height=response->height;
+  w->button_focused=!!response->parts[3].y;return 1;
 }
 static int button_cache_available(const struct Widget *w) {return w&&w->button_pixels;}
 static void release_button_frame(void *frame) {

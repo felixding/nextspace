@@ -8,7 +8,7 @@ struct Widget {
   uint64_t id;
   int kind,painted;
   double width,height,actions;
-  uint32_t *button_pixels;int button_width,button_height,button_label_owned;
+  uint32_t *button_pixels;int button_width,button_height,button_label_owned,button_focused;
   double range_step,range_x,range_y;int range_tracking,range_keypress;
   int text_owned,text_tracking;
   double text_width,text_height;
@@ -22,6 +22,7 @@ struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int multiline_enabled;
 static int multiline_viewport_enabled;
+static int wheel_enabled;
 static int frontend_requested;
 static int text_command_reporting;
 static int application_commands;
@@ -58,6 +59,7 @@ static void remove_text_watch(void);
 static int dispatch_text_key(void *,void *,void *);
 static int text_modifier_event(const void *);
 static int text_kind(int);
+static int native_wheel_post(void *,void *,int *);
 static void *text_pointer_frame(void *);
 static uint32_t text_pointer_post(void *,void *,void *,void *,int *,void *,void *);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
@@ -194,6 +196,14 @@ static struct Widget *bind_widget(void *frame) {
 static int draw_text_image(void *target,void *frame,const struct RectF *area) {
   struct Widget *w=widget_for_frame(frame);
   if(!w||!w->text_owned||!button_cache_available(w))return 0;
+  /* Focus may change without rebuilding Gecko's retained display list. Refresh
+   * native focus and pixels only; do not mutate engine scroll state in paint. */
+  int focused=widget_focused(w);
+  if(w->button_focused!=focused) {
+    struct NXSControlInputRequest focus={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=7,
+      .process=identity(),.kind=w->kind,.control=w->id,.focused=focused};
+    if(!exchange_bytes(&focus,sizeof(focus))||!button_cache_update(w,widget_request(w,5,0,0,0)))return 0;
+  }
   /* Parent frames may have fractional bounds. Native readback owns pixel
    * rounding; transport its actual bitmap without scaling or rounding it again. */
   if(!frontend_text_frame(frame)&&
@@ -286,6 +296,7 @@ static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,c
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
+  if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
   if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
     void *text_frame=text_pointer_frame(frame);
     if(text_frame||(active_widget&&(text_kind(active_widget->kind))))
@@ -463,6 +474,7 @@ static void active_shell(void *shell,int active) {
 #include "ranges.inc"
 #include "text.inc"
 #include "viewport.inc"
+#include "wheel.inc"
 static struct Detour widget_detours[]={
   {NXS_GECKO_DRAW_TARGET_OFFSET,gecko_draw_target_bytes,draw_widget,(void **)&original_draw_target},
   {NXS_GECKO_DEFAULT_SIZE_OFFSET,gecko_default_size_bytes,default_size,(void **)&original_default_size},
@@ -492,6 +504,8 @@ static void prepare_widget_metrics(void) {
   const char *viewport=getenv("NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT");
   multiline_viewport_enabled=multiline_enabled&&viewport&&!strcmp(viewport,"1")&&
     ((unsigned)response->parts[6].y&(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY))==(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY);
+  const char *wheel=getenv("NEXTSPACE_FIREFOX_WHEEL");
+  wheel_enabled=multiline_viewport_enabled&&wheel&&!strcmp(wheel,"1")&&response->parts[0].x==NXS_WHEEL_EVENTS;
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
   application_menu_keys=!!((unsigned)response->parts[5].height&2);

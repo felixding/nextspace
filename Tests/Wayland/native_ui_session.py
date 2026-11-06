@@ -88,21 +88,20 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
     (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in preferences.items()))
     browser=a.output/'browser'
     browser.write_text('#!/bin/sh\nexport LD_PRELOAD='+shlex.quote(str(a.hook))+'\nexport NEXTSPACE_FIREFOX_SOCKET="$NEXTSPACE_NATIVE_UI_SOCKET"\nexport NEXTSPACE_FIREFOX_LOG='+shlex.quote(str(a.output/'hook.log'))+'\nexport NEXTSPACE_FIREFOX_INPUT=1 NEXTSPACE_FIREFOX_TEXT=1 NEXTSPACE_FIREFOX_FRONTEND=1 NEXTSPACE_FIREFOX_MENU_LIFECYCLE=1 NEXTSPACE_FIREFOX_MENU_KEYS=1\nexec '+shlex.join([str(a.firefox),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',(REPO/'Experiments/FirefoxNativeUI/test-text.html').as_uri()])+'\n');browser.chmod(0o700)
-    events=[];published={};pending=b''
+    events=[];published={};pending=b'';log_position=0
     def pump():
-        global pending
-        while select.select([session.stdout],[],[],0)[0]:
-            data=os.read(session.stdout.fileno(),65536)
-            if not data:break
-            pending+=data
-            while b'\n' in pending:
-                line,pending=pending.split(b'\n',1);text=line.decode(errors='replace')
-                with (a.output/'session.stdout').open('a') as log:log.write(text+'\n')
-                if text.startswith('{'):
-                    try:events.append(json.loads(text))
-                    except ValueError:pass
-                elif '=' in text:
-                    key,value=text.split('=',1);published[key]=value
+        global pending,log_position
+        # A native RPC can log while Marionette waits for that RPC. A bounded
+        # stdout pipe would deadlock both when this fixture is handling input.
+        with (a.output/'session.stdout').open('rb') as log:
+            log.seek(log_position);pending+=log.read();log_position=log.tell()
+        while b'\n' in pending:
+            line,pending=pending.split(b'\n',1);text=line.decode(errors='replace')
+            if text.startswith('{'):
+                try:events.append(json.loads(text))
+                except ValueError:pass
+            elif '=' in text:
+                key,value=text.split('=',1);published[key]=value
         return events
     def command(value):session.stdin.write((value+'\n').encode());session.stdin.flush()
     def windows():
@@ -136,11 +135,11 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
             check(label+'-'+identifier+'-cancellation-retained',actual==dict(value='ZAlpha beta',start=1,end=1),state=actual)
         context('content');js('document.body.focus();return true')
     try:
-        session=subprocess.Popen([
-            str(a.launcher or a.supervisor),*(['--private-bus','--native-ui-host',str(host)] if not a.launcher else []),
-            '--compositor',str(a.compositor),'--input-method',str(method),'--',str(a.shell_probe)],env=environment,
-            stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=(a.output/'session.stderr').open('w'))
-        os.set_blocking(session.stdout.fileno(),False)
+        with (a.output/'session.stdout').open('wb') as log:
+            session=subprocess.Popen([
+                str(a.launcher or a.supervisor),*(['--private-bus','--native-ui-host',str(host)] if not a.launcher else []),
+                '--compositor',str(a.compositor),'--input-method',str(method),'--',str(a.shell_probe)],env=environment,
+                stdin=subprocess.PIPE,stdout=log,stderr=(a.output/'session.stderr').open('w'))
         wait(pump,lambda rs:any(e.get('event')=='ready' and 'windows' in e for e in rs))
         check('session-starts-shared-native-host',bool(host_pid()) and bool(shell_pid()))
         endpoint=Path(published['NEXTSPACE_NATIVE_UI_SOCKET']);state=endpoint.parent
@@ -232,7 +231,7 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
                 try:
                     done=False
                     while not done:
-                        ready,_,_=select.select([control,session.stdout],[],[],.1);pump();process_tree()
+                        ready,_,_=select.select([control],[],[],.1);pump();process_tree()
                         if control not in ready:continue
                         connection,_=control.accept()
                         with connection:
@@ -288,10 +287,13 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
         check('session-removes-native-endpoint-and-state',not state.exists())
     finally:
         if native_probe:native_probe.close()
+        cleanup_error=None
         if client:
             try:client.close()
-            except (EOFError,ConnectionError):
-                if session.poll() is None:raise
+            except (EOFError,OSError,AssertionError,RuntimeError) as error:
+                # A failed/timed-out Marionette request can leave its response
+                # queued. Teardown must still stop the owned session tree.
+                cleanup_error=repr(error)
         if session and session.poll() is None:
             process_tree();session.terminate()
             try:session.wait(timeout=15)
@@ -302,6 +304,6 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
             try:
                 if Path('/proc',str(pid),'stat').read_text().rsplit(') ',1)[1].split()[0] not in ['Z','X']:live.append(pid)
             except FileNotFoundError:pass
-        (a.output/'cleanup.json').write_text(json.dumps(dict(pids=sorted(observed),live=live),indent=2)+'\n')
+        (a.output/'cleanup.json').write_text(json.dumps(dict(pids=sorted(observed),live=live,marionette_error=cleanup_error),indent=2)+'\n')
         assert not live,live
 print(json.dumps(dict(passed=len(rows))))

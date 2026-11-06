@@ -371,7 +371,7 @@ selects the actual browser pane before content focus; `document.hasFocus()`
 alone did not establish that real keys had left the address editor. Independent
 cases also dismiss Firefox's original auto-hidden menu bar when Alt release
 activates it, following the existing clipboard fixture. That original menu
-interaction remains an integration gap. Native wheel routing, broader wrap
+interaction remains an integration gap. Broader wrap
 modes, rich text, IME and derivative coverage are still unfinished;
 multiline support remains opt-in.
 
@@ -406,7 +406,39 @@ scales retain the engine viewport; this is not native HiDPI support.
 See [viewport qualification](viewport-qualification.json) for complete native
 images, geometry, resize/wrapping/autohiding, native arrow click/repeat/release,
 trusted events and host recovery. These checks use the unchanged pinned ARM64
-build, software/headless Wayland and 100% scale. Native wheel ownership, root
+build, software/headless Wayland and 100% scale. Root
 document scrolling, horizontal/nowrap text, IME/accessibility, other browser
 interfaces and derivative builds remain open. This is opt-in and is not the
 installed desktop default.
+
+## Native textarea wheel input
+
+`NEXTSPACE_FIREFOX_WHEEL=1` additionally requires the native multiline viewport,
+the provider's existing wheel capability and the exact guards in `pinned-wheel.h`.
+The adapter forwards uncancelled input through the existing bridge operation to
+the ordinary GNUstep `NSScrollView` responder. AppKit owns line/page movement,
+modifier behavior, bounds and the native image. No control implementation or
+NativeUI API is added, and neither Firefox nor AppKit is rebuilt.
+
+Gecko's existing APZ-aware hit-test flag makes its compositor wait for the native
+widget even on pages without wheel listeners. The real post-DOM default boundary
+preserves page cancellation, then acknowledges native consumption through the
+engine's default-handler cancellation. Content still sees its original
+`defaultPrevented` result. The original `APZWheelActionFor` keeps Firefox's
+zoom/history preferences; the adapter has no replacement action table. Native
+offsets return through the existing Gecko scroll setter and event lifecycle.
+Retained display lists can survive a focus change. The adapter tracks the focus
+represented by its cached image and refreshes native focus/pixels when needed,
+so a blurred field does not retain a native caret. This refresh transfers no
+engine scroll offset and implements no caret drawing.
+
+The [wheel qualification](wheel-qualification.json) records real-seat full and
+fractional steps against an ordinary GNUstep window, complete native images,
+trusted wheel/scroll events, read-only/disabled controls, cancellation, element
+mutation/removal/reinsertion and host replacement. Firefox suppresses DOM scroll
+events on disabled textareas; an independent engine-rendered disabled textarea
+establishes that policy. The bridge preserves it.
+
+This remains opt-in for the exact pinned ARM64 build at 100% scale. Root-document
+wheel input, touch momentum, horizontal/nowrap text, long-document caret reveal,
+IME/accessibility, browser frontend controls and derivative builds remain open.

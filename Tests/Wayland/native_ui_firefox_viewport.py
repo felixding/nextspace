@@ -35,7 +35,12 @@ def wait(read,predicate):
 def state():
     return js('(()=>{let e=document.getElementById("native-viewport");return {top:e.scrollTop,left:e.scrollLeft,height:e.scrollHeight,width:e.scrollWidth,clientWidth:e.clientWidth,clientHeight:e.clientHeight,clientLeft:e.clientLeft,clientTop:e.clientTop,start:e.selectionStart,end:e.selectionEnd,value:e.value,events:window.__viewportEvents,rect:e.getBoundingClientRect().toJSON()}})()')
 def seed(text,width=240,height=120,scroll=0):
-    js('(()=>{let e=document.getElementById("native-viewport");e.style.width='+json.dumps(str(width)+'px')+';e.style.height='+json.dumps(str(height)+'px')+';e.value='+json.dumps(text)+';e.setSelectionRange(0,0);document.body.tabIndex=-1;document.body.focus();window.__viewportEvents=[];e.scrollTop='+str(scroll)+';return true})()')
+    js('(()=>{let e=document.getElementById("native-viewport");e.style.width='+json.dumps(str(width)+'px')+';e.style.height='+json.dumps(str(height)+'px')+';e.value='+json.dumps(text)+';e.setSelectionRange(0,0);document.body.tabIndex=-1;document.body.focus();window.scrollTo(0,0);window.__viewportEvents=[];e.scrollTop=0;return true})()')
+    if scroll:
+        # Commit a distinct starting offset before requiring a new scroll event.
+        # Reapplying the current offset correctly emits no event in Gecko.
+        control('firefox-screenshot')
+        js('(window.__viewportEvents=[],document.getElementById("native-viewport").scrollTop='+str(scroll)+',true)')
 def compare(label,text,width=240,height=120,scroll=0):
     seed(text,width,height,scroll);current=state();rect=current['rect']
     reference=control('native-reference',name=out.name+'-'+label,controls=[dict(id='textarea',kind=9,width=rect['width'],height=rect['height'],enabled=1,state=0,title='',text=text,scroll=[0,scroll])])

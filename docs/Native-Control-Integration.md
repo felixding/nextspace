@@ -66,7 +66,13 @@ geometry and scroll API, preserving real engine scroll events, native pixels
 and arrow tracking through host replacement. Its hidden editor no longer
 overrides native offsets with an independently laid-out caret. See the
 [Firefox viewport qualification](../Experiments/FirefoxNativeUI/viewport-qualification.json).
-Root-document wheel behavior, Firefox native wheel ownership, touch momentum,
+Firefox's optional native wheel binding now routes its real post-DOM default
+through the same GNUstep responder. The existing APZ-aware hit-test flag and
+engine acknowledgement prevent a second compositor default, including pages
+without wheel listeners. Page cancellation and original app wheel preferences
+remain intact. See the
+[Firefox wheel qualification](../Experiments/FirefoxNativeUI/wheel-qualification.json).
+Root-document wheel behavior, touch momentum,
 long-document caret/autoscroll, broader wrap modes and Firefox's original
 Alt/menu-bar interaction remain open, so complete text-area support is unproven.
 See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json)
