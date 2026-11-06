@@ -22,7 +22,7 @@ enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
-  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA
+  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 typedef struct {
@@ -37,6 +37,20 @@ typedef struct {
   int state, enabled, tracking;
 } NXSControlState;
 typedef void (*NXSControlChanged)(void *context, int event, const NXSControlState *state);
+
+enum NXSTabCapability { NXS_TAB_ITEMS = 1 };
+typedef struct {
+  uint32_t size;
+  uint64_t identifier; /* Nonzero application identity, independent of order. */
+  const char *title,*tooltip;
+} NXSTabItem;
+typedef struct {
+  uint32_t size,count;
+  int32_t selected_index;
+  uint32_t reserved;
+  uint64_t selected;
+  NXSRect content; /* Native logical content rectangle, with a top-left origin. */
+} NXSTabState;
 
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
 enum NXSPointerCapability { NXS_POINTER_CLICK_COUNT = 1 };
@@ -210,6 +224,9 @@ typedef struct {
   int (*control_text_scroll)(NXSControl *,double,double);
   int (*control_text_geometry)(NXSControl *,NXSTextGeometry *);
   int (*control_wheel)(NXSControl *,const NXSWheelEvent *);
+  int (*control_tab_items)(NXSControl *,const NXSTabItem *,uint32_t,uint64_t);
+  NXSTabState (*control_tab_state)(NXSControl *);
+  NXSRect (*control_tab_item_rect)(NXSControl *,uint64_t);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -236,6 +253,17 @@ unsigned nxs_control_wheel_capabilities(void);
 /* Native hit testing/responder dispatch, independent of keyboard focus.
  * Returns one for accepted input, zero for unsupported/busy/invalid input. */
 int nxs_control_wheel(NXSControl *,const NXSWheelEvent *);
+unsigned nxs_control_tab_capabilities(void);
+/* Replace application tab data without emitting a user selection action.
+ * Identifiers must be unique/nonzero; selected names an item, or zero for an
+ * empty model. Native items are retained across reorder and title changes.
+ * User selection emits VALUE_CHANGED with the selected index in state.value.
+ * Drawing, hit testing and selection behavior remain native. */
+int nxs_control_tab_items(NXSControl *,const NXSTabItem *,uint32_t count,uint64_t selected);
+NXSTabState nxs_control_tab_state(NXSControl *);
+/* Native cached item geometry from the latest native draw; no layout algorithm
+ * is reproduced. Unknown/undrawn items return an empty rectangle. */
+NXSRect nxs_control_tab_item_rect(NXSControl *,uint64_t identifier);
 unsigned nxs_control_input_capabilities(void);
 int nxs_control_focus(NXSControl *control, int focused);
 int nxs_control_focused(NXSControl *control);

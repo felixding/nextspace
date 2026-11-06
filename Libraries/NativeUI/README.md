@@ -719,3 +719,33 @@ and Chromium menu recovery comparisons pass. Independent legacy-protocol titles
 equal the existing xdg titles; the existing five-density frame regression also
 passes. Browser mixed-DPI, tabs/toolbars, remaining controls, derivatives and
 installed-profile/deployment integration remain unfinished.
+
+## Shared native tabs
+
+`NXS_TABVIEW` owns an ordinary GNUstep `NSTabView` and `NSTabViewItem` objects.
+The optional `NXS_TAB_ITEMS` capability adds model replacement, state and native
+item rectangles. Application models supply unique nonzero 64-bit identities,
+UTF8 titles/tooltips and selection. Programmatic updates emit no user action;
+native pointer selection emits `NXS_VALUE_CHANGED` with the selected index.
+Native items survive reorder/title changes. Empty models use selected ID zero.
+The ABI remains version 1; its append-only table is now 448 bytes on ARM64.
+Earlier providers safely report no tabs capability.
+
+AppKit supplies `minimumSize`, `contentRect`, cached `_tabRect`, drawing and
+selection. Item rectangles describe the latest native draw, in logical units
+with a top-left origin. GNUstep's tab view does not itself accept first responder;
+the bridge preserves that behavior. It clears the outgoing native key-view link
+before removing a selected item, avoiding a stale pane during empty/restore.
+
+The shared host transports models and 64-bit selected IDs without control code.
+Models/configuration are rejected while input is pending or tracking. Responses
+use the existing bitmap/memfd channel, including requested 1x/2x density. A thin
+draw scope supplies the temporary cache window's actual embedding density;
+AppKit retains all image representation and cache policy.
+
+The [tab qualification](tab-qualification.json) records 89 direct/compatibility
+checks, 66 transport checks and twenty complete ordinary-desktop/native image
+comparisons. Both existing browser desktop suites and all 35 NativeUI regression
+sections pass with the updated library. Browser tab-strip models, layout and
+commands are not connected to this control yet; native browser tabs/toolbars and
+the remaining application-wide requirements are unfinished.

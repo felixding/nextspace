@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "baseline": "ffab49ed",
+  "qualification": "tab-qualification.json",
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "8f1bbe4431d6383c7ab5746c20e3d1cbc7e5411d5972da6ea82142f6d0b44b76",
+    "Libraries/NativeUI/Loader.c": "a17ff4781566f6fe125f1481d18b08eed17093082244e1bcb9d9352e22eae8a5",
+    "Libraries/NativeUI/CMakeLists.txt": "ece2a00e9e15f4512d2eda549285981422d5abcc1497d1af3b4a4f3e38fb6767",
+    "Libraries/NativeUI/GNUstep/Provider.h": "aa53be7eb6be92b5e4fbdc34d0d1a80f39382182e48fdc24652008a825c8f1dd",
+    "Libraries/NativeUI/GNUstep/Provider.m": "93688b8f89b7ca459acf1381be1c368e6aa2453fd28ba4cd46c8267fde423980",
+    "Libraries/NativeUI/GNUstep/Controls.m": "786b0c929bb0d88d11d7e1401c13147862e89a9dde2d014755c451c901357483",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "d982c24a666fca937d5ded64bee818ebefb3c23e7b7b127c8de13bd204429fc5",
+    "Libraries/NativeUI/Bridge/Protocol.h": "963a3f04c90fc4d928d895767f314d2e02b4f9a03fd281c4cfe4657c1d930671",
+    "Experiments/ChromiumScrollers/native_controls.py": "2e2108b96a40facedf4ec61ab30c48752e3735012fdb67b7ead31b6a65616af9",
+    "Experiments/ChromiumScrollers/helper.py": "b2eae59ca6119af34d8e1d45813516f9ff7f5f2ae619d0fc108dc8b070b7fd78",
+    "Tests/NativeUI/tab-probe.m": "978681c814c079cab2125934e376f9f7cae8c5ff85f9e0942d3bfcd52667e7cc",
+    "Tests/NativeUI/tab-transport-probe.c": "52b376aed5deb94e920fd1c200dacfa13afc0957f3cb9fbc1df3ffd5b1faf7c5",
+    "Tests/NativeUI/check-tabs.py": "755fe05a605945953178ca5fe00dd74d62b3d3887c84961b89c29ec66ebca303",
+    "Tests/NativeUI/check-tab-transport.py": "cc1316da885f1e43d16d18789690a512a6f5fcab64e827c28c7dde4996b6b3ed",
+    "Tests/NativeUI/run.py": "d95dfd632ab3ac129ea2371b67e991ba84db63c93cd9567ac8d60413e1e2fcfa",
+    "Tests/Wayland/native_ui_desktop.py": "1a8c2a0db3f2501ebecf290e2e3a0af6e8707bc498da6c017a26964c08d17a4d",
+    "Tests/Wayland/native_ui_desktop_chromium.py": "52bc403e7b0d36a63db7ee6a1d6a7495733b0fa25bc5d3fdb2a208acf10db24f",
+    "Libraries/gnustep/patches/gui-0_32_0-wayland-images.patch": "276097d1ca0c10cf510465d21689953c7510107b231e6aff0a6adf03487d87f1"
+  },
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSTabView.m",
+      "sha256": "69692303e09d946ad171fb7a29d784309990e86bb1912804a26e30d1736d9ae4"
+    }
+  ],
+  "separation": {
+    "actual_NSTabView_and_NSTabViewItem": true,
+    "no_copied_layout_rendering_hit_testing_or_key_behavior": true,
+    "existing_ABI_table_prefix_identical": true,
+    "existing_AppKit_image_policy_reused": true,
+    "borrowed_cache_window_density_restored_in_finally": true,
+    "no_browser_appkit_backend_compositor_or_workspace_rebuild": true
+  },
+  "findings": [
+    "Ordinary NSTabView does not accept first responder; preserve native policy rather than add arrow bindings.",
+    "Selected-item removal needs its public next-key link cleared in this isolated host before the native pane is released; GDB traced the stale native key loop on empty/restore.",
+    "A 1x temporary GSCacheW destination hid requested 2x density from existing AppKit image selection. Supply only destination backingScaleFactor metadata while the native draw is active.",
+    "Independent references use actual compositor screencopy of ordinary mapped NSTabView windows; cacheDisplay/focused-view logical bitmap snapshots did not establish 2x correctness.",
+    "Model/transport IDs remain uint64 and selected index remains a small index. Reject invalid models atomically and keep native items by ID.",
+    "Native tab controls and the shared host transport are qualified; browser tab strips remain unchanged."
+  ],
+  "runtime_audit": ".build/native-ui/tabs-runtime-audit.json"
+}

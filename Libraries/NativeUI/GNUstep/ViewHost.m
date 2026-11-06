@@ -25,6 +25,48 @@ struct NXSViewHost {
   void *command_context;
 };
 static NXSViewHost *active,*focused;
+/* NSImage's temporary screen context has a 1x cache window. Supply the actual
+ * embedding density while native views draw, so AppKit owns representation
+ * selection and cache policy exactly as it does for an ordinary screen window.
+ * No image/control drawing or selection algorithm is implemented here. */
+struct NXSDrawDensity {
+  NSWindow *window;
+  Class original;
+  double scale;
+  struct NXSDrawDensity *previous;
+};
+static __thread struct NXSDrawDensity *draw_density;
+static CGFloat drawing_backing_scale(id window,SEL selector)
+{
+  for(struct NXSDrawDensity *scope=draw_density;scope;scope=scope->previous)
+    if(scope->window==window)return scope->scale;
+  Class original=class_getSuperclass(object_getClass(window));
+  return ((CGFloat (*)(id,SEL))class_getMethodImplementation(original,selector))(window,selector);
+}
+static BOOL begin_draw_density(NSGraphicsContext *context,double scale,struct NXSDrawDensity *scope)
+{
+  *scope=(struct NXSDrawDensity){0};
+  if(scale==1)return YES;
+  id window=[[context attributes] objectForKey:NSGraphicsContextDestinationAttributeName];
+  if(![context isDrawingToScreen]||![window isKindOfClass:[NSWindow class]])return NO;
+  if(fabs([window backingScaleFactor]-scale)<.000001)return YES;
+  Class original=object_getClass(window);
+  NSString *name=[@"NXSDrawDensity_" stringByAppendingString:NSStringFromClass(original)];
+  Class adapted=objc_getClass([name UTF8String]);
+  if(!adapted) {
+    adapted=objc_allocateClassPair(original,[name UTF8String],0);if(!adapted)return NO;
+    SEL selector=@selector(backingScaleFactor);
+    Method method=class_getInstanceMethod(original,selector);
+    class_addMethod(adapted,selector,(IMP)drawing_backing_scale,method_getTypeEncoding(method));
+    objc_registerClassPair(adapted);
+  }
+  *scope=(struct NXSDrawDensity){[window retain],original,scale,draw_density};
+  draw_density=scope;object_setClass(window,adapted);return YES;
+}
+static void end_draw_density(struct NXSDrawDensity *scope)
+{
+  if(scope->window){object_setClass(scope->window,scope->original);draw_density=scope->previous;[scope->window release];}
+}
 static BOOL native_backing(NSView *view)
 {return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]];}
 static NSView *focus_view(NXSViewHost *host)
@@ -407,8 +449,14 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   NSGraphicsContext *context = [NSGraphicsContext currentContext];
   [context lockFocusView:control->view inRect:[control->view bounds]];
   [context GSWSetViewIsFlipped:[control->view isFlipped]];
-  [[NSColor controlBackgroundColor] set]; NSRectFill(NSMakeRect(0,0,size.width,size.height));
-  [control->view drawRect:[control->view bounds]];
+  struct NXSDrawDensity density;
+  if(!begin_draw_density(context,scale,&density)) {
+    [context unlockFocusView:control->view needsFlush:NO];[image unlockFocus];[image release];[pool drain];return result;
+  }
+  @try {
+    [[NSColor controlBackgroundColor] set]; NSRectFill(NSMakeRect(0,0,size.width,size.height));
+    [control->view drawRect:[control->view bounds]];
+  } @finally {end_draw_density(&density);}
   [context unlockFocusView:control->view needsFlush:NO];
   [control->view setNeedsDisplay:NO];
   [NSGraphicsContext saveGraphicsState];

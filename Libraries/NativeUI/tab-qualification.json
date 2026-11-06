@@ -1,0 +1,202 @@
+{
+  "date": "2026-11-07",
+  "baseline": "ffab49ed",
+  "status": "Qualified shared native tab provider/transport foundation. Browser tab models, layout and commands remain unbound.",
+  "api": {
+    "version": 1,
+    "bytes": 448,
+    "tabs": 1,
+    "stable_identifiers": "uint64",
+    "item_geometry": "native cached logical rectangles after draw"
+  },
+  "checks": 292,
+  "whole_native_images": 175,
+  "native_ui_regression_sections": 35,
+  "runs": [
+    {
+      "path": "/var/tmp/nxs-tabs-provider-13",
+      "passed": 89,
+      "whole_native_images": 10,
+      "cleanup": [
+        {
+          "pid": 117239,
+          "exit": 0
+        },
+        {
+          "pid": 117242,
+          "exit": -15
+        },
+        {
+          "pid": 117243,
+          "exit": 0
+        },
+        {
+          "pid": 117244,
+          "exit": 0
+        },
+        {
+          "pid": 117245,
+          "exit": 0
+        },
+        {
+          "pid": 117246,
+          "exit": 0
+        },
+        {
+          "pid": 117247,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-tabs-transport-02",
+      "passed": 66,
+      "whole_native_images": 10,
+      "cleanup": [
+        {
+          "pid": 116540,
+          "exit": 0
+        },
+        {
+          "pid": 116543,
+          "exit": -15
+        },
+        {
+          "pid": 116546,
+          "exit": 0
+        },
+        {
+          "pid": 116547,
+          "exit": -15
+        },
+        {
+          "pid": 116548,
+          "exit": 0
+        }
+      ]
+    },
+    {
+      "path": "/var/tmp/nxs-tabs-browser-firefox-01",
+      "passed": 82,
+      "whole_native_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      }
+    },
+    {
+      "path": "/var/tmp/nxs-tabs-browser-chromium-01",
+      "passed": 55,
+      "whole_native_images": 2,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      }
+    }
+  ],
+  "commands": {
+    "native_tabs": "python3 Tests/NativeUI/check-tabs.py --build /var/tmp/nextspace-native-ui/tabs-provider-01/build --compositor /var/tmp/nextspace-native-ui/browser-frame-compositor-01/nextspace-compositor --capture-probe /var/tmp/nextspace-native-ui/views-tools/capture-probe --backend-bundle /var/tmp/nextspace-native-ui/menu-activation-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle --previous-provider /var/tmp/nextspace-native-ui/menu-activation-sdk-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1 --previous-client /var/tmp/nextspace-native-ui/menu-activation-sdk-01/build/native-ui/native-controls-probe --previous-loader /var/tmp/nextspace-native-ui/menu-activation-sdk-01/stage/usr/NextSpace/lib/nextspace-scrollbars --output /var/tmp/nxs-tabs-provider-13",
+    "transport": "python3 Tests/NativeUI/check-tab-transport.py --build /var/tmp/nextspace-native-ui/tabs-provider-01/build --compositor /var/tmp/nextspace-native-ui/browser-frame-compositor-01/nextspace-compositor --backend-bundle /var/tmp/nextspace-native-ui/menu-activation-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle --reference /var/tmp/nxs-tabs-provider-12 --previous-provider /var/tmp/nextspace-native-ui/menu-activation-sdk-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1 --output /var/tmp/nxs-tabs-transport-02",
+    "native_regressions": "python3 .build/native-ui/run-tabs-suite-01.py /var/tmp/nxs-tabs-native-regression-01",
+    "browser_regressions": "python3 .build/native-ui/run-tabs-browser-regressions.py"
+  },
+  "runtime_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "bytes": 308415392
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "bytes": 549896
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "bytes": 171640536
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "bytes": 10063865
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac",
+      "bytes": 78144
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/browser-frame-compositor-01/nextspace-compositor",
+      "sha256": "4f792c2d33c4a90e91caa13d386c3807d47c2a2b6895ea6499ed1cec6f3e0d9d",
+      "bytes": 1313072
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6",
+      "bytes": 1258024
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-menu-restore-02-hook.so",
+      "sha256": "4e1ac473d53a3cf774343112446732cd9da27d635efce90e927baad1ec1cdaa4",
+      "bytes": 164472
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-menu-restore-01-hook.so",
+      "sha256": "3cb1e5d50716a4b15d991e797a2b5fdc76040f344715dcb3b96a0db65597976e",
+      "bytes": 153824
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "sha256": "4a09b4725034e9552e704ba21e2e89aa450e3b7dd9dab9eacb259b7447ead6e2",
+      "bytes": 1041800
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0",
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0",
+      "bytes": 1186176
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1",
+      "sha256": "a0c38da31f5a49b29ee4e7ac31a26d0e473aadae933ba44f2b11737bfce26703",
+      "bytes": 69968
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1",
+      "sha256": "8428123359dc92a4632d5e97e3d91394a794fb50eab79ef129ea96fa89b91012",
+      "bytes": 72856
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/tabs-provider-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1",
+      "sha256": "e944218f45262f1b5108c885271679670c0c3c8a1dfb15f63bf825e99f7437ea",
+      "bytes": 232408
+    }
+  },
+  "unchanged_runtime_files": [
+    "chromium",
+    "firefox",
+    "libxul",
+    "appkit",
+    "supervisor",
+    "compositor",
+    "workspace",
+    "chromium_adapter",
+    "firefox_adapter",
+    "backend",
+    "gtk3"
+  ],
+  "package_count": 1050,
+  "qualification_limits": [
+    "Native tab pointer selection, model/geometry/1x/2x image transport and lifecycle only; no browser tab strip binding yet.",
+    "Pinned unchanged Chromium and Firefox desktop regressions preserve existing controls, detached menus, host recovery and native frames; they do not prove native browser tabs.",
+    "The existing native regression suite passes 35 sections; this is not whole-application/derivative/mixed-DPI qualification.",
+    "Browser tab model/layout/commands, tab closing/overflow/groups, toolbars, remaining controls, broader input/accessibility/scaling, derivatives and installed deployment remain open.",
+    "GTK/Qt/KDE whole-application integration follows browser integration and remains incomplete."
+  ]
+}

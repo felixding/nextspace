@@ -41,7 +41,10 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_text_viewport=nxs_gnustep_control_text_viewport,
     .control_text_scroll=nxs_gnustep_control_text_scroll,
     .control_text_geometry=nxs_gnustep_control_text_geometry,
-    .control_wheel=nxs_gnustep_control_wheel
+    .control_wheel=nxs_gnustep_control_wheel,
+    .control_tab_items=nxs_gnustep_control_tab_items,
+    .control_tab_state=nxs_gnustep_control_tab_state,
+    .control_tab_item_rect=nxs_gnustep_control_tab_item_rect
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

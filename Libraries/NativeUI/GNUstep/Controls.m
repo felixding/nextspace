@@ -19,7 +19,7 @@ struct NXSControl {
   NXSTextShouldChange text_filter;
   void *text_filter_context;
   SEL text_command;
-  BOOL text_selection_pending,text_editable,text_reveal_pending,destroying;
+  BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
 };
 static int text_control(NXSControl *control)
 {return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD||control->kind==NXS_TEXTAREA);}
@@ -91,6 +91,15 @@ static void slider_model(NXSControl *control)
 @end
 @implementation NXSControlAction
 - (void)dealloc {[editor_delegate release];[super dealloc];}
+- (BOOL)tabView:(NSTabView *)view shouldSelectTabViewItem:(NSTabViewItem *)item
+{return control->tab_syncing||(!control->destroying&&control->enabled);}
+- (void)tabView:(NSTabView *)view didSelectTabViewItem:(NSTabViewItem *)item
+{
+  if(!control->tab_syncing&&control->changed) {
+    NXSControlState state=nxs_gnustep_control_state(control);
+    control->changed(control->context,NXS_VALUE_CHANGED,&state);
+  }
+}
 /* Preserve NSTextField's complete native delegate/notification path. Only its
  * pre-edit proposal is intercepted; the original editor still performs edits. */
 - (BOOL)respondsToSelector:(SEL)selector
@@ -167,13 +176,15 @@ static void slider_model(NXSControl *control)
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_TEXTAREA)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_TABVIEW)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_TEXTAREA) {
+  if(kind==NXS_TABVIEW) {
+    view=[[NSTabView alloc] initWithFrame:NSMakeRect(0,0,320,120)];
+  } else if(kind==NXS_TEXTAREA) {
     NSScrollView *scroll=[[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,180,96)];
     [scroll setBorderType:NSBezelBorder];[scroll setHasVerticalScroller:YES];
     [scroll setAutohidesScrollers:YES];
@@ -209,7 +220,8 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   control->text_selection=NSMakeRange(NSNotFound,0);
   if(kind!=NXS_PROGRESS) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
-    if(kind!=NXS_TEXTAREA){[(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];}
+    if(kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:(id)target];
+    else if(kind!=NXS_TEXTAREA){[(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];}
     if(text_control(control)) {
       if(kind==NXS_TEXTAREA)[text_editor(control) setDelegate:(id)target];
       else [(NSTextField *)view setDelegate:(id)target];
@@ -234,6 +246,7 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   NSView *view=[control->view retain];
   if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
   if(control->kind==NXS_TEXTAREA)[(NSTextView *)[(NSScrollView *)view documentView] setDelegate:nil];
+  else if(control->kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:nil];
   else if(text_control(control))[(NSTextField *)view setDelegate:nil];
   if(control->kind==NXS_POPUP||text_control(control))[[NSNotificationCenter defaultCenter] removeObserver:control->target];
   if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
@@ -263,6 +276,8 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     [view setIndeterminate:!!config->indeterminate];
     if(config->indeterminate&&control->enabled)[view startAnimation:nil];
     else [view stopAnimation:nil];
+  } else if(control->kind==NXS_TABVIEW) {
+    [control->view setNeedsDisplay:YES];
   } else {
     [(NSControl *)control->view setEnabled:control->enabled];
     if(control->kind==NXS_SLIDER) {
@@ -290,7 +305,8 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
   NXSControlState state={.size=sizeof(state)};
   if(!control)return state;
   state.enabled=control->enabled;state.tracking=nxs_host_tracking(control->host);
-  if(control->kind==NXS_PROGRESS)state.value=[(NSProgressIndicator *)control->view doubleValue];
+  if(control->kind==NXS_TABVIEW)state.value=nxs_gnustep_control_tab_state(control).selected_index;
+  else if(control->kind==NXS_PROGRESS)state.value=[(NSProgressIndicator *)control->view doubleValue];
   else if(!text_control(control)) {
     state.value=control->kind==NXS_POPUP?[(NSPopUpButton *)control->view indexOfSelectedItem]:[(NSControl *)control->view doubleValue];
     if(control->kind!=NXS_SLIDER&&control->kind!=NXS_POPUP)state.state=[(NSButton *)control->view state];
@@ -300,7 +316,8 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
 NXSSize nxs_gnustep_control_size(NXSControl *control)
 {
   if(!control)return (NXSSize){0};
-  NSSize size=(control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
+  NSSize size=control->kind==NXS_TABVIEW?[(NSTabView *)control->view minimumSize]:
+    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
   return (NXSSize){size.width,size.height};
 }
 NXSBitmap nxs_gnustep_control_draw(NXSControl *control,double scale)
@@ -474,4 +491,80 @@ int nxs_gnustep_control_text_filter(NXSControl *control,NXSTextShouldChange filt
   control->text_filter=filter;control->text_filter_context=context;
   [(NXSControlAction *)control->target bindTextEditor];
   [pool drain];return 1;
+}
+
+static void remove_tab_item(NSTabView *view,NSTabViewItem *item)
+{
+  /* This private host has no following native pane. Detach the outgoing key
+   * link before releasing a selected item; NSTabView retains a cached link. */
+  if(item==[view selectedTabViewItem])[view setNextKeyView:nil];
+  [view removeTabViewItem:item];
+}
+int nxs_gnustep_control_tab_items(NXSControl *control,const NXSTabItem *items,uint32_t count,uint64_t selected)
+{
+  if(!control||control->kind!=NXS_TABVIEW||control->destroying||control->tab_syncing||
+     nxs_host_tracking(control->host)||count>4096||(count&&!items)||(!count&&selected)||(count&&!selected))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSMutableArray *labels=[NSMutableArray arrayWithCapacity:count],*tips=[NSMutableArray arrayWithCapacity:count];
+  NSMutableArray *identifiers=[NSMutableArray arrayWithCapacity:count];
+  NSMutableSet *seen=[NSMutableSet setWithCapacity:count];
+  for(uint32_t i=0;i<count;i++) {
+    if(items[i].size<sizeof(items[i])||!items[i].identifier){[pool drain];return 0;}
+    NSNumber *identifier=[NSNumber numberWithUnsignedLongLong:items[i].identifier];
+    NSString *label=items[i].title?[NSString stringWithUTF8String:items[i].title]:@"";
+    NSString *tip=items[i].tooltip?[NSString stringWithUTF8String:items[i].tooltip]:nil;
+    if(!label||(items[i].tooltip&&!tip)||[seen containsObject:identifier]){[pool drain];return 0;}
+    [seen addObject:identifier];[identifiers addObject:identifier];[labels addObject:label];
+    [tips addObject:tip?:[NSNull null]];
+  }
+  if(count&&![seen containsObject:[NSNumber numberWithUnsignedLongLong:selected]]){[pool drain];return 0;}
+  NSTabView *view=(NSTabView *)control->view;
+  NSMutableDictionary *existing=[NSMutableDictionary dictionary];
+  for(NSTabViewItem *item in [view tabViewItems])[existing setObject:item forKey:[item identifier]];
+  NSMutableArray *ordered=[NSMutableArray arrayWithCapacity:count];
+  for(uint32_t i=0;i<count;i++) {
+    NSTabViewItem *item=[existing objectForKey:[identifiers objectAtIndex:i]];
+    if(!item)item=[[[NSTabViewItem alloc] initWithIdentifier:[identifiers objectAtIndex:i]] autorelease];
+    [ordered addObject:item];
+  }
+  control->tab_syncing=YES;
+  @try {
+    for(uint32_t i=0;i<count;i++) {
+      NSTabViewItem *item=[ordered objectAtIndex:i];
+      NSInteger old=[view indexOfTabViewItem:item];
+      if(old!=i) {
+        if(old!=NSNotFound)remove_tab_item(view,item);
+        [view insertTabViewItem:item atIndex:i];
+      }
+      [item setLabel:[labels objectAtIndex:i]];
+      id tip=[tips objectAtIndex:i];[item setToolTip:tip==[NSNull null]?nil:tip];
+    }
+    while([view numberOfTabViewItems]>count)remove_tab_item(view,[view tabViewItemAtIndex:count]);
+    NSTabViewItem *item=count?[view tabViewItemAtIndex:[view indexOfTabViewItemWithIdentifier:
+      [NSNumber numberWithUnsignedLongLong:selected]]]:nil;
+    if([view selectedTabViewItem]!=item)[view selectTabViewItem:item];
+    [view setNeedsDisplay:YES];
+  } @finally {control->tab_syncing=NO;}
+  [pool drain];return 1;
+}
+NXSTabState nxs_gnustep_control_tab_state(NXSControl *control)
+{
+  NXSTabState state={.size=sizeof(state),.selected_index=-1};
+  if(!control||control->kind!=NXS_TABVIEW||control->destroying)return state;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSTabView *view=(NSTabView *)control->view;NSTabViewItem *item=[view selectedTabViewItem];
+  state.count=(uint32_t)[view numberOfTabViewItems];
+  if(item){state.selected=[[item identifier] unsignedLongLongValue];state.selected_index=(int32_t)[view indexOfTabViewItem:item];}
+  state.content=nxs_host_rect_from_view(control->host,view,[view contentRect]);
+  [pool drain];
+  return state;
+}
+NXSRect nxs_gnustep_control_tab_item_rect(NXSControl *control,uint64_t identifier)
+{
+  if(!control||control->kind!=NXS_TABVIEW||control->destroying)return (NXSRect){0};
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSTabView *view=(NSTabView *)control->view;
+  NSInteger index=[view indexOfTabViewItemWithIdentifier:[NSNumber numberWithUnsignedLongLong:identifier]];
+  NXSRect rect=index==NSNotFound?(NXSRect){0}:nxs_host_rect_from_view(control->host,view,[[view tabViewItemAtIndex:index] _tabRect]);
+  [pool drain];return rect;
 }

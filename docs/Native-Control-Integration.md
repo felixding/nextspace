@@ -447,3 +447,14 @@ physical menu/reference checks qualify that foundation; see
 Browser menu-model extraction and connecting the dispatcher to each browser's
 owner loop remain to implement. This foundation does not establish native
 browser menus or coverage for GTK/Qt/KDE applications.
+
+The next browser-frontend step now has a shared native tab foundation. NativeUI
+creates ordinary GNUstep NSTabView/NSTabViewItem objects and exposes their model,
+selection, native content/item geometry and bitmap through the shared helper.
+Stable 64-bit application identities survive reorder and transport; no tab layout,
+rendering, hit testing or key behavior is copied. Twenty whole images match actual
+ordinary native desktop tabs at 100% and 200%. Direct/compatibility and C transport
+checks pass, along with the existing browser desktop and NativeUI regressions.
+See [tab qualification](../Libraries/NativeUI/tab-qualification.json). Connecting
+each browser's real tab model, selection commands and layout remains open; the
+current browser tab strips have not been replaced by this foundation.

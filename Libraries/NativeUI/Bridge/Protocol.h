@@ -187,4 +187,33 @@ struct NXSNativeMenuAck {
  * clipping. Part 3.x reports acceptance, part 5 is the actual visible rect,
  * and part 6.width/height is native document size. No control layout or
  * scrolling rules are implemented by this protocol. */
+/* Optional tabs, bootstrap part 4.x / generic part 2.y, kind 10. Operation 36
+ * replaces an owned model; each wire item is followed by UTF8 title/tooltip
+ * bytes, with no NULs. The requested scale is the native bitmap density, not
+ * a logical layout scale. Operation 37 uses the ordinary request and returns
+ * NXSTabWireState as its payload. Operation 38 returns the named item's cached
+ * native rectangle in part 6. Other tab replies use part 6 for content geometry,
+ * part 5.y for item count, and ordinary part 0.x for selected index. Selected
+ * IDs are uint64 throughout; they never pass through floating-point fields.
+ * Model acceptance uses part 3.x. No native layout/key policy crosses IPC. */
+struct NXSControlTabsRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved,count,padding;
+  uint64_t selected;
+  double scale;
+};
+struct NXSTabWireItem {uint64_t identifier;uint32_t title_size,tooltip_size;};
+struct NXSControlTabItemRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  uint64_t identifier;
+};
+struct NXSTabWireState {
+  uint32_t count;
+  int32_t selected_index;
+  uint64_t selected;
+  struct NXSRectD content;
+};
 #endif

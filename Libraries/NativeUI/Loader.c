@@ -156,3 +156,11 @@ int nxs_menu_lifecycle(NXSMenu *menu,NXSMenuLifecycle callback,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_lifecycle)?p->menu_lifecycle(menu,callback,context):0;}
 int nxs_menu_branch_items(NXSMenu *menu,uint64_t branch,const NXSMenuItem *items,uint32_t count)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_branch_items)?p->menu_branch_items(menu,branch,items,count):0;}
+unsigned nxs_control_tab_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_tab_items)&&HAS_INPUT(p,control_tab_state)&&HAS_INPUT(p,control_tab_item_rect)?NXS_TAB_ITEMS:0;}
+int nxs_control_tab_items(NXSControl *c,const NXSTabItem *items,uint32_t count,uint64_t selected)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_tab_items)?p->control_tab_items(c,items,count,selected):0;}
+NXSTabState nxs_control_tab_state(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_tab_state)?p->control_tab_state(c):(NXSTabState){.size=sizeof(NXSTabState),.selected_index=-1};}
+NXSRect nxs_control_tab_item_rect(NXSControl *c,uint64_t identifier)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_tab_item_rect)?p->control_tab_item_rect(c,identifier):(NXSRect){0};}
