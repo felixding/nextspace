@@ -32,7 +32,7 @@ def wait(read,predicate,timeout=15):
 def state():
     return js('(()=>{let e=document.getElementById("normal");return {top:e.scrollTop,left:e.scrollLeft,height:e.scrollHeight,width:e.scrollWidth,clientHeight:e.clientHeight,clientWidth:e.clientWidth,clientLeft:e.clientLeft,clientTop:e.clientTop,start:e.selectionStart,end:e.selectionEnd,rect:e.getBoundingClientRect().toJSON(),events:window.__nativeScrollEvents}})()')
 def seed(text,width=240,height=120,scroll=0):
-    js('(()=>{let e=document.getElementById("normal");e.style.width='+json.dumps(str(width)+'px')+';e.style.height='+json.dumps(str(height)+'px')+';e.value='+json.dumps(text)+';e.setSelectionRange(0,0);document.body.tabIndex=-1;document.body.focus();window.__nativeScrollEvents=[];if(!e.__nativeScrollObserved){e.__nativeScrollObserved=true;e.addEventListener("scroll",v=>window.__nativeScrollEvents.push({top:e.scrollTop,trusted:v.isTrusted}))}e.scrollTop='+str(scroll)+';return true})()')
+    js('(()=>{let e=document.getElementById("normal");e.style.width='+json.dumps(str(width)+'px')+';e.style.height='+json.dumps(str(height)+'px')+';e.value='+json.dumps(text)+';e.setSelectionRange(0,0);document.body.tabIndex=-1;document.body.focus();window.scrollTo(0,0);window.__nativeScrollEvents=[];if(!e.__nativeScrollObserved){e.__nativeScrollObserved=true;e.addEventListener("scroll",v=>window.__nativeScrollEvents.push({top:e.scrollTop,trusted:v.isTrusted}))}e.scrollTop='+str(scroll)+';return true})()')
 def compare(label,text,width=240,height=120,scroll=0):
     seed(text,width,height,scroll);current=state();rect=current['rect']
     reference=control('native-reference',name=out.name+'-'+label,controls=[dict(id='textarea',kind=9,
@@ -77,6 +77,25 @@ try:
         held=wait(state,lambda s:s['top']>start)
         ab('mouse','up');released=state();time.sleep(.35);stopped=state()
         check(suffix+'-native-arrow-repeat-release',stopped['top']==released['top'] and held['top']>start,held=held['top'],released=released['top'],stopped=stopped['top'])
+    # A nonzero document scroll must not be added to native-local input again.
+    seed(text)
+    js('(()=>{document.body.style.minHeight="2500px";let e=document.getElementById("normal");e.style.marginTop="120px";window.scrollTo(0,60);e.focus({preventScroll:true});return true})()')
+    current=state();rect=current['rect'];x=rect['left']+10;y=rect['bottom']-13
+    assert rect['top']>=0 and rect['bottom']<=js('innerHeight'),rect
+    reference=control('native-reference',name=out.name+'-scrolled-page',controls=[dict(id='textarea',kind=9,
+        width=rect['width'],height=rect['height'],title='',state=0,enabled=1,text=text,
+        scroll=[0,0],click=[10,rect['height']-13])])
+    expected=reference['reference'][0]['viewport']['y'];assert expected>0
+    ab('mouse','move',str(x),str(y));ab('mouse','down');ab('mouse','up')
+    current=wait(state,lambda s:s['top']==expected)
+    check('scrolled-page-native-arrow',js('scrollY')==60 and current['start']==current['end']==0,native=expected,state=current)
+    check('scrolled-page-trusted-scroll-event',any(e['trusted'] and e['top']==expected for e in current['events']),events=current['events'])
+    js('(()=>{document.body.focus({preventScroll:true});return true})()')
+    screenshot=ab('screenshot','--screenshot-dir',str(out/'scrolled-page'))
+    path=Path(re.search(r'Screenshot saved to (.+)',screenshot).group(1).strip());mounted='/workspace/'+str(path.relative_to(repo))
+    pixels=remote('from PIL import Image,ImageChops\nimport json\na=Image.open('+repr(mounted)+').convert("RGB").crop('+repr(tuple(round(rect[k]) for k in ['left','top','right','bottom']))+')\nb=Image.open('+repr(reference['path']+'/textarea.png')+').convert("RGB");d=ImageChops.difference(a,b);print(json.dumps(dict(equal=d.getbbox() is None,box=d.getbbox())))')
+    check('scrolled-page-native-pixels',pixels['equal'],**pixels)
+    check('scrolled-page-origin-after-paint',js('scrollY')==60,state=state())
     print(json.dumps(dict(passed=len(rows),output=str(out))))
 finally:
     try:ab('mouse','up')

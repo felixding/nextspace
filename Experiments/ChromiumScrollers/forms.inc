@@ -1,6 +1,7 @@
 /* Blink element/model and event bindings only. Native controls stay in the
  * separately loaded UI provider. Exact Chromium build; GPL-2.0-or-later. */
 #include "pinned-forms.h"
+#include "pinned-coordinates.h"
 #include "pinned-multiline.h"
 #include "pinned-multiline-scroll.h"
 #include "../../Libraries/NativeUI/NativeUI.h"
@@ -246,11 +247,13 @@ static void block_children(void*s,const void*i,uint64_t offset)
 static struct FloatPoint form_point(struct NativeForm *form,const void *event) {
   void *layout=decode_member((const char *)form->node+48);
   if(!layout)return (struct FloatPoint){-1,-1};
-  void *view=((void *(*)(const void *))(base+0xe11b43c))(layout);
+  void *view=((void *(*)(const void *))(base+NXS_COORDINATE_FRAME_VIEW_OFFSET))(layout);
   if(!view)return (struct FloatPoint){-1,-1};
-  struct FloatPoint root=((struct FloatPoint (*)(const void *))(base+0xac35e38))(event);
-  struct FloatPoint local=((struct FloatPoint (*)(const void *,const struct FloatPoint *))(base+0xdf98bbc))(view,&root);
-  struct FloatRect box=((struct FloatRect (*)(const void *))(base+0xef58ad4))(form->node);
+  struct FloatPoint root=((struct FloatPoint (*)(const void *))(base+NXS_COORDINATE_EVENT_ROOT_OFFSET))(event);
+  /* Client quads are frame coordinates. RootFrameToDocument would add the
+   * page scroll again; reuse the engine's frame-to-frame conversion instead. */
+  struct FloatPoint local=((struct FloatPoint (*)(const void *,const struct FloatPoint *))(base+NXS_COORDINATE_FRAME_POINT_OFFSET))(view,&root);
+  struct FloatRect box=((struct FloatRect (*)(const void *))(base+NXS_COORDINATE_CLIENT_BOX_OFFSET))(form->node);
   if(box.width<=0||box.height<=0)return (struct FloatPoint){-1,-1};
   return (struct FloatPoint){(local.x-box.x)*form->rect.width/box.width,(local.y-box.y)*form->rect.height/box.height};
 }
@@ -422,7 +425,7 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+static int prepare_forms(void){return guard_form_coordinates()&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&

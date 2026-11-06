@@ -394,8 +394,9 @@ Gecko's hidden editor can otherwise reveal its differently laid-out caret after
 a value/selection update, replacing the requested native offset. Only the
 Selection belonging to an owned native textarea suppresses that second scroll;
 the original queued-event lifetime and cleanup remain intact. The actual
-`NSTextView` owns native selection scrolling. Long-document caret reveal and
-scrolling ancestor pages still need dedicated qualification.
+`NSTextView` owns native selection scrolling. The following caret binding covers
+long vertical/wrapped navigation and typed insertion; scrolling ancestor pages
+still need dedicated qualification.
 
 Host replacement restores the retained engine scroll model into the recreated
 native object once per host generation. The adapter retains semantic nodes and
@@ -440,5 +441,22 @@ events on disabled textareas; an independent engine-rendered disabled textarea
 establishes that policy. The bridge preserves it.
 
 This remains opt-in for the exact pinned ARM64 build at 100% scale. Root-document
-wheel input, touch momentum, horizontal/nowrap text, long-document caret reveal,
+wheel input, touch momentum, horizontal/nowrap text,
 IME/accessibility, browser frontend controls and derivative builds remain open.
+
+## Native textarea caret viewport
+
+With the existing native multiline viewport enabled, post-key handling now
+forwards the real native scroll position through Gecko's existing setter.
+During a pre-edit callback, engine reflow keeps the live native object and its
+cached geometry instead of treating a busy model reply as a failed binding.
+After the browser commits the canonical model, the shared provider completes the
+ordinary `NSTextView` caret reveal. No caret geometry, line navigation, wrapping
+or scroll policy is copied into this adapter, and no API extension is needed.
+
+The shared [caret qualification](../../Libraries/NativeUI/caret-qualification.json)
+covers actual-seat vertical navigation, forward/backward selection, wrapped
+text, offscreen insertion, cancelled insertion, complete native images and host
+replacement on the pinned 100% scale build. Pointer autoscroll, ancestor-page
+reveal, richer edits/async clipboard commands, selection-direction metadata,
+IME/accessibility and other scales/builds still need qualification.

@@ -256,6 +256,12 @@ static int native_application_command(const struct NXSNativeCommand *command,con
 }
 static int prepare_text_image(void *frame) {
   if(!native_text_frame(frame)||fabsf(frame_scale(frame)-1)>0.000001f)goto release;
+  /* Engine callbacks can reflow while the native editor is waiting for its
+   * pre-edit decision. Its existing object/image remain valid but busy. */
+  if(text_transaction) {
+    struct Widget *busy=widget_for_frame(frame);
+    return busy&&busy->node==text_transaction->node&&busy->text_owned&&button_cache_available(busy);
+  }
   struct Widget *w=bind_widget(frame);if(!w)goto release;
   int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
   double width=rect[2]/60.,height=rect[3]/60.;
@@ -352,7 +358,11 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
       }
     }
   }
-  w=widget_for_node(node);if(w){sync_text_widget(w);invalidate_widget(w);}
+  w=widget_for_node(node);if(w){
+    if(sync_text_widget(w)&&!modifier&&handled!=NXS_INPUT_UNHANDLED&&
+       multiline_viewport_enabled&&w->kind==NXS_TEXTAREA)echo_text_viewport(w);
+    invalidate_widget(w);
+  }
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS)advance_focus(node,handled);
   ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_RELEASE_OFFSET))(editor);
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);

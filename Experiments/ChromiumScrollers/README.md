@@ -32,9 +32,9 @@ client/scroll geometry, trusted scroll events, script resizing, native wrapping,
 autohiding, and native arrow click/repeat/release. Both browser families retain
 their 18 real-seat multiline editing checks. See
 [multiline-viewport-qualification.json](../../Libraries/NativeUI/multiline-viewport-qualification.json).
-Caret/autoscroll, pointer selection dragging, nowrap and
-horizontal modes, accessibility, CSS zoom/HiDPI and Firefox's equivalent viewport
-binding remain unfinished. Other Chromium builds and derivatives remain
+Pointer autoscroll, selection dragging, nowrap and
+horizontal modes, accessibility and CSS zoom/HiDPI remain unfinished.
+The pinned Firefox now also has a qualified native viewport binding. Other Chromium builds and derivatives remain
 unsupported until their own audited adapters are available.
 
 ## Native textarea wheel experiment
@@ -61,7 +61,31 @@ receive identical real-seat full/fractional steps. See the
 native pixels, cancellation, DOM mutation/lifetime and host recovery evidence.
 These checks cover wrapped textareas on the pinned software/headless build at
 100% scale. Root-document wheel behavior, touch momentum, horizontal/nowrap
-modes, other browser builds and Firefox viewport/wheel binding remain open.
+modes and other browser builds remain open. The pinned Firefox also has a
+[native wheel binding](../FirefoxNativeUI/wheel-qualification.json).
+
+## Native textarea caret viewport
+
+Native key handling now returns the `NSTextView` viewport through Blink's real
+scroll setter after canonical model synchronization. Layout/paint callbacks
+inside the native pre-edit decision retain the busy editor's geometry/image;
+they do not rebind it. The shared provider finishes native caret reveal after a
+changed external edit model, using the existing native method. The bridge adds
+no caret, wrap, selection-layout or scroll algorithm and needs no new API.
+
+Pointer conversion also keeps engine coordinate spaces consistent: the original
+`ConvertFromRootFrame` supplies a point in the same frame space as the element
+client quads. Adding document scroll there would displace native input on a
+scrolled page. Exact call guards are in `pinned-coordinates.h`; the viewport
+regression compares a scrolled-page native click, pixels and trusted events with
+the same ordinary native reference.
+
+See the shared [caret qualification](../../Libraries/NativeUI/caret-qualification.json)
+for actual-seat long-document navigation, forward/backward selection, wrapping,
+insertion/cancellation, complete native images, rapid input and host replacement.
+Pointer autoscroll, ancestor-page reveal, richer edits/async clipboard commands,
+selection-direction metadata, IME/accessibility and other scales/builds remain
+unfinished.
 
 The helper calls the unchanged `Libraries/ForeignScrollers` C interface for
 geometry, drawing and synchronous native mouse tracking. Its bitmap is transported

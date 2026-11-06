@@ -140,6 +140,8 @@ static void end_text_pointer(struct NativeForm *form,int echo) {
   refresh_form_watch();
 }
 static struct NXSResponse *sync_text_image(struct NativeForm *form) {
+  if(text_transaction&&text_transaction->node==form->node)
+    return form_request(form,5,0,0,0);
   if(form->text_tracking) {
     struct BlinkTextModel model={0};if(!text_model(form->node,&model))return NULL;
     int same=text_pointer_matches(form,text_native_state(form),&model);free(model.value);
@@ -312,7 +314,9 @@ static int default_text_key(void *node,void *event) {
         struct NXSTextResponse state;memcpy(&state,response+1,sizeof(state));text_selection(node,state.selection_start,state.selection_length);
       }
     }
-    sync_text_form(form,form_request(form,1,0,0,0));invalidate_form(form);
+    if(sync_text_form(form,form_request(form,1,0,0,0))&&handled&&
+       forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA&&read_text_viewport(form))echo_text_viewport(form);
+    invalidate_form(form);
   }
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS)advance_form_focus(node,event,handled);
   if(handled&&(logical!=NXS_KEY_ENTER||input_form_kind(node)==NXS_TEXTAREA)){*flags|=0x40;return 1;}

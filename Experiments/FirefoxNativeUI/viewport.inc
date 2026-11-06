@@ -66,14 +66,16 @@ static void viewport_reflow(void *frame,void *context,void *output,const void *i
   struct PointI previous=viewport_engine_position(frame);
   if(!prepare_text_image(frame))return;
   struct Widget *w=viewport_widget(frame);if(!w)return;
-  struct NXSResponse *r=widget_request(w,33,previous.x/60.,previous.y/60.,0);
-  if(!r||r->parts[3].x!=1||!read_native_viewport(w))return;
+  if(!text_transaction) {
+    struct NXSResponse *r=widget_request(w,33,previous.x/60.,previous.y/60.,0);
+    if(!r||r->parts[3].x!=1||!read_native_viewport(w))return;
+  }
   NXSRect clip=w->text_geometry.clip;
   struct ViewportRect port={lround(clip.x*60),lround(clip.y*60),lround(clip.width*60),lround(clip.height*60)};
   memcpy((char *)frame+NXS_GECKO_VIEWPORT_SCROLL_PORT_BYTE,&port,sizeof(port));
   static __thread unsigned logged;
   if(logged++<32&&log_fd>=0)dprintf(log_fd,"%d native-viewport-reflow id=%llu previous=%d,%d clip=%d,%d,%d,%d native=%.2f,%.2f\n",getpid(),(unsigned long long)w->id,previous.x,previous.y,port.x,port.y,port.width,port.height,w->text_viewport.visible.x,w->text_viewport.visible.y);
-  echo_text_viewport(w);
+  if(!text_transaction)echo_text_viewport(w);
 }
 /* Gecko's nontrivial nsRect return uses x8, not the C aggregate ABI. */
 __attribute__((naked)) static void call_viewport_rect(void *function,const void *frame,const void *reference,void *output) {

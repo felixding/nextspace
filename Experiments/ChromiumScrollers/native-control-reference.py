@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -78,14 +78,37 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_text_sync(pointer,C.byref(model))
         if item['kind']==9 and 'scroll' in item:
             assert native.nxs_control_text_scroll(pointer,*item['scroll'])
+        if item.get('click'):
+            native.nxs_control_track(pointer,*item['click'],0)
         if item.get('wheel'):
             for entry in item['wheel']:
                 event=WheelEvent(C.sizeof(WheelEvent),entry.get('modifiers',0),entry.get('x',40),entry.get('y',12),entry.get('dx',0),entry.get('dy',0))
                 assert native.nxs_control_wheel(pointer,C.byref(event))
+        text_keys=[]
+        veto=TextShouldChange(lambda *_:0) if item.get('text_veto') else None
+        if veto:assert native.nxs_control_text_filter(pointer,veto,None)
+        for entry in item.get('text_keys',[]):
+            event=KeyEvent(C.sizeof(KeyEvent),0,entry.get('modifiers',0),entry.get('key',0),
+                entry.get('repeat',0),entry.get('text','').encode(),entry.get('unmodified',entry.get('text','')).encode())
+            handled=native.nxs_control_key(pointer,C.byref(event))
+            state=TextState(size=C.sizeof(TextState))
+            required=native.nxs_control_text_get(pointer,None,0,C.byref(state));assert required
+            buffer=C.create_string_buffer(required)
+            assert native.nxs_control_text_get(pointer,buffer,required,C.byref(state))==required
+            viewport=native.nxs_control_text_viewport(pointer)
+            observed=buffer.value.decode()
+            record=dict(handled=handled,start=state.selection_start,
+                end=state.selection_start+state.selection_length,top=viewport.visible.y,left=viewport.visible.x)
+            # Do not repeat a long unchanged document for every arrow key in
+            # the fixture's bounded control-socket reply.
+            if not text_keys or observed!=previous_text:record['value']=observed
+            text_keys.append(record);previous_text=observed
+        if item.get('blur_after_keys'):assert native.nxs_control_focus(pointer,0)
         image = save_image()
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],
                             preferred=[preferred.width, preferred.height]))
+        if text_keys:results[-1]['text_keys']=text_keys
         if item['kind']==9:
             viewport=native.nxs_control_text_viewport(pointer)
             geometry=TextGeometry(size=C.sizeof(TextGeometry))

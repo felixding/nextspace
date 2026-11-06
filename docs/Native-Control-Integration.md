@@ -72,8 +72,13 @@ engine acknowledgement prevent a second compositor default, including pages
 without wheel listeners. Page cancellation and original app wheel preferences
 remain intact. See the
 [Firefox wheel qualification](../Experiments/FirefoxNativeUI/wheel-qualification.json).
-Root-document wheel behavior, touch momentum,
-long-document caret/autoscroll, broader wrap modes and Firefox's original
+Both pinned adapters now also return the native caret viewport after key handling
+and keep a busy editor alive during reentrant engine layout. The shared provider
+completes native reveal after a changed canonical edit model, preserving
+unchanged cancellation. Long vertical/wrapped navigation, selection and typed
+insertion are recorded in the [caret qualification](../Libraries/NativeUI/caret-qualification.json).
+Root-document wheel behavior, touch momentum, pointer autoscroll, ancestor-page
+reveal, richer edits/async commands, broader wrap modes and Firefox's original
 Alt/menu-bar interaction remain open, so complete text-area support is unproven.
 See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json)
 and [viewport qualification](../Libraries/NativeUI/multiline-viewport-qualification.json).

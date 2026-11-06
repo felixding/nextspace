@@ -150,6 +150,21 @@ int main(int argc,char **argv)
   p.allow=1;p.selector="insertTab:";key(&p,NXS_KEY_TAB,NULL,0);value(&p,"Alpha\nBeta\n\t");
   p.selector=NULL;model(&p,"日本語Café🙂\nNext",9,0,1);
   key(&p,NXS_KEY_TEXT,"X",0);assert(value(&p,"日本語Café🙂X\nNext").selection_start==10);
+  /* A filtered external edit must finish the same native reveal as a local
+   * edit, while a vetoed or unrelated programmatic model update must not. */
+  char appended[2048];snprintf(appended,sizeof(appended),"%sZ",long_text);
+  p.allow=1;model(&p,long_text,strlen(long_text),0,1);assert(nxs_control_text_scroll(p.control,0,0));
+  key(&p,NXS_KEY_TEXT,"Z",0);value(&p,appended);
+  double native_reveal=nxs_control_text_viewport(p.control).visible.y;assert(native_reveal>0);
+  p.allow=0;model(&p,long_text,strlen(long_text),0,1);assert(nxs_control_text_scroll(p.control,0,0));
+  key(&p,NXS_KEY_TEXT,"Z",0);value(&p,long_text);assert(nxs_control_text_viewport(p.control).visible.y==0);
+  model(&p,appended,strlen(appended),0,1);value(&p,appended);
+  assert(nxs_control_text_viewport(p.control).visible.y==native_reveal);
+  model(&p,long_text,strlen(long_text),0,1);assert(nxs_control_text_scroll(p.control,0,0));
+  key(&p,NXS_KEY_TEXT,"Z",0);model(&p,long_text,strlen(long_text),0,1);
+  assert(nxs_control_text_viewport(p.control).visible.y==0);
+  model(&p,appended,strlen(appended),0,1);assert(nxs_control_text_viewport(p.control).visible.y==0);
+  p.allow=1;
   model(&p,"Read only\nSecond line",0,0,0);unsigned before=p.changes;
   NXSKeyEvent readonly={.size=sizeof(readonly),.type=NXS_KEY_DOWN,.text="Y",.unmodified_text="Y"};
   assert(nxs_control_key(p.control,&readonly)==NXS_INPUT_UNHANDLED);

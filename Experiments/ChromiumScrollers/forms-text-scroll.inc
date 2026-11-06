@@ -59,7 +59,8 @@ static int restore_text_viewport(struct NativeForm *form) {
   form->text_epoch=atomic_load(&native_host_epoch);return 1;
 }
 static int sync_multiline_layout(struct NativeForm *form,const void *area) {
-  if(multiline_syncing||form->text_tracking)return form->text_geometry_ready;
+  if(multiline_syncing||form->text_tracking||
+     (text_transaction&&text_transaction->node==form->node))return form->text_geometry_ready;
   multiline_syncing=1;
   struct SizeI size=((struct SizeI (*)(const void *))(base+NXS_MULTILINE_AREA_SIZE_OFFSET))(area);
   form->rect.width=lround(size.width/64.0);form->rect.height=lround(size.height/64.0);

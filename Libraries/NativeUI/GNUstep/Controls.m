@@ -19,7 +19,7 @@ struct NXSControl {
   NXSTextShouldChange text_filter;
   void *text_filter_context;
   SEL text_command;
-  BOOL text_selection_pending,text_editable,destroying;
+  BOOL text_selection_pending,text_editable,text_reveal_pending,destroying;
 };
 static int text_control(NXSControl *control)
 {return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD||control->kind==NXS_TEXTAREA);}
@@ -124,7 +124,11 @@ static void slider_model(NXSControl *control)
   NXSTextEdit edit={.size=sizeof(edit),.range_start=range.location,.range_length=range.length,
     .selection_start=selection.location,.selection_length=selection.length,
     .replacement=[text UTF8String],.command=control->text_command?sel_getName(control->text_command):NULL};
-  return edit.replacement&&control->text_filter(control->text_filter_context,&edit);
+  BOOL accepted=edit.replacement&&control->text_filter(control->text_filter_context,&edit);
+  /* An external editor may commit the proposal and reject the local duplicate.
+   * Finish native caret reveal only when its canonical model actually changes. */
+  if(!accepted&&control->kind==NXS_TEXTAREA)control->text_reveal_pending=YES;
+  return accepted;
 }
 - (BOOL)control:(NSControl *)view textView:(NSTextView *)editor doCommandBySelector:(SEL)selector
 {control->text_command=selector;return nxs_host_command(control->host,selector,NXS_COMMAND_EXECUTE)>=0;}
@@ -327,7 +331,7 @@ int nxs_gnustep_control_command_filter(NXSControl *control,NXSCommandFilter filt
 {return control&&!control->destroying?nxs_host_command_filter(control->host,filter,context):0;}
 int nxs_gnustep_control_key(NXSControl *control,const NXSKeyEvent *event)
 {
-  if(control)control->text_command=NULL;
+  if(control){control->text_command=NULL;control->text_reveal_pending=NO;}
   return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_key(control->host,event):NXS_INPUT_UNHANDLED;
 }
 int nxs_gnustep_control_needs_display(NXSControl *control)
@@ -419,6 +423,9 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
   }
   NSTextView *editor=text_editor(control);
   NSString *current=editor?[editor string]:[(NSTextField *)control->view stringValue];
+  BOOL model_changed=![current isEqualToString:text]||
+    (editor&&model->selection_start!=NXS_TEXT_NO_SELECTION&&
+     !NSEqualRanges([editor selectedRange],NSMakeRange(model->selection_start,model->selection_length)));
   if(![current isEqualToString:text]) {
     if(control->kind==NXS_TEXTAREA){[editor setString:text];[editor sizeToFit];}
     else [(NSTextField *)control->view setStringValue:text];
@@ -437,6 +444,9 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
   if(editor&&control->text_selection.location!=NSNotFound&&
      !NSEqualRanges([editor selectedRange],control->text_selection))
     [editor setSelectedRange:control->text_selection];
+  if(control->text_reveal_pending&&model_changed&&nxs_host_focused(control->host))
+    [editor scrollRangeToVisible:[editor selectedRange]];
+  control->text_reveal_pending=NO;
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
 size_t nxs_gnustep_control_text_get(NXSControl *control,char *buffer,size_t capacity,NXSTextState *state)

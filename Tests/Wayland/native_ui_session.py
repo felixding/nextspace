@@ -34,7 +34,11 @@ p.add_argument('--backend-bundle',type=Path,help='Select a staged backend in a p
 p.add_argument('--library-path',action='append',default=[])
 p.add_argument('--port',type=int,default=2834)
 p.add_argument('--hold',action='store_true',help='Expose a private control socket for an additional owned browser test before teardown')
-a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+a=p.parse_args()
+if not 1<=a.port<=65535:p.error('Invalid private browser port')
+with socket.socket() as probe:
+    probe.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1);probe.bind(('127.0.0.1',a.port))
+a.output.mkdir(parents=True,exist_ok=True)
 rows=[];observed=set();session=None;client=None;state=None;native_probe=None
 def check(case,passed,**values):
     rows.append(dict(case=case,passed=bool(passed),**values))

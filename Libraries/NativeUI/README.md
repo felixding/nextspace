@@ -138,6 +138,21 @@ This appends one optional function pointer (408 to 416 bytes on ARM64), leaving
 the existing by-value viewport struct and operations 32/33 unchanged. Transport
 operation 34 returns the size-tagged geometry only to the owning connection.
 
+External text editors veto the local native edit to avoid inserting twice, then
+echo their canonical text and selection. For a focused textarea, the provider
+finishes the native caret reveal when that next model actually changes. It calls
+the existing `NSTextView` `scrollRangeToVisible:` method; there is no caret or
+line-layout calculation in the bridge. An unchanged veto clears the pending
+reveal, and subsequent unrelated programmatic updates keep their old behavior.
+The API and ABI do not change.
+
+Both browser adapters retain the busy native editor during reentrant engine
+layout/paint callbacks, then echo its resulting viewport through their existing
+engine scroll setters after key handling. Rebinding during the callback would
+discard the very native editor whose edit is awaiting an engine decision.
+See the [caret qualification](caret-qualification.json) for native key sequences,
+complete images, cancellation, rapid input and host replacement checks.
+
 Full short, scrolling and wrapped images match independent direct GNUstep
 references. Tests cover actual scrollbar clicking, double/triple-click selection,
 native line navigation, newline/Tab insertion, UTF-16 selection, pre-edit veto,
@@ -149,7 +164,9 @@ Blink's real scroll area. Twelve complete browser textarea images match provider
 output across scroll positions, resizing, wrapping and host replacement. Native
 arrow tracking and DOM scroll events also pass. This remains a separate opt-in
 experiment. Both pinned adapters now bind textarea viewports and wheel input to
-the shared native scroll view; root scrolling, caret/autoscroll, wrap modes, IME
+the shared native scroll view. Long vertical/wrapped caret navigation and typed
+insertion now also use its viewport; root scrolling, pointer autoscroll, richer
+edit/async-command cases, wrap modes, IME
 and broader frontend coverage remain unfinished. See the
 [multiline qualification](multiline-qualification.json) and
 [viewport qualification](multiline-viewport-qualification.json).
