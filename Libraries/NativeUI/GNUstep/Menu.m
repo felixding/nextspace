@@ -12,7 +12,7 @@ struct NXSMenu {
   NXSMenuCommand command;
   void *context;
   unsigned depth,tracking;
-  BOOL cancelled;
+  BOOL cancelled,querying;
   NXSMenuLoop loop;
   NXSMenuLifecycle lifecycle;
   void *lifecycleContext;
@@ -39,11 +39,19 @@ static int application_command(NXSMenu *menu,uint64_t command,unsigned phase)
 - (BOOL)prepareLifecycle;
 - (void)finishLifecycle;
 @end
-/* Only delegate lifecycle is added. Inherited NSMenuView still owns every
+/* Only lifecycle and query actuation are added. Inherited NSMenuView owns every
  * aspect of layout, hit testing, submenu placement and event tracking. */
 @interface NXSModelMenuView : NSMenuView
 @end
 @implementation NXSModelMenuView
+- (void)performActionWithHighlightingForItemAtIndex:(NSInteger)index
+{
+  NXSModelMenu *part=(NXSModelMenu *)[self menu];
+  /* NSMenu has already matched and validated its own key equivalent. A
+   * reservation query must not flash/highlight or execute that native action. */
+  if(part->owner&&part->owner->querying)return;
+  [super performActionWithHighlightingForItemAtIndex:index];
+}
 - (void)attachSubmenuForItemAtIndex:(NSInteger)index
 {
   if(index<0||index>=[[self menu] numberOfItems])return;
@@ -105,7 +113,7 @@ static NSMenu *model_menu(NXSMenu *owner,NSString *title,uint64_t identifier)
 {
   NXSModelMenu *part=[[NXSModelMenu alloc] initWithTitle:title];
   part->owner=owner;part->identifier=identifier;
-  if(owner->lifecycle)lifecycle_view(part);
+  lifecycle_view(part);
   return part;
 }
 @interface NXSMenuAction : NSObject {
@@ -311,6 +319,14 @@ int nxs_gnustep_menu_key(NXSMenu *menu,const NXSKeyEvent *input)
   @try {handled=nxs_host_menu_key(menu->root,input);}
   @finally {menu->depth--;}
   [pool drain];return handled;
+}
+int nxs_gnustep_menu_key_query(NXSMenu *menu,const NXSKeyEvent *input)
+{
+  if(!owns(menu)||busy(menu))return 0;
+  int handled;menu->querying=YES;
+  @try {handled=nxs_gnustep_menu_key(menu,input);}
+  @finally {menu->querying=NO;}
+  return handled;
 }
 static NXSRect screen_rect(NSRect rect,NSWindow *window)
 {

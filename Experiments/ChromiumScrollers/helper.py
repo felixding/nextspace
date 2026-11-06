@@ -194,6 +194,8 @@ def run(library,path,menu_descriptor=None,menu_output=None):
         from broker import MenuBroker
         menu_broker=MenuBroker(native,menu_descriptor,menu_output or path.parent/'menus',dispatch,log)
         forms.input_owner=menu_broker.allows_input
+        if menu_broker.key_capabilities:
+            forms.menus.application_key=menu_broker.key;forms.menus.capabilities|=2
         signal.signal(signal.SIGUSR1,lambda *unused:menu_broker.current and menu_broker.current['binding'].dump_states())
     for horizontal in (0,1):
         pointer=native.nxs_scroller_create(horizontal,Changed(),Pump(),None)

@@ -333,9 +333,15 @@ real exported application menu. `check-shortcuts.py` and
 descriptor is separate from renderer input connections. The additional
 `--menu-shell-probe PATH` fixture option uses Workspace's actual shell/menu
 connections to follow focus and advertised address changes automatically.
-Two-window/native-application transitions are qualified separately. Native menu
-shortcuts currently require a native field: a page-body Alt+T failure is retained
-as missing global keyboard routing. Session host startup/packaging, registrar
+Two-window/native-application transitions are qualified separately. The shared
+fixture also enables `NEXTSPACE_FIREFOX_MENU_KEYS=1` with a provider supporting
+native key queries. Its pinned global-command binding fixes the earlier
+page-body Alt+T failure through Gecko's real lookup/remote-reply/execution phases.
+Native matching stays in GNUstep and web keydown cancellation remains effective.
+The small adapter must be built with Clang: its existing naked AArch64 wrappers
+are incompatible with GCC's ignored-attribute fallback. Treat warnings as errors.
+See [global-key qualification](../DBusMenus/global-key-qualification.json).
+Session host startup/packaging, registrar
 recovery, remaining controls and derivative qualification remain incomplete.
 See [Workspace qualification](../DBusMenus/workspace-qualification.json) and the
 preceding [shared-host qualification](../DBusMenus/shared-host-qualification.json).

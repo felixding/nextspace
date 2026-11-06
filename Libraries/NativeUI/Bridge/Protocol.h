@@ -165,6 +165,11 @@ struct NXSNativeMenuAck {
 /* Menu decisions use the same 16-byte envelope, with result zero or one.
  * Response part 0: action count/tracking; parts 1/2: native menu/item frame;
  * part 3: acceptance, visibility, enabled, native highlight respectively. */
+/* Menu bootstrap capability bit 2 additionally permits operation 27 with
+ * kind/control zero for the shell-selected application menu. focused=0 queries
+ * native matching without executing; focused=1 dispatches the key. The helper
+ * requires the live notification owner's connection/kernel PID and active
+ * browser ancestry. No model registration or window selection is granted. */
 /* Optional invalidation notifications, bootstrap part 6.x. Operation 15 uses
  * the ordinary 104-byte control request (kind/control zero, value = last seen
  * process generation) and one SCM_RIGHTS nonblocking eventfd. Operation 16

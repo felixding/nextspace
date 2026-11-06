@@ -1,5 +1,6 @@
 """Menu-model transport only. The independent UI provider owns native menus."""
 import ctypes as C
+import select
 from native_controls import MAGIC,ControlRequest,ControlInputRequest,KeyEvent,ControlRect
 MENU_COMMAND_MAGIC=0x4e584d43
 class MenuModelRequest(C.Structure):
@@ -19,7 +20,7 @@ class NativeMenuCommand(C.Structure):
 MenuCommand=C.CFUNCTYPE(C.c_int,C.c_void_p,C.c_uint64,C.c_uint)
 class NativeMenuServer:
     def __init__(self,server,pump_type):
-        self.server,self.native=server,server.native;self.states={};self.capabilities=0
+        self.server,self.native=server,server.native;self.states={};self.capabilities=0;self.application_key=None
         self.command=MenuCommand(self._command)
         if server.notification_capabilities and hasattr(self.native,'nxs_native_ui_menu_capabilities') and self.native.nxs_native_ui_menu_capabilities()&3==3:
             self.capabilities=1
@@ -86,20 +87,22 @@ class NativeMenuServer:
         cls=ControlInputRequest if operation==27 else ControlRequest
         if len(data)<C.sizeof(cls):return
         req=cls.from_buffer_copy(data)
+        if operation==27 and not req.kind and not req.control and self.application_key:
+            owner=self.server.notifiers.get(req.process)
+            authorized=(req.magic==MAGIC and req.focused in (0,1) and owner and owner['client'] is client
+                and owner['pid']==pid and not select.select([owner['lifetime']],[],[],0)[0]
+                and self.server.input_owner and self.server.input_owner(pid))
+            event=self.key_event(req,data) if authorized else None
+            accepted=self.application_key(event,bool(req.focused)) if event else 0
+            self.respond(client,req,accepted=accepted);return
         if req.magic!=MAGIC or not self.owner(client,req,pid):self.respond(client,req);return
         if operation not in (28,29,30) and self.server.text_filters[req.process].get('waiting'):
             self.respond(client,req);return
         state=self.states.get((req.process,req.control));accepted=0;index=-1
         if not state or state['client'] is not client or state['destroy']:self.respond(client,req);return
         if operation==27:
-            if req.text_size+req.unmodified_size!=len(data)-C.sizeof(req) or req.text_size+req.unmodified_size>65536:
-                self.respond(client,req);return
-            text=data[C.sizeof(req):C.sizeof(req)+req.text_size];unmodified=data[C.sizeof(req)+req.text_size:]
-            try:
-                if b'\0' in text+unmodified:raise ValueError()
-                text.decode('utf8');unmodified.decode('utf8')
-            except (ValueError,UnicodeDecodeError):self.respond(client,req);return
-            event=KeyEvent(C.sizeof(KeyEvent),req.type,req.modifiers,req.key,req.repeat,text,unmodified)
+            event=self.key_event(req,data)
+            if event is None:self.respond(client,req);return
             accepted=self.native.nxs_menu_key(state['native'],C.byref(event))
         elif req.text_size or len(data)!=C.sizeof(req):self.respond(client,req);return
         elif operation==26 and req.state in (0,1):accepted=self.native.nxs_menu_show(state['native'],req.state)
@@ -108,6 +111,14 @@ class NativeMenuServer:
             accepted=self.native.nxs_menu_cancel(state['native'])
             if operation==29:state['destroy']=True
         self.respond(client,req,state,accepted,index)
+    def key_event(self,req,data):
+        if req.text_size+req.unmodified_size!=len(data)-C.sizeof(req) or req.text_size+req.unmodified_size>65536:return None
+        text=data[C.sizeof(req):C.sizeof(req)+req.text_size];unmodified=data[C.sizeof(req)+req.text_size:]
+        try:
+            if b'\0' in text+unmodified:raise ValueError()
+            text.decode('utf8');unmodified.decode('utf8')
+        except (ValueError,UnicodeDecodeError):return None
+        return KeyEvent(C.sizeof(KeyEvent),req.type,req.modifiers,req.key,req.repeat,text,unmodified)
     def _command(self,context,command,phase):
         entry=None
         try:

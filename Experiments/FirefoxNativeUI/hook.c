@@ -1,6 +1,9 @@
 /* Optional exact-build Gecko adapter. NativeUI supplies the actual controls.
- * No Firefox or UI-library rebuild. GPL-2.0-or-later. */
+ * Firefox/libxul stay unchanged. GPL-2.0-or-later. */
 #define _GNU_SOURCE
+#if !defined(__aarch64__) || !defined(__clang__)
+#error "The pinned Firefox adapter requires Clang on AArch64 for its naked ABI wrappers"
+#endif
 #include "../../Libraries/NativeUI/Bridge/Protocol.h"
 #include <dlfcn.h>
 #include <elf.h>
@@ -55,6 +58,8 @@ static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pi
 }
 #include "controls.inc"
 #include "menus.inc"
+#include "../../Libraries/NativeUI/Bridge/Menu.inc"
+#include "global-keys.inc"
 
 /* Frame/content and model access are audited against this libxul, including
  * Gecko's own FromNode tag/namespace check. NativeUI has no DOM knowledge. */
@@ -147,6 +152,7 @@ static void install(void) {
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
   if(frontend_requested&&!prepare_frontend_bindings()){note("Gecko frontend guard failed; unchanged");return;}
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
+  if(!prepare_global_keys()){note("Gecko global menu key guard failed; unchanged");return;}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
   if(buttons_enabled){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note("native Gecko input buttons installed");}
@@ -154,6 +160,7 @@ static void install(void) {
   if(texts_enabled){activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));note("native Gecko text bindings installed");}
   if(frontend_requested){activate_detours(frontend_detours,sizeof(frontend_detours)/sizeof(*frontend_detours));note("native Gecko frontend text binding installed");}
   if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));note("native Gecko external menu lifecycle binding installed");}
+  if(menu_keys_requested){activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));note("native Gecko global menu key binding installed");}
   installed=1;
   note("exact-build Gecko native progress adapter installed");
 }
@@ -173,5 +180,8 @@ __attribute__((constructor)) static void initialize(void) {
   const char *menus=getenv("NEXTSPACE_FIREFOX_MENU_LIFECYCLE");
   menu_lifecycle_requested=menus&&!strcmp(menus,"1");
   if(input&&!strcmp(input,"1"))prepare_widget_metrics();
+  const char *menu_keys=getenv("NEXTSPACE_FIREFOX_MENU_KEYS");
+  menu_keys_requested=menu_keys&&!strcmp(menu_keys,"1")&&frontend_requested&&application_menu_keys;
+  if(menu_keys&&!strcmp(menu_keys,"1")&&!menu_keys_requested)note("native global menu keys unavailable in this helper/configuration");
   note("Firefox native transport connected before sandbox");install();
 }

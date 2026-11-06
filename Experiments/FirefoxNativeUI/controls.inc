@@ -18,6 +18,7 @@ static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_
 static int frontend_requested;
 static int text_command_reporting;
 static int application_commands;
+static int application_menu_keys;
 static unsigned widget_pointer_capabilities;
 static pid_t widget_pid;
 static uint64_t next_widget;
@@ -474,5 +475,6 @@ static void prepare_widget_metrics(void) {
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
+  application_menu_keys=!!((unsigned)response->parts[5].height&2);
   const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

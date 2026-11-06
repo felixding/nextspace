@@ -145,12 +145,42 @@ commands from their address fields, switching to TextEdit and back, and shell
 role loss. `Tests/Wayland/appmenu.py --workspace-probe PATH` independently checks
 metadata, rejection, delayed replies/coalescing and descriptor inheritance.
 
+## Global native menu keys
+
+The optional `NXS_MENU_KEY_QUERY` provider method asks the existing `NSMenu` to
+match and validate a key without highlighting or executing it. The same native
+menu-view subclass suppresses only that query's actuation; normal rendering,
+matching, validation and execution remain in GNUstep. Matching disabled items
+consume their keys as native menus do. The ARM64 API is now 384 bytes (ABI 1,
+menu capability mask 15); older providers report query unsupported.
+
+The shared helper advertises menu transport bit 2 only when its inherited menu
+role and query support exist. Existing operation 27 with kind/control zero
+queries (`focused=0`) or executes (`focused=1`) the shell-selected menu. It still
+requires the registered notification connection, live kernel owner/pidfd and
+active-browser ancestry. It does not grant menu registration or selection.
+
+The pinned Firefox adapter's `NEXTSPACE_FIREFOX_MENU_KEYS=1` binding runs at
+Gecko's existing `GlobalKeyListener::WalkHandlersInternal` boundary. Its lookup
+phase reports a meaningful, non-reserved native match. Gecko then waits for its
+ordinary content-process reply, preserving web keydown cancellation. Execution
+uses the actual native key method and Gecko's existing `Event::PreventDefault`.
+There is no shortcut table or early GTK input interception. The public shared
+fixture enables the option; unavailable helper configurations leave it disabled.
+
+`check-global-keys.py` verifies body/button focus, exactly one real New Tab
+action, content cancellation, synthetic rejection, unmatched-key delivery,
+hidden internal toolbar and other-client query/execute rejection.
+`check-workspace.py --global-keys` repeats window/TextEdit transitions with
+global command dispatch required. The earlier page-body failure remains in the
+historical evidence and is fixed by this pinned integration. See
+[global-key qualification](global-key-qualification.json).
+
 The current experiment does not complete browser integration. Standard session
 supervision still needs to launch/package the shared host and supply its role;
-the installed desktop is not automatically enabled by this change. A retained
-live failure also establishes that shortcuts from the webpage body never reach
-the helper: current keyboard hooks cover native fields only. Global browser
-shortcut routing, ambiguous rebuilt sibling identities, changes to an already
+the installed desktop is not automatically enabled by this change. Chromium's
+global dispatch and derivative frontends still require work. Ambiguous rebuilt
+sibling identities, changes to an already
 visible branch, special-key metadata, registrar/bus recovery and other
 browser/toolkit controls remain open. See [Workspace association qualification](workspace-qualification.json)
 and the preceding [shared-host qualification](shared-host-qualification.json).

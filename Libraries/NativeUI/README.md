@@ -579,3 +579,16 @@ This adds no UI-library or provider implementation; the underlying native
 binaries retain their earlier hashes. See the
 [Gecko input qualification](../../Experiments/FirefoxNativeUI/input-qualification.json)
 for the remaining radio-group, scale and full-browser integration work.
+
+## Native menu key queries
+
+The optional `NXS_MENU_KEY_QUERY` bit advertises `nxs_menu_key_query`. It uses
+GNUstep's existing `NSMenu` matching and validation while suppressing the
+menu-view actuation/highlighting step. Normal execution uses `nxs_menu_key`
+unchanged; disabled matching commands still consume their keys as native menus
+do. This permits an embedding to ask whether a native command exists before
+waiting for web content to cancel it, without copying key policy or controls.
+The append-only API is 384 bytes on ARM64, ABI 1, with menu capability mask 15.
+The new loader safely reports query unsupported for the preceding 376-byte
+provider. See the [global-key qualification](../../Experiments/DBusMenus/global-key-qualification.json)
+for provider, native pixel, transport and pinned Firefox command-boundary checks.

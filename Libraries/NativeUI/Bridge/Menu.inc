@@ -1,6 +1,19 @@
 /* Application menu data serialization; no widget or shortcut implementation.
  * Include after Transport.inc. GPL-2.0-or-later. */
 #include "../NativeUI.h"
+static int __attribute__((unused)) native_application_menu_key(const NXSKeyEvent *event,int execute) {
+  const char *text=event->text?event->text:"",*unmodified=event->unmodified_text?event->unmodified_text:"";
+  size_t first=strlen(text),second=strlen(unmodified);
+  if(first+second>65536)return 0;
+  size_t size=sizeof(struct NXSControlInputRequest)+first+second;
+  struct NXSControlInputRequest *request=calloc(1,size);if(!request)return 0;
+  *request=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=27,.process=identity(),
+    .type=event->type,.modifiers=event->modifiers,.key=event->key,.repeat=event->repeat,
+    .text_size=first,.unmodified_size=second,.focused=!!execute};
+  memcpy(request+1,text,first);memcpy((char *)(request+1)+first,unmodified,second);
+  struct NXSResponse *response=exchange_bytes(request,size);free(request);
+  return response&&response->parts[3].x==1;
+}
 static int native_menu_model(uint64_t control,const char *title,const NXSMenuItem *items,unsigned count) {
   if(!control||!title||count>4096||(count&&!items))return 0;
   size_t body=strlen(title);

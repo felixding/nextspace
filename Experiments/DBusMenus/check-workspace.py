@@ -8,6 +8,7 @@ p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,required=True)
 p.add_argument('--expected-pid',type=int,required=True);p.add_argument('--output',type=Path,required=True)
 p.add_argument('--backend',required=True);p.add_argument('--native-text-app',type=Path,required=True)
+p.add_argument('--global-keys',action='store_true',help='Require menu shortcuts from the focused browser content, outside the native address field')
 a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True);rows=[];native_app=None;second_handle=None;m=Marionette(a.port)
 host=json.loads((a.fixture/'menu-binding.json').read_text());launch=json.loads((a.fixture/'launch.json').read_text())
 shell=json.loads((a.fixture/'menu-shell-launch.json').read_text())
@@ -40,15 +41,16 @@ def new_tab(label,identifier):
  path=a.fixture/'shared-menus'/str(identifier)/'native-items.json'
  items=wait(lambda:json.loads(path.read_text()) if path.exists() else [],lambda rs:any(i['title']=='New Tab' for i in rs))
  token=next(i['command'] for i in items if i['title']=='New Tab')
- # Current adapter forwards native field keys. Page-body/global shortcuts are
- # a separate recorded coverage gap; this check exercises window association.
- js('gURLBar.inputField.focus();return true')
+ if a.global_keys:js('gURLBar.inputField.blur();gBrowser.selectedBrowser.focus();return true')
+ else:js('gURLBar.inputField.focus();return true')
+ hook_start=len((a.fixture/'hook.log').read_text())
  before=js('return gBrowser.tabs.length');start=len(trace())
  for command in ['key 56 1','key 20 1','key 20 0','key 56 0']:assert control(command)['ok']
  after=wait(lambda:js('return gBrowser.tabs.length'),lambda n:n==before+1)
  events=trace()[start:]
  check(label+'-native-shortcut-creates-one-tab',after==before+1)
  check(label+'-routes-once-through-real-application-menu',sum(r['event']=='application-command-queued' and r.get('native')==token for r in events)==1 and sum(r['event']=='application-command' and r.get('native')==token for r in events)==1)
+ if a.global_keys:check(label+'-uses-global-command-dispatch',(a.fixture/'hook.log').read_text()[hook_start:].count('native-global-menu-key execute=1')==1)
 try:
  session=m.command('WebDriver:NewSession',{});check('owned-browser',session['capabilities']['moz:processID']==a.expected_pid)
  m.command('Marionette:SetContext',dict(value='chrome'))

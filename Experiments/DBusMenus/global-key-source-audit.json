@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-06",
+  "baseline": "0ece3940",
+  "firefox_revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "path": "dom/events/GlobalKeyListener.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/GlobalKeyListener.cpp",
+      "sha256": "c0a4ab0a703929d135cf026b648fefcac625311c6ec0c2392dd2282f2e927c18"
+    },
+    {
+      "path": "dom/events/GlobalKeyListener.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/GlobalKeyListener.h",
+      "sha256": "a60023a14e772f504c9274fd271c66f44f09f1f998e89838433c4860805c9e89"
+    },
+    {
+      "path": "dom/events/KeyboardEvent.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/KeyboardEvent.h",
+      "sha256": "e9559bfaa4ed7f1e8181cbeeb35317e471c07abd1c2c5ff3e602d20ac6042579"
+    },
+    {
+      "path": "dom/events/Event.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/Event.h",
+      "sha256": "0820834de88256ddd9d2d139701363ebdda0325e7c850527edca46853cef86d7"
+    },
+    {
+      "path": "widget/BasicEvents.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/BasicEvents.h",
+      "sha256": "9e6eb3f12ec6e1f14899345a0d7a3aa2b68971446dec602e1584213ca8b71ad9"
+    },
+    {
+      "path": "widget/TextEvents.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/TextEvents.h",
+      "sha256": "850a0f9a7d4c6ae7c27c068a19be262a785fd03e024b43abd7ed81e0eddd48f4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenu.m",
+      "sha256": "db15ecc3067c18bea86a64e071b721ffb8a50b76189ed999e6bb99c50add0b3a",
+      "bytes": 54799
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMenuView.m",
+      "sha256": "f46ad3734a4cfdf5d7ae9af67011c9515f12427df54da6b55b8ade532e7c0933",
+      "bytes": 59407
+    }
+  ],
+  "bindings": [
+    {
+      "symbol": "GlobalKeyListener::WalkHandlersInternal(Purpose, KeyboardEvent*)",
+      "offset": "0x5710c10",
+      "guard_bytes": "3f2303d5ff4303d1fd7b07a9fc6f08a9fa6709a9"
+    },
+    {
+      "symbol": "Event::WidgetEventPtr()",
+      "offset": "0x34fce18",
+      "guard_bytes": "5f2403d5001440f9c0035fd6"
+    },
+    {
+      "symbol": "Event::PreventDefault()",
+      "offset": "0x56ff600",
+      "guard_bytes": "5f2403d521008052e2031faa01000014"
+    }
+  ],
+  "abi_findings": [
+    "Purpose::ExecuteCommand=0 and LookForCommand=1 in the pinned source. The inspected caller and callee return the small WalkHandlersResult in x0; meaningful is byte 0, reserved byte 1, disabled byte 2, with a disengaged relevant-command Maybe when the word is 1.",
+    "The pinned WidgetEvent flags are at offset 48: trusted bit 0, default-prevented bit 9, APZ-handled bit 23. Existing audited key/model conversion and actual process-role function are reused.",
+    "Lookup returns a meaningful non-reserved native match. Gecko system capture calls its real remote-reply wait; its ordinary execution entry rejects prevented/untrusted events. Only accepted native execution invokes Gecko Event::PreventDefault.",
+    "NSMenu performKeyEquivalent recursively matches actual native key equivalents and validates disabled state. The existing NSMenuView subclass only suppresses the matched actuation/highlighting step during key queries; no matching/drawing/geometry is copied."
+  ],
+  "separation": {
+    "ui": "Append-only native query API uses the installed GNUstep menu implementation.",
+    "bridge": "Existing key envelope/serialization and authenticated live owner/role route; no model registration or shortcut table is added.",
+    "browser": "Only the small pinned adapter is compiled. Firefox/libxul/archive and installed AppKit remain unchanged.",
+    "compiler": "Require Clang on AArch64; the compile guard is verified, with identical tested/current adapter bytes."
+  },
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "1a1b07f2ee930d69ccdaa70166efbb8bd43b184debc6e15bce358b2e6bd8aa6a",
+    "Libraries/NativeUI/Loader.c": "395a46fcd05ff2a21b3c8bd845076398534c820ca3a85135aa2220446d55b56e",
+    "Libraries/NativeUI/GNUstep/Provider.h": "0a296d7e665fc5a6e863d2fda711e8bfc404e56ca0615f2932c4d84a4ce4bf07",
+    "Libraries/NativeUI/GNUstep/Provider.m": "7fcdbb4bb31c61eb20bb73ed2b3883f1160bc696c2467a92c9c27b3c3b32791a",
+    "Libraries/NativeUI/GNUstep/Menu.m": "8f0fc6083d8049b37b63d20f743f58440879e64c46f6752e445d5ce053e0d9f4",
+    "Libraries/NativeUI/Bridge/Menu.inc": "eec9c1d526ca769337437feeb3174dd9d0d7fda6380fc5319c355b87a4fd16d2",
+    "Libraries/NativeUI/Bridge/Protocol.h": "98413947bc58c87c56a0f396491a55f71fdf8d563ef8109ce3121be623ae36b1",
+    "Experiments/ChromiumScrollers/native_menus.py": "317ceff631f14ecab17a7fd90d6eef6da9f513ab0079c10ddbbf8817edba2871",
+    "Experiments/ChromiumScrollers/helper.py": "9e1345446c3995e68dc194bb94eb6c06a5d0d23b4f7818da068b40d5efe8b690",
+    "Experiments/DBusMenus/broker.py": "e039b016771a5c9cc4ae7c8dfaf537325acc73d8d21bfc69a89f9577fcba51c5",
+    "Experiments/DBusMenus/check-global-keys.py": "8d0edb6d8f6eeb36bb45ec58ed387900033cfe0cd9978f8a1695a1959e3bdd4d",
+    "Experiments/DBusMenus/check-workspace.py": "474ec042c4bea800af204586e7ea2f5ac679842b0573d61dd9f09f2293469593",
+    "Experiments/FirefoxNativeUI/global-keys.inc": "81b560e15a2932c586b6c44e7e10233e8c48d11e88e39a5fc2158dc4fb343c9b",
+    "Experiments/FirefoxNativeUI/hook.c": "e4fbf97f0c5bc19042ddb3e2c17e799ab7bd4859937e9bbc553eaddb96d1e0d4",
+    "Experiments/FirefoxNativeUI/controls.inc": "05cda99e164a58598ddbd2e73e3b807301522f8457704536517fef00bc3c4ed1",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "94c8fa793cb377ed311b33c8c8d1ad07ec6ea9d37d4c56c54def1aa0d03189da",
+    "Tests/NativeUI/menu-probe.m": "791451d831b5bfa1c7793cd4f31e75ba973f65a436816d6bd244c26f8ba95c40"
+  },
+  "qualification": "global-key-qualification.json",
+  "remaining": [
+    "Chromium global native menu command-boundary integration and Chrome/Vivaldi/Firefox derivative qualification.",
+    "Standard session shared-host startup/packaging, private role supervision and production registrar/bus recovery.",
+    "Broader keyboard/reservation policy, special keys and multi-chord metadata, remaining browser controls/dialogs, IME, accessibility and scaling.",
+    "Complete GTK, Qt/KDE and other non-GNUstep application coverage."
+  ]
+}

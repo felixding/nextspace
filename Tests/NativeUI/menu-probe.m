@@ -98,6 +98,10 @@ int main(int argc,char **argv)
   assert(nxs_native_ui_menu_capabilities()==NXS_MENU_MODELS&&!nxs_menu_cancel(NULL));
   puts("{\"unsupported_cancel_rejected\":true}");return 0;
  }
+ if(argc>1&&!strcmp(argv[1],"--expect-no-query")) {
+  assert(!(nxs_native_ui_menu_capabilities()&NXS_MENU_KEY_QUERY)&&!nxs_menu_key_query(NULL,NULL));
+  puts("{\"unsupported_key_query_rejected\":true}");return 0;
+ }
  NSAutoreleasePool *pool=[NSAutoreleasePool new];
  struct Probe p={.allow=1};p.menu=nxs_menu_create("Native menu fixture",command,pump,&p);assert(p.menu);
  assert((nxs_native_ui_menu_capabilities()&(NXS_MENU_MODELS|NXS_MENU_CANCEL))==(NXS_MENU_MODELS|NXS_MENU_CANCEL));
@@ -121,7 +125,15 @@ int main(int argc,char **argv)
  bad=model[1];bad.flags=32;assert(!nxs_menu_items(p.menu,&bad,1));bad=model[1];bad.flags=NXS_MENU_CHECKED|NXS_MENU_MIXED;assert(!nxs_menu_items(p.menu,&bad,1));
  assert(!nxs_menu_items(p.menu,NULL,1));assert(!nxs_menu_items(p.menu,model,4097));
  assert(!nxs_menu_state(p.menu,1).visible&&nxs_menu_state(p.menu,1).enabled);
- NXSKeyEvent key=event("z",NXS_ALT);assert(nxs_menu_key(p.menu,&key));assert(p.actions==1&&p.last==64&&p.queries);
+ NXSKeyEvent key=event("z",NXS_ALT);
+ if(nxs_native_ui_menu_capabilities()&NXS_MENU_KEY_QUERY) {
+  assert(nxs_menu_key_query(p.menu,&key)&&!p.actions&&p.queries);
+  assert(!nxs_menu_state(p.menu,-1).visible&&nxs_menu_state(p.menu,1).highlighted==-1);
+  p.allow=0;assert(nxs_menu_key_query(p.menu,&key)&&!p.actions);p.allow=1;
+  key=event("q",NXS_ALT);assert(!nxs_menu_key_query(p.menu,&key)&&!p.actions);
+  key=event("z",NXS_ALT);key.type=NXS_KEY_UP;assert(!nxs_menu_key_query(p.menu,&key));key.type=NXS_KEY_DOWN;
+ }
+ assert(nxs_menu_key(p.menu,&key));assert(p.actions==1&&p.last==64&&p.queries);
  p.allow=0;assert(nxs_menu_key(p.menu,&key));assert(p.actions==1&&!nxs_menu_state(p.menu,1).enabled);p.allow=1;
  key=event("q",NXS_ALT);assert(!nxs_menu_key(p.menu,&key));
  key=event("z",NXS_ALT);key.type=NXS_KEY_UP;assert(!nxs_menu_key(p.menu,&key));key.type=NXS_KEY_DOWN;

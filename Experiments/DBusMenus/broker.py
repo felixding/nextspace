@@ -19,6 +19,17 @@ class MenuBroker:
             raise ValueError('Menu broker requires an inherited Unix SEQPACKET endpoint')
         self.control.setblocking(False)
         self.loop=GLibLoop();self.current=None;self.pending=_UNCHANGED;self.connected=True
+        self.key_capabilities=bool(native.nxs_native_ui_menu_capabilities()&8)
+        if self.key_capabilities:
+            import ctypes as C
+            from native_controls import KeyEvent
+            native.nxs_menu_key_query.argtypes=[C.c_void_p,C.POINTER(KeyEvent)];native.nxs_menu_key_query.restype=C.c_int
+
+    def key(self,event,execute):
+        if not self.current or not self.current['binding'].is_alive():return 0
+        import ctypes as C
+        call=self.native.nxs_menu_key if execute else self.native.nxs_menu_key_query
+        return call(self.current['binding'].menu,C.byref(event))
 
     def stop(self):
         if self.current:self.current['binding'].stop()

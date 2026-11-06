@@ -26,8 +26,10 @@ address and forwards it through an optional inherited native-host role. The
 live two-window Firefox check follows focus to TextEdit and back without copied
 controls. This uses the actual Workspace connection classes, not a production
 session deployment: host launch/packaging and registrar supervision are still
-open. Global native shortcuts outside text fields are also unimplemented; a
-page-body Alt+T failure is retained. See the
+open. Pinned Firefox global shortcuts now use native menu matching at Gecko's
+real command boundary, including outside text fields and after web cancellation
+checks. The earlier page-body Alt+T failure is retained as historical evidence;
+Chromium/derivative global integration still needs work. See the
 [association qualification](../Experiments/DBusMenus/workspace-qualification.json).
 
 ## Shared implementation and distinct integration boundaries

@@ -1,0 +1,593 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "0ece3940",
+  "status": "Pinned Firefox native menu keys now work outside native fields with web cancellation preserved; full browser/toolkit objective remains incomplete",
+  "api": {
+    "abi": 1,
+    "arm64_bytes": 384,
+    "menu_capabilities": 15
+  },
+  "verification": {
+    "global_keys": {
+      "recorded_assertion_rows": 29,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "global-menu-key-binding-installed",
+          "passed": true
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "body-global-shortcut-creates-one-real-tab",
+          "passed": true
+        },
+        {
+          "case": "body-global-shortcut-one-native-menu-command",
+          "passed": true,
+          "queued": [
+            {
+              "event": "application-command-queued",
+              "native": 2
+            }
+          ],
+          "executed": [
+            {
+              "event": "application-command",
+              "identifier": 1573,
+              "native": 2
+            }
+          ]
+        },
+        {
+          "case": "body-global-shortcut-native-query-then-global-execution",
+          "passed": true
+        },
+        {
+          "case": "body-global-shortcut-retains-hidden-internal-menubar",
+          "passed": true,
+          "state": {
+            "height": 0,
+            "inactive": true,
+            "native": true
+          }
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "ordinary-button-is-focused",
+          "passed": true
+        },
+        {
+          "case": "button-global-shortcut-creates-one-real-tab",
+          "passed": true
+        },
+        {
+          "case": "button-global-shortcut-one-native-menu-command",
+          "passed": true,
+          "queued": [
+            {
+              "event": "application-command-queued",
+              "native": 2
+            }
+          ],
+          "executed": [
+            {
+              "event": "application-command",
+              "identifier": 1573,
+              "native": 2
+            }
+          ]
+        },
+        {
+          "case": "button-global-shortcut-native-query-then-global-execution",
+          "passed": true
+        },
+        {
+          "case": "button-global-shortcut-retains-hidden-internal-menubar",
+          "passed": true,
+          "state": {
+            "height": 0,
+            "inactive": true,
+            "native": true
+          }
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "web-cancelled-global-shortcut-preserves-tabs",
+          "passed": true
+        },
+        {
+          "case": "web-cancelled-global-shortcut-queues-no-action",
+          "passed": true
+        },
+        {
+          "case": "cancelled-key-keeps-real-native-reservation-query",
+          "passed": true
+        },
+        {
+          "case": "cancelled-key-never-executes-native-action",
+          "passed": true
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "untrusted-synthetic-shortcut-preserves-tabs",
+          "passed": true
+        },
+        {
+          "case": "untrusted-synthetic-shortcut-queues-no-action",
+          "passed": true
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "unmatched-key-keeps-trusted-web-delivery",
+          "passed": true
+        },
+        {
+          "case": "unmatched-key-executes-no-menu-command",
+          "passed": true
+        },
+        {
+          "case": "forged-global-key-target-has-real-notifier",
+          "passed": true
+        },
+        {
+          "case": "other-client-cannot-query-global-menu-key",
+          "passed": true
+        },
+        {
+          "case": "other-client-cannot-execute-global-menu-key",
+          "passed": true
+        },
+        {
+          "case": "forged-global-key-executes-no-application-command",
+          "passed": true
+        },
+        {
+          "case": "no-menu-callback-errors",
+          "passed": true
+        }
+      ]
+    },
+    "workspace": {
+      "recorded_assertion_rows": 23,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "workspace-automatically-binds-real-browser-window",
+          "passed": true
+        },
+        {
+          "case": "native-root-is-existing-helper-window",
+          "passed": true
+        },
+        {
+          "case": "first-window-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "first-window-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "first-window-uses-global-command-dispatch",
+          "passed": true
+        },
+        {
+          "case": "workspace-follows-second-browser-window",
+          "passed": true
+        },
+        {
+          "case": "second-window-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "second-window-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "second-window-uses-global-command-dispatch",
+          "passed": true
+        },
+        {
+          "case": "return-to-first-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "return-to-first-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "return-to-first-uses-global-command-dispatch",
+          "passed": true
+        },
+        {
+          "case": "geometry-update-does-not-recreate-native-menu",
+          "passed": true
+        },
+        {
+          "case": "native-application-focus-clears-foreign-menu",
+          "passed": true
+        },
+        {
+          "case": "menu-removal-preserves-shared-control-helper",
+          "passed": true
+        },
+        {
+          "case": "browser-focus-restores-its-native-menu",
+          "passed": true
+        },
+        {
+          "case": "after-native-app-native-shortcut-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "after-native-app-routes-once-through-real-application-menu",
+          "passed": true
+        },
+        {
+          "case": "after-native-app-uses-global-command-dispatch",
+          "passed": true
+        },
+        {
+          "case": "workspace-role-loss-clears-native-menu",
+          "passed": true
+        },
+        {
+          "case": "workspace-role-loss-preserves-control-helper",
+          "passed": true
+        },
+        {
+          "case": "no-menu-callback-errors",
+          "passed": true
+        }
+      ]
+    },
+    "firefox_clipboard": {
+      "recorded_assertion_rows": 83,
+      "all_passed": true
+    },
+    "field_shortcuts": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true
+    },
+    "firefox_lifecycle": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true
+    },
+    "shared_host": {
+      "recorded_assertion_rows": 13,
+      "all_passed": true
+    },
+    "owner_exit": {
+      "recorded_assertion_rows": 10,
+      "all_passed": true
+    },
+    "native_reference": {
+      "recorded_assertion_rows": 20,
+      "all_passed": true
+    },
+    "native_lifecycle": {
+      "recorded_assertion_rows": 14,
+      "all_passed": true
+    },
+    "chromium_clipboard": {
+      "recorded_assertion_rows": 44,
+      "all_passed": true
+    },
+    "chromium_menus": {
+      "recorded_assertion_rows": 18,
+      "all_passed": true
+    },
+    "shared_native": {
+      "recorded_boolean_values": 205,
+      "all_true": true,
+      "native_key_query_assertions": "Current API advertises query; direct probe asserts native matching/validation without actions, highlight or mapped menu, including disabled, unmatched and key-up cases."
+    },
+    "legacy_scrollbar_pixels": {
+      "compared": 30,
+      "all_equal": true
+    },
+    "previous_376_byte_provider": {
+      "exit": 0,
+      "result": {
+        "unsupported_key_query_rejected": true
+      }
+    }
+  },
+  "compiler_guard": {
+    "gcc_rejected": true,
+    "gcc_error": "/workspace/Experiments/FirefoxNativeUI/hook.c:5:2: error: #error \"The pinned Firefox adapter requires Clang on AArch64 for its naked ABI wrappers\"\n    5 | #error \"The pinned Firefox adapter requires Clang on AArch64 for its naked ABI wrappers\"\n      |  ^~~~~",
+    "clang_build_passed": true,
+    "clang_diagnostics": "",
+    "tested_adapter_sha256": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+    "current_adapter_sha256": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+    "compiler": "Debian clang version 19.1.7 (3+b1)"
+  },
+  "environment": {
+    "firefox_hashes": {
+      "provider": "05c8b6503a7b9df1bdfaed72c1b4f190c2f3d721af36f77107e7cbb0b602e453",
+      "loader": "40e00ea4dfbd1b23afcc29036ece0f9460ffe8f4bab0fb9f4b841a3347895884",
+      "shim": "de99d0267193c111352fdc95b3d4912ad1f5f08d7b2d09fb30935a73de435fda",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "field_cohort_hashes": {
+      "provider": "05c8b6503a7b9df1bdfaed72c1b4f190c2f3d721af36f77107e7cbb0b602e453",
+      "loader": "40e00ea4dfbd1b23afcc29036ece0f9460ffe8f4bab0fb9f4b841a3347895884",
+      "shim": "de99d0267193c111352fdc95b3d4912ad1f5f08d7b2d09fb30935a73de435fda",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "chromium_hashes": {
+      "provider": "05c8b6503a7b9df1bdfaed72c1b4f190c2f3d721af36f77107e7cbb0b602e453",
+      "loader": "40e00ea4dfbd1b23afcc29036ece0f9460ffe8f4bab0fb9f4b841a3347895884",
+      "shim": "de99d0267193c111352fdc95b3d4912ad1f5f08d7b2d09fb30935a73de435fda",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "adapter": "27b23eb5d0cda7d2f6821e21c9ad74bfecd3eef444b304c02017c327da2e91a3",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "firefox_sandbox": {
+      "global_environment": {
+        "observed_tab_processes": 6,
+        "all_seccomp_2_and_no_new_privs_1": true
+      },
+      "field_environment": {
+        "observed_tab_processes": 6,
+        "all_seccomp_2_and_no_new_privs_1": true
+      }
+    },
+    "chromium_sandbox": {
+      "observed_renderers": 4,
+      "all_seccomp_2_and_no_new_privs_1": true
+    },
+    "package_count": 1050
+  },
+  "cleanup": {
+    "fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-global-menu-01",
+        "pids": [
+          20241,
+          20244,
+          20245,
+          20249,
+          20250,
+          20252,
+          20255,
+          20256
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -7
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-global-menu-02",
+        "pids": [
+          20498,
+          20501,
+          20502,
+          20506,
+          20507,
+          20509,
+          20513,
+          20514
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -7
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-global-menu-03",
+        "pids": [
+          20746,
+          20749,
+          20750,
+          20754,
+          20755,
+          20758,
+          20761,
+          20762,
+          20849,
+          20852,
+          20868,
+          20875,
+          20903,
+          20947,
+          20955,
+          20958,
+          20977,
+          21000,
+          21680
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-global-menu-fields-01",
+        "pids": [
+          21143,
+          21146,
+          21147,
+          21151,
+          21152,
+          21156,
+          21157,
+          21248,
+          21251,
+          21273,
+          21285,
+          21308,
+          21358,
+          21365,
+          21371,
+          21376,
+          21409,
+          21523
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-menu-regression-01",
+        "pids": [
+          21791,
+          21794,
+          21795,
+          21799,
+          21800,
+          21808,
+          21809,
+          21811,
+          21841,
+          21845,
+          21846,
+          21865,
+          21878,
+          21887,
+          22055,
+          22145
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      }
+    ],
+    "backend_alias_removed": true,
+    "current_runtime_argument_survivors": [],
+    "named_agent_browser_session_closed": true,
+    "owned_CDP_forward_canceled": true
+  },
+  "diagnostics": [
+    "The previous Workspace checkpoint retained a page-body Alt+T failure. The new global command binding fixes it through native matching and Gecko remote-reply ordering; the final body/button cases independently witness one queued and one real exported command.",
+    "Two first browser cohorts crashed at startup with SIGBUS after GCC ignored pre-existing naked AArch64 wrapper attributes. The corrected Clang -Werror adapter passes. The source now rejects GCC; recompiling that guard produces exactly the tested adapter hash.",
+    "One native lifecycle check mistakenly supplied the preceding lifecycle-capable provider as an expect-no-lifecycle negative control. The corrected run uses the actual older 360-byte provider and passes 14 checks; the mistaken run is retained.",
+    "The first field-cohort environment collector accidentally substituted its directory name into the adapter filename. It was corrected while that same browser was still live; both final cohorts have current sandbox and binary receipts.",
+    "Unmatched keys retain their engine handling. Native menu queries use the current native disabled-item consumption rule and do not supply a copied shortcut or renderer key-binding table."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/global-menu-evidence",
+    ".build/native-ui/firefox-global-key-source",
+    "/var/tmp/nextspace-native-ui/firefox-global-menu-01",
+    "/var/tmp/nextspace-native-ui/firefox-global-menu-02",
+    "/var/tmp/nextspace-native-ui/firefox-global-menu-03",
+    "/var/tmp/nextspace-native-ui/firefox-global-menu-fields-01",
+    "/var/tmp/nextspace-native-ui/chromium-global-menu-regression-01",
+    "/var/tmp/nextspace-native-ui/menu-global-key-build-01",
+    "/var/tmp/nextspace-native-ui/menu-global-key-native-01",
+    "/var/tmp/nextspace-native-ui/menu-global-key-native-reference-01",
+    "/var/tmp/nextspace-native-ui/menu-global-key-lifecycle-01",
+    "/var/tmp/nextspace-native-ui/menu-global-key-lifecycle-02",
+    "/var/tmp/nextspace-native-ui/menu-global-key-legacy-01"
+  ],
+  "remaining": [
+    "Chromium global native menu command-boundary integration and Chrome/Vivaldi/Firefox derivative qualification.",
+    "Standard session shared-host startup/packaging, private role supervision and production registrar/bus recovery.",
+    "Broader keyboard/reservation policy, special keys and multi-chord metadata, remaining browser controls/dialogs, IME, accessibility and scaling.",
+    "Complete GTK, Qt/KDE and other non-GNUstep application coverage."
+  ],
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "1a1b07f2ee930d69ccdaa70166efbb8bd43b184debc6e15bce358b2e6bd8aa6a",
+    "Libraries/NativeUI/Loader.c": "395a46fcd05ff2a21b3c8bd845076398534c820ca3a85135aa2220446d55b56e",
+    "Libraries/NativeUI/GNUstep/Provider.h": "0a296d7e665fc5a6e863d2fda711e8bfc404e56ca0615f2932c4d84a4ce4bf07",
+    "Libraries/NativeUI/GNUstep/Provider.m": "7fcdbb4bb31c61eb20bb73ed2b3883f1160bc696c2467a92c9c27b3c3b32791a",
+    "Libraries/NativeUI/GNUstep/Menu.m": "8f0fc6083d8049b37b63d20f743f58440879e64c46f6752e445d5ce053e0d9f4",
+    "Libraries/NativeUI/Bridge/Menu.inc": "eec9c1d526ca769337437feeb3174dd9d0d7fda6380fc5319c355b87a4fd16d2",
+    "Libraries/NativeUI/Bridge/Protocol.h": "98413947bc58c87c56a0f396491a55f71fdf8d563ef8109ce3121be623ae36b1",
+    "Experiments/ChromiumScrollers/native_menus.py": "317ceff631f14ecab17a7fd90d6eef6da9f513ab0079c10ddbbf8817edba2871",
+    "Experiments/ChromiumScrollers/helper.py": "9e1345446c3995e68dc194bb94eb6c06a5d0d23b4f7818da068b40d5efe8b690",
+    "Experiments/DBusMenus/broker.py": "e039b016771a5c9cc4ae7c8dfaf537325acc73d8d21bfc69a89f9577fcba51c5",
+    "Experiments/DBusMenus/check-global-keys.py": "8d0edb6d8f6eeb36bb45ec58ed387900033cfe0cd9978f8a1695a1959e3bdd4d",
+    "Experiments/DBusMenus/check-workspace.py": "474ec042c4bea800af204586e7ea2f5ac679842b0573d61dd9f09f2293469593",
+    "Experiments/FirefoxNativeUI/global-keys.inc": "81b560e15a2932c586b6c44e7e10233e8c48d11e88e39a5fc2158dc4fb343c9b",
+    "Experiments/FirefoxNativeUI/hook.c": "e4fbf97f0c5bc19042ddb3e2c17e799ab7bd4859937e9bbc553eaddb96d1e0d4",
+    "Experiments/FirefoxNativeUI/controls.inc": "05cda99e164a58598ddbd2e73e3b807301522f8457704536517fef00bc3c4ed1",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "94c8fa793cb377ed311b33c8c8d1ad07ec6ea9d37d4c56c54def1aa0d03189da",
+    "Tests/NativeUI/menu-probe.m": "791451d831b5bfa1c7793cd4f31e75ba973f65a436816d6bd244c26f8ba95c40"
+  }
+}

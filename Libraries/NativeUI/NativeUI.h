@@ -104,7 +104,7 @@ enum NXSMenuFlag {
 enum NXSMenuModifier {
   NXS_MENU_COMMAND=1, NXS_MENU_SHIFT=2, NXS_MENU_CONTROL=4, NXS_MENU_ALTERNATE=8
 };
-enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2, NXS_MENU_LIFECYCLE=4 };
+enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2, NXS_MENU_LIFECYCLE=4, NXS_MENU_KEY_QUERY=8 };
 enum NXSMenuLifecyclePhase { NXS_MENU_WILL_OPEN, NXS_MENU_DID_CLOSE };
 typedef struct {
   uint32_t size;
@@ -181,6 +181,7 @@ typedef struct {
   int (*menu_cancel)(NXSMenu *);
   int (*menu_lifecycle)(NXSMenu *,NXSMenuLifecycle,void *);
   int (*menu_branch_items)(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_t);
+  int (*menu_key_query)(NXSMenu *,const NXSKeyEvent *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -271,6 +272,9 @@ int nxs_menu_destroy(NXSMenu *);
 int nxs_menu_items(NXSMenu *,const NXSMenuItem *,uint32_t count);
 int nxs_menu_show(NXSMenu *,int visible);
 int nxs_menu_key(NXSMenu *,const NXSKeyEvent *);
+/* Native key matching/validation without highlighting or command execution.
+ * Like NSMenu itself, a matching disabled command still consumes its key. */
+int nxs_menu_key_query(NXSMenu *,const NXSKeyEvent *);
 NXSMenuState nxs_menu_state(NXSMenu *,int index);
 /* Explicit cancellation also works during tracking/callbacks. It suppresses
  * command execution, ends the native tracking loop and hides owned menus;
