@@ -313,7 +313,15 @@ The existing Firefox D-Bus menubar exporter now has an experimental path to the
 shared GNUstep menu provider. `run-frontend-fixture.py --export-menus` enables it
 only in the isolated profile and starts a private test bus/name holder. Pass
 `--compositor` with the app-menu-protocol build and add the extracted libdbusmenu
-runtime directories with `--library-path`. No new Firefox menu ELF hooks are
-needed. See [the generic bridge](../DBusMenus/README.md) for native New Tab and
-owner-loss evidence, remaining lazy-menu/keyboard work and the incomplete
-production shell association.
+runtime directories with `--library-path`. Menu model extraction uses the
+existing exporter. One optional pinned callback binding, enabled by
+`NEXTSPACE_FIREFOX_MENU_LIFECYCLE=1`, completes its internal menubar lifecycle
+through Gecko's own trusted-event dispatcher. The public export fixture enables
+this option. It preserves the original popup handlers and keeps the hidden
+internal toolbar inactive while GNUstep menus are used, without direct DOM
+attribute changes or a copied toolbar implementation.
+
+See [the generic bridge](../DBusMenus/README.md) and the
+[lifecycle qualification](menu-lifecycle-qualification.json) for native
+Undo/Redo/bookmark and owner-loss evidence. Shared native keyboard routing,
+remaining browser controls and production shell association remain incomplete.

@@ -54,6 +54,7 @@ static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pi
   }
 }
 #include "controls.inc"
+#include "menus.inc"
 
 /* Frame/content and model access are audited against this libxul, including
  * Gecko's own FromNode tag/namespace check. NativeUI has no DOM knowledge. */
@@ -145,12 +146,14 @@ static void install(void) {
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
   if(frontend_requested&&!prepare_frontend_bindings()){note("Gecko frontend guard failed; unchanged");return;}
+  if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
   if(buttons_enabled){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note("native Gecko input buttons installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
   if(texts_enabled){activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));note("native Gecko text bindings installed");}
   if(frontend_requested){activate_detours(frontend_detours,sizeof(frontend_detours)/sizeof(*frontend_detours));note("native Gecko frontend text binding installed");}
+  if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));note("native Gecko external menu lifecycle binding installed");}
   installed=1;
   note("exact-build Gecko native progress adapter installed");
 }
@@ -167,6 +170,8 @@ __attribute__((constructor)) static void initialize(void) {
   if(log)log_fd=open(log,O_WRONLY|O_CREAT|O_APPEND|O_CLOEXEC,0600);
   if(!bridge_connect(endpoint))return;
   const char *input=getenv("NEXTSPACE_FIREFOX_INPUT");
+  const char *menus=getenv("NEXTSPACE_FIREFOX_MENU_LIFECYCLE");
+  menu_lifecycle_requested=menus&&!strcmp(menus,"1");
   if(input&&!strcmp(input,"1"))prepare_widget_metrics();
   note("Firefox native transport connected before sandbox");install();
 }

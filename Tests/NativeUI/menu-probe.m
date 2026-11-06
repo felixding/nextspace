@@ -147,7 +147,9 @@ int main(int argc,char **argv)
  key=event("z",NXS_SUPER);actions=p.actions;assert(nxs_menu_key(p.menu,&key)&&p.actions==actions+1);
  [[NSUserDefaults standardUserDefaults] removeVolatileDomainForName:NSArgumentDomain];
  if(saved)[[NSUserDefaults standardUserDefaults] setVolatileDomain:saved forName:NSArgumentDomain];[saved release];
+ NSWindow *rootWindow=[root window];
  assert(nxs_menu_items(p.menu,model,sizeof(model)/sizeof(*model)));assert(nxs_menu_state(p.menu,-1).visible);
+ assert([NSApp mainMenu]==root&&[root window]==rootWindow);
  if(argc>1&&!strcmp(argv[1],"--hold")) {
   p.actions=0;p.last=0;puts("{\"event\":\"menu-live\"}");
   while(!p.done){input(&p);nxs_native_ui_dispatch_events(.005);}

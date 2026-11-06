@@ -214,6 +214,14 @@ static void collect_model(NSMenu *part,NSMutableArray *items,NSMutableArray *men
     if([item submenu])collect_model([item submenu],items,menus);
   }
 }
+static void replace_children(NSMenu *target,NSMenu *temporary)
+{
+  while([target numberOfItems])[target removeItemAtIndex:0];
+  while([temporary numberOfItems]) {
+    NSMenuItem *item=[[temporary itemAtIndex:0] retain];
+    [temporary removeItemAtIndex:0];[target addItem:item];[item release];
+  }
+}
 int nxs_gnustep_menu_items(NXSMenu *menu,const NXSMenuItem *items,uint32_t count)
 {
   if(!owns(menu)||busy(menu))return 0;
@@ -223,15 +231,15 @@ int nxs_gnustep_menu_items(NXSMenu *menu,const NXSMenuItem *items,uint32_t count
   NSMenu *root=model_menu(menu,[menu->root title],0);
   NSMutableArray *native_items=[NSMutableArray array],*menus=[NSMutableArray arrayWithObject:root];
   build_model(menu,root,items,count,titles,keys,native_items,menus);
-  BOOL main=[NSApp mainMenu]==menu->root,visible=[[menu->root window] isVisible];
-  NSPoint origin=[[menu->root window] frame].origin;
-  for(NSMenu *part in menu->menus)[part close];
-  if(main)[NSApp setMainMenu:nil];
-  [menu->root release];menu->root=root;
+  BOOL visible=[[menu->root window] isVisible];
+  /* Preserve the native main menu/window and its input association. Replacing
+   * that surface for an application model update can lose an arriving press. */
+  for(NSMenu *part in menu->menus)if(part!=menu->root)[part close];
+  replace_children(menu->root,root);
+  [menus replaceObjectAtIndex:0 withObject:menu->root];[root release];
   [menu->items release];menu->items=[native_items copy];
   [menu->menus release];menu->menus=[menus copy];
-  if(main)[NSApp setMainMenu:root];
-  if(visible){[[root window] setFrameOrigin:origin];[root display];}
+  if(visible)[menu->root display];
   [pool drain];return 1;
 }
 int nxs_gnustep_menu_lifecycle(NXSMenu *menu,NXSMenuLifecycle callback,void *context)
@@ -274,11 +282,7 @@ int nxs_gnustep_menu_branch_items(NXSMenu *menu,uint64_t branch,const NXSMenuIte
   NSMenu *temporary=model_menu(menu,@"",0);
   NSMutableArray *new_items=[NSMutableArray array],*new_menus=[NSMutableArray array];
   build_model(menu,temporary,items,count,titles,keys,new_items,new_menus);
-  while([target numberOfItems])[target removeItemAtIndex:0];
-  while([temporary numberOfItems]) {
-    NSMenuItem *item=[[temporary itemAtIndex:0] retain];
-    [temporary removeItemAtIndex:0];[target addItem:item];[item release];
-  }
+  replace_children(target,temporary);
   [temporary release];
   NSMutableArray *all_items=[NSMutableArray array],*all_menus=[NSMutableArray array];
   collect_model(menu->root,all_items,all_menus);

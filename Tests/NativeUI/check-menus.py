@@ -83,6 +83,9 @@ with tempfile.TemporaryDirectory(prefix='nxs-menu-') as runtime:
     assert command('button 272 0')['ok']
     action=until(lambda:request('state -1'),lambda s:s['actions']>0)
     check('actual-native-submenu-action',action['actions']==1 and action['last']==64 and not action['tracking'],source=action)
+    check('idle-model-update-accepted',request('mutate')['ok'])
+    updated=until(windows,lambda w:len(w)==1)[0]
+    check('model-update-retains-native-root-surface',updated['id']==root['id'],before=root,after=updated)
     request('disable');check('live-application-availability',not request('state 1')['enabled']);request('enable')
     check('hide-native-window',request('hide')['ok']);until(windows,lambda w:not w)
     check('reshow-native-window',request('show')['ok']);until(windows,lambda w:len(w)==1)

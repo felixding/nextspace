@@ -17,6 +17,7 @@ from gi.repository import Gio, GLib
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'ChromiumScrollers'))
 from native_menus import MenuItem, MenuState
 from menu_model import MenuModel, flattened, replace_children
+from menu_events import application_event as deliver_event
 
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--library', required=True)
@@ -144,18 +145,17 @@ def event(identifier,name,callback=complete_call,data=None):
 
 
 def command(unused,identifier,phase):
-    global generation,fetching
     try:
         if phase==1 and a.lifecycle:
-            generation += 1;fetching = False
-            accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
+            refresh_layout()
         node = model.nodes.get(identifier)
         enabled = alive and node is not None and node.properties.get('enabled',True) and node.properties.get('visible',True)
         if enabled and phase==1:
             if a.lifecycle:
-                awaiting('Event',GLib.Variant('(isvu)',(node.remote,'clicked',GLib.Variant('i',0),0)))
+                remote = application_event(identifier,'clicked')
+                if remote is None:return 0
             else:event(node.remote,'clicked')
-            log('application-command',identifier=node.remote,native=identifier)
+            log('application-command',identifier=remote if a.lifecycle else node.remote,native=identifier)
         return int(bool(enabled))
     except Exception as error:
         log('callback-error',message=str(error));return 0
@@ -191,18 +191,26 @@ def accept_layout(value):
     (a.output/'layout.json').write_text(json.dumps(dict(revision=revision,root=root),indent=2)+'\n')
 
 
+def refresh_layout():
+    global generation,fetching
+    generation += 1;fetching = False
+    accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
+
+
+def application_event(token,name):
+    return deliver_event(model,token,name,
+        lambda remote,operation:awaiting('Event',GLib.Variant('(isvu)',(remote,operation,GLib.Variant('i',0),0))),
+        refresh_layout,lambda operation,native,remote:log('stale-id-rejected',operation=operation,native=native,remote=remote))
+
+
 def lifecycle(unused,token,phase):
     global native_root,pending_root,generation,fetching,dirty
     try:
         if phase==1:
             if alive:
-                generation += 1;fetching = False
-                accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
-            node = model.nodes.get(token)
-            previous = opened.pop(token,None)
-            remote = node.remote if node is not None else previous
-            if alive and remote is not None:
-                awaiting('Event',GLib.Variant('(isvu)',(remote,'closed',GLib.Variant('i',0),0)))
+                refresh_layout()
+            opened.pop(token,None)
+            remote = application_event(token,'closed') if alive else None
             log('native-submenu-closed',native=token,remote=remote)
             return 1
         node = model.nodes.get(token)
@@ -210,7 +218,7 @@ def lifecycle(unused,token,phase):
         opened[token] = node.remote
         # Invalidate earlier asynchronous root reads before this preparation.
         generation += 1;fetching = False
-        awaiting('Event',GLib.Variant('(isvu)',(node.remote,'opened',GLib.Variant('i',0),0)))
+        if application_event(token,'opened') is None:return 0
         accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
         node = model.nodes.get(token)
         if node is None:

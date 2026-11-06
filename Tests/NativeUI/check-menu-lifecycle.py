@@ -72,6 +72,9 @@ with tempfile.TemporaryDirectory(prefix='nxs-menu-life-') as runtime:
    actor=Actor(mode,env,eager=mode=='eager');control('pointer 1200 500')
    snapshots[(mode,'root')]=image(actor,'root')
    press(actor,0);until(lambda:actor.state(1),lambda s:s['visible'] and s['item'][2]>0)
+   # Native visibility precedes the first mapped buffer on Wayland. Require
+   # the actual popup before comparing complete, unaltered capture pixels.
+   until(lambda:control('popups'),lambda popups:len(popups)==1 and popups[0]['buffer_width']>0)
    snapshots[(mode,'submenu')]=image(actor,'submenu')
    control('button 272 0');until(actor.state,lambda s:not s['tracking'])
    actor.finish();until(lambda:control('windows'),lambda ws:not ws)

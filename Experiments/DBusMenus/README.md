@@ -66,17 +66,31 @@ the latest exporter ID. The model contains no native widget implementation.
 
 `check-lifecycle.py` uses an owned Firefox fixture to exercise native Edit Undo
 and Redo and a three-level real Places bookmark menu. Clear the navigation
-fragment and await the exported fixture model before each bookmark gesture.
+fragment before each bookmark gesture. Opening the real native branch must
+initialize or refresh its lazy Places model; closed views can stop observing it.
 `Tests/NativeUI/check-dbus-menu-model.py` checks identity churn and atomic
 rejection independently of the browser.
 
-The current experiment does not complete browser integration. After menu
-interactions, the existing Firefox clipboard suite can stop because Escape does
-not restore the internal menubar's inactive state. Native keyboard routing and
-browser focus/lifecycle integration need further work. Ambiguous rebuilt sibling
+The optional pinned Firefox adapter lifecycle binding uses Gecko's existing
+trusted-event dispatcher to keep its hidden internal menubar inactive after
+exported popup events. `run-frontend-fixture.py --export-menus` enables
+`NEXTSPACE_FIREFOX_MENU_LIFECYCLE=1`. This fixes the empty internal toolbar and
+the clipboard suite's dismissal failure without changing DOM attributes or
+copying Firefox's toolbar logic. The expanded lifecycle check accepts
+`--require-menu-lifecycle-binding` and checks geometry while native menus are held.
+
+`menu_events.py` refreshes and resolves an identity again only after libdbusmenu
+explicitly rejects that exact ID before queueing any event. Recovery is bounded;
+uncertain results, timeouts and disconnects are never retried. Its protocol test
+is `Tests/NativeUI/check-dbus-menu-events.py`.
+
+The current experiment does not complete browser integration. Native keyboard
+routing and automatic desktop association need further work. Ambiguous rebuilt sibling
 identities, changes to an already visible branch, special-key metadata, desktop
 association, bus recovery and other browser/toolkit controls remain open.
 
-See [lifecycle qualification](lifecycle-qualification.json) for current results
-and retained failures; [qualification.json](qualification.json) records the
+See the Firefox [menu lifecycle qualification](../FirefoxNativeUI/menu-lifecycle-qualification.json)
+for the current toolbar, root-window and event-delivery fixes.
+[lifecycle-qualification.json](lifecycle-qualification.json) retains the preceding
+checkpoint and its failure; [qualification.json](qualification.json) records the
 earlier static menu checkpoint.

@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "e4cf93fe",
+  "firefox_revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+  "build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "path": "widget/gtk/NativeMenuGtk.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuGtk.cpp",
+      "sha256": "242568b19d6841b503f774c144a099d0dcc5496ae3ea97adaf051112f2597595"
+    },
+    {
+      "path": "dom/xul/XULMenuBarElement.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/XULMenuBarElement.cpp",
+      "sha256": "77c79ae3e0bf136e43702ae9de8be04e430c043af17b8e48db549fd509270af8"
+    },
+    {
+      "path": "dom/xul/MenuBarListener.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/MenuBarListener.cpp",
+      "sha256": "14328f15e7a9e5d8429a7f035be57a1eb40785ab8fa62879fe3cf3f6ef170b8a"
+    },
+    {
+      "path": "dom/events/AsyncEventDispatcher.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/AsyncEventDispatcher.cpp",
+      "sha256": "250db7cc2be18e766569cc422482ff45824643de16b637ef517937399a3305bf"
+    },
+    {
+      "path": "dom/events/AsyncEventDispatcher.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/AsyncEventDispatcher.h",
+      "sha256": "ca19854e5eb8eddbb06199b53b6e6fedf7dbb3c10691c68bdd8b41b73e6e8576"
+    },
+    {
+      "path": "widget/EventForwards.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/EventForwards.h",
+      "sha256": "cc14a8207ac5c7b18ae29ad2471471a45fd2b765a8342988e46e68b12c6f9fde"
+    },
+    {
+      "path": "browser/omni.ja:chrome/browser/content/browser/browser-customization.js",
+      "origin": "Read from the unchanged pinned Firefox browser archive",
+      "sha256": "ad640a7f8c5f04ec238460631bab0f0900202c71f4f2969b90c116db945cbdbb"
+    },
+    {
+      "path": "browser/omni.ja:chrome/browser/content/browser/browser.js",
+      "origin": "Read from the unchanged pinned Firefox browser archive",
+      "sha256": "59ac0ae291d9acdf6fe654a97db5592dcbc21506b087c03b5d9c096f2cab84f6"
+    },
+    {
+      "path": "libdbusmenu-glib/server.c",
+      "url": "https://sources.debian.org/data/main/libd/libdbusmenu/18.10.20180917~bzr492%2Brepack1-4/libdbusmenu-glib/server.c",
+      "sha256": "650f216dfcfa9a672829c6f823a4fe801a5568f428c8ca82fd5e5762f27f7078"
+    }
+  ],
+  "bindings": [
+    {
+      "symbol": "mozilla::widget::DBusEventCallback",
+      "offset": "0x6b12674",
+      "guard_bytes": "3f2303d5fe0f1ef8f44f01a9f30304aaf40301aa"
+    },
+    {
+      "symbol": "mozilla::AsyncEventDispatcher::RunDOMEventWhenSafe(EventTarget&, nsAString const&, CanBubble, ChromeOnlyDispatch, Composed)",
+      "offset": "0x56d6a70",
+      "guard_bytes": "3f2303d5fe67bca9f85f01a9f65702a9f44f03a9"
+    }
+  ],
+  "findings": [
+    "Firefox AutoHideMenubar reacts to popupshowing by removing its inactive attribute. The exporter delivers popupshowing/shown and popuphiding/hidden without changing the hidden XUL menubar activity. The inactive internal menubar therefore does not emit DOMMenuBarInactive, and Escape is ignored by its listener because it has no frame. Geometry showed an empty 44-pixel toolbar.",
+    "The optional adapter preserves the exporter callback, pins its element lifetime and asks Gecko RunDOMEventWhenSafe to dispatch its existing trusted DOMMenuBarInactive event. The application keeps its own toolbar implementation; no attributes or DOM prototypes are changed and no native controls are copied.",
+    "CanBubble::eYes=0, ChromeOnlyDispatch::eNo=1 and Composed::eDefault=2 are verified in the pinned EventForwards.h. The existing audited 16-byte GeckoString representation supplies the borrowed UTF-16 event name.",
+    "libdbusmenu bus_event_core returns false for a missing ID before allocating/queueing event_local_handler. Only the matching INVALID_MENUITEM_ID rejection proves non-delivery and permits a bounded fresh identity lookup. Successful Event replies acknowledge queueing, not application callback completion.",
+    "NativeUI full model changes now preserve their original NSMenu, NSWindow and main-menu association. Ordinary native item-transfer APIs are shared with branch replacement. The old provider fails the new compositor-window identity check; the new provider passes it.",
+    "Observed browser mouseup and mapped popup buffers are required test barriers. A closed Places view can stop observing insertions; waiting for a projected folder before native opening bypasses lazy initialization and is not a valid precondition."
+  ],
+  "separation": "Only a small pinned browser adapter, provider/loader/shim and probes are built. Firefox/libxul, Chromium and installed AppKit remain unchanged. Generic D-Bus model/event code remains outside the UI provider; native rendering, sizing, hit testing, tracking and toolbar/event dispatch implementations are reused."
+}

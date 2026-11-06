@@ -71,6 +71,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   if a.export_menus:prefs.update({'widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True})
   (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in prefs.items()))
   env.update(LD_PRELOAD=str(a.hook.resolve()),NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1',NEXTSPACE_FIREFOX_FRONTEND='1')
+  if a.export_menus:env['NEXTSPACE_FIREFOX_MENU_LIFECYCLE']='1'
   args=[str(a.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',Path(__file__).with_name('test-text.html').resolve().as_uri()]
   browser=subprocess.Popen(args,env=env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'));children.append(browser)
   (out/'launch.json').write_text(json.dumps(dict(pids=[p.pid for p in children],capture=capture.process.pid,command=args),indent=2)+'\n')

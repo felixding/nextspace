@@ -1,0 +1,386 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "e4cf93fe",
+  "status": "Verified native external-menu lifecycle and stable native root windows; full browser/toolkit integration remains incomplete",
+  "api": {
+    "abi": 1,
+    "arm64_bytes": 376,
+    "menu_capabilities": 7
+  },
+  "verification": {
+    "firefox_lifecycle": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true
+    },
+    "firefox_clipboard": {
+      "recorded_assertion_rows": 83,
+      "all_passed": true
+    },
+    "firefox_menu_owner_loss": {
+      "recorded_assertion_rows": 10,
+      "all_passed": true
+    },
+    "native_reference": {
+      "recorded_assertion_rows": 20,
+      "all_passed": true
+    },
+    "native_lifecycle": {
+      "recorded_assertion_rows": 14,
+      "all_passed": true
+    },
+    "menu_transport": {
+      "recorded_assertion_rows": 19,
+      "all_passed": true
+    },
+    "shared": {
+      "recorded_assertion_rows": 107,
+      "all_passed": true
+    },
+    "chromium_clipboard": {
+      "recorded_assertion_rows": 44,
+      "all_passed": true
+    },
+    "chromium_menus": {
+      "recorded_assertion_rows": 18,
+      "all_passed": true
+    },
+    "legacy_scrollbar_images": {
+      "compared": 30,
+      "all_equal": true
+    },
+    "event_delivery": {
+      "passed": 12,
+      "cases": [
+        {
+          "case": "opened-definite-rejection-resolves-current-id-once",
+          "passed": true
+        },
+        {
+          "case": "clicked-definite-rejection-resolves-current-id-once",
+          "passed": true
+        },
+        {
+          "case": "closed-definite-rejection-resolves-current-id-once",
+          "passed": true
+        },
+        {
+          "case": "timeout-never-repeats-an-uncertain-action",
+          "passed": true
+        },
+        {
+          "case": "disconnect-never-repeats-an-uncertain-action",
+          "passed": true
+        },
+        {
+          "case": "different-id-never-repeats-an-uncertain-action",
+          "passed": true
+        },
+        {
+          "case": "different-error-never-repeats-an-uncertain-action",
+          "passed": true
+        },
+        {
+          "case": "different-message-never-repeats-an-uncertain-action",
+          "passed": true
+        },
+        {
+          "case": "definite-rejection-has-bounded-recovery",
+          "passed": true
+        },
+        {
+          "case": "refreshed-retired-command-is-not-executed",
+          "passed": true
+        },
+        {
+          "case": "refreshed-disabled-command-is-not-executed",
+          "passed": true
+        },
+        {
+          "case": "refreshed-hidden-command-is-not-executed",
+          "passed": true
+        }
+      ]
+    },
+    "model_identity": {
+      "passed": 11,
+      "cases": [
+        {
+          "case": "whole-exporter-rebuild-retains-unique-identities",
+          "passed": true
+        },
+        {
+          "case": "live-properties-and-remote-identifiers-update",
+          "passed": true
+        },
+        {
+          "case": "stable-remote-id-survives-label-change",
+          "passed": true
+        },
+        {
+          "case": "removed-command-token-is-retired",
+          "passed": true
+        },
+        {
+          "case": "native-snapshot-branch-replacement-preserves-original",
+          "passed": true
+        },
+        {
+          "case": "ambiguous-rebuilt-siblings-never-alias",
+          "passed": true
+        },
+        {
+          "case": "stable-ids-disambiguate-duplicate-labels",
+          "passed": true
+        },
+        {
+          "case": "duplicate-id-atomic-rejection",
+          "passed": true
+        },
+        {
+          "case": "bad-child-atomic-rejection",
+          "passed": true
+        },
+        {
+          "case": "bad-shortcut-atomic-rejection",
+          "passed": true
+        },
+        {
+          "case": "bad-root-atomic-rejection",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "negative_control": {
+    "case": "model-update-retains-native-root-surface",
+    "old_provider_fails": true,
+    "compositor_window_before": 2,
+    "compositor_window_after": 3
+  },
+  "environment": {
+    "final_hashes": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "5e9fc5247ed636263ff0155c60f2fb38364f0860e11453cd397d6a52cb75aab3",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "chromium_hashes": {
+      "provider": "63f9409347e62e0109f2c78661f818a9d4b6c3473884d4bbb2f2d7a7afe24cba",
+      "loader": "9e04feefb4bfd4461d25305e38b3c5fc3a7d29931bcfa55d6b00cc04893fc68d",
+      "shim": "b36eb364a48b11900c5ce02a67506e41fe8bea357d3e95a151d6660a6c1899c4",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "adapter": "27b23eb5d0cda7d2f6821e21c9ad74bfecd3eef444b304c02017c327da2e91a3",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "package_count": 1050,
+    "firefox_sandbox": {
+      "observed_tab_processes": 6,
+      "all_seccomp_2_and_no_new_privs_1": true,
+      "fixture": "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-02",
+      "scope": "Same unchanged Firefox/libxul and new adapter hash as final cohort; the final 03 process collector was corrected only after owner-loss exit"
+    },
+    "chromium_sandbox": {
+      "observed_renderers": 4,
+      "all_seccomp_2_and_no_new_privs_1": true
+    }
+  },
+  "cleanup": {
+    "final_fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-03",
+        "pids": [
+          15156,
+          15159,
+          15160,
+          15164,
+          15165,
+          15168,
+          15170,
+          15174,
+          15184,
+          15275,
+          15346,
+          15533,
+          15575,
+          15586
+        ],
+        "all_stopped": true,
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-menu-focus-01",
+        "pids": [
+          15627,
+          15630,
+          15631,
+          15633,
+          15634,
+          15642,
+          15643,
+          15645,
+          15674,
+          15676,
+          15679,
+          15698,
+          15711,
+          15724,
+          15931,
+          16037,
+          16039,
+          16104
+        ],
+        "all_stopped": true,
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        }
+      }
+    ],
+    "diagnostic_fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-01",
+        "pids": [
+          13208,
+          13211,
+          13212,
+          13216,
+          13218,
+          13220,
+          13226,
+          13313,
+          13316,
+          13333,
+          13340,
+          13386,
+          13424,
+          13427,
+          13435,
+          13441,
+          13470,
+          13688
+        ],
+        "all_stopped": true,
+        "control_socket_absent": true,
+        "host_cleanup": {
+          "pid": 13688,
+          "exit": 0
+        },
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-02",
+        "pids": [
+          14061,
+          14064,
+          14065,
+          14069,
+          14070,
+          14072,
+          14073,
+          14170,
+          14173,
+          14190,
+          14198,
+          14230,
+          14267,
+          14274,
+          14285,
+          14290,
+          14309,
+          14577
+        ],
+        "all_stopped": true,
+        "control_socket_absent": true,
+        "host_cleanup": {
+          "pid": 14577,
+          "exit": 0
+        },
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        }
+      }
+    ],
+    "backend_alias_removed": true,
+    "owned_agent_browser_session_closed": true,
+    "owned_CDP_forwarding_canceled": true
+  },
+  "diagnostics": [
+    "The preceding live Firefox fixture reproduced an inactive but visible empty internal toolbar. The new adapter fixes the lifecycle seam through existing Gecko methods; the 83-check suite is unchanged.",
+    "Initial expanded checks raced browser click delivery or the lazy popup mapping. They now wait for the actual browser mouseup and mapped native surface before using native item geometry.",
+    "Waiting for a newly inserted Places folder before opening a closed lazy menu was an invalid test precondition, even if the view had been populated earlier. The final check prepares it through actual native opening.",
+    "A retained nested bookmark run received an explicit expired-ID rejection while closing its parent. Twelve controlled protocol cases verify bounded recovery only for definite non-delivery; the final live browser check has no unhandled callback errors.",
+    "The old provider failed the physical root identity negative control, changing its compositor window ID from 2 to 3. Retaining the native root fixes this without browser/model-side menu geometry.",
+    "One lifecycle image captured the root before its lazy popup buffer mapped. The raw eager/prepared images are retained; the corrected mapping barrier passes full unaltered pixel equality.",
+    "The first final Firefox environment collector referenced a nonexistent 03 adapter filename; the unchanged adapter remains the 02 build. It was corrected after the owner-loss test, so final hashes are current but sandbox process evidence comes from the matching 02 adapter cohort.",
+    "The first Chromium cleanup audit incorrectly treated a PID-namespace log ID of 1 as a guest PID. The corrected audit uses the recorded guest process tree; no process was killed on the basis of that log ID."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/menu-focus-evidence",
+    "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-01",
+    "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-02",
+    "/var/tmp/nextspace-native-ui/firefox-menu-lifecycle-03",
+    "/var/tmp/nextspace-native-ui/chromium-menu-focus-01",
+    "/var/tmp/nextspace-native-ui/menu-focus-shared-01",
+    "/var/tmp/nextspace-native-ui/menu-focus-native-reference-01",
+    "/var/tmp/nextspace-native-ui/menu-focus-lifecycle-01",
+    "/var/tmp/nextspace-native-ui/menu-focus-lifecycle-02",
+    "/var/tmp/nextspace-native-ui/menu-focus-transport-01",
+    "/var/tmp/nextspace-native-ui/menu-focus-legacy-01",
+    "/var/tmp/nextspace-native-ui/menu-root-replacement-negative-01"
+  ],
+  "remaining": [
+    "Automatic authenticated desktop/window/focus association and production registrar.",
+    "Native keyboard routing shared with the editor helper, complete native menu shortcuts and special-key/multi-chord metadata.",
+    "Ambiguous rebuilt sibling identities, updates to already visible branches, icons and torn-off menus.",
+    "Bus/window replacement and recovery, other browser controls/dialogs, IME, accessibility and scaling.",
+    "Chrome/Vivaldi/Firefox derivatives and complete GTK/Qt/KDE integration."
+  ],
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/hook.c": "b918b7b5862d0327adb043930efe0dd7e453e252bd589c3841820fa117f41cb2",
+    "Experiments/FirefoxNativeUI/menus.inc": "d1ac265fa9956de73956680ddd8079eed7e57f8adb3ae4184b2e1523ab0a263d",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "2e28b053fa1e0475ac9ff876249ff69dd51b472a3b779ea7cadcbc2a0ee0c8e1",
+    "Experiments/DBusMenus/host.py": "35fa307893368ff9804bfed67a1ca04f72dde5ac1339905becfaed0ec416c652",
+    "Experiments/DBusMenus/menu_events.py": "91d0a4336a95d692e03549329f03678ac9bec637fa190db01f87b402680402e5",
+    "Experiments/DBusMenus/check-lifecycle.py": "8c6d7eb3ec55769e9ecc0340ea0bda4ec63df0a8870f72c65d1eec1dc6a3b259",
+    "Libraries/NativeUI/GNUstep/Menu.m": "84a14450cbcc08b2f92dc892ff66a4eb00db6db0a74ef9c256522ad3740c4a80",
+    "Tests/NativeUI/menu-probe.m": "55b61c195083d2e0f9bd0e55aece9eff223b248f55e863dfa7893fc0a6004a77",
+    "Tests/NativeUI/check-menus.py": "ef290f40ae9238c7d4c47b5f8c4f926aa824eb21422df2f708cc06953d8114e3",
+    "Tests/NativeUI/check-menu-lifecycle.py": "e1c51eddca4bfa66f3384946ceede3f8f74bccc3e5dbd81a8f264a5ef9a7418c",
+    "Tests/NativeUI/check-dbus-menu-events.py": "3e32c2a14b9eb7a9c0971d2793f3e97fdfef97fbf74ac29d6462cf7f53ff655d"
+  }
+}

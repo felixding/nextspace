@@ -133,6 +133,12 @@ The provider adds lifecycle calls around inherited `NSMenuView` attachment and
 pixels with the original eager native menus, then exercises lazy/nested
 preparation, rejection, cancellation and compatibility with the 360-byte provider.
 
+Full model updates preserve the GNUstep root menu, its native window and its
+main-menu association. Items are staged and validated before replacing the root's
+children through ordinary NSMenu APIs; existing child menus close first. This
+avoids losing an arriving pointer press while recreating the root surface.
+The physical menu check verifies that the compositor window ID stays unchanged.
+
 The shared browser helper now transports menu models and owner callbacks. It
 advertises menu transport in bootstrap part 5.height only when cancellation is
 available. Operations 24–30 register callbacks, replace model data, show/hide,
