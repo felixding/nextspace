@@ -371,6 +371,42 @@ selects the actual browser pane before content focus; `document.hasFocus()`
 alone did not establish that real keys had left the address editor. Independent
 cases also dismiss Firefox's original auto-hidden menu bar when Alt release
 activates it, following the existing clipboard fixture. That original menu
-interaction remains an integration gap. Browser DOM scrolling/native viewport
-layout, wrap modes, rich text, IME and derivative coverage are still unfinished;
+interaction remains an integration gap. Native wheel routing, broader wrap
+modes, rich text, IME and derivative coverage are still unfinished;
 multiline support remains opt-in.
+
+## Native multiline viewport
+
+`NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT=1` additionally requires the multiline
+binding, provider viewport/geometry capabilities and the exact guards in
+`pinned-viewport.h`. It uses the existing shared NativeUI geometry and scrolling
+API; neither that API nor its GNUstep provider needs another implementation.
+
+The adapter binds actual `ScrollContainerFrame` scroll-port, document and range
+boundaries to the real `NSScrollView` measurements. Native offsets pass through
+Gecko's existing scroll setter and update path, retaining trusted DOM scroll
+events. Painting reads native geometry and snapshots; offset transfer occurs
+during reflow and input. The whole native border-box image includes its own
+left scrollbar and tracking. No control, layout, bounds-clamping or repeat
+algorithm is copied into the adapter.
+
+Gecko's hidden editor can otherwise reveal its differently laid-out caret after
+a value/selection update, replacing the requested native offset. Only the
+Selection belonging to an owned native textarea suppresses that second scroll;
+the original queued-event lifetime and cleanup remain intact. The actual
+`NSTextView` owns native selection scrolling. Long-document caret reveal and
+scrolling ancestor pages still need dedicated qualification.
+
+Host replacement restores the retained engine scroll model into the recreated
+native object once per host generation. The adapter retains semantic nodes and
+revalidates the live widget after engine scrolling. Frame removal, reinsertion,
+unsupported zoom and restoration are covered by the viewport fixture. Unsupported
+scales retain the engine viewport; this is not native HiDPI support.
+
+See [viewport qualification](viewport-qualification.json) for complete native
+images, geometry, resize/wrapping/autohiding, native arrow click/repeat/release,
+trusted events and host recovery. These checks use the unchanged pinned ARM64
+build, software/headless Wayland and 100% scale. Native wheel ownership, root
+document scrolling, horizontal/nowrap text, IME/accessibility, other browser
+interfaces and derivative builds remain open. This is opt-in and is not the
+installed desktop default.

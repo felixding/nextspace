@@ -12,11 +12,16 @@ struct Widget {
   double range_step,range_x,range_y;int range_tracking,range_keypress;
   int text_owned,text_tracking;
   double text_width,text_height;
+  NXSTextGeometry text_geometry;
+  NXSTextViewport text_viewport;
+  uint32_t text_epoch;
+  int viewport_ready;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int multiline_enabled;
+static int multiline_viewport_enabled;
 static int frontend_requested;
 static int text_command_reporting;
 static int application_commands;
@@ -47,6 +52,8 @@ static int native_text_frame(const void *);
 static int frontend_text_frame(const void *);
 static int prepare_text_image(void *);
 static struct NXSResponse *sync_text_widget(struct Widget *);
+static int sync_viewport_widget(struct Widget *);
+static void echo_text_viewport(struct Widget *);
 static void remove_text_watch(void);
 static int dispatch_text_key(void *,void *,void *);
 static int text_modifier_event(const void *);
@@ -455,6 +462,7 @@ static void active_shell(void *shell,int active) {
 #include "buttons.inc"
 #include "ranges.inc"
 #include "text.inc"
+#include "viewport.inc"
 static struct Detour widget_detours[]={
   {NXS_GECKO_DRAW_TARGET_OFFSET,gecko_draw_target_bytes,draw_widget,(void **)&original_draw_target},
   {NXS_GECKO_DEFAULT_SIZE_OFFSET,gecko_default_size_bytes,default_size,(void **)&original_default_size},
@@ -481,6 +489,9 @@ static void prepare_widget_metrics(void) {
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
   multiline_enabled=texts_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)response->parts[6].y&NXS_TEXT_MULTILINE);
+  const char *viewport=getenv("NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT");
+  multiline_viewport_enabled=multiline_enabled&&viewport&&!strcmp(viewport,"1")&&
+    ((unsigned)response->parts[6].y&(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY))==(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY);
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
   application_menu_keys=!!((unsigned)response->parts[5].height&2);

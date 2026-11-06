@@ -15,6 +15,13 @@ The supervisor retains original browser connections and owner capabilities
 across host loss; adapters reconstruct native objects from live application
 models without copying controls or replaying actions.
 
+The pinned Firefox viewport binding now consumes the same native text geometry
+and scrolling API as Chromium. Its engine frame uses native clip/document
+measurements, and its real scroll setter retains DOM events while native
+`NSScrollView` supplies pixels and arrow tracking. This adds no UI-library,
+provider, loader or protocol implementation. See the scoped
+[Firefox viewport qualification](../../Experiments/FirefoxNativeUI/viewport-qualification.json).
+
 The bridge and the underlying UI implementation are separate libraries:
 
 - `libnextspace-native-ui.so.1` loads a provider and forwards the C API. It has no

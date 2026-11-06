@@ -244,6 +244,10 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
                             elif operation=='restart-host':os.kill(host_pid(),signal.SIGKILL);result=dict(ok=True)
                             elif operation=='firefox-eval':
                                 context(request.get('context','content'));result=dict(ok=True,value=js(request['script']))
+                            elif operation=='firefox-actions':
+                                context('content');client.command('WebDriver:PerformActions',dict(actions=request['actions']));result=dict(ok=True)
+                            elif operation=='firefox-release-actions':
+                                context('content');client.command('WebDriver:ReleaseActions',{});result=dict(ok=True)
                             elif operation=='firefox-screenshot':
                                 import base64
                                 name=a.output/'firefox-multiline.png'

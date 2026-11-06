@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-06",
+  "baseline": "3bb9f430",
+  "scope": "Exact unchanged pinned Debian Firefox ESR ARM64, software/headless Wayland at 100 percent scale; ordinary wrapped native textareas. Unsupported-zoom fallback/restoration is a boundary check, not native scaled support.",
+  "implementation": {
+    "provider": "Existing ordinary NSTextView/NSScrollView and shared NativeUI geometry/scroll API; no new control, provider, loader, transport or UI algorithm.",
+    "geometry": "Real Gecko ScrollContainerFrame scroll port, computed document rectangle and layout-range boundaries consume native clip/document/bounds. DOM getters retain their existing engine rounding/zoom path.",
+    "scroll": "Native offsets use original ScrollToCSSPixels/ScrollToImpl bookkeeping and trusted event lifecycle. The existing setter receives an exact acceptable native point after native rounding, avoiding a second fractional alignment phase.",
+    "paint": "Existing complete native border-box snapshot. Offset transfer occurs during reflow/input, not painting. Engine child text/scrollers/resizer remain outside the owned native snapshot.",
+    "selection": "Match the actual Selection through the live TextControlState selection controller; suppress only its competing hidden-editor caret scroll. Original queued event lifetime/cleanup remains. No copied caret geometry.",
+    "lifetime": "Retain semantic nodes and revalidate native widget/frame identity after engine scrolling; reuse frame destruction/freezing/inactive cleanup. Reset inherited widget state in child processes.",
+    "recovery": "Restore retained engine offset to recreated native object once per authenticated host generation after text synchronization; no input action replay.",
+    "feature": "NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT=1 plus existing INPUT/TEXT/MULTILINE flags, provider VIEWPORT/GEOMETRY capabilities and exact libxul build/instruction guards. Not an installed desktop default."
+  },
+  "api": {
+    "version": 1,
+    "bytes": 424,
+    "wheel_capabilities": 1,
+    "text_capabilities": 63
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+    "/var/tmp/nextspace-native-ui/chromium-wheel-05-hook.so": "3f4cc53e0705add10bc0fbde6a3c26ec3b76e1d15311c55b84ff1fba375d5b86",
+    "/var/tmp/nextspace-native-ui/firefox-viewport-10-hook.so": "00dadab20cf51ad399948352248e1441321b65e8de59030c3394559236967bca",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "f2249a87620df1e8119d89c17754fa79715e20d13bf4db5d6fd178f107fa38eb",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "91dfb77c4499cf2d32829fc2119ddcfeaf92b2b6abd5e900ffefaa9fbb9cbad9",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "ecd35d7ec0850a9accb7325356223ec2685f7752c0a1348b58f9766cf0c765ce",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/stamp.make": "186a17c9c1ef6c1acfbdd3b998a26604652f60be33fa987fb5f2711a39c610e3",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032": "3f90db625da9cadf932a740f9af0463eaff8016738294c53e5893548a3a6a8f5",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Info-gnustep.plist": "2808cd013cf4d0e97c31ea5f6ca26c276c4f124a9a3bc2927f93fc887ece162a",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Swedish.lproj/nfontFaceNames.strings": "14541896e5f50164cac8e8456cda6bc6bb5d92d1c4d03e36a8a34b85e1fb1917",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/English.lproj/nfontFaceNames.strings": "82a4412800f0bdc1bdb803899134312ffec96e2d4de829dcb5c0e9bd23a8af7f"
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "992b8fdee7d5639da74f13fe369fec6186a111f81020cde8f48cfb81f9ab3ffd",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "eb33e5fda5c066a0354f82d00f02216f9a20459d0d440b30b0f2b34d2a0caa81",
+    "Experiments/ChromiumScrollers/native_controls.py": "d3dcabf50c3cd3cc39c57b297dcb58d0b69dac07465e2c2d349861b5e5511d81",
+    "Experiments/FirefoxNativeUI/README.md": "0d8da2f7ce1797f59df53bf6fb2b57cf64c825a5cee739f23c9e0b3bf4cfc481",
+    "Experiments/FirefoxNativeUI/controls.inc": "763e9650489a3ee3c0e0f723f2d2251fb6f729353b682660d447743a79507ba9",
+    "Experiments/FirefoxNativeUI/hook.c": "da71409ce96151334955fab99c1466996e89785dc7cd6c172605aa8a70d69b86",
+    "Experiments/FirefoxNativeUI/pinned-viewport.h": "26fb4a3cecd0bcff8b941daef0f0e259ca89b302130b8b5ac23771f198b2a431",
+    "Experiments/FirefoxNativeUI/text.inc": "b20927a72ecc124cbc46c426ed78cbb6a00bc97b70dbc5981336b661381f24f1",
+    "Experiments/FirefoxNativeUI/viewport.inc": "f2d9988b5f75e7588d68b775bb2ea37364b1ee3a504a5cdbc2704afeeb9c07c8",
+    "Libraries/NativeUI/Bridge/AArch64Detours.inc": "835cb1280c40bd4b0df180507d299a64d0d367d0aa3bdefdc2c8b7e4ab2219e1",
+    "Libraries/NativeUI/Bridge/Protocol.h": "a6755f7ac1461fa50bdfb7c8b596a2c12ab3041929998b1be7e974526dbec346",
+    "Libraries/NativeUI/Bridge/Transport.inc": "f3ec6a0b4718b5ecb20cc9142d33b2b965e32d9e327fbfcac7f60af93ab369d3",
+    "Libraries/NativeUI/GNUstep/Controls.m": "48d67faeff404d77718fd0a221692b94f535f82aff0072e8d0a32c9cbb44c1d3",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "96d9c37edc3010f0f0e91a6ba49ee5e98220be369719cfd59147e8c885455a0c",
+    "Libraries/NativeUI/NativeUI.h": "4b231220961a4ddc42fe58a0526ceb29cbd2143f87e50b425a9ca8a3ea6f7bf6",
+    "Libraries/NativeUI/README.md": "4135298db2120e896c423f51de0c54da157d9ae759a21d622a437e039fc59a96",
+    "Tests/Wayland/native_ui_firefox_viewport.py": "75e341c7df8ea9fc39bd270b2a2c75c4f32d1573254e8159fcd287d49559d7f0",
+    "Tests/Wayland/native_ui_session.py": "1dff008cf560ce7b55cb019fb2392ff8ec14e248b3a36ef5afd56289240b2e8b",
+    "docs/Native-Control-Integration.md": "287c3d31f4fa6b3f0747038bf02632a92c40ceb53bb38e1133ce5555ba7fb810"
+  },
+  "remaining": [
+    "Bind Firefox wheel defaults to the actual native responder, with trusted DOM cancellation and real compositor-seat parity; current Firefox wheel policy remains with the engine.",
+    "Qualify native long-document caret reveal, scrolling ancestor pages, pointer text selection/dragging, horizontal/nowrap modes, IME/accessibility, transforms and native CSS zoom/HiDPI. Unsupported 125 percent zoom currently uses the engine viewport.",
+    "Complete root web scroll-view ownership, rich text/contenteditable, other browser frontend controls/dialogs/menus, original Firefox Alt/menu-bar interaction and installed Workspace/PAM deployment.",
+    "Provide audited automatic adapter selection/installation and support other browser versions/architectures, Chrome/Vivaldi/Firefox derivatives, then continue remaining non-GNUstep GTK/Qt/KDE applications."
+  ],
+  "upstream_sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/ScrollContainerFrame.cpp",
+      "sha256": "7dd6128c6f75b8be2e00ebd38041f89959fbabe7e56533f04bd3d35ffe9dab98"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/ScrollContainerFrame.h",
+      "sha256": "9d9ce24af14f50db49718a102d6e861e6a2001816039bc40c434460603dcc17c"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsTextControlFrame.cpp",
+      "sha256": "b6a62c36824e5dc1a2c877d0157cd1285bf55e349acbebdd9ba3d0793f87cdfe"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsTextControlFrame.h",
+      "sha256": "86977cd9646ebeef327393c34d8238471a234f65c81c470db598fbdf99a99685"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.cpp",
+      "sha256": "9f23e869a6abae19240e780529cf5583efc2c54dd9b8aee7ce9d8d6e3d53518d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlElement.cpp",
+      "sha256": "6f125dfc69eadd5e5760215d91a9c7108279c078b1ec12dda793af1eb36d79f8"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.cpp",
+      "sha256": "c2609d0b8f2f559611408a6c048679c405e97677e0764e10948e72c12ac5c653"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.h",
+      "sha256": "a11e3cacf78679033081004f4454395d28f239c58790dc961aec19308bdd0762"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Selection.cpp",
+      "sha256": "1982aaa6fd303686ac5467657f32425f10a65763a41e203c1200c3e514f9ecbe"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/ScrollTypes.h",
+      "sha256": "d87ebb59255072293fa4c188826c962d3c1342fd5d9390db3cc3e14b7982296f"
+    }
+  ],
+  "guarded_boundaries": {
+    "REFLOW": "0x6dea4a4",
+    "COMPUTE_RECT": "0x6dfb7f4",
+    "LAYOUT_RANGE": "0x6dec578",
+    "SCROLL_IMPL": "0x6defb18",
+    "SCROLL_CSS": "0x6df18c0",
+    "FRAME_FIELDS": "0x47a0b84",
+    "SELECTION_SCROLL": "0x480cb4c",
+    "SELECTION_CONTROLLER": "0x58b5080",
+    "SELECTION_GET": "0x58bf7e8"
+  },
+  "abi_evidence": {
+    "scroll_port_byte": 616,
+    "scrolled_frame_byte": 280,
+    "child_position_byte": 8,
+    "textarea_control_state_byte": 304,
+    "app_units_per_css_pixel": 60,
+    "nsrect_return": "Nontrivial C++ nsRect uses AArch64 x8 out pointer",
+    "point_argument": "Two int32 fields passed together in x1",
+    "selection_scroll_axes": "Each AxisScrollParams occupies one uint64 argument, as audited in the engine queued-event caller",
+    "normal_selection_type": 1
+  }
+}

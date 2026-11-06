@@ -80,6 +80,7 @@ static void echo_native_selection(struct Widget *w) {
       free(model.value);
     }
   }
+  if(multiline_viewport_enabled&&w->kind==NXS_TEXTAREA)echo_text_viewport(w);
 }
 static struct NXSResponse *end_text_pointer(struct Widget *w) {
   struct NXSResponse *response=range_settle(w,widget_request(w,4,w->range_x,w->range_y,0));
@@ -115,7 +116,11 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
     .kind=w->kind,.control=w->id,.text_size=length,.selection_start=model.start,
     .selection_length=model.end-model.start,.editable=model.editable};
   memcpy(request+1,model.value,length);response=exchange_bytes(request,size);free(request);
-  if(!response||response->parts[3].x!=1||!button_cache_update(w,response))response=NULL;
+  if(!response||response->parts[3].x!=1){response=NULL;goto done;}
+  if(multiline_viewport_enabled&&w->kind==NXS_TEXTAREA) {
+    response=sync_viewport_widget(w)?widget_request(w,5,0,0,0):NULL;
+  }
+  if(!response||!button_cache_update(w,response))response=NULL;
  done:free(model.value);return response;
 }
 static int text_notification(int fd,unsigned condition,void *unused) {

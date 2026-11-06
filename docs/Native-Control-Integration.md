@@ -61,8 +61,13 @@ pages without wheel listeners. Ordinary GNUstep and browser windows agree on
 real-seat full/fractional steps after correcting the Wayland backend's axis
 normalization. The adapter restores viewport state after host replacement.
 See the [wheel qualification](../Libraries/NativeUI/wheel-qualification.json).
-Root-document wheel behavior, touch momentum,
-caret/autoscroll, wrap modes, Firefox viewport integration and Firefox's original
+The pinned Firefox viewport now also consumes the shared native clip/document
+geometry and scroll API, preserving real engine scroll events, native pixels
+and arrow tracking through host replacement. Its hidden editor no longer
+overrides native offsets with an independently laid-out caret. See the
+[Firefox viewport qualification](../Experiments/FirefoxNativeUI/viewport-qualification.json).
+Root-document wheel behavior, Firefox native wheel ownership, touch momentum,
+long-document caret/autoscroll, broader wrap modes and Firefox's original
 Alt/menu-bar interaction remain open, so complete text-area support is unproven.
 See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json)
 and [viewport qualification](../Libraries/NativeUI/multiline-viewport-qualification.json).
