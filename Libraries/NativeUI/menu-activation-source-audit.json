@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-07",
+  "baseline": "8278d99e",
+  "qualification": "menu-activation-qualification.json",
+  "no_browser_or_appkit_recompile": true,
+  "no_copied_control_drawing_layout_key_matching_or_tracking": true,
+  "public_native_ui_header_unchanged": true,
+  "native_source_reference": {
+    "path": ".build/native-ui/menu-source/NSApplication.m",
+    "sha256": "9f63bfce8820a1c2f6e231eb680b0fc618eca6a871f7fbdd01920551dc006f25",
+    "finding": "AppIconView mouseDown: already requests main-menu input focus after explicit activation when no key/main window exists; the shared backend and compositor must permit that explicit fallback."
+  },
+  "source_sha256": {
+    "Applications/Compositor/src/application.h": "55c1bc133677183c650b719c7845fb1b9aca798449e9ff9598e3a65b2a460034",
+    "Applications/Compositor/src/control.h": "2f728f24e750fd8a8aed487eb8b984ac01a4d078e3ece565e6e7e8cded4ceaca",
+    "Applications/Compositor/src/main.c": "e6f05d994e8bf2a5bafb6a3d3dcefcccb0b36f946c072975777b65103034221e",
+    "Applications/Compositor/src/shell.h": "9e4d07f559d605a98fd8a287eb9a010c944a3f095fc195d51c223cf3971388d8",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "b271457b016940c092facd303542961e5e257f0a5baf5a8e9e5efee3caf500a7",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer+Application.m": "59ad55eb797b299f4ff917bd2db06c0868ca3bb07053c2b00830d64d641dcf93",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer.h": "ceb71be763d1284185aa8e4aa3ce2437c415769b1fc8b9a7e16f661941f790a9",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer.m": "03d963cc8a6acdcac8a40992a18304a9ed90bc279f5060546f1fa11353fd58d7",
+    "Libraries/gnustep/back/Source/wayland/protocols/nextspace-application-v1.xml": "4a177989a664a34c128ec3eed1de69b4f5e547c85ed1c6bc817b6695a4516597",
+    "Tests/Wayland/native_ui_desktop.py": "5a9669b820373f016b75c43485621739f0bb35a36df989aedf73d6675c0bb026",
+    "Tests/Wayland/native_ui_desktop_chromium.py": "39f413ea6d13d6ce59446b9f57934b7dae3608b40ce0687cd0719f3fdb41589f",
+    "Tests/Wayland/registry-probe.c": "8c7da6493d6d8a73fa7218eb8a368621d99abe6807ad145ee3c0e763ece52da8",
+    "Tests/Wayland/activation_fallback.py": "43be96952bebd625ac599e78321107174a81a756713ed8473951220709cc1222"
+  },
+  "public_header_sha256": "4b231220961a4ddc42fe58a0526ceb29cbd2143f87e50b425a9ca8a3ea6f7bf6",
+  "runtime_audit": ".build/native-ui/menu-activation-runtime-audit.json"
+}

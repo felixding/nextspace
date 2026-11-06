@@ -285,6 +285,7 @@ void WaylandUpdateFrameMetrics(struct window *window);
 void WaylandSetupDecoration(struct window *window);
 struct ns_frame_extents WaylandFrameInsets(struct window *window);
 void WaylandUpdateTitleState(struct window *window);
+BOOL WaylandMenuActivationFallback(struct window *window);
 NSSize WaylandSurfaceSize(struct window *window);
 NSPoint WaylandSurfacePoint(struct window *window, NSPoint point);
 NSPoint WaylandSurfaceOrigin(struct window *window);

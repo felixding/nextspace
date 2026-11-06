@@ -409,7 +409,17 @@ native menu window and asks native layout to size it. Browser bridges restore
 live models after native-host replacement; Firefox also restores a retained
 textarea's canonical scroll position when a tab recreates its native binding.
 See [desktop menu qualification](../Libraries/NativeUI/desktop-menu-qualification.json).
-Menu-only application activation, other builds/derivatives and remaining native
+The shared Wayland backend also forwards AppKit's existing explicit main-menu
+activation when an app has no document window. Application protocol v9 makes
+that fallback opt-in, retains normal activation-token validation and prefers an
+ordinary document when present. NativeUI proxy menus opt out through
+`GSSuppressMenuActivation`, preserving their represented browser's keyboard
+focus. No app-specific activation or copied menu/key implementation is needed.
+The [activation qualification](../Libraries/NativeUI/menu-activation-qualification.json)
+records 136 passing checks, including real icon double-clicks, native Quit,
+browser focus during menu interaction and host replacement. Browser and AppKit
+binaries are unchanged.
+Other builds/derivatives, cross-desktop menu-only activation and remaining native
 browser/application controls still need qualification.
 
 The NativeUI provider now exposes optional application menus built from real

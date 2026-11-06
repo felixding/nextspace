@@ -24,7 +24,7 @@ XML retains its license notices. `manifest.json` records provenance and hashes.
 | primary-selection-unstable-v1 | Focused primary offers, separate from the persistent clipboard |
 | text-input-unstable-v3 | Native text-client focus, UTF-8 surrounding text, preedit, commit and deletion |
 | input-method-unstable-v2 + virtual-keyboard-unstable-v1 | Session-authorized IME, candidate surfaces and forwarding of unconsumed keys |
-| nextspace_application_v1 v1–8 | Owned placement, preferred output, focus hints, levels, ordering, minimization, frame metadata/extents, validated drag context, retained presentation, read-only work areas and gesture-authorized color selection |
+| nextspace_application_v1 v1–9 | Owned placement, preferred output, focus hints, levels, ordering, minimization, frame metadata/extents, validated drag context, retained presentation, read-only work areas, gesture-authorized color selection and explicit auxiliary activation fallback |
 | nextspace_shell_v1 v1–18 | Authorized window enumeration, placement, activation, window state, desktop assignment/shortcuts, icon tracking, output transactions, input settings, desktop color, work areas, maximized dragging, frame click timing/appearance, session locking and hardware gamma |
 | wlr-layer-shell v1 client | Upstream client support; not advertised by the prototype compositor |
 
@@ -56,6 +56,16 @@ session locking and output-layout changes end the interaction. Ordinary clients
 receive neither a screenshot capability nor clicks intended to select a color.
 The GNUstep bridge restores the original panel color after cancellation; an
 unavailable extension beeps and returns without starting a tracking loop.
+
+Application v9 adds `set_activation_fallback` for an owned auxiliary window.
+It defaults off and does not activate on map, ordering or pointer clicks.
+Explicit activation still requires the existing xdg-activation input provenance
+or the privileged shell. A visible ordinary-focus window of the same client is
+preferred; without one the opted-in auxiliary receives keyboard events. Disabling
+the hint revokes that fallback focus. The GNUstep backend opts main menus in so
+the existing AppKit icon activation works when an application has no document.
+NativeUI proxy menus opt out because their represented browser retains keyboard
+focus. No application name participates in this policy.
 
 Other clients can negotiate server frames through xdg-decoration; an unspecified preference selects
 the compositor frame, while an explicit client-side preference keeps the client

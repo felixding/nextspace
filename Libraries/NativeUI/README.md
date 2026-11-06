@@ -684,3 +684,21 @@ The append-only API is 384 bytes on ARM64, ABI 1, with menu capability mask 15.
 The new loader safely reports query unsupported for the preceding 376-byte
 provider. See the [global-key qualification](../../Experiments/DBusMenus/global-key-qualification.json)
 for provider, native pixel, transport and pinned Firefox command-boundary checks.
+
+## Menu-only application activation
+
+The shared Wayland backend uses application protocol v9 to forward AppKit's
+existing explicit main-menu activation when an app has no key/main document.
+Ordinary mapping and pointer clicks do not initially activate the menu, and
+an ordinary document remains the preferred focus target. NativeUI sets
+`GSSuppressMenuActivation` before creating its host application, so menus that
+represent a browser do not take the browser's keyboard focus. There are no
+application-name rules or copies of native menu/key behavior in this path.
+
+The [activation qualification](menu-activation-qualification.json) records 136
+passing protocol, actual desktop and direct-native checks: native icon activation
+and Quit without a document, proxy title/submenu input, browser focus and host
+replacement. It also retains 153 whole-control desktop comparisons and four
+complete native-menu comparisons. Browser/AppKit binaries and the public
+NativeUI ABI remain unchanged. Custom Workspace placeholder icons, cross-desktop
+menu-only activation and the wider application/control matrix remain unqualified.

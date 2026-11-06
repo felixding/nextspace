@@ -331,6 +331,7 @@ static void color_pick_cancel(struct wl_client *client, struct wl_resource *reso
   uint32_t request_id);
 static void color_pick_finish(struct nextspace_server *server, uint32_t phase, uint32_t argb);
 static void focus_toplevel(struct nextspace_toplevel *view, struct wlr_surface *surface);
+static void activate_toplevel(struct nextspace_toplevel *view);
 static void shell_window_changed(struct nextspace_toplevel *view);
 static void shell_window_closed(struct nextspace_toplevel *view);
 static void shell_focus_changed(struct nextspace_server *server);
@@ -463,13 +464,24 @@ static void request_activate(struct wl_listener *listener, void *data)
      token creation. Tokens without that input provenance cannot steal focus. */
   if (event->token->seat != server->seat || !event->token->surface) return;
   struct nextspace_toplevel *view = view_for_surface(server, event->surface);
-  if (!view || !view->mapped || (view->application_window && !view->application_window->accepts_focus)) return;
+  if (!view || !view->mapped || (view->application_window &&
+      !view->application_window->accepts_focus && !view->application_window->activation_fallback)) return;
   wlr_log(WLR_DEBUG, "Activation request for window %u", view->id);
   if (!view->sticky) desktop_switch(server, view->desktop);
-  focus_toplevel(view, event->surface);
+  if (view->application_window && view->application_window->activation_fallback)
+    policy_set_presented(view, true);
+  activate_toplevel(view);
 }
 
-static void focus_toplevel(struct nextspace_toplevel *toplevel, struct wlr_surface *surface) {
+static void focus_toplevel_internal(struct nextspace_toplevel *toplevel,
+    struct wlr_surface *surface, bool activation);
+static void focus_toplevel(struct nextspace_toplevel *toplevel, struct wlr_surface *surface)
+{ focus_toplevel_internal(toplevel, surface, false); }
+static void activate_toplevel(struct nextspace_toplevel *view)
+{ focus_toplevel_internal(view, view_surface(view), true); }
+
+static void focus_toplevel_internal(struct nextspace_toplevel *toplevel,
+    struct wlr_surface *surface, bool activation) {
 	/* Note: this function only deals with keyboard focus. */
 	if (toplevel == NULL || !policy_visible(toplevel)) {
 		return;
@@ -490,11 +502,18 @@ static void focus_toplevel(struct nextspace_toplevel *toplevel, struct wlr_surfa
 				toplevel = candidate; surface = view_surface(candidate); break;
 			}
 		}
+		/* An explicitly activated menu can host its application's keys when
+		   there is no document. A proxy menu never opts into this fallback. */
+		if (!toplevel && requested->application_window->activation_fallback &&
+		    (activation || seat->keyboard_state.focused_surface == view_surface(requested))) {
+			toplevel = requested; surface = view_surface(requested);
+		}
 		wlr_scene_node_raise_to_top(&requested->scene_tree->node);
 		if (!toplevel) {
 			if (seat->keyboard_state.focused_surface == view_surface(requested)) {
 				view_activate(requested, false);
 				wlr_seat_keyboard_notify_clear_focus(seat);
+				shell_focus_changed(server);
 				decoration_update_all(server);
 			}
 			return;

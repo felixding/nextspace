@@ -145,7 +145,7 @@ static void shell_activate(struct wl_client *client, struct wl_resource *resourc
     if (!view->sticky) desktop_switch(view->server, view->desktop);
     policy_set_presented(view, true);
     policy_set_shaded(view, false); policy_set_minimized(view, false);
-    focus_toplevel(view, view_surface(view));
+    activate_toplevel(view);
   }
 }
 

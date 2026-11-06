@@ -1,0 +1,172 @@
+{
+  "date": "2026-11-07",
+  "baseline": "8278d99e",
+  "scope": "Application-agnostic explicit activation for native menu-only applications and browser proxy focus retention",
+  "status": "qualified for private scale-1 pinned-browser fixtures; full native application integration remains incomplete",
+  "checks": 136,
+  "image_comparisons": {
+    "complete_actual_desktop_control_to_independent_native": 153,
+    "complete_menu_to_independent_native": 2,
+    "complete_chromium_menu_before_and_after_recovery": 2
+  },
+  "runs": {
+    "firefox": {
+      "path": "/var/tmp/nxs-menu-only-02",
+      "checks": 70,
+      "native_control_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      },
+      "results_sha256": "f26be8fecba2159c3790eecc6856ca550794ba1ab076286bd4d810f9c3f5c9e3"
+    },
+    "chromium": {
+      "path": "/var/tmp/nxs-menu-activation-chromium-01",
+      "checks": 43,
+      "native_control_images": 0,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      },
+      "results_sha256": "04e151926668d7f618f1c9c0748c3b6719499cf4520081151f9df8437e89a1e0"
+    },
+    "native": {
+      "path": "/var/tmp/nxs-menu-activation-native-01",
+      "checks": 20,
+      "native_control_images": 0,
+      "cleanup": [
+        {
+          "pid": 112321,
+          "exit": 0
+        },
+        {
+          "pid": 112327,
+          "exit": -15
+        },
+        {
+          "pid": 112328,
+          "exit": 0
+        },
+        {
+          "pid": 112332,
+          "exit": 0
+        }
+      ],
+      "results_sha256": "d7b84baf4885e546e7d40335e4dfbf873ccf5b6e9f28cddc62ae2ebe26fdb333"
+    },
+    "protocol": {
+      "path": "/var/tmp/nxs-menu-activation-protocol-02",
+      "checks": 3,
+      "native_control_images": 0,
+      "cleanup": [
+        {
+          "pid": 111679,
+          "exit": 0
+        },
+        {
+          "pid": 111682,
+          "exit": 0
+        },
+        {
+          "pid": 111683,
+          "exit": 0
+        },
+        {
+          "pid": 111684,
+          "exit": 0
+        }
+      ],
+      "results_sha256": "da5a3146af5c2194fcfe8618a2a43137d6ed6121391e487f66b79cb488d80a84"
+    }
+  },
+  "runtime_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "bytes": 308415392
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "bytes": 549896
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "bytes": 171640536
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "bytes": 10063865
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac",
+      "bytes": 78144
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-compositor-01/nextspace-compositor",
+      "sha256": "97d506bfe3e4127a797b92c27ca98cef3d474b376e92f7ad97d78e30f22bbb18",
+      "bytes": 1311880
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6",
+      "bytes": 1258024
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-menu-restore-02-hook.so",
+      "sha256": "4e1ac473d53a3cf774343112446732cd9da27d635efce90e927baad1ec1cdaa4",
+      "bytes": 164472
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-menu-restore-01-hook.so",
+      "sha256": "3cb1e5d50716a4b15d991e797a2b5fdc76040f344715dcb3b96a0db65597976e",
+      "bytes": 153824
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "sha256": "4a09b4725034e9552e704ba21e2e89aa450e3b7dd9dab9eacb259b7447ead6e2",
+      "bytes": 1041800
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-sdk-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1",
+      "sha256": "5e396bbdd75df7a95152c6ea7c1f343e33ef086ce70de9454f87fbbda5b5bd10",
+      "bytes": 69968
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-sdk-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1",
+      "sha256": "f2249a87620df1e8119d89c17754fa79715e20d13bf4db5d6fd178f107fa38eb",
+      "bytes": 72664
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/menu-activation-sdk-01/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1",
+      "sha256": "7b3c83fe0b7e9d7ebe39f6fee1ec3b2ac55f8f371a72927317a3666a4023d7a3",
+      "bytes": 226312
+    }
+  },
+  "unchanged_binary_pins": {
+    "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+    "supervisor": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac",
+    "workspace": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6",
+    "chromium_adapter": "4e1ac473d53a3cf774343112446732cd9da27d635efce90e927baad1ec1cdaa4",
+    "firefox_adapter": "3cb1e5d50716a4b15d991e797a2b5fdc76040f344715dcb3b96a0db65597976e"
+  },
+  "package_count": 1050,
+  "qualification_limits": [
+    "Private headless scale-1 desktop and recorded pinned browser builds only",
+    "Native icon activation, menu title clicks and native Quit without a document window; proxy menus retain browser keys",
+    "Custom Workspace placeholder icons and cross-desktop menu-only activation remain unqualified",
+    "Full browser chrome, other browser builds and derivatives, GTK/Qt/KDE integration and broader input/accessibility/scaling remain incomplete"
+  ]
+}

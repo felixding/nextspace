@@ -17,7 +17,9 @@ parser.add_argument('--no-frontend',action='store_true')
 parser.add_argument('--document',type=Path,help='Optional owned HTML control fixture')
 parser.add_argument('--restart-host',action='store_true',help='Verify actual desktop native pixels after owned host replacement')
 parser.add_argument('--menus',action='store_true',help='Verify exclusive detached menus across the actual desktop applications')
+parser.add_argument('--menu-only-activation',action='store_true',help='Verify actual icon activation and native keys without a document window')
 args=parser.parse_args()
+if args.menu_only_activation and not args.menus:parser.error('--menu-only-activation requires --menus')
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','firefox']:
  assert getattr(args,name).is_file(),name
@@ -172,6 +174,7 @@ try:
   windows=menu_selection(label,hosts[0],window['id'])
   menu=next(w for w in windows if w['pid']==hosts[0] and w['level']==20 and w['visible'])
   check(label+'-represented-application-title',menu['title']==window['app_id'],title=menu['title'])
+  if args.menu_only_activation:check(label+'-proxy-declines-activation-fallback',menu.get('activation_fallback') is False)
   return windows
  def menu_shortcut(label):
   js('document.body.focus({preventScroll:true});return true')
@@ -217,6 +220,28 @@ try:
  compare('initial')
  if args.menus:
   initial=browser_menu('browser-menu')
+  if args.menu_only_activation:
+   hosts=owned_hosts()
+   candidates=[w for w in initial if w['level']==20 and w['pid'] not in hosts and not w['legacy'] and
+     not any(d['pid']==w['pid'] and d['accepts_focus'] for d in initial)]
+   check('owned-menu-only-application-available',bool(candidates),candidates=candidates)
+   utility=candidates[0];pid=utility['pid']
+   check('menu-only-window-declares-fallback',utility.get('activation_fallback') is True and not utility['accepts_focus'])
+   icon=next(w for w in initial if w['pid']==pid and w['style']&64 and w['visible'])
+   check('menu-only-application-belongs-to-desktop',pid in observed,pid=pid)
+   assert command('pointer '+str(round(icon['x']+icon['width']/2))+' '+str(round(icon['y']+icon['height']/2)))['ok']
+   assert command('button 272')['ok'];time.sleep(.4)
+   menu_selection('menu-only-single-click-keeps-browser',hosts[0],window['id'])
+   assert command('button 272')['ok'];time.sleep(.08);assert command('button 272')['ok']
+   active_windows=menu_selection('menu-only-icon-activation',pid,utility['id'])
+   active_menu=next(w for w in active_windows if w['id']==utility['id'])
+   assert command('pointer '+str(round(active_menu['x']+active_menu['width']/2))+' '+str(active_menu['y']+10))['ok']
+   assert command('button 272')['ok']
+   menu_selection('menu-only-title-click-retains-activation',pid,utility['id'])
+   for event in ['key 56 1','key 16 1','key 16 0','key 56 0']:assert command(event)['ok']
+   wait(lambda:command('windows'),lambda windows:not any(w['pid']==pid for w in windows))
+   check('menu-only-native-quit-key',not any(w['pid']==pid for w in command('windows')))
+   assert command('focus '+str(window['id']))['ok'];browser_menu('browser-after-menu-only-application')
   native_documents={w['pid']:w for w in initial if w['pid']!=browser.pid and w['accepts_focus'] and w['level']==0 and not w['legacy']}
   check('multiple-native-desktop-applications',len(native_documents)>=2,applications=list(native_documents))
   for index,(pid,document) in enumerate(native_documents.items()):
@@ -235,6 +260,7 @@ try:
    (root/'native-submenu-popups.json').write_text(json.dumps(popups,indent=2)+'\n')
    windows=command('windows')
    check('native-submenu-coexists-with-one-main-menu',len([w for w in windows if w['level']==20 and w['visible']])==1)
+   check('native-submenu-retains-browser-keyboard-focus',any(w['id']==window['id'] and w['focused'] for w in windows))
    desktop('native-submenu')
    pid,document=next(iter(native_documents.items()));assert command('focus '+str(document['id']))['ok']
    menu_selection('native-app-during-submenu',pid,document['id'])

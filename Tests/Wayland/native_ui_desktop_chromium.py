@@ -12,6 +12,7 @@ for name in ['supervisor','compositor','workspace','capture-probe','library','ho
  parser.add_argument('--'+name,type=Path,required=True)
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--port',type=int,default=9246)
+parser.add_argument('--activation-fallback',action='store_true',help='Verify proxy menus decline menu-only activation and retain document focus')
 args=parser.parse_args()
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','chromium']:
@@ -142,7 +143,15 @@ try:
   windows=menu_selection(label,hosts[0],window['id'])
   menu=next(w for w in windows if w['pid']==hosts[0] and w['level']==20 and w['visible'])
   check(label+'-represented-application-title',menu['title']=='Chromium',title=menu['title'])
+  if args.activation_fallback:check(label+'-proxy-declines-activation-fallback',menu.get('activation_fallback') is False)
   return windows
+ def menu_title_click(label,windows):
+  owner=owned_hosts()[0]
+  menu=next(w for w in windows if w['pid']==owner and w['level']==20 and w['visible'])
+  assert command('pointer '+str(round(menu['x']+menu['width']/2))+' '+str(menu['y']+10))['ok']
+  assert command('button 272')['ok']
+  # Do not refocus the browser: that would conceal focus theft by the proxy.
+  return menu_selection(label,owner,window['id'])
  def shortcut(label):
   before=pages();start=len((root/'chromium-hook.log').read_text())
   for event in ['key 56 1','key 20 1','key 20 0','key 56 0']:assert command(event)['ok']
@@ -152,6 +161,7 @@ try:
   check(label+'-original-document-retained',any(page['url']==url for page in after))
   assert command('focus '+str(window['id']))['ok']
  initial=browser_menu('chromium-menu')
+ if args.activation_fallback:initial=menu_title_click('chromium-menu-title-retains-focus',initial)
  documents={w['pid']:w for w in initial if w['pid']!=browser.pid and w['accepts_focus'] and w['level']==0 and not w['legacy']}
  check('multiple-native-desktop-applications',len(documents)>=2,applications=list(documents))
  for index,(pid,document) in enumerate(documents.items()):
@@ -166,7 +176,9 @@ try:
  os.kill(old_hosts[0],signal.SIGKILL)
  replacement=wait(owned_hosts,lambda pids:len(pids)==1 and pids[0]!=old_hosts[0])
  wait(lambda:(root/'session.stdout').read_text(),lambda text:text.count('NEXTSPACE_NATIVE_UI_SOCKET=')>before_ready)
- browser_menu('host-replaced-menu')
+ if args.activation_fallback:check('host-replacement-retains-browser-keyboard-focus',any(w['id']==window['id'] and w['focused'] for w in command('windows')))
+ restored=browser_menu('host-replaced-menu')
+ if args.activation_fallback:menu_title_click('host-replaced-menu-title-retains-focus',restored)
  wait(lambda:desktop('host-replaced-menu-pixels'),lambda image:ImageChops.difference(image.crop(menu_box),before_replacement).getbbox() is None)
  check('complete-native-menu-pixels-after-host-replacement',True)
  shortcut('host-replaced')

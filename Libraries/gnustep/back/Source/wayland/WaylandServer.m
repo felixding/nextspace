@@ -108,7 +108,7 @@ handle_global(void *data, struct wl_registry *registry, uint32_t name,
   NSDebugLog(@"wayland: registering interface '%s'", interface);
   if (strcmp(interface, nextspace_application_v1_interface.name) == 0)
   {
-      wlconfig->application_manager = wl_registry_bind(registry, name, &nextspace_application_v1_interface, MIN(version, 8));
+      wlconfig->application_manager = wl_registry_bind(registry, name, &nextspace_application_v1_interface, MIN(version, 9));
     WaylandSetupApplicationManager(wlconfig);
   }
   else if (strcmp(interface, wp_fractional_scale_manager_v1_interface.name) == 0)
@@ -1285,7 +1285,8 @@ static const struct xdg_activation_token_v1_listener activation_listener = { .do
 {
   struct window *window = get_window_with_id(wlconfig, win);
   if (!window || !window->toplevel || window->activation_token || !wlconfig->activation ||
-      wlconfig->keyboard_focus == window || ![GSWindowWithNumber(win) canBecomeKeyWindow]) return;
+      wlconfig->keyboard_focus == window ||
+      (![GSWindowWithNumber(win) canBecomeKeyWindow] && !WaylandMenuActivationFallback(window))) return;
   struct window *source = wlconfig->pointer.focus ?: wlconfig->keyboard_focus;
   uint32_t serial = wlconfig->pointer.focus ? wlconfig->pointer.serial : wlconfig->event_serial;
   if (!source || !source->surface || !serial) return;

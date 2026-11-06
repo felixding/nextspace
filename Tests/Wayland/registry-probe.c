@@ -31,7 +31,7 @@ struct globals {
   struct zwp_primary_selection_device_manager_v1 *primary_manager;
   bool focus_mode;
   bool policy_mode;
-  bool activation_mode;
+  bool activation_mode, activation_fallback_mode;
   struct xdg_activation_v1 *activation;
   uint32_t activation_serial;
   struct wl_surface *activation_source;
@@ -48,6 +48,12 @@ static void shm_format(void *data, struct wl_shm *shm, uint32_t format) {}
 static const struct wl_shm_listener shm_listener = {.format = shm_format};
 static void ping(void *data, struct xdg_wm_base *shell, uint32_t serial) { xdg_wm_base_pong(shell, serial); }
 static const struct xdg_wm_base_listener shell_listener = {.ping = ping};
+static void areas_reset(void *data, struct nextspace_application_v1 *object) {}
+static void area(void *data, struct nextspace_application_v1 *object, const char *name,
+    int32_t x, int32_t y, int32_t width, int32_t height) {}
+static const struct nextspace_application_v1_listener application_listener = {
+  .work_areas_reset = areas_reset, .work_area = area, .work_areas_done = areas_reset
+};
 
 static void global(void *data, struct wl_registry *registry, uint32_t name,
     const char *interface, uint32_t version)
@@ -76,9 +82,12 @@ static void global(void *data, struct wl_registry *registry, uint32_t name,
     globals->data_manager = wl_registry_bind(registry, name, &wl_data_device_manager_interface, 1);
   if (strcmp(interface, "wl_compositor") == 0)
     globals->compositor = wl_registry_bind(registry, name, &wl_compositor_interface, 1);
-  if (strcmp(interface, "nextspace_application_v1") == 0)
+  if (strcmp(interface, "nextspace_application_v1") == 0) {
     globals->application = wl_registry_bind(registry, name, &nextspace_application_v1_interface,
-      globals->color_pick_mode && version >= 8 ? 8 : globals->policy_mode && version >= 3 ? 3 : globals->focus_mode && version >= 2 ? 2 : 1);
+      globals->activation_fallback_mode && version >= 9 ? 9 : globals->color_pick_mode && version >= 8 ? 8 : globals->policy_mode && version >= 3 ? 3 : globals->focus_mode && version >= 2 ? 2 : 1);
+    if (nextspace_application_v1_get_version(globals->application) >= 6)
+      nextspace_application_v1_add_listener(globals->application, &application_listener, globals);
+  }
   if (strcmp(interface, "wl_shm") == 0) {
     globals->shm = wl_registry_bind(registry, name, &wl_shm_interface, 1);
     wl_shm_add_listener(globals->shm, &shm_listener, NULL);
@@ -303,6 +312,105 @@ static int test_activation(struct wl_display *display, struct globals *globals)
   destroy_window(&first); destroy_window(&second); wl_keyboard_destroy(keyboard);
   wl_display_roundtrip(display); alarm(0);
   puts("Activation validates seat, serial, source focus and single-use tokens: PASS");
+  return 0;
+}
+
+static int activation_roundtrips(struct wl_display *display)
+{
+  for (int i = 0; i < 3; i++) if (wl_display_roundtrip(display) < 0) return 0;
+  return 1;
+}
+static struct nextspace_window_v1 *activation_owned(struct globals *globals, struct test_window *window)
+{
+  struct nextspace_window_v1 *object = nextspace_application_v1_get_window(globals->application, window->surface);
+  nextspace_window_v1_add_listener(object, &window_listener, window);
+  return object;
+}
+static struct xdg_activation_token_v1 *activation_token(struct wl_display *display,
+    struct globals *globals, struct wl_surface *source, int trial)
+{
+  struct xdg_activation_token_v1 *token = xdg_activation_v1_get_activation_token(globals->activation);
+  xdg_activation_token_v1_add_listener(token, &activation_listener, globals);
+  if (trial) {
+    xdg_activation_token_v1_set_serial(token, trial == 1 ? UINT32_MAX : globals->activation_serial, globals->seat);
+    xdg_activation_token_v1_set_surface(token, source);
+  }
+  xdg_activation_token_v1_commit(token);
+  while (!globals->activation_token) if (wl_display_dispatch(display) < 0) return NULL;
+  return token;
+}
+static void activation_release_token(struct globals *globals, struct xdg_activation_token_v1 *token)
+{
+  xdg_activation_token_v1_destroy(token);
+  free(globals->activation_token); globals->activation_token = NULL;
+}
+static int test_activation_fallback(struct wl_display *display, struct globals *globals)
+{
+  if (!globals->activation || !globals->seat || !globals->application ||
+      nextspace_application_v1_get_version(globals->application) < 9) return 1;
+  alarm(15);
+  struct wl_keyboard *keyboard = wl_seat_get_keyboard(globals->seat);
+  wl_keyboard_add_listener(keyboard, &activation_keyboard, globals);
+  struct test_window menu = {0};
+  if (!create_window(globals, &menu, "ActivationFallback")) return 1;
+  struct nextspace_window_v1 *fallback = activation_owned(globals, &menu);
+  nextspace_window_v1_set_accepts_focus(fallback, 0);
+  nextspace_window_v1_set_activation_fallback(fallback, 1);
+  wl_surface_commit(menu.surface);
+  while (!menu.positioned) if (wl_display_dispatch(display) < 0) return 1;
+  if (!activation_roundtrips(display) || menu.activated) return 1;
+  for (int trial = 0; trial < 5; trial++) {
+    /* A valid token alone must not bypass the opt-in. */
+    nextspace_window_v1_set_activation_fallback(fallback, trial != 3);
+    struct test_window document = {0};
+    if (!create_window(globals, &document, "ActivationSource")) return 1;
+    struct nextspace_window_v1 *source = activation_owned(globals, &document);
+    wl_surface_commit(document.surface);
+    while (!document.activated || globals->activation_source != document.surface)
+      if (wl_display_dispatch(display) < 0) return 1;
+    struct xdg_activation_token_v1 *token = activation_token(display, globals,
+      trial == 2 ? menu.surface : document.surface, trial);
+    if (!token) return 1;
+    /* Remove ordinary focus eligibility after token creation. The fallback
+       now has no document, so rejection cannot be masked by document routing. */
+    nextspace_window_v1_set_accepts_focus(source, 0);
+    if (!activation_roundtrips(display) || document.activated || globals->activation_source) return 1;
+    xdg_activation_v1_activate(globals->activation, globals->activation_token, menu.surface);
+    if (!activation_roundtrips(display) || menu.activated != (trial == 4) || document.activated) return 1;
+    nextspace_window_v1_set_accepts_focus(source, 1);
+    xdg_activation_v1_activate(globals->activation, globals->activation_token, document.surface);
+    if (!activation_roundtrips(display) || menu.activated != (trial == 4) || document.activated) return 1;
+    activation_release_token(globals, token);
+    nextspace_window_v1_destroy(source); destroy_window(&document);
+    if (!activation_roundtrips(display)) return 1;
+  }
+  /* Refreshing normal hints must retain an explicitly active fallback. */
+  nextspace_window_v1_set_accepts_focus(fallback, 0);
+  if (!activation_roundtrips(display) || !menu.activated) return 1;
+  nextspace_window_v1_set_activation_fallback(fallback, 0);
+  if (!activation_roundtrips(display) || menu.activated || globals->activation_source) return 1;
+  nextspace_window_v1_set_activation_fallback(fallback, 1);
+  if (!activation_roundtrips(display) || menu.activated) return 1;
+  struct test_window document = {0};
+  if (!create_window(globals, &document, "ActivationPreferredDocument")) return 1;
+  struct nextspace_window_v1 *source = activation_owned(globals, &document);
+  wl_surface_commit(document.surface);
+  while (!document.activated || globals->activation_source != document.surface)
+    if (wl_display_dispatch(display) < 0) return 1;
+  struct xdg_activation_token_v1 *token = activation_token(display, globals, document.surface, 3);
+  if (!token) return 1;
+  xdg_activation_v1_activate(globals->activation, globals->activation_token, menu.surface);
+  if (!activation_roundtrips(display) || menu.activated || !document.activated) return 1;
+  /* A routed activation still consumes its token. */
+  nextspace_window_v1_set_accepts_focus(source, 0);
+  xdg_activation_v1_activate(globals->activation, globals->activation_token, menu.surface);
+  if (!activation_roundtrips(display) || menu.activated || document.activated) return 1;
+  activation_release_token(globals, token);
+  nextspace_window_v1_destroy(source); destroy_window(&document);
+  nextspace_window_v1_destroy(fallback); destroy_window(&menu); wl_keyboard_destroy(keyboard);
+  if (!activation_roundtrips(display)) return 1;
+  alarm(0);
+  puts("Activation fallback: no implicit focus, authenticated single-use tokens, document preference and revocation: PASS");
   return 0;
 }
 
@@ -602,7 +710,8 @@ int main(int argc, char **argv)
     .clipboard_mode = invalid_drag || empty_drag || (argc >= 3 && strncmp(argv[1], "--clipboard-", 12) == 0),
     .primary_mode = argc >= 3 && strncmp(argv[1], "--primary-", 10) == 0,
     .invalid_primary = argc >= 3 && strcmp(argv[1], "--primary-invalid") == 0,
-    .activation_mode = argc == 2 && strcmp(argv[1], "--activation") == 0,
+    .activation_mode = argc == 2 && (strcmp(argv[1], "--activation") == 0 || strcmp(argv[1], "--activation-fallback") == 0),
+    .activation_fallback_mode = argc == 2 && strcmp(argv[1], "--activation-fallback") == 0,
     .focus_mode = argc == 2 && (strcmp(argv[1], "--no-focus") == 0 || strcmp(argv[1], "--color-source") == 0),
     .policy_mode = argc == 4 && strcmp(argv[1], "--window") == 0};
   struct wl_registry *registry = wl_display_get_registry(display);
@@ -623,7 +732,7 @@ int main(int argc, char **argv)
     wl_display_disconnect(display); return rejected ? 0 : 1;
   }
   if (globals.activation_mode) {
-    int status = test_activation(display, &globals);
+    int status = globals.activation_fallback_mode ? test_activation_fallback(display, &globals) : test_activation(display, &globals);
     wl_display_disconnect(display); return status;
   }
   if (empty_drag) {

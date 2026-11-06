@@ -269,6 +269,7 @@ int nxs_host_initialize(void)
     NSMutableDictionary *arguments=[NSMutableDictionary dictionaryWithDictionary:
       [defaults volatileDomainForName:NSArgumentDomain] ?: @{}];
     [arguments setObject:@YES forKey:@"GSSuppressAppIcon"];
+    [arguments setObject:@YES forKey:@"GSSuppressMenuActivation"];
     [defaults removeVolatileDomainForName:NSArgumentDomain];
     [defaults setVolatileDomain:arguments forName:NSArgumentDomain];
   }

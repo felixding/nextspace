@@ -343,6 +343,8 @@ static int control_ready(int fd, uint32_t mask, void *data)
       fprintf(f, ",\"accepts_focus\":%s,\"focused\":%s",
         !t->application_window || t->application_window->accepts_focus ? "true" : "false",
         server->seat->keyboard_state.focused_surface == view_surface(t) ? "true" : "false");
+      fprintf(f, ",\"activation_fallback\":%s",
+        t->application_window && t->application_window->activation_fallback ? "true" : "false");
       struct nextspace_appmenu *appmenu = appmenu_for_surface(server, view_surface(t));
       fprintf(f, ",\"appmenu_service\":"); json_string(f, appmenu && appmenu->service ? appmenu->service : "");
       fprintf(f, ",\"appmenu_path\":"); json_string(f, appmenu && appmenu->path ? appmenu->path : "");

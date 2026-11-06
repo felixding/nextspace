@@ -11,6 +11,16 @@ tested behavior and outstanding hardware/release gates. Build with `autoreconf -
 The build generates protocol bindings from the checked-in XML using
 `wayland-regenerate.sh`. EGL is intentionally outside this shared-memory gate.
 
+With application protocol v9, main menus opt into auxiliary activation fallback.
+AppKit already requests focus for its main menu on explicit icon activation when
+there is no key/main document. The backend now forwards that existing request;
+the compositor still validates its input token and prefers an ordinary document.
+Set `GSSuppressMenuActivation` in the argument defaults before creating NSApplication
+for a menu host that represents another application's model. NativeUI sets this
+alongside its existing icon suppression. This prevents proxy menus from taking
+their represented application's keyboard focus. Older protocol versions retain
+the previous nonactivating menu behavior.
+
 ## Other Wayland compositors
 
 NEXTSPACE's complete desktop requires its compositor and the session-launched

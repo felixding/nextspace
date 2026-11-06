@@ -6,7 +6,7 @@ struct nextspace_application_window {
   struct wl_listener outputs_update, buffer_destroy;
   char *output_name;
   int x, y, width, height;
-  bool positioned, accepts_focus;
+  bool positioned, accepts_focus, activation_fallback;
   uint32_t title_state;
   bool drag_prepared;
   uint32_t local_drag_actions, external_drag_actions;
@@ -159,6 +159,16 @@ static void application_set_level(struct wl_client *client, struct wl_resource *
   if (window->view) policy_set_level(window->view, level);
 }
 
+static void application_set_activation_fallback(struct wl_client *client,
+    struct wl_resource *resource, uint32_t enabled)
+{
+  struct nextspace_application_window *window = wl_resource_get_user_data(resource);
+  window->activation_fallback = enabled != 0;
+  if (window->view && !window->activation_fallback && !window->accepts_focus &&
+      window->view->server->seat->keyboard_state.focused_surface == view_surface(window->view))
+    focus_toplevel(window->view, view_surface(window->view));
+}
+
 static void application_order(struct wl_client *client, struct wl_resource *resource,
     int32_t direction, struct wl_resource *reference)
 {
@@ -246,7 +256,8 @@ static const struct nextspace_window_v1_interface application_window_impl = {
   .set_frame_extents = application_set_frame_extents,
   .set_document_edited = application_set_document_edited,
   .set_title_state = application_set_title_state,
-  .begin_color_pick = color_pick_begin, .cancel_color_pick = color_pick_cancel
+  .begin_color_pick = color_pick_begin, .cancel_color_pick = color_pick_cancel,
+  .set_activation_fallback = application_set_activation_fallback
 };
 
 static void application_get_window(struct wl_client *client, struct wl_resource *manager,
@@ -321,7 +332,7 @@ static void bind_application(struct wl_client *client, void *data, uint32_t vers
 
 static void create_application_global(struct nextspace_server *server)
 {
-  wl_global_create(server->wl_display, &nextspace_application_v1_interface, 8, server, bind_application);
+  wl_global_create(server->wl_display, &nextspace_application_v1_interface, 9, server, bind_application);
 }
 
 static void application_layout_changed(struct wl_listener *listener, void *data)

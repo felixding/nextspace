@@ -220,6 +220,13 @@ void WaylandUpdateTitleState(struct window *w)
     nextspace_window_v1_set_title_state(w->application_window, w->title_state);
 }
 
+BOOL WaylandMenuActivationFallback(struct window *w)
+{
+  return w->application_window && nextspace_window_v1_get_version(w->application_window) >= 9 &&
+    w->level == NSMainMenuWindowLevel &&
+    ![[NSUserDefaults standardUserDefaults] boolForKey:@"GSSuppressMenuActivation"];
+}
+
 void WaylandUpdateWindowHints(struct window *w)
 {
   WaylandUpdateTitleState(w);
@@ -239,6 +246,8 @@ void WaylandUpdateWindowHints(struct window *w)
     nextspace_window_v1_set_accepts_focus(w->application_window,
       w->level != NSMainMenuWindowLevel && w->level != NSSubmenuWindowLevel &&
       [GSWindowWithNumber(w->window_id) canBecomeKeyWindow]);
+  if (w->application_window && nextspace_window_v1_get_version(w->application_window) >= 9)
+    nextspace_window_v1_set_activation_fallback(w->application_window, WaylandMenuActivationFallback(w));
 }
 
 void WaylandSetupApplicationWindow(struct window *w)

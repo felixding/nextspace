@@ -1615,3 +1615,24 @@ wait for the opened document's native focus event after a modal reply. Timed-out
 requests retain process diagnostics before termination. Integration cleanup
 records shutdown failures, reaps owned processes and preserves the original
 test exception; a shutdown failure still fails an otherwise successful run.
+
+`activation_fallback.py --build COMPOSITOR_BUILD --output OUTPUT` exercises the
+registry probe's legacy auxiliary focus, existing xdg activation and v9 opt-in
+fallback modes on a private compositor. It checks missing/bad serials, an
+unfocused source, valid tokens without opt-in, single-use tokens, preference for
+an ordinary document, hint refresh, revocation and absence of implicit activation.
+
+`native_ui_desktop.py --menus --menu-only-activation` additionally identifies an
+owned native menu-only application by its windows and PID, then uses its actual
+icon and physical keys. Single-click retains browser focus; double-click selects
+the application's sole native menu; title interaction retains that activation;
+native Quit removes the application's windows. No application name selects the
+test subject. The held browser submenu check inspects actual keyboard focus
+before any explicit refocus. `native_ui_desktop_chromium.py --activation-fallback`
+checks that proxy menus opt out, title clicks retain browser focus and replacement
+does not steal it. These flags require the new compositor/backend/provider.
+The [qualification](../../Libraries/NativeUI/menu-activation-qualification.json)
+records all 136 passing checks, 153 whole-control desktop comparisons, four
+complete menu comparisons and owned-process cleanup. Broader builds/scales,
+custom Workspace placeholder icons and cross-desktop menu-only activation remain
+unqualified.

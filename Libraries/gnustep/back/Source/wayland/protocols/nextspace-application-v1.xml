@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
   </copyright>
-  <interface name="nextspace_application_v1" version="8">
+  <interface name="nextspace_application_v1" version="9">
     <description summary="application-owned window placement">
       This interface controls only a client's own xdg toplevels. It grants no
       authority over other clients, the desktop shell, activation or output settings.
@@ -52,7 +52,7 @@
     </event>
     <event name="work_areas_done" since="6"/>
   </interface>
-  <interface name="nextspace_window_v1" version="8">
+  <interface name="nextspace_window_v1" version="9">
     <description summary="asynchronous logical window position">
       Positions use the top-left of the complete logical window frame in desktop
       units. With client-side decorations this is xdg window geometry; with
@@ -81,11 +81,13 @@
     <event name="closed"/>
     <request name="set_accepts_focus" since="2">
       <description summary="decline keyboard focus for auxiliary windows">
-        A zero value prevents this window from taking keyboard focus. This is
+        A zero value prevents this window from taking ordinary keyboard focus. This is
         suitable for application menus and icons that receive pointer events
         while their document keeps keyboard focus. The default is one.
         A nonzero value permits ordinary compositor focus policy; it does not
         activate a window or grant authority to choose the focused application.
+        A version-9 activation fallback may receive focus only through explicit
+        application activation, under the separate fallback rules below.
       </description>
       <arg name="accepts_focus" type="uint"/>
     </request>
@@ -243,5 +245,20 @@
       <arg name="green" type="uint"/>
       <arg name="blue" type="uint"/>
     </event>
+    <request name="set_activation_fallback" since="9">
+      <description summary="auxiliary focus target for an application without documents">
+        Default zero. A nonzero value allows this owned window to receive
+        keyboard focus on explicit application activation when this client has
+        no visible window accepting ordinary focus. Mapping, ordering and
+        pointer clicks do not activate it. An xdg-activation request still
+        requires the compositor's normal user-input provenance; only the
+        privileged desktop shell may activate without that token.
+        This is suitable for a detached application menu when there is no
+        document window. Menus displayed on behalf of another application must
+        leave it disabled so that application's document keeps keyboard focus.
+        The hint grants no authority over another client's windows or input.
+      </description>
+      <arg name="enabled" type="uint"/>
+    </request>
   </interface>
 </protocol>
