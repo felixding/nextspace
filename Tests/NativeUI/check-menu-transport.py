@@ -100,6 +100,11 @@ with tempfile.TemporaryDirectory(prefix='nxs-menu-wire-') as runtime:
    check(case,state['accepted'] and event['owner_callbacks'] and event['via_rpc']==(command=='worker-with-rpc'),source=state)
    worker.wait(lambda e:e.get('event')=='menu-command' and e['phase']==1,0);worker.finish();until(windows,lambda w:not w)
   actor=Actor(endpoint,env,'owner');check('menu-model-crosses-IPC',actor.ready['pid']==actor.child.pid)
+  if not a.actor_binary:
+   state=actor.request('query z');check('native-query-matches-without-action',state['accepted'] and state['actions']==0 and state['last']==0,source=state)
+   actor.request('disable');state=actor.request('query z')
+   check('native-query-consumes-disabled-match-without-action',state['accepted'] and state['actions']==0,source=state)
+   actor.request('enable')
   until(windows,lambda w:len(w)==1);initial=actor.request('state 2');check('native-state-crosses-IPC',initial['visible'] and initial['item'][2]>0,source=initial)
   start=len(actor.events);event=click(actor,2,2);check('idle-native-action-runs-on-owner',event['idle']==1,event=event)
   state=actor.request('state -1');check('application-command-executes-once',state['actions']==1 and state['last']==2,source=state)

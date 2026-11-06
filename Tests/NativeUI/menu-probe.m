@@ -139,6 +139,12 @@ int main(int argc,char **argv)
  key=event("z",NXS_ALT);key.type=NXS_KEY_UP;assert(!nxs_menu_key(p.menu,&key));key.type=NXS_KEY_DOWN;
  assert(nxs_menu_show(p.menu,1));assert([NSApp mainMenu]&&nxs_menu_state(p.menu,-1).visible);
  NSMenu *root=[NSApp mainMenu];assert([[root itemAtIndex:0] hasSubmenu]);
+ if(nxs_native_ui_menu_capabilities()&NXS_MENU_KEY_QUERY) {
+  int actions=p.actions;
+  NXSKeyEvent direct=event("d",NXS_ALT);
+  assert(nxs_menu_key_query(p.menu,&direct)&&p.actions==actions);
+  assert(nxs_menu_state(p.menu,-1).visible&&nxs_menu_state(p.menu,6).highlighted==-1);
+ }
  NSMenu *edit=[[root itemAtIndex:0] submenu];[edit update];
  assert([[edit itemAtIndex:2] isSeparatorItem]);assert(![[edit itemAtIndex:4] isEnabled]);
  assert([[[edit itemAtIndex:3] title] isEqual:[[edit itemAtIndex:4] title]]);

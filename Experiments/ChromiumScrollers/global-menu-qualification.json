@@ -1,0 +1,3878 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "aad5f0ed",
+  "status": "Pinned Chromium now creates native application menus at startup and routes global menu keys with renderer cancellation; complete browser/toolkit objective remains unfinished",
+  "verification": {
+    "native_reference": {
+      "recorded_assertion_rows": 20,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "provider-startup",
+          "passed": true
+        },
+        {
+          "case": "detached-native-root",
+          "passed": true,
+          "source": {
+            "index": 0,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0.0,
+              0.0,
+              143.0,
+              123.0
+            ],
+            "item": [
+              1.0,
+              23.0,
+              142.0,
+              20.0
+            ],
+            "actions": 0,
+            "last": 0,
+            "pumps": 0
+          }
+        },
+        {
+          "case": "native-tracking-pumps-owner",
+          "passed": true,
+          "source": {
+            "index": -1,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": 0,
+            "frame": [
+              0.0,
+              0.0,
+              143.0,
+              123.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "actions": 0,
+            "last": 0,
+            "pumps": 1
+          }
+        },
+        {
+          "case": "held-model-change-rejected",
+          "passed": true
+        },
+        {
+          "case": "held-hide-rejected",
+          "passed": true
+        },
+        {
+          "case": "actual-native-submenu-action",
+          "passed": true,
+          "source": {
+            "index": -1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0.0,
+              0.0,
+              143.0,
+              123.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "actions": 1,
+            "last": 64,
+            "pumps": 26
+          }
+        },
+        {
+          "case": "idle-model-update-accepted",
+          "passed": true
+        },
+        {
+          "case": "model-update-retains-native-root-surface",
+          "passed": true,
+          "before": {
+            "id": 1,
+            "title": "native-menu-probe",
+            "app_id": "org.nextspace.native-menu-probe",
+            "pid": 27403,
+            "legacy": false,
+            "level": 20,
+            "minimized": false,
+            "maximized": false,
+            "fullscreen": false,
+            "maximized_axes": 0,
+            "selected": false,
+            "presented": true,
+            "desktop": 0,
+            "sticky": false,
+            "visible": true,
+            "shaded": false,
+            "client_id": 2,
+            "style": 0,
+            "title_height": 0,
+            "document_edited": false,
+            "title_state": 1,
+            "client_title_state": 0,
+            "accepts_focus": false,
+            "focused": false,
+            "frame_width": 143,
+            "frame_height": 123,
+            "server_decorated": false,
+            "frame_left": 0,
+            "frame_top": 0,
+            "frame_right": 0,
+            "frame_bottom": 0,
+            "surface_width": 143,
+            "surface_height": 123,
+            "x": 0,
+            "y": 0,
+            "width": 143,
+            "height": 123,
+            "buffer_width": 143,
+            "buffer_height": 123,
+            "preferred_scale": 120
+          },
+          "after": {
+            "id": 1,
+            "title": "native-menu-probe",
+            "app_id": "org.nextspace.native-menu-probe",
+            "pid": 27403,
+            "legacy": false,
+            "level": 20,
+            "minimized": false,
+            "maximized": false,
+            "fullscreen": false,
+            "maximized_axes": 0,
+            "selected": false,
+            "presented": true,
+            "desktop": 0,
+            "sticky": false,
+            "visible": true,
+            "shaded": false,
+            "client_id": 2,
+            "style": 0,
+            "title_height": 0,
+            "document_edited": false,
+            "title_state": 1,
+            "client_title_state": 0,
+            "accepts_focus": false,
+            "focused": false,
+            "frame_width": 143,
+            "frame_height": 123,
+            "server_decorated": false,
+            "frame_left": 0,
+            "frame_top": 0,
+            "frame_right": 0,
+            "frame_bottom": 0,
+            "surface_width": 143,
+            "surface_height": 123,
+            "x": 0,
+            "y": 0,
+            "width": 143,
+            "height": 123,
+            "buffer_width": 143,
+            "buffer_height": 123,
+            "preferred_scale": 120
+          }
+        },
+        {
+          "case": "live-application-availability",
+          "passed": true
+        },
+        {
+          "case": "hide-native-window",
+          "passed": true
+        },
+        {
+          "case": "reshow-native-window",
+          "passed": true
+        },
+        {
+          "case": "cancel-held-menu",
+          "passed": true
+        },
+        {
+          "case": "cancel-suppresses-command",
+          "passed": true,
+          "source": {
+            "index": -1,
+            "visible": 0,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "actions": 1,
+            "last": 64,
+            "pumps": 48
+          }
+        },
+        {
+          "case": "cancel-removes-native-popup",
+          "passed": true
+        },
+        {
+          "case": "provider-clean-exit",
+          "passed": true,
+          "code": 0
+        },
+        {
+          "case": "reference-startup",
+          "passed": true
+        },
+        {
+          "case": "reference-submenu-remaps",
+          "passed": true
+        },
+        {
+          "case": "reference-clean-exit",
+          "passed": true,
+          "code": 0
+        },
+        {
+          "case": "complete-native-pixels-root",
+          "passed": true
+        },
+        {
+          "case": "complete-native-pixels-submenu",
+          "passed": true
+        }
+      ]
+    },
+    "native_transport": {
+      "recorded_assertion_rows": 21,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "pending-reply-survives-nested-menu-RPC",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 0,
+            "idle_callbacks": 0,
+            "last": 0,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "idle-owner-acknowledges-while-worker-awaits-reply",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": 1,
+            "actions": 1,
+            "idle_callbacks": 2,
+            "last": 2,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "owner-RPC-services-callback-before-worker-lock",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": 1,
+            "actions": 1,
+            "idle_callbacks": 0,
+            "last": 2,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "menu-model-crosses-IPC",
+          "passed": true
+        },
+        {
+          "case": "native-query-matches-without-action",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 0,
+            "idle_callbacks": 0,
+            "last": 0,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "native-query-consumes-disabled-match-without-action",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 0,
+            "idle_callbacks": 0,
+            "last": 0,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "native-state-crosses-IPC",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 0,
+            "idle_callbacks": 0,
+            "last": 0,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              1.0,
+              43.0,
+              123.0,
+              20.0
+            ]
+          }
+        },
+        {
+          "case": "idle-native-action-runs-on-owner",
+          "passed": true,
+          "event": {
+            "event": "menu-command",
+            "command": 2,
+            "phase": 1,
+            "idle": 1
+          }
+        },
+        {
+          "case": "application-command-executes-once",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 1,
+            "idle_callbacks": 2,
+            "last": 2,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "application-validation-rejects-disabled",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 1,
+            "idle_callbacks": 2,
+            "last": 2,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "native-key-matching-through-IPC",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 2,
+            "idle_callbacks": 2,
+            "last": 1,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "bad-model-preserves-live-menu",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 2,
+            "idle_callbacks": 2,
+            "last": 1,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "bad-count-preserves-live-menu",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 2,
+            "idle_callbacks": 2,
+            "last": 1,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "foreign-owner-request-rejected",
+          "passed": true
+        },
+        {
+          "case": "replacement-endpoint-survives-old-decision",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 4,
+            "idle_callbacks": 6,
+            "last": 2,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "late-menu-reply-after-destroy-drained",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "actions": 6,
+            "idle_callbacks": 8,
+            "last": 1,
+            "frame": [
+              0.0,
+              0.0,
+              124.0,
+              103.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "callback-peer-loss-removes-menu",
+          "passed": true
+        },
+        {
+          "case": "expiry-removes-native-menu",
+          "passed": true
+        },
+        {
+          "case": "expired-validation-does-not-execute",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "accepted": 0,
+            "visible": 0,
+            "tracking": 0,
+            "enabled": 0,
+            "highlighted": 0,
+            "actions": 0,
+            "idle_callbacks": 1,
+            "last": 0,
+            "frame": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "item": [
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ]
+          }
+        },
+        {
+          "case": "owner-exit-removes-native-menu",
+          "passed": true
+        },
+        {
+          "case": "helper-remains-live",
+          "passed": true
+        }
+      ]
+    },
+    "native_lifecycle": {
+      "recorded_assertion_rows": 14,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "lifecycle-inherits-native-root-pixels",
+          "passed": true
+        },
+        {
+          "case": "lifecycle-inherits-native-submenu-pixels",
+          "passed": true
+        },
+        {
+          "case": "older-provider-rejects-lifecycle",
+          "passed": true,
+          "stdout": "{\"unsupported_lifecycle_rejected\":true}\n",
+          "stderr": ""
+        },
+        {
+          "case": "empty-lazy-branch-enabled",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": 0,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0,
+              0,
+              123,
+              63
+            ],
+            "item": [
+              1,
+              23,
+              122,
+              20
+            ],
+            "opens": 0,
+            "closes": 0,
+            "actions": 0,
+            "last": 0
+          }
+        },
+        {
+          "case": "native-open-populates-branch",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": 1,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              123,
+              0,
+              94,
+              83
+            ],
+            "item": [
+              124,
+              23,
+              93,
+              20
+            ],
+            "opens": 1,
+            "closes": 0,
+            "actions": 0,
+            "last": 0
+          }
+        },
+        {
+          "case": "refreshed-native-disabled-item",
+          "passed": true
+        },
+        {
+          "case": "unrelated-branch-retained",
+          "passed": true
+        },
+        {
+          "case": "prepared-native-action",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": -1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0,
+              0,
+              123,
+              63
+            ],
+            "item": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "opens": 1,
+            "closes": 1,
+            "actions": 1,
+            "last": 200
+          }
+        },
+        {
+          "case": "nested-native-prepare",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": 4,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              217,
+              0,
+              137,
+              43
+            ],
+            "item": [
+              218,
+              23,
+              136,
+              20
+            ],
+            "opens": 3,
+            "closes": 1,
+            "actions": 1,
+            "last": 200
+          }
+        },
+        {
+          "case": "nested-native-action-and-close",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": -1,
+            "visible": 1,
+            "tracking": 0,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0,
+              0,
+              123,
+              63
+            ],
+            "item": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "opens": 3,
+            "closes": 3,
+            "actions": 2,
+            "last": 204
+          }
+        },
+        {
+          "case": "reject-balances-lifecycle",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": -1,
+            "visible": 1,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": 0,
+            "frame": [
+              0,
+              0,
+              123,
+              63
+            ],
+            "item": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "opens": 1,
+            "closes": 1,
+            "actions": 0,
+            "last": 0
+          }
+        },
+        {
+          "case": "reject-maps-no-submenu",
+          "passed": true
+        },
+        {
+          "case": "cancel-balances-lifecycle",
+          "passed": true,
+          "source": {
+            "event": "state",
+            "index": -1,
+            "visible": 0,
+            "tracking": 1,
+            "enabled": 1,
+            "highlighted": -1,
+            "frame": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "item": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "opens": 1,
+            "closes": 1,
+            "actions": 0,
+            "last": 0
+          }
+        },
+        {
+          "case": "cancel-maps-no-submenu",
+          "passed": true
+        }
+      ]
+    },
+    "firefox_global": {
+      "recorded_assertion_rows": 29,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "global-menu-key-binding-installed",
+          "passed": true
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "body-global-shortcut-creates-one-real-tab",
+          "passed": true
+        },
+        {
+          "case": "body-global-shortcut-one-native-menu-command",
+          "passed": true,
+          "queued": [
+            {
+              "event": "application-command-queued",
+              "native": 2
+            }
+          ],
+          "executed": [
+            {
+              "event": "application-command",
+              "identifier": 991,
+              "native": 2
+            }
+          ]
+        },
+        {
+          "case": "body-global-shortcut-native-query-then-global-execution",
+          "passed": true
+        },
+        {
+          "case": "body-global-shortcut-retains-hidden-internal-menubar",
+          "passed": true,
+          "state": {
+            "height": 0,
+            "inactive": true,
+            "native": true
+          }
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "ordinary-button-is-focused",
+          "passed": true
+        },
+        {
+          "case": "button-global-shortcut-creates-one-real-tab",
+          "passed": true
+        },
+        {
+          "case": "button-global-shortcut-one-native-menu-command",
+          "passed": true,
+          "queued": [
+            {
+              "event": "application-command-queued",
+              "native": 2
+            }
+          ],
+          "executed": [
+            {
+              "event": "application-command",
+              "identifier": 991,
+              "native": 2
+            }
+          ]
+        },
+        {
+          "case": "button-global-shortcut-native-query-then-global-execution",
+          "passed": true
+        },
+        {
+          "case": "button-global-shortcut-retains-hidden-internal-menubar",
+          "passed": true,
+          "state": {
+            "height": 0,
+            "inactive": true,
+            "native": true
+          }
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "web-cancelled-global-shortcut-preserves-tabs",
+          "passed": true
+        },
+        {
+          "case": "web-cancelled-global-shortcut-queues-no-action",
+          "passed": true
+        },
+        {
+          "case": "cancelled-key-keeps-real-native-reservation-query",
+          "passed": true
+        },
+        {
+          "case": "cancelled-key-never-executes-native-action",
+          "passed": true
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "untrusted-synthetic-shortcut-preserves-tabs",
+          "passed": true
+        },
+        {
+          "case": "untrusted-synthetic-shortcut-queues-no-action",
+          "passed": true
+        },
+        {
+          "case": "body-focus-is-outside-native-text-fields",
+          "passed": true
+        },
+        {
+          "case": "unmatched-key-keeps-trusted-web-delivery",
+          "passed": true
+        },
+        {
+          "case": "unmatched-key-executes-no-menu-command",
+          "passed": true
+        },
+        {
+          "case": "forged-global-key-target-has-real-notifier",
+          "passed": true
+        },
+        {
+          "case": "other-client-cannot-query-global-menu-key",
+          "passed": true
+        },
+        {
+          "case": "other-client-cannot-execute-global-menu-key",
+          "passed": true
+        },
+        {
+          "case": "forged-global-key-executes-no-application-command",
+          "passed": true
+        },
+        {
+          "case": "no-menu-callback-errors",
+          "passed": true
+        }
+      ]
+    },
+    "firefox_clipboard": {
+      "recorded_assertion_rows": 83,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "frontend-modifier-Alt-down",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Alt-up",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Alt-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "frontend-modifier-Control-down",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Control-up",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Control-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "frontend-modifier-Shift-down",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Shift-up",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Shift-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "frontend-modifier-Super-down",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Super-up",
+          "passed": true,
+          "state": {
+            "value": "Selected text",
+            "start": 0,
+            "end": 13
+          }
+        },
+        {
+          "case": "frontend-modifier-Super-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "normal-modifier-Alt-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Alt-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Alt-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "normal-modifier-Control-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Control-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Control-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "normal-modifier-Shift-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Shift-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Shift-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "normal-modifier-Super-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Super-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "normal-modifier-Super-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "password-modifier-Alt-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Alt-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Alt-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "password-modifier-Control-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Control-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Control-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "password-modifier-Shift-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Shift-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Shift-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "password-modifier-Super-down",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Super-up",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "password-modifier-Super-no-edit-events",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "frontend-helper-storage-empty",
+          "passed": true
+        },
+        {
+          "case": "frontend-paste-without-helper-data",
+          "passed": true,
+          "state": {
+            "value": "Cold frontend:\u65e5\u672c\u8a9e\ud83d\ude42",
+            "start": 19,
+            "end": 19
+          }
+        },
+        {
+          "case": "frontend-native-application-menu-command",
+          "passed": true,
+          "queued": [
+            {
+              "event": "application-command-queued",
+              "native": 26
+            }
+          ],
+          "executed": [
+            {
+              "event": "application-command",
+              "identifier": 1015,
+              "native": 26
+            }
+          ]
+        },
+        {
+          "case": "web-helper-storage-empty",
+          "passed": true
+        },
+        {
+          "case": "web-paste-without-helper-data",
+          "passed": true,
+          "state": {
+            "value": "Cold web:\u65e5\u672c\u8a9e\ud83d\ude42",
+            "start": 14,
+            "end": 14
+          }
+        },
+        {
+          "case": "web-native-application-menu-command",
+          "passed": true,
+          "queued": [
+            {
+              "event": "application-command-queued",
+              "native": 26
+            }
+          ],
+          "executed": [
+            {
+              "event": "application-command",
+              "identifier": 1015,
+              "native": 26
+            }
+          ]
+        },
+        {
+          "case": "real-native-application-copy",
+          "passed": true
+        },
+        {
+          "case": "native-to-frontend-paste",
+          "passed": true,
+          "state": {
+            "value": "Native source: \u65e5\u672c\u8a9e, \ud55c\uae00, emoji \ud83d\ude38",
+            "start": 32,
+            "end": 32
+          }
+        },
+        {
+          "case": "frontend-application-copy-controller",
+          "passed": true
+        },
+        {
+          "case": "frontend-copy-preserves-selection",
+          "passed": true,
+          "state": {
+            "value": "example.invalid/\u65e5\u672c\u8a9e?q=space%20test",
+            "start": 0,
+            "end": 34
+          }
+        },
+        {
+          "case": "frontend-formatted-system-clipboard",
+          "passed": true,
+          "display": "example.invalid/\u65e5\u672c\u8a9e?q=space%20test",
+          "clipboard": "https://example.invalid/%E6%97%A5%E6%9C%AC%E8%AA%9E?q=space%20test"
+        },
+        {
+          "case": "frontend-native-application-roundtrip",
+          "passed": true,
+          "state": {
+            "value": "https://example.invalid/%E6%97%A5%E6%9C%AC%E8%AA%9E?q=space%20test",
+            "start": 66,
+            "end": 66
+          }
+        },
+        {
+          "case": "frontend-application-cut-controller",
+          "passed": true
+        },
+        {
+          "case": "frontend-cut-selection",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "frontend-paste-after-cut",
+          "passed": true,
+          "state": {
+            "value": "Cut me",
+            "start": 6,
+            "end": 6
+          }
+        },
+        {
+          "case": "web-copy-preserves-selection",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "web-trusted-copy-event",
+          "passed": true,
+          "events": [
+            {
+              "type": "copy",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            }
+          ]
+        },
+        {
+          "case": "web-cut-state",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "web-trusted-cut-events",
+          "passed": true,
+          "events": [
+            {
+              "type": "cut",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "normal",
+              "trusted": true,
+              "inputType": "deleteByCut"
+            },
+            {
+              "type": "input",
+              "id": "normal",
+              "trusted": true,
+              "inputType": "deleteByCut"
+            }
+          ]
+        },
+        {
+          "case": "web-paste-state",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "case": "web-trusted-paste-events",
+          "passed": true,
+          "events": [
+            {
+              "type": "paste",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "normal",
+              "trusted": true,
+              "inputType": "insertFromPaste"
+            },
+            {
+              "type": "input",
+              "id": "normal",
+              "trusted": true,
+              "inputType": "insertFromPaste"
+            }
+          ]
+        },
+        {
+          "case": "paste-keeps-engine-undo",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "cut-keeps-engine-undo",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "cancel-keydown",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "cancel-keydown-no-input",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "cancel-paste",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "cancel-paste-no-input",
+          "passed": true,
+          "events": [
+            {
+              "type": "paste",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            }
+          ]
+        },
+        {
+          "case": "cancel-paste-beforeinput",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "cancel-paste-beforeinput-no-input",
+          "passed": true,
+          "events": [
+            {
+              "type": "paste",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "normal",
+              "trusted": true,
+              "inputType": "insertFromPaste"
+            }
+          ]
+        },
+        {
+          "case": "cancel-cut-cut",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "cancel-cut-cut-no-input",
+          "passed": true,
+          "events": [
+            {
+              "type": "cut",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            }
+          ]
+        },
+        {
+          "case": "cancel-cut-beforeinput",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "cancel-cut-beforeinput-no-input",
+          "passed": true,
+          "events": [
+            {
+              "type": "cut",
+              "id": "normal",
+              "trusted": true,
+              "inputType": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "normal",
+              "trusted": true,
+              "inputType": "deleteByCut"
+            }
+          ]
+        },
+        {
+          "case": "custom-copy-data-goes-through-gecko",
+          "passed": true,
+          "state": {
+            "value": "Custom clipboard",
+            "start": 16,
+            "end": 16
+          }
+        },
+        {
+          "case": "paste-retains-engine-maxlength",
+          "passed": true,
+          "state": {
+            "value": "aCus",
+            "start": 4,
+            "end": 4
+          }
+        },
+        {
+          "case": "readonly-cut-blocked",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "readonly-paste-blocked",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "readonly-copy-allowed",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "case": "secure-copy-blocked",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "secure-copy-preserves-clipboard",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "case": "secure-cut-blocked",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 0,
+            "end": 5
+          }
+        },
+        {
+          "case": "secure-cut-preserves-clipboard",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "case": "secure-paste-allowed",
+          "passed": true,
+          "state": {
+            "value": "Hello",
+            "start": 5,
+            "end": 5
+          }
+        },
+        {
+          "case": "paste-beforeinput-script-model",
+          "passed": true,
+          "state": {
+            "value": "Script",
+            "start": 2,
+            "end": 2
+          }
+        },
+        {
+          "case": "paste-handler-removes-frame",
+          "passed": true
+        },
+        {
+          "case": "remaining-field-usable-after-frame-removal",
+          "passed": true
+        }
+      ]
+    },
+    "firefox_field_shortcuts": {
+      "recorded_assertion_rows": 16,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-browser",
+          "passed": true
+        },
+        {
+          "case": "native-menu-and-editors-share-helper",
+          "passed": true,
+          "pid": 26865
+        },
+        {
+          "case": "web-cut-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 24
+        },
+        {
+          "case": "web-undo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 0,
+            "end": 15
+          },
+          "native": 21
+        },
+        {
+          "case": "web-redo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 22
+        },
+        {
+          "case": "web-restore-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 0,
+            "end": 15
+          },
+          "native": 21
+        },
+        {
+          "case": "web-native-emacs-control-a",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "web-native-emacs-control-e",
+          "passed": true,
+          "state": {
+            "value": "Web undo target",
+            "start": 15,
+            "end": 15
+          }
+        },
+        {
+          "case": "web-emacs-navigation-executes-no-menu-command",
+          "passed": true
+        },
+        {
+          "case": "address-cut-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 24
+        },
+        {
+          "case": "address-undo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 19,
+            "end": 19
+          },
+          "native": 21
+        },
+        {
+          "case": "address-redo-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          "native": 22
+        },
+        {
+          "case": "address-restore-native-menu-shortcut",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 19,
+            "end": 19
+          },
+          "native": 21
+        },
+        {
+          "case": "address-native-emacs-control-a",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 0,
+            "end": 0
+          }
+        },
+        {
+          "case": "address-native-emacs-control-e",
+          "passed": true,
+          "state": {
+            "value": "Address undo target",
+            "start": 19,
+            "end": 19
+          }
+        },
+        {
+          "case": "address-emacs-navigation-executes-no-menu-command",
+          "passed": true
+        }
+      ]
+    },
+    "chromium_global": {
+      "recorded_assertion_rows": 37,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "global-key-adapter-installed",
+          "passed": true
+        },
+        {
+          "case": "cold-start-model-without-menu-button",
+          "passed": true
+        },
+        {
+          "case": "cold-start-detached-gnustep-menu",
+          "passed": true,
+          "windows": [
+            {
+              "id": 2,
+              "title": "python3",
+              "app_id": "org.nextspace.python3",
+              "pid": 26852,
+              "legacy": false,
+              "level": 20,
+              "minimized": false,
+              "maximized": false,
+              "fullscreen": false,
+              "maximized_axes": 0,
+              "selected": false,
+              "presented": true,
+              "desktop": 0,
+              "sticky": false,
+              "visible": true,
+              "shaded": false,
+              "client_id": 30,
+              "style": 0,
+              "title_height": 0,
+              "document_edited": false,
+              "title_state": 1,
+              "client_title_state": 0,
+              "accepts_focus": false,
+              "focused": false,
+              "frame_width": 156,
+              "frame_height": 523,
+              "server_decorated": false,
+              "frame_left": 0,
+              "frame_top": 0,
+              "frame_right": 0,
+              "frame_bottom": 0,
+              "surface_width": 156,
+              "surface_height": 523,
+              "x": 0,
+              "y": 0,
+              "width": 156,
+              "height": 523,
+              "buffer_width": 156,
+              "buffer_height": 523,
+              "preferred_scale": 120
+            }
+          ]
+        },
+        {
+          "case": "owned-browser-page",
+          "passed": true
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "body-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "body-native-query-before-one-execution",
+          "passed": true,
+          "trace": "26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 native invalidation applied on renderer thread\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 native invalidation applied on renderer thread\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=0 handled=1\n26866 native invalidation applied on renderer thread\n26866 native invalidation applied on renderer thread\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=1 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=1 handled=1\n26866 native invalidation applied on renderer thread\n26866 native invalidation applied on renderer thread\n26866 app-menu-task owner=1\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=1 x=217 y=71 width=572 height=24 owned=1\n26866 app-menu-execute id=1 command=34014 enabled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex= start=0 end=0 focused=1 x=184 y=71 width=605 height=24 owned=0\n26866 native invalidation applied on renderer thread\n"
+        },
+        {
+          "case": "body-browser-unhandled-path-executes-menu",
+          "passed": true
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "ordinary-button-focused",
+          "passed": true
+        },
+        {
+          "case": "button-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "button-native-query-before-one-execution",
+          "passed": true,
+          "trace": "26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n1 native invalidation applied on renderer thread\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=0 handled=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-source-wake condition=1 owner=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-source-wake condition=1 owner=1\n26866 app-menu-task owner=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=1 enabled=1\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 native invalidation applied on renderer thread\n26866 app-menu-task owner=1\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=1 x=217 y=71 width=572 height=24 owned=1\n26866 app-menu-execute id=1 command=34014 enabled=1\n1 native invalidation applied on renderer thread\nviews-state id=1 value_hex= start=0 end=0 focused=1 x=184 y=71 width=605 height=24 owned=0\n26866 native invalidation applied on renderer thread\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex= start=0 end=0 focused=1 x=184 y=71 width=605 height=24 owned=0\n"
+        },
+        {
+          "case": "button-native-control-dispatches-menu",
+          "passed": true,
+          "events": [
+            {
+              "event": "native-form-key",
+              "process": 2733710983,
+              "control": 7,
+              "kind": 1,
+              "type": 2,
+              "result": 0,
+              "actions": 0
+            },
+            {
+              "event": "native-form-key",
+              "process": 2733710983,
+              "control": 7,
+              "kind": 1,
+              "type": 0,
+              "result": 1,
+              "actions": 0
+            },
+            {
+              "event": "native-form-key",
+              "process": 2733710983,
+              "control": 7,
+              "kind": 1,
+              "type": 1,
+              "result": 0,
+              "actions": 0
+            },
+            {
+              "event": "native-form-key",
+              "process": 2733710983,
+              "control": 7,
+              "kind": 1,
+              "type": 2,
+              "result": 0,
+              "actions": 0
+            }
+          ]
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "body-web-prevent-default-preserves-tabs",
+          "passed": true
+        },
+        {
+          "case": "body-cancelled-key-performs-query-only",
+          "passed": true,
+          "trace": "26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=0 handled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n"
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "button-web-prevent-default-preserves-tabs",
+          "passed": true
+        },
+        {
+          "case": "button-cancelled-key-performs-query-only",
+          "passed": true,
+          "trace": "26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 native invalidation applied on renderer thread\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=0 handled=1\n26866 native invalidation applied on renderer thread\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n"
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "synthetic-key-never-invokes-native-menu",
+          "passed": true
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "unmatched-key-keeps-trusted-web-delivery",
+          "passed": true,
+          "events": [
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keydown"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keydown"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keydown"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keydown"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keydown"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keydown"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keyup"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keyup"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keyup"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keyup"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keyup"
+            },
+            {
+              "key": "j",
+              "prevented": false,
+              "trusted": true,
+              "type": "keyup"
+            }
+          ]
+        },
+        {
+          "case": "unmatched-key-never-invokes-native-menu",
+          "passed": true
+        },
+        {
+          "case": "foreign-connection-cannot-query-or-execute-model",
+          "passed": true,
+          "responses": [
+            0.0,
+            0.0
+          ]
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "second-window-constructs-own-real-model",
+          "passed": true
+        },
+        {
+          "case": "second-window-selects-one-native-root",
+          "passed": true
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "first-window-focus-restores-native-root",
+          "passed": true
+        },
+        {
+          "case": "first-window-after-focus-creates-one-tab",
+          "passed": true
+        },
+        {
+          "case": "first-window-after-focus-native-query-before-one-execution",
+          "passed": true,
+          "trace": "26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\nviews-state id=2 value_hex= start=0 end=0 focused=0 x=194 y=81 width=605 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\nviews-state id=2 value_hex= start=0 end=0 focused=0 x=194 y=81 width=605 height=24 owned=0\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=0 x=217 y=71 width=548 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=0 handled=1\nviews-state id=2 value_hex= start=0 end=0 focused=0 x=194 y=81 width=605 height=24 owned=0\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34014 phase=1 enabled=1\n26866 app-menu-command id=1 command=34014 phase=0 enabled=1\n26866 app-menu-command id=1 command=34000 phase=0 enabled=1\n26866 app-menu-command id=1 command=34001 phase=0 enabled=1\n26866 app-menu-command id=1 command=40012 phase=0 enabled=1\n26866 app-menu-command id=1 command=40013 phase=0 enabled=1\n26866 app-menu-command id=1 command=35003 phase=0 enabled=1\n26866 app-menu-command id=1 command=35009 phase=0 enabled=0\n26866 app-menu-command id=1 command=40018 phase=0 enabled=1\n26866 app-menu-command id=1 command=40015 phase=0 enabled=1\n26866 app-menu-command id=1 command=34031 phase=0 enabled=1\n26866 app-menu-global-key browser=1 execute=1 handled=1\n26866 app-menu-task owner=1\nviews-state id=1 value_hex=2f776f726b73706163652f4578706572696d656e74732f4368726f6d69756d5363726f6c6c6572732f746573742d746578742e68746d6c start=0 end=0 focused=1 x=217 y=71 width=572 height=24 owned=1\n26866 app-menu-execute id=1 command=34014 enabled=1\nviews-state id=1 value_hex= start=0 end=0 focused=1 x=184 y=71 width=605 height=24 owned=0\nviews-state id=2 value_hex= start=0 end=0 focused=0 x=194 y=81 width=605 height=24 owned=0\nviews-state id=1 value_hex= start=0 end=0 focused=1 x=184 y=71 width=605 height=24 owned=0\n"
+        },
+        {
+          "case": "first-window-after-focus-browser-unhandled-path-executes-menu",
+          "passed": true
+        },
+        {
+          "case": "second-window-focus-restores-native-root",
+          "passed": true
+        },
+        {
+          "case": "closed-window-retires-menu-owner",
+          "passed": true
+        },
+        {
+          "case": "body-focus-outside-native-editors",
+          "passed": true
+        },
+        {
+          "case": "browser-still-live",
+          "passed": true
+        }
+      ]
+    },
+    "chromium_clipboard": {
+      "recorded_assertion_rows": 44,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-text-fixture",
+          "passed": true
+        },
+        {
+          "case": "address-cleared",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0,
+            "focused": 1
+          }
+        },
+        {
+          "case": "actual-address-source",
+          "passed": true,
+          "state": {
+            "value": "Alpha beta",
+            "start": 10,
+            "end": 10,
+            "focused": 1
+          }
+        },
+        {
+          "case": "real-platform-clipboard",
+          "passed": true,
+          "value": "Alpha beta"
+        },
+        {
+          "case": "helper-storage-empty",
+          "passed": true,
+          "snapshot": {
+            "code": 1,
+            "text": ""
+          }
+        },
+        {
+          "case": "address-cleared",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0,
+            "focused": 1
+          }
+        },
+        {
+          "case": "frontend-cold-paste",
+          "passed": true,
+          "state": {
+            "value": "Alpha beta",
+            "start": 10,
+            "end": 10,
+            "focused": 1
+          }
+        },
+        {
+          "case": "frontend-native-application-menu-command",
+          "passed": true,
+          "callbacks": [
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "1",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "enabled": "1"
+            }
+          ]
+        },
+        {
+          "case": "address-cleared",
+          "passed": true,
+          "state": {
+            "value": "",
+            "start": 0,
+            "end": 0,
+            "focused": 1
+          }
+        },
+        {
+          "case": "actual-address-source",
+          "passed": true,
+          "state": {
+            "value": "Alpha beta",
+            "start": 10,
+            "end": 10,
+            "focused": 1
+          }
+        },
+        {
+          "case": "real-platform-clipboard",
+          "passed": true,
+          "value": "Alpha beta"
+        },
+        {
+          "case": "helper-storage-empty",
+          "passed": true,
+          "snapshot": {
+            "code": 1,
+            "text": ""
+          }
+        },
+        {
+          "case": "web-cold-paste",
+          "passed": true,
+          "state": {
+            "end": 10,
+            "start": 10,
+            "value": "Alpha beta"
+          }
+        },
+        {
+          "case": "web-native-application-menu-command",
+          "passed": true,
+          "callbacks": [
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "0",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "phase": "1",
+              "enabled": "1"
+            },
+            {
+              "id": "1",
+              "command": "36003",
+              "enabled": "1"
+            }
+          ]
+        },
+        {
+          "case": "web-copy-preserves-selection",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "web-trusted-copy",
+          "passed": true,
+          "events": [
+            {
+              "id": "normal",
+              "inputType": null,
+              "trusted": true,
+              "type": "copy"
+            }
+          ]
+        },
+        {
+          "case": "web-cut",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "start": 0,
+            "value": ""
+          }
+        },
+        {
+          "case": "web-trusted-cut-events",
+          "passed": true,
+          "events": [
+            {
+              "id": "normal",
+              "inputType": null,
+              "trusted": true,
+              "type": "cut"
+            },
+            {
+              "id": "normal",
+              "inputType": "deleteByCut",
+              "trusted": true,
+              "type": "beforeinput"
+            },
+            {
+              "id": "normal",
+              "inputType": "deleteByCut",
+              "trusted": true,
+              "type": "input"
+            }
+          ]
+        },
+        {
+          "case": "web-paste",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 5,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "web-trusted-paste-events",
+          "passed": true,
+          "events": [
+            {
+              "id": "normal",
+              "inputType": null,
+              "trusted": true,
+              "type": "paste"
+            },
+            {
+              "id": "normal",
+              "inputType": "insertFromPaste",
+              "trusted": true,
+              "type": "beforeinput"
+            },
+            {
+              "id": "normal",
+              "inputType": "insertFromPaste",
+              "trusted": true,
+              "type": "input"
+            }
+          ]
+        },
+        {
+          "case": "paste-keeps-engine-undo",
+          "passed": true,
+          "state": {
+            "end": 0,
+            "start": 0,
+            "value": ""
+          }
+        },
+        {
+          "case": "cut-keeps-engine-undo",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "unicode-copy-paste",
+          "passed": true,
+          "state": {
+            "end": 9,
+            "start": 9,
+            "value": "\u65e5\u672c\u8a9eCaf\u00e9\ud83d\ude42"
+          }
+        },
+        {
+          "case": "cancel-paste-keydown",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "cancel-paste-keydown-no-input",
+          "passed": true,
+          "events": []
+        },
+        {
+          "case": "cancel-paste-paste",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "cancel-paste-paste-no-input",
+          "passed": true,
+          "events": [
+            {
+              "id": "normal",
+              "inputType": null,
+              "trusted": true,
+              "type": "paste"
+            }
+          ]
+        },
+        {
+          "case": "cancel-paste-beforeinput",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "cancel-paste-beforeinput-no-input",
+          "passed": true,
+          "events": [
+            {
+              "id": "normal",
+              "inputType": null,
+              "trusted": true,
+              "type": "paste"
+            },
+            {
+              "id": "normal",
+              "inputType": "insertFromPaste",
+              "trusted": true,
+              "type": "beforeinput"
+            }
+          ]
+        },
+        {
+          "case": "cancel-cut-cut",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "cancel-cut-beforeinput",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "custom-copy-data",
+          "passed": true,
+          "state": {
+            "end": 16,
+            "start": 16,
+            "value": "Custom clipboard"
+          }
+        },
+        {
+          "case": "paste-maxlength",
+          "passed": true,
+          "state": {
+            "end": 4,
+            "start": 4,
+            "value": "aCus"
+          }
+        },
+        {
+          "case": "readonly-cut",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "readonly-paste",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "readonly-copy",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 5,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "secure-copy",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "secure-copy-keeps-clipboard",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 5,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "secure-cut",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 0,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "secure-cut-keeps-clipboard",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 5,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "secure-paste",
+          "passed": true,
+          "state": {
+            "end": 5,
+            "start": 5,
+            "value": "Hello"
+          }
+        },
+        {
+          "case": "paste-script-model",
+          "passed": true,
+          "state": {
+            "end": 2,
+            "start": 2,
+            "value": "Script"
+          }
+        },
+        {
+          "case": "paste-handler-removes-field",
+          "passed": true
+        },
+        {
+          "case": "remaining-field-usable",
+          "passed": true
+        }
+      ]
+    },
+    "chromium_menus": {
+      "recorded_assertion_rows": 19,
+      "all_passed": true,
+      "cases": [
+        {
+          "case": "owned-fixture",
+          "passed": true
+        },
+        {
+          "case": "one-live-native-application-model",
+          "passed": true,
+          "controls": [
+            "1"
+          ]
+        },
+        {
+          "case": "actual-model-projected",
+          "passed": true,
+          "count": 88
+        },
+        {
+          "case": "detached-native-window",
+          "passed": true,
+          "windows": [
+            {
+              "id": 2,
+              "title": "python3",
+              "app_id": "org.nextspace.python3",
+              "pid": 26852,
+              "legacy": false,
+              "level": 20,
+              "minimized": false,
+              "maximized": false,
+              "fullscreen": false,
+              "maximized_axes": 0,
+              "selected": false,
+              "presented": true,
+              "desktop": 0,
+              "sticky": false,
+              "visible": true,
+              "shaded": false,
+              "client_id": 30,
+              "style": 0,
+              "title_height": 0,
+              "document_edited": false,
+              "title_state": 1,
+              "client_title_state": 0,
+              "accepts_focus": false,
+              "focused": false,
+              "frame_width": 156,
+              "frame_height": 523,
+              "server_decorated": false,
+              "frame_left": 0,
+              "frame_top": 0,
+              "frame_right": 0,
+              "frame_bottom": 0,
+              "surface_width": 156,
+              "surface_height": 523,
+              "x": 0,
+              "y": 0,
+              "width": 156,
+              "height": 523,
+              "buffer_width": 156,
+              "buffer_height": 523,
+              "preferred_scale": 120
+            }
+          ]
+        },
+        {
+          "case": "native-new-tab",
+          "passed": true,
+          "before": 1,
+          "after": 2
+        },
+        {
+          "case": "fixture-selected",
+          "passed": true
+        },
+        {
+          "case": "initial-zoom",
+          "passed": true
+        },
+        {
+          "case": "native-button-model-zoom-in",
+          "passed": true,
+          "device_pixel_ratio": 1.100000023841858
+        },
+        {
+          "case": "native-button-model-zoom-out",
+          "passed": true,
+          "device_pixel_ratio": 1
+        },
+        {
+          "case": "native-copy-trusted",
+          "passed": true,
+          "events": [
+            {
+              "inputType": null,
+              "trusted": true,
+              "type": "copy"
+            }
+          ]
+        },
+        {
+          "case": "native-copy-preserves-model",
+          "passed": true
+        },
+        {
+          "case": "native-cut",
+          "passed": true
+        },
+        {
+          "case": "native-paste-engine-events",
+          "passed": true,
+          "events": [
+            {
+              "inputType": null,
+              "trusted": true,
+              "type": "copy"
+            },
+            {
+              "inputType": null,
+              "trusted": true,
+              "type": "cut"
+            },
+            {
+              "inputType": "deleteByCut",
+              "trusted": true,
+              "type": "beforeinput"
+            },
+            {
+              "inputType": "deleteByCut",
+              "trusted": true,
+              "type": "input"
+            },
+            {
+              "inputType": null,
+              "trusted": true,
+              "type": "paste"
+            },
+            {
+              "inputType": "insertFromPaste",
+              "trusted": true,
+              "type": "beforeinput"
+            },
+            {
+              "inputType": "insertFromPaste",
+              "trusted": true,
+              "type": "input"
+            }
+          ]
+        },
+        {
+          "case": "native-paste-preserves-engine-undo",
+          "passed": true
+        },
+        {
+          "case": "native-cut-preserves-engine-undo",
+          "passed": true
+        },
+        {
+          "case": "native-command-key-from-text-field",
+          "passed": true,
+          "before": 2,
+          "after": 3
+        },
+        {
+          "case": "native-menu-replacement",
+          "passed": true,
+          "windows": [
+            {
+              "id": 5,
+              "title": "python3",
+              "app_id": "org.nextspace.python3",
+              "pid": 26852,
+              "legacy": false,
+              "level": 20,
+              "minimized": false,
+              "maximized": false,
+              "fullscreen": false,
+              "maximized_axes": 0,
+              "selected": false,
+              "presented": true,
+              "desktop": 0,
+              "sticky": false,
+              "visible": true,
+              "shaded": false,
+              "client_id": 179,
+              "style": 0,
+              "title_height": 0,
+              "document_edited": false,
+              "title_state": 1,
+              "client_title_state": 0,
+              "accepts_focus": false,
+              "focused": false,
+              "frame_width": 156,
+              "frame_height": 523,
+              "server_decorated": false,
+              "frame_left": 0,
+              "frame_top": 0,
+              "frame_right": 0,
+              "frame_bottom": 0,
+              "surface_width": 156,
+              "surface_height": 523,
+              "x": 0,
+              "y": 0,
+              "width": 156,
+              "height": 523,
+              "buffer_width": 156,
+              "buffer_height": 523,
+              "preferred_scale": 120
+            }
+          ]
+        },
+        {
+          "case": "browser-alive",
+          "passed": true
+        },
+        {
+          "case": "no-menu-callback-expiry",
+          "passed": true
+        }
+      ]
+    }
+  },
+  "total_recorded_assertion_rows": 283,
+  "api": {
+    "abi": 1,
+    "arm64_bytes": 384,
+    "menu_capabilities": 15,
+    "transport_menu_bits": 5
+  },
+  "compiler_guard": {
+    "exit": 1,
+    "rejected": true
+  },
+  "environment": {
+    "chromium": {
+      "hashes": {
+        "provider": "f49b471ece84cf3bf0d04ae3ac9d754b930561844bbef7ae170ffffe3735cfaa",
+        "loader": "40e00ea4dfbd1b23afcc29036ece0f9460ffe8f4bab0fb9f4b841a3347895884",
+        "shim": "99b1b180e990a273a6e387543e299c53179ca54bb4229b230999f1d2d9050268",
+        "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+        "adapter": "a89390c95d9cbbc841a00d62d769e39a7ae3c8a39c3742b8788a1de38209eb1f",
+        "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+      },
+      "processes": [
+        {
+          "pid": 26845,
+          "ppid": 26844,
+          "name": "nextspace-compo",
+          "seccomp": "0",
+          "no_new_privs": "0",
+          "arguments": "/usr/NextSpace/bin/nextspace-compositor -c 4 -S 6 "
+        },
+        {
+          "pid": 26848,
+          "ppid": 26844,
+          "name": "capture-probe",
+          "seccomp": "0",
+          "no_new_privs": "0",
+          "arguments": "/var/tmp/nextspace-native-ui/views-tools/capture-probe "
+        },
+        {
+          "pid": 26849,
+          "ppid": 26844,
+          "name": "gpbs-wayland",
+          "seccomp": "0",
+          "no_new_privs": "0",
+          "arguments": "/Library/bin/gpbs-wayland --no-fork -GSLogSyslog NO "
+        },
+        {
+          "pid": 26852,
+          "ppid": 26844,
+          "name": "python3",
+          "seccomp": "0",
+          "no_new_privs": "0",
+          "arguments": "python3 /workspace/Experiments/ChromiumScrollers/helper.py --library /var/tmp/nextspace-native-ui/menu-global-key-build-05/libnextspace-native-scroller.so.1 --socket /tmp/native-views-chromium-batk3g9u/native.sock -GSBackend nextspace-native-ui-chromium-keys "
+        },
+        {
+          "pid": 26866,
+          "ppid": 26844,
+          "name": "chromium",
+          "seccomp": "0",
+          "no_new_privs": "0",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --ozone-platform=wayland --gtk-version=4 --disable-gpu --disable-dev-shm-usage --no-first-run --no-default-browser-check --disable-background-networking --disable-sync --disable-component-update --password-store=basic --remote-debugging-port=9241 --window-size=900,700 --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile file:///workspace/Experiments/ChromiumScrollers/test-text.html "
+        },
+        {
+          "pid": 26874,
+          "ppid": 26866,
+          "name": "chromium",
+          "seccomp": "0",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --change-stack-guard-on-fork=enable "
+        },
+        {
+          "pid": 26875,
+          "ppid": 26866,
+          "name": "chromium",
+          "seccomp": "0",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=zygote --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --change-stack-guard-on-fork=enable "
+        },
+        {
+          "pid": 26877,
+          "ppid": 26875,
+          "name": "chromium",
+          "seccomp": "0",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=zygote --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --change-stack-guard-on-fork=enable "
+        },
+        {
+          "pid": 26906,
+          "ppid": 26874,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=gpu-process --gpu-recent-crash-count=0 --disable-dev-shm-usage --ozone-platform=wayland --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAQAEAAAAAAAAAAAAAGAASAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAAoAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAAgAAAAAAAAACAAAAAAAAAA= --use-gl=disabled --shared-files --metrics-shmem-handle=4,i,6416108707466865587,8881899406122511177,262144 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190708988185955192 "
+        },
+        {
+          "pid": 26908,
+          "ppid": 26866,
+          "name": "chromium",
+          "seccomp": "0",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --disable-dev-shm-usage --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,836274060730345453,4859181420767706621,524288 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190708989122997041 "
+        },
+        {
+          "pid": 26910,
+          "ppid": 26906,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=broker "
+        },
+        {
+          "pid": 26919,
+          "ppid": 26877,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --disable-dev-shm-usage --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,879818095138089032,9140904584604641857,524288 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190708990060038890 "
+        },
+        {
+          "pid": 26947,
+          "ppid": 26877,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=renderer --top-chrome-webui --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --disable-dev-shm-usage --remote-debugging-port=9241 --ozone-platform=wayland --disable-gpu-compositing --lang=en-US --num-raster-threads=1 --renderer-client-id=5 --launch-time-ticks=22240460737 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,5327209465180375858,8159907404414879313,1572864 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190708990997080739 "
+        },
+        {
+          "pid": 26956,
+          "ppid": 26877,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --disable-dev-shm-usage --remote-debugging-port=9241 --ozone-platform=wayland --disable-gpu-compositing --lang=en-US --num-raster-threads=1 --renderer-client-id=6 --launch-time-ticks=22240495215 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,13081485580723948878,10128021451959707480,1572864 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190708991934122588 "
+        },
+        {
+          "pid": 27701,
+          "ppid": 26877,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --disable-dev-shm-usage --remote-debugging-port=9241 --ozone-platform=wayland --disable-gpu-compositing --lang=en-US --num-raster-threads=1 --renderer-client-id=17 --launch-time-ticks=22316951195 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,14795373175990905563,2336758956544740454,1572864 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190709002241582927 "
+        },
+        {
+          "pid": 27802,
+          "ppid": 26877,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --instant-process --subproc-heap-profiling --change-stack-guard-on-fork=enable --disable-dev-shm-usage --remote-debugging-port=9241 --ozone-platform=wayland --disable-gpu-compositing --lang=en-US --num-raster-threads=1 --renderer-client-id=18 --launch-time-ticks=22401972391 --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,2384012266952151610,17453321717662998824,1572864 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190709003178624776 "
+        },
+        {
+          "pid": 27866,
+          "ppid": 26874,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=utility --utility-sub-type=on_device_model.mojom.OnDeviceModelService --lang=en-US --service-sandbox-type=on_device_model_execution --disable-dev-shm-usage --crashpad-handler-pid=26868 --enable-crash-reporter=, --user-data-dir=/tmp/native-views-chromium-batk3g9u/profile --subproc-heap-profiling --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --metrics-shmem-handle=4,i,12987223124224416565,3992024474930478256,524288 --field-trial-handle=3,i,10279947277406842989,4612208519444432241,262144 --variations-seed-version --pseudonymization-salt-handle=7,i,10396357006246070557,17339146640140274860,4 --trace-process-track-uuid=3190709004115666625 "
+        },
+        {
+          "pid": 27867,
+          "ppid": 27866,
+          "name": "chromium",
+          "seccomp": "2",
+          "no_new_privs": "1",
+          "arguments": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --type=broker "
+        }
+      ],
+      "package_count": 1050,
+      "sandbox": {
+        "observed_renderers": 4,
+        "all_seccomp_2_and_no_new_privs_1": true
+      }
+    },
+    "firefox_field_hashes": {
+      "provider": "f49b471ece84cf3bf0d04ae3ac9d754b930561844bbef7ae170ffffe3735cfaa",
+      "loader": "40e00ea4dfbd1b23afcc29036ece0f9460ffe8f4bab0fb9f4b841a3347895884",
+      "shim": "99b1b180e990a273a6e387543e299c53179ca54bb4229b230999f1d2d9050268",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "firefox_global_hashes": {
+      "provider": "f49b471ece84cf3bf0d04ae3ac9d754b930561844bbef7ae170ffffe3735cfaa",
+      "loader": "40e00ea4dfbd1b23afcc29036ece0f9460ffe8f4bab0fb9f4b841a3347895884",
+      "shim": "99b1b180e990a273a6e387543e299c53179ca54bb4229b230999f1d2d9050268",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "firefox_adapter": "476a548e1249d919b11f278a9b7ce988d8be5f6501b3abff90c0469620582de4",
+      "browser_archive": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "firefox_sandbox": {
+      "firefox_field_environment": {
+        "observed_tab_processes": 6,
+        "all_seccomp_2_and_no_new_privs_1": true
+      },
+      "firefox_global_environment": {
+        "observed_tab_processes": 6,
+        "all_seccomp_2_and_no_new_privs_1": true
+      }
+    },
+    "package_count": 1050
+  },
+  "cleanup": {
+    "fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-01",
+        "pids": [
+          22296,
+          22299,
+          22300,
+          22302,
+          22305
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-02",
+        "pids": [
+          22467,
+          22470,
+          22471,
+          22473,
+          22474
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-03",
+        "pids": [
+          22914,
+          22917,
+          22918,
+          22922,
+          22924,
+          22932,
+          22933,
+          22935,
+          22962,
+          22964,
+          22966,
+          22982,
+          23005,
+          23016,
+          23017,
+          23081,
+          23302,
+          23303
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-04",
+        "pids": [
+          23391,
+          23394,
+          23395,
+          23399,
+          23400,
+          23408,
+          23409,
+          23411,
+          23439,
+          23442,
+          23444,
+          23457,
+          23479,
+          23491,
+          23898,
+          23912,
+          23913
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-05",
+        "pids": [
+          24187,
+          24190,
+          24191,
+          24195,
+          24196,
+          24204,
+          24205,
+          24207,
+          24236,
+          24237,
+          24240,
+          24249,
+          24275,
+          24287,
+          24653,
+          24696,
+          24697
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-06",
+        "pids": [
+          25304,
+          25307,
+          25308,
+          25311,
+          25313,
+          25321,
+          25322,
+          25324,
+          25351,
+          25353,
+          25355,
+          25364,
+          25392,
+          25404,
+          25578,
+          25677
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-07",
+        "pids": [
+          25763,
+          25766,
+          25767,
+          25770,
+          25777,
+          25790,
+          25791,
+          25793,
+          25828,
+          25830,
+          25833,
+          25842,
+          25867,
+          25876,
+          26522,
+          26813,
+          26814
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-keys-08",
+        "pids": [
+          26845,
+          26848,
+          26849,
+          26852,
+          26866,
+          26874,
+          26875,
+          26877,
+          26906,
+          26908,
+          26910,
+          26919,
+          26947,
+          26956,
+          27701,
+          27802,
+          27866,
+          27867
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            -15,
+            0
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-firefox-regression",
+        "pids": [
+          24601,
+          24607,
+          24610,
+          24634,
+          24635,
+          24645,
+          24687
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            255
+          ],
+          "capture_exit": -15
+        },
+        "scope": "launcher/capture/pasteboard/native host receipts only"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-firefox-regression-02",
+        "pids": [
+          24903,
+          24906,
+          24907,
+          24911,
+          24914,
+          24918,
+          24970,
+          24971,
+          25062,
+          25065,
+          25090,
+          25097,
+          25123,
+          25171,
+          25178,
+          25179,
+          25196,
+          25210
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-firefox-regression-03",
+        "pids": [
+          25778,
+          25781,
+          25782,
+          25810,
+          25811,
+          25831,
+          25906,
+          25987,
+          25990,
+          26020,
+          26029,
+          26077,
+          26117,
+          26124,
+          26134,
+          26149
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-firefox-regression-04",
+        "pids": [
+          26854,
+          26857,
+          26858,
+          26862,
+          26863,
+          26865,
+          26991,
+          27094,
+          27097,
+          27107,
+          27114,
+          27143,
+          27187,
+          27203,
+          27206,
+          27208,
+          27253,
+          27545
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-firefox-regression-05",
+        "pids": [
+          27887,
+          27890,
+          27891,
+          27895,
+          27896,
+          27898,
+          27901,
+          27902,
+          28007,
+          28010,
+          28034,
+          28041,
+          28073,
+          28117,
+          28124,
+          28134,
+          28142,
+          28157
+        ],
+        "all_stopped": true,
+        "live": [],
+        "control_socket_absent": true,
+        "fixture_cleanup": {
+          "exits": [
+            0,
+            0,
+            0,
+            -15,
+            -15,
+            -15
+          ],
+          "capture_exit": -15
+        },
+        "scope": "recorded live process tree"
+      }
+    ],
+    "native_fixtures": [
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-reference",
+        "cleanup": [
+          {
+            "pid": 23810,
+            "exit": 0
+          },
+          {
+            "pid": 23815,
+            "exit": -15
+          },
+          {
+            "pid": 23816,
+            "exit": 0
+          },
+          {
+            "pid": 23817,
+            "exit": 0
+          }
+        ],
+        "live": []
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-reference-03",
+        "cleanup": [
+          {
+            "pid": 24410,
+            "exit": 0
+          },
+          {
+            "pid": 24418,
+            "exit": -15
+          },
+          {
+            "pid": 24420,
+            "exit": 0
+          },
+          {
+            "pid": 24447,
+            "exit": 0
+          }
+        ],
+        "live": []
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-transport",
+        "cleanup": [
+          {
+            "pid": 24377,
+            "exit": 0
+          },
+          {
+            "pid": 24385,
+            "exit": -15
+          },
+          {
+            "pid": 24386,
+            "exit": -15
+          },
+          {
+            "pid": 24453,
+            "exit": 0
+          },
+          {
+            "pid": 24456,
+            "exit": 0
+          },
+          {
+            "pid": 24459,
+            "exit": 0
+          },
+          {
+            "pid": 24461,
+            "exit": 0
+          },
+          {
+            "pid": 24471,
+            "exit": 0
+          },
+          {
+            "pid": 24493,
+            "exit": -9
+          }
+        ],
+        "live": []
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-lifecycle",
+        "cleanup": [
+          {
+            "pid": 24594,
+            "exit": 0
+          },
+          {
+            "pid": 24605,
+            "exit": -15
+          },
+          {
+            "pid": 24609,
+            "exit": 0
+          },
+          {
+            "pid": 24679,
+            "exit": 0
+          },
+          {
+            "pid": 24686,
+            "exit": 0
+          },
+          {
+            "pid": 24690,
+            "exit": 0
+          },
+          {
+            "pid": 24691,
+            "exit": 0
+          }
+        ],
+        "live": []
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-reference-final",
+        "cleanup": [
+          {
+            "pid": 27380,
+            "exit": 0
+          },
+          {
+            "pid": 27401,
+            "exit": -15
+          },
+          {
+            "pid": 27403,
+            "exit": 0
+          },
+          {
+            "pid": 27449,
+            "exit": 0
+          }
+        ],
+        "live": []
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-transport-final",
+        "cleanup": [
+          {
+            "pid": 27430,
+            "exit": 0
+          },
+          {
+            "pid": 27437,
+            "exit": -15
+          },
+          {
+            "pid": 27438,
+            "exit": -15
+          },
+          {
+            "pid": 27496,
+            "exit": 0
+          },
+          {
+            "pid": 27500,
+            "exit": 0
+          },
+          {
+            "pid": 27504,
+            "exit": 0
+          },
+          {
+            "pid": 27507,
+            "exit": 0
+          },
+          {
+            "pid": 27519,
+            "exit": 0
+          },
+          {
+            "pid": 27532,
+            "exit": -9
+          }
+        ],
+        "live": []
+      },
+      {
+        "root": "/var/tmp/nextspace-native-ui/chromium-global-native-lifecycle-final",
+        "cleanup": [
+          {
+            "pid": 27644,
+            "exit": 0
+          },
+          {
+            "pid": 27654,
+            "exit": -15
+          },
+          {
+            "pid": 27655,
+            "exit": 0
+          },
+          {
+            "pid": 27716,
+            "exit": 0
+          },
+          {
+            "pid": 27734,
+            "exit": 0
+          },
+          {
+            "pid": 27742,
+            "exit": 0
+          },
+          {
+            "pid": 27747,
+            "exit": 0
+          }
+        ],
+        "live": []
+      }
+    ],
+    "backend_alias_removed": true,
+    "remaining_owned_processes": [],
+    "agent_browser_session_absent": true,
+    "agent_browser_cleanup": "After the test browser exited, close tried to reconnect to the dead CDP endpoint. The current named-session info identified its empty daemon PID 44036; that owned daemon was terminated and session-list confirmed absence.",
+    "owned_CDP_forward_canceled": true
+  },
+  "diagnostics": [
+    "The first native query executed New Tab because NSMenu adopted the system interface style and replaced the query-aware root view. The shared provider now preserves style and restores its hooks after the native setMain implementation; both the native visible-root query assertion and Chromium query/cancellation cases pass.",
+    "Early checker cleanup used Ctrl+W and then Ctrl+F4 while the native address editor was focused. Their editor handling left the test-created tab open. Cleanup now uses the observed tab close button and waits through Chromium insertion animation; page focus selects the original tab physically before DOM focus.",
+    "A native button can execute its actual application menu inside existing native control dispatch, so that case witnesses one provider command and actual engine execution rather than requiring a second BrowserView unhandled hook.",
+    "The original Chromium clipboard test required field-filter provenance. With a native application menu, GNUstep correctly handles the shortcut through that menu. A temporary editor-menu-first experiment was removed: the final provider preserves existing native application-menu-first ordering. The opt-in checker instead requires validation plus exactly one actual application-menu execution, while retaining all clipboard event, cancellation and editing checks.",
+    "The first Firefox regression launcher omitted the private Chromium dependency directory containing libatk and exited before XPCOM initialization. It was corrected in subsequent owned fixtures.",
+    "An application-menu clipboard checker was also invoked against the Workspace-owned control descriptor, whose fixture intentionally does not accept manual menu-broker commands. Global checks run against Workspace association; field clipboard checks run against the supported explicit fixture binding.",
+    "Clang-only guard compilation produces the identical Chromium adapter hash as the tested candidate. GCC is explicitly rejected rather than silently ignoring the existing naked wrapper."
+  ],
+  "remaining": [
+    "Chromium global native menu command-boundary integration and Chrome/Vivaldi/Firefox derivative qualification.",
+    "Standard session shared-host startup/packaging, private role supervision and production registrar/bus recovery.",
+    "Broader keyboard/reservation policy, special keys and multi-chord metadata, remaining browser controls/dialogs, IME, accessibility and scaling.",
+    "Complete GTK, Qt/KDE and other non-GNUstep application coverage.",
+    "Qualify additional Chromium/Chrome/Vivaldi and Firefox derivative builds; current instruction guards cover the recorded Chromium and Firefox executables only.",
+    "Complete native controls across browser frontend and web content, including existing documented pointer, IME, accessibility and scaling gaps, then complete non-GNUstep toolkit integration.",
+    "Install and qualify the shared helper, launch policy and shell association in the ordinary desktop session; isolated fixtures are not system-wide deployment."
+  ],
+  "raw_evidence": [
+    ".build/native-ui/chromium-global-evidence/guest.json",
+    ".build/native-ui/chromium-global-keys-08",
+    "/var/tmp/nextspace-native-ui/chromium-global-keys-01 through -08",
+    "/var/tmp/nextspace-native-ui/chromium-global-firefox-regression through -05",
+    "/var/tmp/nextspace-native-ui/menu-global-key-build-05"
+  ],
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "b54dd6c68bf0e1d2f2b5eb3b647c1384a479ca7e375c98c568a329d853e085e6",
+    "Experiments/ChromiumScrollers/app-menus.inc": "5fc1c978e1d70810692a8627dddadd6688328a8885f230daabd8bd2a8ed09301",
+    "Experiments/ChromiumScrollers/check-app-menus.py": "f66e752ad3a8e572a68db14f508d2162c1be049f7380a8bccf5f1b1bac19aa06",
+    "Experiments/ChromiumScrollers/check-global-menu-keys.py": "54f875356c8a661fd22d068b69e967b2eb79beb0b045ae2775ad2c7a0f2e502b",
+    "Experiments/ChromiumScrollers/check-text-commands.py": "4b25a9b196287feaaca99bbf4434f08c9f3b67bfc6586c56b93b640a0217f2f5",
+    "Experiments/ChromiumScrollers/global-menu-keys.inc": "74871e0dac6f3c8d37c839c4cf7bd4a4b37dfedcee97dbac9c4659d031f32998",
+    "Experiments/ChromiumScrollers/global-menu-source-audit.json": "02404f511468f99cc71cbd80c8ca764fccdcc9bee17e548635de3b65381061a5",
+    "Experiments/ChromiumScrollers/hook.c": "9b14471aec6f2767504706d743527e137f158ce34688509b5369a1fa0ac9ca55",
+    "Experiments/ChromiumScrollers/native_menus.py": "53c6e1944b8e8fdb0e144bde803360df3899b4a36a8397f365c587074f3f2050",
+    "Experiments/ChromiumScrollers/pinned-global-menu.h": "7b75957c313ad234aa25b289cf4b93565af5dcc2db36e33905941dd8c930f39a",
+    "Experiments/ChromiumScrollers/views-text.inc": "6a7ce6841de137b7df30960ebc78cb84665998812175b3627e699529a64ed77a",
+    "Libraries/NativeUI/Bridge/Menu.inc": "989b1c4c1cd9caddcdde65f80976986030a0f559b683fe2bb5ab0df45324db32",
+    "Libraries/NativeUI/Bridge/Protocol.h": "4ed5ee3d665faf1e4531549c541c438c5f7640ae5531b448b81353b16378b687",
+    "Libraries/NativeUI/Bridge/README.md": "d56b6a2b7ef655e16488a74ab0b175a9e58292af605af2e7ef5ef64c644b507f",
+    "Libraries/NativeUI/GNUstep/Menu.m": "5ea04b1840e73829ac364814056a5a1a7b6f0b852d95fb181adf7153656809e3",
+    "Tests/NativeUI/check-menu-transport.py": "96e4d94d1f78089dd35178c01cf9f10c12feba86c9fb73fb4a1740ed1a06a6a1",
+    "Tests/NativeUI/menu-probe.m": "438cca12f45df09d43726f91fa762409fece4fefa02240ac504f8860c43e27a5",
+    "Tests/NativeUI/menu-transport-probe.c": "76cb74de06c07ff0777b3dea65cb09ffed069169f64fcb8eab49a8efddd51c8b"
+  }
+}

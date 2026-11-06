@@ -10,7 +10,7 @@ struct AppMenuBinding {
   struct AppMenuBinding *next;
   void *object,*model;
   pthread_t owner;
-  uint64_t control;
+  uint64_t control,browser;
   struct MenuLabel *labels;
   NXSMenuItem *items;
   struct MenuEntry *entries;
@@ -24,10 +24,14 @@ static unsigned app_menu_watch;
 static int app_menu_watch_fd=-1;
 static uint64_t app_menu_watch_generation;
 static void *app_menu_task_runner; /* One engine-owned reference for this process. */
+static void app_menu_browser_task(uint64_t);
+static uint64_t app_menu_browser_created(void *,uint64_t);
+static void app_menu_browser_removed(uint64_t,uint64_t);
+static int app_menu_browser_visible(uint64_t);
 struct MenuTaskLocation {const char *function,*file;int line,padding;const void *pc;};
-struct MenuTask {unsigned char state[32];int descriptor,padding;uint64_t generation,control,command;};
+struct MenuTask {unsigned char state[32];int descriptor,padding;uint64_t generation,control,command,browser;};
 static int app_menu_ensure_watch(void);
-static int app_menu_post_task(int,uint64_t,uint64_t,uint64_t);
+static int app_menu_post_task(int,uint64_t,uint64_t,uint64_t,uint64_t);
 static void (*original_app_menu_ctor)(void *,void *,void *,int,void *);
 static void (*original_app_menu_dtor)(void *);
 static void (*original_app_menu_run)(void *,void *,int);
@@ -175,13 +179,14 @@ static int app_menu_command(const struct NXSNativeMenuCommand *request) {
    * paint/layout stack. Accept the native action here, then revalidate and
    * activate the application model in a separate real Chromium UI task. */
   if(enabled&&request->phase==NXS_COMMAND_EXECUTE)
-    enabled=app_menu_post_task(native_edit_channel,native_callback_generation,request->control,request->command);
+    enabled=app_menu_post_task(native_edit_channel,native_callback_generation,request->control,request->command,0);
   if(log_fd>=0)dprintf(log_fd,"%d app-menu-command id=%llu command=%d phase=%u enabled=%d\n",getpid(),
     (unsigned long long)request->control,entry.command_id,request->phase,!!enabled);
   return !!enabled;
 }
 static void app_menu_task(void *state) {
   struct MenuTask *task=state;
+  if(task->browser){app_menu_browser_task(task->browser);return;}
   if(log_fd>=0)dprintf(log_fd,"%d app-menu-task owner=%d\n",getpid(),native_callback_owner());
   int current=native_callback_owner()&&task->descriptor==native_edit_channel&&task->generation==native_callback_generation;
   if(task->command){if(current)app_menu_execute(task->control,task->command);}
@@ -192,13 +197,21 @@ static void app_menu_task(void *state) {
   }
 }
 static void app_menu_task_destroy(const void *state) {free((void *)state);}
-static int app_menu_post_task(int descriptor,uint64_t generation,uint64_t control,uint64_t command) {
-  if(!app_menu_task_runner)return 0;
+static int app_menu_ensure_runner(void) {
+  if(!app_menu_task_runner) {
+    /* Actual default BrowserTaskTraits: kDefault, USER_BLOCKING. */
+    unsigned char traits[8]={0,0,0,0,2,0,0,0};
+    app_menu_task_runner=((void *(*)(const void *))(base+NXS_TASK_UI_RUNNER_OFFSET))(traits);
+  }
+  return app_menu_task_runner!=NULL;
+}
+static int app_menu_post_task(int descriptor,uint64_t generation,uint64_t control,uint64_t command,uint64_t browser) {
+  if(!app_menu_ensure_runner())return 0;
   struct MenuTask *state=calloc(1,sizeof(*state));if(!state)return 0;
   ((void (*)(void *,void (*)(void *),void (*)(const void *)))(base+NXS_TASK_BIND_STATE_CTOR_OFFSET))
     (state,app_menu_task,app_menu_task_destroy);
   state->descriptor=descriptor;state->generation=generation;
-  state->control=control;state->command=command;
+  state->control=control;state->command=command;state->browser=browser;
   struct MenuTaskLocation location=((struct MenuTaskLocation (*)(const char *,const char *,int))
     (base+NXS_TASK_LOCATION_OFFSET))("app_menu_task","../../NEXTSPACE-native-menu",1);
   /* OnceClosure is the pinned trivial-ABI, one-pointer BindStateHolder. The
@@ -211,7 +224,7 @@ static int app_menu_ready(int descriptor,unsigned condition,void *unused) {
    * compositor is midway through a frame. Use its actual UI task queue for
    * application mutations. Remove this readable source until the task drains
    * the callback socket, rather than repeatedly posting the same wake. */
-  if(!app_menu_post_task(descriptor,(uintptr_t)unused,0,0))note("application menu UI task rejected");
+  if(!app_menu_post_task(descriptor,(uintptr_t)unused,0,0,0))note("application menu UI task rejected");
   return 0;
 }
 static int app_menu_ensure_watch(void) {
@@ -219,13 +232,7 @@ static int app_menu_ensure_watch(void) {
   unsigned (*add)(int,unsigned,int (*)(int,unsigned,void *),void *)=dlsym(RTLD_DEFAULT,"g_unix_fd_add");
   int (*remove)(unsigned)=dlsym(RTLD_DEFAULT,"g_source_remove");
   if(!add||!remove||!native_callback_owner())return 0;
-  if(!app_menu_task_runner) {
-    /* Actual default BrowserTaskTraits: kDefault, USER_BLOCKING. Chromium
-     * constructs/retains the runner, the closure state and the task itself. */
-    unsigned char traits[8]={0,0,0,0,2,0,0,0};
-    app_menu_task_runner=((void *(*)(const void *))(base+NXS_TASK_UI_RUNNER_OFFSET))(traits);
-    if(!app_menu_task_runner)return 0;
-  }
+  if(!app_menu_ensure_runner())return 0;
   if(app_menu_watch)remove(app_menu_watch);
   app_menu_watch_fd=native_edit_channel;app_menu_watch_generation=native_callback_generation;
   app_menu_watch=add(native_edit_channel,1,app_menu_ready,(void *)(uintptr_t)native_callback_generation);return app_menu_watch!=0;
@@ -241,7 +248,7 @@ static int app_menu_bind(struct AppMenuBinding *menu) {
      !native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())return 0;
   menu->bound=1;
   if(!native_menu_model(menu->control,"Chromium",menu->items,menu->count)){menu->bound=0;return 0;}
-  struct NXSResponse *response=native_menu_request(menu->control,26,1);
+  struct NXSResponse *response=native_menu_request(menu->control,26,app_menu_browser_visible(menu->browser));
   if(!response||response->parts[3].x!=1){native_menu_request(menu->control,29,0);menu->bound=0;return 0;}
   if(log_fd>=0) {
     struct NXSRectD frame=response->parts[1];
@@ -258,13 +265,14 @@ static void app_menu_ctor(void *object,void *browser,void *model,int run_types,v
   struct AppMenuBinding *menu=calloc(1,sizeof(*menu)),*previous=collecting_menu;
   if(menu){menu->object=object;menu->model=model;menu->owner=pthread_self();menu->control=++next_app_menu;collecting_menu=menu;}
   original_app_menu_ctor(object,browser,model,run_types,closed);collecting_menu=previous;
-  if(menu){menu->next=app_menus;app_menus=menu;}
+  if(menu){menu->browser=app_menu_browser_created(browser,menu->control);menu->next=app_menus;app_menus=menu;}
 }
 static void app_menu_dtor(void *object) {
   struct AppMenuBinding **cursor=&app_menus;
   while(*cursor&&(*cursor)->object!=object)cursor=&(*cursor)->next;
   if(*cursor) {
     struct AppMenuBinding *menu=*cursor;*cursor=menu->next;
+    app_menu_browser_removed(menu->browser,menu->control);
     if(menu->bound)native_menu_request(menu->control,29,0);
     app_menu_clear_model(menu);
     while(menu->labels){struct MenuLabel *entry=menu->labels;menu->labels=entry->next;free(entry->label);free(entry);}

@@ -1,18 +1,25 @@
 /* Application menu data serialization; no widget or shortcut implementation.
  * Include after Transport.inc. GPL-2.0-or-later. */
 #include "../NativeUI.h"
-static int __attribute__((unused)) native_application_menu_key(const NXSKeyEvent *event,int execute) {
+static int native_menu_key_request(uint64_t control,const NXSKeyEvent *event,int mode) {
   const char *text=event->text?event->text:"",*unmodified=event->unmodified_text?event->unmodified_text:"";
   size_t first=strlen(text),second=strlen(unmodified);
   if(first+second>65536)return 0;
   size_t size=sizeof(struct NXSControlInputRequest)+first+second;
   struct NXSControlInputRequest *request=calloc(1,size);if(!request)return 0;
   *request=(struct NXSControlInputRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=27,.process=identity(),
+    .control=control,
     .type=event->type,.modifiers=event->modifiers,.key=event->key,.repeat=event->repeat,
-    .text_size=first,.unmodified_size=second,.focused=!!execute};
+    .text_size=first,.unmodified_size=second,.focused=mode};
   memcpy(request+1,text,first);memcpy((char *)(request+1)+first,unmodified,second);
   struct NXSResponse *response=exchange_bytes(request,size);free(request);
   return response&&response->parts[3].x==1;
+}
+static int __attribute__((unused)) native_application_menu_key(const NXSKeyEvent *event,int execute) {
+  return native_menu_key_request(0,event,!!execute);
+}
+static int __attribute__((unused)) native_model_menu_key(uint64_t control,const NXSKeyEvent *event,int execute) {
+  return control&&native_menu_key_request(control,event,execute?1:-1);
 }
 static int native_menu_model(uint64_t control,const char *title,const NXSMenuItem *items,unsigned count) {
   if(!control||!title||count>4096||(count&&!items))return 0;

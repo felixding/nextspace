@@ -64,7 +64,8 @@ int main(int argc,char **argv) {
   assert(argc>=2);owner=pthread_self();setvbuf(stdout,NULL,_IOLBF,0);assert(bridge_connect(argv[1]));
   slow=argc>2&&!strcmp(argv[2],"--expire");
   struct NXSRequest metrics={.magic=NXS_CHROMIUM_MAGIC,.operation=7};
-  struct NXSResponse *bootstrap=exchange(metrics);assert(bootstrap&&bootstrap->parts[5].height==1);
+  struct NXSResponse *bootstrap=exchange(metrics);assert(bootstrap&&((unsigned)bootstrap->parts[5].height&1));
+  unsigned menu_capabilities=bootstrap->parts[5].height;
   wake_fd=eventfd(0,EFD_NONBLOCK|EFD_CLOEXEC);assert(wake_fd>=0);
   struct NXSControlRequest subscription={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=15,.process=identity()};
   assert(exchange_bytes_descriptor(&subscription,sizeof(subscription),wake_fd)->parts[3].x==1);
@@ -94,11 +95,13 @@ int main(int argc,char **argv) {
         assert(!pthread_join(worker,NULL));
         printf("{\"event\":\"worker-reply\",\"owner_callbacks\":true,\"via_rpc\":%s}\n",via_rpc?"true":"false");
       }
-      else if(!strncmp(line,"key ",4)) {
+      else if(!strncmp(line,"key ",4)||!strncmp(line,"query ",6)) {
+        int query=!strncmp(line,"query ",6);assert(!query||(menu_capabilities&4));
         struct {struct NXSControlInputRequest request;char text[2];} packet={
           .request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=27,.process=identity(),.control=1,
-            .text_size=1,.unmodified_size=1,.type=NXS_KEY_DOWN,.modifiers=NXS_ALT,.key=NXS_KEY_TEXT}};
-        packet.text[0]=packet.text[1]=line[4];rpc_depth++;
+            .text_size=1,.unmodified_size=1,.type=NXS_KEY_DOWN,.modifiers=NXS_ALT,.key=NXS_KEY_TEXT,
+            .focused=query?-1:0}};
+        packet.text[0]=packet.text[1]=line[query?6:4];rpc_depth++;
         struct NXSResponse *r=exchange_bytes(&packet,sizeof(packet.request)+2);rpc_depth--;
         assert(r&&r->parts[3].x==1);
       } else if(!strncmp(line,"disable",7))allow=0;

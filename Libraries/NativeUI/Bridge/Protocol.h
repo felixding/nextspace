@@ -129,13 +129,17 @@ struct NXSNativeCommandDecision {
   int32_t result;
   uint64_t serial;
 };
-/* Optional menu transport, bootstrap part 5.height. Operations 24 enable/
+/* Optional menu transport, bootstrap part 5.height: bit 1 models, bit 2 shared
+ * shell-selected application keys, bit 4 model key queries. Operations 24 enable/
  * disable menu callbacks on the existing owner endpoint; 25 replace menu data,
  * 26 show/hide (state), 27 key (ControlInputRequest), 28 state (item index in
  * state), 29 destroy, 30 cancel. Menu kind is zero, control is a nonzero ID.
  * A model request is followed by title_size UTF8 bytes, then count wire items,
  * each followed by title_size and key_size UTF8 bytes. text_size covers all
  * payload bytes. No NULs, native pointers, geometry or widget code cross IPC. */
+/* Operation 27 with a nonzero control preserves focused=0 legacy execution;
+ * focused=-1 queries, focused=1 executes with input-owner checks. With control
+ * zero, the shared shell-selected role instead uses focused=0 query/1 execute. */
 struct NXSMenuModelRequest {
   uint32_t magic,operation,process,kind;
   uint64_t control;

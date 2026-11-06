@@ -91,7 +91,16 @@ trace_start = len(logs())
 if not a.opened:
     click(1195, 143)
 trace = wait(logs, lambda s: 'app-menu-native ' in s)
-model = [dict(t.split('=', 1) for t in line.split()[2:]) for line in trace.splitlines() if ' app-menu-item ' in line]
+history = [dict(t.split('=', 1) for t in line.split()[2:]) for line in trace.splitlines() if ' app-menu-item ' in line]
+menu_events = remote('import json;from pathlib import Path\nprint(json.dumps([json.loads(l) for l in (Path(' + repr(a.fixture) + ")/'helper.jsonl').read_text().splitlines() if 'native-menu-model' in l or 'native-menu-destroy' in l]))")
+live = set()
+for event in menu_events:
+    if event['event'] == 'native-menu-model':live.add(str(event['control']))
+    else:live.discard(str(event['control']))
+check('one-live-native-application-model',len(live)==1,controls=sorted(live))
+# Closed windows and an earlier toolbar invocation remain in the diagnostic
+# history. Inspect the current native model, rather than counting old models.
+model = list({i['index']:i for i in history if i['id'] in live}.values())
 check('actual-model-projected', len(model) == 88 and any(bytes.fromhex(i['title_hex']).decode() == 'Find and edit' for i in model), count=len(model))
 menus = [w for w in control('windows') if w['pid'] == launch['pids'][-2] and w['visible']]
 check('detached-native-window', len(menus) == 1 and menus[0]['level'] == 20 and not menus[0]['accepts_focus'], windows=menus)

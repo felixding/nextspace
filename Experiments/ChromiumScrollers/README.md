@@ -533,6 +533,13 @@ evidence is in [click-count qualification](../../Libraries/NativeUI/click-count-
 
 ## Application clipboard commands
 
+The opt-in startup menu binding below changes clipboard shortcut provenance:
+GNUstep's application menu can handle the key before the field's own menu.
+Use `check-text-commands.py --application-menus` for that fixture. It requires
+native validation and exactly one real Chromium model execution for Paste,
+then runs the same trusted event, cancellation and editing checks. The
+ordinary field-only callback assertions remain available without this flag.
+
 The Chromium address and webpage text bindings now opt into the existing shared
 application-command filter. GNUstep's real menu and editor still choose and
 validate keyboard actions. The bridge asks the actual Omnibox or Blink command
@@ -597,3 +604,27 @@ models, dynamic structure and checkmarks, icons/torn-off menus, actionable
 submenus, additional key encodings and global shortcut dispatch remain required.
 The alternate `ActionAppMenu` path, Firefox menus, derivative browsers and
 GTK/Qt/KDE bindings are not implemented by this change.
+
+## Native menu keys from startup
+
+`NEXTSPACE_CHROMIUM_MENU_KEYS=1`, together with the existing native Views and
+menu options, makes the pinned Chromium build create its actual application
+menu model from a real UI task after window initialization. The detached
+GNUstep menu therefore exists before the toolbar button is clicked. Window
+activation selects that window's model; teardown retires its identity so a
+queued task cannot revive a deleted browser window.
+
+The bridge asks the actual native menu whether a web key matches, then lets
+Chromium deliver the key to the renderer. Execution occurs after the renderer
+declines it, or through an existing native control's normal menu dispatch.
+A page's `preventDefault()` still cancels the action. Native field behavior,
+application controllers and GNUstep's menu ordering remain intact. There is
+no new shortcut table, widget renderer, menu tracker or browser rebuild.
+
+`check-global-menu-keys.py` covers cold startup, body/button keys, cancellation,
+synthetic and unmatched events, foreign connections, two-window focus and
+window teardown. The source audit is [here](global-menu-source-audit.json),
+and the qualification is [here](global-menu-qualification.json).
+This remains an optional adapter for the recorded Linux ARM64 executable.
+Chrome, Vivaldi, other Chromium versions, the remaining browser frontend,
+full desktop session integration and other toolkits still require work.

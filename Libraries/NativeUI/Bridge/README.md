@@ -58,10 +58,21 @@ unregistration. The preceding transport executes all three callbacks on the
 worker; the current transport executes them on the registering thread.
 See [ownership qualification](../command-thread-qualification.json).
 
-This does not yet provide detached application menus or dispatch their idle
-commands. Those require native menu-model binding and owner-loop integration;
-the existing browser adapters currently supply command transactions during
-field input.
+The command filter also remains usable without application menus. Detached
+menu binding and idle command dispatch use the additional model transport and
+owner-loop integration in the browser adapters.
+
+The optional menu-model transport now also supports authenticated key queries.
+Bootstrap part 5.height is a bit mask: 1 models, 2 shell-selected application
+keys, 4 model-key queries. For operation 27 with a nonzero model ID,
+`focused=-1` queries and `focused=1` executes; legacy `focused=0` still executes.
+With model ID zero, the separate shell-selected role retains its existing
+`focused=0` query / `focused=1` execution convention. Both use the same key
+serializer. Queries call the native provider's `NSMenu` matching with action
+actuation suppressed. They add no shortcut table. A shell-selected host also
+requires current input ownership; both paths authenticate the controlling
+connection and sender's lifetime. See the browser application-menu bindings
+for current startup, focus and idle command integration.
 
 These are internal source includes, not a stable engine plugin ABI. Every
 consumer must audit its own binary, signatures, layouts and lifecycle. Sharing

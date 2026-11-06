@@ -293,6 +293,7 @@ static int views_accelerator_key(void *manager,const void *event) {
       if(f->owned&&original_views_has_focus(f->transport.node)&&
          ((void *(*)(void *))(base+NXS_CHROMIUM_VIEWS_FOCUS_MANAGER_OFFSET))(f->transport.node)==manager&&
          views_command_key(f,event))return 0;
+  if(menu_keys_enabled&&app_menu_views_key(manager,event))return 0;
   return original_views_accelerator_key(manager,event);
 }
 static int views_controller_key(void *controller,void *view,const void *event) {

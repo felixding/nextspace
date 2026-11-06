@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "aad5f0ed",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "sources": [
+    {
+      "path": "chrome/browser/ui/views/frame/browser_view.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/browser_view.cc",
+      "sha256": "1f50fd9bd07c94240a180e004fdec4469356f256fc936936363541f740942e0a"
+    },
+    {
+      "path": "chrome/browser/ui/views/frame/browser_view.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/browser_view.h",
+      "sha256": "0672990c45e87d45d3b0918a1fa46d14b1de078203f93c9d8ba0bd42036af766"
+    },
+    {
+      "path": "ui/views/controls/webview/unhandled_keyboard_event_handler.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/webview/unhandled_keyboard_event_handler.cc",
+      "sha256": "7ef5ba290800ee17a8db995387e091e50b3e97c731c915b6c7ea860c781a126a"
+    },
+    {
+      "path": "components/input/native_web_keyboard_event.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/components/input/native_web_keyboard_event.h",
+      "sha256": "a16b51cd09ff230a6ad1cd1c100a2af517acbce124e2da9e7795ba7a5506cb6d"
+    },
+    {
+      "path": "ui/views/controls/webview/webview.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/webview/webview.cc",
+      "sha256": "131e3bddab3bfc62e3ac478be7a8fd913151965c75842dd67659f9b302185e0c"
+    },
+    {
+      "path": "chrome/browser/ui/views/toolbar/browser_app_menu_button.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/toolbar/browser_app_menu_button.cc",
+      "sha256": "ff2400032798206de047fa4fe06454ba2f24b6a809fa491508346286fd3b603b"
+    },
+    {
+      "path": "chrome/browser/ui/views/toolbar/browser_app_menu_button.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/toolbar/browser_app_menu_button.h",
+      "sha256": "b95b9810ad5aabadb3dc92c5a1354032786b29e0a4596b75bc5991fb129e6fde"
+    },
+    {
+      "path": "ui/views/controls/menu/menu_button_controller.cc",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "path": "content/public/browser/web_contents_delegate.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/content/public/browser/web_contents_delegate.h",
+      "sha256": "35d6d435dba3c1929dff02695c02b0ae4e07a56720e9e7b78f905ec089fb5992"
+    },
+    {
+      "path": "chrome/browser/ui/views/frame/browser_widget.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/frame/browser_widget.cc",
+      "sha256": "ceed2ed74c2748c7f35b4343364d561e630d122cbf6238d5f1d9cf6f2198c63d"
+    },
+    {
+      "path": "content/public/browser/keyboard_event_processing_result.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/content/public/browser/keyboard_event_processing_result.h",
+      "sha256": "3e9f4bdf975021636617af98d680b5bab32aae97abd4a73000d60158352a6206"
+    }
+  ],
+  "guards": "pinned-global-menu.h guards five lifecycle/key detours and six actual engine calls before activation. The existing pinned Views detour guards OnKeyEvent, whose source and compiled body establish FocusManager fields and the virtual focused-view contract.",
+  "layouts": {
+    "native_web_event": {
+      "type_offset": 40,
+      "raw_key_down": 7,
+      "native_event_offset": 120,
+      "skip_if_unhandled_offset": 128
+    },
+    "focus_manager": {
+      "focused_view_offset": 24,
+      "shortcut_suspended_offset": 72
+    },
+    "view": {
+      "skip_default_key_event_processing_vtable_slot": 71
+    }
+  },
+  "boundaries": [
+    "BrowserView is not a primary views::View pointer. Invoke BrowserView::GetWidget and Widget::GetFocusManager, preserving multiple-inheritance adjustments.",
+    "Cold startup invokes actual BrowserView::ShowAppMenu on Chromium UI tasks after AddedToWidget. The existing AppMenuModel and AppMenuButton still own initialization and destruction.",
+    "Queued browser tasks carry monotonic opaque identities, and OnWidgetDestroying retires each owner before original teardown. Focus switches cancel the old native root before showing the current model.",
+    "The focused View decides whether the renderer receives keys first. The reservation query uses NSMenu matching and returns actual NOT_HANDLED_IS_SHORTCUT=3 for USE_AURA. Real unhandled events execute the same native menu; DOM cancellation suppresses execution.",
+    "Native controls retain their ordinary native application-menu-first dispatch. Native buttons can execute the application menu through their existing control key path. Text fields use actual application menu commands when present, with original native editor fallback preserved.",
+    "Native menu key queries use an optional transport bit and the existing authenticated owner endpoint; another socket cannot query or execute a known model.",
+    "NSMenu::setMain may replace NSMenuView while adopting system interface style. Restore the lifecycle/query subclass after the native call and preserve style when installing it. No matching, rendering, layout or tracking implementation is copied.",
+    "Only Clang on AArch64 is accepted, because the existing input handoff uses a naked ABI wrapper."
+  ]
+}

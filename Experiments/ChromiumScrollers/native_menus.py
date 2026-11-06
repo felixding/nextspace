@@ -30,6 +30,9 @@ class NativeMenuServer:
             self.native.nxs_menu_items.argtypes=[C.c_void_p,C.POINTER(MenuItem),C.c_uint32];self.native.nxs_menu_items.restype=C.c_int
             self.native.nxs_menu_show.argtypes=[C.c_void_p,C.c_int];self.native.nxs_menu_show.restype=C.c_int
             self.native.nxs_menu_key.argtypes=[C.c_void_p,C.POINTER(KeyEvent)];self.native.nxs_menu_key.restype=C.c_int
+            if self.native.nxs_native_ui_menu_capabilities()&8:
+                self.native.nxs_menu_key_query.argtypes=[C.c_void_p,C.POINTER(KeyEvent)];self.native.nxs_menu_key_query.restype=C.c_int
+                self.capabilities|=4
             self.native.nxs_menu_state.argtypes=[C.c_void_p,C.c_int];self.native.nxs_menu_state.restype=MenuState
     def owner(self,client,req,pid):
         owner=self.server.notifiers.get(req.process);entry=self.server.text_filters.get(req.process)
@@ -101,9 +104,19 @@ class NativeMenuServer:
         state=self.states.get((req.process,req.control));accepted=0;index=-1
         if not state or state['client'] is not client or state['destroy']:self.respond(client,req);return
         if operation==27:
+            # Legacy model clients use focused=0 for execution. New clients
+            # explicitly query (-1) or execute (1), with the same input-owner
+            # restriction as native fields when a shell broker is present.
+            # Queries never invoke an application action.
+            if req.focused not in (-1,0,1) or (req.focused==-1 and not self.capabilities&4):
+                self.respond(client,req);return
+            if req.focused and (select.select([self.server.notifiers[req.process]['lifetime']],[],[],0)[0]
+                    or self.server.input_owner and not self.server.input_owner(pid)):
+                self.respond(client,req);return
             event=self.key_event(req,data)
             if event is None:self.respond(client,req);return
-            accepted=self.native.nxs_menu_key(state['native'],C.byref(event))
+            key=self.native.nxs_menu_key_query if req.focused==-1 else self.native.nxs_menu_key
+            accepted=key(state['native'],C.byref(event))
         elif req.text_size or len(data)!=C.sizeof(req):self.respond(client,req);return
         elif operation==26 and req.state in (0,1):accepted=self.native.nxs_menu_show(state['native'],req.state)
         elif operation==28:accepted=1;index=req.state

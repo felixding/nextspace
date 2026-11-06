@@ -43,6 +43,7 @@ static int application_command(NXSMenu *menu,uint64_t command,unsigned phase)
  * aspect of layout, hit testing, submenu placement and event tracking. */
 @interface NXSModelMenuView : NSMenuView
 @end
+static void lifecycle_view(NSMenu *part);
 @implementation NXSModelMenuView
 - (void)performActionWithHighlightingForItemAtIndex:(NSInteger)index
 {
@@ -69,6 +70,13 @@ static int lifecycle_callback(NXSModelMenu *part,unsigned phase)
   @finally {nxs_host_menu_end(&scope);menu->depth--;}
 }
 @implementation NXSModelMenu
+- (void)setMain:(BOOL)flag
+{
+  [super setMain:flag];
+  /* NSMenu may replace its representation when adopting the system's menu
+   * interface style. Keep the adapter's lifecycle/query hooks on that view. */
+  lifecycle_view(self);
+}
 - (BOOL)validateMenuItem:(NSMenuItem *)item
 {
   unsigned flags=[[[item representedObject] objectForKey:@"flags"] unsignedIntValue];
@@ -105,8 +113,11 @@ static int lifecycle_callback(NXSModelMenu *part,unsigned phase)
 @end
 static void lifecycle_view(NSMenu *part)
 {
-  if([[part menuRepresentation] isKindOfClass:[NXSModelMenuView class]])return;
+  NSMenuView *previous=[part menuRepresentation];
+  if([previous isKindOfClass:[NXSModelMenuView class]])return;
   NSMenuView *view=[[[NXSModelMenuView alloc] initWithFrame:NSZeroRect] autorelease];
+  [view setHorizontal:[previous isHorizontal]];
+  [view setInterfaceStyle:[previous interfaceStyle]];
   [part setMenuRepresentation:view];
 }
 static NSMenu *model_menu(NXSMenu *owner,NSString *title,uint64_t identifier)
@@ -132,6 +143,7 @@ static NSMenu *model_menu(NXSMenu *owner,NSString *title,uint64_t identifier)
 }
 - (void)invoke:(NSMenuItem *)item
 {
+  if(menu->querying)return;
   if(![self validateMenuItem:item])return;
   application_command(menu,[[[item representedObject] objectForKey:@"command"] unsignedLongLongValue],NXS_COMMAND_EXECUTE);
 }

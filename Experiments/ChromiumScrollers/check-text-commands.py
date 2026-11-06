@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import argparse,json,shlex,subprocess,time
 from pathlib import Path
-p=argparse.ArgumentParser(description='Check native Chromium clipboard commands through real application paths.');p.add_argument('--ssh-config',type=Path,required=True);p.add_argument('--ssh-host',default='lima-nextspace-gui');p.add_argument('--session',required=True);p.add_argument('--cdp',required=True);p.add_argument('--pasteboard-probe',required=True);p.add_argument('--fixture',required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--negative',action='store_true');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+p=argparse.ArgumentParser(description='Check native Chromium clipboard commands through real application paths.');p.add_argument('--ssh-config',type=Path,required=True);p.add_argument('--ssh-host',default='lima-nextspace-gui');p.add_argument('--session',required=True);p.add_argument('--cdp',required=True);p.add_argument('--pasteboard-probe',required=True);p.add_argument('--fixture',required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--negative',action='store_true');p.add_argument('--application-menus',action='store_true',help='Require validation and execution through the already-visible native application menu');a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
+if a.application_menus and a.negative:p.error('--application-menus cannot be combined with --negative')
 ssh=['ssh','-F',str(a.ssh_config),a.ssh_host];ab=['agent-browser','--session',a.session,'--cdp',a.cdp];rows=[]
 def remote(code):return json.loads(subprocess.check_output(ssh+[shlex.join(['python3','-c',code])],text=True))
 def controls(commands):
@@ -100,6 +101,8 @@ assert control(f"raise {w['id']}")['ok'] and control(f"focus {w['id']}")['ok']
 for name in ['frontend','web']:
  source()
  before=remote("import json;from pathlib import Path;print(len((Path("+repr(a.fixture)+")/'helper.jsonl').read_text().splitlines()))")
+ if a.application_menus:
+  hook_before=remote("import json;from pathlib import Path;print(len((Path("+repr(a.fixture)+")/'hook.log').read_text()))")
  if name=='frontend':
   address_focus();clear_address();key(47,56);actual=wait(views,lambda s:s['value']=='Alpha beta')
  else:
@@ -107,8 +110,16 @@ for name in ['frontend','web']:
   actual=wait(lambda:js("({value:normal.value,start:normal.selectionStart,end:normal.selectionEnd})"),lambda s:s['value']=='Alpha beta')
  check(name+'-cold-paste',actual['value']=='Alpha beta',state=actual)
  if not a.negative:
-  callbacks=remote("import json;from pathlib import Path;lines=(Path("+repr(a.fixture)+")/'helper.jsonl').read_text().splitlines();print(json.dumps([json.loads(l) for l in lines["+str(before)+":] if '\"event\": \"native-command\"' in l]))")
-  check(name+'-native-command-callbacks',any(r['phase']==0 and r['result']==1 for r in callbacks) and any(r['phase']==1 for r in callbacks),callbacks=callbacks)
+  if a.application_menus:
+   trace=remote("import json;from pathlib import Path;print(json.dumps((Path("+repr(a.fixture)+")/'hook.log').read_text()))")
+   items=[dict(t.split('=',1) for t in l.split()[2:]) for l in trace.splitlines() if ' app-menu-item ' in l]
+   paste=next(i for i in items if bytes.fromhex(i['title_hex']).decode()=='Paste')
+   commands=[dict(t.split('=',1) for t in l.split()[2:]) for l in trace[hook_before:].splitlines() if ' app-menu-command ' in l or ' app-menu-execute ' in l]
+   matched=[r for r in commands if r['id']==paste['id'] and r['command']==paste['command']]
+   check(name+'-native-application-menu-command',any(r.get('phase')=='0' and r['enabled']=='1' for r in matched) and len([r for r in matched if r.get('phase')=='1' and r['enabled']=='1'])==1 and len([r for r in matched if 'phase' not in r and r['enabled']=='1'])==1,callbacks=matched)
+  else:
+   callbacks=remote("import json;from pathlib import Path;lines=(Path("+repr(a.fixture)+")/'helper.jsonl').read_text().splitlines();print(json.dumps([json.loads(l) for l in lines["+str(before)+":] if '\"event\": \"native-command\"' in l]))")
+   check(name+'-native-command-callbacks',any(r['phase']==0 and r['result']==1 for r in callbacks) and any(r['phase']==1 for r in callbacks),callbacks=callbacks)
 if a.negative:assert [r['case'] for r in rows if not r['passed']]==['frontend-cold-paste','web-cold-paste'],rows
 else:extended_checks()
 print(json.dumps(dict(checks=len(rows),passed=sum(r['passed'] for r in rows),negative=a.negative)))
