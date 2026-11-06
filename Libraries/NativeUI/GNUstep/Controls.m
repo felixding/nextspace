@@ -67,6 +67,8 @@ int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geome
     .client={client.width,client.height},.minimum={minimum.x,minimum.y},.maximum={maximum.x,maximum.y}};
   [pool drain];return 1;
 }
+int nxs_gnustep_control_wheel(NXSControl *control,const NXSWheelEvent *event)
+{return control&&control->kind==NXS_TEXTAREA&&!control->destroying?nxs_host_wheel(control->host,event):0;}
 static void slider_model(NXSControl *control)
 {
   NSSlider *view=(NSSlider *)control->view;

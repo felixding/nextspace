@@ -23,6 +23,8 @@ struct NativeForm {
   uint32_t text_start,text_end;
   double text_x,text_y;
   void *text_area;
+  uint32_t text_epoch;
+  void *wheel_registry;
   NXSTextViewport text_viewport;
   NXSTextGeometry text_geometry;
   int text_geometry_ready;
@@ -46,6 +48,7 @@ static int forms_popups_enabled;
 static int forms_text_enabled;
 static int forms_multiline_enabled;
 static int forms_multiline_viewport_enabled;
+static int forms_wheel_enabled;
 static int forms_notifications_enabled;
 static __thread const void *popup_mouse_event;
 static unsigned forms_input_capabilities;
@@ -88,6 +91,8 @@ static void end_text_pointer(struct NativeForm *,int);
 static void echo_text_selection(struct NativeForm *);
 static void echo_text_viewport(struct NativeForm *);
 static int read_text_viewport(struct NativeForm *);
+static int restore_text_viewport(struct NativeForm *);
+static void native_wheel_binding(struct NativeForm *,int);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -389,6 +394,7 @@ static void element_detach(void *node,int reattach) {
   while(*cursor&&(*cursor)->node!=node)cursor=&(*cursor)->next;
   struct NativeForm *form=*cursor;
   if(form) {
+    native_wheel_binding(form,0);
     if(active_form==form)active_form=NULL;
     if(click_form==form)click_form=NULL;
     form_request(form,6,0,0,0);*cursor=form->next;popup_free_model(form);free(form->title);free(form);
@@ -402,6 +408,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-progress.inc"
 #include "forms-text.inc"
 #include "forms-text-scroll.inc"
+#include "forms-wheel.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
  {NXS_RADIO_OFFSET,nxs_radio_bytes,paint_radio,(void **)&original_radio},
@@ -421,11 +428,13 @@ static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_d
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))&&
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
-  (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))));}
+  (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
+  (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}
 static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));
   if(forms_text_enabled)activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));
-  if(forms_multiline_viewport_enabled)activate_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours));}
+  if(forms_multiline_viewport_enabled)activate_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours));
+  if(forms_wheel_enabled)activate_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours));}

@@ -36,6 +36,19 @@ once per process and remains loaded for the lifetime of its native objects.
 The C loader rejects an absent, incompatible or incomplete provider. Its error
 is available through `nxs_native_ui_error()`; it does not emulate a control.
 
+The optional wheel extension appends one function to ABI 1 (416 to 424 bytes
+on ARM64). Query `nxs_control_wheel_capabilities()` before calling
+`nxs_control_wheel()`. Its size-tagged 40-byte event carries top-left control
+coordinates, physical modifiers and unaccelerated surface distances, positive
+right/down. The GNUstep provider currently accepts multiline controls, performs
+native hit testing independently of keyboard focus, applies the native mouse
+multiplier and dispatches to the actual responder. `NSScrollView` supplies
+scrolling policy and clamping. Busy, invalid and unsupported input returns zero;
+older providers advertise no wheel capability. Keyboard capabilities and prior
+by-value viewport/geometry APIs are unchanged. Independent native-reference,
+transport, browser and compatibility checks are recorded in
+[wheel-qualification.json](wheel-qualification.json).
+
 The API supports native push buttons, checkboxes, radio buttons, sliders,
 progress indicators, popup buttons/menus, single-line text/password fields,
 multiline text areas and the existing scrollbar contract. Normal/disabled state,

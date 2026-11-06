@@ -40,6 +40,14 @@ typedef void (*NXSControlChanged)(void *context, int event, const NXSControlStat
 
 enum NXSInputCapability { NXS_INPUT_FOCUS = 1, NXS_INPUT_KEYBOARD = 2 };
 enum NXSPointerCapability { NXS_POINTER_CLICK_COUNT = 1 };
+enum NXSWheelCapability { NXS_WHEEL_EVENTS = 1 };
+typedef struct {
+  uint32_t size, modifiers;
+  double x, y;
+  /* Unaccelerated surface-coordinate axis distance, positive right/down.
+   * The provider applies native input preferences and scrolling behavior. */
+  double delta_x, delta_y;
+} NXSWheelEvent;
 enum NXSEventCapability { NXS_EVENTS = 1 };
 enum NXSRangeCapability { NXS_RANGE_STEP = 1 };
 enum NXSPopupCapability { NXS_POPUP_ITEMS = 1 };
@@ -201,6 +209,7 @@ typedef struct {
   NXSTextViewport (*control_text_viewport)(NXSControl *);
   int (*control_text_scroll)(NXSControl *,double,double);
   int (*control_text_geometry)(NXSControl *,NXSTextGeometry *);
+  int (*control_wheel)(NXSControl *,const NXSWheelEvent *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -223,6 +232,10 @@ unsigned nxs_control_pointer_capabilities(void);
  * retain single-click tracking through the original entry point. */
 int nxs_control_track_clicks(NXSControl *,double x,double y,unsigned modifiers,unsigned click_count);
 void nxs_control_send(NXSControl *control, int event, double x, double y, unsigned modifiers);
+unsigned nxs_control_wheel_capabilities(void);
+/* Native hit testing/responder dispatch, independent of keyboard focus.
+ * Returns one for accepted input, zero for unsupported/busy/invalid input. */
+int nxs_control_wheel(NXSControl *,const NXSWheelEvent *);
 unsigned nxs_control_input_capabilities(void);
 int nxs_control_focus(NXSControl *control, int focused);
 int nxs_control_focused(NXSControl *control);

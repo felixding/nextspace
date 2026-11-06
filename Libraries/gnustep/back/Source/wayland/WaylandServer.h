@@ -68,6 +68,10 @@ struct pointer
   enum wl_pointer_button_state button_state;
 
   uint32_t axis_source;
+  double axis_distance[2];
+  int32_t axis_steps[2],axis_value120[2];
+  unsigned axis_pending,axis_has_steps,axis_has_value120;
+  uint32_t axis_time;
 
   uint32_t	 serial;
   struct window *focus;

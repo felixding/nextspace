@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -78,6 +78,10 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_text_sync(pointer,C.byref(model))
         if item['kind']==9 and 'scroll' in item:
             assert native.nxs_control_text_scroll(pointer,*item['scroll'])
+        if item.get('wheel'):
+            for entry in item['wheel']:
+                event=WheelEvent(C.sizeof(WheelEvent),entry.get('modifiers',0),entry.get('x',40),entry.get('y',12),entry.get('dx',0),entry.get('dy',0))
+                assert native.nxs_control_wheel(pointer,C.byref(event))
         image = save_image()
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],

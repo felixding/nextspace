@@ -1,0 +1,165 @@
+{
+  "date": "2026-11-06",
+  "baseline": "75bb92c4",
+  "scope": "Exact unchanged Debian ARM64 Chromium, software/headless Wayland at 100 percent scale; ordinary wrapped native textareas",
+  "implementation": {
+    "provider": "Native hit testing and ordinary responder scrollWheel: dispatch; actual NSScrollView owns line/page, Shift, native preferences, clamping and pixels. No duplicated control algorithms.",
+    "transport": "Optional append-only wheel method and separate capability; owner-connection-only operation 35. Existing keyboard capability, viewport structs and protocol layouts unchanged.",
+    "chromium": "Original trusted DOM dispatch/cancellation first; actual native widget region in Blink EventHandlerRegistry defeats compositor bypass without dummy JavaScript. Uncancelled native default returns kHandledSystem, avoiding a second engine default.",
+    "recovery": "Replay retained engine scroll model into a recreated native object once per authenticated host generation, after text synchronization. Failed native reads do not echo stale viewport state. No input action replay.",
+    "backend": "Pointer-frame axis grouping; wheel/value120/discrete normalization and Wayland positive-down Y to native NSEvent Y. Separate private backend build; no installed AppKit or browser rebuild.",
+    "feature": "NEXTSPACE_CHROMIUM_WHEEL=1 requires native multiline viewport flags, wheel capability and exact instruction/build guards. Opt-in; not the installed desktop default."
+  },
+  "api": {
+    "version": 1,
+    "bytes": 424,
+    "wheel_capabilities": 1,
+    "text_capabilities": 63,
+    "previous_bytes": 416,
+    "event_bytes": 40,
+    "geometry_bytes": 88,
+    "viewport_bytes": 56
+  },
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/mouse_wheel_event_manager.cc",
+      "sha256": "f5cf899a44ed0765e0ff4383a7b7cce17fe660594c45eb21e4ce681ae86bf954"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/mouse_wheel_event_manager.h",
+      "sha256": "1a9a152b189547607300d1ac1ea2a72aaacc0bfebdb3130165b440853ea95178"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/public/common/input/web_mouse_wheel_event.h",
+      "sha256": "81d50f16302d92b1ed65508fc3c272a2bf53744223c9ce7f21e5f8676d38f1f4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/public/platform/web_input_event_result.h",
+      "sha256": "6af60bdab41ae55a7814c19d43f90c89d7adfde92be466ed77d9e1b6aa19e58e"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/frame/event_handler_registry.cc",
+      "sha256": "bfec2d456757a55bf307e95151473d9092a14c15244eb8d2ab126641a7c947d4"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/frame/event_handler_registry.h",
+      "sha256": "8efbec87a9bb551e41e924b85f4a849f88e5ea1b4f5db233211e89875c5d55fc"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/event_handler.h",
+      "sha256": "2ec72b3c32fafb82bccdccd97f6afbad501dbeb5bb6ab23c10e9b705ea84f366"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/frame/local_frame.h",
+      "sha256": "e0e7f42ecd10063043aace80509a10b8dcfa2ee6c9642ffadeee21f573b5dd4c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/node.cc",
+      "sha256": "91df8682ae46df62860f1dd653573243d3d255c1ebe349bd59e898117f7fa0d7"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/events/event_target.cc",
+      "sha256": "dfd02d762e2321c0fdf9cc1f6c799f02e0f7150d76d295bf07122cd571b841d8"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/types/scroll_types.h",
+      "sha256": "eb8c9aca36e235c7eab36cc5571588758c7569038e6e0c8dcf8f30142f14aebe"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_pointer.cc",
+      "sha256": "49907ad2afb6a64ad9956be643b117d5644ea3e6e1b5a7860c56472c52e128ad"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_event_source.cc",
+      "sha256": "f76f915f6dfde875390b82429aa131d61f4aa2f943b5853ff698a4022704a6b2"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSScrollView.m",
+      "sha256": "75a86fdf882af992982c961b77e645876a8c5c313065d6518994845180538b6c"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSEvent.m",
+      "sha256": "4e570fb0724fcfd7171690a0f4295ec9eb97f200ce969895d4204e0ab3131046"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Headers/AppKit/NSEvent.h",
+      "sha256": "a53dab810977bd71487810f4da09dd4eb8a418f89cef7bcfa43710a6e77c792f"
+    }
+  ],
+  "guarded_boundaries": {
+    "REGISTRY_ADD": "0xdf0fba8",
+    "REGISTRY_REMOVE": "0xdf0fca8",
+    "REGISTRY_FIELDS": "0xdd1241c",
+    "MANAGER": "0xe257b18",
+    "TARGET_FIELD": "0xe257f44",
+    "EVENT_FIELDS": "0xdeab728",
+    "DELTA_FIELDS": "0xdeab7d8",
+    "UNITS_FIELD": "0xdeab824",
+    "PHASE_FIELDS": "0xe257b94"
+  },
+  "abi_evidence": {
+    "REGISTRY": 288,
+    "TARGET": 4,
+    "DELTA": 168,
+    "TICKS": 176,
+    "PHASE": 192,
+    "ACTION": 208,
+    "UNITS": 213,
+    "frame_event_handler_byte": 592,
+    "wheel_blocking_registry_class": 1,
+    "handled_system_result": 3
+  },
+  "runtime_sha256": {
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+    "/var/tmp/nextspace-native-ui/chromium-wheel-05-hook.so": "3f4cc53e0705add10bc0fbde6a3c26ec3b76e1d15311c55b84ff1fba375d5b86",
+    "/var/tmp/nextspace-native-ui/firefox-multiline-02-hook.so": "fb846fb161a904e2e052d37ff67be9db1a8472a696b5ff87e5a26de5de00691c",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "f2249a87620df1e8119d89c17754fa79715e20d13bf4db5d6fd178f107fa38eb",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "91dfb77c4499cf2d32829fc2119ddcfeaf92b2b6abd5e900ffefaa9fbb9cbad9",
+    "/var/tmp/nextspace-native-ui/wheel-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "ecd35d7ec0850a9accb7325356223ec2685f7752c0a1348b58f9766cf0c765ce",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/stamp.make": "186a17c9c1ef6c1acfbdd3b998a26604652f60be33fa987fb5f2711a39c610e3",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032": "3f90db625da9cadf932a740f9af0463eaff8016738294c53e5893548a3a6a8f5",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Info-gnustep.plist": "2808cd013cf4d0e97c31ea5f6ca26c276c4f124a9a3bc2927f93fc887ece162a",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/Swedish.lproj/nfontFaceNames.strings": "14541896e5f50164cac8e8456cda6bc6bb5d92d1c4d03e36a8a34b85e1fb1917",
+    "/var/tmp/nextspace-native-ui/wheel-backend-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/Resources/English.lproj/nfontFaceNames.strings": "82a4412800f0bdc1bdb803899134312ffec96e2d4de829dcb5c0e9bd23a8af7f"
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "4844c62453ec02c3e08784dc8987df9876a54f013809a44b057f8623dad48d2d",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "7f0ac80c21c574b30902d84d6d52bdc482d13023161327f24f57c831d96576f4",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "30bb6e57b452ca8f57203072f3586f7149f8802373d81af67e23aa8bcc92ba31",
+    "Experiments/ChromiumScrollers/forms-text.inc": "c11c9a46ce72c5c9573eb1b59678c437547a677fa710e8e88d234685b019d30e",
+    "Experiments/ChromiumScrollers/forms-wheel.inc": "5f5ff71d4c0faffccb18730a8bdac7852971f8753ce6c2ecde8b9567c624df29",
+    "Experiments/ChromiumScrollers/forms.inc": "7bb2b50f8486fda8168d5420198488935743666a61abfcfc23a79b5dd9289a23",
+    "Experiments/ChromiumScrollers/helper.py": "992b8fdee7d5639da74f13fe369fec6186a111f81020cde8f48cfb81f9ab3ffd",
+    "Experiments/ChromiumScrollers/hook.c": "8fa13cf05a0bd3e15412a03fb0f7dc777e9ff6eb0eb97694b167fa3f20f35087",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "eb33e5fda5c066a0354f82d00f02216f9a20459d0d440b30b0f2b34d2a0caa81",
+    "Experiments/ChromiumScrollers/native_controls.py": "d3dcabf50c3cd3cc39c57b297dcb58d0b69dac07465e2c2d349861b5e5511d81",
+    "Experiments/ChromiumScrollers/pinned-wheel.h": "ece72a1ab2cfe0fbf645d3a29984323ae37965ffd004147024f1c59a5e37b596",
+    "Libraries/NativeUI/CMakeLists.txt": "9a794058ded4ca40fe492404444e9ce5fc7f867e4b1f452308697cda7e486d63",
+    "Libraries/NativeUI/GNUstep/Controls.m": "48d67faeff404d77718fd0a221692b94f535f82aff0072e8d0a32c9cbb44c1d3",
+    "Libraries/NativeUI/GNUstep/Provider.h": "36999327976d883c5a3bb3b0a7baec6ac5e0f99233a1abf3d161755851370e45",
+    "Libraries/NativeUI/GNUstep/Provider.m": "5981ac560a8ea353eaebf2c211754efceb3d68e5b32e9c0aec0fc5251edd4d80",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "a328647089e3bb0b17d847f6c1806889ca5a0fbf50e432ffd0e470154e8e6d3c",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "96d9c37edc3010f0f0e91a6ba49ee5e98220be369719cfd59147e8c885455a0c",
+    "Libraries/NativeUI/Loader.c": "510d6505e6df79cf93e5ba39f2fb48fbe42cc59788f0ca6de13b777a86dfe03b",
+    "Libraries/NativeUI/NativeUI.h": "4b231220961a4ddc42fe58a0526ceb29cbd2143f87e50b425a9ca8a3ea6f7bf6",
+    "Libraries/NativeUI/README.md": "7dc6879a83b89eb656dde836075143d71195f30ddb2f9a6d92ee444731ee1631",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer+Cursor.m": "aa997a92483e7794f34aac5e815fa05843634ae698bd293f97fafafca5fd2e94",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer.h": "f25bf0fb939dd5506744e4e5267bb7487ecd891a850c3ab7d57aa456741f8037",
+    "Libraries/gnustep/back/Source/wayland/WaylandServer.m": "5d617ada84f50dc4dafa5bf68876f8c82d681426cc47904fd536831e8aa81afc",
+    "Tests/NativeUI/run.py": "d95dfd632ab3ac129ea2371b67e991ba84db63c93cd9567ac8d60413e1e2fcfa",
+    "Tests/NativeUI/text-transport-probe.c": "0d64c5ffe8de28c22d72da48ed6aa1c680ed7c495b4cd63f2e6c38467882884d",
+    "Tests/NativeUI/wheel-probe.m": "536153c2cb96b10a09f230d05b9885a7ede484d826a4d19ad654ea95ebcf781c",
+    "Tests/Wayland/native_ui_wheel.py": "f141bdd20b6718dafc47db1e3b3d63d7ccd6e85dc48e245937dc52eba649b013",
+    "Tests/Wayland/native_ui_wheel_session.py": "c460d6aef6c4b51c3a6edd76a563e57662def8896cb550a0b7b9bf9e515f2b71",
+    "docs/Native-Control-Integration.md": "362feefaa6aeb8255dff6c77386fea1d7fac6e495a9e715a962c27d8602338a7"
+  },
+  "remaining": [
+    "Firefox native viewport and wheel integration, including original Alt/menu-bar interference.",
+    "Root web document scroll ownership, long-document caret/autoscroll, rich text/contenteditable, pointer selection dragging, horizontal/nowrap modes, touch momentum, IME/accessibility and CSS zoom/HiDPI.",
+    "Other browser frontend controls/dialogs/menus, automatic audited build selection/installation and full installed Workspace/PAM deployment.",
+    "Chrome, Vivaldi, Firefox derivatives and other browser versions/architectures, then the remaining non-GNUstep GTK/Qt/KDE applications."
+  ]
+}

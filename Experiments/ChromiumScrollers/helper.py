@@ -64,6 +64,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
         if req.operation==7:
             result.parts[0].height=bool(forms)
             if forms:
+                result.parts[0].x=forms.wheel_capabilities
                 result.parts[4].width=forms.input_capabilities
                 result.parts[4].height=forms.event_capabilities
                 result.parts[5].width=forms.range_capabilities

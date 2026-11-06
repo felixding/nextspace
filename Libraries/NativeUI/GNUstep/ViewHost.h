@@ -21,6 +21,7 @@ int nxs_host_tracking(NXSViewHost *host);
 int nxs_host_focus(NXSViewHost *host,int focused);
 int nxs_host_focused(NXSViewHost *host);
 int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *event);
+int nxs_host_wheel(NXSViewHost *,const NXSWheelEvent *);
 int nxs_host_menu_key(NSMenu *,const NXSKeyEvent *);
 int nxs_host_command_filter(NXSViewHost *,NXSCommandFilter,void *);
 int nxs_host_command(NXSViewHost *,SEL,unsigned);

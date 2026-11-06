@@ -249,6 +249,8 @@ __attribute__((constructor)) static void initialize(void) {
   const char *viewport=getenv("NEXTSPACE_CHROMIUM_MULTILINE_VIEWPORT");
   forms_multiline_viewport_enabled=forms_multiline_enabled&&viewport&&!strcmp(viewport,"1")&&
     (((unsigned)metrics->parts[6].y&(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY))==(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY));
+  const char *wheel=getenv("NEXTSPACE_CHROMIUM_WHEEL");
+  forms_wheel_enabled=forms_multiline_viewport_enabled&&wheel&&!strcmp(wheel,"1")&&((unsigned)metrics->parts[0].x&NXS_WHEEL_EVENTS);
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
   views_enabled=forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");
@@ -278,6 +280,7 @@ __attribute__((constructor)) static void initialize(void) {
   if(forms_popups_enabled)note("experimental native select popups enabled");
   if(forms_text_enabled)note("experimental native text fields enabled");
   if(forms_multiline_viewport_enabled)note("experimental native multiline viewport enabled");
+  if(forms_wheel_enabled)note("experimental native wheel dispatch enabled");
   if(views_enabled){activate_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours));note("experimental native address-bar fields enabled");}
   if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));note("experimental native application menu binding enabled");}
   if(menu_keys_enabled){activate_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));note("experimental native global menu keys enabled");}

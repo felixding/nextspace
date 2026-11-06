@@ -55,7 +55,13 @@ experiment now uses native clip/document metrics, native bounds and actual
 scroll offsets, retaining Blink's trusted scroll events. Twelve complete browser
 images match provider output before/after host replacement; native arrow click,
 repeat, release and CSS/script resizing pass. Its native scroll view replaces the
-browser's scrollbar and overlapping resize grip. Native wheel handling,
+browser's scrollbar and overlapping resize grip. The pinned Chromium textarea
+now also routes uncancelled wheel input to the native responder, including
+pages without wheel listeners. Ordinary GNUstep and browser windows agree on
+real-seat full/fractional steps after correcting the Wayland backend's axis
+normalization. The adapter restores viewport state after host replacement.
+See the [wheel qualification](../Libraries/NativeUI/wheel-qualification.json).
+Root-document wheel behavior, touch momentum,
 caret/autoscroll, wrap modes, Firefox viewport integration and Firefox's original
 Alt/menu-bar interaction remain open, so complete text-area support is unproven.
 See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json)

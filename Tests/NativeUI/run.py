@@ -43,6 +43,7 @@ parser.add_argument('--transport',action='store_true',help='Exercise the native 
 parser.add_argument('--multiline',action='store_true',help='Qualify native multiline controls, images and optional transport')
 parser.add_argument('--previous-multiline-provider',type=Path,help='Provider predating optional multiline controls')
 parser.add_argument('--previous-text-geometry-provider',type=Path,help='Multiline provider predating optional native clip geometry')
+parser.add_argument('--previous-wheel-provider',type=Path,help='Provider predating optional native wheel dispatch')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -181,6 +182,13 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         text_output=held_probe(args.build/'native-ui/native-text-probe',[str(args.output)],
                                 'NXS_NATIVE_UI_TEXT_HOLD','text')
         checks['native_text']=json.loads(text_output)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-wheel-probe')]+backend,environment,'wheel',timeout=15)
+        assert code==0,(code,stderr);checks['native_wheel']=json.loads(stdout)
+        if args.previous_wheel_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-wheel-probe'),'--expect-no-wheel']+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_wheel_provider.resolve())),
+                'previous-wheel-provider',timeout=15)
+            assert code==0,(code,stderr);checks['previous_wheel_provider']=json.loads(stdout)
         if args.previous_text_geometry_provider:
             code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-multiline-probe'),'--expect-no-geometry']+backend,
                 dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_geometry_provider.resolve())),

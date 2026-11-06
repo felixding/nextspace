@@ -92,6 +92,8 @@ class Point(C.Structure):
     _fields_ = [('x',C.c_double),('y',C.c_double)]
 class TextGeometry(C.Structure):
     _fields_ = [('size',C.c_uint32),('clip',ControlRect),('client',Size),('minimum',Point),('maximum',Point)]
+class WheelEvent(C.Structure):
+    _fields_=[('size',C.c_uint32),('modifiers',C.c_uint32),('x',C.c_double),('y',C.c_double),('delta_x',C.c_double),('delta_y',C.c_double)]
 
 ControlChanged = C.CFUNCTYPE(None, C.c_void_p, C.c_int, C.POINTER(ControlState))
 
@@ -124,6 +126,13 @@ class NativeControlServer:
         native.nxs_control_send.argtypes = [C.c_void_p, C.c_int, C.c_double, C.c_double, C.c_uint]
         self.input_capabilities = 0
         self.pointer_capabilities=0
+        self.wheel_capabilities=0
+        if hasattr(native,'nxs_control_wheel_capabilities'):
+            native.nxs_control_wheel_capabilities.restype=C.c_uint
+            self.wheel_capabilities=native.nxs_control_wheel_capabilities()
+            if self.wheel_capabilities:
+                native.nxs_control_wheel.argtypes=[C.c_void_p,C.POINTER(WheelEvent)]
+                native.nxs_control_wheel.restype=C.c_int
         if hasattr(native,'nxs_control_pointer_capabilities'):
             native.nxs_control_pointer_capabilities.restype=C.c_uint
             self.pointer_capabilities=native.nxs_control_pointer_capabilities()
@@ -694,6 +703,12 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==35 and req.kind==9 and self.wheel_capabilities and not req.text_size:
+                event=WheelEvent(C.sizeof(WheelEvent),req.modifiers,req.x,req.y,req.minimum,req.maximum)
+                accepted=state['client'] is client and all(math.isfinite(v) for v in (req.minimum,req.maximum)) and self.native.nxs_control_wheel(state['native'],C.byref(event))
+                viewport=self.native.nxs_control_text_viewport(state['native']) if accepted and self.text_capabilities&16 else None
+                self._respond(client,req,state,input_result=int(bool(accepted)),viewport=viewport)
+                return
             if req.operation==34 and req.kind==9 and self.text_capabilities&32 and not req.text_size:
                 geometry=TextGeometry(size=C.sizeof(TextGeometry))
                 accepted=state['client'] is client and self.native.nxs_control_text_geometry(state['native'],C.byref(geometry))

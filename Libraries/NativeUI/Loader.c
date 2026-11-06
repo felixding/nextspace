@@ -118,6 +118,10 @@ int nxs_control_text_scroll(NXSControl *c,double x,double y)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_scroll)?p->control_text_scroll(c,x,y):0;}
 int nxs_control_text_geometry(NXSControl *c,NXSTextGeometry *geometry)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_geometry)?p->control_text_geometry(c,geometry):0;}
+unsigned nxs_control_wheel_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_wheel)?NXS_WHEEL_EVENTS:0;}
+int nxs_control_wheel(NXSControl *c,const NXSWheelEvent *event)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_wheel)?p->control_wheel(c,event):0;}
 int nxs_control_text_sync(NXSControl *c,const NXSTextModel *model)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_sync)?p->control_text_sync(c,model):0;}
 size_t nxs_control_text_get(NXSControl *c,char *buffer,size_t capacity,NXSTextState *state)

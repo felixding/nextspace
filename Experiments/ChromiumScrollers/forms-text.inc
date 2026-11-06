@@ -87,7 +87,13 @@ static struct NXSResponse *sync_text_form(struct NativeForm *form,struct NXSResp
   if(!response)return NULL;
   struct BlinkTextModel model={0};if(!text_model(form->node,&model))return NULL;
   response=send_text_model(form,model.value,model.start,model.end-model.start,model.editable);
-  free(model.value);return response;
+  free(model.value);
+  if(response&&forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA&&
+     form->text_epoch!=atomic_load(&native_host_epoch)) {
+    if(!restore_text_viewport(form))return NULL;
+    response=form_request(form,5,0,0,0);
+  }
+  return response;
 }
 static struct NXSResponse *text_native_state(struct NativeForm *form) {
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=18,
@@ -119,7 +125,7 @@ static void echo_text_selection(struct NativeForm *form) {
     }
   } else if(active_form==form)end_text_pointer(form,0);
   free(model.value);
-  if(forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA){read_text_viewport(form);echo_text_viewport(form);}
+  if(forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA&&read_text_viewport(form))echo_text_viewport(form);
 }
 static void end_text_pointer(struct NativeForm *form,int echo) {
   if(!form->text_tracking)return;

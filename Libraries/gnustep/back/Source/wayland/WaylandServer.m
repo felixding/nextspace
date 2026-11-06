@@ -177,7 +177,11 @@ handle_global(void *data, struct wl_registry *registry, uint32_t name,
   else if (strcmp(interface, wl_seat_interface.name) == 0)
     {
       wlconfig->pointer.wlpointer = NULL;
+#ifdef WL_POINTER_AXIS_VALUE120_SINCE_VERSION
+      wlconfig->seat_version = MIN(version, 8);
+#else
       wlconfig->seat_version = MIN(version, 5);
+#endif
       wlconfig->seat
 	= wl_registry_bind(wlconfig->registry, name, &wl_seat_interface, wlconfig->seat_version);
       NSDebugLog(@"wayland: found seat interface");

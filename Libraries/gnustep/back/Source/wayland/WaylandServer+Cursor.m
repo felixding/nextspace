@@ -49,6 +49,7 @@
 // XXX should this be configurable by the user?
 #define DOUBLECLICK_DELAY 300
 #define DOUBLECLICK_MOVE_THREASHOLD 3
+static void pointer_dispatch_axes(WaylandConfig *wlconfig);
 
 /* Pointer coordinates belong to the focused surface, even during capture. */
 static NSPoint pointerLocation(WaylandConfig *config, struct window *target, double x, double y)
@@ -127,6 +128,8 @@ pointer_handle_leave(void *data, struct wl_pointer *pointer, uint32_t serial,
 		     struct wl_surface *surface)
 {
   WaylandConfig *wlconfig = data;
+  /* Preserve the old target if a frame also crosses a surface boundary. */
+  pointer_dispatch_axes(wlconfig);
 
   if (!surface) return;
   struct window *window = wl_surface_get_user_data(surface);
@@ -460,7 +463,7 @@ pointer_handle_button(void *data, struct wl_pointer *pointer, uint32_t serial,
 // Discrete step information for scroll and other axes.
 static void
 pointer_handle_frame(void *data, struct wl_pointer *pointer)
-{}
+{pointer_dispatch_axes(data);}
 
 // Source information for scroll and other axes.
 static void
@@ -481,21 +484,60 @@ pointer_handle_axis_stop(void *data, struct wl_pointer *pointer, uint32_t time,
 static void
 pointer_handle_axis_discrete(void *data, struct wl_pointer *pointer,
 			     uint32_t axis, int discrete)
-{}
+{
+  WaylandConfig *wlconfig=data;
+  if(axis>WL_POINTER_AXIS_HORIZONTAL_SCROLL)return;
+  wlconfig->pointer.axis_steps[axis]+=discrete;
+  wlconfig->pointer.axis_has_steps|=1u<<axis;
+}
+#ifdef WL_POINTER_AXIS_VALUE120_SINCE_VERSION
+static void
+pointer_handle_axis_value120(void *data,struct wl_pointer *pointer,uint32_t axis,int32_t value)
+{
+  WaylandConfig *wlconfig=data;
+  if(axis>WL_POINTER_AXIS_HORIZONTAL_SCROLL)return;
+  wlconfig->pointer.axis_value120[axis]+=value;
+  wlconfig->pointer.axis_has_value120|=1u<<axis;
+}
+#endif
 
 // Scroll and other axis notifications.
 static void
 pointer_handle_axis(void *data, struct wl_pointer *pointer, uint32_t time,
 		    uint32_t axis, wl_fixed_t value)
 {
-  WaylandConfig	*wlconfig = data;
+  WaylandConfig *wlconfig=data;
+  if(axis>WL_POINTER_AXIS_HORIZONTAL_SCROLL)return;
+  wlconfig->pointer.axis_distance[axis]+=wl_fixed_to_double(value);
+  wlconfig->pointer.axis_pending|=1u<<axis;wlconfig->pointer.axis_time=time;
+  if(wlconfig->seat_version<5)pointer_dispatch_axes(wlconfig);
+}
+
+/* Normalize protocol input, not scroll-view behavior. High-resolution wheel
+ * steps take precedence over discrete steps and raw axis distance. Ten
+ * surface units per step is the Wayland client convention; fingers retain
+ * their original surface distance. NSScrollView still owns line/page amounts,
+ * modifier behavior and clipping. */
+static void pointer_dispatch_axes(WaylandConfig *wlconfig)
+{
+  if(!wlconfig->pointer.axis_pending)return;
+  double distance[2]={wlconfig->pointer.axis_distance[0],wlconfig->pointer.axis_distance[1]};
+  if(wlconfig->pointer.axis_source==WL_POINTER_AXIS_SOURCE_WHEEL||
+     wlconfig->pointer.axis_source==WL_POINTER_AXIS_SOURCE_WHEEL_TILT) {
+    for(unsigned axis=0;axis<2;axis++) {
+      if(wlconfig->pointer.axis_has_value120&(1u<<axis))distance[axis]=wlconfig->pointer.axis_value120[axis]/120.0*10;
+      else if(wlconfig->pointer.axis_has_steps&(1u<<axis))distance[axis]=wlconfig->pointer.axis_steps[axis]*10.0;
+    }
+  }
+  uint32_t time=wlconfig->pointer.axis_time;
+  memset(wlconfig->pointer.axis_distance,0,sizeof(wlconfig->pointer.axis_distance));
+  memset(wlconfig->pointer.axis_steps,0,sizeof(wlconfig->pointer.axis_steps));
+  memset(wlconfig->pointer.axis_value120,0,sizeof(wlconfig->pointer.axis_value120));
+  wlconfig->pointer.axis_pending=wlconfig->pointer.axis_has_steps=wlconfig->pointer.axis_has_value120=0;
   NSEvent		  *event;
-  NSEventType	     eventType;
   NSPoint	     eventLocation;
   NSGraphicsContext *gcontext;
   unsigned int	     eventFlags;
-  float		     deltaX = 0.0;
-  float		     deltaY = 0.0;
   int		     clickCount = 1;
   int		     buttonNumber;
 
@@ -521,20 +563,9 @@ pointer_handle_axis(void *data, struct wl_pointer *pointer, uint32_t time,
     NSDebugLog(@"touch scroll");
   }
 
-  //float mouse_scroll_multiplier = wlconfig->mouse_scroll_multiplier;
-  /* For smooth-scroll events, we're not doing any cross-event or delta
-     calculations, as is done in button event handling. */
-  switch (axis)
-    {
-    case WL_POINTER_AXIS_VERTICAL_SCROLL:
-      eventType = NSScrollWheel;
-      deltaY = wl_fixed_to_double(value) * wlconfig->mouse_scroll_multiplier;
-      break;
-    case WL_POINTER_AXIS_HORIZONTAL_SCROLL:
-      eventType = NSScrollWheel;
-      deltaX = wl_fixed_to_double(value) * wlconfig->mouse_scroll_multiplier;
-      break;
-    }
+  CGFloat deltaX=distance[WL_POINTER_AXIS_HORIZONTAL_SCROLL]*wlconfig->mouse_scroll_multiplier;
+  /* Wayland Y is positive down; NSEvent Y is positive up. */
+  CGFloat deltaY=-distance[WL_POINTER_AXIS_VERTICAL_SCROLL]*wlconfig->mouse_scroll_multiplier;
 
   /* FIXME: X11 backend uses the XGetPointerMapping()-returned values from
      its map_return argument as constants for buttonNumber. As the variant
@@ -544,7 +575,7 @@ pointer_handle_axis(void *data, struct wl_pointer *pointer, uint32_t time,
      the correctness of doing so. */
   buttonNumber = 0;
 
-  event = [NSEvent mouseEventWithType:eventType
+  event = [NSEvent mouseEventWithType:NSScrollWheel
 			     location:eventLocation
 			modifierFlags:eventFlags
 			    timestamp:(NSTimeInterval) time / 1000.0
@@ -563,11 +594,15 @@ pointer_handle_axis(void *data, struct wl_pointer *pointer, uint32_t time,
 
 // the Seat category uses this listener
 const struct wl_pointer_listener pointer_listener
-  = {pointer_handle_enter,	  pointer_handle_leave,
-     pointer_handle_motion,	  pointer_handle_button,
-     pointer_handle_axis,	  pointer_handle_frame,
-     pointer_handle_axis_source,  pointer_handle_axis_stop,
-     pointer_handle_axis_discrete};
+  = {.enter=pointer_handle_enter,.leave=pointer_handle_leave,
+     .motion=pointer_handle_motion,.button=pointer_handle_button,
+     .axis=pointer_handle_axis,.frame=pointer_handle_frame,
+     .axis_source=pointer_handle_axis_source,.axis_stop=pointer_handle_axis_stop,
+     .axis_discrete=pointer_handle_axis_discrete,
+#ifdef WL_POINTER_AXIS_VALUE120_SINCE_VERSION
+     .axis_value120=pointer_handle_axis_value120,
+#endif
+    };
 
 @implementation
 WaylandServer (Cursor)

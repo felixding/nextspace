@@ -35,6 +35,7 @@ static struct NativeForm *multiline_area(const void *area,int bind) {
 }
 static int read_text_viewport(struct NativeForm *form) {
   struct NXSResponse *response=form_request(form,34,0,0,0);
+  if(form->text_epoch!=atomic_load(&native_host_epoch))return 0;
   if(!response||response->parts[3].x!=1||response->size!=sizeof(*response)+sizeof(NXSTextGeometry))return 0;
   NXSTextGeometry geometry;memcpy(&geometry,response+1,sizeof(geometry));
   response=form_request(form,32,0,0,0);
@@ -48,6 +49,15 @@ static int read_text_viewport(struct NativeForm *form) {
   if(logged++<32&&log_fd>=0)dprintf(log_fd,"%d native-text-viewport id=%llu area=%p painted=%d clip=%.2f,%.2f,%.2f,%.2f content=%.2f,%.2f limits=%.2f,%.2f offset=%.2f,%.2f\n",getpid(),(unsigned long long)form->control,form->text_area,form->painted,geometry.clip.x,geometry.clip.y,geometry.clip.width,geometry.clip.height,form->text_viewport.content.width,form->text_viewport.content.height,geometry.maximum.x,geometry.maximum.y,form->text_viewport.visible.x,form->text_viewport.visible.y);
   return 1;
 }
+static int restore_text_viewport(struct NativeForm *form) {
+  if(!form->text_area)return 0;
+  /* Recreated UI objects start at zero. Replay the retained engine model only
+   * on a host generation change; native input otherwise owns the viewport. */
+  struct FloatPoint offset=((struct FloatPoint (*)(const void *))(base+NXS_MULTILINE_GET_OFFSET_OFFSET))(form->text_area);
+  struct NXSResponse *response=form_request(form,33,offset.x,offset.y,0);
+  if(!response||response->parts[3].x!=1)return 0;
+  form->text_epoch=atomic_load(&native_host_epoch);return 1;
+}
 static int sync_multiline_layout(struct NativeForm *form,const void *area) {
   if(multiline_syncing||form->text_tracking)return form->text_geometry_ready;
   multiline_syncing=1;
@@ -57,6 +67,7 @@ static int sync_multiline_layout(struct NativeForm *form,const void *area) {
   int ok=form->rect.width>0&&form->rect.height>0&&
     sync_text_form(form,form_request(form,1,0,0,0))&&read_text_viewport(form);
   multiline_syncing=0;if(!ok)form->text_geometry_ready=0;
+  if(ok)native_wheel_binding(form,1);
   return ok;
 }
 static void echo_text_viewport(struct NativeForm *form) {

@@ -2,8 +2,9 @@
 
 This opt-in prototype replaces web-content scrollbars in **one unchanged Debian
 ARM64 Chromium build** with the existing NEXTSPACE `NSScroller` bridge. Only the
-small preload library is compiled. Chromium, GNUstep and `NSScroller` are not
-rebuilt or overwritten. Closing the isolated browser removes the memory patches.
+small preload library is compiled for the browser binding. Chromium and AppKit
+are not rebuilt or overwritten. The native wheel qualification also builds a
+private Wayland input backend with corrected axis normalization. Closing the isolated browser removes the memory patches.
 It is not enabled by the installed NEXTSPACE session.
 
 ## Native multiline viewport experiment
@@ -31,10 +32,36 @@ client/scroll geometry, trusted scroll events, script resizing, native wrapping,
 autohiding, and native arrow click/repeat/release. Both browser families retain
 their 18 real-seat multiline editing checks. See
 [multiline-viewport-qualification.json](../../Libraries/NativeUI/multiline-viewport-qualification.json).
-Native wheel policy, caret/autoscroll, pointer selection dragging, nowrap and
+Caret/autoscroll, pointer selection dragging, nowrap and
 horizontal modes, accessibility, CSS zoom/HiDPI and Firefox's equivalent viewport
 binding remain unfinished. Other Chromium builds and derivatives remain
 unsupported until their own audited adapters are available.
+
+## Native textarea wheel experiment
+
+`NEXTSPACE_CHROMIUM_WHEEL=1` additionally requires the native viewport binding,
+the provider's optional wheel capability and the exact instruction guards in
+`pinned-wheel.h`. Blink's existing event-handler registry marks the native
+widget's wheel region, including pages without JavaScript wheel listeners.
+Original targeting, trusted DOM dispatch and cancellation run first. An
+uncancelled event reaches the real GNUstep responder's `scrollWheel:` method;
+its native offset returns through Blink's existing scroll setter. There is no
+second engine default and no copied line/page/modifier/clamping implementation.
+
+On UI-host replacement, the adapter restores the retained engine viewport into
+the recreated native object once per host generation. It does not replay wheel
+actions. A failed viewport read cannot overwrite the live engine model with a
+cached value from the previous host.
+
+The Wayland backend now groups axes per pointer frame, handles discrete and
+high-resolution value120 wheel steps, and translates positive-down Wayland Y
+to native NSEvent Y. An independent ordinary GNUstep window and the browser
+receive identical real-seat full/fractional steps. See the
+[wheel qualification](../../Libraries/NativeUI/wheel-qualification.json) for
+native pixels, cancellation, DOM mutation/lifetime and host recovery evidence.
+These checks cover wrapped textareas on the pinned software/headless build at
+100% scale. Root-document wheel behavior, touch momentum, horizontal/nowrap
+modes, other browser builds and Firefox viewport/wheel binding remain open.
 
 The helper calls the unchanged `Libraries/ForeignScrollers` C interface for
 geometry, drawing and synchronous native mouse tracking. Its bitmap is transported
@@ -48,7 +75,7 @@ renderer sandbox starts. A preconnected socket survives the zygote boundary;
 AppKit stays in the separate helper. Chromium's compositor scrollbar press
 handler returns its own unhandled result so the press reaches Blink and
 `NSScroller` without starting a second compositor scrollbar animation. Wheel and
-content handlers are not replaced. Native tracking stops when Blink disconnects
+content handlers outside the optional native textarea binding are not replaced. Native tracking stops when Blink disconnects
 a scrollbar, including reload during a held arrow.
 
 ## Exact supported binary

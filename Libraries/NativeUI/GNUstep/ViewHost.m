@@ -158,6 +158,7 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
   @try {
     switch([event type]) {
       case NSLeftMouseDown:[responder mouseDown:event];break;
+      case NSScrollWheel:[responder scrollWheel:event];break;
       case NSKeyDown:
         /* Reuse the editor's native command menu, including its key equivalents
          * and validation. Do not maintain an embedding-specific shortcut table. */
@@ -246,13 +247,16 @@ static NSUInteger flags(unsigned modifiers)
   return result;
 }
 
-static NSEvent *mouse(NXSViewHost *control, NSEventType type, double x, double y, unsigned modifiers)
+static NSPoint mouse_location(NXSViewHost *control,double x,double y)
 {
   /* Consumers use bitmap coordinates, independent of a UI library's native
    * view orientation. Keep this conversion inside the provider. */
   double localY=[control->view isFlipped]?y:[control->view bounds].size.height-y;
-  NSPoint point = [control->view convertPoint:NSMakePoint(x, localY) toView:nil];
-  return [NSEvent mouseEventWithType:type location:point modifierFlags:flags(modifiers)
+  return [control->view convertPoint:NSMakePoint(x, localY) toView:nil];
+}
+static NSEvent *mouse(NXSViewHost *control, NSEventType type, double x, double y, unsigned modifiers)
+{
+  return [NSEvent mouseEventWithType:type location:mouse_location(control,x,y) modifierFlags:flags(modifiers)
     timestamp:[NSDate timeIntervalSinceReferenceDate] windowNumber:[control->window windowNumber]
     context:nil eventNumber:0 clickCount:control->click_count pressure:type == NSLeftMouseUp ? 0 : 1];
 }
@@ -561,4 +565,24 @@ int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *input)
   @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:[host->window firstResponder]];}
   @finally {host->dispatch_depth--;active=NULL;}
   int result=host->key_result;[pool drain];return result;
+}
+int nxs_host_wheel(NXSViewHost *host,const NXSWheelEvent *input)
+{
+  if(!host||active||menu_loop||!input||input->size<sizeof(*input)||
+     !isfinite(input->x)||!isfinite(input->y)||!isfinite(input->delta_x)||!isfinite(input->delta_y))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  if([host->view needsDisplay])nxs_host_draw(host,1);
+  NSPoint point=mouse_location(host,input->x,input->y);
+  NSView *target=[host->view hitTest:[[host->view superview] convertPoint:point fromView:nil]];
+  if(!target){[pool drain];return 0;}
+  double multiplier=[[NSUserDefaults standardUserDefaults] integerForKey:@"GSMouseScrollMultiplier"];
+  if(multiplier<.0001)multiplier=1;
+  NSEvent *event=[NSEvent mouseEventWithType:NSScrollWheel location:point modifierFlags:flags(input->modifiers)
+    timestamp:[NSDate timeIntervalSinceReferenceDate] windowNumber:[host->window windowNumber]
+    context:nil eventNumber:0 clickCount:1 pressure:1 buttonNumber:0
+    deltaX:input->delta_x*multiplier deltaY:-input->delta_y*multiplier deltaZ:0];
+  host->dispatch_depth++;active=host;
+  @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:target];[host->view setNeedsDisplay:YES];}
+  @finally {host->dispatch_depth--;active=NULL;}
+  [pool drain];return 1;
 }

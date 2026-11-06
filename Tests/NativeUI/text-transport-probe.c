@@ -2,6 +2,7 @@
  * GPL-2.0-or-later. */
 #define _GNU_SOURCE
 #include "NativeUI.h"
+#include <math.h>
 #include "Bridge/Protocol.h"
 #include <assert.h>
 #include <stdio.h>
@@ -110,6 +111,11 @@ int main(int argc,char **argv)
       .kind=transport_kind,.control=1,.x=1e9,.y=1e9};
     r=exchange_bytes(&scroll,sizeof(scroll));assert(r&&r->parts[3].x==1&&r->parts[5].y>0);
     assert(r->parts[5].y==geometry.maximum.y&&r->parts[5].x==geometry.maximum.x);
+    r=request(33);assert(r->parts[3].x==1&&r->parts[5].y==0);
+    struct NXSControlRequest wheel={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=35,.process=identity(),
+      .kind=transport_kind,.control=1,.x=40,.y=12,.maximum=1};
+    r=exchange_bytes(&wheel,sizeof(wheel));assert(r&&r->parts[3].x==1&&r->parts[5].y>0);
+    wheel.maximum=NAN;r=exchange_bytes(&wheel,sizeof(wheel));assert(r&&r->parts[3].x==0);
     r=request(33);assert(r->parts[3].x==1&&r->parts[5].y==0);
   }
   assert(model("Hello",1,2));
