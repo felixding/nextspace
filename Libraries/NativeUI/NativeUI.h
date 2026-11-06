@@ -13,6 +13,7 @@ typedef struct NXSEventSource NXSEventSource;
 typedef struct NXSMenu NXSMenu;
 typedef struct { double x, y, width, height; } NXSRect;
 typedef struct { double width, height; } NXSSize;
+typedef struct { double x, y; } NXSPoint;
 typedef struct { int width, height, stride; const unsigned char *pixels; } NXSBitmap;
 typedef void (*NXSChanged)(void *context, double value);
 typedef void (*NXSPump)(void *context);
@@ -66,12 +67,20 @@ typedef struct {
   const char *text, *unmodified_text;
 } NXSKeyEvent;
 enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4,
-  NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16 };
+  NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16, NXS_TEXT_GEOMETRY = 32 };
 typedef struct {
   uint32_t size;
   NXSRect visible;
   NXSSize content;
 } NXSTextViewport;
+/* Native clip frame within the control, client size before scrollers, and
+ * scroll limits from the native clip view. All coordinates are top-left. */
+typedef struct {
+  uint32_t size;
+  NXSRect clip;
+  NXSSize client;
+  NXSPoint minimum, maximum;
+} NXSTextGeometry;
 #define NXS_TEXT_NO_SELECTION UINT64_MAX
 /* Selection and marked ranges use native NSString/UTF16 code units. A model
  * with NO_SELECTION leaves initial selection to the native responder. */
@@ -191,6 +200,7 @@ typedef struct {
   unsigned (*control_text_capabilities)(void);
   NXSTextViewport (*control_text_viewport)(NXSControl *);
   int (*control_text_scroll)(NXSControl *,double,double);
+  int (*control_text_geometry)(NXSControl *,NXSTextGeometry *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -253,6 +263,9 @@ unsigned nxs_control_text_capabilities(void);
  * document's top left. Native clipping supplies scrolling and bounds. */
 NXSTextViewport nxs_control_text_viewport(NXSControl *);
 int nxs_control_text_scroll(NXSControl *,double x,double y);
+/* Caller initializes size. Returns zero when unsupported or too small. The
+ * earlier by-value viewport struct is unchanged for existing consumers. */
+int nxs_control_text_geometry(NXSControl *,NXSTextGeometry *);
 /* Application model updates do not emit user-edit events. Native editing
  * emits NXS_TEXT_CHANGED; the application reads the actual native text/range.
  * NXS_ACTIVATE retains the text field's native action (for example Return). */

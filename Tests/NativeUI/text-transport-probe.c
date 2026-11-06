@@ -104,9 +104,12 @@ int main(int argc,char **argv)
   if(transport_kind==NXS_TEXTAREA) {
     assert(model("First\nSecond\nThird\nFourth\nFifth\nSixth\nSeventh\nEighth\nNinth\nTenth\n",0,0));
     r=request(32);assert(r->parts[3].x==1&&r->parts[6].height>r->parts[5].height);
+    r=request(34);assert(r->parts[3].x==1&&r->size==sizeof(*r)+sizeof(NXSTextGeometry));
+    NXSTextGeometry geometry;memcpy(&geometry,r+1,sizeof(geometry));assert(geometry.size==sizeof(geometry));
     struct NXSControlRequest scroll={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=33,.process=identity(),
       .kind=transport_kind,.control=1,.x=1e9,.y=1e9};
     r=exchange_bytes(&scroll,sizeof(scroll));assert(r&&r->parts[3].x==1&&r->parts[5].y>0);
+    assert(r->parts[5].y==geometry.maximum.y&&r->parts[5].x==geometry.maximum.x);
     r=request(33);assert(r->parts[3].x==1&&r->parts[5].y==0);
   }
   assert(model("Hello",1,2));

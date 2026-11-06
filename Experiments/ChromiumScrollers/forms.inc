@@ -2,6 +2,7 @@
  * separately loaded UI provider. Exact Chromium build; GPL-2.0-or-later. */
 #include "pinned-forms.h"
 #include "pinned-multiline.h"
+#include "pinned-multiline-scroll.h"
 #include "../../Libraries/NativeUI/NativeUI.h"
 struct NativeForm {
   struct NativeForm *next;
@@ -21,6 +22,10 @@ struct NativeForm {
   int text_tracking,text_width,text_height;
   uint32_t text_start,text_end;
   double text_x,text_y;
+  void *text_area;
+  NXSTextViewport text_viewport;
+  NXSTextGeometry text_geometry;
+  int text_geometry_ready;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
@@ -40,6 +45,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled;
 static int forms_text_enabled;
 static int forms_multiline_enabled;
+static int forms_multiline_viewport_enabled;
 static int forms_notifications_enabled;
 static __thread const void *popup_mouse_event;
 static unsigned forms_input_capabilities;
@@ -80,6 +86,8 @@ static int default_text_key(void *,void *);
 static struct NXSResponse *sync_text_image(struct NativeForm *);
 static void end_text_pointer(struct NativeForm *,int);
 static void echo_text_selection(struct NativeForm *);
+static void echo_text_viewport(struct NativeForm *);
+static int read_text_viewport(struct NativeForm *);
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -193,6 +201,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   form->generation=header.parts[4].x;
   uint32_t *pixels=malloc((size_t)header.stride*header.height);if(!pixels){form->painted=0;return 1;}
   memcpy(pixels,response+1,(size_t)header.stride*header.height);
+  if(kind==NXS_TEXTAREA&&forms_multiline_viewport_enabled)read_text_viewport(form);
   void *canvas=*(void **)*(void **)info;
   static __thread unsigned progress_paints;
   if(kind==NXS_PROGRESS&&progress_paints++<32&&log_fd>=0)dprintf(log_fd,"%d progress paint id=%llu value=%.8g rect=%d,%d,%d,%d canvas=%p\n",
@@ -392,6 +401,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-popups.inc"
 #include "forms-progress.inc"
 #include "forms-text.inc"
+#include "forms-text-scroll.inc"
 static struct Detour form_detours[]={
  {NXS_CHECKBOX_OFFSET,nxs_checkbox_bytes,paint_checkbox,(void **)&original_checkbox},
  {NXS_RADIO_OFFSET,nxs_radio_bytes,paint_radio,(void **)&original_radio},
@@ -410,10 +420,12 @@ static int prepare_forms(void){return prepare_detours(form_detours,sizeof(form_d
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))&&
-  (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))));}
+  (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
+  (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))));}
 static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));
-  if(forms_text_enabled)activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));}
+  if(forms_text_enabled)activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));
+  if(forms_multiline_viewport_enabled)activate_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours));}

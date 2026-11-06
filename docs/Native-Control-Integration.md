@@ -50,10 +50,16 @@ The provider now also supplies an ordinary `NSTextView`/`NSScrollView` multiline
 control, including native document/viewport geometry. Opt-in bindings for both
 pinned browsers pass real-seat multiline editing, event cancellation and
 clipboard checks across host replacement. Complete images match independent
-direct GNUstep controls in the provider checks. Browser DOM scroll/layout,
-wrap modes, full scrollbar ownership and Firefox's original Alt/menu-bar
-interaction remain open, so this does not establish complete text-area support.
-See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json).
+direct GNUstep controls in the provider checks. The pinned Chromium viewport
+experiment now uses native clip/document metrics, native bounds and actual
+scroll offsets, retaining Blink's trusted scroll events. Twelve complete browser
+images match provider output before/after host replacement; native arrow click,
+repeat, release and CSS/script resizing pass. Its native scroll view replaces the
+browser's scrollbar and overlapping resize grip. Native wheel handling,
+caret/autoscroll, wrap modes, Firefox viewport integration and Firefox's original
+Alt/menu-bar interaction remain open, so complete text-area support is unproven.
+See the [multiline qualification](../Libraries/NativeUI/multiline-qualification.json)
+and [viewport qualification](../Libraries/NativeUI/multiline-viewport-qualification.json).
 
 ## Shared implementation and distinct integration boundaries
 

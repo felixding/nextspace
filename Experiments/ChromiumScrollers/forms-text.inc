@@ -119,6 +119,7 @@ static void echo_text_selection(struct NativeForm *form) {
     }
   } else if(active_form==form)end_text_pointer(form,0);
   free(model.value);
+  if(forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA){read_text_viewport(form);echo_text_viewport(form);}
 }
 static void end_text_pointer(struct NativeForm *form,int echo) {
   if(!form->text_tracking)return;
@@ -313,6 +314,10 @@ static int default_text_key(void *node,void *event) {
 }
 static int paint_text_field(void *self,const void *element,const void *style,const void *info,const struct Rect *rect) {
   int kind=forms_text_enabled?input_form_kind((void *)element):0;
+  /* A complete native widget is painted in border-box space. Blink's second
+   * theme call paints the scrolling document background, not another widget. */
+  if(kind==NXS_TEXTAREA&&forms_multiline_viewport_enabled&&
+     *((const unsigned char *)info+NXS_MULTILINE_CONTENTS_PAINT_BYTE))return 0;
   if(text_kind(kind)&&rect->width>=1&&rect->height>=1) {
     if(!paint_form(kind,self,element,NULL,style,info,rect)&&refresh_form_watch())return 0;
     struct NativeForm *form=find_form(element);if(form)form->painted=0;

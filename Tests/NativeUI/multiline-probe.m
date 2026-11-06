@@ -100,6 +100,14 @@ int main(int argc,char **argv)
     [pool drain];puts("{\"older_provider_rejects_multiline\":true}");return 0;
   }
   assert(nxs_control_text_capabilities()&NXS_TEXT_MULTILINE);
+  if(!strcmp(argv[1],"--expect-no-geometry")){
+    assert(!(nxs_control_text_capabilities()&NXS_TEXT_GEOMETRY));
+    NXSControl *old=nxs_control_create(NXS_TEXTAREA,NULL,NULL,NULL);assert(old);
+    NXSTextGeometry geometry={.size=sizeof(geometry)};
+    assert(!nxs_control_text_geometry(old,&geometry));
+    assert(nxs_control_text_viewport(old).size==sizeof(NXSTextViewport));
+    assert(nxs_control_destroy(old));[pool drain];puts("{\"previous_multiline_provider_without_geometry\":true}");return 0;
+  }
   struct Probe p={.allow=1};p.control=nxs_control_create(NXS_TEXTAREA,changed,pump,&p);assert(p.control);
   NXSControlConfig c={.size=sizeof(c),.width=180,.height=96,.enabled=1};assert(nxs_control_sync(p.control,&c));
   const char *values[]={"Alpha\nBeta",long_text,wrapped};const char *names[]={"short","scrolling","wrapped"};
@@ -108,13 +116,22 @@ int main(int argc,char **argv)
     model(&p,values[i],0,0,1);value(&p,values[i]);save(argv[1],names[i],nxs_control_draw(p.control,1));
   }
   assert(nxs_control_text_capabilities()&NXS_TEXT_VIEWPORT);
+  assert(nxs_control_text_capabilities()&NXS_TEXT_GEOMETRY);
   c.width=180;assert(nxs_control_sync(p.control,&c));model(&p,long_text,0,0,1);
+  NXSTextGeometry geometry={.size=sizeof(geometry)};
+  assert(!nxs_control_text_geometry(p.control,NULL));
+  geometry.size=sizeof(geometry)-1;assert(!nxs_control_text_geometry(p.control,&geometry));
+  geometry.size=sizeof(geometry);assert(nxs_control_text_geometry(p.control,&geometry));
   NXSTextViewport viewport=nxs_control_text_viewport(p.control);
   assert(viewport.size==sizeof(viewport)&&viewport.content.height>viewport.visible.height&&viewport.visible.y==0);
+  assert(geometry.clip.width==viewport.visible.width&&geometry.clip.height==viewport.visible.height);
+  assert(geometry.clip.x>0&&geometry.client.width>=geometry.clip.width);
   assert(nxs_control_text_scroll(p.control,1e9,1e9));viewport=nxs_control_text_viewport(p.control);
+  assert(viewport.visible.x==geometry.maximum.x&&viewport.visible.y==geometry.maximum.y);
   assert(viewport.visible.y>0&&fabs(viewport.visible.y+viewport.visible.height-viewport.content.height)<.001);
   assert(!nxs_control_text_scroll(p.control,NAN,0));
   assert(nxs_control_text_scroll(p.control,-10,-10));viewport=nxs_control_text_viewport(p.control);
+  assert(viewport.visible.x==geometry.minimum.x&&viewport.visible.y==geometry.minimum.y);
   assert(viewport.visible.x==0&&viewport.visible.y==0);value(&p,long_text);
   char point_path[1024];snprintf(point_path,sizeof(point_path),"%s/../reference/scrollbar-point.txt",argv[1]);
   FILE *point_file=fopen(point_path,"r");assert(point_file);double x,y;assert(fscanf(point_file,"%lf %lf",&x,&y)==2);fclose(point_file);

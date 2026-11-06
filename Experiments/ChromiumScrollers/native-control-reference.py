@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -71,15 +71,25 @@ for item in json.loads(args.controls.read_text()):
         if args.focus and item['enabled'] and item['kind'] != 5:
             assert api.input_capabilities & 1
             assert native.nxs_control_focus(pointer, 1)
-        if item['kind'] in (7,8):
+        if item['kind'] in (7,8,9):
             model=TextModel(C.sizeof(TextModel),item['text'].encode(),
                 item.get('selection_start',1) if args.focus and item['enabled'] else item.get('selection_start',0),
                 item.get('selection_length',2) if args.focus and item['enabled'] else item.get('selection_length',0),item.get('editable',1))
             assert native.nxs_control_text_sync(pointer,C.byref(model))
+        if item['kind']==9 and 'scroll' in item:
+            assert native.nxs_control_text_scroll(pointer,*item['scroll'])
         image = save_image()
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],
                             preferred=[preferred.width, preferred.height]))
+        if item['kind']==9:
+            viewport=native.nxs_control_text_viewport(pointer)
+            geometry=TextGeometry(size=C.sizeof(TextGeometry))
+            assert native.nxs_control_text_geometry(pointer,C.byref(geometry))
+            results[-1]['viewport']={key:getattr(viewport.visible,key) for key in ('x','y','width','height')}
+            results[-1]['content']={key:getattr(viewport.content,key) for key in ('width','height')}
+            results[-1]['clip']={key:getattr(geometry.clip,key) for key in ('x','y','width','height')}
+            results[-1]['maximum']={key:getattr(geometry.maximum,key) for key in ('x','y')}
         if item['kind']==6 and item['enabled'] and item['items']:
             assert native.nxs_control_set_screen_origin(pointer,240,160)
             assert native.nxs_control_popup_open(pointer,1)
@@ -90,7 +100,7 @@ for item in json.loads(args.controls.read_text()):
                 rectangles.append({key:getattr(rect,key) for key in ('x','y','width','height')})
             results[-1]['native_item_rects']=rectangles
             assert native.nxs_control_popup_open(pointer,0)
-        if item['enabled'] and item['kind'] not in (5,6,7,8):
+        if item['enabled'] and item['kind'] not in (5,6,7,8,9):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))

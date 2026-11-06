@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-06",
+  "baseline": "39236619",
+  "scope": "Pinned Chromium native textarea viewport integration; shared provider geometry foundation",
+  "implementation": {
+    "provider": "Ordinary NSTextView/NSScrollView; native clip frame, scroller-free client size and constrained min/max points. No new control implementation, layout, range-clamping or key table.",
+    "transport": "Optional append-only API and owner-connection-only operation 34 payload; earlier by-value viewport and operations 32/33 unchanged.",
+    "engine": "Exact textarea/owning layout identity. Native geometry feeds PaintLayerScrollableArea and PhysicalContractedBoxRect; original DOM rounding/zoom conversion remains in Blink. Native offsets use real SetScrollOffset/UpdateScrollOffset, retaining trusted scroll events. Native-to-engine offset transfer runs on the renderer work path, outside painting.",
+    "paint": "Only the border-box theme call paints the complete native control. Guarded PaintInfo contents-background flag avoids a second document-sized native widget; native scroll updates invalidate the border-box display item.",
+    "pointer": "Native NSScrollView supplies its own scroller and tracking. Blink scrollbar creation and overlapping corner resize grip/hit testing are disabled only for native-owned textareas. CSS/script enclosing-box resizing remains available. No replacement grip or scroller code.",
+    "feature": "NEXTSPACE_CHROMIUM_MULTILINE_VIEWPORT=1 in addition to existing FORMS/INPUT/TEXT/MULTILINE flags, provider capabilities VIEWPORT and GEOMETRY, exact build-ID/instruction guards. Not the installed desktop default."
+  },
+  "api": {
+    "version": 1,
+    "previous_bytes": 408,
+    "current_bytes": 416,
+    "geometry_bytes": 88,
+    "viewport_bytes": 56
+  },
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/element.cc",
+      "sha256": "4b0a17a68d29cbb509726c8f8ed78c0516e13e8ddaa2b601f90ce4b1f521425d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/layout_box.cc",
+      "sha256": "dc86b0f8638c222de363990b3294da564448997a0db24b1fe74b4c876f963115"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/layout_box.h",
+      "sha256": "6314482262bdc037b653966b4b96cf4d356eb502ad5c106b2e3f81a12163b871"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/layout_text_control_multi_line.cc",
+      "sha256": "c5944e18c202c12608fecb457ebc0feb1935ec9e7b3617477805b08df842a98a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/layout/layout_text_control_multi_line.h",
+      "sha256": "8744cb963f45a5eed9d77e4ab727525d8c63cdc737bc9c74e700b010a6d011b6"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.cc",
+      "sha256": "953214031b8b39826b36bf5f0e1dfa650967e11f852950b52894da368a40876d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/paint_layer_scrollable_area.h",
+      "sha256": "f689f3ff3f3337c7cfdd162092cb196a241069c024951486f77ac1b8ec6f64ba"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/box_fragment_painter.cc",
+      "sha256": "ce3c7335701c5f076b30a6b6fc95ea45b52867997b59640a5a7fb6b2b32a0699"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/paint_info.h",
+      "sha256": "4321e2ed564264889c32675d1e428fdb82c27d8d72ae4cbdb5a437033b65cf9a"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/scrollable_area_painter.cc",
+      "sha256": "7d33f799fc1c9c30896e8f31d499ec0ef8d1b4503ac1374b8d727946fa7850dd"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/scroll/scrollable_area.cc",
+      "sha256": "3b087e28580cea25454d6127d643d3d857124f1bb46a6e700e05d09b386d1842"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/scroll/scrollable_area.h",
+      "sha256": "8fe29555960f6aead33a1f9de439a95f3b6da62791a43c8383f730b24d3a94b8"
+    }
+  ],
+  "browser_sha256": {
+    "/var/tmp/nextspace-native-ui/firefox-multiline-02-hook.so": "fb846fb161a904e2e052d37ff67be9db1a8472a696b5ff87e5a26de5de00691c",
+    "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+    "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+    "/Library/Libraries/libgnustep-gui.so.0.32.0": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+    "/var/tmp/nextspace-native-ui/viewport-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.1": "51462cdc7494e30bb22bb2e101b030903237fc2b70d056404418b2acb3dda6a5",
+    "/var/tmp/nextspace-native-ui/viewport-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.1": "45c27504fa23762cf400721c1f1e67db73cbf1181af897a61c222a98cea941d3",
+    "/var/tmp/nextspace-native-ui/viewport-stage-01/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.1": "e528e1c9ec1e19e33682484228f7ceda8d0ba1fd8afde09244d486da5d8e0da2",
+    "/var/tmp/nextspace-native-ui/chromium-viewport-10-hook.so": "869247e4ed2095c0dab22fefad6cad2223e3c34411d4d1b4098ce10cbe0bfc79"
+  },
+  "guarded_boundaries": {
+    "can_resize": "0xe533c2c",
+    "contracted_box": "0xe53cb30",
+    "fragment_list": "0xef54acc",
+    "paint_info_flag": "0xe7a109c",
+    "get_box": "0xe809ea0",
+    "area_size": "0xe80d344",
+    "node": "0xe565500",
+    "set_offset": "0xe8f5de4",
+    "get_offset": "0xc7a3550",
+    "contents": "0xe80da6c",
+    "minimum": "0xe80bb18",
+    "maximum": "0xe80ba88",
+    "content_rect": "0xe80d064",
+    "bars": "0xe81102c",
+    "box_width": "0xe52f9c4",
+    "box_height": "0xe52fce0",
+    "update_offset": "0xe80bb74"
+  },
+  "abi_evidence": {
+    "paint_info_contents_flag_byte": 52,
+    "physical_fragment_list_references_layout_results_at_byte": 104,
+    "physical_units_per_logical_unit": 64,
+    "visible_rect_return": "four int32 physical fields in AArch64 x0/x1",
+    "native_geometry": "88-byte size-tagged out parameter; earlier viewport return ABI unchanged"
+  },
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "5d7abf199a3e53ba1bddf3069d4c771fb88b95b55809b033dae5c184d7f50344",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "fd62f3ba7bae360b86cf6b6ccf901329b386e5c35904ec350eadad5174558c94",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "0967a9c51735d4a97568acac5c1693aa14e47c78953662f62917e810a8b507a1",
+    "Experiments/ChromiumScrollers/forms-text.inc": "f7a11e6b5c3d1b04d3b5dcb84063ecf6c6047935716785beb81ff50b647a18b9",
+    "Experiments/ChromiumScrollers/forms.inc": "0193805f76f6d5f850e319d00d00e990a390b51d9c7dc61aa6d11565df591638",
+    "Experiments/ChromiumScrollers/hook.c": "4bd4013f231a7930c5fc069ade82a9f9486310e02cc73ff7271b4e1f84c8a334",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "ff349fbdbbda8c9a44279461ca63434c9adaa7ea13906456cd48497f9be27566",
+    "Experiments/ChromiumScrollers/native_controls.py": "492bd39ab0f5160819a5e93b952382cb0a84bb2f40438be1889225c5a5baefbb",
+    "Experiments/ChromiumScrollers/pinned-multiline-scroll.h": "37271472cb0a997e6b2d534301ab82309c144cd0ea7f5d0bd36cf3c5be46d85b",
+    "Libraries/NativeUI/GNUstep/Controls.m": "6ebd4d6a7ce8666cde6e5a62eac8bbbecacd81636f68029a9cbca2f87928263f",
+    "Libraries/NativeUI/GNUstep/Provider.h": "e3cc6ce390dd994b2a3d5a655a3affbd1a38a7f9e1f9b99aaa5166e47b0e8064",
+    "Libraries/NativeUI/GNUstep/Provider.m": "f1d68cd4d27be91d41f50d0322a39f587db7f714e9df9270cc2326122214364c",
+    "Libraries/NativeUI/Loader.c": "229699c196276fa1f7111f3213b5ee6ea6671c13c5c6879878fba7dcb00fad44",
+    "Libraries/NativeUI/NativeUI.h": "60183ba9e3d58cde6f3f6e06b4685aae959cc182d03ed896a2f38cb27c20f706",
+    "Libraries/NativeUI/README.md": "0b5c06ad3c4338cfd187791232b330ca4940de85ded05257e04c4c0216004e5b",
+    "Tests/NativeUI/multiline-probe.m": "137d02791e5d7ab31bb335410ae37bee7ffdd3a5a8af4d66ea3af42e5fee8938",
+    "Tests/NativeUI/run.py": "69f978efe890f94d02c2d81464101ba8c0b0da56c85648af2e4ab2f9f3f7e461",
+    "Tests/NativeUI/text-transport-probe.c": "ac687d3afe5b3197e9a2abb2d901550d3a0ad51fe4655c818b61257e9430cc5a",
+    "Tests/Wayland/native_ui_multiline_scroll.py": "8e2b56e872611e37e69159508d5b59ee84521a9368e220108a7c372e921124ab",
+    "Tests/Wayland/native_ui_session.py": "4297946b3f451d7e3e2ee02ad8cf89e091d641f0a1c9e99e844479fb664740a6",
+    "docs/Native-Control-Integration.md": "630bcb06dd5f590f3a6c18a6d649a88f6ad54a73b40f8da11dcf8d39895b3834"
+  },
+  "remaining": [
+    "Route native wheel input/policy to the real native scroll view; current checks cover programmatic offsets and native arrow tracking, not wheel parity.",
+    "Qualify long-document caret reveal/autoscroll, pointer text selection/dragging, nowrap and horizontal modes, scroll promises/smooth/scrollend edge cases, CSS zoom, mixed scaling/HiDPI, IME and accessibility.",
+    "Bind Firefox native document/clip geometry and scroll ownership to its engine. Its existing experimental native multiline editing still passes but its full viewport remains unfinished.",
+    "Resolve Firefox original auto-hidden menu-bar interference after Alt shortcuts. Its independent clipboard fixture still dismisses that menu and focuses the actual browser pane.",
+    "Finish other browser frontend controls, dialogs, menus and rich text; audited automatic build selection/installation and actual installed Workspace/PAM deployment.",
+    "Qualify Chrome, Vivaldi, Firefox derivatives and other browser versions/architectures, then continue remaining non-GNUstep GTK/Qt/KDE applications."
+  ]
+}

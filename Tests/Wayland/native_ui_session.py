@@ -249,6 +249,16 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
                                 name=a.output/'firefox-multiline.png'
                                 name.write_bytes(base64.b64decode(client.command('WebDriver:TakeScreenshot',dict(full=False))['value']))
                                 result=dict(ok=True,path=str(name))
+                            elif operation=='native-reference':
+                                name=request['name'];assert name==Path(name).name and name not in ('.','..')
+                                target=a.output/name;assert not target.exists();target.mkdir()
+                                spec=target/'controls.json';spec.write_text(json.dumps(request['controls']))
+                                with (target/'stdout').open('w') as stdout,(target/'stderr').open('w') as stderr:
+                                    subprocess.run([sys.executable,str(REPO/'Experiments/ChromiumScrollers/native-control-reference.py'),
+                                        '--library',str(a.library),'--controls',str(spec),'--output',str(target),
+                                        '-GSBackend',a.backend]+(['--focus'] if request.get('focus') else []),
+                                        env=bus_env,stdout=stdout,stderr=stderr,timeout=30,check=True)
+                                result=dict(ok=True,path=str(target),reference=json.loads((target/'results.json').read_text()))
                             elif operation=='verify-firefox':
                                 before=len(rows)
                                 window=next(w for w in windows() if w['pid']==browser_pid and w['level']==0)

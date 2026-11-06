@@ -6,10 +6,40 @@ small preload library is compiled. Chromium, GNUstep and `NSScroller` are not
 rebuilt or overwritten. Closing the isolated browser removes the memory patches.
 It is not enabled by the installed NEXTSPACE session.
 
+## Native multiline viewport experiment
+
+For the exact browser pin below, `NEXTSPACE_CHROMIUM_MULTILINE_VIEWPORT=1`
+adds native textarea viewport integration to the existing
+`NEXTSPACE_CHROMIUM_FORMS=1`, `NEXTSPACE_CHROMIUM_INPUT=1`,
+`NEXTSPACE_CHROMIUM_TEXT=1` and `NEXTSPACE_CHROMIUM_MULTILINE=1` bindings.
+It requires a provider advertising `NXS_TEXT_VIEWPORT` and `NXS_TEXT_GEOMETRY`.
+This is opt-in and is not installed as the desktop default.
+
+The real `NSScrollView`/`NSTextView` supplies clip/document dimensions, clamped
+scroll points, wrapping, pixels and arrow tracking. The adapter feeds those
+measurements into Blink's existing scroll area and padding-box geometry, keeping
+its DOM rounding/zoom conversion and scroll-event lifecycle. Blink's separate
+scrollbars and corner resize grip are disabled for owned native textareas;
+CSS/script can still resize their enclosing boxes. No grip or scroller is copied
+into the adapter. Paint ownership distinguishes border-box rendering from
+Blink's second scrolling-background pass, and scrolling invalidates the complete
+native snapshot rather than relying on translation of hidden browser text.
+
+Verified on the unchanged pinned ARM64 binary at 100% scale: 34 viewport checks
+before/after host replacement, including 12 complete image comparisons, native
+client/scroll geometry, trusted scroll events, script resizing, native wrapping,
+autohiding, and native arrow click/repeat/release. Both browser families retain
+their 18 real-seat multiline editing checks. See
+[multiline-viewport-qualification.json](../../Libraries/NativeUI/multiline-viewport-qualification.json).
+Native wheel policy, caret/autoscroll, pointer selection dragging, nowrap and
+horizontal modes, accessibility, CSS zoom/HiDPI and Firefox's equivalent viewport
+binding remain unfinished. Other Chromium builds and derivatives remain
+unsupported until their own audited adapters are available.
+
 The helper calls the unchanged `Libraries/ForeignScrollers` C interface for
 geometry, drawing and synchronous native mouse tracking. Its bitmap is transported
 to Chromium's paint canvas; no native artwork or tracking algorithm is copied.
-Blink retains the document layout and scroll ranges, with vertical bars placed
+Outside the native textarea experiment, Blink retains document layout and scroll ranges, with vertical bars placed
 on the left without changing text direction. Native actions are applied through
 Chromium's absolute scroll-offset setter on the owning renderer thread.
 

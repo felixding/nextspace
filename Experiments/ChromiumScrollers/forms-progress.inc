@@ -140,6 +140,7 @@ static void form_native_work(void *controller) {
   if(popup)popup_after_input(popup,form_request(popup,5,0,0,0));
   for(struct NativeForm *f=native_forms;f;f=f->next){
     if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&f->kind==NXS_SLIDER)||text_kind(f->kind)))continue;
+    if(forms_multiline_viewport_enabled&&f->kind==NXS_TEXTAREA){read_text_viewport(f);echo_text_viewport(f);}
     schedule_form_paint(f);
   }
   static __thread unsigned logged;

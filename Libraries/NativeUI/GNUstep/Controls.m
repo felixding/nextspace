@@ -48,6 +48,25 @@ int nxs_gnustep_control_text_scroll(NXSControl *control,double x,double y)
   [clip scrollToPoint:[clip constrainScrollPoint:point]];[scroll reflectScrolledClipView:clip];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
+int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geometry)
+{
+  if(!geometry||geometry->size<sizeof(*geometry)||!control||control->kind!=NXS_TEXTAREA||control->destroying)return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSScrollView *scroll=(NSScrollView *)control->view;NSClipView *clip=[scroll contentView];
+  NSView *view=[scroll documentView];NSRect frame=[clip frame];
+  NSSize client=[NSScrollView contentSizeForFrameSize:[scroll frame].size
+    hasHorizontalScroller:NO hasVerticalScroller:NO borderType:[scroll borderType]];
+  NSPoint minimum=[clip constrainScrollPoint:NSMakePoint(-FLT_MAX,-FLT_MAX)];
+  NSPoint maximum=[clip constrainScrollPoint:NSMakePoint(FLT_MAX,FLT_MAX)];
+  if(![view isFlipped]) {
+    double bottom=[view bounds].size.height-[clip bounds].size.height;
+    double first=bottom-maximum.y;maximum.y=bottom-minimum.y;minimum.y=first;
+  }
+  *geometry=(NXSTextGeometry){.size=sizeof(*geometry),
+    .clip={frame.origin.x,[scroll isFlipped]?frame.origin.y:[scroll bounds].size.height-NSMaxY(frame),frame.size.width,frame.size.height},
+    .client={client.width,client.height},.minimum={minimum.x,minimum.y},.maximum={maximum.x,maximum.y}};
+  [pool drain];return 1;
+}
 static void slider_model(NXSControl *control)
 {
   NSSlider *view=(NSSlider *)control->view;

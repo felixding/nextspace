@@ -38,6 +38,7 @@ int nxs_gnustep_control_text_filter(NXSControl *,NXSTextShouldChange,void *);
 unsigned nxs_gnustep_control_text_capabilities(void);
 NXSTextViewport nxs_gnustep_control_text_viewport(NXSControl *);
 int nxs_gnustep_control_text_scroll(NXSControl *,double,double);
+int nxs_gnustep_control_text_geometry(NXSControl *,NXSTextGeometry *);
 const char *nxs_gnustep_control_text_command(NXSControl *);
 int nxs_gnustep_control_command_filter(NXSControl *,NXSCommandFilter,void *);
 NXSMenu *nxs_gnustep_menu_create(const char *,NXSMenuCommand,NXSPump,void *);

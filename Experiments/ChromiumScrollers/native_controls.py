@@ -88,6 +88,10 @@ class Size(C.Structure):
 
 class TextViewport(C.Structure):
     _fields_ = [('size',C.c_uint32),('visible',ControlRect),('content',Size)]
+class Point(C.Structure):
+    _fields_ = [('x',C.c_double),('y',C.c_double)]
+class TextGeometry(C.Structure):
+    _fields_ = [('size',C.c_uint32),('clip',ControlRect),('client',Size),('minimum',Point),('maximum',Point)]
 
 ControlChanged = C.CFUNCTYPE(None, C.c_void_p, C.c_int, C.POINTER(ControlState))
 
@@ -162,6 +166,9 @@ class NativeControlServer:
             native.nxs_control_text_viewport.restype=TextViewport
             native.nxs_control_text_scroll.argtypes=[C.c_void_p,C.c_double,C.c_double]
             native.nxs_control_text_scroll.restype=C.c_int
+        if self.text_capabilities&32:
+            native.nxs_control_text_geometry.argtypes=[C.c_void_p,C.POINTER(TextGeometry)]
+            native.nxs_control_text_geometry.restype=C.c_int
         if hasattr(native,'nxs_control_popup_open_capabilities'):
             native.nxs_control_popup_open_capabilities.argtypes=[]
             native.nxs_control_popup_open_capabilities.restype=C.c_uint
@@ -687,6 +694,11 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==34 and req.kind==9 and self.text_capabilities&32 and not req.text_size:
+                geometry=TextGeometry(size=C.sizeof(TextGeometry))
+                accepted=state['client'] is client and self.native.nxs_control_text_geometry(state['native'],C.byref(geometry))
+                self._respond(client,req,state,input_result=int(bool(accepted)),payload=bytes(geometry) if accepted else b'')
+                return
             if req.operation in (32,33) and req.kind==9 and self.text_capabilities&16 and not req.text_size:
                 accepted=state['client'] is client and (req.operation==32 or self.native.nxs_control_text_scroll(state['native'],req.x,req.y))
                 viewport=self.native.nxs_control_text_viewport(state['native']) if accepted else None

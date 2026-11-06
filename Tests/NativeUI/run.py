@@ -42,6 +42,7 @@ parser.add_argument('--previous-input-client',type=Path,help='Unchanged earlier 
 parser.add_argument('--transport',action='store_true',help='Exercise the native provider through the browser IPC helper')
 parser.add_argument('--multiline',action='store_true',help='Qualify native multiline controls, images and optional transport')
 parser.add_argument('--previous-multiline-provider',type=Path,help='Provider predating optional multiline controls')
+parser.add_argument('--previous-text-geometry-provider',type=Path,help='Multiline provider predating optional native clip geometry')
 args = parser.parse_args()
 args.output.mkdir(parents=True, exist_ok=True)
 backend = ['-GSBackend', args.backend] if args.backend else []
@@ -180,6 +181,11 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         text_output=held_probe(args.build/'native-ui/native-text-probe',[str(args.output)],
                                 'NXS_NATIVE_UI_TEXT_HOLD','text')
         checks['native_text']=json.loads(text_output)
+        if args.previous_text_geometry_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-multiline-probe'),'--expect-no-geometry']+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_text_geometry_provider.resolve())),
+                'previous-text-geometry-provider',timeout=15)
+            assert code==0,(code,stderr);checks['previous_text_geometry_provider']=json.loads(stdout)
         if args.multiline:
             directories={name:args.output/'multiline'/name for name in ['reference','provider']}
             for directory in directories.values():directory.mkdir(parents=True,exist_ok=True)

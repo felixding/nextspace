@@ -39,7 +39,8 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .menu_key_query=nxs_gnustep_menu_key_query,
     .control_text_capabilities=nxs_gnustep_control_text_capabilities,
     .control_text_viewport=nxs_gnustep_control_text_viewport,
-    .control_text_scroll=nxs_gnustep_control_text_scroll
+    .control_text_scroll=nxs_gnustep_control_text_scroll,
+    .control_text_geometry=nxs_gnustep_control_text_geometry
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

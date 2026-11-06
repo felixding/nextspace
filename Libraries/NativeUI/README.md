@@ -106,14 +106,28 @@ geometry and scrolling interfaces for adapters, without copied layout rules.
 The ABI remains version 1; an older provider rejects the new kind and reports
 neither capability. Existing single-line/password clients keep their prefix.
 
+`NXS_TEXT_GEOMETRY` adds the native clip frame, client size before scrollers,
+and minimum/maximum scroll points through `nxs_control_text_geometry()`.
+The provider reads `NSScrollView` metrics and `NSClipView` constraints. Callers
+initialize the output struct's `size`; unavailable/older providers return zero.
+This appends one optional function pointer (408 to 416 bytes on ARM64), leaving
+the existing by-value viewport struct and operations 32/33 unchanged. Transport
+operation 34 returns the size-tagged geometry only to the owning connection.
+
 Full short, scrolling and wrapped images match independent direct GNUstep
 references. Tests cover actual scrollbar clicking, double/triple-click selection,
 native line navigation, newline/Tab insertion, UTF-16 selection, pre-edit veto,
 read-only/disabled state and reentrant transport. The unchanged pinned Chromium
 and Firefox builds also have experimental multiline drawing and engine editing
 bindings, including real-seat keyboard checks across host replacement.
-Browser DOM scroll/layout synchronization, wrap modes, IME and broader frontend
-coverage remain unfinished. See the [multiline qualification](multiline-qualification.json).
+The pinned Chromium adapter additionally connects native geometry and offsets to
+Blink's real scroll area. Twelve complete browser textarea images match provider
+output across scroll positions, resizing, wrapping and host replacement. Native
+arrow tracking and DOM scroll events also pass. This remains a separate opt-in
+experiment: native wheel handling, caret/autoscroll, Firefox viewport integration,
+wrap modes, IME and broader frontend coverage remain unfinished. See the
+[multiline qualification](multiline-qualification.json) and
+[viewport qualification](multiline-viewport-qualification.json).
 
 ## Native application menu foundation
 
