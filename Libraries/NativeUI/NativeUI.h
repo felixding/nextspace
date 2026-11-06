@@ -104,6 +104,7 @@ enum NXSMenuFlag {
 enum NXSMenuModifier {
   NXS_MENU_COMMAND=1, NXS_MENU_SHIFT=2, NXS_MENU_CONTROL=4, NXS_MENU_ALTERNATE=8
 };
+enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2 };
 typedef struct {
   uint32_t size;
   int32_t parent; /* -1 for root; otherwise an earlier SUBMENU item index. */
@@ -172,6 +173,7 @@ typedef struct {
   int (*menu_show)(NXSMenu *,int);
   int (*menu_key)(NXSMenu *,const NXSKeyEvent *);
   NXSMenuState (*menu_state)(NXSMenu *,int);
+  int (*menu_cancel)(NXSMenu *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -263,6 +265,10 @@ int nxs_menu_items(NXSMenu *,const NXSMenuItem *,uint32_t count);
 int nxs_menu_show(NXSMenu *,int visible);
 int nxs_menu_key(NXSMenu *,const NXSKeyEvent *);
 NXSMenuState nxs_menu_state(NXSMenu *,int index);
+/* Explicit cancellation also works during tracking/callbacks. It suppresses
+ * command execution, ends the native tracking loop and hides owned menus;
+ * destruction remains deferred until dispatch returns. */
+int nxs_menu_cancel(NXSMenu *);
 
 #ifdef __cplusplus
 }

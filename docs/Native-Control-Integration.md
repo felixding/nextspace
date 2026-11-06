@@ -311,6 +311,11 @@ command IDs, state and native key-equivalent metadata; AppKit owns presentation
 and interaction. Physical menu tracking, submenu actions, main-menu editing-key
 routing and complete native images are qualified independently of browsers.
 See [menu qualification](../Libraries/NativeUI/menu-qualification.json).
-Browser menu-model extraction, menu transport and idle owner-loop command
-dispatch remain to implement. This foundation does not establish native browser
-menus or coverage for GTK/Qt/KDE applications.
+The shared helper now carries these menu models and authenticated owner
+callbacks, including dispatch while idle, nested RPC reply ordering and native
+cancellation on owner failure. Eighteen transport/lifetime checks and eighteen
+physical menu/reference checks qualify that foundation; see
+[menu transport qualification](../Libraries/NativeUI/menu-transport-qualification.json).
+Browser menu-model extraction and connecting the dispatcher to each browser's
+owner loop remain to implement. This foundation does not establish native
+browser menus or coverage for GTK/Qt/KDE applications.

@@ -86,7 +86,29 @@ with tempfile.TemporaryDirectory(prefix='nxs-menu-') as runtime:
     request('disable');check('live-application-availability',not request('state 1')['enabled']);request('enable')
     check('hide-native-window',request('hide')['ok']);until(windows,lambda w:not w)
     check('reshow-native-window',request('show')['ok']);until(windows,lambda w:len(w)==1)
+    root=windows()[0];direct=request('state 6')
+    point_direct=[direct['item'][0]-direct['frame'][0]+direct['item'][2]/2,direct['item'][1]-direct['frame'][1]+direct['item'][3]/2]
+    point=[root['x']+point_direct[0],root['y']+point_direct[1]]
+    assert command(f"pointer {round(point[0])} {round(point[1])}")['ok'];assert command('button 272 1')['ok']
+    until(lambda:request('state -1'),lambda s:s['tracking'])
+    assert command(f"pointer {round(root['x']+item_offset[0])} {round(root['y']+item_offset[1])}")['ok']
+    try:until(lambda:command('popups'),lambda w:len(w)==1)
+    except AssertionError:
+     (out/'cancel-reentry.json').write_text(json.dumps(dict(root=request('state -1'),branch=request('state 1'),windows=command('windows'),popups=command('popups')),indent=2)+'\n')
+     raise
+    check('cancel-held-menu',request('cancel')['ok'])
+    cancelled=until(lambda:request('state -1'),lambda s:not s['tracking'])
+    check('cancel-suppresses-command',cancelled['actions']==1 and not cancelled['visible'],source=cancelled)
+    assert command('button 272 0')['ok'];until(windows,lambda w:not w)
+    check('cancel-removes-native-popup',not command('popups'))
    else:
+    assert command('button 272 0')['ok'];assert command('key 1 1')['ok'];assert command('key 1 0')['ok']
+    request('hide');until(windows,lambda w:not w);request('show');root=until(windows,lambda w:len(w)==1)[0]
+    # Repeat the same native submenu lifecycle without the provider binding.
+    assert command(f"pointer {round(root['x']+point_direct[0])} {round(root['y']+point_direct[1])}")['ok']
+    assert command('button 272 1')['ok']
+    assert command(f"pointer {round(root['x']+item_offset[0])} {round(root['y']+item_offset[1])}")['ok']
+    until(lambda:command('popups'),lambda w:len(w)==1);check('reference-submenu-remaps',True)
     assert command('button 272 0')['ok'];assert command('key 1 1')['ok'];assert command('key 1 0')['ok']
    probe.stdin.write('quit\n');probe.stdin.flush();probe.wait(timeout=10)
    remainder=probe.stdout.read();(out/'final.stdout').write_text(remainder)

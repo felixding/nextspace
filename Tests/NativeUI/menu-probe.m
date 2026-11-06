@@ -58,6 +58,7 @@ static void input(struct Probe *p)
  else if(!strncmp(line,"enable",6)){p->allow=1;state(p,1);}
  else if(!strncmp(line,"hide",4)){printf("{\"ok\":%s}\n",nxs_menu_show(p->menu,0)?"true":"false");}
  else if(!strncmp(line,"show",4)){printf("{\"ok\":%s}\n",nxs_menu_show(p->menu,1)?"true":"false");}
+ else if(!strncmp(line,"cancel",6)){printf("{\"ok\":%s}\n",nxs_menu_cancel(p->menu)?"true":"false");}
  else if(!strncmp(line,"mutate",6)){printf("{\"ok\":%s}\n",nxs_menu_items(p->menu,model,sizeof(model)/sizeof(*model))?"true":"false");}
  fflush(stdout);
 }
@@ -93,13 +94,22 @@ int main(int argc,char **argv)
   assert(!nxs_menu_items(NULL,NULL,0)&&!nxs_menu_show(NULL,1)&&!nxs_menu_key(NULL,NULL));
   assert(nxs_menu_state(NULL,-1).highlighted==-1);puts("{\"unsupported_menu_rejected\":true}");return 0;
  }
+ if(argc>1&&!strcmp(argv[1],"--expect-no-cancel")) {
+  assert(nxs_native_ui_menu_capabilities()==NXS_MENU_MODELS&&!nxs_menu_cancel(NULL));
+  puts("{\"unsupported_cancel_rejected\":true}");return 0;
+ }
  NSAutoreleasePool *pool=[NSAutoreleasePool new];
  struct Probe p={.allow=1};p.menu=nxs_menu_create("Native menu fixture",command,pump,&p);assert(p.menu);
- assert(nxs_native_ui_menu_capabilities()==1);
+ assert(nxs_native_ui_menu_capabilities()==(NXS_MENU_MODELS|NXS_MENU_CANCEL));
  if(argc>1&&!strcmp(argv[1],"--reference")) {
   assert(nxs_menu_destroy(p.menu));reference();puts("{\"event\":\"reference-live\"}");
   while(!feof(stdin)) {
-   struct pollfd input={0,POLLIN,0};if(poll(&input,1,0)>0){char line[64];if(!fgets(line,sizeof(line),stdin)||!strncmp(line,"quit",4))break;puts("{\"ok\":true}");}
+   struct pollfd input={0,POLLIN,0};if(poll(&input,1,0)>0){
+    char line[64];if(!fgets(line,sizeof(line),stdin)||!strncmp(line,"quit",4))break;
+    if(!strncmp(line,"hide",4))[[NSApp mainMenu] close];
+    else if(!strncmp(line,"show",4))[[NSApp mainMenu] display];
+    puts("{\"ok\":true}");
+   }
    nxs_native_ui_dispatch_events(.005);
   }
   [[NSApp mainMenu] close];[NSApp setMainMenu:nil];[pool drain];return 0;

@@ -102,19 +102,53 @@ from the menu's loop. Model changes, hiding, destruction and competing control
 input are rejected while tracking. A native menu restoring its logical key
 window cannot map a private editor backing window.
 
-The append-only API grows from 304 to 352 bytes on ARM64 while retaining ABI 1,
-input 3, pointer 1, text 7 and command 1. Older providers report no menu support;
-older loaders and clients retain their existing controls. The
+The original menu extension grows the API from 304 to 352 bytes on ARM64 while
+retaining ABI 1, input 3, pointer 1, text 7 and command 1. Older providers report
+no menu support; older loaders and clients retain their existing controls. The
 [qualification](menu-qualification.json) records fourteen physical-window and
 complete-image checks against direct AppKit menus, the native-control/transport
 suite, thirty unchanged legacy images, and fresh Chromium/Firefox command
 regressions. `Tests/NativeUI/check-menus.py` drives an isolated compositor and
 compares unaltered root/submenu captures with direct native references.
 
-This is the shared menu implementation. Browser menu-model extraction,
-transport and idle command dispatch are not connected yet. Complete browser
-menus, browser Undo/Redo routing, broader live model/torn-off behavior, IME,
-accessibility, scaling and other toolkit bindings remain required.
+The optional `NXS_MENU_CANCEL` capability appends `nxs_menu_cancel()` at byte 352,
+growing the API to 360 bytes. It suppresses commands, closes the menu's native
+windows and releases its native tracking loop, including during an application
+callback. Destruction still waits for tracking/callbacks to return. Providers
+with the earlier 352-byte API retain `NXS_MENU_MODELS` without cancellation.
+Application callbacks enter the same pump scope as native tracking, so nested
+event dispatch cannot start another native input operation before returning an
+outer validation RPC.
+
+The shared browser helper now transports menu models and owner callbacks. It
+advertises menu transport in bootstrap part 5.height only when cancellation is
+available. Operations 24–30 register callbacks, replace model data, show/hide,
+send a key, read native state, destroy and cancel. Models carry application data;
+no menu drawing, geometry or shortcut implementation crosses this boundary.
+The existing authenticated owner subscription supplies descriptor wakeups and
+process lifetime. Peer loss, expired callbacks and owner exit cancel native
+tracking and defer object destruction until the native stack unwinds.
+
+`native_callbacks_dispatch()` drains callbacks on their registering UI thread
+when its owner loop wakes without an outstanding RPC. Before running an idle
+menu callback, the transport acknowledges its pending request sequence, or zero
+when idle. The helper defers that request's reply while nested RPCs run. A
+one-way resume also handles endpoint replacement inside a callback. Already
+queued RPC replies take priority over later callbacks. A worker holding the
+request mutex cannot prevent the UI thread from acknowledging its callback.
+These are transport rules; application command semantics remain in its model.
+
+The [transport qualification](menu-transport-qualification.json) records eighteen
+physical menu/reference checks and eighteen real-helper transport/lifetime
+checks, including controlled pending-reply and worker-lock races. Reopening a
+submenu also exposed a Wayland retained-image attachment bug. The shared
+backend marks that image for attachment after the recreated surface's first
+configure; direct AppKit and provider submenus both remap in the private build.
+
+Browser menu-model extraction and binding this idle dispatcher into each
+browser's owner loop remain required. Complete browser menus, browser Undo/Redo
+routing, broader live model/torn-off behavior, IME, accessibility, scaling and
+other toolkit bindings remain required.
 
 ## Native text editor foundation
 

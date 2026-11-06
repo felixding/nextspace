@@ -33,7 +33,8 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_command_filter=nxs_gnustep_control_command_filter,
     .menu_create=nxs_gnustep_menu_create,.menu_destroy=nxs_gnustep_menu_destroy,
     .menu_items=nxs_gnustep_menu_items,.menu_show=nxs_gnustep_menu_show,
-    .menu_key=nxs_gnustep_menu_key,.menu_state=nxs_gnustep_menu_state
+    .menu_key=nxs_gnustep_menu_key,.menu_state=nxs_gnustep_menu_state,
+    .menu_cancel=nxs_gnustep_menu_cancel
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

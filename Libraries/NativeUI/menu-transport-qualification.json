@@ -1,0 +1,1139 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "6268a75c",
+  "status": "Shared application menu transport, idle owner callback dispatch and native cancellation qualified. Browser menu-model extraction and browser UI-loop binding remain incomplete.",
+  "api": {
+    "version": 1,
+    "size": 360,
+    "input": 3,
+    "pointer": 1,
+    "text": 7,
+    "command": 1,
+    "menu": 3,
+    "menu_transport": 1
+  },
+  "verification": {
+    "physical_native_menu_checks": [
+      {
+        "case": "provider-startup",
+        "passed": true
+      },
+      {
+        "case": "detached-native-root",
+        "passed": true,
+        "source": {
+          "index": 0,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0.0,
+            0.0,
+            143.0,
+            123.0
+          ],
+          "item": [
+            1.0,
+            23.0,
+            142.0,
+            20.0
+          ],
+          "actions": 0,
+          "last": 0,
+          "pumps": 0
+        }
+      },
+      {
+        "case": "native-tracking-pumps-owner",
+        "passed": true,
+        "source": {
+          "index": -1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": 0,
+          "frame": [
+            0.0,
+            0.0,
+            143.0,
+            123.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actions": 0,
+          "last": 0,
+          "pumps": 1
+        }
+      },
+      {
+        "case": "held-model-change-rejected",
+        "passed": true
+      },
+      {
+        "case": "held-hide-rejected",
+        "passed": true
+      },
+      {
+        "case": "actual-native-submenu-action",
+        "passed": true,
+        "source": {
+          "index": -1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0.0,
+            0.0,
+            143.0,
+            123.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actions": 1,
+          "last": 64,
+          "pumps": 23
+        }
+      },
+      {
+        "case": "live-application-availability",
+        "passed": true
+      },
+      {
+        "case": "hide-native-window",
+        "passed": true
+      },
+      {
+        "case": "reshow-native-window",
+        "passed": true
+      },
+      {
+        "case": "cancel-held-menu",
+        "passed": true
+      },
+      {
+        "case": "cancel-suppresses-command",
+        "passed": true,
+        "source": {
+          "index": -1,
+          "visible": 0,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "frame": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "actions": 1,
+          "last": 64,
+          "pumps": 46
+        }
+      },
+      {
+        "case": "cancel-removes-native-popup",
+        "passed": true
+      },
+      {
+        "case": "provider-clean-exit",
+        "passed": true,
+        "code": 0
+      },
+      {
+        "case": "reference-startup",
+        "passed": true
+      },
+      {
+        "case": "reference-submenu-remaps",
+        "passed": true
+      },
+      {
+        "case": "reference-clean-exit",
+        "passed": true,
+        "code": 0
+      },
+      {
+        "case": "complete-native-pixels-root",
+        "passed": true
+      },
+      {
+        "case": "complete-native-pixels-submenu",
+        "passed": true
+      }
+    ],
+    "menu_transport_checks": [
+      {
+        "case": "pending-reply-survives-nested-menu-RPC",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 0,
+          "idle_callbacks": 0,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "idle-owner-acknowledges-while-worker-awaits-reply",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 1,
+          "enabled": 1,
+          "highlighted": 1,
+          "actions": 0,
+          "idle_callbacks": 1,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "menu-model-crosses-IPC",
+        "passed": true
+      },
+      {
+        "case": "native-state-crosses-IPC",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 0,
+          "idle_callbacks": 0,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            1.0,
+            43.0,
+            123.0,
+            20.0
+          ]
+        }
+      },
+      {
+        "case": "idle-native-action-runs-on-owner",
+        "passed": true,
+        "event": {
+          "event": "menu-command",
+          "command": 2,
+          "phase": 1,
+          "idle": 1
+        }
+      },
+      {
+        "case": "application-command-executes-once",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 1,
+          "idle_callbacks": 2,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "application-validation-rejects-disabled",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 1,
+          "idle_callbacks": 2,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "native-key-matching-through-IPC",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 2,
+          "idle_callbacks": 2,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "bad-model-preserves-live-menu",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 2,
+          "idle_callbacks": 2,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "bad-count-preserves-live-menu",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 2,
+          "idle_callbacks": 2,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "foreign-owner-request-rejected",
+        "passed": true
+      },
+      {
+        "case": "replacement-endpoint-survives-old-decision",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 4,
+          "idle_callbacks": 6,
+          "last": 2,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "late-menu-reply-after-destroy-drained",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 1,
+          "visible": 1,
+          "tracking": 0,
+          "enabled": 1,
+          "highlighted": -1,
+          "actions": 6,
+          "idle_callbacks": 8,
+          "last": 1,
+          "frame": [
+            0.0,
+            0.0,
+            124.0,
+            103.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "callback-peer-loss-removes-menu",
+        "passed": true
+      },
+      {
+        "case": "expiry-removes-native-menu",
+        "passed": true
+      },
+      {
+        "case": "expired-validation-does-not-execute",
+        "passed": true,
+        "source": {
+          "event": "state",
+          "accepted": 0,
+          "visible": 0,
+          "tracking": 0,
+          "enabled": 0,
+          "highlighted": 0,
+          "actions": 0,
+          "idle_callbacks": 1,
+          "last": 0,
+          "frame": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "item": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "owner-exit-removes-native-menu",
+        "passed": true
+      },
+      {
+        "case": "helper-remains-live",
+        "passed": true
+      }
+    ],
+    "native_control_suite": ".build/native-ui/menu-wire-evidence/menu-wire-native-suite/results.json",
+    "old_provider_without_menus": {
+      "unsupported_menu_rejected": true
+    },
+    "old_provider_without_cancel": {
+      "unsupported_cancel_rejected": true
+    },
+    "unchanged_old_client": true,
+    "unchanged_old_loader": true,
+    "text_transport": {
+      "native_pre_edit_ipc": true,
+      "proposals": 8,
+      "nested_reads": 16,
+      "nested_mutations_rejected": 8,
+      "other_process_request_during_validation": true,
+      "cancelled_typing_and_deletion": true,
+      "accepted_typing_and_deletion": true,
+      "callback_peer_loss_veto": true,
+      "expired_decision_veto": true,
+      "destroy_during_validation": true,
+      "idle_after_expiry_and_destroy": true,
+      "explicit_unregister": true,
+      "native_application_command_ipc": true,
+      "application_command_validation": true,
+      "command_nested_reads_and_mutation_rejection": true,
+      "command_peer_loss_veto": true,
+      "command_expiry_veto": true,
+      "command_frame_destruction": true,
+      "command_idle_after_expiry_and_destroy": true,
+      "late_command_before_current_edit_decision": true,
+      "late_menu_before_current_edit_decision": true
+    },
+    "legacy_image_comparisons": 30,
+    "chromium_command_assertions": 44,
+    "firefox_command_assertions": 83,
+    "menu_transport_evidence": ".build/native-ui/menu-wire-evidence/menu-wire-transport-final-02"
+  },
+  "environment": {
+    "hashes": {
+      "chromium_adapter": "2a7906b499991ab30bbc4b4866141b4149db5a95dda9371b51bcdc8656a7e567",
+      "firefox_adapter": "bde710641f7f1f60d37107a18b4f98c41dc695a1c3375166fa4541ef797ac389",
+      "provider": "2b2d669d37b68ba869a778353361056effa047a8c784403b92535b5771dcffac",
+      "shim": "8673ca5f2bf5ba1596cde13a12758d8101ebf2a9d17cea997a29861bd207f13c",
+      "loader": "c899af3fa64de9732ab98cc5780c826243310902322b741353ad1bd4fe46eed0",
+      "chromium": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1",
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "backend": "141c79f0f306cd62747ed80a368617a56575d87950420402bb596a81c4032bfa",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "owned_browser_pids": {
+      "chromium": [
+        4790,
+        4798,
+        4799,
+        4801,
+        4827,
+        4831,
+        4832,
+        4851,
+        4865,
+        4874,
+        5409
+      ],
+      "firefox": [
+        4938,
+        5006,
+        5009,
+        5023,
+        5031,
+        5069,
+        5126,
+        5128,
+        5130,
+        5145,
+        5178
+      ]
+    },
+    "renderers": {
+      "chromium": [
+        {
+          "pid": 4865,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 4874,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5409,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 5023,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5069,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5128,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5130,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5145,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 5178,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "packages": 1050
+  },
+  "cleanup": {
+    "processes": [
+      {
+        "pid": 1046,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1049,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1053,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1054,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1057,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1058,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1059,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1061,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1064,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1066,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1067,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1070,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1071,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1072,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1073,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1075,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1078,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1081,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1082,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1089,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1092,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1094,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1095,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1357,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1360,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1362,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1363,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1366,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1367,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1369,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1370,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 1371,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4675,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4678,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4681,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4682,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4685,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4700,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4705,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4708,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4710,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4712,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4718,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4719,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4721,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4722,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4725,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4774,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4777,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4778,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4781,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4783,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4786,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4787,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4789,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4790,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4798,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4799,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4801,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4827,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4831,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4832,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4851,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4865,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4874,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 4938,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5006,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5009,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5023,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5031,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5069,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5126,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5128,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5130,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5145,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5178,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5261,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5409,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5497,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5590,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5593,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5596,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5597,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5600,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5601,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5603,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5604,
+        "state": null,
+        "stopped": true
+      },
+      {
+        "pid": 5605,
+        "state": null,
+        "stopped": true
+      }
+    ],
+    "private_aliases_absent": [
+      "/home/felixding.guest/Library/Bundles/libgnustep-nextspace-native-ui-menu-wire-032.bundle",
+      "/home/felixding.guest/Library/Bundles/libgnustep-nextspace-native-ui-menu-remap-032.bundle"
+    ],
+    "control_sockets_absent": [
+      "/var/tmp/nextspace-native-ui/menu-wire-chromium/control.sock",
+      "/var/tmp/nextspace-native-ui/menu-wire-firefox/control.sock"
+    ]
+  },
+  "owned_CDP_forwarding_removed": true,
+  "owned_agent_browser_daemon_stopped": true,
+  "backend": {
+    "status": "Repository fix verified in a private staged backend; installed backend unchanged.",
+    "private_library": "/var/tmp/nextspace-native-ui/menu-remap-backend/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+    "failure_evidence": [
+      ".build/native-ui/menu-wire-evidence/menu-wire-native-02",
+      ".build/native-ui/menu-wire-evidence/menu-wire-native-03"
+    ],
+    "cause": "Detach marked Cairo presentation pending but did not require retained-image attachment after the recreated surface configure."
+  },
+  "diagnostics": {
+    "earlier_reply_ordering_failures": "/var/tmp/nextspace-native-ui/menu-wire-transport-01 and menu-wire-transport-02; terminal fixtures cleaned up before this turn.",
+    "controlled_races": [
+      "pending-reply-survives-nested-menu-RPC",
+      "idle-owner-acknowledges-while-worker-awaits-reply"
+    ],
+    "expected_peer_loss": "The injected callback peer closure can log BrokenPipeError before cancellation; the fixture verifies no command executes and the menu is removed."
+  },
+  "raw_evidence": ".build/native-ui/menu-wire-evidence",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "13923bc9fbd04158ce72a4a00400ef9f8bf326b0e55b17fecd1fcbe3ab9d1842",
+    "Experiments/ChromiumScrollers/native_controls.py": "c06de1a0c57ea8fa04336755e5c14a6b63b1fe571c20751e62bd65aecfbfb37f",
+    "Experiments/ChromiumScrollers/native_menus.py": "4911f62a6c01f947c8fe5338f0b3d67776154e6bbade33cc12f54a2185ef5643",
+    "Libraries/NativeUI/Bridge/Protocol.h": "996fc1a82cc6c5cb02cbdfaac65dccf45197a7791a105d56aca61cb6fc885622",
+    "Libraries/NativeUI/Bridge/Transport.inc": "cfcc982c1232916c78eb2191ee661b611daf7fdf86ad43576b5a263f0a9a2cc5",
+    "Libraries/NativeUI/NativeUI.h": "6a2f636409fb804a4df9faae22b6bd8cd4a63cb89fb7ce462aa540dd47ff5598",
+    "Libraries/NativeUI/Loader.c": "4106e2f9a22693ebf617d569508b0c4045ae88c881903f5b5160482d803789ff",
+    "Libraries/NativeUI/GNUstep/Menu.m": "50c6a15bbeb659088b489ad3f81c5d4888cad79f8e3d1ca206a942ad0bfc1583",
+    "Libraries/gnustep/back/Source/cairo/WaylandCairoShmSurface.m": "3a95c088b31576da059c566f0dc248a0676399eeced937c78f51ab4cc4b47673",
+    "Tests/NativeUI/check-menu-transport.py": "1a2b585d40d037ea87280bcb819379163829c268e34fa851bdd57f8b9c724870",
+    "Tests/NativeUI/menu-transport-probe.c": "8dd50442b7addea4ea611169dbd2066d489fe1fee1787a990fd8ae1082e979ad",
+    "Tests/NativeUI/check-menus.py": "39eec9f0dfede60f15c1812b9c78c3b9da391c737b961130b122b8b7a558d6e8",
+    "Tests/NativeUI/menu-probe.m": "364e737d7a10a7eae19542017c118da8dfcb836532bc4ec1a3944dd159c05b37",
+    "Tests/NativeUI/run.py": "4e86d09278be84b9e28792411c4ef7590a086c0b3d36c5b8924044a6c84dbc7e",
+    "Tests/NativeUI/text-transport-probe.c": "1b10f35e4e64cf3178c62a273ffa94a88a71d4cd5a4b7088d664eec73bd4fb5e"
+  },
+  "remaining": [
+    "Extract actual Chromium and Firefox menu models and bind idle dispatch to their UI loops.",
+    "Native browser Undo/Redo availability/execution and broader dynamic, torn-off and icon menu behavior.",
+    "Clipboard focus/owner lifetimes, IME, accessibility, scaling and remaining browser controls/dialogs.",
+    "Chrome/Vivaldi/Firefox derivatives, then GTK/Qt/KDE applications."
+  ]
+}

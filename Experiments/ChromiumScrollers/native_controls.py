@@ -57,6 +57,10 @@ class NativeTextDecision(C.Structure):
 TextShouldChange=C.CFUNCTYPE(C.c_int,C.c_void_p,C.POINTER(TextEdit))
 TEXT_EDIT_MAGIC=0x4e585445
 COMMAND_MAGIC=0x4e58434d
+MENU_COMMAND_MAGIC=0x4e584d43
+MENU_ACK_MAGIC=0x4e584d41
+class NativeMenuAck(C.Structure):
+    _fields_=[('magic',C.c_uint32),('request_sequence',C.c_uint32),('serial',C.c_uint64)]
 class NativeCommand(C.Structure):
     _fields_=[('magic',C.c_uint32),('size',C.c_uint32),('process',C.c_uint32),('kind',C.c_uint32),
         ('control',C.c_uint64),('serial',C.c_uint64),('phase',C.c_uint32),('command_size',C.c_uint32)]
@@ -87,7 +91,8 @@ ControlChanged = C.CFUNCTYPE(None, C.c_void_p, C.c_int, C.POINTER(ControlState))
 class NativeControlServer:
     def __init__(self, native, bitmap_type, response_type, pump_type, dispatch, pending, send, idle, log):
         self.native, self.response_type = native, response_type
-        self.pending, self.send, self.idle, self.log = pending, send, idle, log
+        self.pending, self._send, self.idle, self.log = pending, send, idle, log
+        self.reply_barriers={};self.menu_reply_barriers={}
         self.dispatch=dispatch
         self.controls, self.contexts = {}, {}
         self.identities = itertools.count(1)
@@ -199,6 +204,51 @@ class NativeControlServer:
             native.nxs_control_needs_display.argtypes = [C.c_void_p]
             native.nxs_control_needs_display.restype = C.c_int
         self.notification_capabilities=int(bool(self.event_capabilities and self.source_capabilities and hasattr(os,'pidfd_open')))
+        from native_menus import NativeMenuServer
+        self.menus=NativeMenuServer(self,pump_type)
+
+    def send(self,client,response,data=b''):
+        barrier=self.reply_barriers.get((client,int(response.reserved)&0xffffffff))
+        if barrier is not None:
+            barrier['replies'].append((self.response_type.from_buffer_copy(bytes(response)),bytes(data)))
+            self.log('native-menu-reply-deferred',process=barrier['process'],serial=barrier['serial'],sequence=barrier['sequence'])
+        else:self._send(client,response,data)
+
+    def complete_menu_reply(self,process,serial):
+        barrier=self.menu_reply_barriers.pop((process,serial),None)
+        if barrier:
+            self.reply_barriers.pop((barrier['client'],barrier['sequence']),None)
+            for response,data in barrier['replies']:self._send(barrier['client'],response,data)
+            self.log('native-menu-reply-resumed',process=process,serial=serial,replies=len(barrier['replies']))
+
+    def drop_menu_replies(self,process=None,client=None):
+        for key,barrier in list(self.menu_reply_barriers.items()):
+            if key[0]==process or barrier['client'] is client:
+                del self.menu_reply_barriers[key];self.reply_barriers.pop((barrier['client'],barrier['sequence']),None)
+
+    def menu_acknowledge(self,state,entry,serial,deadline):
+        process=state['key'][0];owner=self.notifiers.get(process)
+        if not owner:return False
+        connection=entry['socket']
+        while not state['destroy'] and self.text_filters.get(process) is entry and time.monotonic()<deadline:
+            ready,_,_=select.select([connection,owner['lifetime']],[],[],max(0,deadline-time.monotonic()))
+            if owner['lifetime'] in ready:self.owner_exited(owner['lifetime']);return False
+            if connection not in ready:break
+            data=connection.recv(C.sizeof(NativeMenuAck)+1,socket.MSG_DONTWAIT)
+            if len(data)!=C.sizeof(NativeMenuAck):break
+            ack=NativeMenuAck.from_buffer_copy(data)
+            if ack.magic==MENU_ACK_MAGIC and ack.serial==serial:
+                if ack.request_sequence:
+                    barrier=dict(client=state['client'],pid=owner['pid'],process=process,serial=serial,sequence=ack.request_sequence,replies=[])
+                    key=(state['client'],ack.request_sequence)
+                    if key in self.reply_barriers:break
+                    self.reply_barriers[key]=barrier;self.menu_reply_barriers[(process,serial)]=barrier
+                return True
+            decision=NativeCommandDecision.from_buffer_copy(data)
+            if decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC,MENU_COMMAND_MAGIC) or decision.serial>=serial or decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1)):break
+            if decision.magic==MENU_COMMAND_MAGIC:self.complete_menu_reply(process,decision.serial)
+        if self.text_filters.get(process) is entry:self.fail_text_filter(entry)
+        return False
 
     def remove_notifier(self,process):
         self.remove_text_filter(process)
@@ -208,6 +258,7 @@ class NativeControlServer:
             os.close(entry['lifetime']);os.close(entry['descriptor'])
 
     def remove_text_filter(self,process):
+        self.menus.owner_removed(process)
         entry=self.text_filters.pop(process,None)
         if entry:
             if entry.get('source'):assert self.native.nxs_native_ui_source_destroy(entry['source'])
@@ -220,6 +271,8 @@ class NativeControlServer:
         if entry.get('source'):assert self.native.nxs_native_ui_source_destroy(entry['source'])
         if entry.get('socket'):entry['socket'].close()
         entry.update(source=None,socket=None)
+        for process,registered in self.text_filters.items():
+            if registered is entry:self.menus.owner_removed(process)
 
     def update_text_filters(self,process):
         for state in self.controls.values():
@@ -238,10 +291,13 @@ class NativeControlServer:
             not req.kind and not req.control and not req.text_size):
             if req.operation==20 and not descriptors:
                 self.remove_text_filter(req.process);accepted=1
-            elif req.operation==23 and not descriptors and self.command_capabilities and req.state in (0,1):
+            elif req.operation in (23,24) and not descriptors and req.state in (0,1) and (
+                    self.command_capabilities if req.operation==23 else self.menus.capabilities):
                 entry=self.text_filters.get(req.process)
                 if entry:
-                    entry['commands']=bool(req.state);self.update_text_filters(req.process);accepted=1
+                    entry['commands' if req.operation==23 else 'menus']=bool(req.state)
+                    if req.operation==24 and not req.state:self.menus.owner_removed(req.process)
+                    self.update_text_filters(req.process);accepted=1
             elif req.operation==19 and len(descriptors)==1:
                 connection=None;source=None
                 try:
@@ -288,18 +344,24 @@ class NativeControlServer:
     def _owner_decision(self,state,entry,payload,serial,magic):
         connection=entry['socket'];process=state['key'][0]
         if connection.send(payload,socket.MSG_DONTWAIT|socket.MSG_NOSIGNAL)!=len(payload):return 0
+        if magic==MENU_COMMAND_MAGIC:
+            self.log('native-menu-awaiting-owner',process=process,serial=serial)
+            self.invalidate(process)
         deadline=time.monotonic()+2
+        if magic==MENU_COMMAND_MAGIC and not self.menu_acknowledge(state,entry,serial,deadline):return 0
         while not state['destroy'] and self.text_filters.get(process) is entry and time.monotonic()<deadline:
             if select.select([connection],[],[],0)[0]:
                 data=connection.recv(C.sizeof(NativeCommandDecision)+1,socket.MSG_DONTWAIT)
                 if len(data)!=C.sizeof(NativeCommandDecision):self.fail_text_filter(entry);return 0
                 decision=NativeCommandDecision.from_buffer_copy(data)
-                if (decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC) or decision.serial>serial or
+                if (decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC,MENU_COMMAND_MAGIC) or decision.serial>serial or
                     decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1))):
                     self.fail_text_filter(entry);return 0
                 if decision.serial==serial:
                     if decision.magic!=magic:self.fail_text_filter(entry);return 0
+                    if decision.magic==MENU_COMMAND_MAGIC:self.complete_menu_reply(process,serial)
                     return decision.result
+                if decision.magic==MENU_COMMAND_MAGIC:self.complete_menu_reply(process,decision.serial)
             self.native.nxs_native_ui_dispatch_events(min(.1,max(0,deadline-time.monotonic())))
             self.dispatch(0)
         if not state['destroy'] and self.text_filters.get(process) is entry:self.fail_text_filter(entry)
@@ -338,8 +400,11 @@ class NativeControlServer:
                 decision=NativeCommandDecision.from_buffer_copy(data)
                 # Validation can finish after its frame was removed. Drain the
                 # late decision so it cannot continuously wake NSRunLoop.
-                if decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC) or decision.serial>entry.get('serial',0) or decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1)):
+                if decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC,MENU_COMMAND_MAGIC) or decision.serial>entry.get('serial',0) or decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1)):
                     self.fail_text_filter(entry)
+                elif decision.magic==MENU_COMMAND_MAGIC:
+                    process=next(p for p,e in self.text_filters.items() if e is entry)
+                    self.complete_menu_reply(process,decision.serial)
             except BlockingIOError:pass
             except OSError:self.fail_text_filter(entry)
             return
@@ -348,6 +413,7 @@ class NativeControlServer:
         for process,entry in list(self.notifiers.items()):
             if entry['lifetime']==descriptor:
                 self.remove_notifier(process)
+                self.drop_menu_replies(process=process)
                 for state in self.controls.values():
                     if state['key'][0]==process:self.destroy_later(state)
                 self.log('native-notifier-owner-exit',process=process,active=len(self.notifiers))
@@ -509,6 +575,15 @@ class NativeControlServer:
 
     def message(self, client, data, descriptors=(),sender_pid=None):
         if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
+        if len(data)>=8 and int.from_bytes(data[4:8],'little') in (25,26,27,28,29,30):
+            self.menus.message(client,data,sender_pid)
+            return
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==31:
+            if len(data)!=C.sizeof(ControlRequest):return
+            req=ControlRequest.from_buffer_copy(data);barrier=self.menu_reply_barriers.get((req.process,req.control))
+            if req.magic==MAGIC and not descriptors and not req.kind and not req.text_size and barrier and barrier['client'] is client and barrier['pid']==sender_pid:
+                self.complete_menu_reply(req.process,req.control)
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==17:
             self.text_message(client,data)
             return
@@ -540,7 +615,7 @@ class NativeControlServer:
         if req.operation in (15,16):
             self.notification_message(client,req,descriptors,sender_pid)
             return
-        if req.operation in (19,20,23):
+        if req.operation in (19,20,23,24):
             self.text_filter_message(client,req,descriptors,sender_pid)
             return
         if req.operation == 9:
@@ -741,6 +816,7 @@ class NativeControlServer:
         self.log('native-form-release', process=state['key'][0], control=state['key'][1], kind=state['key'][2], actions=state['actions'])
 
     def disconnect(self, client):
+        self.drop_menu_replies(client=client)
         for process,entry in list(self.notifiers.items()):
             if entry['client'] is client:
                 self.remove_notifier(process)
@@ -756,6 +832,7 @@ class NativeControlServer:
             self.native.nxs_control_send(state['native'],1,-1,-1,0)
 
     def cleanup(self):
+        self.menus.cleanup()
         for process in {state['key'][0] for state in self.controls.values() if state.get('text_filter')}:
             self.update_text_filters(process)
         for key, state in list(self.controls.items()):
@@ -771,5 +848,6 @@ class NativeControlServer:
 
     def close(self):
         for process in list(self.notifiers):self.remove_notifier(process)
+        self.menus.close()
         for state in self.controls.values():
             self.native.nxs_control_destroy(state['native'])

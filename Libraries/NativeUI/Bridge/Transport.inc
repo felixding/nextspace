@@ -25,6 +25,10 @@ static __thread int native_edit_owner_thread;
 static int (*native_edit_handler)(const struct NXSNativeTextEdit *,const char *,const char *);
 static int (*native_command_handler)(const struct NXSNativeCommand *,const char *);
 static pid_t native_command_pid;
+static int (*native_menu_handler)(const struct NXSNativeMenuCommand *);
+static pid_t native_menu_pid;
+static uint64_t native_callback_generation;
+static __thread uint32_t native_request_sequence;
 /* Invalidation workers share this process and request socket, but application
  * models and their native command/edit callbacks belong to the registering UI
  * thread. Workers must leave callback packets queued for that owner. */
@@ -32,14 +36,22 @@ static int native_callback_owner(void) {
   return native_edit_owner_thread&&native_edit_pid==getpid();
 }
 static int dispatch_native_edit(int *owns_mutex) {
+  uint64_t generation=native_callback_generation;
   size_t capacity=sizeof(struct NXSNativeTextEdit)+65536+256;
   unsigned char *data=malloc(capacity+2);if(!data)return 0;
   ssize_t bytes=recv(native_edit_channel,data,capacity,MSG_DONTWAIT|MSG_TRUNC);
   if(bytes<8||(size_t)bytes>capacity){free(data);return 0;}
+  int is_menu=*(uint32_t *)data==NXS_NATIVE_MENU_COMMAND_MAGIC;
   int is_command=*(uint32_t *)data==NXS_NATIVE_COMMAND_MAGIC;
   struct NXSNativeTextEdit edit={0};struct NXSNativeCommand action={0};
+  struct NXSNativeMenuCommand menu={0};
   char *text=NULL,*command=NULL;uint64_t serial;uint32_t magic;
-  if(is_command) {
+  if(is_menu) {
+    if(bytes!=sizeof(menu)){free(data);return 0;}
+    memcpy(&menu,data,sizeof(menu));
+    if(menu.size!=sizeof(menu)||menu.phase>1){free(data);return 0;}
+    serial=menu.serial;magic=menu.magic;
+  } else if(is_command) {
     if(bytes<(ssize_t)sizeof(action)){free(data);return 0;}
     memcpy(&action,data,sizeof(action));
     if(action.size!=bytes||!action.command_size||action.command_size>256||action.phase>1||
@@ -61,24 +73,38 @@ static int dispatch_native_edit(int *owns_mutex) {
    * callbacks issue normal RPCs, including from another renderer, while the
    * proposal lives in its separate buffer. Reacquire before sending a decision
    * so no other request can consume the outer reply. */
-  pthread_mutex_unlock(&shared->mutex);*owns_mutex=0;
-  int accepted=is_command?(native_command_handler?native_command_handler(&action,command):-1):
+  uint32_t outer_sequence=native_request_sequence;
+  if(is_menu) {
+    struct NXSNativeMenuAck ack={NXS_NATIVE_MENU_ACK_MAGIC,outer_sequence,serial};
+    if(send(native_edit_channel,&ack,sizeof(ack),MSG_NOSIGNAL|MSG_DONTWAIT)!=sizeof(ack)){free(data);return 0;}
+  }
+  if(*owns_mutex){pthread_mutex_unlock(&shared->mutex);*owns_mutex=0;}
+  int accepted=is_menu?(native_menu_handler?native_menu_handler(&menu):0):
+    is_command?(native_command_handler?native_command_handler(&action,command):-1):
     (native_edit_handler?!!native_edit_handler(&edit,text,edit.command_size?command:NULL):0);
-  if(accepted<-1||accepted>1)accepted=0;
+  if(accepted<(is_command?-1:0)||accepted>1)accepted=0;
   int locked=pthread_mutex_lock(&shared->mutex);
   if(locked==EOWNERDEAD)pthread_mutex_consistent(&shared->mutex);
   else if(locked){free(data);return 0;}
   *owns_mutex=1;
   struct NXSNativeCommandDecision decision={magic,accepted,serial};
   free(data);
-  return send(native_edit_channel,&decision,sizeof(decision),MSG_NOSIGNAL|MSG_DONTWAIT)==sizeof(decision);
+  /* An application command can remove/re-register its endpoint. Its old
+   * decision must never be sent to a replacement socket, even after fd reuse. */
+  int accepted_reply=generation==native_callback_generation&&
+    send(native_edit_channel,&decision,sizeof(decision),MSG_NOSIGNAL|MSG_DONTWAIT)==sizeof(decision);
+  if(is_menu&&outer_sequence) {
+    struct NXSControlRequest resume={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=31,.process=menu.process,.control=serial};
+    if(send(channel,&resume,sizeof(resume),MSG_NOSIGNAL|MSG_DONTWAIT)!=sizeof(resume))return 0;
+  }
+  return generation!=native_callback_generation||accepted_reply;
 }
 /* Renderer PID namespaces may all report PID 1. Allocate a transport identity
  * after each fork rather than using that namespace-local PID as the key. */
 static uint32_t identity(void) {
   pid_t pid=getpid();
   if(!process_cookie||pid!=observed_pid) {
-    if(native_edit_channel>=0&&pid!=native_edit_pid){close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;native_command_handler=NULL;}
+    if(native_edit_channel>=0&&pid!=native_edit_pid){close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;native_command_handler=NULL;native_menu_pid=0;native_menu_handler=NULL;}
     int locked=pthread_mutex_lock(&shared->mutex);
     if(locked==EOWNERDEAD)pthread_mutex_consistent(&shared->mutex);
     else if(locked)return 0;
@@ -97,6 +123,7 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
   else if(locked)return NULL;
   int owns_mutex=1;
   uint32_t magic=*(const uint32_t *)request,sequence=++shared->sequence;
+  uint32_t previous_sequence=native_request_sequence;native_request_sequence=sequence;
   memcpy((char *)request+28,&sequence,4);
   ssize_t bytes;
   if(descriptor_to_send>=0) {
@@ -115,7 +142,10 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
         struct pollfd ready[2]={{channel,POLLIN,0},{native_edit_channel,POLLIN,0}};
         int result;do result=poll(ready,2,2000);while(result<0&&errno==EINTR);
         if(result<=0){bytes=-1;break;}
-        if(ready[1].revents) {
+        /* A completed RPC precedes a later idle menu callback. Consume its
+         * already-queued reply first; callback acknowledgments protect replies
+         * which the helper has not sent yet. */
+        if(ready[1].revents&&!(ready[0].revents&POLLIN)) {
           if(!dispatch_native_edit(&owns_mutex)){close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;}
           if(!owns_mutex){bytes=-1;break;}
           continue;
@@ -156,11 +186,32 @@ static struct NXSResponse *exchange_bytes_descriptor(void *request,size_t reques
     }
   }
   if(owns_mutex)pthread_mutex_unlock(&shared->mutex);
+  native_request_sequence=previous_sequence;
   if(bytes<(ssize_t)sizeof(*response)||response->magic!=magic||response->size!=bytes)return NULL;
   return response;
 }
 static struct NXSResponse *exchange_bytes(void *request,size_t request_size)
 {return exchange_bytes_descriptor(request,request_size,-1);}
+/* An owner-loop wake may have no outstanding RPC. Drain the same callback
+ * channel on its UI owner, preserving nested RPC and reply locking rules. */
+static int __attribute__((unused)) native_callbacks_dispatch(void) {
+  if(!shared||!native_callback_owner()||native_edit_channel<0)return 0;
+  /* Receive/acknowledge before taking the shared request lock. A worker may
+   * own it while waiting for a reply which the callback handshake will allow
+   * the helper to service. Only this UI thread reads the callback endpoint. */
+  int owns_mutex=0,count=0;
+  while(native_edit_channel>=0) {
+    struct pollfd ready={.fd=native_edit_channel,.events=POLLIN};
+    int result;do result=poll(&ready,1,0);while(result<0&&errno==EINTR);
+    if(result<=0)break;
+    if(!dispatch_native_edit(&owns_mutex)) {
+      close(native_edit_channel);native_edit_channel=-1;native_command_pid=0;native_menu_pid=0;break;
+    }
+    count++;if(!owns_mutex)break;
+  }
+  if(owns_mutex)pthread_mutex_unlock(&shared->mutex);
+  return count;
+}
 static struct NXSResponse *exchange(struct NXSRequest req){return exchange_bytes(&req,sizeof(req));}
 static struct NXSResponse * __attribute__((unused)) native_pointer_press(int kind,uint64_t control,double x,double y,unsigned modifiers,unsigned clicks) {
   if(!clicks||clicks>INT32_MAX)return NULL;
@@ -195,7 +246,8 @@ static int __attribute__((unused)) native_text_filter_register(int (*handler)(co
   struct NXSResponse *response=exchange_bytes_descriptor(&request,sizeof(request),endpoints[1]);
   close(endpoints[1]);
   if(!response||response->parts[3].x!=1){close(endpoints[0]);return 0;}
-  native_edit_handler=handler;native_command_pid=0;native_edit_channel=endpoints[0];
+  native_edit_handler=handler;native_command_pid=0;native_menu_pid=0;native_edit_channel=endpoints[0];
+  native_callback_generation++;
   native_edit_owner_thread=1;native_edit_pid=getpid();return 1;
 }
 static int __attribute__((unused)) native_text_filter_unregister(void) {
@@ -205,6 +257,8 @@ static int __attribute__((unused)) native_text_filter_unregister(void) {
   int accepted=response&&response->parts[3].x==1;
   if(native_edit_channel>=0)close(native_edit_channel);
   native_edit_channel=-1;native_edit_handler=NULL;native_command_pid=0;native_command_handler=NULL;
+  native_menu_pid=0;native_menu_handler=NULL;
+  native_callback_generation++;
   native_edit_owner_thread=0;native_edit_pid=0;return accepted;
 }
 static int __attribute__((unused)) native_command_filter_register(int (*handler)(const struct NXSNativeCommand *,const char *)) {
@@ -214,4 +268,18 @@ static int __attribute__((unused)) native_command_filter_register(int (*handler)
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   if(!response||response->parts[3].x!=1)return 0;
   native_command_handler=handler;native_command_pid=getpid();return 1;
+}
+static int native_menu_reject_edit(const struct NXSNativeTextEdit *edit,const char *text,const char *command)
+{(void)edit;(void)text;(void)command;return 0;}
+static int __attribute__((unused)) native_menu_filter_register(int (*handler)(const struct NXSNativeMenuCommand *)) {
+  uint32_t process=identity();if(!handler)return 0;
+  if(native_edit_channel<0||native_edit_pid!=getpid()) {
+    if(!native_text_filter_register(native_menu_reject_edit))return 0;
+  }
+  if(!native_callback_owner())return 0;
+  if(native_menu_pid==getpid()){native_menu_handler=handler;return 1;}
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=24,.process=process,.state=1};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  if(!response||response->parts[3].x!=1)return 0;
+  native_menu_handler=handler;native_menu_pid=getpid();return 1;
 }

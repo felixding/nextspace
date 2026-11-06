@@ -57,7 +57,7 @@ static int filter(const struct NXSNativeTextEdit *edit,const char *text,const ch
   if(destroy_on_edit)assert(request(6)->parts[0].y==1);
   if(delay_decision){struct timespec delay={.tv_sec=2,.tv_nsec=200000000};nanosleep(&delay,NULL);}
   if(mixed_late_command) {
-    struct NXSNativeCommandDecision late={NXS_NATIVE_COMMAND_MAGIC,-1,edit->serial-1};
+    struct NXSNativeCommandDecision late={mixed_late_command==2?NXS_NATIVE_MENU_COMMAND_MAGIC:NXS_NATIVE_COMMAND_MAGIC,mixed_late_command==2?1:-1,edit->serial-1};
     assert(send(native_edit_channel,&late,sizeof(late),MSG_NOSIGNAL)==sizeof(late));mixed_late_command=0;
   }
   return allow;
@@ -128,6 +128,7 @@ int main(int argc,char **argv)
   key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);value("Hello");assert(command_queries>0&&command_executed==1);
   expected_value="Hello";expected_start=1;expected_length=2;expected_text="X";expected_command=NULL;
   allow=1;destroy_on_edit=0;mixed_late_command=1;key(NXS_KEY_TEXT,"X");value("HXlo");assert(proposals==7);
+  assert(model("Hello",1,2));mixed_late_command=2;key(NXS_KEY_TEXT,"X");value("HXlo");assert(proposals==8);
   assert(model("Hello",1,2));
   command_enabled=0;key_with_modifiers(NXS_KEY_TEXT,"v",NXS_ALT);value("Hello");assert(command_executed==1);
   close(native_edit_channel);native_edit_channel=-1;
@@ -141,5 +142,5 @@ int main(int argc,char **argv)
   idle_cpu(helper);assert(native_text_filter_unregister());
   owner.operation=16;r=exchange_bytes(&owner,sizeof(owner));assert(r&&r->parts[3].x==1);
   close(notifier);close(channel);
-  puts("{\"native_pre_edit_ipc\":true,\"proposals\":7,\"nested_reads\":14,\"nested_mutations_rejected\":7,\"other_process_request_during_validation\":true,\"cancelled_typing_and_deletion\":true,\"accepted_typing_and_deletion\":true,\"callback_peer_loss_veto\":true,\"expired_decision_veto\":true,\"destroy_during_validation\":true,\"idle_after_expiry_and_destroy\":true,\"explicit_unregister\":true,\"native_application_command_ipc\":true,\"application_command_validation\":true,\"command_nested_reads_and_mutation_rejection\":true,\"command_peer_loss_veto\":true,\"command_expiry_veto\":true,\"command_frame_destruction\":true,\"command_idle_after_expiry_and_destroy\":true,\"late_command_before_current_edit_decision\":true}");
+  puts("{\"native_pre_edit_ipc\":true,\"proposals\":8,\"nested_reads\":16,\"nested_mutations_rejected\":8,\"other_process_request_during_validation\":true,\"cancelled_typing_and_deletion\":true,\"accepted_typing_and_deletion\":true,\"callback_peer_loss_veto\":true,\"expired_decision_veto\":true,\"destroy_during_validation\":true,\"idle_after_expiry_and_destroy\":true,\"explicit_unregister\":true,\"native_application_command_ipc\":true,\"application_command_validation\":true,\"command_nested_reads_and_mutation_rejection\":true,\"command_peer_loss_veto\":true,\"command_expiry_veto\":true,\"command_frame_destruction\":true,\"command_idle_after_expiry_and_destroy\":true,\"late_command_before_current_edit_decision\":true,\"late_menu_before_current_edit_decision\":true}");
 }

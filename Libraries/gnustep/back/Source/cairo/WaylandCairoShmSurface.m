@@ -154,6 +154,9 @@ static const struct wl_callback_listener frame_listener = {.done = frame_done};
     w->frame_callback = NULL;
   }
   pending = YES;
+  /* A recreated surface needs the retained image after its first configure,
+     even when no AppKit drawing changed while the window was ordered out. */
+  w->buffer_needs_attach = YES;
 }
 
 - (void)dealloc

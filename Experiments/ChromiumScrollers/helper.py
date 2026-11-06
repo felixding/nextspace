@@ -72,6 +72,7 @@ def run(library,path):
                 result.parts[6].x=forms.notification_capabilities
                 result.parts[6].y=forms.text_capabilities
                 result.parts[5].y=forms.command_capabilities
+                result.parts[5].height=forms.menus.capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):
@@ -82,7 +83,8 @@ def run(library,path):
             bitmap=native.nxs_scroller_draw(state['native'],1)
             result.width=bitmap.width;result.height=bitmap.height;result.stride=bitmap.stride
             data=C.string_at(bitmap.pixels,bitmap.stride*bitmap.height)
-        send_response(client,result,data)
+        if forms:forms.send(client,result,data)
+        else:send_response(client,result,data)
     def message(client,data,descriptors,sender_pid):
         if len(data)>=4 and int.from_bytes(data[:4],'little')==CONTROL_MAGIC:
             if forms:forms.message(client,data,descriptors,sender_pid)

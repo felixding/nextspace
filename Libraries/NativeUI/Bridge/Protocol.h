@@ -129,6 +129,42 @@ struct NXSNativeCommandDecision {
   int32_t result;
   uint64_t serial;
 };
+/* Optional menu transport, bootstrap part 5.height. Operations 24 enable/
+ * disable menu callbacks on the existing owner endpoint; 25 replace menu data,
+ * 26 show/hide (state), 27 key (ControlInputRequest), 28 state (item index in
+ * state), 29 destroy, 30 cancel. Menu kind is zero, control is a nonzero ID.
+ * A model request is followed by title_size UTF8 bytes, then count wire items,
+ * each followed by title_size and key_size UTF8 bytes. text_size covers all
+ * payload bytes. No NULs, native pointers, geometry or widget code cross IPC. */
+struct NXSMenuModelRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved,count,title_size;
+};
+struct NXSMenuWireItem {
+  int32_t parent;
+  uint32_t flags;
+  uint64_t command;
+  uint32_t modifiers,title_size,key_size,reserved;
+};
+#define NXS_NATIVE_MENU_COMMAND_MAGIC 0x4e584d43u
+#define NXS_NATIVE_MENU_ACK_MAGIC 0x4e584d41u
+struct NXSNativeMenuCommand {
+  uint32_t magic,size,process,phase;
+  uint64_t control,serial,command;
+};
+struct NXSNativeMenuAck {
+  uint32_t magic,request_sequence;
+  uint64_t serial;
+};
+/* Before running a menu callback, acknowledge its serial and the owner's
+ * pending RPC sequence (zero when idle). The helper defers that RPC's reply
+ * while nested requests run. Operation 31 resumes this reply after callback
+ * completion, including endpoint removal/replacement; it is one-way and uses
+ * control=callback serial. It never contributes an unsolicited shared reply. */
+/* Menu decisions use the same 16-byte envelope, with result zero or one.
+ * Response part 0: action count/tracking; parts 1/2: native menu/item frame;
+ * part 3: acceptance, visibility, enabled, native highlight respectively. */
 /* Optional invalidation notifications, bootstrap part 6.x. Operation 15 uses
  * the ordinary 104-byte control request (kind/control zero, value = last seen
  * process generation) and one SCM_RIGHTS nonblocking eventfd. Operation 16

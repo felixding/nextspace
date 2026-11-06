@@ -12,11 +12,19 @@ struct NXSMenu {
   NXSMenuCommand command;
   void *context;
   unsigned depth,tracking;
+  BOOL cancelled;
   NXSMenuLoop loop;
 };
 static int owns(NXSMenu *menu)
 {return menu&&menu->thread==[NSThread currentThread];}
 static int busy(NXSMenu *menu) {return menu->depth||menu->tracking;}
+static int application_command(NXSMenu *menu,uint64_t command,unsigned phase)
+{
+  NXSMenuLoop scope={.pump=menu->loop.pump,.context=menu->loop.context};
+  menu->depth++;nxs_host_menu_begin(&scope);
+  @try {return menu->command(menu->context,command,phase);}
+  @finally {nxs_host_menu_end(&scope);menu->depth--;}
+}
 /* Submenu target/action remain NSMenu's own submenuAction:. Only application
  * model availability is added, as for an ordinary native menu validator. */
 @interface NXSModelMenu : NSMenu
@@ -39,17 +47,13 @@ static int busy(NXSMenu *menu) {return menu->depth||menu->tracking;}
 - (BOOL)validateMenuItem:(NSMenuItem *)item
 {
   NSDictionary *data=[item representedObject];
-  if(!owns(menu)||([[data objectForKey:@"flags"] unsignedIntValue]&NXS_MENU_DISABLED))return NO;
-  menu->depth++;
-  @try {return menu->command(menu->context,[[data objectForKey:@"command"] unsignedLongLongValue],NXS_COMMAND_VALIDATE)==1;}
-  @finally {menu->depth--;}
+  if(!owns(menu)||menu->cancelled||([[data objectForKey:@"flags"] unsignedIntValue]&NXS_MENU_DISABLED))return NO;
+  return application_command(menu,[[data objectForKey:@"command"] unsignedLongLongValue],NXS_COMMAND_VALIDATE)==1;
 }
 - (void)invoke:(NSMenuItem *)item
 {
   if(![self validateMenuItem:item])return;
-  menu->depth++;
-  @try {menu->command(menu->context,[[[item representedObject] objectForKey:@"command"] unsignedLongLongValue],NXS_COMMAND_EXECUTE);}
-  @finally {menu->depth--;}
+  application_command(menu,[[[item representedObject] objectForKey:@"command"] unsignedLongLongValue],NXS_COMMAND_EXECUTE);
 }
 - (void)beginTracking:(NSNotification *)notification
 {if([menu->menus containsObject:[notification object]]&&!menu->tracking++)nxs_host_menu_begin(&menu->loop);}
@@ -113,7 +117,7 @@ int nxs_gnustep_menu_items(NXSMenu *menu,const NXSMenuItem *items,uint32_t count
   for(uint32_t i=0;i<count;i++) {
     const NXSMenuItem *data=&items[i];
     NSMenu *parent=data->parent<0?root:[[native_items objectAtIndex:data->parent] submenu];
-    NSMenuItem *item=data->flags&NXS_MENU_SEPARATOR?[NSMenuItem separatorItem]:
+    NSMenuItem *item=data->flags&NXS_MENU_SEPARATOR?(NSMenuItem *)[NSMenuItem separatorItem]:
       [[[NSMenuItem alloc] initWithTitle:[titles objectAtIndex:i] action:@selector(invoke:) keyEquivalent:[keys objectAtIndex:i]] autorelease];
     [item setRepresentedObject:@{@"flags":@(data->flags),@"command":@(data->command)}];
     [item setTarget:menu->target];[item setKeyEquivalentModifierMask:menu_modifiers(data->modifiers)];
@@ -141,7 +145,7 @@ int nxs_gnustep_menu_show(NXSMenu *menu,int visible)
   if(visible&&[NSApp mainMenu]&&[NSApp mainMenu]!=menu->root)return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];menu->depth++;
   @try {
-    if(visible){[NSApp setMainMenu:menu->root];[menu->root display];}
+    if(visible){menu->cancelled=NO;[NSApp setMainMenu:menu->root];[menu->root display];}
     else {
       for(NSMenu *part in menu->menus)[part close];
       if([NSApp mainMenu]==menu->root)[NSApp setMainMenu:nil];
@@ -182,4 +186,20 @@ NXSMenuState nxs_gnustep_menu_state(NXSMenu *menu,int index)
     }
   }
   [pool drain];return state;
+}
+int nxs_gnustep_menu_cancel(NXSMenu *menu)
+{
+  if(!owns(menu))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];menu->cancelled=YES;
+  for(NSMenu *part in menu->menus)[part close];
+  if([NSApp mainMenu]==menu->root)[NSApp setMainMenu:nil];
+  /* NSMenu owns its tracking loop. End it with an ordinary native release;
+   * cancelled validation prevents the highlighted command from executing. */
+  if(menu->tracking) {
+    NSEvent *release=[NSEvent mouseEventWithType:NSLeftMouseUp location:NSZeroPoint modifierFlags:0
+      timestamp:[NSDate timeIntervalSinceReferenceDate] windowNumber:[[menu->root window] windowNumber]
+      context:nil eventNumber:0 clickCount:1 pressure:0];
+    [NSApp postEvent:release atStart:YES];
+  }
+  [pool drain];return 1;
 }
