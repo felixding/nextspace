@@ -14,6 +14,8 @@ parser.add_argument('--library',type=Path,required=True)
 parser.add_argument('--hook',type=Path,required=True)
 parser.add_argument('--backend',required=True)
 parser.add_argument('--capture-probe',type=Path,required=True)
+parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
+parser.add_argument('--export-menus',action='store_true',help='Enable Firefox menu export on a private test bus; requires the app-menu Wayland protocol')
 parser.add_argument('--port',type=int,default=2833)
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--hold',action='store_true',help='Keep the owned test/control fixture open until quit')
@@ -43,10 +45,17 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
  def command(text):
   parent.sendall(text.encode());return json.loads(parent.recv(65536))
  try:
-  compositor=subprocess.Popen(['/usr/NextSpace/bin/nextspace-compositor','-c',str(child.fileno()),'-S',str(peer.fileno())],pass_fds=[child.fileno(),peer.fileno()],env=env,stdout=subprocess.PIPE,stderr=(out/'compositor.log').open('w'),text=True);children.append(compositor);child.close();peer.close()
+  compositor=subprocess.Popen([a.compositor,'-c',str(child.fileno()),'-S',str(peer.fileno())],pass_fds=[child.fileno(),peer.fileno()],env=env,stdout=subprocess.PIPE,stderr=(out/'compositor.log').open('w'),text=True);children.append(compositor);child.close();peer.close()
   assert select.select([compositor.stdout],[],[],10)[0]
   env['WAYLAND_DISPLAY']=compositor.stdout.readline().strip().split('=',1)[1]
   env['NEXTSPACE_SESSION_ID']='firefox-native-frontend-'+uuid.uuid4().hex
+  if a.export_menus:
+   bus=subprocess.Popen(['dbus-daemon','--session','--nofork','--print-address=1'],stdout=subprocess.PIPE,stderr=(out/'bus.stderr').open('w'),text=True);children.append(bus)
+   assert select.select([bus.stdout],[],[],10)[0]
+   env['DBUS_SESSION_BUS_ADDRESS']=bus.stdout.readline().strip()
+   registrar=subprocess.Popen(['python3',str(Path(__file__).resolve().parents[2]/'Tests/NativeUI/dbus-menu-registrar.py')],env=env,stdout=subprocess.PIPE,stderr=(out/'registrar.stderr').open('w'),text=True);children.append(registrar)
+   assert select.select([registrar.stdout],[],[],10)[0]
+   ready=registrar.stdout.readline();assert json.loads(ready)['event']=='ready';(out/'registrar-ready.json').write_text(ready)
   capture=Client(str(a.capture_probe),None,env,out,'capture',broker,b'V')
   assert capture.events[0]['manager_visible']
   services.enter_context(pasteboard_storage(Path('/Library/bin/gpbs-wayland'),a.library.resolve().parent/'native-ui/native-pasteboard-probe',env,out))
@@ -55,9 +64,11 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   deadline=time.monotonic()+30
   while not endpoint.exists():
    assert helper.poll() is None and time.monotonic()<deadline;time.sleep(.02)
-  (out/'runtime.json').write_text(json.dumps({key:env[key] for key in ['XDG_RUNTIME_DIR','WAYLAND_DISPLAY','NEXTSPACE_SESSION_ID','LD_LIBRARY_PATH']})+'\n')
+  runtime_keys=['XDG_RUNTIME_DIR','WAYLAND_DISPLAY','NEXTSPACE_SESSION_ID','LD_LIBRARY_PATH']+(['DBUS_SESSION_BUS_ADDRESS'] if a.export_menus else [])
+  (out/'runtime.json').write_text(json.dumps({key:env[key] for key in runtime_keys})+'\n')
   profile=runtime/'profile';profile.mkdir()
   prefs={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','datareporting.policy.dataSubmissionEnabled':False,'gfx.webrender.software':True}
+  if a.export_menus:prefs.update({'widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True})
   (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in prefs.items()))
   env.update(LD_PRELOAD=str(a.hook.resolve()),NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1',NEXTSPACE_FIREFOX_FRONTEND='1')
   args=[str(a.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',Path(__file__).with_name('test-text.html').resolve().as_uri()]

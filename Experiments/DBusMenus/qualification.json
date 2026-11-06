@@ -1,0 +1,274 @@
+{
+  "date": "2026-11-06",
+  "previous_checkpoint": "4fa58bd4",
+  "status": "Experimental native Firefox menus from its existing D-Bus exporter; full integration remains open",
+  "verification": {
+    "exported_nodes_including_root": 100,
+    "native_projected_items": 99,
+    "browser_menu_checks": [
+      {
+        "case": "real-exported-first-command",
+        "passed": true
+      },
+      {
+        "case": "native-detached-menu",
+        "passed": true,
+        "window": {
+          "id": 2,
+          "title": "python3",
+          "app_id": "org.nextspace.python3",
+          "pid": 12549,
+          "legacy": false,
+          "level": 20,
+          "minimized": false,
+          "maximized": false,
+          "fullscreen": false,
+          "maximized_axes": 0,
+          "selected": false,
+          "presented": true,
+          "desktop": 0,
+          "sticky": false,
+          "visible": true,
+          "shaded": false,
+          "client_id": 2,
+          "style": 0,
+          "title_height": 0,
+          "document_edited": false,
+          "title_state": 1,
+          "client_title_state": 0,
+          "accepts_focus": false,
+          "focused": false,
+          "appmenu_service": "",
+          "appmenu_path": "",
+          "frame_width": 87,
+          "frame_height": 163,
+          "server_decorated": false,
+          "frame_left": 0,
+          "frame_top": 0,
+          "frame_right": 0,
+          "frame_bottom": 0,
+          "surface_width": 87,
+          "surface_height": 163,
+          "x": 0,
+          "y": 0,
+          "width": 87,
+          "height": 163,
+          "buffer_width": 87,
+          "buffer_height": 163,
+          "preferred_scale": 120
+        }
+      },
+      {
+        "case": "owned-browser",
+        "passed": true
+      },
+      {
+        "case": "browser-native-export-active",
+        "passed": true
+      },
+      {
+        "case": "native-submenu-mapped",
+        "passed": true,
+        "popup": {
+          "x": 87,
+          "y": 0,
+          "width": 201,
+          "height": 383,
+          "buffer_width": 201,
+          "buffer_height": 383
+        }
+      },
+      {
+        "case": "native-leaf-highlight-before-release",
+        "passed": true,
+        "state": {
+          "index": 1,
+          "command": 992,
+          "title": "New Tab",
+          "visible": 1,
+          "tracking": 1,
+          "highlighted": 0,
+          "frame": [
+            88.0,
+            23.0,
+            200.0,
+            20.0
+          ]
+        }
+      },
+      {
+        "case": "native-command-creates-one-real-tab",
+        "passed": true,
+        "before": {
+          "tabs": 1,
+          "native": true
+        },
+        "after": {
+          "tabs": 2,
+          "native": true
+        }
+      },
+      {
+        "case": "held-submenu-before-owner-exit",
+        "passed": true
+      },
+      {
+        "case": "owner-exit-removes-native-menu",
+        "passed": true
+      },
+      {
+        "case": "native-host-exits-cleanly",
+        "passed": true,
+        "cleanup": {
+          "pid": 12549,
+          "exit": 0
+        }
+      }
+    ],
+    "protocol_checks": [
+      {
+        "case": "public-client-cannot-bind-shell",
+        "passed": true
+      },
+      {
+        "case": "address-before-map-reaches-authorized-shell",
+        "passed": true,
+        "event": {
+          "event": "window-appmenu",
+          "id": 1,
+          "service": ":1.42",
+          "path": "/test/menu"
+        }
+      },
+      {
+        "case": "address-shares-window-batch",
+        "passed": true
+      },
+      {
+        "case": "address-update",
+        "passed": true
+      },
+      {
+        "case": "surface-before-appmenu-release-is-safe",
+        "passed": true
+      },
+      {
+        "case": "release-clears-address",
+        "passed": true
+      },
+      {
+        "case": "owner-exit-retires-window",
+        "passed": true
+      },
+      {
+        "case": "version18-client-receives-no-new-event",
+        "passed": true
+      },
+      {
+        "case": "duplicate-owned-surface-object-rejected",
+        "passed": true,
+        "stderr": "org_kde_kwin_appmenu_manager#6: error 0: surface already has an app-menu object\n"
+      },
+      {
+        "case": "compositor-survives-rejected-client",
+        "passed": true
+      }
+    ],
+    "firefox_clipboard_assertions": 83,
+    "clipboard_fixture": "/var/tmp/nextspace-native-ui/firefox-dbus-menu-01",
+    "final_browser_menu_fixture": "/var/tmp/nextspace-native-ui/firefox-dbus-menu-03",
+    "public_fixture_export_flag_verified": true,
+    "wrong_PID_rejected_before_native_initialization": true,
+    "shell_authority_state_recovery": "PASS /var/tmp/nextspace-native-ui/appmenu-shell-regression",
+    "geometry": "PASS",
+    "gamma": "PASS",
+    "protocol_manifest_hashes": "PASS"
+  },
+  "environment": {
+    "hashes": {
+      "firefox": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+      "adapter": "1cacfc2edabb6e5f0d6fca54935f0ab75539fa4c1051df585162711e10dea190",
+      "provider": "845267c0a9d372252de7877b2f7bc61a47cdfb947cd73f6015537b65f0a9c088",
+      "shim": "b03d1e25ad6bfdbf82d89e6a795d4707a9edc3f265e1758c7e8da31dafbc3262",
+      "loader": "c899af3fa64de9732ab98cc5780c826243310902322b741353ad1bd4fe46eed0",
+      "appkit": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21",
+      "private_compositor": "6ccb2cab73d576d1af1d8ddbc365d1cc940cc24f167a8e17e502434601e6247e",
+      "installed_compositor": "e8f5fb4640e3936a9ed82bbb1218de4a1235d9fe6c6b73fa53d46e0a44c24148",
+      "private_wlroots": "e73f748ececc0add165497e2b5138682be199195be8ffe403eab722186447b2e"
+    },
+    "dependencies": [
+      {
+        "file": "libdbusmenu-gtk3-4_18.10.20180917~bzr492+repack1-4_arm64.deb",
+        "sha256": "838f838f1ad5500fb346f02d2775572eaf83d0b35dc8b4c4889f0eb2c1ae27f4",
+        "metadata": "Package: libdbusmenu-gtk3-4\nVersion: 18.10.20180917~bzr492+repack1-4\nArchitecture: arm64\n"
+      },
+      {
+        "file": "libdbusmenu-glib4_18.10.20180917~bzr492+repack1-4_arm64.deb",
+        "sha256": "f8bcc532260794be207b2fb0941beb041075e6eae14b973e511a53f181bc1b7a",
+        "metadata": "Package: libdbusmenu-glib4\nVersion: 18.10.20180917~bzr492+repack1-4\nArchitecture: arm64\n"
+      }
+    ],
+    "wlroots": {
+      "source": "/var/tmp/nextspace-native-ui/appmenu-wlroots/wlroots-source-0a719852addda76a",
+      "build": "/var/tmp/nextspace-native-ui/appmenu-wlroots/wlroots-build-f3b474846be29fb5",
+      "prefix": "/usr/local",
+      "libdir": "lib",
+      "pkgconfig": "/var/tmp/nextspace-native-ui/appmenu-wlroots/wlroots-build-f3b474846be29fb5/meson-uninstalled",
+      "library_dir": "/var/tmp/nextspace-native-ui/appmenu-wlroots/wlroots-build-f3b474846be29fb5",
+      "installed": false,
+      "destdir": null
+    },
+    "package_count": 1050
+  },
+  "sandbox": {
+    "observed_tab_processes": 6,
+    "all_seccomp_2_and_no_new_privs_1": true
+  },
+  "cleanup": {
+    "recorded": 46,
+    "all_stopped": true,
+    "backend_alias_removed": true,
+    "control_sockets_absent": true
+  },
+  "diagnostics": [
+    "Initial compositor build used incompatible system wlroots headers. A separate checksum-pinned, patched wlroots build was used; no installed library was replaced.",
+    "The first protocol transaction-order test read dictionaries mutated by the existing Shell convenience helper. The retained wire log establishes actual event order.",
+    "Early browser checks used a compositor acknowledgment or stale native snapshot before mouse release. The corrected fixture requests a fresh native geometry/highlight snapshot and waits for the actual leaf highlight.",
+    "One failed fixture was closed before its window state was inspected. A fresh owned fixture reproduced the timing issue; terminal failures and raw observations remain retained."
+  ],
+  "source_sha256": {
+    "Applications/Compositor/meson.build": "1de713fe00c92d546f395c8b60f16484e029e619f279477e2b2993445192e17b",
+    "Applications/Compositor/src/appmenu.h": "529c9d4c862b4dda6027f4bc9040d498cb1bd27c173c2358680a667f50e030e6",
+    "Applications/Compositor/src/main.c": "662305a09141096c98232fab08a1040f6d441627f4d9a440ed314428a1d639fd",
+    "Applications/Compositor/src/shell.h": "18e8ec2fa88785b4733264779bb0bd8bce891c52c4140206809b0780a8f03d71",
+    "Applications/Compositor/src/control.h": "c1242ae8cd4bc3e783afbe6eacb6e9f946bce5746b05845103dd5b8ee845e2ae",
+    "Protocols/appmenu.xml": "7d0251ee00d3d4bc7ee41e3cd1161beaf68a0c18c4f56f48ff1907a475846022",
+    "Protocols/nextspace-shell-v1.xml": "6e815ca4b524d46d7358200b9487d4686b8fcc1321481cf4bad8a2d704a36198",
+    "Protocols/manifest.json": "1bda7fd1becd0110c15063dbbc95981867abf04e1d0e1efeca65f9d4841655ee",
+    "Experiments/DBusMenus/host.py": "767cb694d11ff6ff44b5753c24d2c81066a2ea4f72da1b6edf566425479ca870",
+    "Experiments/DBusMenus/check-firefox.py": "7ad8c0d6fccebb25bc24b38c68b798735e66a3fb5904012c8dc19d53ef0327e2",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "3538e8377be2d014e9d1f00ee5eea9ab19ab8baf4fc8b3a22e70623be1f2601b",
+    "Tests/NativeUI/dbus-menu-registrar.py": "881d5e7833787bca535130666dbf619a1384266b4fdbeeb43554a1a8707ec3f4",
+    "Tests/Wayland/appmenu.py": "0dc49ece5dc388b436db646852b12da7758aed002861eca1186b240472257d69",
+    "Tests/Wayland/decoration-probe.c": "637260c485bea754a267e907adc645245b8839cbb6367b4da61e1621597353c1",
+    "Tests/Wayland/shell-probe.c": "5a139417b5bc9f9102f3d41d0ed74dcf4885205caddde49cc3e6059b5995edb6"
+  },
+  "raw_evidence": [
+    ".build/native-ui/dbus-menu-evidence",
+    ".build/native-ui/firefox-menu-source",
+    "/var/tmp/nextspace-native-ui/firefox-dbus-menu-01",
+    "/var/tmp/nextspace-native-ui/firefox-dbus-menu-02",
+    "/var/tmp/nextspace-native-ui/firefox-dbus-menu-03",
+    "/var/tmp/nextspace-native-ui/appmenu-protocol-01",
+    "/var/tmp/nextspace-native-ui/appmenu-protocol-02",
+    "/var/tmp/nextspace-native-ui/appmenu-shell-regression"
+  ],
+  "remaining": [
+    "Automatic authenticated shell/window/focus association and a production registrar.",
+    "Native open/close callbacks for lazy menus and correct Edit/Undo availability; full live hierarchy/property behavior.",
+    "Keyboard routing shared with the native editor host, complete key/mnemonic/multi-chord metadata.",
+    "Window replacement, bus replacement/recovery, scaling/accessibility and the remaining browser controls/dialogs.",
+    "Chrome/Vivaldi/Firefox derivatives and complete GTK/Qt/KDE integration."
+  ]
+}

@@ -308,3 +308,12 @@ address and webpage fields, bringing that run to 83 assertions. See the
 [shared qualification](../../Libraries/NativeUI/command-filter-qualification.json).
 Native undo shortcuts still require the application Edit menu; the control's
 default menu alone does not supply them.
+
+The existing Firefox D-Bus menubar exporter now has an experimental path to the
+shared GNUstep menu provider. `run-frontend-fixture.py --export-menus` enables it
+only in the isolated profile and starts a private test bus/name holder. Pass
+`--compositor` with the app-menu-protocol build and add the extracted libdbusmenu
+runtime directories with `--library-path`. No new Firefox menu ELF hooks are
+needed. See [the generic bridge](../DBusMenus/README.md) for native New Tab and
+owner-loss evidence, remaining lazy-menu/keyboard work and the incomplete
+production shell association.

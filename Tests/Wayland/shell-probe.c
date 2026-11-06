@@ -34,6 +34,12 @@ static void window(void *data, struct nextspace_shell_v1 *shell, uint32_t id,
 static void closed(void *data, struct nextspace_shell_v1 *shell, uint32_t id)
 { printf("{\"event\":\"closed\",\"id\":%u}\n", id); }
 static void done(void *data, struct nextspace_shell_v1 *shell) { puts("{\"event\":\"done\"}"); }
+static void window_appmenu(void *data, struct nextspace_shell_v1 *shell, uint32_t id,
+    const char *service, const char *path)
+{
+  printf("{\"event\":\"window-appmenu\",\"id\":%u,\"service\":", id); quoted(service);
+  printf(",\"path\":"); quoted(path); puts("}");
+}
 static void window_info(void *data, struct nextspace_shell_v1 *shell, uint32_t id,
     uint32_t client_id, uint32_t style, uint32_t title_height, int32_t level)
 {
@@ -133,7 +139,7 @@ static const struct nextspace_shell_v1_listener shell_listener = {
   .input_settings = input_settings, .input_result = input_result, .background = background,
   .desktops = desktops, .window_desktop = window_desktop, .interactive_move = interactive_move,
   .output_work_area = output_work_area, .output_gamma = output_gamma,
-  .output_gamma_result = output_gamma_result
+  .output_gamma_result = output_gamma_result, .window_appmenu = window_appmenu
 };
 static void global(void *data, struct wl_registry *registry, uint32_t name,
     const char *interface, uint32_t version)
@@ -155,7 +161,7 @@ int main(int argc, char **argv)
   struct wl_display *display = wl_display_connect(NULL);
   if (!display) return 1;
   unsigned version = argc == 2 && strncmp(argv[1], "--version", 9) == 0 ? atoi(argv[1] + 9) : 4;
-  if (version < 1 || version > 18) return 1;
+  if (version < 1 || version > 19) return 1;
   struct probe probe = {.version = version};
   struct wl_registry *registry = wl_display_get_registry(display);
   wl_registry_add_listener(registry, &registry_listener, &probe);

@@ -4,6 +4,7 @@
 #include "xdg-shell-client-protocol.h"
 #include "xdg-decoration-unstable-v1-client-protocol.h"
 #include "nextspace-application-v1-client-protocol.h"
+#include "appmenu-client-protocol.h"
 #include <poll.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -13,6 +14,8 @@
 #include <unistd.h>
 
 struct probe {
+  struct org_kde_kwin_appmenu_manager *appmenu_manager;
+  struct org_kde_kwin_appmenu *appmenu;
   struct wl_compositor *compositor;
   struct wl_shm *shm;
   struct xdg_wm_base *shell;
@@ -131,6 +134,8 @@ static const struct nextspace_window_v1_listener owned_listener = {.position = p
 static void global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
 {
   struct probe *probe = data;
+  if (!strcmp(interface, "org_kde_kwin_appmenu_manager"))
+    probe->appmenu_manager = wl_registry_bind(registry, name, &org_kde_kwin_appmenu_manager_interface, version < 2 ? version : 2);
   if (!strcmp(interface, "wl_compositor")) probe->compositor = wl_registry_bind(registry, name, &wl_compositor_interface, 1);
   if (!strcmp(interface, "wl_shm")) probe->shm = wl_registry_bind(registry, name, &wl_shm_interface, 1);
   if (!strcmp(interface, "wl_seat")) {
@@ -181,7 +186,13 @@ int main(int argc, char **argv)
     nextspace_window_v1_set_frame_extents(probe.owned, 1, 23, 1, 9);
   }
   create_decoration(&probe);
-  if (argc > 1 && !metrics) zxdg_toplevel_decoration_v1_set_mode(probe.decoration, strtoul(argv[1], NULL, 10));
+  bool appmenu = argc > 1 && !strcmp(argv[1], "--appmenu");
+  if (appmenu) {
+    if (!probe.appmenu_manager) return 1;
+    probe.appmenu = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
+    org_kde_kwin_appmenu_set_address(probe.appmenu, ":1.42", "/test/menu");
+  }
+  if (argc > 1 && !metrics && !appmenu) zxdg_toplevel_decoration_v1_set_mode(probe.decoration, strtoul(argv[1], NULL, 10));
   wl_surface_commit(probe.surface);
   char line[128];
   while (!probe.closed && wl_display_dispatch_pending(display) >= 0) {
@@ -193,7 +204,20 @@ int main(int argc, char **argv)
       if (!fgets(line, sizeof(line), stdin)) break;
       unsigned mode, left, top, right, bottom;
       char action[32];
-      if (sscanf(line, "%31s %u %u %u %u", action, &left, &top, &right, &bottom) == 5 &&
+      char service[256], path[4097];
+      if (sscanf(line, "menu %255s %4096s", service, path) == 2 && probe.appmenu) {
+        org_kde_kwin_appmenu_set_address(probe.appmenu, service, path);
+      } else if (!strncmp(line, "menu-release", 12) && probe.appmenu) {
+        org_kde_kwin_appmenu_release(probe.appmenu); probe.appmenu = NULL;
+      } else if (!strncmp(line, "menu-duplicate", 14) && probe.appmenu) {
+        org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
+      } else if (!strncmp(line, "menu-orphan", 11) && probe.appmenu_manager) {
+        struct wl_surface *surface = wl_compositor_create_surface(probe.compositor);
+        struct org_kde_kwin_appmenu *menu = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, surface);
+        wl_surface_destroy(surface);
+        org_kde_kwin_appmenu_set_address(menu, ":1.43", "/test/orphan");
+        org_kde_kwin_appmenu_release(menu);
+      } else if (sscanf(line, "%31s %u %u %u %u", action, &left, &top, &right, &bottom) == 5 &&
           probe.owned && (!strcmp(action, "metrics") || !strcmp(action, "pending-metrics"))) {
         nextspace_window_v1_set_frame_extents(probe.owned, left, top, right, bottom);
         if (!strcmp(action, "metrics")) wl_surface_commit(probe.surface);
@@ -227,6 +251,9 @@ int main(int argc, char **argv)
   }
   bool failed = wl_display_get_error(display) != 0;
   if (!failed) {
+    if (probe.appmenu) org_kde_kwin_appmenu_release(probe.appmenu);
+    if (probe.appmenu_manager && org_kde_kwin_appmenu_manager_get_version(probe.appmenu_manager) >= 2)
+      org_kde_kwin_appmenu_manager_release(probe.appmenu_manager);
     if (probe.owned) nextspace_window_v1_destroy(probe.owned);
     if (probe.decoration) zxdg_toplevel_decoration_v1_destroy(probe.decoration);
     xdg_toplevel_destroy(probe.top); xdg_surface_destroy(probe.xdg); wl_surface_destroy(probe.surface);

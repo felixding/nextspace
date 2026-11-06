@@ -429,3 +429,18 @@ field editors. UTF-8 byte boundaries are validated before deleting UTF-16 text.
 Missing text-input support retains ordinary keyboard and local compose behavior.
 Terminal exposes composition at its cursor without treating scrollback as editable
 surrounding text. The protocol fixtures do not qualify a particular IME engine.
+
+### Application menu addresses
+
+The public KDE `org_kde_kwin_appmenu_manager` version-2 protocol associates an
+application-owned surface with its session-bus menu address, including before
+mapping. It grants no shell or cross-client surface authority. Address update and
+release invalidate the existing window snapshot; shell version 19 adds
+`window_appmenu` before `done`. Empty strings clear the address. Older shell
+clients receive no new event.
+
+The compositor does not authenticate a D-Bus name. A consumer must resolve its
+unique session-bus owner and compare `GetConnectionUnixProcessID` with the
+window's compositor-provided PID, then pin calls to that unique owner. The
+experimental importer and real Firefox fixture are in `Experiments/DBusMenus`.
+The vendored KDE XML is unchanged and recorded in the protocol manifest.

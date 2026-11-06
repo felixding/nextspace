@@ -19,6 +19,7 @@
 #include "nextspace-geometry.h"
 #include "nextspace-application-v1-server-protocol.h"
 #include "nextspace-shell-v1-server-protocol.h"
+#include "appmenu-server-protocol.h"
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -74,6 +75,7 @@ struct nextspace_decoration;
 enum maximize_axis { MAXIMIZE_HORIZONTAL = 1, MAXIMIZE_VERTICAL = 2, MAXIMIZE_BOTH = 3 };
 
 struct nextspace_server {
+  struct wl_list appmenus;
   struct wlr_screencopy_manager_v1 *screencopy_manager;
   struct wl_client *capture_client;
   struct wl_listener capture_client_destroy;
@@ -438,6 +440,7 @@ static struct wlr_scene_buffer *view_buffer(struct nextspace_toplevel *view) {
   return search.buffer;
 }
 
+#include "appmenu.h"
 #include "application.h"
 #include "policy.h"
 #include "desktops.h"
@@ -1791,6 +1794,8 @@ int main(int argc, char *argv[]) {
 	 */
 	wl_list_init(&server.toplevels);
 	wl_list_init(&server.popups);
+  wl_list_init(&server.appmenus);
+  if (!appmenu_init(&server)) return 1;
   if (application) create_application_global(&server);
   server.layout_change.notify = application_layout_changed;
   wl_signal_add(&server.output_layout->events.change, &server.layout_change);

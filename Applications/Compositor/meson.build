@@ -72,8 +72,15 @@ shell_client_header = custom_target('nextspace-shell-client-header', input: shel
   output: 'nextspace-shell-v1-client-protocol.h', command: [scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
 shell_code = custom_target('nextspace-shell-code', input: shell_xml,
   output: 'nextspace-shell-v1-protocol.c', command: [scanner, 'private-code', '@INPUT@', '@OUTPUT@'])
+appmenu_xml = '../../Protocols/appmenu.xml'
+appmenu_header = custom_target('appmenu-server-header', input: appmenu_xml,
+  output: 'appmenu-server-protocol.h', command: [scanner, 'server-header', '@INPUT@', '@OUTPUT@'])
+appmenu_client_header = custom_target('appmenu-client-header', input: appmenu_xml,
+  output: 'appmenu-client-protocol.h', command: [scanner, 'client-header', '@INPUT@', '@OUTPUT@'])
+appmenu_code = custom_target('appmenu-code', input: appmenu_xml,
+  output: 'appmenu-protocol.c', command: [scanner, 'private-code', '@INPUT@', '@OUTPUT@'])
 compositor = executable('nextspace-compositor', ['src/main.c', frame_controls, color_cursor, xdg_shell, decoration_server_header, application_header, application_code,
-  shell_header, shell_code],
+  shell_header, shell_code, appmenu_header, appmenu_code],
   include_directories: geometry, c_args: ['-DWLR_USE_UNSTABLE'],
   dependencies: [wlroots, wayland, dependency('xkbcommon'), dependency('threads'), dependency('libinput')] + title_dependencies + [cc.find_library('m')],
   install: true, install_rpath: get_option('wlroots_rpath'))
@@ -91,7 +98,8 @@ executable('title-layout-probe', '../../Tests/Wayland/title-layout-probe.c', dep
 executable('title-font-probe', '../../Tests/Wayland/title-font-probe.c',
   dependencies: title_dependencies)
 executable('decoration-probe', ['../../Tests/Wayland/decoration-probe.c', xdg_client_header,
-  xdg_code, decoration_client_header, decoration_code, application_client_header, application_code],
+  xdg_code, decoration_client_header, decoration_code, application_client_header, application_code,
+  appmenu_client_header, appmenu_code],
   dependencies: dependency('wayland-client'))
 input_protocols = []
 foreach name, path : {

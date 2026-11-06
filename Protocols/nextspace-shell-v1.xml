@@ -19,7 +19,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
   </copyright>
-  <interface name="nextspace_shell_v1" version="18">
+  <interface name="nextspace_shell_v1" version="19">
     <description summary="session-authorized desktop window control">
       Only the Wayland connection supplied by the session supervisor can see or
       bind this global. An application ID, PID or same-user public connection
@@ -361,6 +361,18 @@
     <event name="output_gamma_result" since="18">
       <arg name="serial" type="uint"/><arg name="success" type="uint"/>
       <arg name="reason" type="string"/>
+    </event>
+    <event name="window_appmenu" since="19">
+      <description summary="application-provided D-Bus menu address">
+        Sent with each window event, before done. Empty strings clear an address.
+        The address is untrusted metadata supplied by the owner of that window's
+        Wayland surface through org_kde_kwin_appmenu. Before accessing the menu,
+        consumers must resolve the session-bus service owner and verify its Unix
+        process ID matches the window event's PID. This event grants no D-Bus
+        authority and does not authenticate the service name by itself.
+      </description>
+      <arg name="id" type="uint"/><arg name="service_name" type="string"/>
+      <arg name="object_path" type="string"/>
     </event>
   </interface>
   <interface name="nextspace_output_configuration_v1" version="1">

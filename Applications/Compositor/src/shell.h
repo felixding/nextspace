@@ -69,6 +69,11 @@ static bool shell_send_window(struct nextspace_toplevel *view, bool force)
       view->style, view->title_height, view->level);
   if (wl_resource_get_version(server->shell_resource) >= 10)
     nextspace_shell_v1_send_window_desktop(server->shell_resource, view->id, view->desktop, view->sticky);
+  if (wl_resource_get_version(server->shell_resource) >= 19) {
+    struct nextspace_appmenu *menu = appmenu_for_surface(server, view_surface(view));
+    nextspace_shell_v1_send_window_appmenu(server->shell_resource, view->id,
+      menu && menu->service ? menu->service : "", menu && menu->path ? menu->path : "");
+  }
   return true;
 }
 
@@ -423,7 +428,7 @@ static bool shell_init(struct nextspace_server *server, int fd)
 {
   server->shell_broker_fd = fd;
   server->shell_global = wl_global_create(server->wl_display, &nextspace_shell_v1_interface,
-    18, server, bind_shell);
+    19, server, bind_shell);
   if (!server->shell_global) return false;
   if (fd < 0) return true;
   int type; socklen_t size = sizeof(type);

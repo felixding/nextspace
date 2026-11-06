@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-06",
+  "firefox_revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+  "firefox_build_id": "20261022211647",
+  "sources": [
+    {
+      "path": "widget/gtk/NativeMenuSupport.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuSupport.cpp",
+      "sha256": "0d751b6362660f0b26f8f26a40e91a4c7f5901006e071fbae8eea2b8463b31c0",
+      "bytes": 1307
+    },
+    {
+      "path": "widget/gtk/NativeMenuGtk.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuGtk.cpp",
+      "sha256": "242568b19d6841b503f774c144a099d0dcc5496ae3ea97adaf051112f2597595",
+      "bytes": 28382
+    },
+    {
+      "path": "widget/gtk/NativeMenuGtk.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuGtk.h",
+      "sha256": "a87764a4ecd04f171f69149e8c8658c5a9ed903b8d09b84bcb8774e637f62d3b",
+      "bytes": 2500
+    },
+    {
+      "path": "widget/gtk/DBusMenu.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/DBusMenu.cpp",
+      "sha256": "6c91017c0ee05c4b2fe68fd0d11eeb06ebe74a4c2276d2d570540a440892ec1b",
+      "bytes": 2408
+    },
+    {
+      "path": "widget/gtk/DBusMenu.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/DBusMenu.h",
+      "sha256": "8de50550db88f91bbca065086e0a72fa30149d819bffdee2eda7f22e6be90417",
+      "bytes": 6463
+    },
+    {
+      "path": "Protocols/appmenu.xml",
+      "upstream": "KDE/plasma-wayland-protocols",
+      "git_blob": "02a72f7ef4c8111a3703a49f4386d3d462a416b8",
+      "url": "https://api.github.com/repos/KDE/plasma-wayland-protocols/git/blobs/02a72f7ef4c8111a3703a49f4386d3d462a416b8",
+      "sha256": "7d0251ee00d3d4bc7ee41e3cd1161beaf68a0c18c4f56f48ff1907a475846022",
+      "license": "MIT"
+    }
+  ],
+  "application_boundary": "Firefox NativeMenuSupport creates its existing MenubarModelDBus when global-menu preferences and libdbusmenu are available. The actual application exports labels, hierarchy, accelerator/toggle/availability metadata and activation callbacks. No menu ELF hooks, DOM extraction or browser rebuild are added.",
+  "wayland_boundary": "Firefox checks registrar name ownership, then sets its D-Bus address through org_kde_kwin_appmenu. The compositor retains metadata on the owning surface and sends it only to the authorized shell through version 19. Existing application controls and standard Wayland ownership stay separate.",
+  "native_boundary": "The generic Python importer calls the existing NativeUI menu C API, backed by installed GNUstep NSMenu/NSMenuItem objects. It sends the existing D-Bus Event(clicked) method asynchronously; the browser owns command behavior. There is no widget drawing/layout/tracking or browser command shortcut table.",
+  "authentication": "Resolve a unique session-bus owner, compare GetConnectionUnixProcessID with the compositor-provided window PID, and pin calls/signals to that unique owner. Wayland address metadata by itself is not D-Bus authentication.",
+  "findings": [
+    "Firefox Wayland export requires both widget.gtk.global-menu.enabled and widget.gtk.global-menu.wayland.enabled, two libdbusmenu runtime libraries, a registrar name and the KDE Wayland app-menu manager. Test preferences affect only isolated profiles.",
+    "The two Debian packages were extracted under /var/tmp without installation. The public fixture name holder implements no X11 registration methods and is not a production desktop registrar.",
+    "Firefox MenubarModelDBus uses opened/closed events for popup lifecycle. Native submenu lifecycle callbacks are still required for lazy contents and correct Edit command updates; opening every submenu at initialization would substitute different behavior.",
+    "The compositor keeps an inert protocol object after surface destruction, and rejects duplicate objects on one owned surface. Metadata update/release invalidates the regular window snapshot rather than maintaining a second string cache.",
+    "Compositor frame acknowledgment can precede AppKit visibility/highlight changes. Tests must request and await a fresh NativeUI snapshot before using item geometry or releasing a highlighted leaf."
+  ],
+  "remaining": [
+    "Automatic authenticated shell/window/focus association and a production registrar.",
+    "Native open/close callbacks for lazy menus and correct Edit/Undo availability; full live hierarchy/property behavior.",
+    "Keyboard routing shared with the native editor host, complete key/mnemonic/multi-chord metadata.",
+    "Window replacement, bus replacement/recovery, scaling/accessibility and the remaining browser controls/dialogs.",
+    "Chrome/Vivaldi/Firefox derivatives and complete GTK/Qt/KDE integration."
+  ]
+}
