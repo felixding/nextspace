@@ -982,3 +982,30 @@ The scoped total is 436 checks/158 complete images. Runtime audit retains all
 20 measured production hashes, unchanged NativeUI SDK/API 1/568 and renderer
 sandboxing. A separate source reproduction is byte-identical; all owned
 fixtures are stopped. Earlier failing candidates remain separate evidence.
+
+
+### Native list viewport and scroll binding
+
+The pinned list adapter now consumes shared native clip/document measurements
+through the existing text scroll-area boundaries. DOM client/scroll dimensions,
+script scrolling and clamping use the real native values. Wheel input follows
+original trusted DOM dispatch/cancellation and the native widget handler region;
+GNUstep supplies the actual wheel movement. Native positions return through the
+original engine setter and trusted scroll lifecycle.
+
+Option client rectangles and selection-reveal bounds use measured native row
+rectangles. The original selection task remains intact. Its scroll-origin
+conversion uses the native clip origin, avoiding a second movement based on
+hidden browser row/border geometry. Resizing and native appearance restoration
+retain the original application offset and let the UI library clamp it. A
+provider without the required geometry API keeps the original engine list path.
+
+See [viewport qualification](list-scroll-qualification.json) and
+[source audit](list-scroll-source-audit.json). This is partial integration:
+the explicit native hit-target diagnostic currently fails because the engine's
+hidden hit-test fragments can report a different option from the native row.
+That failure is retained separately from passing viewport/image checks. A shared
+native hit query and original engine target binding are required next. Broader
+option/layout APIs, intrinsic sizing, held scrollers, recovery, models/styles,
+scales/accessibility, derivatives/deployment and the Firefox viewport port
+remain unfinished. Browser toolbar/address bar/tabs retain their components.

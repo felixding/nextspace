@@ -12,20 +12,40 @@ static int32_t (*original_multiline_box_height)(const void *);
 static int (*original_multiline_can_resize)(const void *);
 static void (*original_multiline_update_offset)(void *,const struct FloatPoint *,int,int);
 static __thread int multiline_syncing;
+static const NXSScrollGeometry *scroll_geometry_for_form(const struct NativeForm *form) {
+  if(!form)return NULL;
+  if(form->kind==NXS_LISTBOX)return form->list.geometry_ready?&form->list.geometry:NULL;
+  return form->text_geometry_ready?&form->text_geometry:NULL;
+}
+static NXSTextViewport scroll_viewport_for_form(const struct NativeForm *form) {
+  if(form->kind!=NXS_LISTBOX)return form->text_viewport;
+  return (NXSTextViewport){.size=sizeof(NXSTextViewport),
+    .visible={form->list.state.visible.x,form->list.state.visible.y,form->list.state.visible.width,form->list.state.visible.height},
+    .content={form->list.state.content_width,form->list.state.content_height}};
+}
+
 static struct NativeForm *multiline_layout(const void *layout) {
-  if(!forms_multiline_viewport_enabled||!layout)return NULL;
+  if(!(forms_multiline_viewport_enabled||forms_lists_enabled)||!layout)return NULL;
   void *node=((void *(*)(const void *))(base+NXS_MULTILINE_NODE_OFFSET))(layout);
-  if(!node||input_form_kind(node)!=NXS_TEXTAREA||decode_member((char *)node+48)!=layout)return NULL;
+  if(!node||decode_member((char *)node+48)!=layout)return NULL;
+  int kind=input_form_kind(node);
+  if(kind!=NXS_TEXTAREA&&kind!=NXS_LISTBOX)return NULL;
+  if(kind==NXS_TEXTAREA&&!forms_multiline_viewport_enabled)return NULL;
+  if(kind==NXS_LISTBOX&&!list_style(node))return NULL;
   return find_form(node);
 }
 static struct NativeForm *multiline_area(const void *area,int bind) {
-  if(!forms_multiline_viewport_enabled||!area)return NULL;
+  if(!(forms_multiline_viewport_enabled||forms_lists_enabled)||!area)return NULL;
   void *layout=((void *(*)(const void *))(base+NXS_MULTILINE_GET_BOX_OFFSET))(area);
   if(!layout)return NULL;
   void *node=((void *(*)(const void *))(base+NXS_MULTILINE_NODE_OFFSET))(layout);
-  if(!node||input_form_kind(node)!=NXS_TEXTAREA||decode_member((char *)node+48)!=layout)return NULL;
+  if(!node||decode_member((char *)node+48)!=layout)return NULL;
+  int kind=input_form_kind(node);
+  if(kind!=NXS_TEXTAREA&&kind!=NXS_LISTBOX)return NULL;
+  if(kind==NXS_TEXTAREA&&!forms_multiline_viewport_enabled)return NULL;
+  if(kind==NXS_LISTBOX&&!list_style(node))return NULL;
   struct NativeForm *form=find_form(node);
-  if(!form&&bind){
+  if(!form&&bind&&kind==NXS_TEXTAREA){
     form=calloc(1,sizeof(*form));if(!form)return NULL;
     form->node=node;form->control=++next_form_control;form->kind=NXS_TEXTAREA;
     form->next=native_forms;native_forms=form;
@@ -72,9 +92,10 @@ static int sync_multiline_layout(struct NativeForm *form,const void *area) {
   return ok;
 }
 static void echo_text_viewport(struct NativeForm *form) {
-  if(!form->text_area||!form->text_geometry_ready||multiline_syncing)return;
+  if(!form->text_area||!scroll_geometry_for_form(form)||multiline_syncing)return;
   struct FloatPoint actual=((struct FloatPoint (*)(const void *))(base+NXS_MULTILINE_GET_OFFSET_OFFSET))(form->text_area);
-  struct FloatPoint offset={form->text_viewport.visible.x,form->text_viewport.visible.y};
+  NXSTextViewport viewport=scroll_viewport_for_form(form);
+  struct FloatPoint offset={viewport.visible.x,viewport.visible.y};
   if(fabsf(actual.x-offset.x)<.001f&&fabsf(actual.y-offset.y)<.001f)return;
   multiline_syncing=1;
   /* Existing Blink setter retains its animation bookkeeping, invalidation,
@@ -85,36 +106,39 @@ static void echo_text_viewport(struct NativeForm *form) {
 }
 static struct SizeI multiline_contents(const void *area) {
   struct NativeForm *form=multiline_area(area,0);
-  if(form&&form->text_geometry_ready)return (struct SizeI){lround(form->text_viewport.content.width),lround(form->text_viewport.content.height)};
+  if(scroll_geometry_for_form(form)){NXSTextViewport viewport=scroll_viewport_for_form(form);return (struct SizeI){lround(viewport.content.width),lround(viewport.content.height)};}
   return original_multiline_contents(area);
 }
 static struct Point multiline_minimum(const void *area) {
   struct NativeForm *form=multiline_area(area,0);
-  if(form&&form->text_geometry_ready)return (struct Point){lround(form->text_geometry.minimum.x),lround(form->text_geometry.minimum.y)};
+  const NXSScrollGeometry *geometry=scroll_geometry_for_form(form);
+  if(geometry)return (struct Point){lround(geometry->minimum.x),lround(geometry->minimum.y)};
   return original_multiline_minimum(area);
 }
 static struct Point multiline_maximum(const void *area) {
   struct NativeForm *form=multiline_area(area,0);
-  if(form&&form->text_geometry_ready)return (struct Point){lround(form->text_geometry.maximum.x),lround(form->text_geometry.maximum.y)};
+  const NXSScrollGeometry *geometry=scroll_geometry_for_form(form);
+  if(geometry)return (struct Point){lround(geometry->maximum.x),lround(geometry->maximum.y)};
   return original_multiline_maximum(area);
 }
 static struct FixedRect multiline_content_rect(const void *area,int inclusion) {
   struct FixedRect rect=original_multiline_content_rect(area,inclusion);
   struct NativeForm *form=multiline_area(area,0);
-  if(form&&form->text_geometry_ready){
-    NXSSize size=inclusion?form->text_geometry.client:(NXSSize){form->text_geometry.clip.width,form->text_geometry.clip.height};
+  const NXSScrollGeometry *geometry=scroll_geometry_for_form(form);
+  if(geometry){
+    NXSSize size=inclusion?geometry->client:(NXSSize){geometry->clip.width,geometry->clip.height};
     rect.width=lround(size.width*64);rect.height=lround(size.height*64);
   }
   return rect;
 }
 static struct FixedRect multiline_contracted_box(int edge,const void *style,const void *fragments,const void *size) {
-  if(edge==0&&forms_multiline_viewport_enabled&&fragments){
+  if(edge==0&&(forms_multiline_viewport_enabled||forms_lists_enabled)&&fragments){
     const void *results=*(const void *const *)fragments;
     for(struct NativeForm *form=native_forms;form;form=form->next){
-      if(form->kind!=NXS_TEXTAREA||!form->text_geometry_ready)continue;
+      const NXSScrollGeometry *geometry=scroll_geometry_for_form(form);if(!geometry||(form->kind==NXS_LISTBOX&&!list_style(form->node)))continue;
       void *layout=decode_member((char *)form->node+48);
       if(layout&&(const char *)layout+NXS_MULTILINE_LAYOUT_RESULTS_BYTE==results){
-        NXSRect clip=form->text_geometry.clip;
+        NXSRect clip=geometry->clip;
         /* The engine still applies its own CSS zoom and DOM rounding. */
         return (struct FixedRect){lround(clip.x*64),lround(clip.y*64),lround(clip.width*64),lround(clip.height*64)};
       }
@@ -133,21 +157,29 @@ static void multiline_bars(const void *area,uint8_t *horizontal,uint8_t *vertica
 }
 static int32_t multiline_box_width(const void *layout) {
   struct NativeForm *form=multiline_layout(layout);
-  return form&&form->text_geometry_ready?lround(form->text_viewport.content.width*64):original_multiline_box_width(layout);
+  if(scroll_geometry_for_form(form))return lround(scroll_viewport_for_form(form).content.width*64);
+  return original_multiline_box_width(layout);
 }
 static int32_t multiline_box_height(const void *layout) {
   struct NativeForm *form=multiline_layout(layout);
-  return form&&form->text_geometry_ready?lround(form->text_viewport.content.height*64):original_multiline_box_height(layout);
+  if(scroll_geometry_for_form(form))return lround(scroll_viewport_for_form(form).content.height*64);
+  return original_multiline_box_height(layout);
 }
 static int multiline_can_resize(const void *layout) {
   struct NativeForm *form=multiline_layout(layout);
   /* The browser's corner grip overlaps the native scroller. NSScrollView owns
    * the complete control; CSS/script can still resize its enclosing box. */
-  return form&&form->text_geometry_ready?0:original_multiline_can_resize(layout);
+  return scroll_geometry_for_form(form)?0:original_multiline_can_resize(layout);
 }
 static void multiline_update_offset(void *area,const struct FloatPoint *offset,int type,int source) {
   struct NativeForm *form=multiline_area(area,0);
-  if(form&&form->text_geometry_ready&&!multiline_syncing){
+  if(form&&form->kind==NXS_LISTBOX&&form->list.geometry_ready&&!multiline_syncing) {
+    if(native_list_binding_scroll(&form->list,offset->x,offset->y)) {
+      struct FloatPoint actual={form->list.state.visible.x,form->list.state.visible.y};
+      original_multiline_update_offset(area,&actual,type,source);invalidate_form(form);return;
+    }
+  }
+  if(form&&form->kind==NXS_TEXTAREA&&form->text_geometry_ready&&!multiline_syncing){
     struct NXSResponse *response=form_request(form,33,offset->x,offset->y,0);
     if(response&&response->parts[3].x==1){
       struct FloatPoint actual={response->parts[5].x,response->parts[5].y};
@@ -160,7 +192,20 @@ static void multiline_update_offset(void *area,const struct FloatPoint *offset,i
   }
   original_multiline_update_offset(area,offset,type,source);
 }
+static struct Point (*original_multiline_scroll_origin)(const void *);
+static struct Point multiline_scroll_origin(const void *area) {
+  struct NativeForm *form=multiline_area(area,0);
+  const NXSScrollGeometry *geometry=scroll_geometry_for_form(form);
+  if(geometry) {
+    struct FloatPoint offset=((struct FloatPoint (*)(const void *))(base+NXS_MULTILINE_GET_OFFSET_OFFSET))(area);
+    /* Encode the engine's physical coordinate units using the real native
+     * clip origin. Selection/default scrolling remain original engine calls. */
+    return (struct Point){floorf(offset.x*64)-lround(geometry->clip.x*64),floorf(offset.y*64)-lround(geometry->clip.y*64)};
+  }
+  return original_multiline_scroll_origin(area);
+}
 static struct Detour multiline_scroll_detours[]={
+  {NXS_MULTILINE_SCROLL_ORIGIN_OFFSET,nxs_multiline_scroll_origin_bytes,multiline_scroll_origin,(void **)&original_multiline_scroll_origin},
   {NXS_MULTILINE_CAN_RESIZE_OFFSET,nxs_multiline_can_resize_bytes,multiline_can_resize,(void **)&original_multiline_can_resize},
   {NXS_MULTILINE_CONTRACTED_BOX_OFFSET,nxs_multiline_contracted_box_bytes,multiline_contracted_box,(void **)&original_multiline_contracted_box},
   {NXS_MULTILINE_CONTENTS_OFFSET,nxs_multiline_contents_bytes,multiline_contents,(void **)&original_multiline_contents},

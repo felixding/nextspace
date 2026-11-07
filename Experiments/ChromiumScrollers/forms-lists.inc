@@ -57,10 +57,17 @@ static int list_sync(struct NativeForm *form)
 {
   if(!list_element(form->node)||!list_style(form->node)){list_forget(form);return 0;}
   struct ListSnapshot snapshot;if(!list_snapshot(form->node,&snapshot))return 0;
+  int existing=form->list.created&&form->list.epoch==atomic_load(&native_host_epoch);
   form->list.control=form->control;
   int okay=native_list_binding_sync(&form->list,snapshot.items,snapshot.count,snapshot.flags,
     form->rect.width,form->rect.height,form_enabled(form->node),form_focused(form->node));
   list_snapshot_free(&snapshot);
+  if(okay&&!existing&&form->text_area) {
+    /* New native objects replay the retained application scroll model once.
+     * Native input owns subsequent movement and the provider clamps it. */
+    struct FloatPoint position=((struct FloatPoint (*)(const void *))(base+NXS_MULTILINE_GET_OFFSET_OFFSET))(form->text_area);
+    okay=native_list_binding_scroll(&form->list,position.x,position.y);
+  }
   return okay&&form->list.pixel_width==form->rect.width&&form->list.pixel_height==form->rect.height;
 }
 static int list_scrollbar_owner(const void *area)
@@ -71,8 +78,10 @@ static int list_scrollbar_owner(const void *area)
   struct NativeForm *form=find_form(node);
   if(!form){form=calloc(1,sizeof(*form));if(!form)return 0;form->node=node;form->kind=NXS_LISTBOX;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   struct SizeI size=((struct SizeI (*)(const void *))(base+NXS_MULTILINE_AREA_SIZE_OFFSET))(area);
+  form->text_area=(void *)area;
   form->rect.width=lround(size.width/64.);form->rect.height=lround(size.height/64.);
-  return form->rect.width>0&&form->rect.height>0&&list_sync(form);
+  int okay=form->rect.width>0&&form->rect.height>0&&list_sync(form);
+  if(okay)native_wheel_binding(form,1);return okay;
 }
 static struct NXSResponse *list_form_request(struct NativeForm *form,unsigned operation,double x,double y,unsigned modifiers)
 {
@@ -114,7 +123,7 @@ static void list_after_input(uint32_t origin,uint64_t control,uint64_t actions)
     }
   }
   node=radio_node_for_id(origin);form=node?find_form(node):NULL;
-  if(form&&form->control==control){list_sync(form);invalidate_form(form);}
+  if(form&&form->control==control){list_sync(form);echo_text_viewport(form);invalidate_form(form);}
 }
 static int list_key_input(struct NativeForm *form,void *event,int type,unsigned key,const char *text,const char *unmodified,unsigned modifiers,int repeat)
 {
@@ -167,6 +176,45 @@ static int list_mouse_dispatch(void *manager,void *target,const void *type,const
   return 1;
 }
 
+/* Geometry data from the actual native row. Both the original selection
+ * reveal task and public client-rectangle queries use that same measurement. */
+static int list_option_geometry(void *node,struct NXSRectD *rect,struct NativeForm **owner)
+{
+  *owner=NULL;if(!node||*((unsigned char *)*(uintptr_t *)node-17)!=0x38)return 0;
+  struct NativeForm *form=bound_form_ancestor(node,NXS_LISTBOX);if(!list_owned(form))return 0;
+  uint32_t option=radio_node_id(node),origin=radio_node_id(form->node);uint64_t control=form->control;
+  if(!native_list_item_rect(control,option,rect))return -1;
+  /* Metadata RPC can service an application callback. Reacquire both semantic
+   * identities before reading their layout, as the input transaction does. */
+  void *root=radio_node_for_id(origin),*current=radio_node_for_id(option);form=root?find_form(root):NULL;
+  if(current!=node||!form||form->control!=control||!list_owned(form)||bound_form_ancestor(current,NXS_LISTBOX)!=form)return -1;
+  *owner=form;return 1;
+}
+static struct Rect (*original_list_option_bounds)(const void *);
+static struct FloatRect (*original_list_client_bounds)(const void *);
+static struct Rect list_option_bounds(const void *layout)
+{
+  void *node=((void *(*)(const void *))(base+NXS_MULTILINE_NODE_OFFSET))(layout);
+  struct NXSRectD row;struct NativeForm *form;int owned=list_option_geometry(node,&row,&form);
+  if(owned<0||(owned&&decode_member((char *)node+48)!=layout))return (struct Rect){0};
+  void *root=form?decode_member((char *)form->node+48):NULL;
+  if(root) {
+    struct Rect bounds=original_list_option_bounds(root);
+    return (struct Rect){bounds.x+lround(row.x*64),bounds.y+lround(row.y*64),lround(row.width*64),lround(row.height*64)};
+  }
+  return original_list_option_bounds(layout);
+}
+static struct FloatRect list_client_bounds(const void *node)
+{
+  struct NXSRectD row;struct NativeForm *form;int owned=list_option_geometry((void *)node,&row,&form);
+  if(owned<0)return (struct FloatRect){0};
+  if(form) {
+    struct FloatRect root=original_list_client_bounds(form->node);
+    return (struct FloatRect){root.x+row.x,root.y+row.y,row.width,row.height};
+  }
+  return original_list_client_bounds(node);
+}
+
 /* Blink intentionally sends listboxes to CSS at its common theme boundary,
  * before the text-field painter. Keep every other appearance in that original
  * dispatch, including the existing native text adapter's virtual calls. */
@@ -190,5 +238,7 @@ static int list_theme_border(void *self,const void *node,const void *style,const
 static struct Detour list_detours[]={
   {NXS_CHROMIUM_LIST_PAINT,chromium_list_paint_bytes,list_theme_paint,(void **)&original_list_theme_paint},
   {NXS_CHROMIUM_LIST_BORDER,chromium_list_border_bytes,list_theme_border,(void **)&original_list_theme_border},
-  {NXS_CHROMIUM_LIST_SELECTED_STATE,chromium_list_selected_state_bytes,list_selected_state,(void **)&original_list_selected_state}
+  {NXS_CHROMIUM_LIST_SELECTED_STATE,chromium_list_selected_state_bytes,list_selected_state,(void **)&original_list_selected_state},
+  {NXS_CHROMIUM_LIST_OPTION_BOUNDS,chromium_list_option_bounds_bytes,list_option_bounds,(void **)&original_list_option_bounds},
+  {NXS_CHROMIUM_LIST_CLIENT_BOUNDS,chromium_list_client_bounds_bytes,list_client_bounds,(void **)&original_list_client_bounds}
 };

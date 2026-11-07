@@ -1,0 +1,112 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "9a7fcc36",
+  "status": "pinned-chromium-native-list-viewport-partially-qualified-native-hit-target-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "8c78dbed7a10ae260947d844851f3498fafc5205328ae6e0d0f7e555657ff94d",
+    "Experiments/ChromiumScrollers/check-lists.py": "6dbaa2bdc4fefa5309f137590d9d3bb5e348c104a36ce0ddbdccc0b895c4ceb9",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "d538a4c47b19f27368a7bafbaf450ec96bd5bfbb458462893963ecb232c139db",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "f26e14477fe9af13175c17080e9b078d7f1e1d910c95fb2c28130311a386d9f1",
+    "Experiments/ChromiumScrollers/forms-wheel.inc": "889b0336cdfbee1a71405031911fa627e27ef8c6bd5ed73d1d289d593fd50c23",
+    "Experiments/ChromiumScrollers/hook.c": "136b688cf7be8b56409a839bf147bb73b184bb9e730089895a9ea96611576987",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "266785fbb21b31de47eb87c3791f78986150447d71d165f7db944b30776b5427",
+    "Experiments/ChromiumScrollers/pinned-lists.h": "1ad718ec51c7229495df8e4b4f04c2cb6894530b9a9ed94c2910714ca6b95ceb",
+    "Experiments/ChromiumScrollers/pinned-multiline-scroll.h": "e8727355ba4414f5b51936b94874a9f829b2a97244e868f838281568d05481a2",
+    "Experiments/FirefoxNativeUI/check-lists.py": "dda547c42de2e64cab4ddac1f1374b6111098c8c6cbec7ca96e379227f0e3e3c",
+    "Tests/Wayland/native-listboxes.html": "905e0b9bd6dfaac0f9ba141ab9b6b0bc72b1416fcfd51f5490f999170dc6b7c4",
+    "Tests/Wayland/native_list_scroll.py": "04dc35570f307b033f38ff76fd73cd5cbe8b938e66fd414db1cbdea9c1d0d465",
+    "Tests/Wayland/native_lists.py": "61ae7b4a1fe6bb42c1a0f8744d9541a81ac5f893ed30969004d4fef4fab5745e",
+    "docs/Native-Control-Integration.md": "525da3b94ca69e27e9438cd4695517c24076c735de1306fe85406ed4707c958b"
+  },
+  "original_sources": [
+    {
+      "path": ".build/foreign-scrollbars/chromium-prototype/source/forms/select_type.cc",
+      "bytes": 83418,
+      "sha256": "4035930d41acda98c183d9e8615060d3643138a464536c1aa1547b04927a94b0"
+    },
+    {
+      "path": ".build/foreign-scrollbars/chromium-prototype/source/forms/element.cc",
+      "bytes": 544831,
+      "sha256": "4b0a17a68d29cbb509726c8f8ed78c0516e13e8ddaa2b601f90ce4b1f521425d"
+    },
+    {
+      "path": ".build/foreign-scrollbars/chromium-prototype/source/paint_layer_scrollable_area.cc",
+      "bytes": 146674,
+      "sha256": "953214031b8b39826b36bf5f0e1dfa650967e11f852950b52894da368a40876d"
+    },
+    {
+      "path": ".build/native-ui/chromium-list-source/layout_object.cc",
+      "bytes": 209020,
+      "sha256": "c2600b021d7a77e1e4adb44e099a05e35f24afcbcada211380070a14db9977b0"
+    }
+  ],
+  "pinned_calls": {
+    "PAINT": {
+      "offset": 243622784,
+      "bytes": "3f2303d5fd7bbba9f90b00f9b9e40190fd030091"
+    },
+    "BORDER": {
+      "offset": 243624280,
+      "bytes": "5f2403d5a10000b4281440b9080d00121f050071"
+    },
+    "SAVE": {
+      "offset": 236042444,
+      "bytes": "3f2303d5ff0301d1fd7b01a9081f02b0fd430091"
+    },
+    "CHANGE": {
+      "offset": 236041000,
+      "bytes": "3f2303d5fd7bbda9f50b00f9751e02f0fd030091"
+    },
+    "SET_SELECTED": {
+      "offset": 235888636,
+      "bytes": "3f2303d5fd7bbda9f65701a915c04139b61f0290f44f02a928000012f30300aad6a645f9bf02086bfd03009120030054f403012a21000012e00313aae2031f2a81ffff97685680b9c90240f9200d08ea00020054b400003608844939e10313aa0201005209000014098049390884493989000036a8020034e2031f2a02000014"
+    },
+    "SELECTED_STATE": {
+      "offset": 235888192,
+      "bytes": "3f2303d5ff4301d1fd7b01a9282002f0fd430091"
+    },
+    "OPTION_BOUNDS": {
+      "offset": 240500656,
+      "bytes": "3f2303d5ffc302d1e82b00fd08fd01b0fd7b06a9"
+    },
+    "CLIENT_BOUNDS": {
+      "offset": 250972884,
+      "bytes": "3f2303d5ffc301d1e82300fd28ad0190e1430091"
+    },
+    "ID": {
+      "offset": 231839012,
+      "bytes": "3f2303d5ffc301d1fd7b01a9083f02f0fd430091"
+    },
+    "NODE": {
+      "offset": 231840348,
+      "bytes": "5f2403d5c00600343f2303d5ff8300d1fd7b01a9"
+    },
+    "FOCUS": {
+      "offset": 251079748,
+      "bytes": "3f2303d5ff4301d1fd7b04a948ac01d08950f9f0"
+    },
+    "STYLE_DATA": {
+      "offset": 243630648,
+      "bytes": "892a4069680340f957da01d0f7820491e00317aae1031f2ae20314aa090d098a0a0d0a8ae3031faa290580b9581d40f9080d098a083140bd"
+    },
+    "STYLE_APPEARANCE": {
+      "offset": 243630784,
+      "bytes": "084f0f53a98a40b900e4006fff3300f91f150071ea179f1a1f35007128050051"
+    }
+  },
+  "additional_boundary": {
+    "name": "blink::PaintLayerScrollableArea::LocalToScrollOriginOffset() const",
+    "offset": "0xe817b8c",
+    "guard": "pinned-multiline-scroll.h"
+  },
+  "invariants": [
+    "Existing text scroll-area detours serve text and lists through native geometry/state accessors. Shared NativeUI/ListBinding supply actual clip, document, limits, row rectangles, scroll state and pixels. No list, layout, hit, selection, drawing or wheel algorithm is copied.",
+    "List creation binds the original engine scroll-area identity. Script offsets call shared native scroll RPC and the provider clamp; native offsets return through the original engine setter and trusted scroll lifecycle. A recreated native control restores the retained original engine offset once.",
+    "Wheel dispatch keeps original targeting, trusted DOM dispatch, cancellation, action preferences and phase filtering. The existing native handler registry prevents a competing compositor default even without a page wheel listener. Existing shared native wheel RPC owns actual movement.",
+    "Original LayoutObject absolute reveal bounds and Element unadjusted client bounds consume actual native row rectangles and original root coordinate conversion. Root/control/option identities are reacquired after metadata RPC; retired owners/layouts return empty bounds. Public adjusted wrappers remain original.",
+    "LayoutContentRect retains original ScrollPosition as its origin. The original LocalToScrollOriginOffset coordinate boundary uses actual engine position and native clip origin, preserving physical coordinate encoding. The original selection task lifetime and completion remain in use.",
+    "Current appearance/scale eligibility gates native geometry getters and ownership. Original engine list behavior remains available when the older provider lacks required native scroll geometry. Browser toolbar/address bar/tabs retain their components.",
+    "Only small Chromium adapters are rebuilt. Original browsers, AppKit/backend, shared provider/loader/shim and API 1/576 remain unchanged. An unchanged Firefox adapter checks the shared fixture/reference changes.",
+    "The explicit native hit-target diagnostic is deliberately red and excluded from passing totals: native selected row index 19 is correct, but the DOM mousedown target index is 17. Native bounds queries do not replace original hidden hit-test fragments; a shared native hit API and original engine target binding are still required."
+  ]
+}

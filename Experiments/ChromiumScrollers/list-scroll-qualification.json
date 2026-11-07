@@ -1,0 +1,443 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "9a7fcc36",
+  "status": "pinned-chromium-native-list-viewport-partially-qualified-native-hit-target-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 576,
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73936,
+      "sha256": "03752fb271f593f0fe19a145d1605549ef688b3c11a36876d4fe729af0befdbf"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322416,
+      "sha256": "8970a15ccd3036c1e7bffc6cd3a2c7396e149104fd5d6e33d8c1226ccac0379d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "d050b1399de66a663d34b4531437beb2ef1328e4a733a1d2db26857a63bc6b36"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-firefox-01-hook.so",
+      "bytes": 162400,
+      "sha256": "09d85b0064fb1698694c3c9b023a7a67b700fb7160294106bdce65a1c4f793a5"
+    },
+    "chromium_scroll_01": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-01-hook.so",
+      "bytes": 234112,
+      "sha256": "0ad6bee35d6195f306424aaf6fabcf271a6027011056acdaea6079d52437e8db"
+    },
+    "chromium_scroll_02": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-02-hook.so",
+      "bytes": 234488,
+      "sha256": "72e42eedb9c5add46fdfc8f0852603ee4825ad8b86198e3148542bc53bd0bf2a"
+    },
+    "chromium_scroll_03": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-03-hook.so",
+      "bytes": 234488,
+      "sha256": "72514b6b96062318adfe9205f55024fbfb922ed5d6c3035a40de25c69db2286d"
+    },
+    "chromium_scroll_04": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-04-hook.so",
+      "bytes": 234488,
+      "sha256": "f1ad64035eb4e5089cf22794e61a7bcd350a69f89eedeb88e4a9417471f09de0"
+    },
+    "chromium_scroll_05": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-05-hook.so",
+      "bytes": 234664,
+      "sha256": "9ebb72e53af04721b6f3a80089d9a60b2a77bc81ef44155ce2ee0832ce1ba8f9"
+    },
+    "chromium_scroll_06": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-06-hook.so",
+      "bytes": 234752,
+      "sha256": "305d5389ace86df186e4aaacd4a70c8fe86779da2bce77491b8e3e6dd15013e8"
+    },
+    "chromium_scroll_07": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-07-hook.so",
+      "bytes": 234752,
+      "sha256": "a73ebdd5d11b2acb3c1002ccf12e99d289e076508de054be7e6e077f02930b8d"
+    },
+    "chromium_scroll_08": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-08-hook.so",
+      "bytes": 234800,
+      "sha256": "3ff92a86447fa1b8e1e7cae274876fe48571a292a9216c8e1bdf0fc7eafb68f7"
+    },
+    "ordinary_gesture": {
+      "path": "/var/tmp/nextspace-native-ui/native-list-gesture-reference-02",
+      "bytes": 84720,
+      "sha256": "97d5a25f5a406c746066b85ddc766fff495bd78bdda5aa9119724aaf00865f93"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_scroll": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-09",
+        "results_file": "list-scroll-results.json",
+        "checks": 31,
+        "native_images": 12,
+        "sha256": "af63df10e9ef1d14ea03744f31a313ea0193b80fd689d7a22f7628510310b054"
+      },
+      "flat_list": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-09",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "98ffdbdd583cedf967e4751939fff250a1fb2ec9fb08d9909fb0fd1272788149"
+      },
+      "form": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-09",
+        "results_file": "form-results.json",
+        "checks": 101,
+        "native_images": 28,
+        "sha256": "753557e76baa6b51704a6156348b482411f6340cdc1b9f64443d8dfcd290a32f"
+      },
+      "radio": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-09",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "a0b21a08598494d0b6fb5ec116b617c1c3dcbf7ffd536c6558f76550960f2271"
+      },
+      "popup": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-09",
+        "results_file": "popup-results.json",
+        "checks": 66,
+        "native_images": 27,
+        "sha256": "4cc2be713e030b47d2a105d883e634a14f6b6d8050ca0ae0f842013c0886a400"
+      },
+      "button_text": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-09",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "unchanged_firefox": {
+        "path": "/var/tmp/nxs-list-scroll-firefox-regression-01",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "311b3e7b3632ba5c60e7fc65a9449ec6436176460bddcd96853bbb6869360b9a"
+      },
+      "older_SDK_fallback": {
+        "path": "/var/tmp/nxs-chromium-list-scroll-old-sdk-02",
+        "results_file": "fallback-results.json",
+        "checks": 3,
+        "native_images": 0,
+        "sha256": "054107bcb556c23b359e22ba1e24f4a59544656879f00daad4a07fde8125afba"
+      }
+    },
+    "scoped_checks": 470,
+    "complete_native_images": 170,
+    "browser_scale": 1,
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-08-repro.so",
+      "bytes": 234800,
+      "sha256": "3ff92a86447fa1b8e1e7cae274876fe48571a292a9216c8e1bdf0fc7eafb68f7"
+    }
+  },
+  "known_failure": {
+    "path": "/var/tmp/nxs-chromium-list-hit-diagnostic-02/list-scroll-results.json",
+    "rows": 23,
+    "last": {
+      "case": "DOM-pointer-target-matches-the-native-row",
+      "passed": false,
+      "actual": [
+        {
+          "tag": "OPTION",
+          "index": 17
+        }
+      ],
+      "native_row": 19
+    },
+    "sha256": "35391e653ce9798962d43d524cc0ac7ba005528dbdaf2b3b7d4d3a72b469a996",
+    "excluded_from_passing_totals": true
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "live_owned": [],
+    "api": {
+      "version": 1,
+      "size": 576
+    },
+    "unchanged_candidates": {
+      "loader": {
+        "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui.so.0.1",
+        "bytes": 105520,
+        "sha256": "eb7badf1b9cabfa3dfe8db7398497a57f6ea008b7fca38209e0bc12299df094c"
+      },
+      "provider": {
+        "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+        "bytes": 531360,
+        "sha256": "b6a729be736ada457110c6adfa66947139ab2d2dd326666fcfa143c21d3e68aa"
+      },
+      "shim": {
+        "path": "/var/tmp/nextspace-native-ui/list-provider-02/libnextspace-native-scroller.so.0.1",
+        "bytes": 81824,
+        "sha256": "1f7f5051cee8188d3492e1342807ff2e934ec6aea602f6c066bd76dfec2d50b1"
+      },
+      "chromium_list_08": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-08-hook.so",
+        "bytes": 234064,
+        "sha256": "8f7040ecf82d8edcfe8a291eed4d9bc46acf91f0ec939a0051ec8b9568c8a6f3"
+      },
+      "firefox_list_07": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-list-07-hook.so",
+        "bytes": 162400,
+        "sha256": "a5d9644744674216e9d68e4793a0fbaab436c7500fbbe75968a042bc124d7084"
+      }
+    },
+    "unchanged_browser_adapters": {
+      "chromium": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-form-activation-03-hook.so",
+        "bytes": 232496,
+        "sha256": "e0006b4bb9d0cb28d6f82557fc26a45f16919a7281290bb610a729db0b9d9051"
+      },
+      "firefox": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-form-activation-03-hook.so",
+        "bytes": 161328,
+        "sha256": "9c04f609b1052c08700e82be5344cb172c8ee7f4bfe4d70b9f03b2fc614630fc"
+      }
+    },
+    "adapter_has_no_UI_toolkit_dependency": true,
+    "sandbox": {
+      "nxs-chromium-list-scroll-09": [
+        {
+          "pid": 188968,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 188993,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 188995,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "nxs-list-scroll-firefox-regression-01": [
+        {
+          "pid": 187324,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 187361,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 187410,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 187419,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 187433,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 187450,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "cleanup": {
+      "nxs-chromium-list-scroll-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-03": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-04": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-05": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-06": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-07": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-08": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-09": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-old-sdk-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-scroll-old-sdk-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-diagnostic-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-diagnostic-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-list-scroll-firefox-regression-01": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      }
+    }
+  },
+  "notices": {
+    "count": 15,
+    "paths": [
+      "/var/tmp/nxs-chromium-list-scroll-01/references.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-01/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-02/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-03/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-04/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-05/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-06/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-07/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-08/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-09/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-old-sdk-01/browser.stderr",
+      "/var/tmp/nxs-chromium-list-scroll-old-sdk-02/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-diagnostic-01/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-diagnostic-02/browser.stderr",
+      "/var/tmp/nxs-list-scroll-firefox-regression-01/browser.stderr"
+    ],
+    "full_text": "runtime-audit.json in the verified evidence archive"
+  },
+  "observations": [
+    "Final candidate 08 passes 31 overflowing-list checks/12 complete native images, flat lists 34/13, forms 101/28, radios 94/29, popups 66/27 and button/text 107/48. Unchanged Firefox passes 34/13; older SDK fallback passes three checks. Scoped passing total is 470 checks/170 complete native images. The separate explicit native hit-target diagnostic fails and is not included.",
+    "Actual native DOM clip/document/option client rectangles, script offsets and bounds, original trusted scroll events, real-seat wheel without a page handler, cancellation, key and script-selectedness reveal, scrolled cell selection, resize and appearance restoration are checked against native API results and whole images.",
+    "The initial native key result selects the correct row but the old engine task reveals to 146 instead of native 118 because original option rows are 17 pixels while native rows are 15. Native row bounds reduce the mismatch to one pixel; native clip-origin conversion removes the remaining border discrepancy. No row height or border constant is added to the adapter.",
+    "A diagnostic attempt to replace LayoutContentRect origin with clip coordinates is wrong: that method represents ScrollPosition, and repeated reveal then drifts to the maximum. The original origin is restored; LocalToScrollOriginOffset is the correct native coordinate binding. Earlier failed candidates remain separate.",
+    "An unchanged Firefox run first checks outside release after a fixed 0.2-second observation and fails. A later release record alone cannot establish its cause. The shared test now waits for the actual expected release with the existing bounded wait; the complete unchanged-adapter run passes before cleanup. No Firefox product fix is inferred.",
+    "Older 568-byte SDK fallback retains original engine scrolling/clamping and programmatic selectedness, has exactly the expected older SDK mappings, and claims no native list viewport ownership. Current native viewport support requires advertised geometry.",
+    "The known pointer-target mismatch is required follow-up, not a completed native input contract. A shared original-native hit query should return stable item identity for both engine adapters; no second row/scrollbar hit-test algorithm should be introduced.",
+    "All 20 production hashes, prior SDK and earlier adapters remain unchanged; package count is 1050. Adapter source reproduction is byte-identical and contains no UI toolkit dependency. Renderer sandbox evidence is limited to descendants of each actual fixture browser, avoiding other concurrently tested profiles. All owned fixtures stop."
+  ],
+  "open": [
+    "Shared native item/scrollbar hit query and correct original DOM targets; original hidden option fragments still use different geometry. The explicit target diagnostic must become green.",
+    "Firefox viewport/DOM scroll/wheel binding over the same shared native layer, followed by its native option bounds and target integration.",
+    "Additional option/layout APIs and intrinsic sizing, complete pointer/hover/focus/default and wheel metadata behavior, held-scroller updates and native host/session recovery.",
+    "Broader models/CSS/transforms/zoom/mixed-DPI/IME/accessibility, other builds/derivatives, installed deployment and remaining browser controls.",
+    "Complete detached menus/native shortcuts and subsequent GTK/Qt/KDE integration using the same shared implementation. Toolbar/address bar/tabs remain original; future requested UI changes use optional app-specific patches."
+  ],
+  "source_audit": "list-scroll-source-audit.json"
+}

@@ -35,6 +35,8 @@ static const unsigned char nxs_multiline_box_height_bytes[20]={0x3f,0x23,0x03,0x
 static const unsigned char nxs_multiline_update_offset_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x02,0xd1,0xe8,0x23,0x00,0xfd,0x88,0xe7,0x01,0xb0,0xfd,0x7b,0x05,0xa9};
 #define NXS_MULTILINE_CONTENTS_PAINT_BYTE 52u
 #define NXS_MULTILINE_LAYOUT_RESULTS_BYTE 104u
+#define NXS_MULTILINE_SCROLL_ORIGIN_OFFSET 0xe817b8cul
+static const unsigned char nxs_multiline_scroll_origin_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbd,0xa9,0xf5,0x0b,0x00,0xf9,0x95,0xe6,0x01,0xf0,0x08,0x38,0x80,0xb9};
 static int guard_multiline_scroll_calls(void) {return !memcmp((void *)(base+NXS_MULTILINE_CAN_RESIZE_OFFSET),nxs_multiline_can_resize_bytes,20)&&
 !memcmp((void *)(base+NXS_MULTILINE_CONTRACTED_BOX_OFFSET),nxs_multiline_contracted_box_bytes,20)&&
 !memcmp((void *)(base+NXS_MULTILINE_FRAGMENT_LIST_OFFSET),nxs_multiline_fragment_list_bytes,20)&&
@@ -51,4 +53,5 @@ static int guard_multiline_scroll_calls(void) {return !memcmp((void *)(base+NXS_
 !memcmp((void *)(base+NXS_MULTILINE_BARS_OFFSET),nxs_multiline_bars_bytes,20)&&
 !memcmp((void *)(base+NXS_MULTILINE_BOX_WIDTH_OFFSET),nxs_multiline_box_width_bytes,20)&&
 !memcmp((void *)(base+NXS_MULTILINE_BOX_HEIGHT_OFFSET),nxs_multiline_box_height_bytes,20)&&
-!memcmp((void *)(base+NXS_MULTILINE_UPDATE_OFFSET_OFFSET),nxs_multiline_update_offset_bytes,20);}
+!memcmp((void *)(base+NXS_MULTILINE_UPDATE_OFFSET_OFFSET),nxs_multiline_update_offset_bytes,20)&&
+!memcmp((void *)(base+NXS_MULTILINE_SCROLL_ORIGIN_OFFSET),nxs_multiline_scroll_origin_bytes,20);}

@@ -146,7 +146,13 @@ for item in json.loads(args.controls.read_text()):
             state=native.nxs_control_list_state(pointer);selection=(C.c_uint64*state.selected_count)()
             assert native.nxs_control_list_selection(pointer,selection,len(selection))==len(selection)
             results[-1]['list_state']=dict(selected=list(selection),primary=state.primary,key_cell=state.key_cell,actions=state.actions,
-                visible={key:getattr(state.visible,key) for key in ('x','y','width','height')})
+                visible={key:getattr(state.visible,key) for key in ('x','y','width','height')},
+                content=dict(width=state.content[0],height=state.content[1]))
+            if api.scroll_capabilities&1:
+                geometry=TextGeometry(size=C.sizeof(TextGeometry))
+                assert native.nxs_control_scroll_geometry(pointer,C.byref(geometry))
+                results[-1]['scroll_geometry']={key:{axis:getattr(getattr(geometry,key),axis) for axis in axes}
+                    for key,axes in [('clip',('x','y','width','height')),('client',('width','height')),('minimum',('x','y')),('maximum',('x','y'))]}
             rectangles=[]
             for entry in item['items']:
                 rect=native.nxs_control_list_item_rect(pointer,entry['id'])

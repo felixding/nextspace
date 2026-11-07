@@ -257,7 +257,7 @@ __attribute__((constructor)) static void initialize(void) {
   const char *text=getenv("NEXTSPACE_CHROMIUM_TEXT");
   forms_text_enabled=forms_input_enabled&&text&&!strcmp(text,"1")&&metrics->parts[6].x==1&&((unsigned)metrics->parts[6].y&3)==3;
   const char *lists=getenv("NEXTSPACE_CHROMIUM_LISTS");
-  forms_lists_enabled=forms_popups_enabled&&forms_text_enabled&&lists&&!strcmp(lists,"1")&&((unsigned)metrics->parts[3].x&1);
+  forms_lists_enabled=forms_popups_enabled&&forms_text_enabled&&lists&&!strcmp(lists,"1")&&((unsigned)metrics->parts[3].x&1)&&((unsigned)metrics->parts[3].y&NXS_SCROLL_GEOMETRY);
   const char *multiline=getenv("NEXTSPACE_CHROMIUM_MULTILINE");
   forms_multiline_enabled=forms_text_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_MULTILINE)&&
     !memcmp((void *)(base+NXS_TEXTAREA_VALUE_OFFSET),nxs_textarea_value_bytes,20)&&
@@ -266,7 +266,7 @@ __attribute__((constructor)) static void initialize(void) {
   forms_multiline_viewport_enabled=forms_multiline_enabled&&viewport&&!strcmp(viewport,"1")&&
     (((unsigned)metrics->parts[6].y&(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY))==(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY));
   const char *wheel=getenv("NEXTSPACE_CHROMIUM_WHEEL");
-  forms_wheel_enabled=forms_multiline_viewport_enabled&&wheel&&!strcmp(wheel,"1")&&((unsigned)metrics->parts[0].x&NXS_WHEEL_EVENTS);
+  forms_wheel_enabled=(forms_multiline_viewport_enabled||forms_lists_enabled)&&wheel&&!strcmp(wheel,"1")&&((unsigned)metrics->parts[0].x&NXS_WHEEL_EVENTS);
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
   views_enabled=NXS_BROWSER_UI_PATCH&&forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");

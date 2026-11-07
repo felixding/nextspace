@@ -105,7 +105,7 @@ def run(f):
  f.js('list.multiple=false;list.selectedIndex=0;return true');f.key_cell=1;time.sleep(.15);f.pixels('list',True,label='single-again')
  before=len(f.records());f.point(initial['native_item_rects'][0]);assert f.command('button 272 1')['ok'];time.sleep(.04)
  assert f.command('pointer 600 500')['ok'];assert f.command('button 272 0')['ok'];time.sleep(.2)
- f.check('outside-release-ends-original-native-tracking',any(x['event']=='native-form-release' and x.get('kind')==13 for x in f.records()[before:]))
+ f.check('outside-release-ends-original-native-tracking',f.wait(lambda:any(x['event']=='native-form-release' and x.get('kind')==13 for x in f.records()[before:])))
  f.clear();f.click(initial['native_item_rects'][2]);f.key_cell=3
  f.check('new-gesture-works-after-outside-release',f.selected()==[3] and [x['type'] for x in f.changes()]==['input','change'])
  # The original matrix can retain a cell's visual state after outside release

@@ -680,3 +680,17 @@ frame and limits through owned operation 52; ListBinding caches the result per
 host epoch. See [qualification](../Libraries/NativeUI/scroll-geometry-qualification.json).
 Engine option/layout and DOM scroll ownership still need to consume these
 measurements. No consumer calculates a second native scrollbar or clamp.
+
+
+The pinned Chromium consumer now binds native list clip/document geometry into
+its existing text scroll-area hooks. Original script/default scroll setters and
+trusted event dispatch remain in use; actual native row bounds and clip origin
+supply option client/reveal geometry. Wheel handling, resize and appearance
+restoration are checked against the same native provider. See
+[qualification](../Experiments/ChromiumScrollers/list-scroll-qualification.json).
+
+Native pointer targets still need a shared hit-test query: a measured native
+row can select correctly while the original DOM event names a different hidden
+engine option. The explicit failing diagnostic is preserved. Complete native
+browser integration remains open, including the Firefox viewport port; later
+GTK/Qt/KDE adapters must consume the same native measurements and hit behavior.

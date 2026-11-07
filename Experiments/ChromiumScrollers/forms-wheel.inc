@@ -1,7 +1,7 @@
 /* Input format and lifetime binding only. NSScrollView owns wheel behavior. */
 #include "pinned-wheel.h"
 static void native_wheel_binding(struct NativeForm *form,int enabled) {
-  if(!forms_wheel_enabled||form->kind!=NXS_TEXTAREA)return;
+  if(!forms_wheel_enabled||(form->kind!=NXS_TEXTAREA&&form->kind!=NXS_LISTBOX))return;
   void *frame=text_frame(form->node);
   void *handler=frame?decode_member((char *)frame+592):NULL;
   void *registry=handler?decode_member((char *)handler+NXS_WHEEL_REGISTRY_BYTE):NULL;
@@ -29,7 +29,7 @@ static int wheel_manager(void *self,const void *event) {
   int action=*(const int *)((const char *)event+NXS_WHEEL_ACTION_BYTE);
   if((phase|momentum)&(8|16|32)||action<1||action>3)return result;
   struct NativeForm *form=form_ancestor(decode_member((char *)self+NXS_WHEEL_TARGET_BYTE));
-  if(!form||form->kind!=NXS_TEXTAREA||!form->painted)return result;
+  if(!form||(form->kind!=NXS_TEXTAREA&&form->kind!=NXS_LISTBOX)||!form->painted)return result;
   unsigned units=*((const unsigned char *)event+NXS_WHEEL_UNITS_BYTE);
   if(units>1)return result; /* Page/document input needs its own native binding. */
   const float *delta=(const float *)((const char *)event+(units?NXS_WHEEL_TICKS_BYTE:NXS_WHEEL_DELTA_BYTE));
@@ -39,6 +39,12 @@ static int wheel_manager(void *self,const void *event) {
   if(!isfinite(dx)||!isfinite(dy))return result;
   void *node=form->node;uint64_t control=form->control;
   struct FloatPoint point=form_point(form,event);
+  if(form->kind==NXS_LISTBOX) {
+    if(!list_sync(form)||!form->list.geometry_ready)return result;
+    NXSWheelEvent wheel={.size=sizeof(wheel),.x=point.x,.y=point.y,.delta_x=dx,.delta_y=dy,.modifiers=event_modifiers(event)};
+    if(!native_list_binding_wheel(&form->list,&wheel))return result;
+    echo_text_viewport(form);schedule_form_paint(form);return 3;
+  }
   form=find_form(node);if(!form||form->control!=control||!sync_text_image(form))return result;
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=35,
     .process=identity(),.kind=NXS_TEXTAREA,.control=control,.x=point.x,.y=point.y,
