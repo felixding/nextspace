@@ -543,7 +543,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
-  (!forms_lists_enabled||(guard_list_calls()&&prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))&&
+  (!forms_lists_enabled||(guard_list_calls()&&guard_list_hit_calls()&&prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))&&
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
   (!(forms_multiline_viewport_enabled||forms_lists_enabled)||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
   (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}

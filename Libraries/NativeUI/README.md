@@ -994,6 +994,8 @@ Owned operation 53 transports this result through shared `Bridge/ItemHits.inc`;
 bootstrap part 2.x advertises it independently of existing capabilities.
 Independent ordinary native windows and the C-only transport client compare
 hits across a grid at 1x/2x, including scrolling, disabled cells and clip edges.
-See [item hit qualification](item-hit-qualification.json). Browser event target
-binding still needs to consume this shared query; the known Chromium DOM row
-mismatch remains open. Existing browser toolbar/address bar/tabs stay original.
+See [item hit qualification](item-hit-qualification.json). The pinned Chromium
+adapter now consumes this query through its original point-hit result path;
+see [browser qualification](../../Experiments/ChromiumScrollers/list-hit-qualification.json).
+Firefox and rectangle/list-based browser hit contracts remain separate work.
+Existing browser toolbar/address bar/tabs stay original.

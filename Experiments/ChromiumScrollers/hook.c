@@ -46,6 +46,7 @@ static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid
 #include "../../Libraries/NativeUI/Bridge/Radios.inc"
 #include "../../Libraries/NativeUI/Bridge/Lists.inc"
 #include "../../Libraries/NativeUI/Bridge/ListBinding.inc"
+#include "../../Libraries/NativeUI/Bridge/ItemHits.inc"
 
 static struct NXSResponse *query(const void *bar,int layer,float value,int override_value) {
   if(!bar||channel<0||!shared)return NULL;
@@ -257,7 +258,7 @@ __attribute__((constructor)) static void initialize(void) {
   const char *text=getenv("NEXTSPACE_CHROMIUM_TEXT");
   forms_text_enabled=forms_input_enabled&&text&&!strcmp(text,"1")&&metrics->parts[6].x==1&&((unsigned)metrics->parts[6].y&3)==3;
   const char *lists=getenv("NEXTSPACE_CHROMIUM_LISTS");
-  forms_lists_enabled=forms_popups_enabled&&forms_text_enabled&&lists&&!strcmp(lists,"1")&&((unsigned)metrics->parts[3].x&1)&&((unsigned)metrics->parts[3].y&NXS_SCROLL_GEOMETRY);
+  forms_lists_enabled=forms_popups_enabled&&forms_text_enabled&&lists&&!strcmp(lists,"1")&&((unsigned)metrics->parts[3].x&1)&&((unsigned)metrics->parts[3].y&NXS_SCROLL_GEOMETRY)&&((unsigned)metrics->parts[2].x&1);
   const char *multiline=getenv("NEXTSPACE_CHROMIUM_MULTILINE");
   forms_multiline_enabled=forms_text_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_MULTILINE)&&
     !memcmp((void *)(base+NXS_TEXTAREA_VALUE_OFFSET),nxs_textarea_value_bytes,20)&&

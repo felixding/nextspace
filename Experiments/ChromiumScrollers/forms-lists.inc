@@ -1,6 +1,7 @@
 /* Blink list data and DOM transactions. Shared ListBinding/NativeUI own the
  * actual NSBrowser, cells, matrix, focus, selection, scrolling and tracking. */
 #include "pinned-lists.h"
+#include "pinned-list-hits.h"
 struct ListSnapshot {NXSListItem *items;unsigned count,flags;};
 static int list_element(void *node)
 {return forms_lists_enabled&&node&&*(uintptr_t *)node==base+0x11ced808+16&&!*((unsigned char *)node+608);}
@@ -215,6 +216,50 @@ static struct FloatRect list_client_bounds(const void *node)
   return original_list_client_bounds(node);
 }
 
+/* Keep the engine's original hit traversal, cache and trusted dispatch. Only
+ * the owned control's semantic item and local coordinate come from NativeUI. */
+static int (*original_list_hit_test)(const void *,const void *,void *);
+static __thread int list_hit_query;
+static int list_hit_test(const void *view,const void *location,void *hit)
+{
+  int found=original_list_hit_test(view,location,hit);
+  /* List/rectangle queries have a separate multi-node result contract. */
+  if(!found||list_hit_query||(*(const unsigned *)hit&(1u<<11))||*((const unsigned char *)location+68))return found;
+  void *initial=decode_member((char *)hit+36);
+  struct NativeForm *form=bound_form_ancestor(initial,NXS_LISTBOX);if(!list_owned(form))return found;
+  uint32_t origin=radio_node_id(form->node);uint64_t control=form->control;
+  struct Point point=*(const struct Point *)((char *)hit+48);
+  list_hit_query=1;
+  int okay=list_sync(form);void *root=radio_node_for_id(origin);form=root?find_form(root):NULL;
+  if(!root||!form||form->control!=control||!list_owned(form))goto retired;
+  if(okay) {
+    struct FloatRect box=original_list_client_bounds(root);
+    double x=point.x/64.-box.x,y=point.y/64.-box.y;uint64_t identifier=0;
+    okay=native_control_item_at_point(NXS_LISTBOX,control,x,y,&identifier);
+    root=radio_node_for_id(origin);form=root?find_form(root):NULL;
+    if(!root||!form||form->control!=control||!list_owned(form))goto retired;
+    void *node=identifier?radio_node_for_id(identifier):root;
+    if(okay&&(!node||bound_form_ancestor(node,NXS_LISTBOX)!=form))goto retired;
+    if(okay&&node&&bound_form_ancestor(node,NXS_LISTBOX)==form) {
+      struct NXSRectD row={0};
+      okay=!identifier||native_list_item_rect(control,identifier,&row);
+      root=radio_node_for_id(origin);form=root?find_form(root):NULL;node=identifier?radio_node_for_id(identifier):root;
+      if(!root||!form||form->control!=control||!list_owned(form))goto retired;
+      if(okay&&(!node||bound_form_ancestor(node,NXS_LISTBOX)!=form))goto retired;
+      if(okay&&node&&bound_form_ancestor(node,NXS_LISTBOX)==form) {
+        struct Point local={lround((x-row.x)*64),lround((y-row.y)*64)};
+        /* The original setter owns compressed references, write barriers and
+         * element/pseudo normalization. A null fragment uses this local point. */
+        ((void (*)(void *,void *,const void *,const struct Point *))(base+NXS_CHROMIUM_LIST_HIT_SET_POSITION))(hit,node,NULL,&local);
+      }
+    }
+  }
+  list_hit_query=0;return found;
+retired:
+  ((void (*)(void *,void *,const void *,const struct Point *))(base+NXS_CHROMIUM_LIST_HIT_SET_POSITION))(hit,NULL,NULL,&(struct Point){0});
+  list_hit_query=0;return 0;
+}
+
 /* Blink intentionally sends listboxes to CSS at its common theme boundary,
  * before the text-field painter. Keep every other appearance in that original
  * dispatch, including the existing native text adapter's virtual calls. */
@@ -236,6 +281,7 @@ static int list_theme_border(void *self,const void *node,const void *style,const
   return original_list_theme_border(self,node,style,info,rect);
 }
 static struct Detour list_detours[]={
+  {NXS_CHROMIUM_LIST_HIT_HIT_TEST,chromium_list_hit_hit_test_bytes,list_hit_test,(void **)&original_list_hit_test},
   {NXS_CHROMIUM_LIST_PAINT,chromium_list_paint_bytes,list_theme_paint,(void **)&original_list_theme_paint},
   {NXS_CHROMIUM_LIST_BORDER,chromium_list_border_bytes,list_theme_border,(void **)&original_list_theme_border},
   {NXS_CHROMIUM_LIST_SELECTED_STATE,chromium_list_selected_state_bytes,list_selected_state,(void **)&original_list_selected_state},

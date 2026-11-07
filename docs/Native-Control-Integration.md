@@ -689,11 +689,12 @@ supply option client/reveal geometry. Wheel handling, resize and appearance
 restoration are checked against the same native provider. See
 [qualification](../Experiments/ChromiumScrollers/list-scroll-qualification.json).
 
-Native pointer targets still need a shared hit-test query: a measured native
-row can select correctly while the original DOM event names a different hidden
-engine option. The explicit failing diagnostic is preserved. Complete native
-browser integration remains open, including the Firefox viewport port; later
-GTK/Qt/KDE adapters must consume the same native measurements and hit behavior.
+The original viewport qualification preserves a failing diagnostic where the
+native selection and DOM pointer target named different rows. The pinned
+Chromium point-hit path now consumes the shared native query, resolving that
+measured mismatch. Complete native browser integration remains open, including
+the Firefox viewport/target port; later GTK/Qt/KDE adapters must consume the
+same native measurements and hit behavior.
 
 
 A shared native item-at-point query now exposes GNUstep's original view and
@@ -702,6 +703,13 @@ matrix hit tests through one optional API and IPC operation, preserving full
 conversion. Independent native-window and transport tests cover 1x/2x,
 scrolling, disabled cells and non-item areas; see the
 [item hit qualification](../Libraries/NativeUI/item-hit-qualification.json).
-This is the shared dependency for browser/toolkit event targeting. The known
-Chromium native-row/DOM-target mismatch remains open until the original engine
-hit-result path consumes it. No browser event-target fix is claimed here.
+The pinned Chromium adapter consumes that shared dependency at the original
+`LayoutView` hit-result boundary, covering both cached and fresh point hits.
+The original engine setter binds the live native row's DOM identity and local
+point; no UI hit algorithm or node-reference implementation is copied. Original
+down/up/click, point queries, mouse/pointer hover and related targets,
+cancellation, overlays and page scrolling are checked; see
+[qualification](../Experiments/ChromiumScrollers/list-hit-qualification.json).
+Rectangle/list-based hit contracts, Firefox viewport/target integration and
+broader lifecycle/layout/scaling contracts remain open. Toolbars, address bars
+and tabs stay original, with future UI changes in app-specific patches.

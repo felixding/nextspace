@@ -1,0 +1,293 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "c00671c4",
+  "status": "pinned-chromium-native-list-point-targets-qualified-multinode-and-firefox-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 584,
+  "shared_ui_unchanged": true,
+  "candidate_files": {
+    "adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-hit-02-hook.so",
+      "bytes": 235440,
+      "sha256": "0543098c60595a6a88c7f0d4cee1a24e4dc5ee90cd12178f834283e6253e044f"
+    },
+    "prototype_01": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-hit-01-hook.so",
+      "bytes": 235440,
+      "sha256": "6a5ceeb172fd440fdfb5b883fc2d898c1611063c2c1bc358160c10e81cc85366"
+    },
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-hit-02-repro.so",
+      "bytes": 235440,
+      "sha256": "0543098c60595a6a88c7f0d4cee1a24e4dc5ee90cd12178f834283e6253e044f"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_point_hits": {
+        "path": "/var/tmp/nxs-chromium-list-hit-05",
+        "results_file": "list-scroll-results.json",
+        "checks": 40,
+        "native_images": 12,
+        "sha256": "bf5736a896ae39c67925b8d0496c016280ae756d2baeefd376f5344c6bfaeddb"
+      },
+      "flat_list": {
+        "path": "/var/tmp/nxs-chromium-list-hit-05",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "c346bdaa248a4952bb4a6e5939fc2eb101f3681108db9ba427e1ed0d86e060e7"
+      },
+      "form": {
+        "path": "/var/tmp/nxs-chromium-list-hit-05",
+        "results_file": "form-results.json",
+        "checks": 101,
+        "native_images": 28,
+        "sha256": "71ea94f46da5bdffe07336bd6b3b109d01febab504df6d3e8258e30dd4276d79"
+      },
+      "radio": {
+        "path": "/var/tmp/nxs-chromium-list-hit-05",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "20147b470f50934a8db6850fabbfb67092afb3a3e20bdf403d75c9e4e06def51"
+      },
+      "popup": {
+        "path": "/var/tmp/nxs-chromium-list-hit-05",
+        "results_file": "popup-results.json",
+        "checks": 66,
+        "native_images": 27,
+        "sha256": "310f6a72dba598961a2eb949bf1cb2d6cd189259f7bfe7d7cd4785f689b1af5f"
+      },
+      "button_text": {
+        "path": "/var/tmp/nxs-chromium-list-hit-05",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "previous_568": {
+        "path": "/var/tmp/nxs-chromium-list-hit-old-568-02",
+        "results_file": "fallback-results.json",
+        "checks": 4,
+        "native_images": 0,
+        "sha256": "0440e00b5fc748480c0db422cf6d8fedd20245f6e84d9d6780d442fb0c9c4ea6"
+      },
+      "previous_576": {
+        "path": "/var/tmp/nxs-chromium-list-hit-old-576-02",
+        "results_file": "fallback-results.json",
+        "checks": 4,
+        "native_images": 0,
+        "sha256": "28dc834fd21d74ad37f7b121e0db68da15e5cadc69c8eea4aa64267e002484c9"
+      }
+    },
+    "scoped_checks": 450,
+    "complete_native_images": 157,
+    "browser_scale": 1,
+    "shared_provider_qualification": "../../Libraries/NativeUI/item-hit-qualification.json",
+    "shared_provider_regressions_rerun": false
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "api": {
+      "version": 1,
+      "size": 584
+    },
+    "live_owned": [],
+    "adapter_has_no_UI_toolkit_dependency": true,
+    "sandbox": [
+      {
+        "pid": 194165,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 194173,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 194177,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "cleanup": {
+      "nxs-chromium-list-hit-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-03": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-04": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-05": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-old-568": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-old-568-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-old-576": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-hit-old-576-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      }
+    }
+  },
+  "unchanged_shared_ui": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74048,
+      "sha256": "e53aa1845fcbe64219b3b942d92564b6dd9b898cda6de7fe523c54e42cea9a56"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322880,
+      "sha256": "94ab8262f4368e9eb8c47159a3cbf671fd3178641cb9a4d2ce50edcd10d72788"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "7d76a7c0b12d2df3ebaab4b94671f5a2bb54063c056a143c80919b6b8735c19c"
+    }
+  },
+  "resolved_previous_failure": {
+    "previous": {
+      "path": "/var/tmp/nxs-chromium-list-hit-diagnostic-02/list-scroll-results.json",
+      "rows": 23,
+      "last": {
+        "case": "DOM-pointer-target-matches-the-native-row",
+        "passed": false,
+        "actual": [
+          {
+            "tag": "OPTION",
+            "index": 17
+          }
+        ],
+        "native_row": 19
+      },
+      "sha256": "35391e653ce9798962d43d524cc0ac7ba005528dbdaf2b3b7d4d3a72b469a996",
+      "excluded_from_passing_totals": true
+    },
+    "current": {
+      "case": "DOM-pointer-target-matches-the-native-row",
+      "passed": true,
+      "actual": [
+        {
+          "tag": "OPTION",
+          "index": 19
+        }
+      ],
+      "native_row": 19
+    }
+  },
+  "notices": {
+    "count": 10,
+    "paths": [
+      "/var/tmp/nxs-chromium-list-hit-01/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-02/scroll-test.stderr",
+      "/var/tmp/nxs-chromium-list-hit-02/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-03/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-04/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-05/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-old-568/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-old-568-02/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-old-576/browser.stderr",
+      "/var/tmp/nxs-chromium-list-hit-old-576-02/browser.stderr"
+    ],
+    "full_text": "runtime-audit.json in the verified evidence archive"
+  },
+  "observations": [
+    "Final point-hit/scroll suite passes 40 checks/12 complete native images, flat lists 34/13, form activation 101/28, radio 94/29, popup 66/27, button/text 107/48, plus actual older SDK fallback 4/0 for each API 1/568 and 1/576. Scoped total is 450 checks/157 complete native images. Shared provider regressions were already qualified at c00671c4 and are not counted as new runs here.",
+    "The previously retained diagnostic selected native row index 19 while DOM mousedown named index 17. The same explicit target check now passes with DOM index 19. Original mousedown, mouseup and click all retain that target and trusted metadata.",
+    "Actual native rows also match repeated elementFromPoint queries, original mouse/pointer hover and related targets, cancellation before native selection, original application overlay ordering and page-scroll coordinate conversion. Native scrollbars and border point hits target the root control.",
+    "Native UI implementation and ABI stay unchanged. The adapter uses one shared native query and original browser setters instead of duplicating UI hit/selection logic or GC reference stores. A separate adapter reproduction is byte-identical; actual sandbox descendants and final cleanup are measured.",
+    "An initial expanded harness attempted tagName on a Document enter event, raising KeyError before its hover assertion. The final recorder preserves nodeName/null metadata and tests actual transitions. The scrolling test explicitly makes its fixture overflow before requesting page scroll. That early harness failure is retained and excluded from passing totals."
+  ],
+  "open": [
+    "Original rectangle/list-based hit-result contracts, including elementsFromPoint and rect-based input, and broader option/layout/intrinsic geometry APIs.",
+    "Firefox list viewport, native row geometry/scrolling and point-target integration using the same shared native geometry/item-hit APIs.",
+    "Broader models/styles/transforms/scales/zoom, held-scroller synchronization, host recovery and failure paths, input/IME/accessibility and performance optimization of metadata/model refresh.",
+    "Other browser builds/derivatives and installed deployment, remaining webpage controls, detached menus and native shortcuts, then GTK/Qt/KDE on the shared layer. Toolbar/address bar/tabs stay original."
+  ],
+  "source_audit": "list-hit-source-audit.json"
+}

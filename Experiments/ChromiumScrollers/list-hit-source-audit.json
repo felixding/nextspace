@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "c00671c4",
+  "status": "pinned-chromium-native-list-point-targets-qualified-multinode-and-firefox-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "c7688ec02bd71e83ddcc779d3d62951ceb4927dd89b65f846d6d26a872be51a6",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "d41ec6bc5e148a45c3e3db93e4a111825ade2c1118ee7a55608893ad971f5a00",
+    "Experiments/ChromiumScrollers/forms.inc": "2e6d9cd5b0eda95d3640f8b70cc93e2e3e17e07deae88704318c889641c1af21",
+    "Experiments/ChromiumScrollers/hook.c": "ef7d91041a421253cbb317818d7a9e2676fb8db0b7ea28663ced357caaa77bb9",
+    "Experiments/ChromiumScrollers/pinned-list-hits.h": "c2246d38eb568d9875bbeb26ed2cb53c04985570fd5ebbb7c6e79ffe8c933e5b",
+    "Libraries/NativeUI/README.md": "38485d99cea67df3f0a41f4cc092e775b7cbd1d6ace6bc836be866a6522805a0",
+    "Tests/Wayland/native_list_hits.py": "9b8a5da2eb305cf710a38a307cae3ad60bf472977d0aa1058a0768ace48cc9ba",
+    "Tests/Wayland/native_list_scroll.py": "4664cd1c5ad3ddeb14c381925fb47b6d1c8f5a8ec5b402342f1f0c62ccbfa376",
+    "docs/Native-Control-Integration.md": "8b64601ede6cf6224976a92af3cb0bc5c5759be2a621175a0fd03261b9cefdfc"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/chromium-item-hit-source/hit_test_result.cc",
+      "bytes": 27185,
+      "sha256": "599561c7b13a9625e4402c5111fb0da7fdae3aab34bf5bf65972d8b2f151d5ae"
+    },
+    {
+      "path": ".build/native-ui/chromium-item-hit-source/hit_test_request.h",
+      "bytes": 6518,
+      "sha256": "cf99702f612a68edc0d00f611d827ddec483228fcb6ce99d716fed7987da3888"
+    },
+    {
+      "path": ".build/native-ui/chromium-item-hit-source/hit_test_location.h",
+      "bytes": 5507,
+      "sha256": "caf8aabf00256f5aeb7e666f4975afce9dafa3f68424a72a49e7ca80175e21e0"
+    },
+    {
+      "path": ".build/native-ui/chromium-pointer-source/hit_test_result.h",
+      "bytes": 10713,
+      "sha256": "01a0a3ecfcfb04bfd469c16545f16855ef688ffd822ab0329ff72efd077f983f"
+    },
+    {
+      "path": ".build/foreign-scrollbars/chromium-prototype/source/layout_view.cc",
+      "bytes": 46043,
+      "sha256": "3044f530ac19b045081c6a1b350da737b19c54ff96c6dc96070b991f8df2350c"
+    }
+  ],
+  "pinned_calls": {
+    "HIT_TEST": {
+      "offset": 240713384,
+      "bytes": "3f2303d5ff4304d1fd7b0ba968fb01b0fdc30291"
+    },
+    "SET_POSITION": {
+      "offset": 239775124,
+      "bytes": "3f2303d5fd7bbda9f50b00f9f50303aafd030091f44f02a9f40301aaf30300aae20100b4e00302aa2ead0494a82640290bfc60d30801002b0a7d1f134a0101524861881a29010b2b2a7d1f134a0101524961891a088109aa02000014a80240f9e00313aae10314aa681e00f9f44f42a9f50b40f9fd7bc3a8bf2303d501000014"
+    },
+    "RESULT_CONSTRUCTOR": {
+      "offset": 239772960,
+      "bytes": "3f2303d5fd7bbea9280040b9f44f01a9f30300aaf40302aafd030091080000b9280440b9080400b9280840b91f4000391f600039080800b9286040391f050071a1010054210840f9610a00f9010100b42000805208231e971f0000716d0200540800b0121f00086b400200542800805268620039280080527f1600f9688200397f2600b9880240f97f4e00b97ffe03a9681a00f97f7204b8f44f41a9fd7bc2a8bf2303d5c0035fd6000020d4000040d4000020d4000040d4"
+    },
+    "SET_INNER": {
+      "offset": 239775252,
+      "bytes": "3f2303d5fd7bbda9f44f02a9f30300aafd030091f65701a9210c00b4f50102f02afc43d3e90301aab54a47f96ac202b8a80240b9c80c0035280140f90be15e38ab00183608d942f9e00309aa00013fd60afc43d36a2600b9a80240b9e80b003516020290497d4093d6a645f9"
+    },
+    "LOCATION_CONSTRUCTOR": {
+      "offset": 239769540,
+      "bytes": "5f2403d5c067070f210040fdc267072f0890a752c9a6f9f0232147fd2064a00e2134a20e0054260f001c610e0174042f201ca00e010d040ee8a6f9d002d8210e0000006d41dc212e026142fde8031ab2080800f908008012084000b9082080520888007922d4220e23d4230e2104186e021400fd62240c6e0180813c020c036dc0035fd6"
+    }
+  },
+  "invariants": [
+    "The original LayoutView::HitTestNoLifecycleUpdate traversal/cache runs first. Only owned native list point results consume shared ItemHits.inc. Original list-based and rectangle result contracts remain separate work; no engine hit algorithm is copied.",
+    "GNUstep provides the actual stable row ID and native row rectangle. The adapter translates the original frame point through the original root client geometry and actual native row origin, then calls original HitTestResult::SetNodeAndPosition with a null fragment. Original compressed references, write barriers and element/pseudo normalization remain in use.",
+    "Root/control/row identities are reacquired after metadata RPC. A retired owner or row no longer belonging to that owner clears the original node result; no raw native item index or stale option pointer is committed. A per-thread query scope leaves nested original traversal available.",
+    "Original traversal retains application overlays and native non-item areas target the list root. Trusted down/up/click, mouse/pointer hover and related targets, mousedown cancellation, point queries, cache hits and page scroll are tested through real seat input and original DOM methods.",
+    "Native list ownership requires both scroll geometry and native item-hit capabilities. Actual older API 1/568 and 1/576 SDKs retain original engine scrolling and selectedness and do not claim native list ownership.",
+    "Only small isolated Chromium adapters are rebuilt. Shared GNUstep UI provider/loader/shim and API 1/584 remain byte-identical, as do all 20 measured production files and previous adapters. Renderer sandboxing remains Seccomp=2/NoNewPrivs=1.",
+    "Existing browser toolbar/address bar/tabs retain their components. Future UI changes are app-specific patches above shared native controls, menus, commands and bridge mechanisms; later GTK/Qt/KDE adapters reuse those mechanisms."
+  ]
+}

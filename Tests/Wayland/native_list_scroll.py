@@ -39,10 +39,13 @@ def run(f):
  expected=reference['list_state'];f.clear();f.js('list.selectedIndex=20;return true');time.sleep(.2)
  f.check('script-selectedness-uses-native-row-reveal-without-input-change',f.selected()==expected['selected'] and state()['top']==expected['visible']['y'] and not f.changes(),actual=state(),native=expected)
  f.pixels('list',True,model={'scroll':[0,expected['visible']['y']]},label='script-reveal')
- f.js('window.targets=[];document.addEventListener("mousedown",e=>targets.push({tag:e.target.tagName,index:e.target.index??null}),{once:true});return true')
+ f.js('window.targets=[];window.nativeClickTargets=[];document.addEventListener("mousedown",e=>targets.push({tag:e.target.tagName,index:e.target.index??null}),{once:true});for(const t of ["mousedown","mouseup","click"])document.addEventListener(t,e=>nativeClickTargets.push({type:e.type,tag:e.target.tagName,index:e.target.index??null,trusted:e.isTrusted}),{once:true});return true')
  f.clear();f.click(reference['native_item_rects'][19]);f.key_cell=20
  f.check('native-cell-click-keeps-original-trusted-selection-change',f.selected()==[20] and [e['type'] for e in f.changes()]==['input','change'] and all(e['trusted'] for e in f.changes()),actual=state(),targets=f.js('return targets'))
  if getattr(f,'require_native_hit',False):f.check('DOM-pointer-target-matches-the-native-row',f.js('return targets.length===1&&targets[0].tag==="OPTION"&&targets[0].index===19'),actual=f.js('return targets'),native_row=19)
+ if getattr(f,'require_native_hit',False):
+  from native_list_hits import run as hit_checks
+  hit_checks(f,reference)
  f.pixels('list',True,model={'scroll':[0,expected['visible']['y']]},label='scrolled-cell-click')
  f.js('list.scrollTop=100000;return true');time.sleep(.1)
  reference=f.pixels('list',True,model={'scroll':[0,100000]},label='before-resize')

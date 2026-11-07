@@ -998,14 +998,23 @@ rectangles. The original selection task remains intact. Its scroll-origin
 conversion uses the native clip origin, avoiding a second movement based on
 hidden browser row/border geometry. Resizing and native appearance restoration
 retain the original application offset and let the UI library clamp it. A
-provider without the required geometry API keeps the original engine list path.
+provider without the required geometry or item-hit API keeps the original engine
+list path.
 
 See [viewport qualification](list-scroll-qualification.json) and
-[source audit](list-scroll-source-audit.json). This is partial integration:
-the explicit native hit-target diagnostic currently fails because the engine's
-hidden hit-test fragments can report a different option from the native row.
-That failure is retained separately from passing viewport/image checks. A shared
-native hit query and original engine target binding are required next. Broader
-option/layout APIs, intrinsic sizing, held scrollers, recovery, models/styles,
-scales/accessibility, derivatives/deployment and the Firefox viewport port
-remain unfinished. Browser toolbar/address bar/tabs retain their components.
+[source audit](list-scroll-source-audit.json) for the original geometry work and
+its retained failing target diagnostic. The pinned adapter now consumes the
+shared native item-hit query at the original `LayoutView` hit-result boundary.
+GNUstep supplies the row ID and row rectangle; the original engine setter owns
+node references, write barriers and element/pseudo normalization. Native
+non-item areas target the control. Original traversal, caches, trusted dispatch,
+hover/related targets, cancellation and application overlays remain in use.
+
+[Point-hit qualification](list-hit-qualification.json) covers down/up/click
+targets, `elementFromPoint`, repeated cache hits, mouse/pointer hover, related
+targets, cancellation, overlays and page scrolling. Native row identity is
+revalidated after metadata RPC. Rectangle/list-based hit contracts remain open,
+along with broader option/layout APIs, intrinsic sizing, held scrollers,
+recovery, models/styles, scales/accessibility, derivatives/deployment and the
+Firefox viewport/target port. Browser toolbar/address bar/tabs retain their
+components; future UI changes remain app-specific patches over the shared layer.
