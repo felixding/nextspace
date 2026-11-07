@@ -138,6 +138,14 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
  check(p,"native-item-hits-match-independent-native-view-and-cell-tests",hits_match);
  check(p,"item-hit-queries-preserve-native-selection-focus-and-actions",!memcmp(&hit_before,&hit_after,sizeof(hit_before))&&hit_focus==nxs_control_focused(p->control));
  NSRect visible=[input_matrix visibleRect];NSSize content=[input_matrix bounds].size;
+ char rows_path[1024];snprintf(rows_path,sizeof(rows_path),"%s/%s-rows.bin",p->directory,name);
+ FILE *row_file=fopen(rows_path,"wb");assert(row_file);
+ for(unsigned i=0;i<p->count;i++) {
+   NSRect r=[p->reference convertRect:[input_matrix cellFrameAtRow:i column:0] fromView:input_matrix];
+   NXSRect row={r.origin.x,[p->reference isFlipped]?r.origin.y:[p->reference bounds].size.height-NSMaxY(r),r.size.width,r.size.height};
+   assert(fwrite(&row,sizeof(row),1,row_file)==1);
+ }
+ fclose(row_file);
  struct NXSListWireState expected={.count=[input_matrix numberOfRows],.selected_count=[input_selected count],
   .flags=[p->reference allowsMultipleSelection]?NXS_LIST_MULTIPLE:0,.primary=cell_id(p,input_matrix,[input_matrix selectedCell]),
   .key_cell=cell_id(p,input_matrix,[input_matrix keyCell]),.actions=p->action_base+p->data->actions,

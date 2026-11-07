@@ -1,8 +1,7 @@
 /* Gecko list model and DOM transactions only. Ordinary native NSBrowser owns
  * rows, scrolling, selection, focus, navigation, drawing and mouse tracking. */
 #include "pinned-lists.h"
-#include "../../Libraries/NativeUI/Bridge/Lists.inc"
-#include "../../Libraries/NativeUI/Bridge/ListBinding.inc"
+#include "pinned-list-geometry.h"
 struct GeckoList {
   struct GeckoList *next;
   void *frame,*node;
@@ -16,6 +15,7 @@ static __thread void *list_pointer_event_seen;
 static int list_pointer_event(struct GeckoList *,void *);
 static int native_lists_exist(void){return gecko_lists!=NULL;}
 static void *list_multiple_atom;
+static int list_layout_rows(struct GeckoList *);
 _Static_assert(NXS_GECKO_LIST_DISPLAY==NXS_GECKO_TEXT_SCROLL_DISPLAY_OFFSET,"One shared scroll-container display boundary");
 static struct GeckoList *list_find(const void *frame)
 {for(struct GeckoList *list=gecko_lists;list;list=list->next)if(list->frame==frame)return list;return NULL;}
@@ -61,6 +61,7 @@ static int prepare_list_image(void *frame)
     list->frame=frame;list->node=*(void **)((char *)frame+24);list->binding.control=++next_widget;
     list->next=gecko_lists;gecko_lists=list;
   }
+  int existing=list->binding.created&&list->binding.epoch==atomic_load(&native_host_epoch);
   list->owned=0;
   int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
   double width=rect[2]/60.,height=rect[3]/60.;
@@ -70,10 +71,16 @@ static int prepare_list_image(void *frame)
   void *manager=*(void **)(base+0xa439c38);int focused=manager&&*(void **)((char *)manager+128)==list->node;
   int okay=items&&list_flags(list->node,&flags)&&native_list_binding_sync(&list->binding,items,model.packet->count,flags,
     width,height,!(*(uint64_t *)((char *)list->node+112)&16),focused);
+  if(okay&&!existing) {
+    struct PointI position=viewport_engine_position(frame);
+    okay=native_list_binding_scroll(&list->binding,position.x/60.,position.y/60.);
+  }
   if(okay&&(list->binding.pixel_width!=lround(width)||list->binding.pixel_height!=lround(height)))okay=0;
   native_list_binding_free_items(items,items?model.packet->count:0);
   if(okay&&!list->binding.tracking) {popup_model_free(&list->model);list->model=model;memset(&model,0,sizeof(model));}
-  popup_model_free(&model);list->owned=okay;return okay;
+  popup_model_free(&model);list->owned=okay;
+  uint64_t id=list->binding.control;if(okay)okay=list_layout_rows(list);
+  list=list_find_id(id);if(list)list->owned=okay;return list&&okay;
 }
 static int native_list_owned(const void *frame)
 {struct GeckoList *list=list_find(frame);return list&&list->owned;}
@@ -115,6 +122,64 @@ static void native_list_release_context(void *context)
 }
 static void list_invalidate(struct GeckoList *list)
 {((void (*)(void *,unsigned,int))(base+0x6e85c5c))(list->frame,0,1);}
+static int list_viewport(const void *frame,struct FrameViewport *data,int refresh)
+{
+  struct GeckoList *list=list_find(frame);
+  if(!list||!list->owned||!native_list_frame(frame))return 0;
+  uint64_t id=list->binding.control;
+  if(refresh&&!native_list_binding_refresh(&list->binding))return 0;
+  list=list_find_id(id);
+  if(!list||list->frame!=frame||!list->owned||!list->binding.geometry_ready||
+     list->binding.epoch!=atomic_load(&native_host_epoch)||!native_list_frame(frame))return 0;
+  struct NXSListWireState state=list->binding.state;
+  *data=(struct FrameViewport){.frame=list->frame,.node=list->node,.id=id,
+    .kind=NXS_LISTBOX,.epoch=list->binding.epoch,.geometry=list->binding.geometry,
+    .native={.size=sizeof(NXSTextViewport),.visible={state.visible.x,state.visible.y,state.visible.width,state.visible.height},
+      .content={state.content_width,state.content_height}}};return 1;
+}
+static int list_viewport_scroll(const struct FrameViewport *data,double x,double y)
+{
+  struct GeckoList *list=list_find_id(data->id);
+  return list&&list->node==data->node&&list->frame==data->frame&&native_list_binding_scroll(&list->binding,x,y);
+}
+static int list_viewport_wheel(const struct FrameViewport *data,const NXSWheelEvent *wheel)
+{
+  struct GeckoList *list=list_find_id(data->id);
+  return list&&list->node==data->node&&list->frame==data->frame&&native_list_binding_wheel(&list->binding,wheel);
+}
+/* Bind the original engine boxes to actual native row measurements. The
+ * original SetRect preserves overflow bookkeeping; no row layout is copied. */
+static int list_layout_rows(struct GeckoList *list)
+{
+  uint64_t id=list->binding.control;void *owner=list->frame,*root=list->node;
+  unsigned count=list->model.packet?list->model.packet->count:0;
+  for(unsigned i=0;i<count;i++) {
+    void *node=list->model.nodes[i];
+    if(list->model.indices[i]<0)continue;
+    ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_ADDREF))(node);
+    struct NXSRectD row;struct NXSListWireState state;
+    int okay=native_list_item_geometry(id,(uintptr_t)node,&row,&state);
+    list=list_find_id(id);
+    if(!okay||!list||list->frame!=owner||list->node!=root||state.count!=count||
+       !list->binding.geometry_ready||!native_list_frame(owner)) {
+      ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_RELEASE))(node);return 0;
+    }
+    void *frame=*(void **)((char *)node+96);
+    if(frame&&((void *(*)(void *,unsigned))(base+NXS_GECKO_TEXT_NEAREST_SCROLL_OFFSET))(frame,3)==owner) {
+      void *parent=*(void **)((char *)frame+48);
+      void *document=*(void **)((char *)owner+NXS_GECKO_VIEWPORT_SCROLLED_FRAME_BYTE);
+      if(parent&&document) {
+        struct PointI offset=((struct PointI (*)(const void *,const void *))(base+NXS_GECKO_LIST_GEOMETRY_FRAME_OFFSET))(parent,document);
+        NXSRect clip=list->binding.geometry.clip;
+        struct ViewportRect rect={lround((row.x-clip.x+state.visible.x)*60)-offset.x,
+          lround((row.y-clip.y+state.visible.y)*60)-offset.y,lround(row.width*60),lround(row.height*60)};
+        ((void (*)(void *,const struct ViewportRect *,int))(base+NXS_GECKO_LIST_GEOMETRY_SET_RECT))(frame,&rect,0);
+      }
+    }
+    ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_RELEASE))(node);
+  }
+  return 1;
+}
 static void native_list_model_changed(void *node)
 {for(struct GeckoList *list=gecko_lists;list;list=list->next)if(list->node==node)list_invalidate(list);}
 static void list_after_input(uint64_t id,uint64_t actions)
@@ -147,7 +212,10 @@ static void list_after_input(uint64_t id,uint64_t actions)
       ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_RELEASE))(node);
     }
   }
-  list=list_find_id(id);if(list&&prepare_list_image(list->frame))list_invalidate(list);
+  list=list_find_id(id);
+  if(list&&prepare_list_image(list->frame)) {
+    echo_native_viewport(list->frame);list=list_find_id(id);if(list)list_invalidate(list);
+  }
 }
 static int native_list_post(void *node,void *visitor)
 {
@@ -205,6 +273,7 @@ static void native_list_pointer_post(void *event)
   struct GeckoList *list=list_find_id(list_tracking_id);if(list)list_pointer_event(list,event);
 }
 
+#include "list-hits.inc"
 static struct Detour list_detours[]={
   /* Installed only when text did not already install this same boundary. */
   {NXS_GECKO_LIST_DISPLAY,gecko_list_display_bytes,text_scroll_display,(void **)&original_text_scroll_display}

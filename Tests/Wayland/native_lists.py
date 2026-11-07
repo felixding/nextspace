@@ -113,8 +113,10 @@ def run(f):
  # native gesture, rather than reconstructing an incomplete visual oracle.
  reference,observed=f.ordinary_gesture();time.sleep(.15);data=f.control_model('list');origin=f.origin()
  x=round(origin[0]+data['rect']['x']);y=round(origin[1]+data['rect']['y'])
- actual=f.image('after-outside-release').crop((x,y,x+180,y+96));actual.save(f.root/'after-outside-release-actual.png')
- f.check('after-outside-release-whole-original-native-pixels',ImageChops.difference(actual,reference).getbbox() is None,native=observed)
+ def compared():
+  actual=f.image('after-outside-release').crop((x,y,x+180,y+96));actual.save(f.root/'after-outside-release-actual.png')
+  return ImageChops.difference(actual,reference).getbbox() is None
+ f.check('after-outside-release-whole-original-native-pixels',f.wait(compared),native=observed)
  owner=next(x for x in reversed(f.records()) if x['event']=='native-form-control' and x.get('kind')==13)
  retired=lambda:any(x['event']=='native-form-destroy' and x.get('kind')==13 and x.get('control')==owner['control'] and x.get('process')==owner['process'] for x in f.records())
  f.js('list.addEventListener("change",()=>list.remove(),{once:true});return true');f.clear();f.key(108)

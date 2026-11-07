@@ -1,0 +1,499 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "fdf07597",
+  "status": "pinned-firefox-native-list-viewport-and-point-targets-qualified-broader-integration-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 584,
+  "shared_ui_unchanged": true,
+  "candidate_files": {
+    "adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-scroll-07-hook.so",
+      "bytes": 163440,
+      "sha256": "e0087b40bf3409802f35239bc7b6207721037f764303d5168d65fca697201132"
+    },
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-scroll-07-repro.so",
+      "bytes": 163440,
+      "sha256": "e0087b40bf3409802f35239bc7b6207721037f764303d5168d65fca697201132"
+    },
+    "ordinary_metadata_probe": {
+      "path": "/var/tmp/nextspace-native-ui/native-list-item-geometry-reference-01",
+      "bytes": 98872,
+      "sha256": "6a893722e0b6d6740f25847b3d225e1710d6b88fd7a90c71cada12389e43a78f"
+    },
+    "wire_metadata_probe": {
+      "path": "/var/tmp/nextspace-native-ui/native-list-item-geometry-wire-01",
+      "bytes": 75248,
+      "sha256": "ce81a8939f8325a0e01d1d5f5c63b609aa628a0d9ace8029c374a6ebc227b4ee"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_point_hits": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-12",
+        "results_file": "list-scroll-results.json",
+        "checks": 40,
+        "native_images": 12,
+        "sha256": "b825fc226960cf064e14b7b313bbc1fa56962a9af8c6b7cb08c89762dc2a6590"
+      },
+      "flat_list": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-13",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "4cb1212a541490064815b21c38eb23dead76a3812aeaab8ccfb15c61b908004e"
+      },
+      "form": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-12",
+        "results_file": "form-results.json",
+        "checks": 102,
+        "native_images": 28,
+        "sha256": "b3515de554363d029a3e76eae971001e10586c8556c5217d7b0777ab97e84c90"
+      },
+      "radio": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-12",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "ca6320f266653164968240fb5d2d57586527b8a234ea925847a9b42dc958e48c"
+      },
+      "popup": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-12",
+        "results_file": "popup-results.json",
+        "checks": 74,
+        "native_images": 29,
+        "sha256": "c8e8ae990691e183455bc7db9d05c43a8177d6eabe35d614c6a648a43d0adbe2"
+      },
+      "button_text": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-12",
+        "results_file": "button-results.json",
+        "checks": 108,
+        "native_images": 48,
+        "sha256": "d318ea4b5dc51adbabeb57a12612750da62c06f916b1998b01d302905301cffc"
+      },
+      "chromium_point_compatibility": {
+        "path": "/var/tmp/nxs-firefox-list-metadata-chromium-03",
+        "results_file": "list-scroll-results.json",
+        "checks": 40,
+        "native_images": 12,
+        "sha256": "bf5736a896ae39c67925b8d0496c016280ae756d2baeefd376f5344c6bfaeddb"
+      },
+      "chromium_flat_compatibility": {
+        "path": "/var/tmp/nxs-firefox-list-metadata-chromium-03",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "1df3b88012ae5f9b4ffe6fc2497275899d66c969a9dd13b78385366be370e3a3"
+      },
+      "previous_568": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-old-568",
+        "results_file": "fallback-results.json",
+        "checks": 4,
+        "native_images": 0,
+        "sha256": "3042d2c0e794d5932e0b5c3bc897b1272b90dcb6668f68ad0b3c0049a3996c41"
+      },
+      "previous_576": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-old-576",
+        "results_file": "fallback-results.json",
+        "checks": 4,
+        "native_images": 0,
+        "sha256": "bdcda975f122d9fc21007e0431d700f36cbc23bc6f4a802e0ad6131a3d67c59a"
+      },
+      "paired_metadata_reference": {
+        "path": "/var/tmp/nxs-list-item-geometry-reference-01",
+        "results_file": "results.json",
+        "checks": 198,
+        "native_images": 26,
+        "sha256": "bd36438d81cb600f35dce6ccef5e8efa78d3a96fa14675e577a67fd6f0426754"
+      },
+      "paired_metadata_wire": {
+        "path": "/var/tmp/nxs-list-item-geometry-wire-01",
+        "results_file": "results.json",
+        "checks": 458,
+        "native_images": 26,
+        "sha256": "ba3f94a616f532c97fe32002382d1fd7d42eac5db0efd87872959ab0a78eda92"
+      },
+      "paired_metadata_previous-client": {
+        "path": "/var/tmp/nxs-list-item-geometry-previous-client-01",
+        "results_file": "results.json",
+        "checks": 378,
+        "native_images": 26,
+        "sha256": "3fc832d346f5ce299901d9ff4063c2c7d82de50fff3f7ac087c9c2f616c879d3"
+      },
+      "textarea_viewport": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-12/textarea-viewport",
+        "results_file": "results.json",
+        "checks": 26,
+        "native_images": 8,
+        "sha256": "3445a7f1f91262891e4737b420fec2ce3812f46794bc69c322880e12ec4e1cba",
+        "excluded": [
+          "host-replacement",
+          "independent-seat-wheel-probe"
+        ]
+      },
+      "textarea_wheel": {
+        "path": "/var/tmp/nxs-firefox-list-scroll-13/textarea-wheel",
+        "results_file": "results.json",
+        "checks": 34,
+        "native_images": 9,
+        "sha256": "4076add740e2c18629d9f20e40ace6c8f4f7bc17e11156256267bede52db2a9e",
+        "excluded": [
+          "host-replacement",
+          "independent-seat-wheel-probe"
+        ]
+      }
+    },
+    "scoped_checks": 1628,
+    "complete_native_images": 279,
+    "browser_scale": 1,
+    "shared_provider_regressions_rerun": false
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "api": {
+      "version": 1,
+      "size": 584
+    },
+    "sandbox": {
+      "firefox": [
+        {
+          "pid": 198890,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 198923,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "chromium": [
+        {
+          "pid": 200487,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 200498,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 200499,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "live_owned": []
+  },
+  "source_audit": "list-scroll-source-audit.json",
+  "cleanup": {
+    "nxs-firefox-list-metadata-chromium-01": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-metadata-chromium-02": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-metadata-chromium-03": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-01": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-02": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-03": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-04": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-05": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-06": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-07": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-08": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-09": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-10": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-11": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-12": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-13": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-old-568": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-list-scroll-old-576": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-list-item-geometry-previous-client-01": [
+      {
+        "pid": 195703,
+        "exit": 0
+      },
+      {
+        "pid": 195706,
+        "exit": -15
+      },
+      {
+        "pid": 195709,
+        "exit": 0
+      },
+      {
+        "pid": 195710,
+        "exit": -15
+      },
+      {
+        "pid": 195711,
+        "exit": 0
+      }
+    ],
+    "nxs-list-item-geometry-reference-01": [
+      {
+        "pid": 195660,
+        "exit": 0
+      },
+      {
+        "pid": 195663,
+        "exit": -15
+      },
+      {
+        "pid": 195664,
+        "exit": 0
+      },
+      {
+        "pid": 195668,
+        "exit": 0
+      }
+    ],
+    "nxs-list-item-geometry-wire-01": [
+      {
+        "pid": 195674,
+        "exit": 0
+      },
+      {
+        "pid": 195677,
+        "exit": -15
+      },
+      {
+        "pid": 195680,
+        "exit": 0
+      },
+      {
+        "pid": 195681,
+        "exit": -15
+      },
+      {
+        "pid": 195682,
+        "exit": 0
+      },
+      {
+        "pid": 195683,
+        "exit": -15
+      },
+      {
+        "pid": 195684,
+        "exit": 0
+      },
+      {
+        "pid": 195685,
+        "exit": -15
+      },
+      {
+        "pid": 195686,
+        "exit": 0
+      }
+    ]
+  },
+  "observations": [
+    "Final Firefox adapter passes 40 overflowing-list/point checks and 12 complete images, 34 flat-list checks/13 images, form activation 102/28, radio 94/29, popup 74/29 and button/text 108/48. Existing textarea suites reused through an owned-fixture transport adapter pass viewport 26 checks/8 images and wheel 34/9. Host replacement and the independent seat wheel probe were excluded from those textarea reruns.",
+    "Native clip/document/row rectangles, script scroll/clamp, real-seat default wheel without a page handler, cancellation, native key/script reveal, resize and appearance restoration match ordinary GNUstep controls. Shared native point queries now name the same OPTION as native selection, preserving original down/up/click, hover/related targets, point queries, overlays and page scrolling.",
+    "NativeUI operation 50 pairs existing row and state measurements in one UI dispatch. Ordinary native reference 198/26, new C transport 458/26 and unchanged previously compiled transport 378/26 pass; the new C transport also exercises actual older SDKs. Existing rectangle-only callers remain compatible. No native UI ABI/provider/loader change.",
+    "Unchanged Chromium adapter passes 40 point/scroll checks/12 images and 34 flat-list checks/13 images against the updated helper. Actual Firefox older API 1/568 and 1/576 SDK fallbacks each pass four checks without claiming native list ownership.",
+    "Only small isolated Firefox adapters and metadata test probes were compiled. The final adapter source reproduction is byte-identical. All 20 measured production hashes, earlier candidates and shared SDK remain unchanged, with 1050 packages, descendant renderer Seccomp=2/NoNewPrivs=1 and no owned candidate mappings after cleanup.",
+    "Failed prototypes are retained and excluded from final counts: original rows had engine geometry, root-only hits reported SELECT, root-only wheel regions missed descendant ownership, and Layout-only filtering skipped actual Visual-viewport mouse queries. Original TransformPoint and original weak-frame array insertion resolve the measured target mismatch without copied hit/layout algorithms.",
+    "The cancellation recorder initially assigned a sandbox global instead of its observed window property; explicit window assignment and an event predicate fix the harness. The textarea transport adapter initially omitted its firefox() dispatch wrapper; viewport checks passed before that harness error, and a corrected separate wheel run passes.",
+    "One Chromium compatibility run lost its renderer/CDP response during multiple selection. A second captured refocus before its native dotted key-cell indicator arrived. A bounded complete-image predicate replaces that fixed-delay capture; the final fresh run passes. The single renderer loss is retained as an unresolved observation, not explained away by the timing fix."
+  ],
+  "open": [
+    "Broader rectangle/list-based hit-result contracts, including elementsFromPoint, larger hit areas and arbitrary transforms/styles; this qualification tests point contracts only.",
+    "Richer grouped/hidden/large models, intrinsic sizing and broader browser geometry APIs, held-scroller synchronization, native-host recovery/failure paths, metadata/model-refresh performance, scaling/zoom, IME and accessibility.",
+    "The isolated Chromium renderer/CDP loss observed during one compatibility attempt; no causal fix or crash-free guarantee is claimed.",
+    "Remaining browser webpage controls, complete detached menus and native shortcuts, derivative builds and installed deployment, then GTK/Qt/KDE using the same common layer.",
+    "Browser toolbar, address bar and tabs retain existing components. Optional future changes use app-specific patches above the shared bridge/native UI library."
+  ],
+  "stderr_notices": {
+    "count": 33,
+    "paths": [
+      "/var/tmp/nxs-firefox-list-metadata-chromium-01/list-test.stderr",
+      "/var/tmp/nxs-firefox-list-metadata-chromium-01/browser.stderr",
+      "/var/tmp/nxs-firefox-list-metadata-chromium-02/list-test.stderr",
+      "/var/tmp/nxs-firefox-list-metadata-chromium-02/browser.stderr",
+      "/var/tmp/nxs-firefox-list-metadata-chromium-03/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-01/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-01/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-02/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-03/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-03/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-04/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-04/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-05/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-05/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-06/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-06/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-07/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-07/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-08/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-08/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-09/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-09/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-10/scroll-test.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-10/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-11/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-12/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-12/helper.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-13/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-old-568/browser.stderr",
+      "/var/tmp/nxs-firefox-list-scroll-old-576/browser.stderr",
+      "/var/tmp/nxs-list-item-geometry-previous-client-01/compositor.stderr",
+      "/var/tmp/nxs-list-item-geometry-reference-01/compositor.stderr",
+      "/var/tmp/nxs-list-item-geometry-wire-01/compositor.stderr"
+    ],
+    "full_text": "runtime-audit.json in the verified evidence archive"
+  }
+}

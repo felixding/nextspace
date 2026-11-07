@@ -5,7 +5,8 @@ static uint32_t wheel_hit_info(void *frame,void *builder) {
   uint32_t result=original_wheel_hit_info(frame,builder);
   /* The engine uses the same flag for its built-in range handlers. APZ must
    * wait for this real native widget, including pages without DOM listeners. */
-  if(wheel_enabled&&(result&1)&&viewport_widget(frame))result|=4;
+  struct FrameViewport data;void *owner=wheel_enabled?viewport_frame(frame):NULL;
+  if(wheel_enabled&&(result&1)&&owner&&viewport_data(owner,&data,0))result|=4;
   return result;
 }
 static int native_wheel_post(void *event,void *frame,int *status) {
@@ -14,24 +15,31 @@ static int native_wheel_post(void *event,void *frame,int *status) {
   /* Reuse Gecko's current wheel action preferences, preserving app zoom and
    * history commands. Exact-build Maybe<APZWheelAction>::Some(Scroll)=0x100. */
   if(((uint16_t (*)(const void *))(base+NXS_GECKO_WHEEL_APZ_ACTION_OFFSET))(event)!=0x100)return 0;
-  struct Widget *w=viewport_widget(text_pointer_frame(frame));
-  if(!w||!w->text_owned)return 0;
+  void *native_frame=viewport_frame(frame);struct FrameViewport data;
+  if(!native_frame||!viewport_data(native_frame,&data,0))return 0;
   unsigned mode=*(const uint32_t *)((const char *)event+NXS_GECKO_WHEEL_MODE_BYTE);
   if(mode>1)return 0;
   const double *delta=(const double *)((const char *)event+(mode?NXS_GECKO_WHEEL_TICKS_BYTE:NXS_GECKO_WHEEL_DELTA_BYTE));
   double dx=delta[0]*(mode?10:1),dy=delta[1]*(mode?10:1);
   if(!isfinite(dx)||!isfinite(dy))return 0;
-  void *node=w->node,*native_frame=w->frame;uint64_t id=w->id;
+  void *node=data.node;uint64_t id=data.id;
   ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
-  if(!sync_text_widget(w)){((unsigned (*)(void *))(base+0x47ba6b8))(node);return 0;}
-  struct PointI point=widget_point(w,event);
-  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=35,
-    .process=identity(),.kind=NXS_TEXTAREA,.control=id,.x=point.x/60.,.y=point.y/60.,
-    .minimum=dx,.maximum=dy,.modifiers=widget_modifiers(event)};
-  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
-  int received=!!response,accepted=response&&response->parts[3].x==1;
-  w=widget_for_node(node);
-  if(accepted&&w&&w->id==id&&w->frame==native_frame)echo_text_viewport(w);
+  struct Widget *text=data.kind==NXS_TEXTAREA?widget_for_node(node):NULL;
+  int ready=data.kind==NXS_LISTBOX?prepare_list_image(native_frame):
+    text&&text->id==id&&text->frame==native_frame&&text->text_owned&&sync_text_widget(text)!=NULL;
+  if(!ready||!viewport_data(native_frame,&data,0)||data.id!=id||data.node!=node){((unsigned (*)(void *))(base+0x47ba6b8))(node);return 0;}
+  struct PointI point=((struct PointI (*)(const void *,struct RelativeTo))(base+0x6da35a8))(event,(struct RelativeTo){native_frame,0});
+  NXSWheelEvent wheel={.size=sizeof(wheel),.x=point.x/60.,.y=point.y/60.,.delta_x=dx,.delta_y=dy,.modifiers=widget_modifiers(event)};
+  int received,accepted;
+  if(data.kind==NXS_LISTBOX)received=accepted=list_viewport_wheel(&data,&wheel);
+  else {
+    struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=35,
+      .process=identity(),.kind=data.kind,.control=id,.x=wheel.x,.y=wheel.y,
+      .minimum=dx,.maximum=dy,.modifiers=wheel.modifiers};
+    struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+    received=!!response;accepted=response&&response->parts[3].x==1;
+  }
+  if(accepted)echo_native_viewport(native_frame);
   if(received) {
     /* Default-handler cancellation is hidden from content's defaultPrevented
      * getter, but tells APZ that the native control consumed this wheel block. */

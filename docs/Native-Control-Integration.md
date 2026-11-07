@@ -693,7 +693,7 @@ The original viewport qualification preserves a failing diagnostic where the
 native selection and DOM pointer target named different rows. The pinned
 Chromium point-hit path now consumes the shared native query, resolving that
 measured mismatch. Complete native browser integration remains open, including
-the Firefox viewport/target port; later GTK/Qt/KDE adapters must consume the
+broader viewport/target contracts; later GTK/Qt/KDE adapters must consume the
 same native measurements and hit behavior.
 
 
@@ -710,6 +710,19 @@ point; no UI hit algorithm or node-reference implementation is copied. Original
 down/up/click, point queries, mouse/pointer hover and related targets,
 cancellation, overlays and page scrolling are checked; see
 [qualification](../Experiments/ChromiumScrollers/list-hit-qualification.json).
-Rectangle/list-based hit contracts, Firefox viewport/target integration and
-broader lifecycle/layout/scaling contracts remain open. Toolbars, address bars
+Broader rectangle/list-based hit and lifecycle/layout/scaling contracts remain
+open. Toolbars, address bars
 and tabs stay original, with future UI changes in app-specific patches.
+
+
+The pinned Firefox list consumer now shares the text scroll-container viewport
+and wheel boundaries, consuming the same native geometry and item-hit APIs.
+Original Gecko rectangle/scroll setters bind the measured native rows and clip
+to DOM layout, scrolling and reveal. The original common frame-hit traversal,
+coordinate transform and array insertion bind native row IDs to existing option
+frames. Trusted pointer targets, hover/related targets, cancellation, overlays
+and page scrolling use the original engine event path. See
+[Firefox viewport/point qualification](../Experiments/FirefoxNativeUI/list-scroll-qualification.json).
+A small shared transport extension pairs existing native row/state measurements;
+it adds no control implementation or native ABI. GTK/Qt/KDE consumers will reuse
+that shared layer, with patches only for app-specific integration.

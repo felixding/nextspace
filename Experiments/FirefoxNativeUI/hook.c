@@ -24,6 +24,9 @@ static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",get
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
 #include "../../Libraries/NativeUI/Bridge/Radios.inc"
+#include "../../Libraries/NativeUI/Bridge/Lists.inc"
+#include "../../Libraries/NativeUI/Bridge/ListBinding.inc"
+#include "../../Libraries/NativeUI/Bridge/ItemHits.inc"
 static void writable(void *p,size_t size,int protect) {
   uintptr_t start=(uintptr_t)p&~(uintptr_t)(getpagesize()-1);
   size_t length=((uintptr_t)p+size-start+getpagesize()-1)&~(size_t)(getpagesize()-1);
@@ -67,6 +70,18 @@ static int native_web_process(void) {
 }
 static int tabs_requested,tabs_trace_enabled;
 static int popups_requested,lists_requested;
+/* Engine-frame metadata shared by native text and list scroll consumers. */
+struct FrameViewport {
+  void *frame,*node;
+  uint64_t id;
+  uint32_t epoch;
+  int kind;
+  NXSScrollGeometry geometry;
+  NXSTextViewport native;
+};
+static int list_viewport(const void *,struct FrameViewport *,int);
+static int list_viewport_scroll(const struct FrameViewport *,double,double);
+static int list_viewport_wheel(const struct FrameViewport *,const NXSWheelEvent *);
 static int native_list_frame(const void *);
 static int native_list_owned(const void *);
 static int prepare_list_image(void *);
@@ -190,7 +205,7 @@ static void install(void) {
      memcmp((void *)(base+0x589f280),(unsigned char[]){0x5f,0x24,0x03,0xd5,0x00,0x10,0x7e,0x1e},8)||
      !prepare_detours(detours,sizeof(detours)/sizeof(*detours))) {note("Gecko layout/instruction guard failed; unchanged");return;}
   if(multiline_enabled&&!guard_multiline_calls()){note("Gecko multiline guard failed; unchanged");return;}
-  if(multiline_viewport_enabled&&(!guard_viewport_calls()||!prepare_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours)))){note("Gecko viewport guard failed; unchanged");return;}
+  if((multiline_viewport_enabled||lists_requested)&&(!guard_viewport_calls()||!prepare_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours)))){note("Gecko viewport guard failed; unchanged");return;}
   if(wheel_enabled&&(!guard_wheel_calls()||!prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours)))){note("Gecko wheel guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
   if(widgets_enabled&&(!guard_checkbox_calls()||!prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours)))){note("Gecko checkbox activation guard failed; unchanged");return;}
@@ -203,7 +218,9 @@ static void install(void) {
   if(!prepare_background_bindings()){note("Gecko native background guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_frontend_bindings()){note("Gecko owned-background guard failed; unchanged");return;}
   if(popups_requested&&(!guard_popup_calls()||!prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))){note("Gecko select guard failed; unchanged");return;}
-  if(lists_requested&&(!guard_list_calls()||(!texts_enabled&&!prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))){note("Gecko list guard failed; unchanged");return;}
+  if(lists_requested&&(!guard_list_calls()||!guard_list_geometry_calls()||!guard_list_hit_calls()||
+     !prepare_detours(list_hit_detours,sizeof(list_hit_detours)/sizeof(*list_hit_detours))||
+     (!texts_enabled&&!prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))){note("Gecko list guard failed; unchanged");return;}
   if(!prepare_geometry()){note("Gecko geometry guard failed; unchanged");return;}
   if(tabs_requested&&!prepare_tabs()){note("Gecko tab guard failed; unchanged");return;}
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
@@ -218,11 +235,12 @@ static void install(void) {
   if(buttons_enabled||popups_requested){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note(buttons_enabled?"native Gecko input buttons installed":"native Gecko block display binding installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
   if(texts_enabled){activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));note("native Gecko text bindings installed");}
-  if(multiline_viewport_enabled){activate_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours));note("native Gecko multiline viewport installed");}
+  if(multiline_viewport_enabled||lists_requested){activate_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours));note("native Gecko shared scroll viewport installed");}
   if(wheel_enabled){activate_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours));note("native Gecko wheel binding installed");}
   if(widgets_enabled){activate_detours(frontend_detours,sizeof(frontend_detours)/sizeof(*frontend_detours));note(frontend_requested?"native Gecko frontend text binding installed":"native Gecko webpage background binding installed");}
   if(popups_requested){activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));note("experimental native Gecko select binding installed");}
-  if(lists_requested){if(!texts_enabled)activate_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours));note("experimental native Gecko list binding installed");}
+  if(lists_requested){if(!texts_enabled)activate_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours));
+    activate_detours(list_hit_detours,sizeof(list_hit_detours)/sizeof(*list_hit_detours));note("experimental native Gecko list binding installed");}
   if(tabs_requested){activate_detours(tabs_detours,sizeof(tabs_detours)/sizeof(*tabs_detours));note("experimental native Gecko tab container installed");}
   if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));note("native Gecko external menu lifecycle binding installed");}
   if(menu_keys_requested){activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));note("native Gecko global menu key binding installed");}

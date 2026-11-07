@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "fdf07597",
+  "status": "native-list-paired-row-state-metadata-qualified",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 584,
+  "provider_loader_unchanged": true,
+  "transport": {
+    "operation": 50,
+    "capability": "bootstrap part 2.y = NXS_LIST_ITEM_GEOMETRY",
+    "compatibility": "Original part-6 rectangle retained; existing state/selection appended from one native dispatch"
+  },
+  "verification": {
+    "runs": {
+      "paired_metadata_reference": {
+        "path": "/var/tmp/nxs-list-item-geometry-reference-01",
+        "results_file": "results.json",
+        "checks": 198,
+        "native_images": 26,
+        "sha256": "bd36438d81cb600f35dce6ccef5e8efa78d3a96fa14675e577a67fd6f0426754"
+      },
+      "paired_metadata_wire": {
+        "path": "/var/tmp/nxs-list-item-geometry-wire-01",
+        "results_file": "results.json",
+        "checks": 458,
+        "native_images": 26,
+        "sha256": "ba3f94a616f532c97fe32002382d1fd7d42eac5db0efd87872959ab0a78eda92"
+      },
+      "paired_metadata_previous-client": {
+        "path": "/var/tmp/nxs-list-item-geometry-previous-client-01",
+        "results_file": "results.json",
+        "checks": 378,
+        "native_images": 26,
+        "sha256": "3fc832d346f5ce299901d9ff4063c2c7d82de50fff3f7ac087c9c2f616c879d3"
+      }
+    },
+    "scoped_checks": 1034,
+    "complete_native_images": 78,
+    "browser_compatibility": "../../Experiments/FirefoxNativeUI/list-scroll-qualification.json"
+  },
+  "open": [
+    "Broader tracking/recovery and browser lifecycle/performance qualification.",
+    "No new native control implementation or native ABI is introduced."
+  ]
+}

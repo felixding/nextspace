@@ -997,5 +997,19 @@ hits across a grid at 1x/2x, including scrolling, disabled cells and clip edges.
 See [item hit qualification](item-hit-qualification.json). The pinned Chromium
 adapter now consumes this query through its original point-hit result path;
 see [browser qualification](../../Experiments/ChromiumScrollers/list-hit-qualification.json).
-Firefox and rectangle/list-based browser hit contracts remain separate work.
+The pinned Firefox consumer also uses this shared query through original
+Gecko frame traversal and coordinate conversion; see its
+[qualification](../../Experiments/FirefoxNativeUI/list-scroll-qualification.json).
+Broader rectangle/list-based browser hit contracts remain separate work.
 Existing browser toolbar/address bar/tabs stay original.
+
+
+List operation 50 now additionally returns the existing list state/selection
+payload from the same native dispatch as its row rectangle. Bootstrap part 2.y
+advertises NXS_LIST_ITEM_GEOMETRY. Shared Lists.inc parses that paired metadata
+so consumers can bind document rows without racing the native tracking offset.
+The original part-6 rectangle remains compatible with existing clients. This
+extends transport metadata, with no provider/loader ABI or UI implementation
+change. The ordinary-window and C transport probes compare actual native row
+rectangles and state, including an unchanged previously compiled client; see
+[paired metadata qualification](list-item-geometry-qualification.json).

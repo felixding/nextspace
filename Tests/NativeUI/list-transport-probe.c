@@ -39,13 +39,21 @@ static void expected(const char *name)
   check("native-scroll-geometry-matches-ordinary-reference-through-IPC",native_list_geometry(1,&geometry)&&geometry.size==sizeof(geometry)&&
     !memcmp(&geometry.clip,&wanted.clip,sizeof(geometry)-offsetof(NXSScrollGeometry,clip)));
   snprintf(path,sizeof(path),"%s/%s-hits.bin",reference,name);in=fopen(path,"rb");assert(in);
-  double point[2];uint64_t identifier;unsigned samples=0;int okay=1;
+  double point[2];uint64_t hit_identifier;unsigned samples=0;int okay=1;
   while(fread(point,sizeof(point),1,in)==1) {
-    assert(fread(&identifier,sizeof(identifier),1,in)==1);uint64_t actual=0;
-    if(!native_control_item_at_point(NXS_LISTBOX,1,point[0],point[1],&actual)||actual!=identifier)okay=0;
+    assert(fread(&hit_identifier,sizeof(hit_identifier),1,in)==1);uint64_t actual=0;
+    if(!native_control_item_at_point(NXS_LISTBOX,1,point[0],point[1],&actual)||actual!=hit_identifier)okay=0;
     samples++;
   }
   assert(feof(in));fclose(in);check("native-item-hits-match-ordinary-reference-through-IPC",okay&&samples>700);
+  snprintf(path,sizeof(path),"%s/%s-rows.bin",reference,name);in=fopen(path,"rb");assert(in);okay=1;
+  for(unsigned i=0;i<count;i++) {
+    struct NXSRectD row,rectangle;struct NXSListWireState state;
+    assert(fread(&row,sizeof(row),1,in)==1);
+    if(!native_list_item_geometry(1,identifier(i),&rectangle,&state)||memcmp(&row,&rectangle,sizeof(row))||memcmp(&state,&want.value,sizeof(state)))okay=0;
+  }
+  assert(fgetc(in)==EOF);fclose(in);
+  check("native-row-and-viewport-snapshot-match-the-same-ordinary-native-state",okay);
 }
 static void image(const char *name)
 {
@@ -133,6 +141,7 @@ int main(int argc,char **argv)
       assert(native_list_request(1,6,0,0,1));close(channel);printf("{\"passed\":%u,\"images\":0}\n",checks);return 0;
     }
     check("native-list-capability-crosses-shared-wire",r->parts[3].x==NXS_LIST_ITEMS);
+    check("native-row-viewport-snapshot-capability-crosses-wire",r->parts[2].y==NXS_LIST_ITEM_GEOMETRY);
     int previous_scroll=argc>5&&!strcmp(argv[5],"--expect-no-scroll");
     check("shared-scroll-capability-crosses-wire",r->parts[3].y==(previous_scroll?0:NXS_SCROLL_GEOMETRY));
     if(!previous_scroll)check("native-item-hit-capability-crosses-shared-wire",r->parts[2].x==1);

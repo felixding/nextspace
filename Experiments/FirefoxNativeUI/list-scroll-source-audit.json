@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "fdf07597",
+  "status": "pinned-firefox-native-list-viewport-and-point-binding",
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/controls.inc": "786e667e1f4b4eec9441683529573b85f768f163350aa9f4949e875790b3dfed",
+    "Experiments/FirefoxNativeUI/hook.c": "102bb3a56bc9e199644a591622a755e2831c11592204aaff58b5af4f8608677b",
+    "Experiments/FirefoxNativeUI/lists.inc": "07628783123bd8369ee6f4e2f52c7fc086d8c2cd626f458ba81958d2ee3bd0a1",
+    "Experiments/FirefoxNativeUI/list-hits.inc": "26fe005508cf51df4ad1787b31309587a27327628b8180e5315fae3aa275535f",
+    "Experiments/FirefoxNativeUI/viewport.inc": "bea5505f05ddeef84fb4ae5362156ce4ad79dc31144ad10905a8e1e710250148",
+    "Experiments/FirefoxNativeUI/wheel.inc": "2b53849a28dba118c32f2250c617e9605f40380f5ee8ec81e18c87e288fc01b9",
+    "Experiments/FirefoxNativeUI/pinned-list-geometry.h": "e1806951e054127b11f090d3f572a865deb2a58b76ff012879c9fa7c901c6cb5",
+    "Experiments/FirefoxNativeUI/pinned-list-hits.h": "def1a2fa7f7887dcf7148b8c61397b6709cd4c3b999a38db0beb525e70d4596c",
+    "Experiments/FirefoxNativeUI/README.md": "d67c14104597cbc453010adeeb19c8c2e0069958063c6074204c30d5793bb61c",
+    "Experiments/ChromiumScrollers/helper.py": "fdd0809af18f7f2da694b824340f0a1e7e810b5eba2868b4956dfcb9337dfd6b",
+    "Experiments/ChromiumScrollers/native_controls.py": "c06552ed402f573c972f120c334f629ca85dd8699687e7525d89758fa5ade22b",
+    "Libraries/NativeUI/Bridge/Lists.inc": "aa444108587ae764f0a44df15b92a32a17487db2d82de527fac8d3fd91b14cbf",
+    "Libraries/NativeUI/Bridge/Protocol.h": "d599d09a0c6f5081e31957f5c73bc8432ecc4f4cff5164d7c15b9940d885282a",
+    "Libraries/NativeUI/README.md": "78990328235b505769130a3b4628635ec5deb65b3eacbd2d6a04af7efe81bcf0",
+    "Tests/NativeUI/list-probe.m": "e4426a7df7e10661fe64758a57f68f75a19356fe08b72b630e1ef8de0d293049",
+    "Tests/NativeUI/list-transport-probe.c": "65a03ec1dc9a46e85199296903fada72763c965d1bcf42618444726e6acdf45a",
+    "Tests/Wayland/native_list_hits.py": "f6602bb7f44f454f9af14a1f10e4920abdae6640e9304907637921f87bb2beea",
+    "Tests/Wayland/native_lists.py": "0ede1af9fd2741cfbdd9e2cac89bcb1c812fd086905577c82c8418e0c278bddf",
+    "docs/Native-Control-Integration.md": "d09efb3adf38863a97fe709fc13ea4685fa6faecbd4f149dd447079b8f0a829c"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/nsLayoutUtils.cpp",
+      "bytes": 385648,
+      "sha256": "a36dc15a40d3acf81914fdfc556abb0e7a7c87a4b6f5c407ad523882a50f3ccd"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/PresShell.cpp",
+      "bytes": 476500,
+      "sha256": "ed828332158b15815aa400b160b64eac30cac1b9e83a02e7e12c2b2710af0353"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/PositionedEventTargeting.cpp",
+      "bytes": 35767,
+      "sha256": "66d269ce92f3b15dfffbf8c62708a56fcad4e1d8b397b37f83e1e1cc35e015bf"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/DocumentOrShadowRoot.cpp",
+      "bytes": 28912,
+      "sha256": "177816fdd34d12aa8aa999c6b4fd22490ffb2ff82b8c0e082798a5516a169a65"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/hit-source.json",
+      "bytes": 653,
+      "sha256": "b9c1d882fc48532ae501dee72549f3d02c6c5443feaba1228fb5eed74ee8d342"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/target-source.json",
+      "bytes": 692,
+      "sha256": "217703168bdfa8603b71abc5df582b72e99675042f541ddae58e97a81e3c3004"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/hit-transform-disassembly.txt",
+      "bytes": 2050,
+      "sha256": "202e4a6a29dd7f1caada1a51756b5c9bdbecc1eeaf4498a3aea12dc77576d744"
+    },
+    {
+      "path": ".build/native-ui/firefox-list-scroll-source/hit-array-disassembly.txt",
+      "bytes": 3940,
+      "sha256": "a3324f036cc1beacd384fa1867d728afd3c8e1844bfc90b4819e59ec62708deb"
+    },
+    {
+      "path": ".build/native-ui/firefox-select-source/layout__forms__nsListControlFrame.cpp",
+      "bytes": 34088,
+      "sha256": "916003dec654b36ff33fe4203366c32b63790a782341d400490e83152008e438"
+    },
+    {
+      "path": ".build/native-ui/firefox-select-source/layout__forms__nsListControlFrame.h",
+      "bytes": 8883,
+      "sha256": "0baf84308d03013497bad8c42d074a03242a214688e00117ab47b2de5fe2f833"
+    },
+    {
+      "path": ".build/native-ui/firefox-viewport-source/ScrollContainerFrame.cpp",
+      "bytes": 334491,
+      "sha256": "7dd6128c6f75b8be2e00ebd38041f89959fbabe7e56533f04bd3d35ffe9dab98"
+    },
+    {
+      "path": ".build/native-ui/firefox-viewport-source/ScrollContainerFrame.h",
+      "bytes": 66594,
+      "sha256": "9d9ce24af14f50db49718a102d6e861e6a2001816039bc40c434460603dcc17c"
+    },
+    {
+      "path": ".build/native-ui/firefox-button-sizing-source/nsIFrame.h",
+      "bytes": 233908,
+      "sha256": "0c35e704c757776e016bd2638caae3cdc5bf3e85984215b63c1365cf2c568f7e"
+    },
+    {
+      "path": ".build/firefox-native-ui/input-source/RelativeTo.h",
+      "bytes": 2112,
+      "sha256": "18a5af5345f70c44f0a8203d5e8cb51a1a55f0a52ee0ab0324f377b7acc9918b"
+    },
+    {
+      "path": ".build/firefox-native-ui/input-source/nsLayoutUtils.h",
+      "bytes": 149540,
+      "sha256": "cda5171ea8383332e5cb288df77fe9ebf668141af81a0561047f77b960a1823a"
+    }
+  ],
+  "pinned_calls": {
+    "GEOMETRY_SET_RECT": {
+      "offset": 115532188,
+      "bytes": "3f2303d5ff4301d1fe1b00f9f44f04a9a9a501b0e80300aa298944f9290140f9e91700f9098d40b82a0040b95f01096ba1010054290440b90a0c40b93f010a6b21010054290840b90a1040b93f010a6ba1000054290c40b90a1440b93f010a6b80050054096840b9690000343ffd0371e10100542000c03d0001803da2040036a8a501b0088944f9e91740f9080140f91f0109eb41050054f44f44a9fe1b40f9ff430191bf2303d5a52701142a7d10532c3d08532b1d00120d3842296a012a0b8961490b2000c03def030b4beb030c4be12300914a010d0b29010e0bef2f0129ea2702290a0840f9f30300aaff0f00f9f403022a49fd60d30001803dea2704296c750194e203142ae00313aaa2fb0737a8a501b0088944f9e91740f9080140f91f0109ebc1000054f44f44a9fe1b40f9ff430191bf2303d5c0035fd65225bd94"
+    },
+    "GEOMETRY_FRAME_OFFSET": {
+      "offset": 115659224,
+      "bytes": "5f2403d51f0001eb60020054e8031f2ae9031f2a0b284129001840f91f0001eb29010b0b08010a0b4000005440ffffb5610100b41f0001eb200100542b284129211840f929010b4b08010a4b81ffffb503000014e9031f2ae8031f2ae903092a208108aac0035fd6"
+    },
+    "GEOMETRY_NEAREST_SCROLL": {
+      "offset": 114962860,
+      "bytes": "3f2303d5ff0301d1fe4f03a908aa019000e4006f"
+    },
+    "HIT_FRAMES_FOR_AREA": {
+      "offset": 114978956,
+      "bytes": "3f2303d5fd7bbaa9fc6f01a9fa6702a9f85f03a9"
+    },
+    "HIT_ARRAY_LAYOUT": {
+      "offset": 114978488,
+      "bytes": "3f2303d5ff0303d1fe3b00f9fa6708a9f85f09a9f6570aa9f44f0ba9e8a901b0f30303aaf40301aa088944f9f50300aa56fc60d3080140f9e83700f9e0a901b0016445f900202b9120003fd648d03bd5186960f800e300911f0300f1e803809ae80b00f9780300b417230191f9fedf88083b40b93f03086b420a00540803019109068052ea43009108fddfc82823a99ba9abfcf029e12b9109fd9fc8092100913ffd9fc8094100912afd9fc8290080520aa10091a900a0720881009149fd9f881ffd9f88e8fedf8808050011e8fe9f882104000f29b5fcd0e8630091203946fd17210091e25b0029e2030091e3630091e00315aae10314aae40313aaf70f00f9e01300fde10700fd33000094e80f40f9291efdd0294139910a0140b92a010034000540f91f0109eb400200541f0100b9e80f40f91f0109eba10000540d000014e0031faa1f0109eb40010054090540b93f010071e9a3979a1f0109eba0000054f30300aae00308aa2c42bf94e00313aae80b40f9a80000b40841009109fddf882905005109fd9f88e8a90190088944f9e93740f9080140f91f0109eba1010054f44f4ba9fe3b40f9f6574aa9f85f49a9fa6748a9ff030391bf2303d5c0035fd6fa0302aa4d8c3b94e2031aaaacffff17e641bf94"
+    },
+    "HIT_ARRAY_INSERT": {
+      "offset": 54726644,
+      "bytes": "3f2303d5fe0f1df8f65701a9f44f02a9090040f9f50301aa280140b91f0101eba3060054f60302aa010102aba2060054280540b9f40303aaf30300aa087940923f0008eb89000054e00313aae20314aa9bb3fa97760400b4690240f9280140b90a01160b2a0100b9600240f9090040b9a90100341f0115eb400300548902159b"
+    },
+    "HIT_TRANSFORM_POINT": {
+      "offset": 114974568,
+      "bytes": "3f2303d5ff8300d1fe4f01a9e8a901d0f30304aae5030091"
+    }
+  },
+  "invariants": [
+    "NativeUI uses the existing ordinary NSBrowser/NSMatrix/NSScrollView. No control algorithm or native provider/loader ABI change; shared API remains 1/584.",
+    "Operation 50 retains its part-6 rectangle and adds existing native state/selection from one UI dispatch. Bootstrap part 2.y advertises paired geometry. The unchanged compiled old consumer is tested.",
+    "One guarded scroll-container hook serves native text and lists. Original Gecko scroll/reveal/set-rectangle methods retain layout bookkeeping and trusted events. Native UI supplies clip, document, row bounds, wheel and selection.",
+    "Original GetFramesForArea runs first. Original TransformPoint handles Layout/Visual viewport conversion; original nsTArray InsertSlotsAt preserves storage relocation and traversal ordering. Shared native point hits supply live semantic row IDs without copied UI algorithms or raw GC stores.",
+    "Root/control/frame identities are rechecked after RPC. Retired owners/rows clear weak results. Original overlays, pointer/default cancellation and event construction remain engine-owned.",
+    "Native wheel regions include descendants through the original nearest scroll owner, preserving native defaults on pages without DOM wheel handlers.",
+    "Only small isolated adapters and metadata test probes are compiled. Browser, AppKit, backend and shared UI binaries are unchanged. Toolbars, address bars and tabs stay original; future optional patches stay above the common layer reused by GTK/Qt/KDE."
+  ]
+}

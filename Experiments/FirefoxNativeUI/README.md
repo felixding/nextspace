@@ -481,7 +481,7 @@ installed desktop default.
 
 ## Native textarea wheel input
 
-`NEXTSPACE_FIREFOX_WHEEL=1` additionally requires the native multiline viewport,
+`NEXTSPACE_FIREFOX_WHEEL=1` additionally requires a native multiline or list viewport,
 the provider's existing wheel capability and the exact guards in `pinned-wheel.h`.
 The adapter forwards uncancelled input through the existing bridge operation to
 the ordinary GNUstep `NSScrollView` responder. AppKit owns line/page movement,
@@ -776,3 +776,35 @@ binaries, the unchanged NativeUI SDK and no live owned candidate mappings.
 Broader browser controls, geometry/scales, accessibility, recovery, complete
 menus/shortcuts, derivatives/deployment and subsequent GTK/Qt/KDE work remain
 unfinished.
+
+
+### Native list viewport and point targets
+
+The optional list binding now consumes the same shared scroll geometry and
+item-hit queries as Chromium. Lists and text areas share the existing guarded
+scroll-container reflow, scroll setter and wheel boundaries. Actual native clip,
+document and row measurements supply DOM geometry; original Gecko SetRect and
+scroll/reveal methods retain engine bookkeeping and trusted events. There is no
+second row layout or scrolling implementation in the adapter.
+
+Shared operation 50 pairs the original native row rectangle with its existing
+list state payload in one dispatch. Bootstrap part 2.y advertises this optional
+metadata; NativeUI remains API 1/584. Older rectangle-only consumers ignore the
+payload, and providers missing required geometry/hit capabilities retain Gecko's
+original list implementation.
+
+The original GetFramesForArea traversal runs first. Its existing list-root entry
+anchors the shared native item query. Original TransformPoint converts layout
+or visual viewport coordinates into the native owner; original nsTArray
+InsertSlotsAt inserts the live option frame before that root. Original traversal
+ordering preserves overlays. Semantic nodes are retained and frame/control
+identity is rechecked after native RPC. No hit, selection, allocation or pointer
+event algorithm is duplicated.
+
+See [viewport/point qualification](list-scroll-qualification.json) and
+[source audit](list-scroll-source-audit.json). This covers the measured pinned
+scale-1 point and scroll contracts. Rich models/styles, broader layout APIs,
+rectangle/list-based contracts, held scrollers, host/failure recovery, scaling,
+IME/accessibility, metadata performance and derivative builds/deployment remain
+open. Browser toolbar, address bar and tabs retain their existing components;
+future changes belong in optional app-specific patches above the shared layer.

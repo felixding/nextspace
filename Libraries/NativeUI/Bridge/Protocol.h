@@ -4,6 +4,7 @@
 #include <stdint.h>
 #define NXS_CHROMIUM_MAGIC 0x4e585343u
 #define NXS_CHROMIUM_CONTROL_MAGIC 0x4e585549u
+#define NXS_LIST_ITEM_GEOMETRY 1u
 struct NXSRequest {
   uint32_t magic, operation, process, layer;
   uint64_t control;
@@ -294,6 +295,11 @@ struct NXSListWireState {
  * existing list capability. Owned operation 52 (NXSControlRequest, kind 9/13)
  * returns NXSScrollGeometry using the same layout as legacy text geometry.
  * Providers without the appended method advertise zero and reject the query. */
+/* Bootstrap part 2.y advertises NXS_LIST_ITEM_GEOMETRY. Operation 50 retains
+ * its original row rectangle in part 6 and additionally carries the existing
+ * list state/selection payload from the same native dispatch. This pairs a
+ * row's visible rectangle with its native viewport without another RPC.
+ * Earlier rectangle-only consumers can ignore the optional payload. */
 /* Bootstrap part 2.x advertises optional native item hit queries independently
  * of list/scroll capabilities. Owned operation 53 uses NXSControlRequest x/y.
  * Accepted replies (part 3.x=1) contain one uint64 model ID, zero for a native

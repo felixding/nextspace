@@ -996,7 +996,7 @@ class NativeControlServer:
         if operation==50:
             rect=self.native.nxs_control_list_item_rect(state['native'],req.identifier)
             accepted=rect.width>0 and rect.height>0
-            self._respond(client,req,state,input_result=int(accepted),rectangle=rect);return
+            self._respond(client,req,state,input_result=int(accepted),rectangle=rect,payload=self.list_snapshot(state) if accepted else b'');return
         if operation==51:
             accepted=not self._tracking(state) and math.isfinite(req.x) and math.isfinite(req.y) and self.native.nxs_control_list_scroll(state['native'],req.x,req.y)
             self._respond(client,req,state,input_result=int(bool(accepted)),payload=self.list_snapshot(state) if accepted else b'');return

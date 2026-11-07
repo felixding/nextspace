@@ -607,7 +607,7 @@ static void prepare_widget_metrics(void) {
   labels_enabled=widgets_enabled&&((unsigned)response->parts[4].y&4);
   prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
-  const char *lists=getenv("NEXTSPACE_FIREFOX_LISTS");lists_requested=popups_requested&&lists&&!strcmp(lists,"1")&&((unsigned)response->parts[3].x&1);
+  const char *lists=getenv("NEXTSPACE_FIREFOX_LISTS");lists_requested=popups_requested&&lists&&!strcmp(lists,"1")&&((unsigned)response->parts[3].x&1)&&((unsigned)response->parts[3].y&NXS_SCROLL_GEOMETRY)&&((unsigned)response->parts[2].y&NXS_LIST_ITEM_GEOMETRY)&&((unsigned)response->parts[2].x&1);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
@@ -616,7 +616,7 @@ static void prepare_widget_metrics(void) {
   multiline_viewport_enabled=multiline_enabled&&viewport&&!strcmp(viewport,"1")&&
     ((unsigned)response->parts[6].y&(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY))==(NXS_TEXT_VIEWPORT|NXS_TEXT_GEOMETRY);
   const char *wheel=getenv("NEXTSPACE_FIREFOX_WHEEL");
-  wheel_enabled=multiline_viewport_enabled&&wheel&&!strcmp(wheel,"1")&&response->parts[0].x==NXS_WHEEL_EVENTS;
+  wheel_enabled=(multiline_viewport_enabled||lists_requested)&&wheel&&!strcmp(wheel,"1")&&response->parts[0].x==NXS_WHEEL_EVENTS;
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
   application_menu_keys=!!((unsigned)response->parts[5].height&2);

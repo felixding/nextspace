@@ -57,6 +57,14 @@ static int native_list_item_rect(uint64_t control,uint64_t identifier,struct NXS
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   if(!response||!rect||response->parts[3].x!=1)return 0;*rect=response->parts[6];return rect->width>0&&rect->height>0;
 }
+static int native_list_item_geometry(uint64_t control,uint64_t identifier,struct NXSRectD *rect,struct NXSListWireState *state)
+{
+  struct NXSControlListItemRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=50,
+    .process=identity(),.kind=NXS_LISTBOX,.control=control,.identifier=identifier};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));const uint64_t *selection;
+  if(!response||!rect||!state||response->parts[3].x!=1||!native_list_response_state(response,state,&selection))return 0;
+  *rect=response->parts[6];return rect->width>0&&rect->height>0;
+}
 static struct NXSResponse *native_list_scroll(uint64_t control,double x,double y)
 {
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=51,

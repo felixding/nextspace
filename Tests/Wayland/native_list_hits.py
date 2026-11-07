@@ -26,8 +26,8 @@ def run(f,reference):
   f.check('original-native-row-mouse-hover-and-related-targets',all(transitions(t,source,related) for t,source,related in [('mouseout',a,b),('mouseover',b,a),('mouseleave',a,b),('mouseenter',b,a)]),actual=events,native_rows=[a,b])
   f.check('original-native-row-pointer-hover-and-related-targets',transitions('pointerout',a,b) and transitions('pointerover',b,a),actual=events)
   selected=f.selected();f.clear()
-  f.js('window.nativeCancelledHit=null;list.addEventListener("mousedown",e=>{e.preventDefault();nativeCancelledHit={tag:e.target.tagName,index:e.target.index,trusted:e.isTrusted,cancelable:e.cancelable,prevented:e.defaultPrevented}},{once:true});return true')
-  f.click(rows[a]);actual=f.js('return nativeCancelledHit')
+  f.js('window.nativeCancelledHit=null;list.addEventListener("mousedown",e=>{e.preventDefault();window.nativeCancelledHit={tag:e.target.tagName,index:e.target.index,trusted:e.isTrusted,cancelable:e.cancelable,prevented:e.defaultPrevented}},{once:true});return true')
+  f.click(rows[a]);actual=f.wait(lambda:f.js('return nativeCancelledHit'))
   f.check('native-row-mousedown-cancellation-precedes-native-selection',actual==dict(tag='OPTION',index=a,trusted=True,cancelable=True,prevented=True) and f.selected()==selected and not f.changes(),actual=actual,selected=f.selected(),expected=selected)
   # The original traversal must retain application overlays above native UI.
   actual=f.js('const r=list.getBoundingClientRect(),row='+json.dumps(rows[b])+';const d=document.createElement("div");d.id="nativeHitOverlay";Object.assign(d.style,{position:"fixed",left:(r.x+row.x)+"px",top:(r.y+row.y)+"px",width:row.width+"px",height:row.height+"px",zIndex:9999,background:"white"});document.body.appendChild(d);return document.elementFromPoint(r.x+row.x+row.width/2,r.y+row.y+row.height/2)===d')
