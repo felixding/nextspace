@@ -2,7 +2,12 @@
 #include "pinned-popups.h"
 static int guard_popup_model_calls(void) {
   return !memcmp((void *)(base+NXS_POPUP_DISPLAY_NONE_OFFSET),nxs_popup_display_none_bytes,20)&&
-    !memcmp((void *)(base+NXS_POPUP_PARENT_OFFSET),nxs_popup_parent_bytes,20);
+    !memcmp((void *)(base+NXS_POPUP_PARENT_OFFSET),nxs_popup_parent_bytes,20)&&
+    !memcmp((void *)(base+NXS_POPUP_BORDER_OFFSET),nxs_popup_border_bytes,20)&&
+    !memcmp((void *)(base+NXS_POPUP_PADDING_OFFSET),nxs_popup_padding_bytes,20)&&
+    !memcmp((void *)(base+NXS_POPUP_NODE_OFFSET),nxs_popup_node_bytes,20)&&
+    !memcmp((void *)(base+NXS_POPUP_LATIN1_OFFSET),nxs_popup_latin1_bytes,20)&&
+    !memcmp((void *)(base+NXS_POPUP_INVALIDATE_SIZE_OFFSET),nxs_popup_invalidate_size_bytes,20);
 }
 struct PopupSnapshot {
   struct NXSControlPopupRequest *request;
@@ -15,6 +20,32 @@ static int (*original_popup_paint)(void *,const void *,const void *,const void *
 static void (*original_select_default)(void *,void *);
 static void (*original_internal_popup_show)(void *,int);
 static void (*original_internal_popup_hide)(void *);
+static int (*original_popup_inline_size)(const void *,const void *);
+static int (*original_popup_block_size)(const void *,int);
+static void *(*original_popup_ua_sheet)(const void *);
+static void (*original_popup_option_changed)(void *,const void *);
+static void (*original_popup_option_attribute)(void *,const void *);
+static void (*original_popup_group_attribute)(void *,const void *);
+struct PopupBoxStrut {int top,right,bottom,left;};
+_Static_assert(sizeof(struct PopupBoxStrut)==16,"Pinned Blink physical box strut ABI");
+static void *popup_ua_sheet(const void *sheet) {
+  const void *string=*(void *const *)sheet;
+  unsigned length=string?*(const unsigned *)((const char *)string+4):0;
+  if(!string||!(*(const unsigned *)((const char *)string+8)&1)||length>2097152)return original_popup_ua_sheet(sheet);
+  char *text=malloc((size_t)length+1);if(!text)return original_popup_ua_sheet(sheet);
+  memcpy(text,(const char *)string+12,length);text[length]=0;
+  const char *correction="\nselect:not(:-internal-list-box):not([multiple]):disabled{opacity:1}";
+  if(!strstr(text,"select:disabled")||!strstr(text,"-internal-auto-base(")||strstr(text,correction)){free(text);return original_popup_ua_sheet(sheet);}
+  /* Native NSCell already owns the disabled appearance. Override the original
+   * UA fades, including their feature-dependent rules, at the same UA origin.
+   * Unsupported listboxes/multiple selects and author/user opacity stay intact. */
+  size_t extra=strlen(correction);
+  char *changed=malloc((size_t)length+extra);if(!changed){free(text);return original_popup_ua_sheet(sheet);}
+  memcpy(changed,text,length);memcpy(changed+length,correction,extra);
+  void *value=((void *(*)(const void *,size_t))(base+NXS_POPUP_LATIN1_OFFSET))(changed,length+extra);
+  void *result=original_popup_ua_sheet(&value);((void (*)(void *))(base+0x7246038))(&value);
+  free(changed);free(text);note("native popup disabled appearance delegated to native cell");return result;
+}
 static void popup_sync_origin(struct NativeForm *form)
 {
   void *document=node_document(form->node);
@@ -118,10 +149,12 @@ static int popup_same_model(struct NativeForm *form,struct PopupSnapshot *snapsh
 }
 static struct NXSResponse *sync_popup_model(struct NativeForm *form,struct NXSResponse *response)
 {
+  uint32_t epoch=atomic_load(&native_host_epoch);
+  if(form->popup_epoch!=epoch)form->actions_seen=response->parts[0].width;
   struct PopupSnapshot snapshot;if(!popup_snapshot(form->node,&snapshot))return NULL;
   struct NXSControlPopupRequest *request=snapshot.request;
   if(snapshot.title&&response->parts[1].x!=1){popup_snapshot_free(&snapshot);return NULL;}
-  if(popup_same_model(form,&snapshot)||response->parts[6].width>0){popup_snapshot_free(&snapshot);return response;}
+  if((form->popup_epoch==epoch&&popup_same_model(form,&snapshot))||response->parts[6].width>0){popup_snapshot_free(&snapshot);return response;}
   request->process=identity();request->control=form->control;
   response=exchange_bytes(request,sizeof(*request)+request->text_size);
   if(response&&response->parts[3].x==1&&response->parts[1].x==1)response=native_popup_title(form->control,snapshot.title);
@@ -133,9 +166,81 @@ static struct NXSResponse *sync_popup_model(struct NativeForm *form,struct NXSRe
     form->popup_count=request->count;form->popup_selected=request->selected;form->popup_selected_list=snapshot.selected_list;
     form->popup_selected_node=snapshot.selected_node;form->popup_title=snapshot.title;snapshot.title=NULL;
     form->popup_indices=snapshot.indices;form->popup_nodes=snapshot.nodes;
+    form->popup_epoch=epoch;
     snapshot.indices=NULL;snapshot.nodes=NULL;
   } else response=NULL;
   popup_snapshot_free(&snapshot);return response;
+}
+static int popup_preferred(void *node,const void *layout,struct SizeI *size) {
+  if(!popup_element(node)||!(*((const unsigned char *)layout+22)&32))return 0;
+  /* Pinned engine storage only: keep this measurement binding at zoom 1.
+   * Calling Element::currentCSSZoom here would recursively flush layout. */
+  const void *style=decode_member((const char *)layout+32);
+  const void *inherited=style?decode_member(style):NULL;
+  const void *font=inherited?decode_member((const char *)inherited+4):NULL;
+  if(!font||fabsf(*(const float *)((const char *)font+48)-1)>0.000001f)return 0;
+  struct NativeForm *form=find_form(node);
+  if(!form) {
+    form=calloc(1,sizeof(*form));if(!form)return 0;
+    form->node=node;form->kind=NXS_POPUP;form->control=++next_form_control;
+    form->title=strdup("");form->rect=(struct Rect){0,0,1,1};
+    form->next=native_forms;native_forms=form;
+  }
+  form->enabled=form_enabled(node);form->state=form_state(node,NXS_POPUP);
+  /* Before first layout, host only the application model. Native NSCell size
+   * owns all title/arrow/border metrics; no geometry query may flush layout. */
+  popup_measuring++;struct NXSResponse *response=form_request(form,1,0,0,0);popup_measuring--;
+  if(!response)return 0;
+  double width=response->parts[1].width,height=response->parts[1].height;
+  if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return 0;
+  *size=(struct SizeI){ceil(width),ceil(height)};return 1;
+}
+static int popup_content_size(const void *layout,int preferred,int block) {
+  struct PopupBoxStrut border=((struct PopupBoxStrut (*)(const void *))(base+NXS_POPUP_BORDER_OFFSET))(layout);
+  struct PopupBoxStrut padding=((struct PopupBoxStrut (*)(const void *))(base+NXS_POPUP_PADDING_OFFSET))(layout);
+  int offsets=block?border.top+border.bottom+padding.top+padding.bottom:border.left+border.right+padding.left+padding.right;
+  int content=preferred*64-offsets;return content>0?content:0;
+}
+static int popup_inline_size(const void *node,const void *layout) {
+  if(original_popup_block_size(layout,0)<0)return original_popup_inline_size(node,layout);
+  struct SizeI preferred;
+  return popup_preferred((void *)node,layout,&preferred)?popup_content_size(layout,preferred.width,0):original_popup_inline_size(node,layout);
+}
+static int popup_block_size(const void *layout,int geometry) {
+  int original=original_popup_block_size(layout,geometry);if(original<0)return original;
+  void *node=((void *(*)(const void *))(base+NXS_POPUP_NODE_OFFSET))(layout);struct SizeI preferred;
+  return node&&popup_preferred(node,layout,&preferred)?popup_content_size(layout,preferred.height,1):original;
+}
+static struct NativeForm *popup_owner(void *node) {
+  for(unsigned depth=0;node&&depth<4096;depth++) {
+    struct NativeForm *form=find_form(node);if(form&&form->kind==NXS_POPUP)return form;
+    node=((void *(*)(void *))(base+NXS_POPUP_PARENT_OFFSET))(node);
+  }
+  return NULL;
+}
+static void popup_invalidate_size(void *node,uint64_t control) {
+  struct NativeForm *form=find_form(node);
+  if(!form||form->control!=control||form->kind!=NXS_POPUP||!popup_element(node))return;
+  void *type=decode_member((char *)node+168);
+  /* Existing option notifications own selection/content changes. Ask Blink's
+   * original menu-list method to dirty its intrinsic layout after those
+   * notifications, including unselected labels and group/visibility data. */
+  if(type)((void (*)(const void *))(base+NXS_POPUP_INVALIDATE_SIZE_OFFSET))(type);
+}
+static void popup_option_changed(void *node,const void *option) {
+  struct NativeForm *form=find_form(node);uint64_t control=form?form->control:0;
+  original_popup_option_changed(node,option);
+  if(control)popup_invalidate_size(node,control);
+}
+static void popup_option_attribute(void *option,const void *params) {
+  struct NativeForm *form=popup_owner(option);void *node=form?form->node:NULL;uint64_t control=form?form->control:0;
+  original_popup_option_attribute(option,params);
+  if(control)popup_invalidate_size(node,control);
+}
+static void popup_group_attribute(void *group,const void *params) {
+  struct NativeForm *form=popup_owner(group);void *node=form?form->node:NULL;uint64_t control=form?form->control:0;
+  original_popup_group_attribute(group,params);
+  if(control)popup_invalidate_size(node,control);
 }
 static void popup_after_input(struct NativeForm *form,struct NXSResponse *response)
 {
@@ -219,6 +324,12 @@ static void internal_popup_hide(void *self)
   refresh_form_watch();
 }
 static struct Detour popup_detours[]={
+ {NXS_POPUP_UA_SHEET_OFFSET,nxs_popup_ua_sheet_bytes,popup_ua_sheet,(void **)&original_popup_ua_sheet},
+ {NXS_POPUP_OPTION_CHANGED_OFFSET,nxs_popup_option_changed_bytes,popup_option_changed,(void **)&original_popup_option_changed},
+ {NXS_POPUP_OPTION_ATTRIBUTE_OFFSET,nxs_popup_option_attribute_bytes,popup_option_attribute,(void **)&original_popup_option_attribute},
+ {NXS_POPUP_GROUP_ATTRIBUTE_OFFSET,nxs_popup_group_attribute_bytes,popup_group_attribute,(void **)&original_popup_group_attribute},
+ {NXS_POPUP_INLINE_SIZE_OFFSET,nxs_popup_inline_size_bytes,popup_inline_size,(void **)&original_popup_inline_size},
+ {NXS_POPUP_BLOCK_SIZE_OFFSET,nxs_popup_block_size_bytes,popup_block_size,(void **)&original_popup_block_size},
  {NXS_POPUP_PAINT_OFFSET,nxs_popup_paint_bytes,paint_popup,(void **)&original_popup_paint},
  {NXS_SELECT_DEFAULT_OFFSET,nxs_select_default_bytes,select_default,(void **)&original_select_default},
  {NXS_INTERNAL_POPUP_SHOW_OFFSET,nxs_internal_popup_show_bytes,internal_popup_show,(void **)&original_internal_popup_show},

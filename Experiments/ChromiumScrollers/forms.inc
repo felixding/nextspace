@@ -21,6 +21,7 @@ struct NativeForm {
   int popup_selected,popup_selected_list,popup_open;
   void *popup_selected_node;
   void *popup_engine;
+  uint32_t popup_epoch;
   int text_tracking,text_width,text_height;
   uint32_t text_start,text_end;
   double text_x,text_y;
@@ -53,6 +54,7 @@ static int forms_multiline_viewport_enabled;
 static int forms_wheel_enabled;
 static int forms_notifications_enabled;
 static __thread const void *popup_mouse_event;
+static __thread int popup_measuring;
 static unsigned forms_input_capabilities;
 static struct SizeI form_sizes[4];
 static int (*original_checkbox)(void*,const void*,const void*,const void*,const void*,const struct Rect*);
@@ -153,7 +155,7 @@ static char *form_title(void *node) {
   return result;
 }
 static struct NXSResponse *form_request(struct NativeForm *form,int operation,double x,double y,unsigned modifiers) {
-  if(operation==1&&form->kind==NXS_POPUP)popup_sync_origin(form);
+  if(operation==1&&form->kind==NXS_POPUP&&!popup_measuring)popup_sync_origin(form);
   size_t title_size=operation==1&&form->title?strlen(form->title):0;
   size_t size=sizeof(struct NXSControlRequest)+title_size;
   struct NXSControlRequest *req=calloc(1,size);if(!req)return NULL;

@@ -15,6 +15,7 @@ parser.add_argument('--port',type=int,default=9246)
 parser.add_argument('--activation-fallback',action='store_true',help='Verify proxy menus decline menu-only activation and retain document focus')
 parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through the Chromium profile preference')
 parser.add_argument('--native-tabs',action='store_true',help='Verify the experimental shared native tab container')
+parser.add_argument('--popup-recovery',action='store_true',help='Verify retained native select models and first actions after host replacement')
 args=parser.parse_args()
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','chromium']:
@@ -62,7 +63,7 @@ comp=wrapper('compositor','#!/usr/bin/python3\nimport os,socket,sys\ns=socket.so
 fifo=root/'capture.fifo';os.mkfifo(fifo,0o600);capture_fd=os.open(fifo,os.O_RDWR)
 capture=wrapper('capture','#!/usr/bin/python3\nimport os\nf=os.open('+repr(str(fifo))+',os.O_RDWR);os.dup2(f,0);os.close(f)\nf=os.open('+repr(str(root/'capture.jsonl'))+',os.O_CREAT|os.O_APPEND|os.O_WRONLY,0o600);os.dup2(f,1);os.close(f)\nos.execv('+repr(str(probe))+',['+repr(str(probe))+'])\n')
 host=wrapper('host','#!/bin/sh\nexec /usr/bin/python3 '+shlex.quote(str(repo/'Libraries/NativeUI/Host/main.py'))+' --library '+shlex.quote(str(args.library))+' -GSBackend wayland\n')
-children=[];session=None;connection=None
+children=[];session=None;connection=None;cdp_pipe=None
 def wait(read,predicate,timeout=30):
  end=time.monotonic()+timeout
  while True:
@@ -109,7 +110,11 @@ try:
   prepare_native_frame('chromium',runtime/'chromium-profile',current)
  for flag in ['FORMS','INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','VIEWS','PROGRESS','ANIMATION','SLIDERS','POPUPS','MENUS','MENU_KEYS']:current['NEXTSPACE_CHROMIUM_'+flag]='1'
  launch=[str(args.chromium),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-sync','--disable-component-update','--password-store=basic','--remote-debugging-port='+str(args.port),'--window-size=1120,800','--user-data-dir='+str(runtime/'chromium-profile'),url]
- with (root/'chromium.stdout').open('w') as log,(root/'chromium.stderr').open('w') as error:browser=subprocess.Popen(launch,env=current,stdout=log,stderr=error)
+ if args.popup_recovery:
+  from chromium_cdp_pipe import CDPPipe
+  launch.append('--remote-debugging-pipe');cdp_pipe=CDPPipe(launch,current,root,args.hook);browser=cdp_pipe.process
+ else:
+  with (root/'chromium.stdout').open('w') as log,(root/'chromium.stderr').open('w') as error:browser=subprocess.Popen(launch,env=current,stdout=log,stderr=error)
  children.append(browser)
  windows=wait(lambda:command('windows'),lambda windows:any(w['pid']==browser.pid and w['level']==0 for w in windows))
  window=next(w for w in windows if w['pid']==browser.pid and w['level']==0)
@@ -184,11 +189,28 @@ try:
  selected_root=next(w for w in menus if w['pid'] in owned_hosts() and w['level']==20 and w['visible'])
  menu_box=(selected_root['x'],selected_root['y'],selected_root['x']+selected_root['width'],selected_root['y']+selected_root['height'])
  before_replacement=desktop('before-host-replacement').crop(menu_box);before_replacement.save(root/'menu-reference-before-replacement.png')
+ if args.popup_recovery:
+  from popup_recovery import PopupRecovery
+  page=next(page for page in pages() if page['url']==url)
+  def cdp(method,params=None,target=True):
+   request=dict(method=method,params=params or {})
+   if target:request['sessionId']=target_session
+   reply=cdp_pipe.call(request);assert 'error' not in reply,reply;return reply['result']
+  target_session=cdp('Target.attachToTarget',dict(targetId=page['id'],flatten=True),False)['sessionId']
+  cdp('Target.activateTarget',dict(targetId=page['id']),False)
+  def js(script):
+   reply=cdp('Runtime.evaluate',dict(expression='(function(){'+script+'}).call(window)',returnByValue=True,awaitPromise=True))
+   assert 'exceptionDetails' not in reply,reply;return reply['result'].get('value')
+  def origin():
+   w=next(w for w in command('windows') if w['id']==window['id']);inside=js('return {height:innerHeight,scale:devicePixelRatio}');assert inside['scale']==1
+   return [w['x']+(w['frame_left'] if w['server_decorated'] else 0),w['y']+(w['frame_top'] if w['server_decorated'] else 0)+w['surface_height']-inside['height']]
+  popup_recovery=PopupRecovery(js,check,command,wait,desktop,root,args,browser_env,repo,owned_hosts,origin=origin,indent='    ');popup_recovery.before()
  old_hosts=owned_hosts();check('one-owned-native-host',len(old_hosts)==1,hosts=old_hosts)
  before_ready=(root/'session.stdout').read_text().count('NEXTSPACE_NATIVE_UI_SOCKET=')
  os.kill(old_hosts[0],signal.SIGKILL)
  replacement=wait(owned_hosts,lambda pids:len(pids)==1 and pids[0]!=old_hosts[0])
  wait(lambda:(root/'session.stdout').read_text(),lambda text:text.count('NEXTSPACE_NATIVE_UI_SOCKET=')>before_ready)
+ if args.popup_recovery:popup_recovery.after()
  if args.activation_fallback:check('host-replacement-retains-browser-keyboard-focus',any(w['id']==window['id'] and w['focused'] for w in command('windows')))
  restored=browser_menu('host-replaced-menu')
  if args.activation_fallback:menu_title_click('host-replaced-menu-title-retains-focus',restored)
@@ -207,6 +229,7 @@ try:
  stop(browser)
 
 finally:
+ if cdp_pipe:cdp_pipe.close()
  sample_processes()
  for p in reversed(children):stop(p)
  if session:stop(session)

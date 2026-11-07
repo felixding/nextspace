@@ -7,6 +7,7 @@ from native_popup_fixture import PopupFixture
 from popup_models import run
 
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fixture',type=Path,required=True)
+parser.add_argument('--sizing',action='store_true')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as connection:
@@ -42,6 +43,14 @@ try:
  check('native-key-commits-original-option',state['index']==1 and state['value']=='b',actual=state)
  check('one-trusted-native-input-change',[e['type'] for e in state['changes']]==['input','change'] and all(e['trusted'] for e in state['changes']))
  run(fixture,indent='    ',collapse_hr=False)
+ if options.sizing:
+  js('window.__resetPending=true;return true');cdp('Page.navigate',dict(url=Path(__file__).with_name('test-select-sizing.html').resolve().as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native select sizing'&&!window.__resetPending"))
+  check('native-disabled-appearance-has-no-extra-browser-fade',js("return getComputedStyle(document.getElementById('disabled')).opacity==='1'"))
+  check('author-opacity-remains-authoritative',js("const e=document.getElementById('disabled');e.style.opacity='.25';const okay=getComputedStyle(e).opacity==='0.25';e.style.removeProperty('opacity');return okay"))
+  check('unsupported-disabled-listbox-retains-browser-opacity',js("const e=document.createElement('select');e.disabled=true;e.size=4;e.style.display='none';document.body.append(e);const okay=getComputedStyle(e).opacity==='0.7';e.remove();return okay"))
+  from popup_sizing import run as sizing
+  sizing(fixture,indent='    ')
  trace=(root/'hook.log').read_text()
  check('browser-owned-ui-preserved','browser-owned tabs, address bar and toolbar preserved' in trace and
   'experimental native browser tabs enabled' not in trace and 'experimental native address-bar fields enabled' not in trace and

@@ -23,7 +23,9 @@ def run(fixture,indent=''):
   if expected is None:expected=preferred
   def same():
    rect=rectangle(identifier);return rect['width']==expected[0] and rect['height']==expected[1]
-  check(label+'-native-size',wait(same),preferred=preferred,expected=expected,actual=rectangle(identifier))
+  try:matching=wait(same)
+  except AssertionError:matching=False
+  check(label+'-native-size',matching,preferred=preferred,expected=expected,actual=rectangle(identifier))
   fixture.pixels(identifier,False,override,label)
   return preferred
  for identifier in ['automatic','empty','disabled','unicode','borderbox']:

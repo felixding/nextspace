@@ -33,11 +33,13 @@ single-select models, including groups, disabled children, separators and hidden
 selected labels. The same real-seat cases reject stale indices after a hidden
 insertion and commit the updated original option on the next menu. See the
 [model qualification](../Libraries/NativeUI/browser-popup-model-qualification.json).
-Pinned Firefox now uses native popup preferred sizes through Gecko's existing
-layout and mutation observer, including label/option changes and CSS size limits;
-see its [sizing qualification](../Experiments/FirefoxNativeUI/popup-sizing-qualification.json).
-Chromium automatic sizing, complete popup lifecycle/scaling, derivative builds
-and installed deployment remain unfinished. Toolbar changes remain optional
+Both pinned engines now use native popup preferred sizes through their existing
+layout and option notifications, including label/option changes and CSS size limits;
+see the [Firefox](../Experiments/FirefoxNativeUI/popup-sizing-qualification.json)
+and [Chromium](../Experiments/ChromiumScrollers/popup-sizing-qualification.json)
+qualifications. Retained grouped/hidden popup models and first native actions also
+recover after native-host replacement. Complete popup lifecycle/scaling, derivative
+builds and installed deployment remain unfinished. Toolbar changes remain optional
 browser-specific patches above this shared integration.
 
 Detached-menu visibility is an application-agnostic desktop policy: present

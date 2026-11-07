@@ -38,21 +38,10 @@ else:assert hashlib.file_digest(a.chromium.open('rb'),'sha256').hexdigest()=='7b
 with socket.socket() as port_probe:port_probe.bind(('127.0.0.1',a.port))
 def interrupted(signum,frame):raise KeyboardInterrupt
 signal.signal(signal.SIGTERM,interrupted)
-children=[];services=ExitStack();capture=None;menu_parent=menu_child=None;menu_shell=None;cdp_pipe=None;cdp_pending=b'';cdp_serial=0
+children=[];services=ExitStack();capture=None;menu_parent=menu_child=None;menu_shell=None;cdp_pipe=None
 
 def cdp_call(request):
- global cdp_pending,cdp_serial
- assert cdp_pipe is not None;cdp_serial+=1;request=dict(request,id=cdp_serial)
- os.write(cdp_pipe[0],json.dumps(request).encode()+b'\0');deadline=time.monotonic()+15
- while True:
-  while b'\0' in cdp_pending:
-   line,cdp_pending=cdp_pending.split(b'\0',1)
-   if not line:continue
-   reply=json.loads(line)
-   if reply.get('id')==cdp_serial:return reply
-  assert time.monotonic()<deadline,'Owned CDP pipe response'
-  if not select.select([cdp_pipe[1]],[],[],1)[0]:continue
-  data=os.read(cdp_pipe[1],65536);assert data,'Owned CDP pipe closed';cdp_pending+=data
+ assert cdp_pipe is not None;return cdp_pipe.call(request)
 
 def stop(p):
  if p.poll() is None:
@@ -125,15 +114,11 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
    for flag in ['FORMS','INPUT','TEXT','PROGRESS','ANIMATION','SLIDERS','POPUPS','MULTILINE','MULTILINE_VIEWPORT','WHEEL']:env['NEXTSPACE_CHROMIUM_'+flag]='1'
    for flag in ['NEXTSPACE_CHROMIUM_VIEWS','NEXTSPACE_CHROMIUM_TABS']:env.pop(flag,None)
    args=[str(a.chromium.resolve()),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-sync','--disable-component-update','--password-store=basic','--remote-debugging-pipe','--remote-debugging-port='+str(a.port),'--window-size=1120,800','--user-data-dir='+str(profile),Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-popups.html').as_uri()]
-   read_input,write_input=os.pipe();read_output,write_output=os.pipe();cdp_pipe=(write_input,read_output)
-   pipe_launcher=out/'chromium-pipe.py'
-   pipe_launcher.write_text('import os,sys\nr,w=int(sys.argv[1]),int(sys.argv[2])\nos.dup2(r,3);os.dup2(w,4)\nos.set_inheritable(3,True);os.set_inheritable(4,True)\nfor fd in (r,w):\n if fd not in (3,4):os.close(fd)\nos.environ["LD_PRELOAD"]=sys.argv[3]\nos.execv(sys.argv[4],sys.argv[4:])\n')
-   launch_options=dict(pass_fds=(read_input,write_output))
-  launch=args if a.firefox else [sys.executable,str(pipe_launcher),str(read_input),str(write_output),str(a.hook.resolve()),*args]
-  launch_env=dict(env)
-  if a.chromium:launch_env.pop('LD_PRELOAD',None)
-  browser=subprocess.Popen(launch,env=launch_env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'),**launch_options);children.append(browser)
-  if a.chromium:os.close(read_input);os.close(write_output)
+  if a.chromium:
+   from chromium_cdp_pipe import CDPPipe
+   cdp_pipe=CDPPipe(args,env,out,a.hook.resolve());browser=cdp_pipe.process
+  else:browser=subprocess.Popen(args,env=env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'),**launch_options)
+  children.append(browser)
   (out/'launch.json').write_text(json.dumps(dict(pids=[p.pid for p in children],capture=capture.process.pid,command=args,engine='firefox' if a.firefox else 'chromium'),indent=2)+'\n')
   if a.shared_menus:
    deadline=time.monotonic()+30
@@ -185,8 +170,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
      connection.send(json.dumps(dict(event=event,path=str(path),output=head)).encode())
     else:connection.send(json.dumps(command(text)).encode())
  finally:
-  if cdp_pipe:
-   for descriptor in cdp_pipe:os.close(descriptor)
+  if cdp_pipe:cdp_pipe.close()
   if menu_parent:menu_parent.close()
   if capture:capture.stop()
   for p in reversed(children[1:]):stop(p)

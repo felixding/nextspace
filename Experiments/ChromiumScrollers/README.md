@@ -453,18 +453,39 @@ and validates original list indices as well as visible identities before a
 commit. Inserting a hidden option can change those indices without changing
 any visible row. Both engines now share `Bridge/Popups.inc` for row/title
 transport and `Tests/Wayland/popup_models.py` for the same actual-seat model
-cases. `check-popup-models.py --fixture OUTPUT` uses the owned CDP-pipe fixture
+cases. `check-popup-models.py --fixture OUTPUT --sizing` uses the owned CDP-pipe fixture
 and whole desktop captures; it keeps the browser's own tabs/address bar/toolbar.
+
+At zoom 1 in horizontal writing, the pinned adapter now returns the native
+popup cell's preferred size at Blink's existing menu-list intrinsic boundaries.
+Original border/padding accessors convert the full native size to content size;
+Blink retains explicit CSS sizes, min/max and box sizing. Existing option/group
+notifications call the original menu-list intrinsic invalidation method, so
+unselected text, labels, visibility, insertion and removal update layout without
+a second observer, timer or text-measurement implementation.
+
+The native cell also owns disabled drawing. A small adapter correction at the
+original UA stylesheet parser removes the browser's additional fade for ordinary
+single selects, including feature-dependent UA rules. Author/user opacity and
+unsupported listbox/multiple-select defaults retain their cascade behavior.
+The shared desktop recovery case replays an unchanged hidden selected label and
+grouped/disabled model after host replacement, then commits the first native
+action to the original option index once. See the
+[sizing and recovery qualification](popup-sizing-qualification.json).
 
 `check-popups.py` passes 29 checks, including seven full control images,
 keyboard/mouse selection, cancellation, focus navigation, application opening
 and blur, duplicate labels, disabled items, stale option identities and
 removal/reinsertion during callbacks. References come directly from NativeUI;
 the mouse test waits for the native highlight and uses native item rectangles.
-The disabled image comparison explicitly sets CSS opacity to 1: Chromium's
-default disabled-select opacity still alters native output and remains a gap.
+That earlier disabled image comparison explicitly set CSS opacity to 1; the
+current sizing checks above compare the ordinary disabled control without an
+author workaround and independently check author opacity and listbox defaults.
 All 232 existing browser checks and the shared provider's compatibility,
 transport and 30 unchanged scrollbar image comparisons also pass.
+
+Complete popup lifecycle, scaling, vertical writing, appearance overrides,
+listboxes, IME, accessibility, derivatives and installed deployment remain open.
 
 This remains partial support for one exact binary at 100% scale, with no browser
 or underlying UI-library rebuild. Live model replacement while open currently
