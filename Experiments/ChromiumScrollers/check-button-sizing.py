@@ -7,6 +7,7 @@ from native_popup_fixture import PopupFixture
 
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fixture',type=Path,required=True)
 parser.add_argument('--text-regression',action='store_true')
+parser.add_argument('--text-types-only',action='store_true',help='Run shared URL/telephone native text checks')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as connection:
@@ -35,15 +36,25 @@ def origin():
 fixture=PopupFixture(root,command,js,check,pid,origin,reset)
 try:
  fixture.wait(window);assert command('focus '+str(window()['id']))['ok']
- cdp('Page.navigate',dict(url=Path(__file__).with_name('test-button-sizing.html').resolve().as_uri()))
- fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"))
- from button_sizing import ButtonFixture,run as buttons
- fixture=ButtonFixture(root,command,js,check,pid,origin,reset);buttons(fixture)
+ if not options.text_types_only:
+  cdp('Page.navigate',dict(url=Path(__file__).with_name('test-button-sizing.html').resolve().as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"))
+  from button_sizing import ButtonFixture,run as buttons
+  fixture=ButtonFixture(root,command,js,check,pid,origin,reset);buttons(fixture)
  if options.text_regression:
   cdp('Page.navigate',dict(url=Path(__file__).with_name('test-text.html').resolve().as_uri()))
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Blink native text transport'"))
   from form_text_regression import TextFixture,run as text_checks
   text_output=root/'text-regression';text_output.mkdir();text_checks(TextFixture(text_output,command,js,check,pid,origin,reset))
+ if options.text_types_only:
+  cdp('Page.navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-text-types.html').as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native text field types'"))
+  from form_text_regression import TextFixture
+  from native_text_types import run as type_checks
+  text_output=root/'text-types';text_output.mkdir();type_checks(TextFixture(text_output,command,js,check,pid,origin,reset))
+  trace=(root/'hook.log').read_text()
+  parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native(?: form |-(?:text |widget ))',line)]
+  check('browser-owned-ui-preserved',not parent and 'browser-owned tabs, address bar and toolbar preserved' in trace,parent_native_widgets=parent)
  print(json.dumps(dict(passed=len(rows))),flush=True)
 finally:
  command('button 272 0');cdp('Target.detachFromTarget',dict(sessionId=session),False)

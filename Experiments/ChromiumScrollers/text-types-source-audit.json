@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "d396ba88",
+  "status": "pinned-chromium-and-firefox-native-url-telephone-web-fields-qualified-broader-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/forms-input.inc": "4781121dcd020eab8af491c80e36a4c532af4c1855649fb557571a39e65ea375",
+    "Experiments/FirefoxNativeUI/controls.inc": "3f4facb663c1b4828814b15a6df40146825d515e69033eaaa6c73083eb7b2f7b",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "a7cb3f2b73eacc77e3fb828780c6f4bee9025978da843a73b807bad8a5fc32e9",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "4e529524218c663f38029de348e15a7fe163ed0b88f96065503df0295394575c",
+    "Tests/Wayland/native_text_types.py": "17cbac1fd11bfc1250e6869ea521e49959b82aa60d0391d0b0f14ea61f5a4207",
+    "Tests/Wayland/native-text-types.html": "3f645f0bcbfa52b6de2aa9e05c9b751c52190c1dcd4194fd9ec0dc026555a62a",
+    "Tests/Wayland/form_text_regression.py": "ea224d86a6680cd20dacd48fa836e25df330582a8abebe7cc7cf3f7ecc3acf07",
+    "Experiments/ChromiumScrollers/README.md": "41793775e928f044a432cd3fc2b1cfc208f11e10bbad059abe8521857e2d088c",
+    "Experiments/FirefoxNativeUI/README.md": "9849392f86a4cf425a49157fe6f9026ec5140a8a5a64e69afa2ea982591301dd",
+    "docs/Native-Control-Integration.md": "d7c5e89d9d349a41c30ba247d7975359f53f027d64c3e27871b9314ce3aa978b"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/text-types-source/gecko-HTMLInputElement.h",
+      "bytes": 59334,
+      "sha256": "05d97a7d6603ddb1b954900a8c524b7f75323dcb8365e2f88d39582ac0bb8f65"
+    },
+    {
+      "path": ".build/native-ui/text-types-source/native_text_types-v1.py",
+      "bytes": 4024,
+      "sha256": "7068f34dc6c537aff6835883e66b2b05b022ede7301232bb8d6426d72bef3c05"
+    },
+    {
+      "path": ".build/native-ui/text-types-source/nsIFormControl.h",
+      "bytes": 9607,
+      "sha256": "ee0f8bee96f0f31b6a3215dca63d702b80f6654ab23d48e158defd71097b1d12"
+    },
+    {
+      "path": ".build/native-ui/text-types-source/source.json",
+      "bytes": 504,
+      "sha256": "af6e8066b592b985a964596366c14cf4ef61be7781879ac936db3aa2988bcb7e"
+    }
+  ],
+  "gecko_pinned_types": {
+    "InputTel": 144,
+    "InputText": 145,
+    "InputUrl": 147
+  },
+  "new_private_calls_or_native_abi": false,
+  "invariants": [
+    "Only the two engine semantic type classifiers change behavior. URL and telephone map to existing NXS_TEXTFIELD and reuse the same real NSTextField provider, focus, model transactions, pointer path, native keys and original clipboard commands.",
+    "Original engine selection, URL sanitization, URL validity, telephone pattern validity, trusted beforeinput/input and explicit page cancellation stay in the engine; do not add a formatter or a copied editing/key algorithm.",
+    "Native text selection requires the supported original engine selection contract. Search and email/number/specialized controls remain separate integration work; unsupported types are not silently claimed native.",
+    "Shared complete-pixel/real-seat tests run in both engines alongside existing plain/password/Unicode regressions. Parent-process checks preserve original browser UI.",
+    "The shared native provider/loader/shim stay unchanged at API 1/584. Browser address bars, toolbar and tabs retain original components; future UI changes stay optional app-specific patches."
+  ]
+}

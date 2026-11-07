@@ -31,7 +31,7 @@ static int input_form_kind(void *node) {
   if(!type)return 0;
   int kind=!strcmp(type,"checkbox")?NXS_CHECKBOX:!strcmp(type,"radio")?NXS_RADIO:
     (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
-    (forms_text_enabled&&!strcmp(type,"text"))?NXS_TEXTFIELD:
+    (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
   free(type);return kind;

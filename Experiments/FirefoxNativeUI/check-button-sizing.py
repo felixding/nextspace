@@ -8,6 +8,7 @@ from button_sizing import ButtonFixture,run as buttons
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,default=2835)
 p.add_argument('--text-regression',action='store_true')
+p.add_argument('--text-types-only',action='store_true',help='Run shared URL/telephone native text checks')
 a=p.parse_args();root=a.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as s:
@@ -27,13 +28,20 @@ f=ButtonFixture(root,command,js,check,pid,origin,lambda:None)
 try:
  session=m.command('WebDriver:NewSession',{});assert session['capabilities']['moz:processID']==pid
  window=f.wait(lambda:next((w for w in command('windows') if w['pid']==pid and w['level']==0),None));assert command('focus '+str(window['id']))['ok']
- m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-button-sizing.html').as_uri()))
- f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"));buttons(f)
+ if not a.text_types_only:
+  m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-button-sizing.html').as_uri()))
+  f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"));buttons(f)
  if a.text_regression:
   m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-text.html').as_uri()))
   f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Blink native text transport'"))
   from form_text_regression import TextFixture,run as text_checks
   out=root/'text-regression';out.mkdir();text_checks(TextFixture(out,command,js,check,pid,origin,lambda:None))
+ if a.text_types_only:
+  m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-text-types.html').as_uri()))
+  f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native text field types'"))
+  from form_text_regression import TextFixture
+  from native_text_types import run as type_checks
+  out=root/'text-types';out.mkdir();type_checks(TextFixture(out,command,js,check,pid,origin,lambda:None))
  trace=(root/'hook.log').read_text();parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native-(?:text |button |widget |widget bound|select )',line)]
  check('browser-owned-ui-preserved',not parent and 'experimental native Gecko tab container installed' not in trace and 'native Gecko frontend text binding installed' not in trace,parent_native_widgets=parent)
  print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in x['case'] for x in rows))),flush=True)

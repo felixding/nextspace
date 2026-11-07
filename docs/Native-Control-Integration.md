@@ -759,3 +759,15 @@ in the existing renderer invalidation worker: it mirrors the native list
 viewport through the original engine setter, as it already does for native
 textarea movement. Firefox uses its existing viewport path without modification.
 See [paired reveal/lifecycle qualification](../Experiments/ChromiumScrollers/list-reveal-qualification.json).
+
+
+URL and telephone webpage inputs in both pinned engines now reuse the existing
+native NSTextField binding. The small type classifiers are the only adapter
+behavior change; editing, native key interpretation and clipboard transport stay
+in the shared paths. Engine validation and sanitization retain their original
+implementations and trusted events. The shared fixture covers complete native
+pixels, Emacs navigation, cross-type Alt+C/V, cancellation, type changes and
+retirement during a native edit, alongside existing plain/password fields.
+See [paired text-type qualification](../Experiments/ChromiumScrollers/text-types-qualification.json).
+Other specialized fields and the broader browser-then-GTK/Qt/KDE scope remain
+open. Browser address bars, toolbars and tabs stay original.

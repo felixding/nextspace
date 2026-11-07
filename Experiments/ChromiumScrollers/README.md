@@ -1089,3 +1089,20 @@ trusted wheel callback, verifies native release, reinserts it and compares a
 subsequent physical wheel and stable viewport with the original native list.
 Both engines run that same module. See
 [reveal/lifecycle qualification](list-reveal-qualification.json).
+
+
+### Native URL and telephone webpage fields
+
+URL and telephone input types use the existing native text-field binding,
+including real NSTextField pixels, editing, Emacs navigation and native clipboard
+commands. Their engine selection APIs are compatible with the existing adapter;
+the original engine still owns validation, sanitization, beforeinput/input and
+page cancellation. No text editor, key map, formatter or UI component is added.
+
+The shared text-types fixture compares complete native controls, tests Alt+C/V
+from a URL field into a telephone field, and exercises read-only/disabled fields,
+script updates, changing between text/URL/telephone and retirement during an edit.
+Existing plain/password/Unicode text checks run in the same fixture. Browser
+address bars, tabs and toolbars retain their components. Search, email, number
+and other specialized field types still need integration. See the paired
+[text-type qualification](../ChromiumScrollers/text-types-qualification.json).

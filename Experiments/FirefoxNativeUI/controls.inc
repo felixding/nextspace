@@ -107,7 +107,7 @@ static int node_kind(const void *node) {
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
     buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
     sliders_enabled&&type==148?NXS_SLIDER:
-    texts_enabled&&type==145?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
+    texts_enabled&&(type==144||type==145||type==147)?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
 }
 static int frame_kind(const void *frame) {
   return frame?node_kind(*(void *const *)((const char *)frame+24)):0;

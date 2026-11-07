@@ -1,0 +1,254 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "d396ba88",
+  "status": "pinned-chromium-and-firefox-native-url-telephone-web-fields-qualified-broader-integration-open",
+  "native_ui_abi": {
+    "version": 1,
+    "size": 584
+  },
+  "shared_ui_unchanged": true,
+  "adapters": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-text-types-01-hook.so",
+      "bytes": 235608,
+      "sha256": "92899a96fc68035dcd716cc07edf9e661c674960f60b3690f7d8d8db14037406"
+    },
+    "chromium_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-text-types-01-repro.so",
+      "bytes": 235608,
+      "sha256": "92899a96fc68035dcd716cc07edf9e661c674960f60b3690f7d8d8db14037406"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-text-types-01-hook.so",
+      "bytes": 163440,
+      "sha256": "8868cecebc74f3bb05fedf4095163d062ad752e74012b775765156a579608dd3"
+    },
+    "firefox_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-text-types-01-repro.so",
+      "bytes": 163440,
+      "sha256": "8868cecebc74f3bb05fedf4095163d062ad752e74012b775765156a579608dd3"
+    },
+    "prior_chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-reveal-01-hook.so",
+      "bytes": 235608,
+      "sha256": "66397d3702dddeff16f997e5410bc9b7426da32c06ad3fa2983691f7485e811d"
+    },
+    "prior_firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-scroll-07-hook.so",
+      "bytes": 163440,
+      "sha256": "e0087b40bf3409802f35239bc7b6207721037f764303d5168d65fca697201132"
+    }
+  },
+  "shared_ui": {
+    "native-ui/libnextspace-native-ui.so.0.1": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74048,
+      "sha256": "e53aa1845fcbe64219b3b942d92564b6dd9b898cda6de7fe523c54e42cea9a56"
+    },
+    "native-ui/libnextspace-native-ui-gnustep.so.0.1": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322880,
+      "sha256": "94ab8262f4368e9eb8c47159a3cbf671fd3178641cb9a4d2ce50edcd10d72788"
+    },
+    "libnextspace-native-scroller.so.0.1": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "7d76a7c0b12d2df3ebaab4b94671f5a2bb54063c056a143c80919b6b8735c19c"
+    }
+  },
+  "verification": {
+    "runs": {
+      "chromium": {
+        "path": "/var/tmp/nxs-chromium-text-types-03",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-text-types-03/button-results.json",
+          "bytes": 7028,
+          "sha256": "47ee3b63783cfd0c48488315c60b0f4ad4bedc88884a0a0d9839825c621180ca"
+        },
+        "checks": 55,
+        "native_images": 23
+      },
+      "firefox": {
+        "path": "/var/tmp/nxs-firefox-text-types-03",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-text-types-03/button-results.json",
+          "bytes": 7028,
+          "sha256": "47ee3b63783cfd0c48488315c60b0f4ad4bedc88884a0a0d9839825c621180ca"
+        },
+        "checks": 55,
+        "native_images": 23
+      }
+    },
+    "passing_checks": 110,
+    "complete_native_images": 46,
+    "unchanged_production_files": 20,
+    "package_count": 1050,
+    "sandbox": {
+      "chromium": [
+        {
+          "pid": 211801,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 211813,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 211814,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 211883,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 211922,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 211997,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 212000,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 212045,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 212065,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "owned_candidate_mappings_after_cleanup": []
+  },
+  "baselines": {
+    "chromium": {
+      "path": "/var/tmp/nxs-chromium-text-types-baseline-01",
+      "outcome": "failed first native pixel comparison; timeout and runner failure retained",
+      "actual": {
+        "path": "/var/tmp/nxs-chromium-text-types-baseline-01/text-types/urlfield-initial-normal-actual.png",
+        "bytes": 1968,
+        "sha256": "13566161ced45f700868c1426d323db5c64e86b0d6fdcb0c6fc6c3bf14b99ac7"
+      },
+      "expected": {
+        "path": "/var/tmp/nxs-chromium-text-types-baseline-01/text-types/urlfield-initial-normal-expected.png",
+        "bytes": 1898,
+        "sha256": "835d16491d3d2923f9a82f39b2c037376012b5b26914f7ee50626d3eaeefd1d9"
+      },
+      "difference_box": [
+        0,
+        0,
+        240,
+        24
+      ],
+      "results": {
+        "path": "/var/tmp/nxs-chromium-text-types-baseline-01/button-results.json",
+        "bytes": 73,
+        "sha256": "ebcacae6e766c3c820a5fcfcfc642c2b1e57ddb41dc065c636dd18fb31b6c239"
+      },
+      "excluded_from_final_totals": true
+    },
+    "firefox": {
+      "path": "/var/tmp/nxs-firefox-text-types-baseline-01",
+      "outcome": "failed first native pixel comparison; timeout and runner failure retained",
+      "actual": {
+        "path": "/var/tmp/nxs-firefox-text-types-baseline-01/text-types/urlfield-initial-normal-actual.png",
+        "bytes": 2372,
+        "sha256": "3a6e850ac4d8ea0094711abff59bcdc0099789df7fefec31daf7f677cbf4224d"
+      },
+      "expected": {
+        "path": "/var/tmp/nxs-firefox-text-types-baseline-01/text-types/urlfield-initial-normal-expected.png",
+        "bytes": 1898,
+        "sha256": "835d16491d3d2923f9a82f39b2c037376012b5b26914f7ee50626d3eaeefd1d9"
+      },
+      "difference_box": [
+        0,
+        0,
+        240,
+        24
+      ],
+      "results": {
+        "path": "/var/tmp/nxs-firefox-text-types-baseline-01/button-results.json",
+        "bytes": 73,
+        "sha256": "ebcacae6e766c3c820a5fcfcfc642c2b1e57ddb41dc065c636dd18fb31b6c239"
+      },
+      "excluded_from_final_totals": true
+    }
+  },
+  "diagnostics": {
+    "nxs-chromium-text-types-01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-text-types-01/button-results.json",
+        "bytes": 4243,
+        "sha256": "8cf1edb763f3915bd10b869f03c09cdd522e7914b784fc912ce905e5a69a05a2"
+      },
+      "checks": 38,
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-text-types-02": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-text-types-02/button-results.json",
+        "bytes": 5518,
+        "sha256": "97d696b600a4c69e62cd30089a522991aceb5a63d9eed7a0c911160a88219316"
+      },
+      "checks": 42,
+      "excluded_from_final_totals": true
+    },
+    "nxs-firefox-text-types-01": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-text-types-01/button-results.json",
+        "bytes": 4346,
+        "sha256": "280cdf521d1c50208d133ce12f7022cae4db4e55f10544359405055eb37119be"
+      },
+      "checks": 39,
+      "excluded_from_final_totals": true
+    },
+    "nxs-firefox-text-types-02": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-text-types-02/button-results.json",
+        "bytes": 5621,
+        "sha256": "27b296f89f53b6c39a218f6e6c6c59e89bd75cfc0790c28e4b39d0bdefb23990"
+      },
+      "checks": 43,
+      "excluded_from_final_totals": true
+    }
+  },
+  "source_audit": "text-types-source-audit.json",
+  "observations": [
+    "Unchanged committed adapters fail the first native URL image comparison. The retained actual/expected images have nonempty differences, with failed wait/runner logs. Their document-only assertion records are not passing qualification.",
+    "The new type classifiers route URL and telephone into the existing native text editor. Both final fixtures pass 55 checks/23 complete native images, including existing plain/password/Unicode text behavior.",
+    "Real-seat Ctrl+A uses native Emacs beginning rather than browser select-all. Native text insertion emits one original trusted beforeinput/input pair; cancellation retains the canonical value and full native image.",
+    "Alt+C from a URL input and Alt+V into a telephone input use original trusted copy/paste/beforeinput/input with insertFromPaste. Original URL validity, telephone pattern validity and script URL sanitization remain intact.",
+    "Read-only and disabled fields, script updates, text/URL/telephone type transitions and beforeinput retirement/native release pass. Browser parent processes keep their original UI components.",
+    "Both independently rebuilt adapter reproductions are byte-identical to their tested candidates. All 20 measured production files, the current shared UI loader/provider/shim and preceding adapters remain unchanged. Descendant renderers retain Seccomp=2/NoNewPrivs=1 and no candidate mappings remain after shutdown."
+  ],
+  "open": [
+    "Search fields, email/number/date/time/file/color and other specialized webpage controls, richer editing, placeholder/style semantics, IME/accessibility and wider scaling/layout/lifecycle contracts.",
+    "Other browser builds and derivatives, complete detached menus/native shortcuts and installed deployment, followed by GTK/Qt/KDE using the same shared native UI library.",
+    "Browser toolbar, address bar and tabs keep their original components; optional future changes belong to app-specific patches."
+  ]
+}

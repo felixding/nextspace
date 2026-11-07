@@ -1,0 +1,21 @@
+<!doctype html><meta charset="utf-8"><title>Native text field types</title>
+<style>
+body {margin:30px;background:white;color:black;font:14px sans-serif}
+label {display:block;margin-bottom:20px}
+input {box-sizing:border-box;width:240px;height:24px;padding:0}
+</style>
+<form id="form">
+<label>URL <input id="urlfield" type="url" value="https://example.org"></label>
+<label>Telephone <input id="telfield" type="tel" value="+123456" pattern="[+]?[0-9]+"></label>
+<label>Read only URL <input id="readonly" type="url" value="https://example.org" readonly></label>
+<label>Disabled telephone <input id="disabled" type="tel" value="+123456" disabled></label>
+<label>Changing type <input id="dynamic" type="url" value="Hello"></label>
+</form>
+<script>
+window.events=[];window.submits=0;
+form.addEventListener('submit',e=>{submits++;e.preventDefault()});
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','copy','cut','paste','select','pointerdown','pointerup','mousedown','mouseup','click'])
+ document.addEventListener(type,e=>{if(e.target instanceof HTMLInputElement)events.push({type,id:e.target.id,
+  data:e.data??null,inputType:e.inputType??null,trusted:e.isTrusted,value:e.target.value,
+  start:e.target.selectionStart,end:e.target.selectionEnd});});
+</script>
