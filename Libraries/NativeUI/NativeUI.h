@@ -253,6 +253,7 @@ typedef struct {
   int (*control_toolbar_items)(NXSControl *,const NXSToolbarItem *,uint32_t,uint32_t,uint32_t);
   NXSToolbarState (*control_toolbar_state)(NXSControl *);
   NXSRect (*control_toolbar_item_rect)(NXSControl *,uint64_t);
+  int (*control_popup_title)(NXSControl *,const char *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -319,6 +320,12 @@ unsigned nxs_control_popup_capabilities(void);
 /* The application supplies ordered item data, including separators. Selection
  * is an array index, or -1. The native control owns layout and navigation. */
 int nxs_control_popup_items(NXSControl *, const NXSPopupItem *, uint32_t count, int selected);
+unsigned nxs_control_popup_title_capabilities(void);
+/* An independent native display title, for application selection that is not
+ * a visible menu item. NULL restores the native selected-item title. An empty
+ * string is a real override. This does not change menu data or selection and
+ * emits no action. Visible menus and native tracking reject title changes. */
+int nxs_control_popup_title(NXSControl *, const char *title);
 /* Native menu geometry uses control bitmap coordinates, including positions
  * outside that bitmap. A hidden menu returns a zero frame/item rectangle. */
 NXSPopupState nxs_control_popup_state(NXSControl *);

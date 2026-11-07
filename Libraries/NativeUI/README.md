@@ -590,6 +590,39 @@ and selection methods. Native menu ownership supplies selection and action
 dispatch. The callback reports `NXS_VALUE_CHANGED` with the native selected
 index. No private popup selectors or widget implementations are copied.
 
+An application may have a selected value that is absent from its visible menu.
+Query `nxs_control_popup_title_capabilities()` and use
+`nxs_control_popup_title(control, title)` for its independent display title.
+The provider calls ordinary `NSPopUpButtonCell` `setUsesItemFromMenu:NO` and
+`setTitle:`. It adds no fake menu item and changes neither selection nor menu
+labels. `NULL` restores the native selected-item title; `""` is a real empty
+override. Model replacement preserves this mode until the application restores
+it. Invalid UTF-8, an open menu and native tracking reject mutation atomically.
+Programmatic title updates emit no user action.
+
+This optional method appends to ABI 1 after the existing 472-byte prefix,
+making the table 480 bytes on ARM64. Its separate capability query preserves
+the existing `NXS_POPUP_ITEMS` value for older clients. A new loader safely
+reports title support unavailable from an older provider. The previous loader
+and popup client remain usable with the expanded provider.
+
+At the actual screen density, popups use the same native backing/readback path
+as text controls. This preserves native image positioning at 200 percent; the
+older inverted offscreen canvas displaced the popup arrow by one device pixel.
+The existing arbitrary-density image path remains available for legacy callers
+requesting a different scale. This does not qualify browser zoom or every
+fractional-scale mode. No image, control or menu drawing algorithm is added.
+
+`Tests/NativeUI/check-tabs.py --popup-title` reuses the ordinary-desktop capture
+harness for popup titles at 100 and 200 percent. It compares complete control
+images and native preferred sizes, exercises selection/cancellation and tests
+older provider/client/loader compatibility. `Tests/NativeUI/run.py --transport`
+also checks title changes and ownership through the shared IPC helper.
+The [component qualification](popup-title-qualification.json) records 210 check
+rows, 24 complete native images and all 35 existing suite sections. The
+[source audit](popup-title-source-audit.json) records the shared implementation
+and unchanged runtime dependencies. Browser hidden-option binding remains open.
+
 `nxs_control_popup_state()` and `nxs_control_popup_item_rect()` read native
 visibility, highlight and geometry in control bitmap coordinates; rectangles
 can extend outside the control. The optional origin request sets the hidden
@@ -611,7 +644,7 @@ polling interval.
 
 The popup and descriptor fields extend ABI 1 from 200 to 248 bytes on ARM64.
 Explicit `nxs_control_popup_open(control, open)` appends another method, making
-the current table 256 bytes. Query `nxs_control_popup_open_capabilities()` first.
+the table at that checkpoint 256 bytes. Query `nxs_control_popup_open_capabilities()` first.
 The provider uses `NSPopUpButtonCell`'s public attach/dismiss methods, so an
 application's show/hide request does not assume a keyboard binding. Unfocused
 opening, repeated open/close, disabled/empty rejection and native closure pass

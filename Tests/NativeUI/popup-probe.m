@@ -130,6 +130,10 @@ int main(int argc,char **argv)
   NXSPopupItem bad={sizeof(bad),"\xff",1,0};assert(!nxs_control_popup_items(control,&bad,1,0));
   assert([native numberOfItems]==5&&[native indexOfSelectedItem]==0);
   save(directory,"popup-normal",1);save(directory,"popup-150",1.5);
+  assert(nxs_control_popup_title_capabilities()==1);
+  assert(nxs_control_popup_title(control,"Hidden selected"));save(directory,"popup-independent-title",1);
+  assert(nxs_control_popup_title(control,""));save(directory,"popup-empty-title",1);
+  assert(nxs_control_popup_title(control,NULL));save(directory,"popup-restored-title",1);
   assert(!nxs_control_focused(control));
   assert(nxs_control_popup_open(control,1)&&nxs_control_popup_state(control).visible);
   assert(nxs_control_popup_open(control,1)&&!actions);

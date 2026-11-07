@@ -71,7 +71,7 @@ static void end_draw_density(struct NXSDrawDensity *scope)
   if(scope->window){object_setClass(scope->window,scope->original);draw_density=scope->previous;[scope->window release];}
 }
 static BOOL native_backing(NSView *view)
-{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
+{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
 static NSView *focus_view(NXSViewHost *host)
 {return [host->view isKindOfClass:[NSScrollView class]]?[(NSScrollView *)host->view documentView]:host->view;}
 static NXSMenuLoop *menu_loop;
@@ -442,7 +442,11 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   int width = (int)floor(size.width * scale + .5), height = (int)floor(size.height * scale + .5);
   if (width < 1 || height < 1 || (size_t)width * height > 8 * 1024 * 1024) { [pool drain]; return result; }
   NSBitmapImageRep *bitmap;
-  if(native_backing(control->view)) {
+  /* Popup raster images must use the ordinary native device coordinates at
+   * the actual screen density. The legacy arbitrary-scale image path remains
+   * available when callers request a different density. */
+  BOOL popup=[control->view isKindOfClass:[NSPopUpButton class]];
+  if(native_backing(control->view)&&(!popup||fabs(scale-[control->window backingScaleFactor])<0.000001)) {
     /* AppKit's recursive display restores the window's gstate even with an
      * explicit image context. Render/read the real native backing instead.
      * Its field editor, selection and caret remain wholly native. */
@@ -490,6 +494,7 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   } @finally {end_draw_density(&density);}
   [context unlockFocusView:control->view needsFlush:NO];
   [control->view setNeedsDisplay:NO];
+  if(popup)[control->window setViewsNeedDisplay:NO];
   acknowledge_empty_panes(control->view);
   [NSGraphicsContext saveGraphicsState];
   [transform invert]; [transform concat];

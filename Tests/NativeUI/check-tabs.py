@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Qualify the native tab contract against ordinary AppKit tabs on Wayland."""
+"""Qualify native model controls against ordinary AppKit desktop references."""
 import argparse,json,os,resource,select,socket,subprocess,sys,tempfile,time
 from pathlib import Path
 from PIL import Image
@@ -13,7 +13,11 @@ for name in ['build','compositor','capture-probe','backend-bundle','output']:p.a
 p.add_argument('--previous-provider',type=Path)
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
+p.add_argument('--popup-title',action='store_true',help='Qualify popup display titles with the same desktop capture harness')
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
+binary='native-popup-title-probe' if a.popup_title else 'native-tab-probe'
+reference_title='Native popup title reference ' if a.popup_title else 'Native tab reference '
+images=8 if a.popup_title else 5
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)
@@ -36,10 +40,10 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
    assert command(f'test-scale {head} {scale} 10000')['ok'];assert command('confirm')['ok']
    out=a.output/str(scale);out.mkdir()
    with (out/'probe.stdout').open('wb') as stdout,(out/'probe.stderr').open('w') as stderr:
-    actor=subprocess.Popen([str(a.build/'native-ui/native-tab-probe'),str(out),str(scale/120),'-GSBackend','wayland','-GSTheme','NextSpace'],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr,bufsize=0);children.append(actor)
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),str(out),str(scale/120),'-GSBackend','wayland','-GSTheme','NextSpace'],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr,bufsize=0);children.append(actor)
     os.set_blocking(actor.stdout.fileno(),False);pending=b'';checks=[];deadline=time.monotonic()+60
     while actor.poll() is None or select.select([actor.stdout],[],[],0)[0]:
-     assert time.monotonic()<deadline,'Native tab probe deadline'
+     assert time.monotonic()<deadline,'Native control probe deadline'
      if not select.select([actor.stdout],[],[],.1)[0]:continue
      data=os.read(actor.stdout.fileno(),65536)
      if not data:break
@@ -47,7 +51,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
      while b'\n' in pending:
       line,pending=pending.split(b'\n',1);event=json.loads(line)
       if event.get('event')=='reference':
-       title='Native tab reference '+event['name']
+       title=reference_title+event['name']
        def reference():
         return next((w for w in command('windows') if w['pid']==actor.pid and w['title']==title and w['visible'] and w['buffer_width']==event['pixel_width'] and w['buffer_height']==event['pixel_height']),None)
        window=until(reference,'native reference backing at requested density')
@@ -69,15 +73,15 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
     code=actor.wait(timeout=5)
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
    assert code==0,(code,(out/'probe.stdout').read_text()[-1500:],(out/'probe.stderr').read_text()[-2500:])
-   assert checks[-1]['images']==5 and checks[-1]['api_bytes']==472
+   assert checks[-1]['images']==images and checks[-1]['api_bytes']==480
    assert all(row['passed'] for row in rows),[row for row in rows if not row['passed']]
   if a.previous_provider:
    old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_provider))
    with (a.output/'previous-provider.stdout').open('w') as stdout,(a.output/'previous-provider.stderr').open('w') as stderr:
-    actor=subprocess.Popen([str(a.build/'native-ui/native-tab-probe'),'--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=15)
     except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
-   rows.append(dict(case='previous-provider-without-tabs',passed=code==0))
+   rows.append(dict(case='previous-provider-without-'+('popup-title' if a.popup_title else 'tabs'),passed=code==0))
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
   if a.previous_client:
    for name,library in [('previous-client',a.build/'native-ui')]+([('previous-loader-and-client',a.previous_loader)] if a.previous_loader else []):
@@ -87,7 +91,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
      actor=subprocess.Popen([str(a.previous_client),str(out),'-GSBackend','wayland','-GSTheme','NextSpace'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
      try:code=actor.wait(timeout=20)
      except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
-    rows.append(dict(case=name+'-with-new-provider',passed=code==0 and sum(line.startswith('{') for line in (out/'stdout').read_text().splitlines())==5))
+    rows.append(dict(case=name+'-with-new-provider',passed=code==0 and sum(line.startswith('{') for line in (out/'stdout').read_text().splitlines())==(1 if a.popup_title else 5)))
     (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert rows[-1]['passed'],(name,code,(out/'stderr').read_text())
  finally:
   if capture:capture.stop()
@@ -100,4 +104,4 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
    except subprocess.TimeoutExpired:server.kill();server.wait()
   control.close();broker.close()
   (a.output/'cleanup.json').write_text(json.dumps([dict(pid=c.pid,exit=c.returncode) for c in children],indent=2)+'\n')
-print(json.dumps(dict(passed=len(rows),native_images=10)))
+print(json.dumps(dict(passed=len(rows),native_images=images*2)))

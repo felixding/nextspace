@@ -89,6 +89,10 @@ unsigned nxs_control_popup_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_items)&&HAS_INPUT(p,control_popup_state)&&HAS_INPUT(p,control_popup_item_rect)&&HAS_INPUT(p,control_set_screen_origin)?NXS_POPUP_ITEMS:0;}
 int nxs_control_popup_items(NXSControl *c,const NXSPopupItem *items,uint32_t count,int selected)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_items)?p->control_popup_items(c,items,count,selected):0;}
+unsigned nxs_control_popup_title_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_title)?1:0;}
+int nxs_control_popup_title(NXSControl *c,const char *title)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_title)?p->control_popup_title(c,title):0;}
 NXSPopupState nxs_control_popup_state(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_state)?p->control_popup_state(c):(NXSPopupState){.size=sizeof(NXSPopupState),.highlighted=-1};}
 NXSRect nxs_control_popup_item_rect(NXSControl *c,int index)

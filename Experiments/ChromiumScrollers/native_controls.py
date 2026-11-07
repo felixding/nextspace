@@ -162,6 +162,7 @@ class NativeControlServer:
         self.notifiers = {}
         self.range_capabilities=0
         self.popup_capabilities=0
+        self.popup_title_capabilities=0
         self.popup_open_capabilities=0
         self.text_capabilities=0
         if hasattr(native,'nxs_control_text_command'):
@@ -224,6 +225,11 @@ class NativeControlServer:
             native.nxs_control_popup_item_rect.restype=ControlRect
             native.nxs_control_set_screen_origin.argtypes=[C.c_void_p,C.c_double,C.c_double]
             native.nxs_control_set_screen_origin.restype=C.c_int
+        if hasattr(native,'nxs_control_popup_title_capabilities'):
+            native.nxs_control_popup_title_capabilities.restype=C.c_uint
+            self.popup_title_capabilities=native.nxs_control_popup_title_capabilities()
+            native.nxs_control_popup_title.argtypes=[C.c_void_p,C.c_char_p]
+            native.nxs_control_popup_title.restype=C.c_int
         if hasattr(native,'nxs_control_range_capabilities'):
             native.nxs_control_range_capabilities.argtypes=[]
             native.nxs_control_range_capabilities.restype=C.c_uint
@@ -594,6 +600,7 @@ class NativeControlServer:
         response.parts[5].width = self.range_capabilities
         response.parts[5].height = self.popup_capabilities
         response.parts[2].y = self.tab_capabilities
+        response.parts[1].x = self.popup_title_capabilities
         data = payload
         if state:
             response.parts[5].x=state.get('step',0)
@@ -741,6 +748,17 @@ class NativeControlServer:
             self._respond(client, req, state, pixels=True)
             return
         if state:
+            if req.operation==42 and req.kind==6:
+                title=data[C.sizeof(req):]
+                accepted=bool(self.popup_title_capabilities and state['client'] is client and not self._tracking(state) and
+                    req.state in (0,1) and (req.state or not title) and b'\0' not in title)
+                if accepted:
+                    try:title.decode('utf-8')
+                    except UnicodeDecodeError:accepted=False
+                if accepted:
+                    accepted=bool(self.native.nxs_control_popup_title(state['native'],title if req.state else None))
+                self._respond(client,req,state,input_result=int(accepted),pixels=accepted)
+                return
             if req.operation==37 and req.kind==10 and self.tab_capabilities and not req.text_size:
                 tabs=self.native.nxs_control_tab_state(state['native'])
                 wire=TabWireState(tabs.count,tabs.selected_index,tabs.selected,tabs.content)

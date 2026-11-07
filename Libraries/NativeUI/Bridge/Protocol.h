@@ -69,6 +69,12 @@ struct NXSControlPopupRequest {
   uint32_t text_size,reserved,count;
   int32_t selected;
 };
+/* Optional popup operation 42 uses NXSControlRequest. state=1 supplies an
+ * independent UTF-8 display title (including empty); state=0 with no payload
+ * restores the native selected-item title. Generic response part 1.x reports
+ * its capability separately, preserving existing popup capability values.
+ * Part 3.x accepts the mutation and returns the complete native bitmap.
+ * The originating connection owns the request; native tracking stays native. */
 /* Optional text editing, bootstrap part 6.y. Operation 17 synchronizes a
  * UTF-8 value and native UTF-16 selection, without emitting a user edit.
  * Operation 18 uses the ordinary request and returns NXSTextResponse followed

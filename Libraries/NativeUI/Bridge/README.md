@@ -102,6 +102,15 @@ The existing Chromium control suite passed all 261 checks after the extraction;
 the first Firefox binding is documented in
 [`Experiments/FirefoxNativeUI`](../../../Experiments/FirefoxNativeUI).
 
+Popup title operation 42 is independent of browser UI replacement. It uses the
+ordinary control request: `state=1` plus UTF-8 bytes sets a separate native
+display title, and `state=0` with no payload restores the selected-item title.
+Generic response part 1.x advertises support and part 3.x accepts the request.
+Existing popup capability values and all request layouts are unchanged. The
+helper requires the control's originating connection, validates the full text,
+and rejects pending/native tracking or an open menu. The native provider owns
+the actual popup cell and title; adapters supply application data only.
+
 Text capability 8 advertises multiline kind 9, using the existing text model,
 selection, pre-edit and command envelopes. Capability 16 additionally permits
 ordinary requests 32 (viewport query) and 33 (native scroll to x/y). Part 5 is

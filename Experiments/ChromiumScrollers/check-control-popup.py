@@ -47,6 +47,13 @@ def input(operation=8,key=0,text=b'',**values):
     for name,value in values.items():setattr(req,name,value)
     return exchange(req,text+text)[0]
 
+def title(value=None,**values):
+    payload=b'' if value is None else value if isinstance(value,bytes) else value.encode()
+    req=ControlRequest(magic=MAGIC,operation=42,process=process,kind=6,control=control,
+        state=int(value is not None),text_size=len(payload))
+    for name,value in values.items():setattr(req,name,value)
+    return exchange(req,payload)
+
 def check(case,condition,**data):
     results.append(dict(case=case,passed=bool(condition),**data))
     (a.output/'results.json').write_text(json.dumps(results,indent=2)+'\n');assert condition,results[-1]
@@ -75,6 +82,24 @@ try:
     check('native-item-model',response.parts[3].x==1 and response.parts[0].x==0)
     (a.output/'popup-normal.argb').write_bytes(pixels)
     check('native-control-pixels',pixels==(a.references/'popup-normal.argb').read_bytes())
+    check('independent-popup-title-capability',response.parts[1].x==1)
+    response,pixels=title('Hidden selected')
+    check('native-independent-title',response.parts[3].x==1 and response.parts[0].x==0 and
+        response.parts[0].width==0 and pixels==(a.references/'popup-independent-title.argb').read_bytes())
+    for value,values in [(b'\xff',{}),(b'\0',{}),('Unexpected',dict(state=0)),('',dict(state=2))]:
+        check('invalid-title-mutation-rejected',title(value,**values)[0].parts[3].x==0)
+    check('invalid-title-preserves-pixels',request(1)[1]==pixels)
+    intruder=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET);intruder.settimeout(3);intruder.connect(str(a.socket))
+    try:
+        req=ControlRequest(magic=MAGIC,operation=42,process=process,kind=6,control=control,state=1,text_size=5)
+        intruder.sendmsg([bytes(req),b'Other'])
+        check('other-connection-title-rejected',Response.from_buffer_copy(intruder.recv(65536)).parts[3].x==0)
+    finally:intruder.close()
+    check('other-connection-preserves-title',request(1)[1]==pixels)
+    response,pixels=title('')
+    check('empty-native-title',response.parts[3].x==1 and pixels==(a.references/'popup-empty-title.argb').read_bytes())
+    response,pixels=title()
+    check('native-selected-title-restored',response.parts[3].x==1 and pixels==(a.references/'popup-restored-title.argb').read_bytes())
     check('native-focus',input(operation=7,focused=1).parts[3].y==1)
     response,pixels=request(1,value=0)
     (a.output/'popup-focused.argb').write_bytes(pixels)
@@ -86,6 +111,7 @@ try:
     check('explicit-native-close-no-action',response.parts[3].x==1 and response.parts[6].width==0 and response.parts[0].width==0)
     input(operation=7,focused=1)
     check('native-open-key',input(text=b' ').parts[6].width>0)
+    check('open-menu-rejects-title',title('Busy')[0].parts[3].x==0)
     # No RPCs while this sleeps: native Wayland/window events must continue
     # through the native loop. The parent observes its mapped menu window.
     time.sleep(.1)
@@ -121,6 +147,7 @@ try:
         assert time.monotonic()<deadline
         time.sleep(.01)
     check('tracking-rejects-model-replacement',model()[0].parts[3].x==0)
+    check('tracking-rejects-title-replacement',title('Busy')[0].parts[3].x==0)
     request(4,x=rect.x+rect.width/2,y=rect.y+rect.height/2)
     response=wait_for(lambda r:not r.parts[0].y)
     check('native-mouse-selection',response.parts[0].x==4 and response.parts[0].width==2)

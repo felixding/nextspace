@@ -401,6 +401,19 @@ int nxs_gnustep_control_popup_items(NXSControl *control,const NXSPopupItem *item
   [view setEnabled:control->enabled];
   [pool drain];return 1;
 }
+int nxs_gnustep_control_popup_title(NXSControl *control,const char *title)
+{
+  if(!control||control->kind!=NXS_POPUP||control->destroying||nxs_host_tracking(control->host))return 0;
+  NSPopUpButton *view=(NSPopUpButton *)control->view;
+  if([[[view menu] window] isVisible])return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSString *value=title?[NSString stringWithUTF8String:title]:nil;
+  if(title&&!value){[pool drain];return 0;}
+  NSPopUpButtonCell *cell=(NSPopUpButtonCell *)[view cell];
+  [cell setUsesItemFromMenu:title==NULL];
+  if(title)[cell setTitle:value];else [view synchronizeTitleAndSelectedItem];
+  [view setNeedsDisplay:YES];[pool drain];return 1;
+}
 NXSPopupState nxs_gnustep_control_popup_state(NXSControl *control)
 {
   NXSPopupState result={.size=sizeof(result),.highlighted=-1};

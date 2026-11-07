@@ -26,6 +26,7 @@ double nxs_host_dispatch_events(double);
 int nxs_gnustep_control_needs_display(NXSControl *);
 int nxs_gnustep_control_set_step(NXSControl *,double);
 int nxs_gnustep_control_popup_items(NXSControl *,const NXSPopupItem *,uint32_t,int);
+int nxs_gnustep_control_popup_title(NXSControl *,const char *);
 NXSPopupState nxs_gnustep_control_popup_state(NXSControl *);
 NXSRect nxs_gnustep_control_popup_item_rect(NXSControl *,int);
 int nxs_gnustep_control_set_screen_origin(NXSControl *,double,double);

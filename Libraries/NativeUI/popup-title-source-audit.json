@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-07",
+  "baseline": "baf8a8ec",
+  "qualification": "popup-title-qualification.json",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/check-control-popup.py": "53bd5e100da240e5b7a4922b7d1541e6120630b8e1daa19b0e50646540e62c72",
+    "Experiments/ChromiumScrollers/helper.py": "8b02238e42d039584c80d6fe7173a6f2de7288b91a0208d70f6c74ddfd382330",
+    "Experiments/ChromiumScrollers/native_controls.py": "ff257478e82cac5149452e67a95e5a8d52677721362a065c080d86854a796551",
+    "Libraries/NativeUI/Bridge/BrowserPolicy.h": "8890b7e8288469f474c034dd7773715dc523a4c1e3b69e328b0ca4219987dedd",
+    "Libraries/NativeUI/Bridge/Protocol.h": "f89bb3c23a1797768b634b8eb061d1a54c5e647926a7bc5aa0e443e23f96d87e",
+    "Libraries/NativeUI/Bridge/README.md": "bb8e9190e5389651459d9ff190175206f165fd4d3555b2bfcc99591857395d42",
+    "Libraries/NativeUI/CMakeLists.txt": "6141cb653676e9f987f8341ea644864affc06970d92af12558d1ef17886645e2",
+    "Libraries/NativeUI/GNUstep/Controls.m": "da5552af3c7696a3656c1cef346b96c69de690055968eeaacddeb4b2bad9d316",
+    "Libraries/NativeUI/GNUstep/Provider.h": "57d7f213f5f07447239c8ffc75acc55d060dcf9c46683dbb7cd6b9b674f89561",
+    "Libraries/NativeUI/GNUstep/Provider.m": "d99b9479ea786c44da77fc457e774cef01b393e015e487723da0e804b977b760",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "6e318f141ab3a9da6a78342776c1943a2b41639a9fca6f3b88ab33e7ef620ae4",
+    "Libraries/NativeUI/Loader.c": "dfe36310ab3a9bda3d938d13760a6f09c15d982b390a6611c2fb575681e540f6",
+    "Libraries/NativeUI/NativeUI.h": "a51847c51aa052c5c1cad7c52f76a8e6f543e7df9e3a6fe22f3ad31326cd8a89",
+    "Libraries/NativeUI/README.md": "a06b2bc55864cce680ad6760366be13bcee7ae4cee97897002e34108315f2bd9",
+    "Tests/NativeUI/check-tabs.py": "b5b09c26ca368d12da07f1ebb9c955d9378ae1bace55967194d53ca6c2fd1c6b",
+    "Tests/NativeUI/check-toolbars.py": "baac268527bd738e2cad25086a76789694d298687a878558ebf76dcbed2c8fff",
+    "Tests/NativeUI/popup-probe.m": "38a93194725d388e2e49fa7df142a6f4e6778d5e66e71ad9f4ae8ff2dd2c0b08",
+    "Tests/NativeUI/popup-title-probe.m": "1e29cb91f16e5ff1e4a63baa424bc3875665c45d7bf4ab87023c6ded04d41aec"
+  },
+  "native_source": {
+    "path": ".build/native-ui/popup-source/NSPopUpButtonCell.m",
+    "url": "https://raw.githubusercontent.com/gnustep/libs-gui/gui-0_32_0/Source/NSPopUpButtonCell.m",
+    "sha256": "fa4f07c83c57a6d86f355c119eee34ec13225d1b31b08223efc4af2701074b7d",
+    "methods": [
+      "setUsesItemFromMenu:",
+      "setTitle:",
+      "synchronizeTitleAndSelectedItem"
+    ]
+  },
+  "observations": [
+    "Current runtime AppKit hash is unchanged from the preceding shared geometry checkpoint",
+    "The new provider prefix is asserted at compile time; original 472-byte loader/client pass unchanged",
+    "Eight actual native desktop reference pairs at each of two densities pass whole-image comparison",
+    "Native menu interaction remains in AppKit; no hidden-menu-item implementation is copied"
+  ]
+}
