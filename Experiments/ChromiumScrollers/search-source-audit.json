@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "ba5c198b",
+  "status": "pinned-native-search-editing-and-clear-qualified-search-activation-and-broader-integration-open",
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "619635fc5d6a426719dcea7de32ed736e422f9c2eb98c27c64d450f7a2879063",
+    "Libraries/NativeUI/Loader.c": "d1d22ec427e647563f07fbaef77ab5091a6c90938e87b7afc90da8fbfc64a154",
+    "Libraries/NativeUI/GNUstep/Controls.m": "5cf18afc696732baea359f8456d42231e31526e57ee29ff37a74786fee1c7e23",
+    "Libraries/NativeUI/GNUstep/Provider.h": "809b3af041f959e618fcf30ecd7d53165da360b189a8ca363c1d459d38f7d86d",
+    "Libraries/NativeUI/GNUstep/Provider.m": "62e397cf257fe4aa6b9691576dab2130b7e76aadf1e9178f7e7a1cff0e9ea3e8",
+    "Libraries/NativeUI/CMakeLists.txt": "39f871ac38c7c5df4e6a9a9dd646d57fc9e99f6f8bf238d7ddab3884232e8f5c",
+    "Libraries/NativeUI/README.md": "38c6d903e57364d423552b3f5b0a606092067ecd1903d63c026185e07ec03187",
+    "Experiments/ChromiumScrollers/forms-input.inc": "36b098cddfa5e13a1af0c3d647528b23226e5ac161c2b9147d8aba2ca8035163",
+    "Experiments/ChromiumScrollers/forms-layout.inc": "ca80c1a5aa8876e95191424c8b79b8fc0281b640a3f74626cd492e27d67f9e98",
+    "Experiments/ChromiumScrollers/forms-text.inc": "658002c201db4e04a490dbd0bfc8aba11e87ed80d0462fa29a6e66f2f429c590",
+    "Experiments/ChromiumScrollers/forms.inc": "cb80f0f76302cbe1dff6889a28f1e83c10cf6fa92378f4b565784c2e3a8fd899",
+    "Experiments/ChromiumScrollers/hook.c": "abfd5040ddf4688f35985945e1b797e00f5f564b78fbe3d984c7605febf094d8",
+    "Experiments/FirefoxNativeUI/controls.inc": "a11a560a84ca60a2b73f378f2b45a869468c058e97654287a764669372a2e959",
+    "Experiments/FirefoxNativeUI/text.inc": "0c014bb3da2a85a9d1e0c90d92b6181e63fa149e64f4d22cf24f61720a79556e",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "ab575f94d0295278e7d60441b27d20e11691e09356f0439d6a2c0ddf810d94aa",
+    "Experiments/ChromiumScrollers/native_controls.py": "1c7e611ff8c6aa478c15767f60d9ce3d77f60439baa1f52bcb3e2e4ff5b03ed9",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "524b734592e43d6d5b9583a92e0ca4ed4b6bc298e863ceefd36e134ca64bd076",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "d61aa80de46151db2c7d24dff2856b9b6ab5f65d428af9311d9ea85ecf998fcf",
+    "Tests/Wayland/native_search_fields.py": "c503190536b6691d5c3b6fb8c76201ec555d16150baa82f3cb370b2d0e663661",
+    "Tests/Wayland/native-search-fields.html": "323562d5861aed2d5358fed505297fdf2463d3ea0c607bdd0e1f1ea4b1a9662c",
+    "Tests/NativeUI/search-probe.m": "facaa2ce8a7c4905458ce27d351363717619ed3a58e131d42dfe9a1da7dd5f0b",
+    "Tests/NativeUI/text-probe.c": "07cff1f7f944bbbdab4726569bcda3cfecdab3cf71d79c212bf7b1644daa185e",
+    "Tests/NativeUI/text-filter-probe.c": "87bf2d85fdf33f2a0b1906872e79be00368c5e1d5cf8a418c9362b177cbe586d",
+    "Experiments/ChromiumScrollers/README.md": "8d4245fb33b7225b25e490a75114d6606d1b2af4935e96213516fff30c4cc669",
+    "Experiments/FirefoxNativeUI/README.md": "ec6745ee42c8c74e6eee9522a45eb3e0fa7f9d10c2200bbcf8d74275803b0ba4",
+    "docs/Native-Control-Integration.md": "42474569bd74ff6ec345f4088d1c10311410c76935d0c3557bac96fefc8f9f92"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/search-source/NSSearchField.m",
+      "bytes": 2876,
+      "sha256": "b78d519d8449c14d88c7d4d4a2dd4229cd962b9552896eff310b437dda067ba2"
+    },
+    {
+      "path": ".build/native-ui/search-source/NSSearchFieldCell.m",
+      "bytes": 19430,
+      "sha256": "f88558653c0711c19421bf40571263df75fe09a4541db5818f9c8e18b5765086"
+    },
+    {
+      "path": ".build/native-ui/search-source/cancel-source-attempt.txt",
+      "bytes": 201,
+      "sha256": "b1bc2905066d2e329983b98dc1d3e0631f9707e3fa600669c4be7a4f704263fa"
+    },
+    {
+      "path": ".build/native-ui/search-source/editor_command.cc",
+      "bytes": 101534,
+      "sha256": "1f70c87441bf80861349c7edfc93245c4b6ace44ffcbdac85b7626ba0c90e8fc"
+    },
+    {
+      "path": ".build/native-ui/search-source/native_search_fields-v1.py",
+      "bytes": 4586,
+      "sha256": "00600c2f236fd10ace1690bd06a9ebee4877f51f19b8ffed69e566848188d095"
+    },
+    {
+      "path": ".build/native-ui/search-source/native_search_fields-v2.py",
+      "bytes": 4653,
+      "sha256": "42de0a534b60013a52d5103e2e93a78a28478ac98f7d0fe64685ca8e85c2c984"
+    },
+    {
+      "path": ".build/native-ui/search-source/native_search_fields-v3.py",
+      "bytes": 7259,
+      "sha256": "a9a70d3fb997f37d6c7c1ffb7e79881fd1fa4749aee4f70b0dc38fd944f91984"
+    },
+    {
+      "path": ".build/native-ui/search-source/nsIFormControl.h",
+      "bytes": 9607,
+      "sha256": "ee0f8bee96f0f31b6a3215dca63d702b80f6654ab23d48e158defd71097b1d12"
+    },
+    {
+      "path": ".build/native-ui/search-source/pre-trace-forms-text.inc",
+      "bytes": 23958,
+      "sha256": "18065354d322d1a5981492b68e7c2f4cb7ac0ea751e9bfda968faa753ec0cefc"
+    },
+    {
+      "path": ".build/native-ui/search-source/search_input_type.cc",
+      "bytes": 6561,
+      "sha256": "f8779bf84b97ea18b936f96c7a96f5491ea9a90caf4ceb1cea7e89a95210e254"
+    },
+    {
+      "path": ".build/native-ui/search-source/sources.json",
+      "bytes": 1981,
+      "sha256": "472d23ccd720eed241800fa4037f306ca53b7dd8e062dc7327ed17848bb3be7e"
+    },
+    {
+      "path": ".build/native-ui/search-source/symbols.json",
+      "bytes": 3793,
+      "sha256": "5c24b42c8b457eb48409279323f8e88b25e4357c6d9e8685f1e35f34bc4a2df9"
+    },
+    {
+      "path": ".build/native-ui/search-source/symbols.py",
+      "bytes": 595,
+      "sha256": "a8fcabcc4b3f81534263d36763f8249cdd275d4ee5245d5bf781033953bbea5f"
+    },
+    {
+      "path": ".build/native-ui/search-source/text_control_inner_elements.cc",
+      "bytes": 13646,
+      "sha256": "dad7986ccddceab3b62506eb50d5a9bde3e3f92bd25c972b783e06cbbee451fb"
+    },
+    {
+      "path": ".build/native-ui/search-source/theme-types-source.json",
+      "bytes": 241,
+      "sha256": "4621c41b41a04fbea349577238cdd49ced17129db030761179b01a947c755a05"
+    },
+    {
+      "path": ".build/native-ui/search-source/theme_painter_default.cc",
+      "bytes": 40505,
+      "sha256": "1ef50eae3d648a0d488dbb1b8a7d62ea3f658a92ded8741eab6de909437c9ab7"
+    },
+    {
+      "path": ".build/native-ui/search-source/theme_types.h",
+      "bytes": 2472,
+      "sha256": "409d51ad5d346a62b613451fbe9c45fa34675797b3c6d15c0ba2ba09d46436d5"
+    },
+    {
+      "path": ".build/native-ui/search-source/trace-07-forms-text.inc",
+      "bytes": 24462,
+      "sha256": "8de8139d19a39a887d35d1aaf15f80a30c4d715b6eabdca2c22d3ae9427a4788"
+    }
+  ],
+  "gecko_pinned_types": {
+    "InputSearch": 142
+  },
+  "chromium_effective_appearance": {
+    "kSearchField": 11
+  },
+  "new_browser_private_calls": false,
+  "native_api": {
+    "version": 1,
+    "previous_size": 584,
+    "size": 592,
+    "appended": "control_search_part",
+    "kind": {
+      "NXS_SEARCHFIELD": 14
+    },
+    "capability": {
+      "NXS_TEXT_SEARCH": 64
+    }
+  },
+  "invariants": [
+    "The provider constructs the original NSSearchField/NSSearchFieldCell. Existing native field editors, text models, clipboard, filters, focus, native key interpretation and drawing are shared.",
+    "The search-part query consumes the actual native cell button/text rectangles; no icon, layout, hit inset, clear algorithm or control implementation is copied.",
+    "The cancel observer snapshots native pre-action text/selection, forwards the original native button target/action and proposes its actual clear result through the existing edit filter. Ordinary text-change actions do not enter this scope.",
+    "Chromium PaintSearchField delegates to the existing guarded PaintTextField boundary. Its hidden shadow widget click default is suppressed for trusted owned search clicks while page listeners remain active.",
+    "Native delete: uses DeleteBackward so the existing guarded deletion hook installs its native proposed range after beforeinput. No new engine call or copied editing algorithm is added.",
+    "Both pointer release bindings validate control identity after callbacks; Firefox consumes a retired gesture before invoking the original stale widget post handler.",
+    "API 1 retains the existing 584-byte prefix and all earlier kind numbers. New loader/old provider behavior is explicitly tested: no search capability/control, empty new part query, and existing fields still construct.",
+    "Browser address bars, toolbars and tabs remain original. Search submit/activation, recents, placeholders, broader native key/IME/accessibility behavior and the overall browser-then-GTK/Qt/KDE goal remain open."
+  ]
+}

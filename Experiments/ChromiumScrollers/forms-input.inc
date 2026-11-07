@@ -31,6 +31,7 @@ static int input_form_kind(void *node) {
   if(!type)return 0;
   int kind=!strcmp(type,"checkbox")?NXS_CHECKBOX:!strcmp(type,"radio")?NXS_RADIO:
     (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
+    (forms_search_enabled&&!strcmp(type,"search"))?NXS_SEARCHFIELD:
     (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")||!strcmp(type,"email")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
@@ -41,7 +42,7 @@ static struct NativeForm *bind_input_form(void *node) {
   int kind=input_form_kind(node);
   if(kind==NXS_POPUP||kind==NXS_LISTBOX||kind==NXS_TEXTAREA)return NULL; /* These controls bind through theme paint. */
   if(!kind||!decode_member((const char *)node+48))return NULL;
-  if(text_kind(kind)&&!native_layout_appearance(node,decode_member((const char *)node+48),12))return NULL;
+  if(text_kind(kind)&&!native_layout_appearance(node,decode_member((const char *)node+48),kind==NXS_SEARCHFIELD?11:12))return NULL;
   /* Keyboard focus can precede the first paint. Use the engine's layout box
    * and semantic control type to create the native object at that boundary. */
   struct FloatRect box=((struct FloatRect (*)(const void *))(base+0xef58ad4))(node);

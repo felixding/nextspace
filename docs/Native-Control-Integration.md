@@ -784,6 +784,22 @@ binds eligible single-line fields through its existing before-paint control
 boundary, fixing the first-key gap after a page changes the input type. Its
 original style eligibility reader is shared with the list binding.
 See [paired email qualification](../Experiments/ChromiumScrollers/email-qualification.json).
-The native UI library remains unchanged. Specialized search/number/date/time/file/
+The native UI library remains unchanged. Specialized number/date/time/file/
 color controls and the wider browser, menu/shortcut and GTK/Qt/KDE scope remain
 open, with browser address bars, toolbars and tabs kept original.
+
+
+Search editing and clear actions now bind the original shared NSSearchField
+instead of a browser search widget. Its original cell provides all button/text
+geometry and painting, exposed by the optional native search-part query. The
+provider forwards the original native cancel action and reuses the common edit
+filter; the two engine adapters keep trusted events, cancellation and control
+retirement in their original transactions. Chromium suppresses its competing
+hidden shadow click default, and Firefox checks that its old frame survived the
+native edit before continuing pointer post handling.
+
+See [search editing/clear qualification](../Experiments/ChromiumScrollers/search-qualification.json).
+Search submit/activation, recents/placeholder/key/IME/accessibility semantics,
+other specialized controls, full browser/derivative deployment, menus/shortcuts
+and later GTK/Qt/KDE integration remain open. The shared layer owns native
+components; future browser toolbar/tab changes stay optional app patches.

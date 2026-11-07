@@ -10,6 +10,7 @@ p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type
 p.add_argument('--text-regression',action='store_true')
 p.add_argument('--text-types-only',action='store_true',help='Run shared URL/telephone native text checks')
 p.add_argument('--email-only',action='store_true',help='Run native email editing and protected selection checks')
+p.add_argument('--search-only',action='store_true',help='Run real GNUstep search-field checks')
 a=p.parse_args();root=a.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as s:
@@ -29,7 +30,7 @@ f=ButtonFixture(root,command,js,check,pid,origin,lambda:None)
 try:
  session=m.command('WebDriver:NewSession',{});assert session['capabilities']['moz:processID']==pid
  window=f.wait(lambda:next((w for w in command('windows') if w['pid']==pid and w['level']==0),None));assert command('focus '+str(window['id']))['ok']
- if not (a.text_types_only or a.email_only):
+ if not (a.text_types_only or a.email_only or a.search_only):
   m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-button-sizing.html').as_uri()))
   f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"));buttons(f)
  if a.text_regression:
@@ -48,6 +49,11 @@ try:
   f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native email fields'"))
   from native_email_fields import EmailFixture,run as email_checks
   out=root/'email';out.mkdir();email_checks(EmailFixture(out,command,js,check,pid,origin,lambda:None))
+ if a.search_only:
+  m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-search-fields.html').as_uri()))
+  f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native search fields'"))
+  from native_search_fields import SearchFixture,run as search_checks
+  out=root/'search';out.mkdir();search_checks(SearchFixture(out,command,js,check,pid,origin,lambda:None))
  trace=(root/'hook.log').read_text();parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native-(?:text |button |widget |widget bound|select )',line)]
  check('browser-owned-ui-preserved',not parent and 'experimental native Gecko tab container installed' not in trace and 'native Gecko frontend text binding installed' not in trace,parent_native_widgets=parent)
  print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in x['case'] for x in rows))),flush=True)

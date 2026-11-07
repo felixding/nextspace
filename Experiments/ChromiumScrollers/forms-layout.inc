@@ -34,7 +34,7 @@ static int native_layout_appearance(const void *node,const void *layout,unsigned
   if(!native_layout_unit_scale(node,layout))return 0;
   const void *style=decode_member((const char *)layout+32);
   const void *data=style?decode_member((const char *)style+4):NULL;
-  /* EffectiveAppearance in this guarded build: kListbox=5, kTextField=12. */
+  /* EffectiveAppearance in this guarded build: kListbox=5, kSearchField=11, kTextField=12. */
   return data&&((*(const uint64_t *)((const char *)data+56)>>15)&31)==appearance;
 }
 static int native_content_size(const void *layout,int preferred,int block) {

@@ -11,6 +11,7 @@ struct BlinkTextTransaction {
   int attempted;
 };
 static __thread struct BlinkTextTransaction *text_transaction;
+static int native_text_proposal(const struct NXSNativeTextEdit *,const char *,const char *);
 static void *text_frame(void *);
 static int blink_application_command(const struct NXSNativeCommand *request,const char *selector) {
   static const struct {const char *selector,*name;uintptr_t enabled;} commands[]={
@@ -49,11 +50,11 @@ static int (*original_text_mouse_release)(void *,const void *,const void *);
 static int (*original_text_mouse_drag)(void *,const void *);
 static int (*original_text_pointer_up)(void *,const void *);
 static void *text_pointer_controller,*text_pointer_frame,*text_pointer_handler;
-static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA;}
+static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA||kind==NXS_SEARCHFIELD;}
 static int native_text_input_owned(const struct NativeForm *form) {
   return form&&text_kind(form->kind)&&(form->painted||
     (form->input_owned&&form->kind!=NXS_TEXTAREA&&
-     native_layout_appearance(form->node,decode_member((const char *)form->node+48),12)));
+     native_layout_appearance(form->node,decode_member((const char *)form->node+48),form->kind==NXS_SEARCHFIELD?11:12)));
 }
 static void (*original_textarea_default)(void *,void *);
 static void textarea_default(void *node,void *event)
@@ -135,12 +136,24 @@ static void echo_text_selection(struct NativeForm *form) {
 }
 static void end_text_pointer(struct NativeForm *form,int echo) {
   if(!form->text_tracking)return;
+  void *node=form->node;uint64_t control=form->control;
+  struct BlinkTextModel before={0};
+  struct BlinkTextTransaction transaction={.node=node,.frame=text_frame(node),.control=control};
+  int scope=echo&&form->kind==NXS_SEARCHFIELD&&!text_transaction&&form_focused(node)&&
+    text_model(node,&before);
+  if(scope){transaction.before=before.value;text_transaction=&transaction;}
   if(active_form==form)active_form=NULL;
   struct NXSResponse *response=form_request(form,4,form->text_x,form->text_y,0);
+  form=find_form(node);
   for(int n=0;response&&response->parts[0].y&&n<100;n++) {
+    if(!form||form->control!=control)break;
     struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);
     response=form_request(form,5,0,0,0);
+    form=find_form(node);
   }
+  if(scope){text_transaction=NULL;free(before.value);}
+  if(!form||form->control!=control)return;
+  if(transaction.attempted)sync_text_form(form,sync_form_focus(form,form_request(form,1,0,0,0)));
   if(echo)echo_text_selection(form);
   form->text_tracking=0;
   refresh_form_watch();
@@ -171,7 +184,7 @@ static int text_mouse_press(void *self,const void *event) {
     struct BlinkTextModel model={0};
     if(text_model(form->node,&model)) {
       struct NXSResponse *response=sync_text_image(form);
-      if(response) {
+      if(response&&(form->kind!=NXS_SEARCHFIELD||native_text_filter_register(native_text_proposal))) {
         struct FloatPoint point=form_point(form,event);
         response=clicks==1?form_request(form,2,point.x,point.y,event_modifiers(event)):
           native_pointer_press(form->kind,form->control,point.x,point.y,event_modifiers(event),clicks);
@@ -234,11 +247,13 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
     }
     ((void (*)(void *))(base+0x7246038))(&value);
   } else {
+    /* Delete requires a pre-existing DOM range; DeleteBackward reaches the
+     * guarded hook that installs the native proposal after beforeinput. */
     static const struct {const char *native,*engine;} commands[]={
       {"deleteBackward:","DeleteBackward"},{"deleteForward:","DeleteForward"},
       {"deleteWordBackward:","DeleteWordBackward"},{"deleteWordForward:","DeleteWordForward"},
       {"deleteToBeginningOfLine:","DeleteToBeginningOfLine"},{"deleteToEndOfLine:","DeleteToEndOfLine"},
-      {"delete:","Delete"},{"insertNewline:","InsertNewline"},{"insertTab:","InsertTab"}};
+      {"delete:","DeleteBackward"},{"insertNewline:","InsertNewline"},{"insertTab:","InsertTab"}};
     int found=0;
     for(size_t i=0;i<sizeof(commands)/sizeof(*commands);i++)if(!strcmp(command,commands[i].native)) {
       void *name=((void *(*)(const char *,size_t))(base+NXS_CHROMIUM_TEXT_FROM_UTF8_OFFSET))
@@ -291,7 +306,10 @@ static int default_text_key(void *node,void *event) {
   if(!strcmp(key,"Control")||!strcmp(key,"Alt")||!strcmp(key,"Shift")||!strcmp(key,"Meta")){free(key);return 0;}
   if(down&&(logical==NXS_KEY_ENTER||(!logical&&!(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))))){free(key);return 0;}
   if(press&&(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))){free(key);return 0;}
-  if(form->text_tracking)end_text_pointer(form,1);
+  if(form->text_tracking) {
+    uint64_t control=form->control;end_text_pointer(form,1);form=find_form(node);
+    if(!form||form->control!=control){free(key);*flags|=0x40;return 1;}
+  }
   char *text=(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))&&!logical?strdup(key):keyboard_text(web,102,"");
   /* Linux supplies a derived control character in unmodifiedText for real
    * Control-letter events. GNUstep expects the key's character here; Blink's

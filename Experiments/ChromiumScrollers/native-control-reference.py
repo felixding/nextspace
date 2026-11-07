@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem
+from native_controls import ControlRect, NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -90,11 +90,11 @@ for item in json.loads(args.controls.read_text()):
                 assert native.nxs_control_sync(pointer,C.byref(config))
         if 'step' in item:
             assert api.range_capabilities and native.nxs_control_set_step(pointer,item['step'])
-        deferred_focus=item['kind'] in (7,8,9) and item.get('focus_after_model',False)
+        deferred_focus=item['kind'] in (7,8,9,14) and item.get('focus_after_model',False)
         if args.focus and item['enabled'] and item['kind'] != 5 and not deferred_focus:
             assert api.input_capabilities & 1
             assert native.nxs_control_focus(pointer, 1)
-        if item['kind'] in (7,8,9):
+        if item['kind'] in (7,8,9,14):
             model=TextModel(C.sizeof(TextModel),item['text'].encode(),
                 item.get('selection_start',1) if args.focus and item['enabled'] else item.get('selection_start',0),
                 item.get('selection_length',2) if args.focus and item['enabled'] else item.get('selection_length',0),item.get('editable',1))
@@ -146,6 +146,14 @@ for item in json.loads(args.controls.read_text()):
         results.append(dict(id=item['id'], size=[image.width, image.height],
                             preferred=[preferred.width, preferred.height]))
         if text_keys:results[-1]['text_keys']=text_keys
+        if item['kind']==14:
+            native.nxs_control_search_part.argtypes=[C.c_void_p,C.c_int]
+            native.nxs_control_search_part.restype=ControlRect
+            parts={}
+            for name,part in [('search',1),('cancel',2),('text',3)]:
+                rect=native.nxs_control_search_part(pointer,part)
+                parts[name]={key:getattr(rect,key) for key in ('x','y','width','height')}
+            results[-1]['search_parts']=parts
         if item['kind']==13:
             state=native.nxs_control_list_state(pointer);selection=(C.c_uint64*state.selected_count)()
             assert native.nxs_control_list_selection(pointer,selection,len(selection))==len(selection)
@@ -183,7 +191,7 @@ for item in json.loads(args.controls.read_text()):
             frame=native.nxs_control_popup_state(pointer).frame
             results[-1]['native_menu_frame']={key:getattr(frame,key) for key in ('x','y','width','height')}
             assert native.nxs_control_popup_open(pointer,0)
-        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12,13):
+        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12,13,14):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))
@@ -194,7 +202,7 @@ for item in json.loads(args.controls.read_text()):
                 native.nxs_control_key(pointer,C.byref(event))
                 values.append(dict(key=name,value=native.nxs_control_state(pointer).value))
             results[-1]['keys']=values
-        if args.keys and item['enabled'] and item['kind'] in (7,8) and item.get('editable',1):
+        if args.keys and item['enabled'] and item['kind'] in (7,8,14) and item.get('editable',1):
             assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1)
             values=[]
             for name,key,text,modifiers in [('Control+a',0,b'a',4),('Control+e',0,b'e',4),
@@ -218,7 +226,7 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_text_get(pointer,buffer,len(buffer),C.byref(state))
             results[-1]['return_sequence']=dict(value=buffer.value.decode(),start=state.selection_start,
                 end=state.selection_start+state.selection_length)
-        if args.pointers and item['enabled'] and item['kind'] in (7,8):
+        if args.pointers and item['enabled'] and item['kind'] in (7,8,14):
             assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1),item['id']
             values=[]
             cases=[('left',3,3,0),('near',10,10,0),('middle',25,25,0),

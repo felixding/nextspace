@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Native search fields</title>
+<style>
+body {margin:30px;background:white;color:black;font:14px sans-serif}
+label {display:block;margin-bottom:18px}
+input {box-sizing:border-box;width:320px;height:24px;padding:0}
+</style>
+<form id="form">
+<label>Search <input id="searchfield" type="search" value="Alpha beta"></label>
+<label>Read only <input id="readonly" type="search" value="Read only" readonly></label>
+<label>Disabled <input id="disabled" type="search" value="Disabled" disabled></label>
+<label>Limited <input id="limited" type="search" value="abc" maxlength="5"></label>
+<label>Clipboard peer <input id="peer" value=""></label>
+<label>Changing type <input id="dynamic" type="search" value="Alpha beta"></label>
+</form>
+<script>
+window.events=[];
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','copy','cut','paste','select','search'])
+ document.addEventListener(type,e=>{if(e.target instanceof HTMLInputElement)events.push({type,id:e.target.id,
+  data:e.data??null,inputType:e.inputType??null,trusted:e.isTrusted,value:e.target.value,
+  start:e.target.selectionStart,end:e.target.selectionEnd});});
+form.addEventListener('submit',e=>{e.preventDefault();events.push({type:'submit',trusted:e.isTrusted})});
+</script>

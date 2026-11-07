@@ -23,9 +23,11 @@ enum { NXS_MOVE, NXS_RELEASE };
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
   NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR, NXS_RADIOGROUP,
-  NXS_LISTBOX
+  NXS_LISTBOX, NXS_SEARCHFIELD
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
+/* Original native cell rectangles in control top-left coordinates. */
+enum NXSSearchPart { NXS_SEARCH_BUTTON=1, NXS_SEARCH_CANCEL, NXS_SEARCH_TEXT };
 typedef struct {
   uint32_t size;
   double width, height, minimum, maximum, value;
@@ -140,7 +142,8 @@ typedef struct {
   const char *text, *unmodified_text;
 } NXSKeyEvent;
 enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4,
-  NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16, NXS_TEXT_GEOMETRY = 32 };
+  NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16, NXS_TEXT_GEOMETRY = 32,
+  NXS_TEXT_SEARCH = 64 };
 typedef struct {
   uint32_t size;
   NXSRect visible;
@@ -299,6 +302,7 @@ typedef struct {
   int (*control_list_scroll)(NXSControl *,double,double);
   int (*control_scroll_geometry)(NXSControl *,NXSScrollGeometry *);
   int (*control_item_at_point)(NXSControl *,double,double,uint64_t *);
+  NXSRect (*control_search_part)(NXSControl *,int);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -329,6 +333,7 @@ unsigned nxs_control_scroll_capabilities(void);
  * Unsupported controls/providers and invalid input leave the output intact.
  * This read-only query does not change selection, focus or actions. */
 int nxs_control_item_at_point(NXSControl *,double x,double y,uint64_t *identifier);
+NXSRect nxs_control_search_part(NXSControl *,int part);
 unsigned nxs_control_item_hit_capabilities(void);
 NXSControl *nxs_control_create(int kind, NXSControlChanged changed, NXSPump pump, void *context);
 int nxs_control_destroy(NXSControl *control);

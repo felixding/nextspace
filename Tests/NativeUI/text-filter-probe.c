@@ -7,7 +7,7 @@ struct Probe {
   NXSControl *control;
   const char *before,*replacement,*command;
   uint64_t start,length,selection,selected;
-  int allow,proposals,changes;
+  int allow,proposals,changes,kind,actions;
 };
 static void value(struct Probe *p,const char *expected)
 {
@@ -34,7 +34,8 @@ static int filter(void *context,const NXSTextEdit *edit)
   return p->allow;
 }
 static void changed(void *context,int event,const NXSControlState *state)
-{struct Probe *p=context;assert(event==NXS_TEXT_CHANGED&&state->tracking);p->changes++;}
+{struct Probe *p=context;assert(state->tracking);if(event==NXS_ACTIVATE){assert(p->kind==NXS_SEARCHFIELD);p->actions++;}
+ else {assert(event==NXS_TEXT_CHANGED);p->changes++;}}
 static void model(struct Probe *p,const char *text,uint64_t selection,uint64_t length)
 {
   NXSTextModel m={.size=sizeof(m),.text=text,.selection_start=selection,.selection_length=length,.editable=1};
@@ -58,8 +59,9 @@ int main(int argc,char **argv)
     puts("{\"previous_text_provider_without_filter\":true}");return 0;
   }
   assert((nxs_control_text_capabilities()&(NXS_TEXT_EDITING|NXS_TEXT_FILTER))==(NXS_TEXT_EDITING|NXS_TEXT_FILTER));
-  for(int kind=NXS_TEXTFIELD;kind<=NXS_PASSWORD;kind++) {
-    struct Probe p={0};p.control=nxs_control_create(kind,changed,NULL,&p);assert(p.control);
+  const int kinds[]={NXS_TEXTFIELD,NXS_PASSWORD,NXS_SEARCHFIELD};
+  for(unsigned index=0;index<sizeof(kinds)/sizeof(*kinds);index++) {
+    int kind=kinds[index];struct Probe p={.kind=kind};p.control=nxs_control_create(kind,changed,NULL,&p);assert(p.control);
     NXSControlConfig config={.size=sizeof(config),.width=180,.height=24,.enabled=1};assert(nxs_control_sync(p.control,&config));
     assert(nxs_control_text_filter(p.control,filter,&p));
     model(&p,"Hello",1,2);assert(nxs_control_focus(p.control,1));
@@ -75,7 +77,7 @@ int main(int argc,char **argv)
     assert(nxs_control_focus(p.control,0));assert(nxs_control_focus(p.control,1));
     model(&p,"日本語Café🙂",9,0); /* Refocus uses the native select-all policy. */
     p.allow=1;key(&p,NXS_KEY_TEXT,"X",0);value(&p,"日本語Café🙂X");assert(p.proposals==6&&p.changes==3);
-    if(kind==NXS_TEXTFIELD) {
+    if(kind!=NXS_PASSWORD) {
       model(&p,"Copy me",0,7);key(&p,NXS_KEY_TEXT,"c",NXS_ALT);assert(p.proposals==6);
       p.start=0;p.length=7;p.replacement="";p.command="cut:";p.allow=0;
       key(&p,NXS_KEY_TEXT,"x",NXS_ALT);value(&p,"Copy me");assert(p.proposals==7&&p.changes==3);
@@ -88,5 +90,5 @@ int main(int argc,char **argv)
     model(&p,"Plain",5,0);key(&p,NXS_KEY_TEXT,"X",0);value(&p,"PlainX");assert(p.proposals==count);
     assert(nxs_control_destroy(p.control));
   }
-  puts("{\"native_filter_controls\":2,\"pre_mutation_value\":true,\"native_ranges_and_selectors\":true,\"typing_veto\":true,\"deletion_veto\":true,\"cut_veto\":true,\"paste_proposal\":true,\"unicode\":true,\"focus_transfer\":true,\"model_rebind\":true,\"reentrant_mutation_deferred\":true,\"filter_removal\":true}");
+  puts("{\"native_filter_controls\":3,\"pre_mutation_value\":true,\"native_ranges_and_selectors\":true,\"typing_veto\":true,\"deletion_veto\":true,\"cut_veto\":true,\"paste_proposal\":true,\"unicode\":true,\"focus_transfer\":true,\"model_rebind\":true,\"reentrant_mutation_deferred\":true,\"filter_removal\":true}");
 }

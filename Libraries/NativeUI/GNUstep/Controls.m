@@ -19,16 +19,31 @@ struct NXSControl {
   NXSTextShouldChange text_filter;
   void *text_filter_context;
   SEL text_command;
+  NSString *text_value;
   BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
 };
 double nxs_gnustep_control_backing_scale(NXSControl *control)
 {return control&&!control->destroying?[[control->view window] backingScaleFactor]:0;}
 static int text_control(NXSControl *control)
-{return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD||control->kind==NXS_TEXTAREA);}
+{return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD||control->kind==NXS_TEXTAREA||control->kind==NXS_SEARCHFIELD);}
 static NSTextView *text_editor(NXSControl *control)
 {return control->kind==NXS_TEXTAREA?(NSTextView *)[(NSScrollView *)control->view documentView]:
   (NSTextView *)[(NSTextField *)control->view currentEditor];}
-unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE;}
+unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH;}
+NXSRect nxs_gnustep_control_search_part(NXSControl *control,int part) {
+  if(!control||control->kind!=NXS_SEARCHFIELD||control->destroying)return (NXSRect){0};
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSSearchFieldCell *cell=[(NSSearchField *)control->view cell];
+  NSRect bounds=[control->view bounds],rect;
+  switch(part) {
+    case NXS_SEARCH_BUTTON:rect=[cell searchButtonRectForBounds:bounds];break;
+    case NXS_SEARCH_CANCEL:rect=[cell cancelButtonRectForBounds:bounds];break;
+    case NXS_SEARCH_TEXT:rect=[cell searchTextRectForBounds:bounds];break;
+    default:[pool drain];return (NXSRect){0};
+  }
+  NXSRect result=nxs_host_rect_from_view(control->host,control->view,rect);
+  [pool drain];return result;
+}
 NXSTextViewport nxs_gnustep_control_text_viewport(NXSControl *control)
 {
   NXSTextViewport state={.size=sizeof(state)};
@@ -87,12 +102,16 @@ static void slider_model(NXSControl *control)
 @interface NXSControlAction : NSObject {
  @public NXSControl *control;
  @private id editor_delegate;
+  id search_cancel_target;
+  SEL search_cancel_action;
 }
 - (void)changed:(id)sender;
 - (void)willPopUp:(NSNotification *)notification;
 - (void)controlTextDidChange:(NSNotification *)notification;
 - (void)controlTextDidEndEditing:(NSNotification *)notification;
 - (void)bindTextEditor;
+- (void)bindSearchAction;
+- (void)searchCancel:(id)sender;
 @end
 @implementation NXSControlAction
 - (void)dealloc {[editor_delegate release];[super dealloc];}
@@ -156,8 +175,37 @@ static void slider_model(NXSControl *control)
 - (void)willSendTextAction:(NSNotification *)notification
 {if(nxs_host_focused(control->host))control->text_command=[[[notification userInfo] objectForKey:@"MenuItem"] action];}
 - (void)controlTextDidBeginEditing:(NSNotification *)notification {[self bindTextEditor];}
+- (void)bindSearchAction
+{
+  NSButtonCell *button=[[(NSSearchField *)control->view cell] cancelButtonCell];
+  search_cancel_target=[button target];search_cancel_action=[button action];
+  [button setTarget:self];[button setAction:@selector(searchCancel:)];
+}
+- (void)searchCancel:(id)sender
+{
+  /* Observe the original native button action, including its actual result.
+   * Text-change actions from the same search cell are distinct from this. */
+  NSTextView *editor=text_editor(control);
+  control->text_value=[(editor?[editor string]:[(NSTextField *)control->view stringValue]) copy];
+  if(editor)control->text_selection=[editor selectedRange];
+  [NSApp sendAction:search_cancel_action to:search_cancel_target from:sender];
+  [control->text_value release];control->text_value=nil;
+}
 - (void)changed:(id)sender
 {
+  if(control->kind==NXS_SEARCHFIELD&&control->text_filter&&control->text_value) {
+    /* The original search cell has already chosen and performed its action.
+     * Transport its clear result through the same application edit gate. */
+    NSString *value=[[(NSSearchField *)control->view cell] stringValue];
+    if(![value length]&&![value isEqualToString:control->text_value]) {
+      NSRange selection=control->text_selection;
+      NXSTextEdit edit={.size=sizeof(edit),.range_length=[control->text_value length],
+        .selection_start=selection.location,.selection_length=selection.length,
+        .replacement=[value UTF8String],.command="delete:"};
+      if(!control->text_editable||!control->text_filter(control->text_filter_context,&edit))
+        [[(NSSearchField *)control->view cell] setStringValue:control->text_value];
+    }
+  }
   if(!control->changed)return;
   NXSControlState state=nxs_gnustep_control_state(control);
   control->changed(control->context,(control->kind==NXS_SLIDER||control->kind==NXS_POPUP)?NXS_VALUE_CHANGED:NXS_ACTIVATE,&state);
@@ -185,7 +233,7 @@ static void slider_model(NXSControl *control)
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_LISTBOX)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_SEARCHFIELD)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
@@ -210,8 +258,9 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
     [editor setAutoresizingMask:NSViewWidthSizable];
     [[editor textContainer] setWidthTracksTextView:YES];
     [scroll setDocumentView:editor];[editor release];view=scroll;
-  } else if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD) {
+  } else if(kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_SEARCHFIELD) {
     view=kind==NXS_PASSWORD?[[NSSecureTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)]:
+      kind==NXS_SEARCHFIELD?[[NSSearchField alloc] initWithFrame:NSMakeRect(0,0,120,24)]:
       [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)];
   } else if(kind==NXS_POPUP) {
     view=[[NSPopUpButton alloc] initWithFrame:NSMakeRect(0,0,120,24) pullsDown:NO];
@@ -243,6 +292,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
       [[NSNotificationCenter defaultCenter] addObserver:target selector:@selector(willSendTextAction:)
         name:NSMenuWillSendActionNotification object:[NSTextView defaultMenu]];
     }
+    if(kind==NXS_SEARCHFIELD)[target bindSearchAction];
     if(kind==NXS_POPUP)[[NSNotificationCenter defaultCenter] addObserver:target
       selector:@selector(willPopUp:) name:NSPopUpButtonWillPopUpNotification object:view];
   }
@@ -267,7 +317,7 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   if(control->kind==NXS_POPUP||text_control(control))[[NSNotificationCenter defaultCenter] removeObserver:control->target];
   if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
   [view release];
-  [control->target release];free(control);[pool drain];return 1;
+  [control->target release];[control->text_value release];free(control);[pool drain];return 1;
 }
 int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
 {

@@ -8,6 +8,7 @@ NXSRect nxs_gnustep_control_list_item_rect(NXSControl *,uint64_t);
 int nxs_gnustep_control_list_scroll(NXSControl *,double,double);
 int nxs_gnustep_control_scroll_geometry(NXSControl *,NXSScrollGeometry *);
 int nxs_gnustep_control_item_at_point(NXSControl *,double,double,uint64_t *);
+NXSRect nxs_gnustep_control_search_part(NXSControl *,int);
 NXSScroller *nxs_gnustep_scroller_create(int,NXSChanged,NXSPump,void *);
 void nxs_gnustep_scroller_destroy(NXSScroller *);
 double nxs_gnustep_scroller_width(void);

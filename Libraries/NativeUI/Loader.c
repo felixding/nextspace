@@ -213,3 +213,5 @@ NXSToolbarState nxs_control_toolbar_state(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_state)?p->control_toolbar_state(c):(NXSToolbarState){.size=sizeof(NXSToolbarState),.highlighted=-1};}
 NXSRect nxs_control_toolbar_item_rect(NXSControl *c,uint64_t identifier)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_item_rect)?p->control_toolbar_item_rect(c,identifier):(NXSRect){0};}
+NXSRect nxs_control_search_part(NXSControl *c,int part)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_search_part)?p->control_search_part(c,part):(NXSRect){0};}

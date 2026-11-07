@@ -267,6 +267,7 @@ class NativeControlServer:
                 native.nxs_control_text_filter.argtypes=[C.c_void_p,TextShouldChange,C.c_void_p]
                 native.nxs_control_text_filter.restype=C.c_int
         self.text_kinds=(7,8,9) if self.text_capabilities&8 else (7,8)
+        if self.text_capabilities&64:self.text_kinds+=(14,)
         if self.text_capabilities&16:
             native.nxs_control_text_viewport.argtypes=[C.c_void_p]
             native.nxs_control_text_viewport.restype=TextViewport
@@ -804,7 +805,7 @@ class NativeControlServer:
             if req.kind==13 and (not req.process or not req.control or req.text_size or req.enabled not in (0,1) or
                     any((req.minimum,req.maximum,req.value,req.x,req.y,req.state,req.indeterminate,req.modifiers))):
                 self._respond(client,req);return
-            if (req.kind not in (*range(1,11),12,13) or (req.kind==13 and not self.list_capabilities) or (req.kind==12 and not self.radio_capabilities) or (req.kind==10 and not self.tab_capabilities) or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
+            if (req.kind not in (*range(1,11),12,13,14) or (req.kind==14 and not self.text_capabilities&64) or (req.kind==13 and not self.list_capabilities) or (req.kind==12 and not self.radio_capabilities) or (req.kind==10 and not self.tab_capabilities) or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
                 (req.kind in self.text_kinds and not self.text_capabilities) or
                 not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value))):
                 self._respond(client, req)

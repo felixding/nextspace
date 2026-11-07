@@ -1013,3 +1013,22 @@ extends transport metadata, with no provider/loader ABI or UI implementation
 change. The ordinary-window and C transport probes compare actual native row
 rectangles and state, including an unchanged previously compiled client; see
 [paired metadata qualification](list-item-geometry-qualification.json).
+
+
+### Search fields
+
+NXS_SEARCHFIELD creates the original GNUstep NSSearchField with its original
+NSSearchFieldCell. It shares the existing text model, field editor, filter,
+clipboard and focus bindings. NXS_TEXT_SEARCH advertises support. The optional
+nxs_control_search_part query returns native search-button, cancel-button and
+text rectangles; API 1's existing 584-byte prefix is unchanged, with the new
+function pointer appended at byte 584 (total 592 bytes). Older providers return
+no search capability and an empty part rectangle through the current loader.
+
+The cancel observer forwards the original button target/action, snapshots its
+native pre-action string/selection and offers the actual clear result to the
+existing edit filter. Ordinary text-change actions do not enter that scope. An
+embedding can veto the local result, run its original validation/events/undo and
+echo its canonical model through the same text sync API. Search submit/activation
+and recents integration remain application-binding work. No native widget
+drawing, layout, clearing or key algorithm is reimplemented in this provider.

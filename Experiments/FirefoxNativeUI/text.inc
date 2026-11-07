@@ -10,13 +10,14 @@ struct TextTransaction {
   int attempted;
 };
 static __thread struct TextTransaction *text_transaction;
+static int native_text_proposal(const struct NXSNativeTextEdit *,const char *,const char *);
 static void (*original_text_scroll_display)(void *,void *,const void *);
 static uint32_t (*original_text_keypress)(void *,void *);
 static void *original_text_delete_subaction;
 static uint32_t (*original_text_frame_event)(void *,void *,void *,int *);
 static unsigned text_watch;
 static int (*text_watch_remove)(unsigned);
-static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA;}
+static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA||kind==NXS_SEARCHFIELD;}
 static void *text_control_state(void *node)
 {return *(void **)((char *)node+(node_kind(node)==NXS_TEXTAREA?304:352));}
 static uint32_t (*original_textarea_post)(void *,void *);
@@ -80,9 +81,32 @@ static void echo_native_selection(struct Widget *w) {
   }
   if(multiline_viewport_enabled&&w->kind==NXS_TEXTAREA)echo_text_viewport(w);
 }
-static struct NXSResponse *end_text_pointer(struct Widget *w) {
-  struct NXSResponse *response=range_settle(w,widget_request(w,4,w->range_x,w->range_y,0));
-  w->text_tracking=0;if(active_widget==w)active_widget=NULL;
+static struct NXSResponse *end_text_pointer(struct Widget *w,int commit) {
+  void *node=w->node;uint64_t control=w->id;
+  struct TextModel before={0};
+  struct TextTransaction transaction={.node=node};
+  int scope=commit&&w->kind==NXS_SEARCHFIELD&&!text_transaction&&widget_focused(w)&&text_model(node,&before);
+  if(scope) {
+    transaction.editor=((void *(*)(void *))(base+NXS_GECKO_TEXT_EDITOR_OFFSET))(node);
+    if(transaction.editor) {
+      ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_ADDREF_OFFSET))(transaction.editor);
+      transaction.before=before.value;text_transaction=&transaction;
+    }
+  }
+  if(active_widget==w)active_widget=NULL;
+  struct NXSResponse *response=widget_request(w,4,w->range_x,w->range_y,0);
+  w=widget_for_node(node);
+  for(unsigned n=0;response&&response->parts[0].y&&n<100;n++) {
+    if(!w||w->id!=control)break;
+    struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);
+    response=widget_request(w,5,0,0,0);w=widget_for_node(node);
+  }
+  if(scope) {
+    if(transaction.editor){text_transaction=NULL;((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_RELEASE_OFFSET))(transaction.editor);}
+    free(before.value);
+  }
+  w=widget_for_node(node);
+  if(w&&w->id==control){w->text_tracking=0;if(transaction.attempted)response=sync_text_widget(w);}
   return response;
 }
 static struct NXSResponse *sync_text_widget(struct Widget *w) {
@@ -99,7 +123,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
       if(!response||!button_cache_update(w,response))response=NULL;
       free(model.value);return response;
     }
-    end_text_pointer(w);
+    end_text_pointer(w,0);
   }
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)goto done;
@@ -155,12 +179,19 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
   void *node=message==15&&root?*(void **)((char *)root+24):NULL;
   if(node)((unsigned (*)(void *))(base+0x3b9f0e4))(node);
   if(active_widget&&text_kind(active_widget->kind)&&(message==13||message==14)) {
-    struct Widget *w=active_widget;struct PointI point=widget_point(w,event);
+    struct Widget *w=active_widget;void *owner=w->node;uint64_t control=w->id;struct PointI point=widget_point(w,event);
     w->range_x=point.x/60.;w->range_y=point.y/60.;
-    if(message==14&&*(const int16_t *)((char *)event+152)==0)end_text_pointer(w);
+    if(message==14&&*(const int16_t *)((char *)event+152)==0)end_text_pointer(w,1);
     else if(message==13)pointer_request(w,3,event);
-    if(widget_focused(w))echo_native_selection(w);
-    invalidate_widget(w);
+    w=widget_for_node(owner);
+    if(!w||w->id!=control) {
+      /* Page beforeinput may destroy the frame during the native action.
+       * DOM dispatch already ran; do not call the old widget's post handler. */
+      *status=1;
+      if(node)((unsigned (*)(void *))(base+0x47ba6b8))(node);
+      return 0;
+    }
+    if(w&&w->id==control){if(widget_focused(w))echo_native_selection(w);invalidate_widget(w);}
   }
   uint32_t result=original_post_event(self,context,event,frame,status,override);
   if(node&&*status!=1&&!(*((const uint8_t *)event+49)&2)&&*(const int16_t *)((char *)event+152)==0) {

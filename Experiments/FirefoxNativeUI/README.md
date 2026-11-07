@@ -833,7 +833,7 @@ The shared text-types fixture compares complete native controls, tests Alt+C/V
 from a URL field into a telephone field, and exercises read-only/disabled fields,
 script updates, changing between text/URL/telephone and retirement during an edit.
 Existing plain/password/Unicode text checks run in the same fixture. Browser
-address bars, tabs and toolbars retain their components. Search, number
+address bars, tabs and toolbars retain their components. Number
 and other specialized field types still need integration. See the paired
 [text-type qualification](../ChromiumScrollers/text-types-qualification.json).
 
@@ -858,3 +858,27 @@ control binder for eligible single-line text fields, so immediate input after a
 page changes the field type still reaches the native editor. The same guarded
 style reader serves list and text eligibility. See the paired
 [email qualification](../ChromiumScrollers/email-qualification.json).
+
+
+### Native search editing and clear actions
+
+Search inputs use the same shared native text binding with the original
+GNUstep NSSearchField and NSSearchFieldCell. The native cell supplies the search
+button, clear button, text rectangle, sizing and painting. NXS_SEARCHFIELD and
+NXS_TEXT_SEARCH extend the existing control/model contract; providers without
+the capability retain the original application fallback. NativeUI's optional
+search-part query extends API 1 to 592 bytes while preserving its older prefix.
+
+The clear observer forwards the original native button target/action and sends
+its actual result through the existing text filter. Browser transactions retain
+trusted beforeinput/input, cancellation and callback retirement. Chromium also
+skips its hidden shadow widget's competing click default. Native delete: uses
+the existing guarded DeleteBackward path so the proposed range is installed
+after beforeinput. Firefox revalidates the owner before continuing pointer post
+handling after a page callback destroys the frame. No search widget, clear
+algorithm, icon, inset or key-binding table is copied.
+
+Search submit/activation, recents, placeholders, broader key/IME/accessibility
+semantics and other builds remain open. Browser address bars, toolbars and tabs
+keep their existing components. See the measured
+[search editing/clear qualification](../ChromiumScrollers/search-qualification.json).

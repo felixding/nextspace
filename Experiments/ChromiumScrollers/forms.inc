@@ -61,6 +61,7 @@ static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
+static int forms_search_enabled;
 static int forms_multiline_enabled;
 static int forms_multiline_viewport_enabled;
 static int forms_wheel_enabled;
@@ -319,7 +320,9 @@ static void finish_form(double x,double y,unsigned modifiers) {
   struct NativeForm *form=active_form;if(!form)return;
   if(form->kind==NXS_LISTBOX){uint32_t node=radio_node_id(form->node);uint64_t control=form->control,before=form->list.state.actions;active_form=NULL;struct NXSResponse *r=list_form_request(form,4,x,y,modifiers);for(unsigned i=0;r&&r->parts[0].y&&i<100;i++){struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);r=native_list_request(control,5,0,0,1);}list_after_input(node,control,before);return;}
   if(text_kind(form->kind)) {
-    form->text_x=x;form->text_y=y;end_text_pointer(form,1);invalidate_form(form);return;
+    void *node=form->node;uint64_t control=form->control;
+    form->text_x=x;form->text_y=y;end_text_pointer(form,1);form=find_form(node);
+    if(form&&form->control==control)invalidate_form(form);return;
   }
   active_form=NULL;
   struct NXSResponse *response=form_request(form,4,x,y,modifiers);
@@ -475,6 +478,12 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
 static int dom_dispatch(void *dispatcher) {
   void *node=*(void **)dispatcher,*event=*((void **)dispatcher+1);
   uintptr_t atom=*(const uintptr_t *)((const char *)event+24);
+  if(forms_search_enabled&&(*(const unsigned short *)((const char *)event+32)&0x100)&&same_atom(atom,0x123a5590)) {
+    struct NativeForm *form=form_ancestor(node);
+    /* The original shadow cancel button is hidden by the complete native
+     * field. Page listeners still run; its second widget default must not. */
+    if(form&&form->kind==NXS_SEARCHFIELD&&form->painted)*(unsigned short *)((char *)event+32)|=0x40;
+  }
   struct NXSCheckboxActivation previous_checkbox=native_checkbox_activation;int checkbox_scope=0;
   if((*(const unsigned short *)((const char *)event+32)&0x100)&&click_form) {
     uint64_t stamp=*(const uint64_t *)((const char *)event+88);

@@ -32,6 +32,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
+static int search_enabled;
 static int radio_groups_enabled,labels_enabled;
 static int multiline_enabled;
 static int multiline_viewport_enabled;
@@ -107,6 +108,7 @@ static int node_kind(const void *node) {
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
     buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
     sliders_enabled&&type==148?NXS_SLIDER:
+    search_enabled&&type==142?NXS_SEARCHFIELD:
     texts_enabled&&(type==133||type==144||type==145||type==147)?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
 }
 static int frame_kind(const void *frame) {
@@ -610,6 +612,7 @@ static void prepare_widget_metrics(void) {
   const char *lists=getenv("NEXTSPACE_FIREFOX_LISTS");lists_requested=popups_requested&&lists&&!strcmp(lists,"1")&&((unsigned)response->parts[3].x&1)&&((unsigned)response->parts[3].y&NXS_SCROLL_GEOMETRY)&&((unsigned)response->parts[2].y&NXS_LIST_ITEM_GEOMETRY)&&((unsigned)response->parts[2].x&1);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
+  search_enabled=texts_enabled&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH);
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
   multiline_enabled=texts_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)response->parts[6].y&NXS_TEXT_MULTILINE);
   const char *viewport=getenv("NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT");

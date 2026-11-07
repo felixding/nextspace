@@ -67,6 +67,14 @@ static void caret(struct Probe *p)
 }
 int main(int argc,char **argv)
 {
+  if(argc>1&&!strcmp(argv[1],"--expect-no-search")) {
+    assert(!(nxs_control_text_capabilities()&NXS_TEXT_SEARCH));
+    assert(!nxs_control_create(NXS_SEARCHFIELD,NULL,NULL,NULL));
+    NXSControl *control=nxs_control_create(NXS_TEXTFIELD,NULL,NULL,NULL);assert(control);
+    NXSRect part=nxs_control_search_part(control,NXS_SEARCH_CANCEL);
+    assert(!part.x&&!part.y&&!part.width&&!part.height&&nxs_control_destroy(control));
+    puts("{\"older_provider_without_search\":true}");return 0;
+  }
   if(argc>1&&!strcmp(argv[1],"--expect-no-text")) {
     assert(!nxs_control_text_capabilities());assert(!nxs_control_text_sync(NULL,NULL));
     assert(!nxs_control_text_get(NULL,NULL,0,NULL));
@@ -75,7 +83,10 @@ int main(int argc,char **argv)
   }
   assert(nxs_control_text_capabilities()&NXS_TEXT_EDITING);
   const char *directory=argc>1&&argv[1][0]!='-'?argv[1]:NULL;
-  for(int kind=NXS_TEXTFIELD;kind<=NXS_PASSWORD;kind++) {
+  const int kinds[]={NXS_TEXTFIELD,NXS_PASSWORD,NXS_SEARCHFIELD};
+  assert(nxs_control_text_capabilities()&NXS_TEXT_SEARCH);
+  for(unsigned index=0;index<sizeof(kinds)/sizeof(*kinds);index++) {
+    int kind=kinds[index];
     struct Probe p={0};p.control=nxs_control_create(kind,changed,NULL,&p);assert(p.control);
     NXSControlConfig c={.size=sizeof(c),.width=180,.height=24,.enabled=1};assert(nxs_control_sync(p.control,&c));
     model(&p,"Hello",1,2,1);assert(!p.edits&&!p.actions);
@@ -97,7 +108,7 @@ int main(int argc,char **argv)
     model(&p,"日本語Café🙂",9,0,1);assert(nxs_control_focus(p.control,1));
     state=value(&p,"日本語Café🙂");assert(state.selection_start==9);
     key(&p,NXS_KEY_TEXT,"X",0);value(&p,"日本語Café🙂X");
-    if(kind==NXS_TEXTFIELD) {
+    if(kind!=NXS_PASSWORD) {
       caret(&p);
       model(&p,"Alpha beta",5,0,1);key(&p,NXS_KEY_TEXT,"a",NXS_CONTROL);
       state=value(&p,"Alpha beta");assert(state.selection_start==0&&!state.selection_length);
@@ -118,5 +129,5 @@ int main(int argc,char **argv)
     assert(key(&p,NXS_KEY_TEXT,"Z",0)==NXS_INPUT_UNHANDLED);value(&p,"Read only");
     assert(nxs_control_focus(p.control,0));assert(nxs_control_destroy(p.control));
   }
-  puts("{\"native_text_controls\":2,\"selection_replace\":true,\"delete\":true,\"unicode\":true,\"read_only\":true,\"disabled\":true,\"native_navigation\":true,\"deferred_destruction\":true,\"emacs_control_a_e\":true,\"alt_copy_paste\":true,\"secure_copy_blocked\":true,\"native_return_action\":true,\"native_caret_invalidation_and_pixels\":true}");
+  puts("{\"native_text_controls\":3,\"selection_replace\":true,\"delete\":true,\"unicode\":true,\"read_only\":true,\"disabled\":true,\"native_navigation\":true,\"deferred_destruction\":true,\"emacs_control_a_e\":true,\"alt_copy_paste\":true,\"secure_copy_blocked\":true,\"native_return_action\":true,\"native_caret_invalidation_and_pixels\":true}");
 }
