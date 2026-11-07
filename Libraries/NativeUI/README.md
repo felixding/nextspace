@@ -1029,6 +1029,15 @@ The cancel observer forwards the original button target/action, snapshots its
 native pre-action string/selection and offers the actual clear result to the
 existing edit filter. Ordinary text-change actions do not enter that scope. An
 embedding can veto the local result, run its original validation/events/undo and
-echo its canonical model through the same text sync API. Search submit/activation
-and recents integration remain application-binding work. No native widget
-drawing, layout, clearing or key algorithm is reimplemented in this provider.
+echo its canonical model through the same text sync API.
+
+NXS_TEXT_SEARCH_ACTION advertises native search-button commands. Its observer
+forwards the original button target/action, then reports performClick: through
+the existing application-command filter. Ordinary text changes and keyboard
+Return do not enter that observer. API 1 remains 592 bytes; an older search
+provider keeps editing/clear support without advertising the new action. The
+shared bridge activation receipt carries only control identity, command serial
+and host epoch. Applications consume it after their cancellable click dispatch
+and retain their original form, validation and event behavior. Recents remain
+application-binding work. No widget drawing, layout, clearing or key algorithm
+is reimplemented in this provider.

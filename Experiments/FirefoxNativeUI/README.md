@@ -878,7 +878,32 @@ after beforeinput. Firefox revalidates the owner before continuing pointer post
 handling after a page callback destroys the frame. No search widget, clear
 algorithm, icon, inset or key-binding table is copied.
 
-Search submit/activation, recents, placeholders, broader key/IME/accessibility
-semantics and other builds remain open. Browser address bars, toolbars and tabs
+The native search-button binding is described below. Recents, placeholders,
+broader key/IME/accessibility semantics and other builds remain open. Browser address bars, toolbars and tabs
 keep their existing components. See the measured
 [search editing/clear qualification](../ChromiumScrollers/search-qualification.json).
+
+
+### Native search-button activation
+
+The shared provider forwards the original NSSearchField search-button action
+and emits performClick: through the existing command filter. Capability
+NXS_TEXT_SEARCH_ACTION gates this extension without changing API 1/592.
+The common bridge retains only an activation receipt with native control ID,
+command serial and host epoch. Adapters consume it after the original DOM
+click dispatch, where page listeners can cancel, remove or change the field.
+
+Chromium uses its original TextEvent factory and internal EventTarget dispatcher
+on the owning input. Its original input default handler retains change, implicit
+submission, validation, default submitters and asynchronous search events.
+Firefox uses its original FireChangeEventIfNeeded and MaybeSubmitForm methods
+with the real pointer event's nsPresContext, after querying Gecko's existing
+enabled state. Original keyboard Enter keeps its existing engine path. These
+methods are guarded against the pinned binaries; no browser is recompiled.
+
+See [search-action qualification](../ChromiumScrollers/search-action-qualification.json)
+and its source audit for measured coverage and limitations. Clear-button click
+cancellation/search notifications, recents and broader editing/IME/accessibility
+contracts remain separate work. Webpage control coverage, other browser builds
+and derivatives, complete menus/shortcuts/deployment, then GTK/Qt/KDE remain
+open. Later toolbar/tab patches must reuse the same native UI provider.

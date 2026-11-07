@@ -799,7 +799,25 @@ hidden shadow click default, and Firefox checks that its old frame survived the
 native edit before continuing pointer post handling.
 
 See [search editing/clear qualification](../Experiments/ChromiumScrollers/search-qualification.json).
-Search submit/activation, recents/placeholder/key/IME/accessibility semantics,
+Recents/placeholder/key/IME/accessibility semantics,
 other specialized controls, full browser/derivative deployment, menus/shortcuts
 and later GTK/Qt/KDE integration remain open. The shared layer owns native
-components; future browser toolbar/tab changes stay optional app patches.
+components; future browser toolbar/tab changes stay optional app patches. These patches
+must consume the same NativeUI provider as webpage and future GTK/Qt bindings.
+They adapt application models and actions; control implementations and native
+key interpretation stay in the underlying UI library, so a UI-library change
+updates every consumer.
+
+
+Native search-button activation uses the same provider and command filter. The
+provider forwards the original cell action; the shared bridge carries its
+control/serial/host identity to the browser's cancellable click default phase.
+Chromium dispatches its original TextEvent to the owning input; Firefox calls
+its original change and form-submit helpers after checking the current engine
+enabled state. The engines retain form policy and trusted application events.
+The UI library adds no form algorithm or second control. Older search providers
+retain editing/clear without the new action capability; API 1 stays 592 bytes.
+See [search-action qualification](../Experiments/ChromiumScrollers/search-action-qualification.json).
+This checkpoint does not close clear-button click-default cancellation/search
+notifications, recents, or the remaining specialized controls and integration
+contracts listed above.

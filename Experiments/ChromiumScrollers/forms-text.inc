@@ -22,6 +22,12 @@ static int blink_application_command(const struct NXSNativeCommand *request,cons
   if(!t||request->process!=identity()||request->control!=t->control)return 0;
   struct NativeForm *form=find_form(t->node);
   if(!form||form->kind!=(int)request->kind||form->control!=t->control||text_frame(t->node)!=t->frame)return 0;
+  if(forms_search_actions_enabled&&form->kind==NXS_SEARCHFIELD&&!strcmp(selector,"performClick:")) {
+    if(t->event)return -1; /* Real Enter retains the original keyboard default. */
+    if(request->phase==NXS_COMMAND_VALIDATE)return 1;
+    native_activation_arm(&native_search_activation,(uintptr_t)t->node,t->control,request->serial);
+    native_search_click_time=0;t->attempted=1;return 1;
+  }
   for(unsigned n=0;n<sizeof(commands)/sizeof(*commands);n++)if(!strcmp(selector,commands[n].selector)) {
     int enabled=((uint8_t (*)(void *,void *,int))(base+commands[n].enabled))(t->frame,t->event,0);
     if(request->phase==NXS_COMMAND_VALIDATE)return !!enabled;
@@ -38,6 +44,19 @@ static int blink_application_command(const struct NXSNativeCommand *request,cons
     return !!handled;
   }
   return -1;
+}
+static void search_activate(void *node,void *event,uint64_t control) {
+  struct NativeForm *form=find_form(node);void *frame=text_frame(node);
+  if(!form||form->control!=control||form->kind!=NXS_SEARCHFIELD||!frame||!form_enabled(node))return;
+  void *document=node_document(node),*window=document?decode_member((char *)document+264):NULL;
+  if(!window)return;
+  /* Target the owning input. A pointer event's raw target can be an anonymous
+   * editor child, whose default path misses the input's search notification.
+   * The original event factory/dispatcher retain all form and event policy. */
+  void *text=((void *(*)(const char *,size_t))(base+NXS_CHROMIUM_TEXT_FROM_UTF8_OFFSET))("\n",1);
+  void *input=((void *(*)(void *,const void *,int))(base+NXS_CHROMIUM_SEARCH_CREATE_OFFSET))(window,&text,0);
+  if(input)((unsigned (*)(void *,void *))(base+NXS_CHROMIUM_SEARCH_DISPATCH_OFFSET))(node,input);
+  ((void (*)(void *))(base+NXS_CHROMIUM_TEXT_STRING_DESTROY_OFFSET))(&text);
 }
 static int (*original_text_paint)(void *,const void *,const void *,const void *,const struct Rect *);
 static void (*original_text_carets)(void *,const void *,const void *,const void *);
@@ -184,7 +203,8 @@ static int text_mouse_press(void *self,const void *event) {
     struct BlinkTextModel model={0};
     if(text_model(form->node,&model)) {
       struct NXSResponse *response=sync_text_image(form);
-      if(response&&(form->kind!=NXS_SEARCHFIELD||native_text_filter_register(native_text_proposal))) {
+      if(response&&(form->kind!=NXS_SEARCHFIELD||(native_text_filter_register(native_text_proposal)&&
+         (!forms_search_actions_enabled||native_command_filter_register(chromium_application_command))))) {
         struct FloatPoint point=form_point(form,event);
         response=clicks==1?form_request(form,2,point.x,point.y,event_modifiers(event)):
           native_pointer_press(form->kind,form->control,point.x,point.y,event_modifiers(event),clicks);

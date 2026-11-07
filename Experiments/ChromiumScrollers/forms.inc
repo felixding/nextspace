@@ -62,6 +62,9 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_search_enabled;
+static int forms_search_actions_enabled;
+static __thread struct NXSControlActivation native_search_activation;
+static __thread uint64_t native_search_click_time;
 static int forms_multiline_enabled;
 static int forms_multiline_viewport_enabled;
 static int forms_wheel_enabled;
@@ -115,6 +118,7 @@ static void popup_sync_origin(struct NativeForm *);
 static void native_button_size_changed(struct NativeForm *,const struct NXSResponse *);
 static int native_button_owned(const struct NativeForm *);
 static int text_kind(int);
+static void search_activate(void *,void *,uint64_t);
 static int guard_radio_calls(void);
 static struct NXSResponse *radio_form_request(struct NativeForm *,int,double,double,unsigned);
 static struct NXSResponse *radio_form_focus(struct NativeForm *);
@@ -478,6 +482,19 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
 static int dom_dispatch(void *dispatcher) {
   void *node=*(void **)dispatcher,*event=*((void **)dispatcher+1);
   uintptr_t atom=*(const uintptr_t *)((const char *)event+24);
+  int trusted=!!(*(const unsigned short *)((const char *)event+32)&0x100);
+  struct NXSControlActivation search_action={0};
+  if(forms_search_actions_enabled&&trusted) {
+    if(same_atom(atom,0x123a55f8)||same_atom(atom,0x123a55d8))native_activation_clear(&native_search_activation);
+    struct NativeForm *owner=native_search_activation.serial?form_ancestor(node):NULL;
+    if(owner&&(uintptr_t)owner->node==native_search_activation.target&&owner->control==native_search_activation.control) {
+      uint64_t stamp=*(const uint64_t *)((const char *)event+88);
+      if(same_atom(atom,0x123a5608))native_search_click_time=stamp;
+      if(same_atom(atom,0x123a5590)&&native_search_click_time==stamp) {
+        search_action=native_search_activation;native_activation_clear(&native_search_activation);
+      }
+    }
+  }
   if(forms_search_enabled&&(*(const unsigned short *)((const char *)event+32)&0x100)&&same_atom(atom,0x123a5590)) {
     struct NativeForm *form=form_ancestor(node);
     /* The original shadow cancel button is hidden by the complete native
@@ -506,6 +523,10 @@ static int dom_dispatch(void *dispatcher) {
   form_key_event=keyboard_form?event:NULL;
   form_key_control=keyboard_form?keyboard_form->control:0;
   int result=native_wheel_dispatch(dispatcher);
+  if(search_action.serial&&!(*(const unsigned short *)((char *)event+32)&0x20)) {
+    void *owner=(void *)(uintptr_t)search_action.target;uint64_t control=search_action.control;
+    if(native_activation_take(&search_action,(uintptr_t)owner,control))search_activate(owner,event,control);
+  }
   if(checkbox_scope)native_checkbox_activation=previous_checkbox;
   form_key_node=previous_node;form_key_event=previous_event;
   form_key_control=previous_control;
@@ -516,6 +537,7 @@ static void element_detach(void *node,int reattach) {
   while(*cursor&&(*cursor)->node!=node)cursor=&(*cursor)->next;
   struct NativeForm *form=*cursor;
   if(form) {
+    if(native_search_activation.control==form->control)native_activation_clear(&native_search_activation);
     native_wheel_binding(form,0);
     if(active_form==form)active_form=NULL;
     if(click_form==form)click_form=NULL;

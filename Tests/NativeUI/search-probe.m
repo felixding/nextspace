@@ -5,18 +5,28 @@
 #include <objc/runtime.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 _Static_assert(offsetof(NXSNativeUIAPI,control_search_part)==584,"Preserve the existing provider prefix");
 static IMP original_init;
 static NSSearchField *observed;
 static id witness_init(id self,SEL selector,NSRect frame)
 {id result=((id (*)(id,SEL,NSRect))original_init)(self,selector,frame);observed=result;return result;}
-int main(void)
+struct Actions {NXSControl *control;double x,y;int released,actions,commands;};
+static void changed(void *context,int event,const NXSControlState *state)
+{struct Actions *p=context;assert(event==NXS_ACTIVATE&&state->tracking);p->actions++;}
+static void release_pointer(void *context)
+{struct Actions *p=context;if(!p->released){p->released=1;nxs_control_send(p->control,NXS_RELEASE,p->x,p->y,0);}}
+static int command(void *context,const char *selector,unsigned phase)
+{struct Actions *p=context;assert(!strcmp(selector,"performClick:")&&phase==NXS_COMMAND_EXECUTE&&p->actions==1);
+ assert(!nxs_control_destroy(p->control));p->commands++;return 1;}
+int main(int argc,char **argv)
 {
  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+ struct Actions actions={0};
  SEL selector=@selector(initWithFrame:);Class klass=[NSSearchField class];
  Method method=class_getInstanceMethod(klass,selector);original_init=method_getImplementation(method);
  class_replaceMethod(klass,selector,(IMP)witness_init,method_getTypeEncoding(method));
- NXSControl *control=nxs_control_create(NXS_SEARCHFIELD,NULL,NULL,NULL);assert(control);
+ NXSControl *control=nxs_control_create(NXS_SEARCHFIELD,changed,release_pointer,&actions);assert(control);actions.control=control;
  NSSearchField *actual=observed;assert(actual&&[actual isKindOfClass:[NSSearchField class]]);
  assert([[actual cell] isKindOfClass:[NSSearchFieldCell class]]);
  class_replaceMethod(klass,selector,original_init,method_getTypeEncoding(method));
@@ -32,7 +42,18 @@ int main(void)
  }
  NXSSize size=nxs_control_size(control);NSSize expected=[cell cellSize];assert(size.width==expected.width&&size.height==expected.height);
  NXSRect invalid=nxs_control_search_part(control,0);assert(!invalid.width&&!invalid.height);
+ if(argc>1&&!strcmp(argv[1],"--expect-no-search-action")) {
+  assert(!(nxs_control_text_capabilities()&NXS_TEXT_SEARCH_ACTION));
+  assert(nxs_control_destroy(control));[reference release];
+  puts("{\"older_search_provider_without_activation\":true}");[pool drain];return 0;
+ }
+ assert(nxs_control_text_capabilities()&NXS_TEXT_SEARCH_ACTION);
+ assert(nxs_control_command_filter(control,command,&actions));
+ NXSRect button=nxs_control_search_part(control,NXS_SEARCH_BUTTON);
+ actions.x=button.x+button.width/2;actions.y=button.y+button.height/2;
+ nxs_control_track(control,actions.x,actions.y,0);
+ assert(actions.released&&actions.actions==1&&actions.commands==1);
  assert(nxs_control_destroy(control));[reference release];
- puts("{\"original_search_field_class\":true,\"original_search_cell_class\":true,\"native_button_and_text_geometry\":true,\"native_preferred_size\":true,\"provider_prefix_preserved\":true}");
+ puts("{\"original_search_field_class\":true,\"original_search_cell_class\":true,\"native_button_and_text_geometry\":true,\"native_preferred_size\":true,\"provider_prefix_preserved\":true,\"original_button_action_forwarded_once\":true,\"native_activation_command_once\":true}");
  [pool drain];return 0;
 }

@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><title>Native search actions</title>
+<style>
+body {margin:25px;background:white;color:black;font:14px sans-serif}
+form {margin:0 0 12px} label {display:inline-block;width:100px}
+input {box-sizing:border-box;width:260px;height:24px;padding:0}
+</style>
+<div id="cases">
+<form id="singleform"><label>Single</label><input type="search" id="single" name="q" value="Alpha"></form>
+<form id="explicitform"><label>Default button</label><input type="search" id="explicit" value="Alpha"><button id="submitbutton" type="submit">Go</button></form>
+<form id="multiform"><label>Two fields</label><input type="search" id="multi" value="Alpha"><input type="search" id="other" value="Other"></form>
+<form id="invalidform"><label>Invalid</label><input type="search" id="invalidfield" pattern="[A-Z]+" value="invalid"></form>
+<form id="readonlyform"><label>Read only</label><input type="search" id="readonly" readonly value="Read only"></form>
+<form id="disabledform"><label>Disabled</label><input type="search" id="disabled" disabled value="Disabled"></form>
+<form id="dynamicform"><label>Callbacks</label><input type="search" id="dynamic" value="Callback"></form>
+<label>No form</label><input type="search" id="unowned" value="No form">
+</div>
+<script>
+const initial=cases.innerHTML;
+window.events=[];
+window.restore=()=>{cases.innerHTML=initial;events=[]};
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','click','search','invalid','submit'])
+ document.addEventListener(type,e=>{
+  events.push({type,id:e.target.id,trusted:e.isTrusted,value:e.target.value??null,submitter:e.submitter?.id??null});
+  if(type==='submit'||type==='invalid')e.preventDefault();
+ },true);
+</script>

@@ -1,6 +1,18 @@
 /* Native action receipts and scoped application binding data, not checkbox
  * state rules or widget behavior. Include after Transport.inc. GPL-2.0-or-later. */
 struct NXSControlAction {uint32_t epoch;int state,ready;};
+/* Transfer a real native action to an application's cancellable default phase.
+ * Identity and host lifetime only; event dispatch and semantics stay there. */
+struct NXSControlActivation {uint64_t target,control,serial;uint32_t epoch;};
+static void native_activation_clear(struct NXSControlActivation *action)
+{*action=(struct NXSControlActivation){0};}
+static void native_activation_arm(struct NXSControlActivation *action,uint64_t target,uint64_t control,uint64_t serial)
+{*action=(struct NXSControlActivation){target,control,serial,atomic_load(&native_host_epoch)};}
+static int native_activation_take(struct NXSControlActivation *action,uint64_t target,uint64_t control)
+{
+  int valid=action->serial&&action->target==target&&action->control==control&&action->epoch==atomic_load(&native_host_epoch);
+  native_activation_clear(action);return valid;
+}
 struct NXSCheckboxActivation {uint64_t node,control;struct NXSControlAction action;int armed;};
 static __thread struct NXSCheckboxActivation native_checkbox_activation;
 static int native_control_action_snapshot(const struct NXSResponse *response,double before,struct NXSControlAction *action)

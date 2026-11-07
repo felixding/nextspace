@@ -33,6 +33,11 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int search_enabled;
+static int search_actions_enabled;
+static __thread struct NXSControlActivation native_search_activation;
+static __thread void *native_search_context;
+static __thread void *native_search_pointer_event;
+static uint32_t search_click_events(void *,void *,void *,int *,void *,void *);
 static int radio_groups_enabled,labels_enabled;
 static int multiline_enabled;
 static int multiline_viewport_enabled;
@@ -131,9 +136,12 @@ static int widget_focused(const struct Widget *w) {
 static void invalidate_widget(struct Widget *w) {
   ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,1);
 }
+static uint64_t widget_content_state(const struct Widget *w) {
+  return ((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
+}
 static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
   if(w->kind==NXS_RADIO&&radio_groups_enabled)return gecko_radio_request(w,operation,x,y,modifiers);
-  uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
+  uint64_t state=widget_content_state(w);
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=w->kind,.control=w->id,.width=w->width,.height=w->height,
     .maximum=1,.state=(w->kind==NXS_CHECKBOX&&(state&64))?-1:!!(state&32),
@@ -342,6 +350,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   uint64_t tab_target=tabs_pointer_target(frame,event);
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
+  if(trusted&&message==15)native_activation_clear(&native_search_activation);
   if(trusted){native_popup_pointer_post(event);native_list_pointer_post(event);}
   if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
   if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
@@ -420,6 +429,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   return result;
 }
 static uint32_t click_events(void *self,void *shell,void *event,int *status,void *target,void *override) {
+  if(search_actions_enabled&&native_search_activation.serial)return search_click_events(self,shell,event,status,target,override);
   if(click_gate.event==event&&click_gate.radio) {
     void *chosen=gecko_radio_pointer_target(click_gate.node,click_gate.control);
     return chosen?original_click_events(self,shell,event,status,chosen,NULL):0;
@@ -547,6 +557,7 @@ static void release_idle_widget_notifier(void) {
 }
 static void forget_widget(struct Widget **cursor) {
   struct Widget *w=*cursor;
+  if(native_search_activation.control==w->id)native_activation_clear(&native_search_activation);
   if(active_widget==w)active_widget=NULL;
   widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w->button_model_title);free(w);
   release_idle_widget_notifier();
@@ -613,6 +624,7 @@ static void prepare_widget_metrics(void) {
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   search_enabled=texts_enabled&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH);
+  search_actions_enabled=search_enabled&&response->parts[5].y==1&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH_ACTION);
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
   multiline_enabled=texts_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)response->parts[6].y&NXS_TEXT_MULTILINE);
   const char *viewport=getenv("NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT");

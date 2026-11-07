@@ -29,7 +29,7 @@ static int text_control(NXSControl *control)
 static NSTextView *text_editor(NXSControl *control)
 {return control->kind==NXS_TEXTAREA?(NSTextView *)[(NSScrollView *)control->view documentView]:
   (NSTextView *)[(NSTextField *)control->view currentEditor];}
-unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH;}
+unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH|NXS_TEXT_SEARCH_ACTION;}
 NXSRect nxs_gnustep_control_search_part(NXSControl *control,int part) {
   if(!control||control->kind!=NXS_SEARCHFIELD||control->destroying)return (NXSRect){0};
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
@@ -104,6 +104,8 @@ static void slider_model(NXSControl *control)
  @private id editor_delegate;
   id search_cancel_target;
   SEL search_cancel_action;
+  id search_submit_target;
+  SEL search_submit_action;
 }
 - (void)changed:(id)sender;
 - (void)willPopUp:(NSNotification *)notification;
@@ -112,6 +114,7 @@ static void slider_model(NXSControl *control)
 - (void)bindTextEditor;
 - (void)bindSearchAction;
 - (void)searchCancel:(id)sender;
+- (void)searchSubmit:(id)sender;
 @end
 @implementation NXSControlAction
 - (void)dealloc {[editor_delegate release];[super dealloc];}
@@ -180,6 +183,14 @@ static void slider_model(NXSControl *control)
   NSButtonCell *button=[[(NSSearchField *)control->view cell] cancelButtonCell];
   search_cancel_target=[button target];search_cancel_action=[button action];
   [button setTarget:self];[button setAction:@selector(searchCancel:)];
+  button=[[(NSSearchField *)control->view cell] searchButtonCell];
+  search_submit_target=[button target];search_submit_action=[button action];
+  [button setTarget:self];[button setAction:@selector(searchSubmit:)];
+}
+- (void)searchSubmit:(id)sender
+{
+  [NSApp sendAction:search_submit_action to:search_submit_target from:sender];
+  nxs_host_command(control->host,@selector(performClick:),NXS_COMMAND_EXECUTE);
 }
 - (void)searchCancel:(id)sender
 {

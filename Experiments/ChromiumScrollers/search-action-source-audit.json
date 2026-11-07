@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "a66c253f",
+  "status": "pinned-native-search-button-activation-qualified-broader-native-integration-open",
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "bfc20620d1422c58fb621a2eae3ead83620bb11df8e5a68fb9fe4d30e7faca10",
+    "Libraries/NativeUI/GNUstep/Controls.m": "82a1b28753db52fcdaabfd297676059802c6326c207a090f7abc70e49dcc6be1",
+    "Libraries/NativeUI/Bridge/ControlActions.inc": "844904adb08221e431170567c44876799f5f3a8b2d9856dcebe06a820af27da2",
+    "Libraries/NativeUI/README.md": "99a31f0c92f936365fe4afd696ece620f484e42bac51dc15fcc169bec2fd3abe",
+    "Experiments/ChromiumScrollers/forms-text.inc": "f31fa15108b1f346007fb7a4bda0fbadb5aee5d1eac481ada760628a54f15fab",
+    "Experiments/ChromiumScrollers/forms.inc": "6aab4322cc810545cbecca623b29b667fee51a5e641f871d18188b022fbea5d3",
+    "Experiments/ChromiumScrollers/hook.c": "0d27780473886d4ca26ab32d879399f2657d2547ada94558b11a2fe67edf7961",
+    "Experiments/ChromiumScrollers/pinned-text.h": "c5dad4e270bea3c673b6023e8ca5ab5437c5925506a6c233f2fd4272cfdeacd5",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "f47ee6b29ee847f8d4efe0f4e3ee93fff17d3c4fcfeb22b5f2633a50c321ad3f",
+    "Experiments/ChromiumScrollers/README.md": "021ef6a362145232e7f2960132dda7e060587ca6e349ea24f205d7e19481fafe",
+    "Experiments/FirefoxNativeUI/controls.inc": "053bccbc00cf7476b3c693eca802eace235c937d1108555fe6e51d3e09659b36",
+    "Experiments/FirefoxNativeUI/text.inc": "e9373a18347249d2b6f48fb5fff98739ff51c8fc2a353d80e514855cf2787e77",
+    "Experiments/FirefoxNativeUI/pinned-text.h": "3f3e1ca7d9ab6c1a4c90393821573c47cfb1fda2336e0f4187ed613113c55fc7",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "a315c66b5090cbd728607f7aaf9e113766f78477f57dcae09d8d38e8ab2b5c96",
+    "Experiments/FirefoxNativeUI/README.md": "727fb4f9590b531c73a64acc2fe9b9a05d6601f3122f7fde3c4609c6ee2b6e7a",
+    "Tests/NativeUI/search-probe.m": "d1bd3c486c562bf284c6e9abeec1f09d7b46935ddbcd62cf7080c0c39f0febbc",
+    "Tests/Wayland/native-search-actions.html": "249dc9acc67e4cd6013ed61ceea4d656e757b21f27cc89937c938d51d8b84f99",
+    "Tests/Wayland/native_search_actions.py": "bd62c1c07ecc0e66236666c647860246104a810fa3d8070acbdba1bb76e29d65",
+    "docs/Native-Control-Integration.md": "03deeed14ca33c7f5878f7a1791b32ae75101d9c25e96028b3be63fee706ac78"
+  },
+  "previous_search_source_audit": "search-source-audit.json",
+  "original_sources": [
+    {
+      "path": ".build/native-ui/search-action-source/NSSearchFieldCell.m",
+      "bytes": 19430,
+      "sha256": "f88558653c0711c19421bf40571263df75fe09a4541db5818f9c8e18b5765086"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/README.md",
+      "bytes": 647,
+      "sha256": "6955b30be7a33dd16149aaefd96eac82116c69e340177a66e9588c28ad899ed7"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/chromium-pins.py",
+      "bytes": 1023,
+      "sha256": "3cfbb31dd82ae3bc8e9f955c16c8913a48639a8023cd8e576dc1df5b996e5afe"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/chromium-symbols.py",
+      "bytes": 568,
+      "sha256": "0e7626269da472adbc5aaa52bfddc56d49d163751bbc817b9706767bfc0031bb"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/event.cc",
+      "bytes": 14420,
+      "sha256": "cc49063ff86c6244d53883a6f2e8c5e328911d3dff3cf84e37c1b6e842d43c4c"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/event_handler.cc",
+      "bytes": 111441,
+      "sha256": "792361122d2946779dadba2aa5507499e921848c7bb7e71a70b3ade76a325c54"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/event_target.cc",
+      "bytes": 47133,
+      "sha256": "dfd02d762e2321c0fdf9cc1f6c799f02e0f7150d76d295bf07122cd571b841d8"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/event_target.h",
+      "bytes": 21303,
+      "sha256": "6a7a10b41bc6b729ba3debc81a7109c052f1e185cd3f8fe0555954f148f55a20"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/gecko-HTMLInputElement.cpp",
+      "bytes": 258800,
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/gecko-HTMLInputElement.h",
+      "bytes": 59334,
+      "sha256": "05d97a7d6603ddb1b954900a8c524b7f75323dcb8365e2f88d39582ac0bb8f65"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/html_input_element.cc",
+      "bytes": 99989,
+      "sha256": "e24b3b06861f2602fe38806310ffc719305dd577f0972cdd8330547db66039dc"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/native_search_actions-before-wait-reconstruction.py",
+      "bytes": 4469,
+      "sha256": "4f6cc5b216f43be8b5e549fb4ad2ec2d5d791635c091914c2ac7afc7f6d6d1aa"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/native_search_actions-v1.py",
+      "bytes": 1858,
+      "sha256": "321eaeaaca5a79cdef53503644a65dfa1b92411f01cd09e9037afb559ee65c5a"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/node.h",
+      "bytes": 59873,
+      "sha256": "366b4c916c7970d2e1d96660c75ea43fd3173ad8e9a494ea7a240186342132db"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/pins.py",
+      "bytes": 788,
+      "sha256": "ea70431144566581581495a278e6a196b84e6cd74142d2a7db7261c96dfea987"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/sources.json",
+      "bytes": 2676,
+      "sha256": "85e20c062023ffb8fd75eb4bd5f7bc2f3af0483a3091fcf8da127c814a65a2ac"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/symbols.py",
+      "bytes": 624,
+      "sha256": "ea62b233b666152798086e6d7bf28c152089ff1e22ebefb0d91c272963a9f00f"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/text_event.cc",
+      "bytes": 5105,
+      "sha256": "3f74d900d576ad54491717d290fbea93af6d3829a2a2ba09779ecf681147757b"
+    },
+    {
+      "path": ".build/native-ui/search-action-source/text_event.h",
+      "bytes": 4498,
+      "sha256": "303c4ceb6cc644f90d0ac5af2b1db0696766a5c6f2362b0ae36504b878ce5ba7"
+    }
+  ],
+  "native_api": {
+    "version": 1,
+    "size": 592,
+    "previous_size": 592,
+    "capability": {
+      "NXS_TEXT_SEARCH_ACTION": 128
+    }
+  },
+  "new_browser_private_calls": {
+    "chromium": [
+      {
+        "name": "blink::TextEvent::Create(blink::DOMWindow*, blink::String const&, blink::TextEventInputType)",
+        "offset": "0xdea8be8"
+      },
+      {
+        "name": "blink::EventTarget::DispatchEvent(blink::Event&)",
+        "offset": "0xdceb8c4"
+      }
+    ],
+    "firefox": [
+      {
+        "name": "mozilla::dom::HTMLInputElement::FireChangeEventIfNeeded()",
+        "offset": "0x588a9c4"
+      },
+      {
+        "name": "mozilla::dom::HTMLInputElement::MaybeSubmitForm(nsPresContext*)",
+        "offset": "0x588c7c0"
+      }
+    ]
+  },
+  "invariants": [
+    "The original NSSearchField/NSSearchFieldCell and original search-button target/action are retained. A thin observer forwards that action once and sends performClick: through the existing command filter. Ordinary text changes and real keyboard Enter do not use the button observer.",
+    "The shared activation receipt stores only target identity, native control ID, command serial and host epoch. It is consumed after the original DOM click dispatch. Native layout, drawing, key interpretation and all form algorithms remain in their owning UI library or engine.",
+    "Chromium targets the owning input with the original TextEvent factory/internal EventTarget dispatcher; that original dispatcher establishes trusted event state. No JavaScript synthetic event, manually set trusted flag, copied form validation or search notification code is introduced.",
+    "Firefox carries the original nsPresContext from its actual mouseup transaction, waits for original click dispatch, checks existing Gecko content state, and calls its original change and submit methods. It retains/revalidates the native identity across change-callback retirement.",
+    "New action support is capability bit 128 and keeps API 1/592. An older search provider remains usable without activation support; the older provider without any search support keeps its original fallback.",
+    "Browser address bars, toolbars and tabs keep their current components. Future optional app patches must consume the same provider as webpage controls and future GTK/Qt bindings."
+  ]
+}

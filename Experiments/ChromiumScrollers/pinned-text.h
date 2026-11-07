@@ -42,6 +42,10 @@ static const unsigned char chromium_text_pointer_up_bytes[20]={0x3f,0x23,0x03,0x
 #define NXS_CHROMIUM_TEXT_COPY_ENABLED_OFFSET 0xde57380ul
 #define NXS_CHROMIUM_TEXT_CUT_ENABLED_OFFSET 0xde573fcul
 #define NXS_CHROMIUM_TEXT_PASTE_ENABLED_OFFSET 0xde57498ul
+#define NXS_CHROMIUM_SEARCH_DISPATCH_OFFSET 0xdceb8c4ul
+static const unsigned char chromium_search_dispatch_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0x08,0x00,0x40,0xf9,0xf4,0x4f,0x01,0xa9,0xfd,0x03,0x00,0x91};
+#define NXS_CHROMIUM_SEARCH_CREATE_OFFSET 0xdea8be8ul
+static const unsigned char chromium_search_create_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x03,0x01,0xd1,0xfd,0x7b,0x01,0xa9,0xa8,0x32,0x02,0x90,0xfd,0x43,0x00,0x91};
 static int guard_text_calls(void) {
 static const unsigned char copy_cut[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0xe1,0x03,0x02,0x2a,0xf4,0x4f,0x01,0xa9,0xfd,0x03,0x00,0x91};
 static const unsigned char paste[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x01,0xd1,0xfd,0x7b,0x04,0xa9,0x28,0x35,0x02,0xb0,0xfd,0x03,0x01,0x91};
@@ -67,5 +71,7 @@ return !memcmp((void *)(base+NXS_CHROMIUM_TEXT_COPY_ENABLED_OFFSET),copy_cut,20)
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_MOUSE_PRESS_OFFSET),chromium_text_mouse_press_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_MOUSE_DRAG_OFFSET),chromium_text_mouse_drag_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_TEXT_MOUSE_RELEASE_OFFSET),chromium_text_mouse_release_bytes,20)&&
-!memcmp((void *)(base+NXS_CHROMIUM_TEXT_POINTER_UP_OFFSET),chromium_text_pointer_up_bytes,20);
+!memcmp((void *)(base+NXS_CHROMIUM_TEXT_POINTER_UP_OFFSET),chromium_text_pointer_up_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_SEARCH_CREATE_OFFSET),chromium_search_create_bytes,20)&&
+!memcmp((void *)(base+NXS_CHROMIUM_SEARCH_DISPATCH_OFFSET),chromium_search_dispatch_bytes,20);
 }

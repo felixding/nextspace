@@ -4,7 +4,7 @@
 #include "commands.inc"
 struct TextModel {char *value;uint32_t start,end;int editable;};
 struct TextTransaction {
-  void *node,*editor;
+  void *node,*editor,*pres_context,*pointer_event;
   const struct NXSNativeTextEdit *edit;
   const char *before;
   int attempted;
@@ -81,10 +81,10 @@ static void echo_native_selection(struct Widget *w) {
   }
   if(multiline_viewport_enabled&&w->kind==NXS_TEXTAREA)echo_text_viewport(w);
 }
-static struct NXSResponse *end_text_pointer(struct Widget *w,int commit) {
+static struct NXSResponse *end_text_pointer(struct Widget *w,int commit,void *context,void *event) {
   void *node=w->node;uint64_t control=w->id;
   struct TextModel before={0};
-  struct TextTransaction transaction={.node=node};
+  struct TextTransaction transaction={.node=node,.pres_context=context,.pointer_event=event};
   int scope=commit&&w->kind==NXS_SEARCHFIELD&&!text_transaction&&widget_focused(w)&&text_model(node,&before);
   if(scope) {
     transaction.editor=((void *(*)(void *))(base+NXS_GECKO_TEXT_EDITOR_OFFSET))(node);
@@ -123,7 +123,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
       if(!response||!button_cache_update(w,response))response=NULL;
       free(model.value);return response;
     }
-    end_text_pointer(w,0);
+    end_text_pointer(w,0,NULL,NULL);
   }
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)goto done;
@@ -181,7 +181,7 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
   if(active_widget&&text_kind(active_widget->kind)&&(message==13||message==14)) {
     struct Widget *w=active_widget;void *owner=w->node;uint64_t control=w->id;struct PointI point=widget_point(w,event);
     w->range_x=point.x/60.;w->range_y=point.y/60.;
-    if(message==14&&*(const int16_t *)((char *)event+152)==0)end_text_pointer(w,1);
+    if(message==14&&*(const int16_t *)((char *)event+152)==0)end_text_pointer(w,1,context,event);
     else if(message==13)pointer_request(w,3,event);
     w=widget_for_node(owner);
     if(!w||w->id!=control) {
@@ -193,7 +193,9 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
     }
     if(w&&w->id==control){if(widget_focused(w))echo_native_selection(w);invalidate_widget(w);}
   }
+  uint64_t search_serial=native_search_activation.serial;
   uint32_t result=original_post_event(self,context,event,frame,status,override);
+  if(search_serial&&native_search_activation.serial==search_serial)native_activation_clear(&native_search_activation);
   if(node&&*status!=1&&!(*((const uint8_t *)event+49)&2)&&*(const int16_t *)((char *)event+152)==0) {
     void *live=*(void **)((char *)node+96);
     if(prepare_text_image(live)) {
@@ -279,10 +281,34 @@ static int native_application_command(const struct NXSNativeCommand *command,con
   if(!transaction||command->process!=identity())return 0;
   struct Widget *w=widget_for_node(transaction->node);
   if(!w||w->id!=command->control||w->kind!=(int)command->kind)return 0;
+  if(search_actions_enabled&&w->kind==NXS_SEARCHFIELD&&!strcmp(selector,"performClick:")) {
+    if(!transaction->pres_context||!transaction->pointer_event)return -1;
+    if(command->phase==NXS_COMMAND_VALIDATE)return 1;
+    native_activation_arm(&native_search_activation,(uintptr_t)w->node,w->id,command->serial);
+    native_search_context=transaction->pres_context;native_search_pointer_event=transaction->pointer_event;
+    transaction->attempted=1;return 1;
+  }
   int enabled=application_text_command_enabled(transaction->node,selector);
   if(enabled<0||command->phase==NXS_COMMAND_VALIDATE)return enabled;
   transaction->attempted=1;
   return enabled?application_text_command(transaction->node,selector):0;
+}
+static uint32_t search_click_events(void *self,void *shell,void *event,int *status,void *target,void *override) {
+  if(event!=native_search_pointer_event)return original_click_events(self,shell,event,status,target,override);
+  struct NXSControlActivation action=native_search_activation;void *context=native_search_context;
+  native_activation_clear(&native_search_activation);
+  uint32_t result=original_click_events(self,shell,event,status,target,override);
+  void *node=(void *)(uintptr_t)action.target;uint64_t control=action.control;
+  struct Widget *w=widget_for_node(node);
+  if(*status!=1&&w&&w->id==control&&w->kind==NXS_SEARCHFIELD&&!(widget_content_state(w)&16)&&
+     native_activation_take(&action,(uintptr_t)node,control)) {
+    ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
+    ((void (*)(void *))(base+NXS_GECKO_SEARCH_CHANGE_OFFSET))(node);
+    w=widget_for_node(node);
+    if(w&&w->id==control)((void (*)(void *,void *))(base+NXS_GECKO_SEARCH_SUBMIT_OFFSET))(node,context);
+    ((unsigned (*)(void *))(base+0x47ba6b8))(node);
+  }
+  return result;
 }
 static void (*original_text_value_changed)(void *,unsigned,int,const void *);
 static void text_value_changed(void *node,unsigned kind,int empty,const void *known) {

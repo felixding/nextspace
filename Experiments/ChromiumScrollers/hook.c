@@ -258,6 +258,7 @@ __attribute__((constructor)) static void initialize(void) {
   const char *text=getenv("NEXTSPACE_CHROMIUM_TEXT");
   forms_text_enabled=forms_input_enabled&&text&&!strcmp(text,"1")&&metrics->parts[6].x==1&&((unsigned)metrics->parts[6].y&3)==3;
   forms_search_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH);
+  forms_search_actions_enabled=forms_search_enabled&&forms_commands_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH_ACTION);
   const char *lists=getenv("NEXTSPACE_CHROMIUM_LISTS");
   forms_lists_enabled=forms_popups_enabled&&forms_text_enabled&&lists&&!strcmp(lists,"1")&&((unsigned)metrics->parts[3].x&1)&&((unsigned)metrics->parts[3].y&NXS_SCROLL_GEOMETRY)&&((unsigned)metrics->parts[2].x&1);
   const char *multiline=getenv("NEXTSPACE_CHROMIUM_MULTILINE");
