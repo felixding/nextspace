@@ -139,7 +139,7 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
  assert([window makeFirstResponder:focused?(NSView *)reference:other]);
  /* A full reference image needs the matrix background as well as dirty cells.
   * Repainting only a transparent cell title can composite its glyphs twice. */
- 
+
  assert(nxs_control_focus(p->control,focused));check(p,"native-descendant-matrix-focus-is-recognized",nxs_control_focused(p->control)==focused);
  NXSBitmap actual=nxs_control_draw(p->control,p->scale);assert(actual.pixels);
  /* The independent real window must own the application's logical key window

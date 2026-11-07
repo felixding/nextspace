@@ -13,7 +13,7 @@
     "Libraries/NativeUI/NativeUI.h": "bbc5b67b4401e682307f51f6ba52e00d2a3b22a2492a3493b98a149536cb2b38",
     "Libraries/NativeUI/README.md": "9bc0eb48190e670ee3ec145140b0b6ba9c9882062ff21fce2edabb2687bc1757",
     "Tests/NativeUI/check-tabs.py": "c30d8224200984f5dac2a8597d43f716eade0633aa515789e31ea352746ea154",
-    "Tests/NativeUI/list-probe.m": "73f425ab247de1618c21516229f55cd4a4b151d4110043483e804b5c05359f75",
+    "Tests/NativeUI/list-probe.m": "5c4c95f81a8e18bc31a873ac1cd6033bc3d2e71f879a7f0ce995e45fb17dffb1",
     "docs/Native-Control-Integration.md": "d6053b719da902d4d1d8e4d10e3898a446509f59e31405d20693b745e1fb6892"
   },
   "upstream_sources": [
@@ -52,5 +52,16 @@
     "The view host recognizes the actual native descendant matrix as first responder, uses native browser subview hit testing and native backing readback. Pointer preparation draws at the actual backing density. Disabled list rows remain disabled while their original native scrollbar can still receive pointer input.",
     "Input comparison uses an independent ordinary list receiving actual Wayland seat keys/pointer events. Image comparison creates a fresh ordinary native list from that reference control's resulting native row/selection/key/scroll state; no provider result supplies the expected selection algorithm. Its complete native image is frozen until screencopy completes.",
     "Browser adapters and all 20 measured production binaries remain unchanged. No browser/AppKit/backend is rebuilt or replaced; candidates are only the shared provider/loader/shim and probes. Browser listbox transport and engine DOM/layout bindings remain future work on the same shared layer."
-  ]
+  ],
+  "post_qualification_formatting_only": {
+    "path": "Tests/NativeUI/list-probe.m",
+    "qualified_sha256": "73f425ab247de1618c21516229f55cd4a4b151d4110043483e804b5c05359f75",
+    "current_sha256": "5c4c95f81a8e18bc31a873ac1cd6033bc3d2e71f879a7f0ce995e45fb17dffb1",
+    "verification": {
+      "compiler_tokens_identical": true,
+      "token_output_bytes": 21828511,
+      "sha256": "a4f92bda21c268ccc90e687c76447800ed74985c9258eb84b41618904e1048f4"
+    },
+    "note": "Removed one trailing space on a blank test-source line. Clang token dumps are byte-identical; qualified provider/probe binaries and test evidence are unchanged."
+  }
 }
