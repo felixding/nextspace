@@ -304,4 +304,9 @@ struct NXSListWireState {
  * of list/scroll capabilities. Owned operation 53 uses NXSControlRequest x/y.
  * Accepted replies (part 3.x=1) contain one uint64 model ID, zero for a native
  * non-item area, with no bitmap. No row metrics or hit rules cross IPC. */
+/* Optional text capability NXS_TEXT_PLACEHOLDER (512). Owned operation 54
+ * uses NXSControlRequest for kinds 7/8/14. state=1 supplies UTF8 placeholder
+ * bytes (including empty); state=0 and no payload removes it. Native cells
+ * own presentation. Reply part 3.x accepts the mutation, with native pixels.
+ * Older providers advertise no capability and reject the request. */
 #endif

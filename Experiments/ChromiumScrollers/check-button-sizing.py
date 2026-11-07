@@ -12,6 +12,7 @@ parser.add_argument('--email-only',action='store_true',help='Run native email ed
 parser.add_argument('--search-only',action='store_true',help='Run real GNUstep search-field checks')
 parser.add_argument('--search-actions-only',action='store_true',help='Compare native search activation with original form actions')
 parser.add_argument('--search-clear-only',action='store_true',help='Check native clear actions after cancellable click dispatch')
+parser.add_argument('--placeholders-only',action='store_true',help='Check original native field placeholders')
 parser.add_argument('--search-notifications-only',action='store_true',help='Compare native clear search events with the original engine')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
@@ -41,7 +42,7 @@ def origin():
 fixture=PopupFixture(root,command,js,check,pid,origin,reset)
 try:
  fixture.wait(window);assert command('focus '+str(window()['id']))['ok']
- if not (options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only or options.search_notifications_only):
+ if not (options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only or options.search_notifications_only or options.placeholders_only):
   cdp('Page.navigate',dict(url=Path(__file__).with_name('test-button-sizing.html').resolve().as_uri()))
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"))
   from button_sizing import ButtonFixture,run as buttons
@@ -85,7 +86,12 @@ try:
   from native_search_fields import SearchFixture
   from native_search_notifications import run as notification_checks
   out=root/'search-notifications';out.mkdir();notification_checks(SearchFixture(out,command,js,check,pid,origin,reset))
- if options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only or options.search_notifications_only:
+ if options.placeholders_only:
+  cdp('Page.navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-placeholders.html').as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native field placeholders'"))
+  from native_placeholders import PlaceholderFixture,run as placeholder_checks
+  out=root/'placeholders';out.mkdir();placeholder_checks(PlaceholderFixture(out,command,js,check,pid,origin,reset))
+ if options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only or options.search_notifications_only or options.placeholders_only:
   trace=(root/'hook.log').read_text()
   parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native(?: form |-(?:text |widget ))',line)]
   check('browser-owned-ui-preserved',not parent and 'browser-owned tabs, address bar and toolbar preserved' in trace,parent_native_widgets=parent)

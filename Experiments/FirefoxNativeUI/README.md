@@ -954,6 +954,26 @@ See [search notification qualification](../ChromiumScrollers/search-notify-quali
 and its source audit for measured coverage and remaining scope. The engine
 reference uses appearance:none and a real original select-all witness; native
 field images remain compared with independent GNUstep controls. Recents,
-placeholders, broader editing/style/zoom/IME/accessibility contracts, other
+broader editing/style/zoom/IME/accessibility contracts, other
 specialized controls and complete browser/derivative/menu/shortcut/deployment
 work remain open, followed by GTK/Qt/KDE through the shared native library.
+
+
+With a capable provider, webpage text/password/search/URL/telephone/email
+placeholders use the existing native field cells through shared operation 54.
+The optional provider method preserves its prior ABI prefix; older providers
+retain the earlier binding. Blink's original `StrippedPlaceholder` and Gecko's
+original attribute/newline helpers supply canonical text. Native cells own its
+font, geometry, visibility and rendering; no component is copied into either
+adapter. Browser address bars, toolbars and tabs remain original.
+
+See [paired placeholder qualification](../../Libraries/NativeUI/placeholder-qualification.json).
+Multiline placeholders, recents, broader styling/layout/zoom/IME/accessibility,
+other specialized controls and complete browser/derivative/menu/shortcut/
+deployment requirements remain open, followed by GTK/Qt/KDE integration.
+
+The combined Chromium text/search/placeholder run retains an unresolved
+disabled-field repaint mismatch after 299 passing checks. Its focused
+placeholder run passes, and Firefox passes the combined run. The shared
+provider/transport qualify their measured contracts; complete Chromium
+placeholder integration is not claimed until that failure is resolved.

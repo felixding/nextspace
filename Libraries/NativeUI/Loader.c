@@ -215,3 +215,5 @@ NXSRect nxs_control_toolbar_item_rect(NXSControl *c,uint64_t identifier)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_toolbar_item_rect)?p->control_toolbar_item_rect(c,identifier):(NXSRect){0};}
 NXSRect nxs_control_search_part(NXSControl *c,int part)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_search_part)?p->control_search_part(c,part):(NXSRect){0};}
+int nxs_control_text_placeholder(NXSControl *c,const char *value)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_placeholder)?p->control_text_placeholder(c,value):0;}

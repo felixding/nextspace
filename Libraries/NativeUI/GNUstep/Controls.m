@@ -29,7 +29,7 @@ static int text_control(NXSControl *control)
 static NSTextView *text_editor(NXSControl *control)
 {return control->kind==NXS_TEXTAREA?(NSTextView *)[(NSScrollView *)control->view documentView]:
   (NSTextView *)[(NSTextField *)control->view currentEditor];}
-unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH|NXS_TEXT_SEARCH_ACTION|NXS_TEXT_SEARCH_CLEAR_COMMAND;}
+unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH|NXS_TEXT_SEARCH_ACTION|NXS_TEXT_SEARCH_CLEAR_COMMAND|NXS_TEXT_PLACEHOLDER;}
 NXSRect nxs_gnustep_control_search_part(NXSControl *control,int part) {
   if(!control||control->kind!=NXS_SEARCHFIELD||control->destroying)return (NXSRect){0};
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
@@ -563,6 +563,20 @@ int nxs_gnustep_control_popup_open(NXSControl *control,int open)
     if(![view numberOfItems]){[pool drain];return 0;}
     if(![[[view menu] window] isVisible])[cell attachPopUpWithFrame:[view bounds] inView:view];
   } else [cell dismissPopUp];
+  [pool drain];return 1;
+}
+
+int nxs_gnustep_control_text_placeholder(NXSControl *control,const char *value)
+{
+  if(!text_control(control)||control->kind==NXS_TEXTAREA||control->destroying||
+     nxs_host_tracking(control->host))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSString *text=value?[NSString stringWithUTF8String:value]:nil;
+  if(value&&!text){[pool drain];return 0;}
+  NSTextFieldCell *cell=[(NSTextField *)control->view cell];
+  if([cell placeholderString]!=text&&![[cell placeholderString] isEqualToString:text]) {
+    [cell setPlaceholderString:text];[control->view setNeedsDisplay:YES];
+  }
   [pool drain];return 1;
 }
 

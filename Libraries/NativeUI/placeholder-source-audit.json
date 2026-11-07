@@ -1,0 +1,51 @@
+{
+  "scope": "Original native placeholder cells and canonical engine data; no copied UI implementation",
+  "sources": [
+    {
+      "path": ".build/native-ui/placeholder-source/blink-text-control.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/text_control_element.cc",
+      "bytes": 60546,
+      "sha256": "608155d99ce17c08282c9cf3d3a0a31cb2f2e40b6deba2a30e9ed693eab34849"
+    },
+    {
+      "path": ".build/native-ui/placeholder-source/gecko-TextControlElement.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlElement.cpp",
+      "bytes": 14676,
+      "sha256": "6f125dfc69eadd5e5760215d91a9c7108279c078b1ec12dda793af1eb36d79f8"
+    }
+  ],
+  "api": {
+    "version": 1,
+    "bytes": 600,
+    "prior_prefix": 592,
+    "capability": 512,
+    "operation": 54,
+    "existing_models_unchanged": true
+  },
+  "bindings": {
+    "chromium": {
+      "method": "blink::TextControlElement::StrippedPlaceholder() const",
+      "offset": "0xefb1580",
+      "bytes": "3f2303d5ff8305d1fd7b13a948aa01f0fdc30491"
+    },
+    "firefox": {
+      "attribute_method": "mozilla::dom::Element::GetAttr(nsAtom const*, nsTSubstring<char16_t>&) const",
+      "attribute_offset": "0x4768cc8",
+      "atomize_offset": "0x3affc90",
+      "normalization": "nsContentUtils::RemoveNewlines(nsTSubstring<char16_t>&)",
+      "normalization_offset": "0x466d198",
+      "normalization_bytes": "5f2403d555ded0173f2303d5fe4fbfa9a1018052",
+      "existing_attr_guards_reused": true
+    }
+  },
+  "native_method": "Original NSTextFieldCell setPlaceholderString: on existing NSTextField, NSSecureTextField and NSSearchField cells",
+  "remaining": [
+    "multiline placeholders",
+    "recents",
+    "broader style/layout/zoom/IME/accessibility",
+    "other specialized controls",
+    "browser derivatives and installed deployment",
+    "remaining detached menus and native shortcuts",
+    "subsequent GTK/Qt/KDE integration"
+  ]
+}

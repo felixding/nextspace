@@ -62,6 +62,7 @@ static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
+static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;

@@ -1,5 +1,7 @@
 /* Native field model and Gecko transactions. No text editor is implemented here. */
 #include "pinned-text.h"
+#include "../../Libraries/NativeUI/Bridge/TextPlaceholder.inc"
+static char *text_placeholder(void *);
 #include "frontend.inc"
 #include "commands.inc"
 struct TextModel {char *value;uint32_t start,end;int editable;};
@@ -132,6 +134,11 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
     struct NXSControlInputRequest focus={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=7,.process=identity(),
       .kind=w->kind,.control=w->id,.focused=widget_focused(w)};
     response=exchange_bytes(&focus,sizeof(focus));if(!response)goto done;
+  }
+  if(placeholder_enabled&&w->kind!=NXS_TEXTAREA) {
+    char *placeholder=text_placeholder(w->node);
+    int accepted=placeholder&&native_text_placeholder(w->kind,w->id,placeholder);
+    free(placeholder);if(!accepted){response=NULL;goto done;}
   }
   size_t length=strlen(model.value),size=sizeof(struct NXSControlTextRequest)+length;
   struct NXSControlTextRequest *request=calloc(1,size);if(!request){response=NULL;goto done;}

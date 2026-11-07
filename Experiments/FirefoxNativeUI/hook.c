@@ -112,6 +112,18 @@ static void tabs_pointer_post(uint64_t,void *,int);
 #include "controls.inc"
 #include "tabs.inc"
 #include "popups.inc"
+#define NXS_GECKO_PLACEHOLDER_NEWLINES 0x466d198ul
+static const unsigned char gecko_placeholder_newlines_bytes[20]={0x5f,0x24,0x03,0xd5,0x55,0xde,0xd0,0x17,0x3f,0x23,0x03,0xd5,0xfe,0x4f,0xbf,0xa9,0xa1,0x01,0x80,0x52};
+static char *text_placeholder(void *node) {
+  static void *atom;static const uint16_t empty;
+  if(!atom)atom=((void *(*)(const char *))(base+NXS_GECKO_POPUP_ATOMIZE))("placeholder");
+  if(!atom)return NULL;
+  struct GeckoString value={.data=&empty,.flags=1};
+  ((int (*)(const void *,const void *,void *))(base+NXS_GECKO_POPUP_GET_ATTR))(node,atom,&value);
+  ((void (*)(void *))(base+NXS_GECKO_PLACEHOLDER_NEWLINES))(&value);
+  char *result=utf8_text(value.data,value.length);
+  ((void (*)(void *))(base+0x3826f2c))(&value);return result;
+}
 #include "lists.inc"
 #include "geometry.inc"
 #include "menus.inc"
@@ -215,6 +227,9 @@ static void install(void) {
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
+  if(placeholder_enabled&&(memcmp((void *)(base+NXS_GECKO_POPUP_GET_ATTR),gecko_popup_get_attr_bytes,20)||
+     memcmp((void *)(base+NXS_GECKO_POPUP_ATOMIZE),gecko_popup_atomize_bytes,20)||
+     memcmp((void *)(base+NXS_GECKO_PLACEHOLDER_NEWLINES),gecko_placeholder_newlines_bytes,20))){note("Gecko placeholder model guard failed; unchanged");return;}
   if(!prepare_background_bindings()){note("Gecko native background guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_frontend_bindings()){note("Gecko owned-background guard failed; unchanged");return;}
   if(popups_requested&&(!guard_popup_calls()||!prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))){note("Gecko select guard failed; unchanged");return;}

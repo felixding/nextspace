@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>Native field placeholders</title>
+<style>body{margin:25px;background:white;color:black;font:14px sans-serif}input{box-sizing:border-box;width:260px;height:24px;padding:0}p{margin:0 0 16px}</style>
+<p><input id="field" placeholder="Find a word"></p>
+<p><input id="peer" value="Peer"></p>
+<script>
+window.events=[];
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','search'])document.addEventListener(type,e=>events.push({type,trusted:e.isTrusted,value:e.target.value,id:e.target.id}),true);
+</script>

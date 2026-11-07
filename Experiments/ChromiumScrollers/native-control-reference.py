@@ -95,6 +95,10 @@ for item in json.loads(args.controls.read_text()):
             assert api.input_capabilities & 1
             assert native.nxs_control_focus(pointer, 1)
         if item['kind'] in (7,8,9,14):
+            if 'placeholder' in item:
+                assert api.text_capabilities&512
+                value=item['placeholder']
+                assert native.nxs_control_text_placeholder(pointer,None if value is None else value.encode('utf-8'))
             model=TextModel(C.sizeof(TextModel),item['text'].encode(),
                 item.get('selection_start',1) if args.focus and item['enabled'] else item.get('selection_start',0),
                 item.get('selection_length',2) if args.focus and item['enabled'] else item.get('selection_length',0),item.get('editable',1))

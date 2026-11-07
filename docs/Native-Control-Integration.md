@@ -842,5 +842,27 @@ API stay unchanged. DOM/edit-action scope metadata also prevents a native
 clear's proposed range from leaking into a nested script delete operation.
 The original editors continue to own application callbacks, validation and
 undo. See [search notification qualification](../Experiments/ChromiumScrollers/search-notify-qualification.json).
-Recents/placeholders and broader control/editing/style/IME/accessibility
+Recents and broader control/editing/style/IME/accessibility
 contracts remain part of the active browser-first objective.
+
+
+Single-line webpage placeholders now reach the actual shared NSTextFieldCell
+implementation, including secure and search subclasses. An optional appended
+provider method and owned UTF8 transport preserve the previous 592-byte ABI
+prefix and all existing text models. Both pinned browser bindings read their
+original canonical data and normalization helpers. Neither bridge duplicates
+placeholder drawing, typography, layout or visibility rules.
+
+See [placeholder qualification](../Libraries/NativeUI/placeholder-qualification.json)
+for ordinary native desktop images, transport ownership/compatibility and
+paired text/search regressions. Multiline placeholders and the remaining
+control/editing/layout/style/IME/accessibility, browser/derivative, detached-menu,
+shortcut and installed-desktop contracts remain open. GTK/Qt/KDE adapters will
+consume this same native implementation; future browser UI changes remain
+optional application patches.
+
+The combined Chromium text/search/placeholder run retains an unresolved
+disabled-field repaint mismatch after 299 passing checks. Its focused
+placeholder run passes, and Firefox passes the combined run. The shared
+provider/transport qualify their measured contracts; complete Chromium
+placeholder integration is not claimed until that failure is resolved.

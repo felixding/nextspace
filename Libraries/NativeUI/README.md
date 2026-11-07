@@ -1067,3 +1067,23 @@ retain native edit provenance across nested script actions. No search timer,
 DOM event implementation or native widget is added to this library; its API
 and provider binaries are unchanged by that checkpoint. See
 [search notification qualification](../Experiments/ChromiumScrollers/search-notify-qualification.json).
+
+
+Plain, secure and search placeholders now use the original native cell's
+`setPlaceholderString:` method. The optional ABI 1/600 method preserves the
+592-byte prefix and existing text model. `NXS_TEXT_PLACEHOLDER` advertises it;
+older providers reject the optional call. Shared owned operation 54 carries
+UTF8 data or removal through `Bridge/TextPlaceholder.inc`, without a second
+placeholder renderer, geometry rule or visibility policy. Multiline fields
+remain outside this extension. Browser adapters supply their original engine
+placeholder data and newline normalization.
+
+See [placeholder qualification](placeholder-qualification.json) for ordinary
+native desktop comparisons, transport ownership, compatibility and paired
+browser evidence. Subsequent GTK/Qt adapters consume this same API.
+
+The combined Chromium text/search/placeholder run retains an unresolved
+disabled-field repaint mismatch after 299 passing checks. Its focused
+placeholder run passes, and Firefox passes the combined run. The shared
+provider/transport qualify their measured contracts; complete Chromium
+placeholder integration is not claimed until that failure is resolved.

@@ -1,5 +1,6 @@
 /* Blink model/transaction bindings. The shared native editor owns the UI. */
 #include "pinned-text.h"
+#include "../../Libraries/NativeUI/Bridge/TextPlaceholder.inc"
 struct BlinkTextModel {char *value;uint32_t start,end;int editable;};
 struct BlinkEditorCommand {void *command;int source,padding;void *frame;};
 _Static_assert(sizeof(struct BlinkEditorCommand)==24,"Pinned menu/key command ABI");
@@ -113,6 +114,13 @@ static struct NXSResponse *send_text_model(struct NativeForm *form,const char *v
 static struct NXSResponse *sync_text_form(struct NativeForm *form,struct NXSResponse *response) {
   if(!response||!text_kind(form->kind))return NULL;
   struct BlinkTextModel model={0};if(!text_model(form->node,&model))return NULL;
+  if(forms_placeholder_enabled&&form->kind!=NXS_TEXTAREA) {
+    void *value=((void *(*)(const void *))(base+NXS_CHROMIUM_TEXT_PLACEHOLDER_OFFSET))(form->node);
+    char *placeholder=string_text(value);
+    ((void (*)(void *))(base+NXS_CHROMIUM_TEXT_STRING_DESTROY_OFFSET))(&value);
+    int accepted=placeholder&&native_text_placeholder(form->kind,form->control,placeholder);
+    free(placeholder);if(!accepted){free(model.value);return NULL;}
+  }
   response=send_text_model(form,model.value,model.start,model.end-model.start,model.editable);
   free(model.value);
   if(response&&forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA&&

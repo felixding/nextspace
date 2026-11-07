@@ -1,0 +1,1429 @@
+{
+  "status": "shared placeholder provider and transport qualified; browser bindings partial with one open Chromium combined-run repaint failure; full application goal remains active",
+  "scope": {
+    "control_types": [
+      "text",
+      "password",
+      "search",
+      "url",
+      "tel",
+      "email"
+    ],
+    "native_classes": [
+      "NSTextField",
+      "NSSecureTextField",
+      "NSSearchField"
+    ],
+    "native_method": "Original NSTextFieldCell setPlaceholderString:",
+    "provider_density": [
+      1,
+      2
+    ],
+    "browser_density": [
+      1
+    ],
+    "transport_density": [
+      1
+    ],
+    "browser_ui_preserved": [
+      "address bar",
+      "toolbar",
+      "tabs"
+    ],
+    "chromium_combined_suite_qualified": false,
+    "appkit_unchanged": true,
+    "browser_executables_unchanged": true,
+    "no_copied_controls": true
+  },
+  "api": {
+    "version": 1,
+    "size": 600
+  },
+  "text_capabilities": 1023,
+  "totals": {
+    "browser_checks": 464,
+    "browser_native_images": 266,
+    "provider_checks": 215,
+    "provider_native_images": 48,
+    "transport_checks": 111,
+    "transport_native_images": 24,
+    "fresh_regression_probes": 7,
+    "old_client_combinations": 4
+  },
+  "shared_ui": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/placeholder-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74208,
+      "sha256": "fd9fbe3c88789fe4d012265a16216a10d7054a49709726738548fef523041068"
+    },
+    "loader_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/placeholder-01/native-ui/libnextspace-native-ui.so.0.1.repro",
+      "bytes": 74208,
+      "sha256": "fd9fbe3c88789fe4d012265a16216a10d7054a49709726738548fef523041068"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/placeholder-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 328992,
+      "sha256": "e6a5c01bb6afdb5187d69a1e7ddef3306bedd35600c0d6aad9ba15c12486a38d"
+    },
+    "provider_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/placeholder-01/native-ui/libnextspace-native-ui-gnustep.so.0.1.repro",
+      "bytes": 328992,
+      "sha256": "e6a5c01bb6afdb5187d69a1e7ddef3306bedd35600c0d6aad9ba15c12486a38d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/placeholder-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "9d40e0596c40129f0c1cdb918ad2086f657659aceb877c3ea5e1dd39fc0d026a"
+    },
+    "shim_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/placeholder-01/libnextspace-native-scroller.so.0.1.repro",
+      "bytes": 69968,
+      "sha256": "9d40e0596c40129f0c1cdb918ad2086f657659aceb877c3ea5e1dd39fc0d026a"
+    }
+  },
+  "adapters": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-placeholder-01-hook.so",
+      "bytes": 236560,
+      "sha256": "7367a50f25a73e309654dcdfaf904e455b179b38483bbc930ccd4f36694aa753"
+    },
+    "chromium_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-placeholder-01-repro.so",
+      "bytes": 236560,
+      "sha256": "7367a50f25a73e309654dcdfaf904e455b179b38483bbc930ccd4f36694aa753"
+    },
+    "prior_chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-search-notify-04-hook.so",
+      "bytes": 236456,
+      "sha256": "23cdde63fc6e46e8d5babcc6ec5a1011032a13a0ad51cbaddaa6198d1bc486a4"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-placeholder-02-hook.so",
+      "bytes": 229952,
+      "sha256": "1128e271d6e1cf8bcad8cfd70ca5e0ba02484c5d866e89fc380e0579f708c10d"
+    },
+    "firefox_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-placeholder-02-repro.so",
+      "bytes": 229952,
+      "sha256": "1128e271d6e1cf8bcad8cfd70ca5e0ba02484c5d866e89fc380e0579f708c10d"
+    },
+    "prior_firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-search-notify-01-hook.so",
+      "bytes": 229752,
+      "sha256": "4b090fa1518471cdc9cd0ce2c6257b08fea15fcfe2afcd8974cf5bebe1867995"
+    }
+  },
+  "runs": {
+    "chromium": {
+      "path": "/var/tmp/nxs-chromium-placeholder-04",
+      "results": {
+        "path": "/var/tmp/nxs-chromium-placeholder-04/button-results.json",
+        "bytes": 15096,
+        "sha256": "4f52893362a74b384c1a21721c5d6677589e45daa6e5afe47e698d3dc43306ec"
+      },
+      "checks": 81,
+      "native_images": 60,
+      "scope": "focused placeholders"
+    },
+    "chromium_key_retirement": {
+      "path": "/var/tmp/nxs-chromium-placeholder-06/key-retirement",
+      "results": {
+        "path": "/var/tmp/nxs-chromium-placeholder-06/key-retirement/button-results.json",
+        "bytes": 699,
+        "sha256": "ed8f3d65a9feb46e4c97788c31e55ef95d4512bc471191016dabe9c29139b38a"
+      },
+      "checks": 4,
+      "native_images": 1
+    },
+    "firefox": {
+      "path": "/var/tmp/nxs-firefox-placeholder-05",
+      "results": {
+        "path": "/var/tmp/nxs-firefox-placeholder-05/button-results.json",
+        "bytes": 80708,
+        "sha256": "d0690c8323907dd9d803b3fc3e95f834326c50513663a6d8fb4c901e999c84d5"
+      },
+      "checks": 375,
+      "native_images": 204,
+      "scope": "combined text/search/placeholders"
+    },
+    "firefox_key_retirement": {
+      "path": "/var/tmp/nxs-firefox-placeholder-05/key-retirement",
+      "results": {
+        "path": "/var/tmp/nxs-firefox-placeholder-05/key-retirement/button-results.json",
+        "bytes": 700,
+        "sha256": "a3aa00170ad49ce7be5cd8846f2073a85cc20452d995ed66fb1d837b461548bb"
+      },
+      "checks": 4,
+      "native_images": 1
+    },
+    "provider": {
+      "path": "/var/tmp/nxs-placeholder-provider-03",
+      "results": {
+        "path": "/var/tmp/nxs-placeholder-provider-03/results.json",
+        "bytes": 21221,
+        "sha256": "db99b2a27e25110b2bb7416b92722ae4358c3308900a97f711654083777f267e"
+      },
+      "checks": 215,
+      "native_images": 48
+    },
+    "transport": {
+      "path": "/var/tmp/nxs-placeholder-transport-01",
+      "results": {
+        "path": "/var/tmp/nxs-placeholder-transport-01/results.json",
+        "bytes": 12076,
+        "sha256": "92fbb3a43f6d939a14114419fd58b2d65a36f9f2639954f4d479b44c282c0791"
+      },
+      "checks": 111,
+      "native_images": 24
+    }
+  },
+  "native_probes": [
+    {
+      "original_search_field_class": true,
+      "original_search_cell_class": true,
+      "native_button_and_text_geometry": true,
+      "native_preferred_size": true,
+      "provider_prefix_preserved": true,
+      "original_button_action_forwarded_once": true,
+      "native_activation_command_once": true,
+      "native_clear_deferred_until_commit": true,
+      "native_clear_commit_once": true,
+      "native_clear_uses_original_button_rect": true,
+      "unknown_clear_command_keeps_original_action": true
+    },
+    {
+      "older_search_provider_without_activation": true
+    },
+    {
+      "older_search_provider_without_clear_command": true
+    },
+    {
+      "native_text_controls": 3,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    {
+      "native_filter_controls": 3,
+      "pre_mutation_value": true,
+      "native_ranges_and_selectors": true,
+      "typing_veto": true,
+      "deletion_veto": true,
+      "cut_veto": true,
+      "paste_proposal": true,
+      "unicode": true,
+      "focus_transfer": true,
+      "model_rebind": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    {
+      "older_provider_without_search": true
+    }
+  ],
+  "old_clients": [
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-text-probe",
+      "loader": "placeholder-01",
+      "result": {
+        "native_text_controls": 3,
+        "selection_replace": true,
+        "delete": true,
+        "unicode": true,
+        "read_only": true,
+        "disabled": true,
+        "native_navigation": true,
+        "deferred_destruction": true,
+        "emacs_control_a_e": true,
+        "alt_copy_paste": true,
+        "secure_copy_blocked": true,
+        "native_return_action": true,
+        "native_caret_invalidation_and_pixels": true
+      }
+    },
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-search-probe",
+      "loader": "placeholder-01",
+      "result": {
+        "original_search_field_class": true,
+        "original_search_cell_class": true,
+        "native_button_and_text_geometry": true,
+        "native_preferred_size": true,
+        "provider_prefix_preserved": true,
+        "original_button_action_forwarded_once": true,
+        "native_activation_command_once": true,
+        "native_clear_deferred_until_commit": true,
+        "native_clear_commit_once": true,
+        "native_clear_uses_original_button_rect": true,
+        "unknown_clear_command_keeps_original_action": true
+      }
+    },
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-text-probe",
+      "loader": "clear-default-02",
+      "result": {
+        "native_text_controls": 3,
+        "selection_replace": true,
+        "delete": true,
+        "unicode": true,
+        "read_only": true,
+        "disabled": true,
+        "native_navigation": true,
+        "deferred_destruction": true,
+        "emacs_control_a_e": true,
+        "alt_copy_paste": true,
+        "secure_copy_blocked": true,
+        "native_return_action": true,
+        "native_caret_invalidation_and_pixels": true
+      }
+    },
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-search-probe",
+      "loader": "clear-default-02",
+      "result": {
+        "original_search_field_class": true,
+        "original_search_cell_class": true,
+        "native_button_and_text_geometry": true,
+        "native_preferred_size": true,
+        "provider_prefix_preserved": true,
+        "original_button_action_forwarded_once": true,
+        "native_activation_command_once": true,
+        "native_clear_deferred_until_commit": true,
+        "native_clear_commit_once": true,
+        "native_clear_uses_original_button_rect": true,
+        "unknown_clear_command_keeps_original_action": true
+      }
+    }
+  ],
+  "production_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "bytes": 308415392,
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "bytes": 549896,
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48"
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "bytes": 171640536,
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 10063865,
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "bytes": 78144,
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac"
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor",
+      "bytes": 1381176,
+      "sha256": "57db0e3df9ce4237fc88ed31a11ea8a6c8f4c87dfe3c38c96693a3a632b65c99"
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "bytes": 1258024,
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-button-sizing-05-hook.so",
+      "bytes": 165008,
+      "sha256": "0d2fc22779b3e2559a3968dffbbb3e5d9064b2bcf0076b2e29405db1993c17df"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-popup-sizing-04-hook.so",
+      "bytes": 158256,
+      "sha256": "99265fdd04f2d74bb3180ecbd280891838b294a0f3d9804c4afaf32ab4a49ab7"
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1042672,
+      "sha256": "175122726a355ba1f38165cd4c2640f51228a1d06d2bb015c7266d44421746f0"
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0.2417.32",
+      "bytes": 1186176,
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0"
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "e3a9ab59b8449be7820b6b6456450f70f7a62a46ef2a041a0f2369d598faf70a"
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.0.1",
+      "bytes": 73064,
+      "sha256": "6a50efce52ea2d4c6010f52b2ddb287c56db6758d163334e315396bfb3b6522d"
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310712,
+      "sha256": "a26428f47c1c407d567328f828856deb5f7e92a72a41d31c06ffca6792d9acb7"
+    },
+    "chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "bytes": 166448,
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558"
+    },
+    "firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "bytes": 54175769,
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac"
+    },
+    "gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-geometry-build-02/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 72728,
+      "sha256": "ce60ad0c60cc78bd1b0208947eff28eb61f9d340758f264588587bb4b77d9464"
+    },
+    "probe_native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "435436b8b937d9235d8ed88417d014f353877aff0cd571f2878b2a90cf6cecad"
+    },
+    "probe_native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73176,
+      "sha256": "5300cbb85452b5d02827382f306599cd8f430af3413b25140164cc2560f6c9a8"
+    },
+    "probe_native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310960,
+      "sha256": "7799fb35173f53246adfc7181de5ae13c0b8e4af46de824b0d341af6d53ea860"
+    }
+  },
+  "prior_shared_ui": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74096,
+      "sha256": "f5db0fcc0fbe77c61e61247fab0930c738dbe2ad96d06452cc7020a38883e1f3"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 327040,
+      "sha256": "2cf77eec499d1a108b7b357b9f355c7a180ce1a134044a596dad699c2e90b33d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "2b18a8c95e8a43988d33eb9205594bb86e9db0115276979556af02e695495437"
+    }
+  },
+  "package_count": 1050,
+  "sandbox": {
+    "chromium": [
+      {
+        "pid": 240136,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 240147,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 240148,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox": [
+      {
+        "pid": 239114,
+        "name": "WebExtensions",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 239175,
+        "name": "file:// Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 239219,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 239221,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 239251,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 239276,
+        "name": "Privileged Cont",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ]
+  },
+  "cleanup": {
+    "nxs-chromium-placeholder-01": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-placeholder-02": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-placeholder-04": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-placeholder-05": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-placeholder-06": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-placeholder-01": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-placeholder-02": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-placeholder-03": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-placeholder-04": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-firefox-placeholder-05": {
+      "exits": [
+        0,
+        -15,
+        -15
+      ],
+      "capture_exit": -15
+    },
+    "nxs-placeholder-provider-01": [
+      {
+        "pid": 236743,
+        "exit": 0
+      },
+      {
+        "pid": 236746,
+        "exit": -15
+      },
+      {
+        "pid": 236747,
+        "exit": 0
+      },
+      {
+        "pid": 236750,
+        "exit": 0
+      },
+      {
+        "pid": 236751,
+        "exit": 0
+      }
+    ],
+    "nxs-placeholder-provider-02": [
+      {
+        "pid": 237321,
+        "exit": 0
+      },
+      {
+        "pid": 237324,
+        "exit": -15
+      },
+      {
+        "pid": 237325,
+        "exit": -6
+      }
+    ],
+    "nxs-placeholder-provider-03": [
+      {
+        "pid": 237858,
+        "exit": 0
+      },
+      {
+        "pid": 237861,
+        "exit": -15
+      },
+      {
+        "pid": 237862,
+        "exit": 0
+      },
+      {
+        "pid": 237867,
+        "exit": 0
+      },
+      {
+        "pid": 237871,
+        "exit": 0
+      }
+    ],
+    "nxs-placeholder-transport-01": [
+      {
+        "pid": 238817,
+        "exit": 0
+      },
+      {
+        "pid": 238822,
+        "exit": -15
+      },
+      {
+        "pid": 238825,
+        "exit": 0
+      },
+      {
+        "pid": 238826,
+        "exit": -15
+      },
+      {
+        "pid": 238829,
+        "exit": 0
+      }
+    ]
+  },
+  "diagnostics": {
+    "nxs-chromium-placeholder-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-placeholder-01/button-results.json",
+        "bytes": 858,
+        "sha256": "1a8ebec3adf838e1f27da59c42784863395ea8a669ec89ea7f4326b52c7750ee"
+      },
+      "checks": 9,
+      "last": {
+        "case": "text-placeholder-does-not-change-canonical-value-or-emit-edits",
+        "passed": true,
+        "events": []
+      }
+    },
+    "nxs-chromium-placeholder-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-placeholder-02/button-results.json",
+        "bytes": 10325,
+        "sha256": "e4a7ab662b26c4af18df53bf2fa6cf483a753f6a529fad9d1fb138106b378fa1"
+      },
+      "checks": 70,
+      "last": {
+        "case": "email-native-edit-retains-trusted-engine-events",
+        "passed": true,
+        "events": [
+          {
+            "type": "keydown",
+            "trusted": true,
+            "value": "",
+            "id": "field"
+          },
+          {
+            "type": "keypress",
+            "trusted": true,
+            "value": "",
+            "id": "field"
+          },
+          {
+            "type": "beforeinput",
+            "trusted": true,
+            "value": "",
+            "id": "field"
+          },
+          {
+            "type": "input",
+            "trusted": true,
+            "value": "x",
+            "id": "field"
+          },
+          {
+            "type": "keyup",
+            "trusted": true,
+            "value": "x",
+            "id": "field"
+          }
+        ]
+      }
+    },
+    "nxs-firefox-placeholder-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-placeholder-01/button-results.json",
+        "bytes": 858,
+        "sha256": "1a8ebec3adf838e1f27da59c42784863395ea8a669ec89ea7f4326b52c7750ee"
+      },
+      "checks": 9,
+      "last": {
+        "case": "text-placeholder-does-not-change-canonical-value-or-emit-edits",
+        "passed": true,
+        "events": []
+      }
+    },
+    "nxs-firefox-placeholder-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-placeholder-02/button-results.json",
+        "bytes": 1726,
+        "sha256": "12f6dd87a063efde02fdcbd0ab77d15ca27dcce4ebfff55ab242ebb1bde987c9"
+      },
+      "checks": 12,
+      "last": {
+        "case": "text-placeholder-callback-retains-cancelled-value",
+        "passed": false
+      }
+    },
+    "nxs-firefox-placeholder-03": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-placeholder-03/button-results.json",
+        "bytes": 2958,
+        "sha256": "10910b07c8c63290010682415b18f4f50f2c25e84792a27fe270c1b1b39f229c"
+      },
+      "checks": 12,
+      "last": {
+        "case": "text-placeholder-callback-retains-cancelled-value",
+        "passed": false,
+        "state": {
+          "value": "x",
+          "placeholder": "Cancelled hint",
+          "events": [
+            {
+              "type": "keydown",
+              "trusted": true,
+              "value": "",
+              "id": "field"
+            },
+            {
+              "type": "keypress",
+              "trusted": true,
+              "value": "",
+              "id": "field"
+            },
+            {
+              "type": "beforeinput",
+              "trusted": true,
+              "value": "",
+              "id": "field"
+            },
+            {
+              "type": "input",
+              "trusted": true,
+              "value": "x",
+              "id": "field"
+            },
+            {
+              "type": "keyup",
+              "trusted": true,
+              "value": "x",
+              "id": "field"
+            },
+            {
+              "type": "keydown",
+              "trusted": true,
+              "value": "x",
+              "id": "field"
+            },
+            {
+              "type": "keypress",
+              "trusted": true,
+              "value": "x",
+              "id": "field"
+            },
+            {
+              "type": "beforeinput",
+              "trusted": true,
+              "value": "x",
+              "id": "field"
+            },
+            {
+              "type": "keyup",
+              "trusted": true,
+              "value": "x",
+              "id": "field"
+            }
+          ]
+        }
+      }
+    },
+    "nxs-firefox-placeholder-04": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-placeholder-04/button-results.json",
+        "bytes": 15096,
+        "sha256": "4f52893362a74b384c1a21721c5d6677589e45daa6e5afe47e698d3dc43306ec"
+      },
+      "checks": 81,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-placeholder-provider-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-placeholder-provider-01/results.json",
+        "bytes": 20603,
+        "sha256": "43b5127a90ea19dd04f2690a65e875f93f6a03e1b84cb7692164b0fbc21b37da"
+      },
+      "checks": 209,
+      "last": {
+        "case": "previous-provider-without-placeholders",
+        "passed": true
+      }
+    },
+    "nxs-placeholder-provider-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-placeholder-provider-02/results.json",
+        "bytes": 10365,
+        "sha256": "ab20ac5e9d925f2d9c087c497dbfe3b9c63e7edd67e9e7e0280a674891d1f682"
+      },
+      "checks": 105,
+      "last": {
+        "case": "focused-placeholder-preserves-editor-selection",
+        "passed": true,
+        "density": 120
+      }
+    }
+  },
+  "known_failures": [
+    {
+      "case": "Chromium disabled-field repaint after combined text/search workload",
+      "path": "/var/tmp/nxs-chromium-placeholder-05",
+      "passing_checks_before_failure": 299,
+      "actual": {
+        "path": "/var/tmp/nxs-chromium-placeholder-05/placeholders/text-disabled-placeholder-normal-actual.png",
+        "bytes": 1215,
+        "sha256": "1be622ffb5264fccf00e4c6cb83c65b0149c43051297199dbf286e8ba1300e4b"
+      },
+      "expected": {
+        "path": "/var/tmp/nxs-chromium-placeholder-05/placeholders/text-disabled-placeholder-normal-expected.png",
+        "bytes": 1032,
+        "sha256": "0f0d976a8b92a7722f835359a7ae7122aa4b9d7a8567015e534ea6ff0f84555b"
+      },
+      "log": {
+        "path": "/workspace/.build/native-ui/chromium-placeholder-05-test.log",
+        "bytes": 2299,
+        "sha256": "3dc931e11dbe891fecc8c078339a26bc01ec5a0cd8d76c8f50ced3585633d5bb"
+      },
+      "status": "open; full combined Chromium suite is not qualified",
+      "underlying_cause": "unresolved; not claimed to predate this change"
+    }
+  ],
+  "source_files": {
+    "Libraries/NativeUI/Loader.c": "8e22451f8c57604192a9ac7d1d469ffb3b68228a5da7493b7e2867045e60048a",
+    "Libraries/NativeUI/CMakeLists.txt": "6f09b6b823b4d241716d9faf34962cce6e3123601c42325f0ba5ea7624c935c5",
+    "Libraries/NativeUI/NativeUI.h": "4363340a7a1cf86ab9b010bd691b067d04ed08b8010a606784f979d770d465a5",
+    "Libraries/NativeUI/README.md": "c98e62ef153a419079efa07e0fa980ca3f7dfeb9d57a46ccd2a7b29f4df369fb",
+    "Libraries/NativeUI/Host/connections.py": "c125590956895367e203b777c385cfe51899765913aee5d564db427192b41ba3",
+    "Libraries/NativeUI/Host/README.md": "8c5afccd0b289ea046c15d6e16d9682c60e0255dc4fe1fc7010c1a8079145975",
+    "Libraries/NativeUI/Host/Activation.h": "920cd8fc3e5aa83671f029dc500acda6b8963d63ad64259bf5b71ee117aa3462",
+    "Libraries/NativeUI/Host/main.py": "d16bfefb34b92cb26037643ec011d3aafdec34f0503020745a363c3a78f8017a",
+    "Libraries/NativeUI/Host/menu_service.py": "c5756d1490e3979f5ae96cf7d9e6bd059760ac9d473ef0ff790043f5437fc0db",
+    "Libraries/NativeUI/Bridge/Protocol.h": "cb3b8e6805680e1d037ebfbd7b570969845d67e612d8b0bf73e5f0eda8772fd1",
+    "Libraries/NativeUI/Bridge/RadioBinding.inc": "adfffc7a2f86d83e176be3baa834bc3bac3ee9cd9087449e6899eb6b300889d7",
+    "Libraries/NativeUI/Bridge/AArch64Detours.inc": "835cb1280c40bd4b0df180507d299a64d0d367d0aa3bdefdc2c8b7e4ab2219e1",
+    "Libraries/NativeUI/Bridge/CMakeLists.txt": "4872e6896c0da0cb20016dd012c1265cda8cdbf3af679cd2d00dd4468cb5c966",
+    "Libraries/NativeUI/Bridge/Gtk3Geometry.h": "76c82cd40f931c0142dff86c939c35b95d3f3c0518229ac34df4582c89f325b5",
+    "Libraries/NativeUI/Bridge/Inputs.inc": "2f4a0d9e9bd4540372968d59802104522ea5e6d064aae426f99eee35d3437a7e",
+    "Libraries/NativeUI/Bridge/TextPlaceholder.inc": "a489fc97159dd617b162a5d3a3e09da5f50221a88117f56b0dc06907f85ce6bb",
+    "Libraries/NativeUI/Bridge/ControlActions.inc": "ec50d5de55046bc76ef76a31a168b9972dd43c465f2ad57ceb11738e09f0a01c",
+    "Libraries/NativeUI/Bridge/Tabs.inc": "387cab3e88363d6f060ec17f583c16f7f09171be9e42a2c2ac28db4b14daca0f",
+    "Libraries/NativeUI/Bridge/README.md": "787573c38011d1eb06140c7c2b63535b24301bef75c8f379f5b0a0160786732f",
+    "Libraries/NativeUI/Bridge/BrowserPolicy.h": "8890b7e8288469f474c034dd7773715dc523a4c1e3b69e328b0ca4219987dedd",
+    "Libraries/NativeUI/Bridge/Gtk3Geometry.c": "35aa674eec2533accfd8fb70c51653d940884123f852d0ae06d0b648c38123a3",
+    "Libraries/NativeUI/Bridge/ListBinding.inc": "12750dc707baa8d35986237f56b775503311095b293104cca6c2cabdd0e1ddd6",
+    "Libraries/NativeUI/Bridge/Lists.inc": "aa444108587ae764f0a44df15b92a32a17487db2d82de527fac8d3fd91b14cbf",
+    "Libraries/NativeUI/Bridge/Radios.inc": "b45d1b233ebc960b8282695e1532889669fc6cc70b2b9e27113820889ed2a0f2",
+    "Libraries/NativeUI/Bridge/Popups.inc": "d359b4732ee6889ec9755ee714aa17183e8129a9b716c9fff9555c7c14ce7b5f",
+    "Libraries/NativeUI/Bridge/ItemHits.inc": "5a9e43a1e751fc786e57025e775b7ff4e7087f55bc239dc4f67585acd7246689",
+    "Libraries/NativeUI/Bridge/Menu.inc": "989b1c4c1cd9caddcdde65f80976986030a0f559b683fe2bb5ab0df45324db32",
+    "Libraries/NativeUI/Bridge/browser_frames.py": "fc68428f886b258e9cd9c75faa4d835182f71f2c5d7b38f7b10de8a756f15a6a",
+    "Libraries/NativeUI/Bridge/Transport.inc": "eeaf3befc42c6dec7672fd28580f04968f41edd03871f43071c9f95da04754a4",
+    "Libraries/NativeUI/GNUstep/Provider.m": "76e619a804085710a47bcff4e959d645a9a290d7300ead0ec8ca44dcad83e826",
+    "Libraries/NativeUI/GNUstep/Toolbar.inc": "89b3ba460243d812b4c347143985ba9627c8546aed77f08246a3fce845027ecd",
+    "Libraries/NativeUI/GNUstep/List.inc": "8138237f8bb9a0c2d66c2e32295c12e6ad75ed62055549d3dfbdfde569458bfc",
+    "Libraries/NativeUI/GNUstep/EventSource.m": "cc0406b12333ac4aa6a264470dd83d5019cf0a5cb9694643a2cffbadda929610",
+    "Libraries/NativeUI/GNUstep/Menu.m": "f14a47a66fff1c130781005d8b3e772d0773f4f318a03d970981dfb39cdb9dec",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "feac69d7488bd2299daa08ccddc7e8b67d85365b3e497c931868d7d156a69dac",
+    "Libraries/NativeUI/GNUstep/Radio.inc": "0b8adc63af400d867489325641692fea425074ffb020071811242c02a6191e80",
+    "Libraries/NativeUI/GNUstep/Controls.m": "3a516e555dffe5a6587d014908607114041fca08c71b94d494750aeedafafd8c",
+    "Libraries/NativeUI/GNUstep/Provider.h": "c7c86b7ba5b689cad135fdabd2326f5d4c32a998ef0a8d93ad96142fcc6eb561",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "4f9f8f2628882454414b23e24185a1b8bd9159d6884964135e4f0025f1abb5c5",
+    "Libraries/NativeUI/GNUstep/Scroller.m": "4057efd6897eaf7e9d3139169ef137d67fcbd94a882757364ecaa4062d6d3cc7",
+    "Libraries/ForeignScrollers/GtkBootstrap.c": "8afc07a8a3b659b1f47b7a9b84c320c28a5194f4be8d00b6aa9e82a4f02a1f38",
+    "Libraries/ForeignScrollers/QtScrollers.cpp": "fe3e94f1841554358423ade811a2f93a60be442c8e92b28c0021f960257548d6",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "347deb56cea90e6d6091d5da9fcedf67350adc356622e70c568a9b89fe0f55f6",
+    "Libraries/ForeignScrollers/Gtk4Scrollers.c": "8cb7bd55b1dc20b4907157686cfa57b01589e08e70083a62d0d0a6b1cbeb9006",
+    "Libraries/ForeignScrollers/NativeScroller.c": "21c71a3c7c02be687cf2e075222f80385ede839a0116604c41079b95f6e1450f",
+    "Libraries/ForeignScrollers/Gtk3Scrollers.c": "a9277c303837fc26db6b105d5f80e8203a8a1b31e9cacb5ab57dcde722d4ed75",
+    "Libraries/ForeignScrollers/README.md": "971c5b4a8612a6761499f6e52772ef525ff0028b6d015b3495996732e3b6bcd4",
+    "Libraries/ForeignScrollers/NativeScroller.h": "d988c13d4e040398bcd0612d4c2b7d847a2d6de3ceff648cc067208297617a7b",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "e356f5874232bff018f8cd620574064345e40f8289b083d6a152c8a9baa0dc37",
+    "Experiments/ChromiumScrollers/inspect-popup.py": "f22430a02fdf518d2d169df57fd1d266714bdcd9d3a1a889e01bfff67f54329a",
+    "Experiments/ChromiumScrollers/protocol.h": "a0f8f5fe8c89070949f7318c2415df96d223b848220dabc26fc3764f0dcd175f",
+    "Experiments/ChromiumScrollers/build.py": "300498443495e468353bb0d67855c7a344ee78bb1db3d118b798a976ab1f7db4",
+    "Experiments/ChromiumScrollers/pinned-multiline-scroll.h": "e8727355ba4414f5b51936b94874a9f829b2a97244e868f838281568d05481a2",
+    "Experiments/ChromiumScrollers/views-tabs.inc": "b76f38a90ad5e242d97ec9ab646af29a3abb116da733955318e0337647b494d4",
+    "Experiments/ChromiumScrollers/form-labels.inc": "6a3c1b508717d838a489492647e38e3853ea4568076c8eb50743ee1a063491b7",
+    "Experiments/ChromiumScrollers/check-form-input.py": "69057ab10795d7c7c7d293b25f4d6caa09c1155c2ade7df5fe2517276448fee4",
+    "Experiments/ChromiumScrollers/native-reference.py": "c42c2c1f19be0a25c1d60a8bad3ee89ba45834ea7dd64da5b2cca9e00ee8224e",
+    "Experiments/ChromiumScrollers/run.py": "d417904d1518800289e7e1b3f15200c4cf025f80a90bb857f5aa829e52c9cecc",
+    "Experiments/ChromiumScrollers/check-progress-trace.py": "bb12d58697f805c92b33bd3bd0596ebf7748716e7c048c71b802773fe1625297",
+    "Experiments/ChromiumScrollers/check-slider-trace.py": "336a23a01a4afbba172b8cf0d40b2e4807216264c129ff35da5e8b859fc60f2f",
+    "Experiments/ChromiumScrollers/app-menus.inc": "131784f3c08b2a4522aa357cda7c4341705cad6149b04d989416d41a1ca49edc",
+    "Experiments/ChromiumScrollers/test-select-sizing.html": "72508b1ae6d2ac44bbf955070a0d97050feb511ba859664bab99c84bf0885950",
+    "Experiments/ChromiumScrollers/check-global-menu-keys.py": "54f875356c8a661fd22d068b69e967b2eb79beb0b045ae2775ad2c7a0f2e502b",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "b68f7efd883c0a654b95ad3e3bdc54a7cc5a72e1e1dee0dfb7365fe004e93aea",
+    "Experiments/ChromiumScrollers/check-text-pointer.py": "5630eb1c7791dd744741bbf614826da209b6eb67970837a2c56ddba8e6700023",
+    "Experiments/ChromiumScrollers/pinned-checkbox-activation.h": "94f45ecbf52be7b0f39502ee421c92c3db74882969ab808c4442a1a43afbdea3",
+    "Experiments/ChromiumScrollers/checkbox-activation.inc": "e470c9b3a93123ba7504fc2ad207786ad55ec558a86ef003554bac9a6e595355",
+    "Experiments/ChromiumScrollers/check-forms.py": "15e8efea64f92b3307828b494c14d11719df8b5e4502b1435b1c0079466129f5",
+    "Experiments/ChromiumScrollers/forms-text.inc": "31888fb3b29d8a97f4e378cfa91739bc06ede139217645e0ea68cb2468e2086e",
+    "Experiments/ChromiumScrollers/check-notification-trace.py": "bcf9b7f7c1a6c404af67eda5cf984c4e017a831be4f9d32e170731b71798fe07",
+    "Experiments/ChromiumScrollers/check-text-commands.py": "4b25a9b196287feaaca99bbf4434f08c9f3b67bfc6586c56b93b640a0217f2f5",
+    "Experiments/ChromiumScrollers/pinned-multiline.h": "887074e79cbf6780004a9329740bfb92a86eb5cea3e28dc4fdcd9b6fc9191cce",
+    "Experiments/ChromiumScrollers/test-sliders.html": "8d8243948a79c0ae00163a5d94dad7e636f58866b4d248470231bb2d383586a5",
+    "Experiments/ChromiumScrollers/pinned-input.h": "4d63e4502f21ee0c7a8ad11dac2fccaa3970eb154ec9f38546514c75f84b4f2a",
+    "Experiments/ChromiumScrollers/pinned-tabs.h": "eb978474f5ad7827dd66bf70cf6439d6f3c0977424e16df17b48fa4cdc470772",
+    "Experiments/ChromiumScrollers/check-popup-models.py": "b3cce418b20b59c0e244dc9dfc5b29bc59e5265811aa7294641f5e34f1c71c4b",
+    "Experiments/ChromiumScrollers/pinned-lists.h": "1ad718ec51c7229495df8e4b4f04c2cb6894530b9a9ed94c2910714ca6b95ceb",
+    "Experiments/ChromiumScrollers/forms-sliders.inc": "1dc21f1ae6380dc3bbebc393e0d588cf95c9d2282a7e40148c8abe34ffc56704",
+    "Experiments/ChromiumScrollers/forms-input.inc": "36b098cddfa5e13a1af0c3d647528b23226e5ac161c2b9147d8aba2ca8035163",
+    "Experiments/ChromiumScrollers/test-button-sizing.html": "7b51891515b514012b0537d03ccd5f705f004a4addab2483e54c4f89f11e13f3",
+    "Experiments/ChromiumScrollers/pinned-layout.h": "882695affc25f2eb5adc8a78472b6b1cc23dd5cda2f18b1a8fdd121d72827dc5",
+    "Experiments/ChromiumScrollers/check-control-popup.py": "53bd5e100da240e5b7a4922b7d1541e6120630b8e1daa19b0e50646540e62c72",
+    "Experiments/ChromiumScrollers/check-control-transport.py": "cc9b77f272bb1ff43874fd6d6cacf713c7e05090c72b13e2dfce91211395c0f4",
+    "Experiments/ChromiumScrollers/pinned-form-labels.h": "1ca3bf68a9ad51ac13887a9803db4f37dbb8e4183935dde6bca58183710692fa",
+    "Experiments/ChromiumScrollers/check-views.py": "c870cdbcd1279ede4751b270f46c480101ef57e2bf2b9ce88ad9d28fc4e7f585",
+    "Experiments/ChromiumScrollers/check-views-pointer.py": "8776342eaa3703865269a7627c18184c19e5df74938962eaf0e39c2f423172cb",
+    "Experiments/ChromiumScrollers/pinned-global-menu.h": "7b75957c313ad234aa25b289cf4b93565af5dcc2db36e33905941dd8c930f39a",
+    "Experiments/ChromiumScrollers/check-form-activation.py": "1f94cae6d5169c680b62f4775eaf4b3e145af13b5bc65c0657f0f3d3fbbd60fa",
+    "Experiments/ChromiumScrollers/test-animation.html": "fefe1bb41e1dd1036f8dc3aae5d951cc684f4089d89b3571ce13d945313238a3",
+    "Experiments/ChromiumScrollers/check-control-notifications.py": "8e0596ad61d389c1ba36281b31aae4e9a03ccf15a8a9b78243d689ecac5c3a53",
+    "Experiments/ChromiumScrollers/check-disabled.py": "0ae4a1dea929e038b850006ef13a8a72b58d6a2e9539816f0b4a807b26072eb2",
+    "Experiments/ChromiumScrollers/check-form-input-trace.py": "5baa2af43ca042eeee7634e7d0f70e4a49ad23c002a9cfd9da1d3cc7956b25db",
+    "Experiments/ChromiumScrollers/check-animation.py": "aee393277b2cb5748535499508535b58efcc261023ba5b318dea5e5283de5390",
+    "Experiments/ChromiumScrollers/pinned-coordinates.h": "852c5de5e656252e22a10794532ad083b61ef0e46d4a665dda4b3ba3cedf2623",
+    "Experiments/ChromiumScrollers/native_controls.py": "c9ddfc091cae0b39502918055969037ce4106f5222f0a7586ae2638c470c02de",
+    "Experiments/ChromiumScrollers/test-forms.html": "99c4c9aece6447fd32e8e8885b8057b779c93c39ea9d3d30d4ea9e980f243274",
+    "Experiments/ChromiumScrollers/check-text.py": "79e7662cc9a03a2bc60abeb5f4fee3d13d6dfd7bfb6d6a48357cde05c9e4c368",
+    "Experiments/ChromiumScrollers/check-lists.py": "a7604b16fc8d0f9c1ec79f119723b1f57ae30258e1623a21ff4e07a2b0711463",
+    "Experiments/ChromiumScrollers/README.md": "8f9ea2ba7575503115834ab0e99d100cfd75e7a9e6c30ab84a3baacbae430117",
+    "Experiments/ChromiumScrollers/pinned-text.h": "ecaa63af3ee86250b427a7928c58160b3cc629ba9a073807d6112e1f0060e45c",
+    "Experiments/ChromiumScrollers/check-popup-trace.py": "adcbb51242a1b82d1dd42981a064c5b22b5cd2c5cf43cee460bb8c0a17862a79",
+    "Experiments/ChromiumScrollers/forms-buttons.inc": "583c13167e5d3a7e8d5de2691fb9b032a690b7365a9660f01eb7be4e084b8ed3",
+    "Experiments/ChromiumScrollers/forms.inc": "13e71ef89c5dc31232cb022cabd9e103de2c8dceedd436729c0dcf757004de04",
+    "Experiments/ChromiumScrollers/check-popups.py": "fcc10a6eeb07cfe73394969aba94ba4ac5d930fbeffcf23e421e7966cd799860",
+    "Experiments/ChromiumScrollers/views-pointer.inc": "45acd40610f5157386af0555189c982249d61557da6c317ea7d0f22675936aaf",
+    "Experiments/ChromiumScrollers/check-app-menus.py": "f66e752ad3a8e572a68db14f508d2162c1be049f7380a8bccf5f1b1bac19aa06",
+    "Experiments/ChromiumScrollers/forms-layout.inc": "ca80c1a5aa8876e95191424c8b79b8fc0281b640a3f74626cd492e27d67f9e98",
+    "Experiments/ChromiumScrollers/check-control-input.py": "bdd233b6d552c50baa9dfba585fa2bcac25066f8849f77431c78a38b4d0d215b",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "5bde8eeef8a61f04bf233982ce9fb4d394b743e9e33755c00383ffaf17fa49f0",
+    "Experiments/ChromiumScrollers/test-progress.html": "acd39d8254b91f3e222fe6503875dbd92abcbabffde47ce5d04286418d588b37",
+    "Experiments/ChromiumScrollers/input.inc": "fd10eca708d009e79a3dd0da1d64a95db054f2429b2fb65458bc85e864ba79d9",
+    "Experiments/ChromiumScrollers/pinned-app-menu.h": "4541c945f9315dcb5079db4d144a7d06b08559362c32be78aa25aa6a04159129",
+    "Experiments/ChromiumScrollers/pinned-wheel.h": "3da8aca5cc43db3e54eedace4347f56ac54c82e815a9e20c0b5f7c9cf7be4c5a",
+    "Experiments/ChromiumScrollers/test-popups.html": "1dfcfdf8e65ed31c7d2249c9f85e7226d63c602138e4154f829a9e10d48e5505",
+    "Experiments/ChromiumScrollers/global-menu-keys.inc": "e2adca964e8c288761a2c4cead820013c594463f804471ccafaac3014319501a",
+    "Experiments/ChromiumScrollers/helper.py": "fdd0809af18f7f2da694b824340f0a1e7e810b5eba2868b4956dfcb9337dfd6b",
+    "Experiments/ChromiumScrollers/check-form-trace.py": "ccedfe2ecde062586a36029b56d88104dc656672552457220b860a7e179d83b4",
+    "Experiments/ChromiumScrollers/forms-radios.inc": "94cf4fad6f9dae30a79da793c9a301207a97bd3716cb3f9cfbd5b5e521fdfee3",
+    "Experiments/ChromiumScrollers/test-page.html": "1df2bdb8ea38c67f3bed40333bf0456b106ef8b89cff9ff95b38944510a4fa0d",
+    "Experiments/ChromiumScrollers/test-multiline.html": "21faedbcc4f959372e8fd6c3cd827951a6e19b01d9b4d771404701eb1100f765",
+    "Experiments/ChromiumScrollers/pinned-sliders.h": "1c63b85d9e23fc981522a2c2c9589f618b9fe3dca25a2e13dcaec271dd06de25",
+    "Experiments/ChromiumScrollers/forms-popups.inc": "36b4ab0a1d2f091a06246ed8dd7f7fae49df24ac34bd029c94560cdeb950ea86",
+    "Experiments/ChromiumScrollers/test-text.html": "18eec6ea65183300eab7f01a563e6ed8355dafa10b23d29be0a4ff6d1897344b",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "40bae428ace230b1f10fb1fff18d495df8b28c83ce6316dc1131d91bbbba890c",
+    "Experiments/ChromiumScrollers/forms-wheel.inc": "ff35b0777b4b0902c2da983db7768783cbc9cb950bec2616b264919519c45da7",
+    "Experiments/ChromiumScrollers/pinned-radio-groups.h": "3b21ddee547bd4a9e31d900c9b6abc52bb1053975ab11cdc9d764ce1149c7a0b",
+    "Experiments/ChromiumScrollers/pinned-list-hits.h": "c2246d38eb568d9875bbeb26ed2cb53c04985570fd5ebbb7c6e79ffe8c933e5b",
+    "Experiments/ChromiumScrollers/check-sliders.py": "45151fc9fe4f33e6d3f2dd75f1022c272de7f441698fe998800564979e04872c",
+    "Experiments/ChromiumScrollers/hook.c": "bca1e6cf7bdb039555b985dad1110306c615395abe572a9dba6faa287f1337f8",
+    "Experiments/ChromiumScrollers/check-control-text.py": "8af3e78a34c1579bbb51d739d459d5b39306adef500ad78ca0a442cfa41a2c78",
+    "Experiments/ChromiumScrollers/check-progress.py": "a7010c77e1e60aa25a1e1f61eb1453fc09765a211ebe57a36a01a268a11e2c7e",
+    "Experiments/ChromiumScrollers/pinned-progress.h": "b49d27bb426e8c8eb7d079bc1b3e2f155de071775c77f4b716d7e57543eb103c",
+    "Experiments/ChromiumScrollers/check-animation-trace.py": "28331497b8a8b9ad2fe89acca9a7c43370ac73669932d7274e462b136efaa448",
+    "Experiments/ChromiumScrollers/pinned-form-input.h": "83d385bf4935ee57b666633a9ef9837870acd987bf1da948bfe835cfcd29b339",
+    "Experiments/ChromiumScrollers/native_menus.py": "f32b4fc02ef54f6606141445bfe27a517903adcba984c2a1b8384e723676a384",
+    "Experiments/ChromiumScrollers/check-control-animation.py": "02180016b5973bd5643c5b5782a14e2d64d47cf99606d55788537ba91ddc6ac2",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "663e1b2f56d062c14a011c12a7a00d357bf933273c9dc2537cb9001087e065e7",
+    "Experiments/ChromiumScrollers/pinned-popups.h": "fceee1ae68057d20a1269e9118aacc45f36374fcd068e6887ee24e68cc50403c",
+    "Experiments/ChromiumScrollers/views-text.inc": "bf0711d1e34275523cb228ce3c113833d9554a2a2a7eafcdfeb11327a3027a6b",
+    "Experiments/ChromiumScrollers/pinned-forms.h": "b810e391b07737ff19e1e70f3ed1b6ac77a5cf74b8feb35962a0df39f0ed40d6",
+    "Experiments/ChromiumScrollers/pinned-views.h": "b1c5802e1f58b0cbefdc6b0e2a30688f8009be7e0132a20fe6759f1b395983aa",
+    "Experiments/ChromiumScrollers/check-radio-groups.py": "71c01d1f76cd9a454f53b67955db6a5ae832f6907059b7dbcb4dc395f51d3636",
+    "Experiments/FirefoxNativeUI/test-controls.html": "d598c03592d826357c900b23e910eab66d41dea9a1ef66362ce59e23c00af13f",
+    "Experiments/FirefoxNativeUI/check-controls.py": "2b28b39113c549d39d28ff6ded929d826d9c4ea6ad9ef591016bc94dac9391cf",
+    "Experiments/FirefoxNativeUI/run-fixture.py": "ed19f574a2c48a67cd2d65920d9dc82077938069b73afe8f07ea27e13f8ab220",
+    "Experiments/FirefoxNativeUI/test-html-buttons.html": "d4257bcbae955ccf33d5bf433b4440eddc917fbca11ef086d76bd8f142bb490d",
+    "Experiments/FirefoxNativeUI/build.py": "d6a14be6b91cb8fa45b68af50c95b324425dcb4fbaae7844423c2cf7672ee6aa",
+    "Experiments/FirefoxNativeUI/check-frontend-lifecycle.py": "0d9d9da6cb1c3568481f190cd93e8d144911ed811d1f5ad50c4d202b2c784110",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "80cdbddcaf403eb6e32a8e716930a155d8efe18610e4f49ca8b373ab9f5223fe",
+    "Experiments/FirefoxNativeUI/pinned-geometry.h": "f91ab1a7e55e3f7378e4acab9bc030a166fae9fa8384b9ff7afdb46e55a20b26",
+    "Experiments/FirefoxNativeUI/form-labels.inc": "cea04a6ce5ac6164f228d413112503856b283574a510a9d882853e3fb1cc763b",
+    "Experiments/FirefoxNativeUI/pinned-checkbox-activation.h": "1393a0df7e4f514dabb911a41755926566bc39ef0b63677cc45f8f6b2122a0d7",
+    "Experiments/FirefoxNativeUI/wheel.inc": "2b53849a28dba118c32f2250c617e9605f40380f5ee8ec81e18c87e288fc01b9",
+    "Experiments/FirefoxNativeUI/checkbox-activation.inc": "d160a968fddb7b46e0149157840639b3ec05f4ca0809b97673a7c9c836475091",
+    "Experiments/FirefoxNativeUI/check-text-commands.py": "b35318816744b7835677131a5e4bc97337e017aa5c5a5cd3f9197eff0d9dd090",
+    "Experiments/FirefoxNativeUI/pinned-multiline.h": "87dbccb067b00d11b1803aa60bf1c5af6a4b47a54ad77d454e5751d181b51035",
+    "Experiments/FirefoxNativeUI/check-buttons.py": "6149a2262fbe2852ce1561e91719f48ff09787548ef4354b9bff15172176932e",
+    "Experiments/FirefoxNativeUI/test-sliders.html": "a02d5ca72eaa13689406be23b8e83b08a6b53545a73b07c81f2a86688ebbb23b",
+    "Experiments/FirefoxNativeUI/pinned-input.h": "f91d2c53e4fe8841574e8a6143ad753ba180997fc96a5cf519efd80467247b75",
+    "Experiments/FirefoxNativeUI/pinned-tabs.h": "eae7d57ba0d3e9d1fdc414edcdee202d833a2ae672bf282ca5ead615c59b9a65",
+    "Experiments/FirefoxNativeUI/ranges.inc": "44ea1d669d987f60e526e1671b3464763565a918a7de1ef7dc33ffb10a2026b1",
+    "Experiments/FirefoxNativeUI/pinned-lists.h": "a02fc557d9818e62bf582b1ac82bd835aa8bbc1f9cc250747bf097e599899a85",
+    "Experiments/FirefoxNativeUI/pinned-button-size.h": "fb58e3c050a6c6f605630e70fe36b8e865060faafdf40fdb6a072dbfd05438d3",
+    "Experiments/FirefoxNativeUI/marionette.py": "5c688a313067d64060538105c691165ec3916d71b38f2b4a4947f99f805e4751",
+    "Experiments/FirefoxNativeUI/pinned-form-labels.h": "d53bcbc006182bdd4400ff4c2a5452b8ddbd7dc8fac1a0acaa4699921ffe7501",
+    "Experiments/FirefoxNativeUI/pinned-radio-pointer.h": "528abfc2293ab1df87dc1cdb727935e22e5584597f22d0d2485fda586966cc9e",
+    "Experiments/FirefoxNativeUI/check-form-activation.py": "0c394d6b6530692958193405ef0be5c0793e8aa2e2c2a98805729e8df58437be",
+    "Experiments/FirefoxNativeUI/test-buttons.html": "efa52559cbc229774036e18048562c3b1fa46ba0cdc58ae4c90138161264e77f",
+    "Experiments/FirefoxNativeUI/viewport.inc": "bea5505f05ddeef84fb4ae5362156ce4ad79dc31144ad10905a8e1e710250148",
+    "Experiments/FirefoxNativeUI/list-hits.inc": "26fe005508cf51df4ad1787b31309587a27327628b8180e5315fae3aa275535f",
+    "Experiments/FirefoxNativeUI/tabs.inc": "38b469ff292eab69533a97844641dde9543b4fa4e808fd33afceb4cfe8b3ca0b",
+    "Experiments/FirefoxNativeUI/test-desktop.html": "e41756c538c0c2137cce5336df385a13c6038d07e934959b9b65ec5fc985ba0a",
+    "Experiments/FirefoxNativeUI/check-frontend.py": "9425221d6be3b8657bbdb4d75871dbaa78b6a06e716bf57ab572286936a91940",
+    "Experiments/FirefoxNativeUI/pinned-html-buttons.h": "87c14e98f8554ca4ec16e03f5c48f7285151b3b5df2e7dc979cd65a00b712919",
+    "Experiments/FirefoxNativeUI/check-text.py": "a421dfbe4ad39b7086810b54c2bebe09e9ec28c8d72d38b3f90c9ed4dd69ac69",
+    "Experiments/FirefoxNativeUI/check-lists.py": "dda547c42de2e64cab4ddac1f1374b6111098c8c6cbec7ca96e379227f0e3e3c",
+    "Experiments/FirefoxNativeUI/README.md": "144146a8b3cf3ff406f5b3e71d7f9604ba727eaa1bd5cec3982f232bc78f7809",
+    "Experiments/FirefoxNativeUI/pinned-text.h": "3f3e1ca7d9ab6c1a4c90393821573c47cfb1fda2336e0f4187ed613113c55fc7",
+    "Experiments/FirefoxNativeUI/check-popups.py": "5b1d7c3a518b780afe9a08f4e9591329194a3d347567af087fde17b9fce245ef",
+    "Experiments/FirefoxNativeUI/text.inc": "11fab6b739e27759368b79958e832055846e7abe55825c631c7463c3a161517e",
+    "Experiments/FirefoxNativeUI/frontend.inc": "9fa49cb8c22ff39c261e524845f5bc8a8b5e3a7cb633c10e9b327681c03b9cdf",
+    "Experiments/FirefoxNativeUI/global-keys.inc": "81b560e15a2932c586b6c44e7e10233e8c48d11e88e39a5fc2158dc4fb343c9b",
+    "Experiments/FirefoxNativeUI/test-progress.html": "e77428f44ba9dd293dd57db2f5add86b65128d3fb361c3e2c790840ee9ce2b69",
+    "Experiments/FirefoxNativeUI/pinned-wheel.h": "81fa0150742e752b46fb1862b0b9747a683f0f4bff16d73b97620755af489bd6",
+    "Experiments/FirefoxNativeUI/pinned-viewport.h": "26fb4a3cecd0bcff8b941daef0f0e259ca89b302130b8b5ac23771f198b2a431",
+    "Experiments/FirefoxNativeUI/geometry.inc": "9617ea02807a754e72eb58b83e22f68399fa2cf1e90c7d98befde54cacc9ee93",
+    "Experiments/FirefoxNativeUI/controls.inc": "7443f4e46f87ce35c050b8e4ee2558d2fbaaf23dad6c62fb16c3adb6ff2efb90",
+    "Experiments/FirefoxNativeUI/test-text.html": "3ad53cd17f42898a369b5ffabdc408feeb4bfd4106b5c4826cf11144ef573473",
+    "Experiments/FirefoxNativeUI/lists.inc": "07628783123bd8369ee6f4e2f52c7fc086d8c2cd626f458ba81958d2ee3bd0a1",
+    "Experiments/FirefoxNativeUI/radios.inc": "dff7ff1f3c82387747f3a136117331cf72d7469dc8e603bc1b9b9ffd598c03dd",
+    "Experiments/FirefoxNativeUI/pinned-radio-groups.h": "9f6b9da377eeb047802a99abe34bfaa92d7678171fa623523698c10d062abef6",
+    "Experiments/FirefoxNativeUI/pinned-list-hits.h": "def1a2fa7f7887dcf7148b8c61397b6709cd4c3b999a38db0beb525e70d4596c",
+    "Experiments/FirefoxNativeUI/check-sliders.py": "6eee27f7c55ae2c2a6bef1d6744cf1dea70ca11ff7b3f68c46d19d05c990a0ee",
+    "Experiments/FirefoxNativeUI/hook.c": "74291b0635ce8072989b58b5e38792d4de142181658d5478b70177cb64b10ef2",
+    "Experiments/FirefoxNativeUI/popups.inc": "bd9a22e5f85878f1802026429c150d2398a61f5de57bb1e54607b929a4e3bb8d",
+    "Experiments/FirefoxNativeUI/check-progress.py": "3a37796758b6b54597dc5e27572db6434fa494381247a2d1ce7058e7d6528025",
+    "Experiments/FirefoxNativeUI/pinned-ranges.h": "feeec6928172bc8c43d010f73175fa3fd3058f7b1ecbb564e2881f5064f9480e",
+    "Experiments/FirefoxNativeUI/pinned-list-geometry.h": "e1806951e054127b11f090d3f572a865deb2a58b76ff012879c9fa7c901c6cb5",
+    "Experiments/FirefoxNativeUI/buttons.inc": "9e0f1e76071f88c4890d76a22a57e6effb6f062a5c0c2472b814618092495025",
+    "Experiments/FirefoxNativeUI/commands.inc": "e1c7b6d31d4554f8cd1bbdc504c59cc6d447278fd48997fa1e7dc57abaf9331e",
+    "Experiments/FirefoxNativeUI/menus.inc": "d1ac265fa9956de73956680ddd8079eed7e57f8adb3ae4184b2e1523ab0a263d",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "9bdd4c8705bf58314b2a2098f6f2e26258268de4b047f06ab5c998ed3607e3b3",
+    "Experiments/FirefoxNativeUI/pinned-popups.h": "b09ca56668f66c3ba0733ab4888982299899aea3011158a19750a6379e5fd04a",
+    "Experiments/FirefoxNativeUI/check-radio-groups.py": "e184a8a325cba6d1aff76856ecb29cee6d6886fbc00fe904e8fd6bc34a048b5b",
+    "Tests/NativeUI/multiline-probe.m": "2feb7c5302c6ef28d607d7a84b1e918ad66eda728bbf68d284361980c7eb4a34",
+    "Tests/NativeUI/check-radio-reference.py": "85ed36af12ffe1b9fbedba43afa167d83ef0a30c5c0aeaef8b9d99f08e13b643",
+    "Tests/NativeUI/menu-transport-probe.c": "76cb74de06c07ff0777b3dea65cb09ffed069169f64fcb8eab49a8efddd51c8b",
+    "Tests/NativeUI/check-tabs.py": "89abc220b344e6d70dcbd28130382224867c8f04c9c04033e98aede8e59bf081",
+    "Tests/NativeUI/run.py": "d95dfd632ab3ac129ea2371b67e991ba84db63c93cd9567ac8d60413e1e2fcfa",
+    "Tests/NativeUI/check-menu-lifecycle.py": "e1c51eddca4bfa66f3384946ceede3f8f74bccc3e5dbd81a8f264a5ef9a7418c",
+    "Tests/NativeUI/menu-lifecycle-probe.c": "92b5576fcd7f4c2ee53a6347bb6fa052617727d12e886b4c20362035ed110dcf",
+    "Tests/NativeUI/check-toolbars.py": "de1746d7c18df8494b458a892f86aab945aff58c63cfb4ad95de89c26a3adc4e",
+    "Tests/NativeUI/radio-probe.m": "53d49507b158db95ce48153c118cf09e776da3c280886df367f4dc153adf235a",
+    "Tests/NativeUI/list-probe.m": "e4426a7df7e10661fe64758a57f68f75a19356fe08b72b630e1ef8de0d293049",
+    "Tests/NativeUI/check-dbus-menu-model.py": "22ddb8d022dcd369d469988222bbf2feb0b248542a702c2985c3f114d7d62bc8",
+    "Tests/NativeUI/backing-probe.c": "1edbb1feda4b0c1a61b6ade5df34780862664ee50e8c058462a247cd17e7704b",
+    "Tests/NativeUI/search-probe.m": "422c740ed62bed1ea1f37f1f7fe00bcb16df257e7552a8322d5250725fae769e",
+    "Tests/NativeUI/semantic-click-probe.m": "b8e188ff828db9abdd033ed1ab6285032d9f23f202b273d7e902a381ea6eb8d3",
+    "Tests/NativeUI/text-transport-probe.c": "0d64c5ffe8de28c22d72da48ed6aa1c680ed7c495b4cd63f2e6c38467882884d",
+    "Tests/NativeUI/list-gesture-reference.m": "2fceb2a809f28db869831c36116b5f93573fe0dc74ea06a66032eeb5d3266ae8",
+    "Tests/NativeUI/check-menus.py": "ef290f40ae9238c7d4c47b5f8c4f926aa824eb21422df2f708cc06953d8114e3",
+    "Tests/NativeUI/toolbar-probe.m": "881ba84c1078bf6abded29f6288b27216770b325025cfc27ac8c3ca7390eb5d0",
+    "Tests/NativeUI/check-tab-transport.py": "a99f6d6ef2595bb0c645528cee368030584866baa819ef8d288f1d0686f5e579",
+    "Tests/NativeUI/menu-probe.m": "0633ad34148868c944149264ed3d035b57108f3043012cf97b6703dbfd266bc2",
+    "Tests/NativeUI/check-menu-transport.py": "96e4d94d1f78089dd35178c01cf9f10c12feba86c9fb73fb4a1740ed1a06a6a1",
+    "Tests/NativeUI/animation-probe.c": "c4d3917b93a0592321f4b4d0627d457d0b21d4624fb30a7638777f1ec8aabd38",
+    "Tests/NativeUI/popup-probe.m": "38a93194725d388e2e49fa7df142a6f4e6778d5e66e71ad9f4ae8ff2dd2c0b08",
+    "Tests/NativeUI/command-probe.m": "fa00855172e6bb8e9c8026ef52f658c575e28f917b56aecf9db09dfbd0836c9e",
+    "Tests/NativeUI/list-transport-probe.c": "65a03ec1dc9a46e85199296903fada72763c965d1bcf42618444726e6acdf45a",
+    "Tests/NativeUI/command-thread-probe.c": "c49acdafa5ce4f9fbbb40d169b652c090f872ce8ae451217322d0e8c48985c66",
+    "Tests/NativeUI/tab-probe.m": "19e249a334a5b165c0d5c9b85ec257038fbf62c2449e94612122c5fed1bde3b1",
+    "Tests/NativeUI/popup-title-probe.m": "1e29cb91f16e5ff1e4a63baa424bc3875665c45d7bf4ab87023c6ded04d41aec",
+    "Tests/NativeUI/input-probe.c": "b801abbdcd1777fa828e8a2f0202683206636f3d6a4e537d96a81abfe22df506",
+    "Tests/NativeUI/radio-transport-probe.c": "fd4339e34d380d346cf7e8d7271b211936d496ddf2e48a6785c0cb900376a112",
+    "Tests/NativeUI/text-probe.c": "07cff1f7f944bbbdab4726569bcda3cfecdab3cf71d79c212bf7b1644daa185e",
+    "Tests/NativeUI/text-filter-probe.c": "87bf2d85fdf33f2a0b1906872e79be00368c5e1d5cf8a418c9362b177cbe586d",
+    "Tests/NativeUI/host-generation-probe.c": "1e272fbbf4cf02be9dd835a17e8e29bc64060bdc0af1725677099a6409be29a6",
+    "Tests/NativeUI/dbus-menu-registrar.py": "881d5e7833787bca535130666dbf619a1384266b4fdbeeb43554a1a8707ec3f4",
+    "Tests/NativeUI/provider-relay.c": "df6b055a36c0c49b1bd0469abf8e272373edb0eda974f3cfff4ba129d43a5e92",
+    "Tests/NativeUI/mouse-probe.c": "c5f35d502de4b5519f9a1a2bdd76fbcb9a9d5900d4880ad81d1fea61707523f7",
+    "Tests/NativeUI/placeholder-transport-probe.c": "e3803224f6e786f0eaae7dfca0c62e8c9beede64d8ae8f68083819346e308904",
+    "Tests/NativeUI/range-probe.c": "a3dcc0ac54b3bb65876c98d5c2274adc1769138c5b6d380da45430a959dcb07b",
+    "Tests/NativeUI/check-dbus-menu-events.py": "3e32c2a14b9eb7a9c0971d2793f3e97fdfef97fbf74ac29d6462cf7f53ff655d",
+    "Tests/NativeUI/wheel-probe.m": "536153c2cb96b10a09f230d05b9885a7ede484d826a4d19ad654ea95ebcf781c",
+    "Tests/NativeUI/radio-reference.m": "5fc5ee6f2d6dc5ff249797fdbf446fb294cb457f1ac9ea34878983c952be4879",
+    "Tests/NativeUI/placeholder-probe.m": "03a3b6059583655ce4f62bc6af3d6e74978068df149c9ea9d48303a6fdba7b31",
+    "Tests/NativeUI/render-tab-reference.py": "3b5189bff1ef87d2a363214f2537c2a6327864c70e993f6a6b94ec0c1658a32f",
+    "Tests/NativeUI/tab-transport-probe.c": "ea8963223b77f954960a6229321cfdcd4ce039287d54ca40883d062d19c1d4b6",
+    "Tests/ForeignScrollers/native-controls-probe.c": "81ee3a46d3848d44f9b5d1f748257cd587f1d501b7932223c5efddb398bd8ef6",
+    "Tests/ForeignScrollers/run.py": "18b03781da0f769cfb8b3e4e7f347bfddb0bc822e1a5877ab6f2e347c31d79f3",
+    "Tests/ForeignScrollers/gtk4-gi-probe.py": "bc6a1c6ba69946c79b0628fe82e61155de1705baa367ef49f6b2799ef2453784",
+    "Tests/ForeignScrollers/qt-inspector.cpp": "0ab13d57d1e12db8663b3bd9cda02912965ad7ad7236df6844645ec93d81936e",
+    "Tests/ForeignScrollers/gtk4-probe.c": "768b04018ec20cc4b71b97e08a12c177cd402460097cb45eb265df54d76f8ce3",
+    "Tests/ForeignScrollers/native-probe.c": "3c986075f1a7111671a5042181561380136e9c7731c33a30ceef7156521b3234",
+    "Tests/ForeignScrollers/qt-probe.cpp": "004385dfdcfcbc6af0fc52fca74d879421e4eb9d92b2633cc32d6be69278cdde",
+    "Tests/Wayland/drag_start.py": "1aaff2e87dd19be534b9219fc8d9b323a555fb3da06217552f25f6bcfb787c47",
+    "Tests/Wayland/openup_fidelity.py": "00b04d6da0a14054ad708bc25f3ee3449036a5e1e92957610d05171cca301c2e",
+    "Tests/Wayland/gtk3_geometry.py": "492cbf1235ebba0622dc8e631f2598cb501921a0d008db91f3b11467a9a71d32",
+    "Tests/Wayland/desktop_lifecycle.py": "a580123f11eb5fa279a497d272014499c33e67b13eef8c4d58ae2e17e68a6d33",
+    "Tests/Wayland/textedit_panels.py": "38ac83c592cd357dda1254eab132533365e102288fc4e0b1d15bd5bb30c9957a",
+    "Tests/Wayland/track_pattern.py": "8c09cb5782dbbd34b7ad097cc9c1fc7f96fd7fedfb066453b86a7187491d0527",
+    "Tests/Wayland/popup_models.py": "074e1a3514f2c0c6091adaa86b3e6b02f90f4054338a8216537a6c4f93af211a",
+    "Tests/Wayland/login_auth.py": "cc584aaed9784f842442af385b354f44682694a1ed3892930bcc813ea2a920e7",
+    "Tests/Wayland/native_lists.py": "0ede1af9fd2741cfbdd9e2cac89bcb1c812fd086905577c82c8418e0c278bddf",
+    "Tests/Wayland/alerts.py": "bd082ec8c96dc2578c54cc10d48351413ad286e706c51c8a6de692c779dc23ef",
+    "Tests/Wayland/defaults-lock-delay.c": "995d761cb6a3245523d1a14e68b5f1186499b0844d11b61368218b78a87a13c6",
+    "Tests/Wayland/terminal_animation.py": "f46552bad5c5c758d1b349914748a015a9b2ac58273e04ec3cec2321806dcca3",
+    "Tests/Wayland/textedit_fidelity.py": "bbfcac7e0d50b6b64d945a9ff6d5c9726dab18c825f7be182839fde71d1c6c1c",
+    "Tests/Wayland/filepanel_artwork.py": "a1112899eadd4c8bc65dfdc7a7f21984a9104b190a4da6b56a086a7ffb072fca",
+    "Tests/Wayland/base-patches.py": "015fbd3010d8c0ac6c6ec9e1717bf4b1067431d5f658aec1f04ba7eebf192995",
+    "Tests/Wayland/native-radio-groups.html": "402827fcff5c124991d8c77dec12f411d366d21d7f9aa536b17a6ffc676673dc",
+    "Tests/Wayland/pattern_fill.py": "73bc6b35eaa1977ec938eadca92f3d9770a88de8e771aa035b82fa6194f2142c",
+    "Tests/Wayland/title-font-probe.c": "db99b813ce673468f0ff8bd841903d39bf2a2196b543f37c27238c4110c00af0",
+    "Tests/Wayland/native_list_hits.py": "f6602bb7f44f454f9af14a1f10e4920abdae6640e9304907637921f87bb2beea",
+    "Tests/Wayland/login_artwork.py": "caed22a960ed2960e0ae9f00ef24c664ddeb304cb845174332c3abf96ba568bd",
+    "Tests/Wayland/image_formats.py": "7f22c99368f931f56c37f63b190bf633dd4ea9091a5e23375187d135d8b2df66",
+    "Tests/Wayland/operation_artwork.py": "1630e61bee79801f7be792fd9f1d2906d31528936631b0adfc8a5246bacf2331",
+    "Tests/Wayland/appmenu.py": "687737435b4620a4dfd55665077afedf9f9e84b91b1692ff368427d298e6b6c9",
+    "Tests/Wayland/text_input.py": "d3152ac1529f10fa065484f4eff25c3cb96131ebb125b5b44f5f94b3c55eaf19",
+    "Tests/Wayland/textedit_document_fidelity.py": "b534fb4f77eaea662af2c6a49cc0292e90a4e300b5ca95a9993e52d36bcfbbde",
+    "Tests/Wayland/font-probe-debug.h": "07f7ce0d3539556c2e88b76a7be6da83e46d0f6641e824e53546ca3085bdfa66",
+    "Tests/Wayland/workspace_power.py": "e3153a8dcfe2b2f0c2a3be6c88cc6e9a1f290eb1992cdf810778d078194c37e6",
+    "Tests/Wayland/native_ui_multiline_scroll.py": "bae1ba41a3623832b8cc17aa9f15854ea2f16b9dbe1edfa4c9ec1911f14e733f",
+    "Tests/Wayland/color_picker_artwork.py": "f6bf2279044ce749a0b2c8e833215e949be8450da87b06caafc6b7e3d439999e",
+    "Tests/Wayland/native-search-notifications.html": "0c1b18b7d67987a0ddab40a9dc7347a25199574986d5a7461a028ddb39656767",
+    "Tests/Wayland/session_lock.py": "32bad2882e8ea3b857f1394d60e72f2f544cf7846dab2a66e7168dc4480fdd3b",
+    "Tests/Wayland/ruler_artwork.py": "70405f9be8b498ffd6c751b3f4870fef513dd247773f80cf2432ba98a7f735ee",
+    "Tests/Wayland/portal.py": "be1acbfd47c50a7eae93a81c2320de3a2faf9a60294a5df5f36eb6f30413f0ad",
+    "Tests/Wayland/theme_images.py": "b686d3d01cc984e2b2e9e5cc4e7075a9bc50b7565f2055c889d4ee26bc2501ea",
+    "Tests/Wayland/color-pick-probe.h": "ab5b06a81223c148892fa3868ddf2876e26c47e701b1db9c2ccd3f0e10cb2e72",
+    "Tests/Wayland/review_document_fidelity.py": "0ec861112b8bc78487a5910761e0218d1b910884a31d89a2d46a553097d260d1",
+    "Tests/Wayland/login_native_pam.py": "145542e905aecddaf5c2f949e02d93b81e77dbeaed394a0a69b0b2863dbf29c2",
+    "Tests/Wayland/gamma.c": "090087c61b87bb72924fa3ec9e8e3ccb79cb103ca476382f7ea5c12a10440205",
+    "Tests/Wayland/native_ui_multiline.py": "4ad233a2526f7f886fa79b460735e2e0f4f9be37fabe956448d4356b141e9b37",
+    "Tests/Wayland/clock_atlas_fidelity.py": "63644a8d1880aeb7c5436b4f2285afe4dd5cf44c47d672b025a9a3b28b41ce90",
+    "Tests/Wayland/timemon_pause_fidelity.py": "95b9bfcf0ffd2807b53496fb76c66b36c45d1e35d7ccb3ad65e8afe245038d99",
+    "Tests/Wayland/review_photo_fidelity.py": "a1d89d412451ec88a53a1ad3e0a73ed70c56103d875402696ced5254fa3e78ec",
+    "Tests/Wayland/native_ui_wheel_session.py": "adbb325040f7baad754f7130cde1e59a92c0dece5947ed32f27a25be6ac0ccf8",
+    "Tests/Wayland/package_lifecycle.py": "5d2e60863254f756c3a9e8faf3eaf4884d1afdd54ddaec11b1f98036206cf45b",
+    "Tests/Wayland/native_ui_caret.py": "28139dc7dde53b85b7323b5c71d750ee382ad97049d54dc1dd4c41dffb67acf8",
+    "Tests/Wayland/filepanel_fidelity.py": "4a2434cc421c32688ad1d3582d495b6d4c1a1678a29008d125f3b4b7d60d17bb",
+    "Tests/Wayland/directory_artwork.py": "791be008a3db83cd43bae83e570e3a3c2706fbbd35192bb1c08019fedd789ea4",
+    "Tests/Wayland/timemon_static_artwork.py": "3a4cea26a3c8c67e5777f49a926446a211e9306732f9e1e00f07a60f79ebd59a",
+    "Tests/Wayland/printing_x11.py": "55e6844cf242d6107e59bd46823a2b855ffa48424aa3491d38498213f33095a3",
+    "Tests/Wayland/browser_frame_actions.py": "995aa66f93b8e79e596ba4ce3273bb664753ee16127071427fabfc03fe5b5dea",
+    "Tests/Wayland/slider_knob_fidelity.py": "c62e11c566b2ff627da1f4c0077efcc0a94601b879454dd4c80ecf6b07bfa4e7",
+    "Tests/Wayland/navigation_fidelity.py": "bd8d7a2466ccdc5be76a6ef7f896a2982e2e1e5f934bce48466cbc59fedd01f4",
+    "Tests/Wayland/rectangles.py": "8a291ccd123fafecdec0d7bbb92ca20fd9ae6ed766d998edad645c69bc9c30a3",
+    "Tests/Wayland/title_states.py": "86b75af35004f0a8da0d3c1c2e145833eda8d2aa88c991097cb4fe1ad23ffd49",
+    "Tests/Wayland/foreign_compositor.py": "0ddb1a0be1b3b74bc2f11c7de452bdefbb73284037e4b78cfdfa9c77a03e897c",
+    "Tests/Wayland/input_settings.py": "279ea1d7d6506657b1d1b19bcda15c42b424be32970dcb70bdbdf2f3c853825d",
+    "Tests/Wayland/cursor_fidelity.py": "42a9bfcdf3e69e3190d50606b590d628e2e3b6032050c30acb16e6896c274263",
+    "Tests/Wayland/embedded_button_fidelity.py": "a0185436e4adc7b7a499a09692568f4ecb56c3e5741fbbf325a2e8683ea8c704",
+    "Tests/Wayland/live-display.py": "cade1be377e75c9dc8b9b27ffcae486c8fe6d070f92997fc141cf320682be581",
+    "Tests/Wayland/picker_icons_fidelity.py": "42b82600a9d5d56e33d27d8057cfdf4317381db1731651dee752674384a6952d",
+    "Tests/Wayland/title-controls.c": "fd5ab0a2dd269c5b062b98a900a62c20f9436ab0218d53cfccb50a3b641ebc74",
+    "Tests/Wayland/native_search_clear_actions.py": "2db9c9436d5c4497d2fd38ab6ff5c44acf41003c15a455c09376774ef2fafae8",
+    "Tests/Wayland/page_layout.py": "283fca4026e04084cb4255050c4d73651debb8a7cf0f357a1d3b154454193e79",
+    "Tests/Wayland/supervisor.py": "bb8db485ff770fc9bd5c23d73687e4d17339a8aa5aebe5e1247f731e5c74364c",
+    "Tests/Wayland/session_activation.py": "4b2d85cd858ddb0e6dc9de69071b1db8eb6d95ad6e137a201d6afc9a05bcaf0e",
+    "Tests/Wayland/native_ui_fault_helper.py": "9611736af2580f000d60536027d00bdefbfc64c155f643305014ab16ea89a9a7",
+    "Tests/Wayland/artwork_fidelity.py": "1bba4a975cb7e24669f619b0c53f0bd9bebb6f844d3842ac5be3ce8afb27af9c",
+    "Tests/Wayland/title_repaint.py": "67096790c58a710886a37cb4354df9b8e700e02b0d466a935c13c2ca04b56e45",
+    "Tests/Wayland/review_page_fidelity.py": "f8130030da920f123dd6787a4bd28fb858a03f99aa92c97bebde6201d69b2621",
+    "Tests/Wayland/display_service.py": "716f6ec4fe49e84529f2ad4697210a44fff09387b0221432891921b180faf930",
+    "Tests/Wayland/example_fidelity.py": "a4b8a1d1f8cb659c1ecba8720790b3fc5160774d14398a1346a79ab1a5fc3ebe",
+    "Tests/Wayland/state_requests.py": "81bde60bf6ac127f3ca770aab7d2cd7c0a7fd822c22d1221ef76bd5f1aefb8f8",
+    "Tests/Wayland/font_config.py": "91073cc679ff5532c4c5643bcc155994d832c488a50c842af69a7184a403a6fa",
+    "Tests/Wayland/process_artwork.py": "8fe5e857c45bdac7a61270dfb6d4a844d9e8648f67a45900cc89e056f9c5c1c0",
+    "Tests/Wayland/xft-font-probe.c": "ece778830516406e3754e46faef9218d64354e59b69cd1770788534132ad66a8",
+    "Tests/Wayland/localization_fidelity.py": "87ef405451ca997619db8a16377e4e26610c779f3e64b4d8a6250c00e077f1a1",
+    "Tests/Wayland/sound_artwork.py": "8871c4172f536aef7e313d6d54ab6cfd75778066a5b2650c980ef77afd5396e1",
+    "Tests/Wayland/lock_pam.py": "5817716c13fd5802e5aafd1acec9e083dc251f993da9ecb238accae505a61819",
+    "Tests/Wayland/radio_pointer.py": "90ceb5b36e059d06a9cc8cbf11abc8750a89eb02ca82554dbba6e9881f03989a",
+    "Tests/Wayland/screencast_chooser.py": "78d8d21cf152b42f72bc1b56ea0fa34976146e845f3d32a5e1f142e17b51637f",
+    "Tests/Wayland/tab_artwork.py": "44569172556b2594c1106453cf1815dd0eb83978356eaf45392ccfe58557a78b",
+    "Tests/Wayland/applications.py": "41aa20adda5613516e2365efb334f9d6d59ab78e6275f9ddd515a4151ef2c566",
+    "Tests/Wayland/cursors.py": "d3dd3799ad74e6c1a5dccae877cb8c02b70447676bca694489e063f255beca49",
+    "Tests/Wayland/openup_logo_fidelity.py": "f17be5e24bc0b7b0af4ae05481af82b4a4c60ec1223b37843b6b323b5e1060ae",
+    "Tests/Wayland/native_search_fields.py": "1c711a4cde54f6af0b12b1c16c2127a57f444ebdfd28a376c98619bd736cb254",
+    "Tests/Wayland/desktop_settings.py": "c74098d32732afea7230d925b33d06c49eb296070f877521a45ec1ddb967a6e5",
+    "Tests/Wayland/shell.py": "ab0b9984551bfc77f5f8166e2ef103714325cfd3865387bd1ef0816e30a460c7",
+    "Tests/Wayland/browser_tabs.py": "066e3c94850d69636faac6d68155a7e8f9b57d5f3ce27782e0d288f44a59f35b",
+    "Tests/Wayland/picker_icons_artwork.py": "cf5150e15b555bf1651d31e6fad3d8f6a93d754dae0a85ccad508eda57467204",
+    "Tests/Wayland/name_server_lock.py": "b1e30c4dbe88ae13bed1fe388269c7876c7b54878321e9e112b320804531d840",
+    "Tests/Wayland/primary_selection.py": "a3b9702e01f6641044af00f55fd351fa6cc7a5236f00cfe2bbf13ff9aa54149e",
+    "Tests/Wayland/titlebar.py": "2d33862f2854bf36476f286f486ecbdfa6b8cbc9b1d630a717fa13fba7a72549",
+    "Tests/Wayland/session-activation-probe.c": "fc62476c334bd2766d2278471923625908ab7da453483b9c62dcae4f3cbad587",
+    "Tests/Wayland/nextspirit_apps.py": "0b23fa1d273421e72d731227c90b17c765a27f44b124ea28c60b3dfe1799cca0",
+    "Tests/Wayland/decoration-probe.c": "cc37455f8b6b95905136616b1975ec15cbcaa1e026616b707e99be493df147d6",
+    "Tests/Wayland/registry-probe.c": "8c7da6493d6d8a73fa7218eb8a368621d99abe6807ad145ee3c0e763ece52da8",
+    "Tests/Wayland/native_ui_wheel.py": "9e2c057ea7e6800fa0305f14a8ef17ccb4391a0588e77a57fa98b2b7a37678d0",
+    "Tests/Wayland/session.py": "ff67a5d339507af0849e059cb02426aacfdd2c7be60f0dade29a04b5d81778ba",
+    "Tests/Wayland/stepper_views.py": "85fe9d2aea5b1809606c442d0fae7f3cf7a8affa09e78167d60e7600fbbb66c6",
+    "Tests/Wayland/preferences.py": "db96f596bfb6624da864af18e04e794740b9c1cba4e031c314522e51175b2185",
+    "Tests/Wayland/shutdown.py": "578fd87a058e4a3ff119608f7d59e4ce182a296b2a5d1cf8b9dd9dfd6812d3ef",
+    "Tests/Wayland/native-form-activation.html": "a6748905b5d2c51de9be43a7fe9504b30d7a70751debc17eb4a3b0de52422f17",
+    "Tests/Wayland/pipewire-probe.c": "fd126cc17ae421ab4b1e1b07f59fc653d9e8aa0fbd7b7f21dbdfd4798a9efc1d",
+    "Tests/Wayland/greeter_profile.py": "c0899f0b4e1855205c7f8b1074b82f12bf8d61591cfd610cd2fba0720d015949",
+    "Tests/Wayland/folder_fidelity.py": "2c9f64f435336e7165bdef85bb9e47355cceed4565e77cccc643b2bb1851b4b8",
+    "Tests/Wayland/embedded_button_artwork.py": "6a4f25c265bdbb8a8334b8a030188eefb6230abbf3a73414580ce7969951dfdc",
+    "Tests/Wayland/textedit_title_fidelity.py": "5fbcb68e8f356f0a6d47630816af704de4e024ccd9f43e62718394ade6fccb63",
+    "Tests/Wayland/geometry.c": "6846b23294865ba30911015caaf6c14373595f9e1eea6ca83db76fb6493fe0ca",
+    "Tests/Wayland/monitor_screens_fidelity.py": "edb8472d5efdceb919a277cd5a386abe39a4eb4e18879c49c24dfff69fdbd657",
+    "Tests/Wayland/image_usage.py": "2982a3712ca65f95784c5462d7270fd9c82cbcb5fe9f096b51310de3f9952843",
+    "Tests/Wayland/compositor_profile.py": "cf8e534427c56ca803f68edb7cb499dd463bdefd5c06a1bbae2a2f9d434b8131",
+    "Tests/Wayland/terminal_strips_fidelity.py": "0ff4f7512e9f01b9cd9e7b046e2c511ff2c7c45460040828297d44faf705ea53",
+    "Tests/Wayland/drag.py": "fb1dc5d1052ca2c214780aa20455bdbb101609e7f37be9aeb2e4ff4deeff4d90",
+    "Tests/Wayland/package_source.py": "5ea11a01a33b459b786b17a0c0b5fffd3fc15434bb17e5d0c7e52353dac7d1f0",
+    "Tests/Wayland/capture-probe.c": "ca4c6558745a43d65466d65604e68668793de55af49bded67386941326782fdd",
+    "Tests/Wayland/root_fidelity.py": "4a6d8d6f6fba517054b236b6230ebd42aa32b9632d3e2b80dcb94ae7135848c6",
+    "Tests/Wayland/x11-probe.c": "e58178c99fb253c764fa2472978d9c01040a8988fb51dc02c744b14956c2fedb",
+    "Tests/Wayland/timemon_pause.py": "bdff3e46e0527a64aaf318729e25a666d9e38ff268f176dd35fe5db87513b65c",
+    "Tests/Wayland/native_ui_desktop.py": "a4b88d51c2aa71514feb68c14ccb01798453007126209390d1235819120fd4d8",
+    "Tests/Wayland/workspace_power_pam.py": "fc16cc3e6758ff1f1680b0aa5fce2098af4696adeaf506ad4f5ff589e5772b95",
+    "Tests/Wayland/watch_fidelity.py": "714988080e28381aad767eaa36f7ce92db94bf04e0cdbc0507f98fb27a4ef58b",
+    "Tests/Wayland/native-search-actions.html": "256aad8b1c5731c8bb9c107809348a948e5f03d1116c6e8292b418d5278de964",
+    "Tests/Wayland/source-manifest.py": "afb51a501cc1649e60c4004001d4acb415a6a0e0423c4ac9b13d06b56cd872e9",
+    "Tests/Wayland/review.py": "e7f44e1631562bf4570a7f7a9d6662116f5f162958bff2d6080df7c6ad572a68",
+    "Tests/Wayland/title-layout-probe.c": "76cf1880cb237739f628263ebdfa41e55cdbc4968f465aaf7b53787bce098716",
+    "Tests/Wayland/title_controls.py": "1286346d885f8b67b83c6222360f822c787b53de55cb1d5d47227db807d3557a",
+    "Tests/Wayland/timemon_static_fidelity.py": "a1a3e13072308448e69f0bed2b32ec7cc80d8a8eda14eb9be5ab56c5bbc97021",
+    "Tests/Wayland/clock_tile_fidelity.py": "e5cecf48c825d30afabf78ab8f445a25c02df792073a409b64ca8e2ceeff2ad5",
+    "Tests/Wayland/locked_shutdown.py": "b36a865e34e2fa6ca9ba3e5521ddcd8f4772eb5ef1a07cfb7c0d5bd7b73a51f9",
+    "Tests/Wayland/sound_fidelity.py": "def2e53114a9a1cac63a092aeb174c6462dad89baffe06b363f9e335e7472b93",
+    "Tests/Wayland/recycler_pose_fidelity.py": "dbf2639694f257c141975ff698df2d7da07581f6b3a7c5757c72e8c06793f5f6",
+    "Tests/Wayland/artwork_reference.py": "9fee0360c767362b27511a52622271295eff092bfee033ee1ecfa66bf957908e",
+    "Tests/Wayland/integration.py": "59ec3975fd93c339e3a4af9c207ba4a430b0afde90b3000daf85a9fea697f9eb",
+    "Tests/Wayland/login_window.py": "5e5d3652070c5f14261414c510141f7f3294b7be5c284fc1a61d910c8e9d8e81",
+    "Tests/Wayland/login_fields.py": "9b398b9641599ea873ab2eab5ac834f053c391fefe897e8ba8fe6c0838230cc7",
+    "Tests/Wayland/README.md": "95b32f1d9045f7287fd779a4bc6ba3ec04566df08d2496095d589347b205286d",
+    "Tests/Wayland/event_queue.py": "1941cac72a8954d457aa4fc74321f5b2c6b0116d028eb88183d2bdc6e26bb86e",
+    "Tests/Wayland/progress_artwork.py": "56d11e4aea08d2b571383516c5e926021b2a7e4cb7f9a0f99dbb81307ff56e25",
+    "Tests/Wayland/screen_fidelity.py": "f595af45c5a32985102e651fb4cb4726783891afcee440a7378d4ae562886dae",
+    "Tests/Wayland/chromium_cdp_pipe.py": "4bfb6dd01867a9adc3a59ef1dea3604efe54eededb87bd8b146a1e57c093cf42",
+    "Tests/Wayland/preferences_artwork.py": "b854ce4923b7f6e7ed5269fc39c99e47bb65efb7c32dc687818ae717c911c3fd",
+    "Tests/Wayland/page_orientation.py": "bed123d09ea53c96ff5028fc3ad1961664e80b5acd1162af5af1558684a99fdc",
+    "Tests/Wayland/form_text_regression.py": "83f3076df3d60566d9dcdde3a55726905d3088858291a28229fcfe6469131d01",
+    "Tests/Wayland/gui-patches.py": "7aa3b2e3b5f0953e63e38c8638f52d776a3fe05dbbaae47602dc6774a27a9065",
+    "Tests/Wayland/progress_views.py": "956fa33dad68524ae20b362f1d94d168fcc253e38d5077f6983e07defd3b9ad3",
+    "Tests/Wayland/color_pick_native.py": "e9d0656b4fe42bd1f25899631cbf9a3f8e4f4f06aa0020f0983231d481fe15e2",
+    "Tests/Wayland/lock_logind_guest.py": "cfbbf35b87f3358a9ccb920ec86bdf16f362259dfd4102c551fffad5711e64c0",
+    "Tests/Wayland/native_ui_firefox_viewport.py": "b0c281f5ebe15a0ad5a16e8d5cf507a060da4b817898117a08681e702a611453",
+    "Tests/Wayland/native_text_types.py": "40dcf8cb334dc3b5a00d07ffdfdd9d9ee2fc920d7633fd83d068768a7b8032d1",
+    "Tests/Wayland/form_activation.py": "7beca788c72278b86c0ca11a683bccb29b0b09b20b8d553cbb8a14d9a27f363d",
+    "Tests/Wayland/color_pick.py": "9618201ac537c4f7b297dd44a06598a0933f5de4e5482e26c7875d1d3734cfed",
+    "Tests/Wayland/color_panel.py": "8efaecc30a59fcc1b0fc7f558366befbd2a530f2ea59c2f5fbe3923abd290377",
+    "Tests/Wayland/folder_resources.py": "2c4fda0f90adc92d1727e2b082da5cfa4b37ec3bcc12e729c90739b6bdb4f0a4",
+    "Tests/Wayland/capture.py": "be92d69c7f568cd6fd330a47ab03c502223e9dc504b4cfb54a63a60630821ebb",
+    "Tests/Wayland/vt_switch.py": "a2302b98aebf7c17d9a59710185a573582082c7a0b033b891ef0a6081a501cdd",
+    "Tests/Wayland/native_styles.py": "a4206cabac907cc712b9a6b73154d622c4a6ac8f841109d0416d028d22a9a1d4",
+    "Tests/Wayland/workspace_checkmark.py": "de8d6dd21f3f7c37835e05605dc112c7454cc4d18e64668694d64c775836c915",
+    "Tests/Wayland/magnifier_artwork.py": "c6688cca9ad728e7b3f9f376466bcffa6222e32cc9bb9944905f28f9f3159f8f",
+    "Tests/Wayland/scene_color.py": "623a9556e684c8e9cbc0aa911a6da8765aa68f9063794c7e72a920d6737472c8",
+    "Tests/Wayland/decorations.py": "2ec08f063e938d3e0332e19b99f0670ec2ee6cf33204ccc8f7a2d485a82904e8",
+    "Tests/Wayland/help_fidelity.py": "cfe7566447d56a4f0b566017be9d4dcd22a8fc4b641222b3585082bb61082734",
+    "Tests/Wayland/capture-png.c": "c9042b92cd5181003b793bf15620faa9847a852acca42bf94227efe3111fc46e",
+    "Tests/Wayland/text-input-probe.h": "567b0a671c79e77a819ceff4a0dd77219aa7063187455f3afe25c5d6205a5f6b",
+    "Tests/Wayland/wayland_trace.py": "77c6daefac82fcaadd63167b1a368db716a2f3816f11ecc4a70e2709e3035303",
+    "Tests/Wayland/capture_png.py": "569b035bbd8d03091f562f2be8f10d888f1a778505082164bbe8b7ba1256570e",
+    "Tests/Wayland/permissions_artwork.py": "9f10905081129a014388596cfa58933ed3080b99c2eab95e15dff21f20e5ea62",
+    "Tests/Wayland/surface_geometry.py": "5f2c8a7347d804c14bc2036cbc3bb3ea3cd53902fa9e460be0679c2328524ff8",
+    "Tests/Wayland/stepper_artwork.py": "61843ab83763c01be4ae3b0e5cf65f3b58d1a109109cb0902b7e57f0fd00dc2b",
+    "Tests/Wayland/volume_overlay_fidelity.py": "ba24a83a5098dad8e695e4b08bbf2fac17648fd426e2da7f4b29c1a1fb19c2c2",
+    "Tests/Wayland/native-search-fields.html": "323562d5861aed2d5358fed505297fdf2463d3ea0c607bdd0e1f1ea4b1a9662c",
+    "Tests/Wayland/radio_labels.py": "c5621dbe43cc14d967d095ab57a8451b3e4541f2063665eb47950c36b1ed29bf",
+    "Tests/Wayland/firefox_tabs.py": "df0ff6e88549d395304be43e82bdbbb8e6157b8de4dfbce8a7e9cc9b749be741",
+    "Tests/Wayland/native-placeholders.html": "cd0b499c324fc175eeffabe9b5fb696d4e5f7c88a10c7b423f499e697e179402",
+    "Tests/Wayland/lock-probe.c": "d9064e1d7ea4a5c13febeaadef2aa2a695c2eae39c9fef2d07c719b256d3b9c3",
+    "Tests/Wayland/document_fidelity.py": "105e77302b4cfeab5dfa6d43112ffc71bd868d1ac17d4e66d96c0949937b44e5",
+    "Tests/Wayland/recycler_footprint.py": "1ec19f09f0c6a644d22fe215c31fe9e1c15c2ba27b6bfbb444c98764b5ff0917",
+    "Tests/Wayland/operation_fidelity.py": "0cb497967763560bcf9a44fcc10473052ef2b8bea9b0b71c95f2866f0cbbe462",
+    "Tests/Wayland/title_layout.py": "eb90babb69c7d04f41249b06fc584a37262ab5c4b1144503a6ec26880b313cd3",
+    "Tests/Wayland/popup_recovery.py": "037c6b1608af6f2ce969f4b7a838aa27039e67f72eb6f103d71a0c89de359f99",
+    "Tests/Wayland/buffer_stress.py": "1006ca950dfbb0cc9d9e702b5ca8a94a241f3760413a07ff8394a13e1b8d301d",
+    "Tests/Wayland/expert_fidelity.py": "4125b9c582ef74b81c901ee8f52373299143383fbb98ec1143eeefdb2d973455",
+    "Tests/Wayland/stderr-trace.c": "2686e2f86583bb5887be4c7db34bdf4b3b027947793328a719f905d3f2427cd0",
+    "Tests/Wayland/date_fidelity.py": "28b91d57f6b800fbc9ab7362509cbd9ba52f001f9891a55add7c0e94476887c6",
+    "Tests/Wayland/native_ui_firefox_wheel.py": "f7fb117278b9558100e76e8c9a0eb83f74cb7e21fd2b535dca3b8ff875104d93",
+    "Tests/Wayland/cursor_artwork.py": "e79334560358cc544c2e3aea4240a31d7595b70d738f426bfe93ca310e94ed68",
+    "Tests/Wayland/mouse_fidelity.py": "57c289ebf6c08e7253d120e85074b0972b7db7673b9e22bfadc457e65b2670ed",
+    "Tests/Wayland/directory_fidelity.py": "9c4343780eade88e8ac627cdb4a2d3351aa6c5515f55adc5aba05917627f7e7a",
+    "Tests/Wayland/checkmark_artwork.py": "f88de794ec335d37fb90107ea60333857adebc308ee1ba65d65fd73353d6b826",
+    "Tests/Wayland/keyboard_fidelity.py": "fe46ec3e2f2e09ebd58fbb7b9153dbe154a49f43b6d6cd734ca1076e84509616",
+    "Tests/Wayland/native_popup_fixture.py": "f4faccf335fc8e072d6c185b8902e3642f3351c3a995c3558a232190d402eac1",
+    "Tests/Wayland/native_list_failure.py": "3becd76583f882a7d1255f59e32dc3f70464a9ec8a8844fae907648feb1b558a",
+    "Tests/Wayland/application_artwork.py": "ba77a7cd07a33a42cafea54952279f62a9cb0b4c8d28245f87a64248a2b24062",
+    "Tests/Wayland/window_states.py": "27b880352805e9cf02bd7c18241923425baf9994317325b60ccccfc264dd0615",
+    "Tests/Wayland/gtk-probe.c": "9544f179191f2dd850af9d4117e334a1deebcece2a2e1a6587cd4424972c6c09",
+    "Tests/Wayland/login_preferences_fidelity.py": "acebde9e2711d8a0496bb3a47e62480dbcf5d58ee7bc99b50a774e3525f87302",
+    "Tests/Wayland/native_search_notifications.py": "93cb37b723b75a0de32c27132900e5f80457f0250c702b96bc5a074f5a013fd1",
+    "Tests/Wayland/native_frames.py": "50422b2650654ce9331d7d6c0a49f8e0c281a9e370c566c0fa82818148b8872e",
+    "Tests/Wayland/color_wheel.py": "192a3541b21305ddecd757081a37eb48dbdb3eeb9df5e1e2855e0ca17bc5ea62",
+    "Tests/Wayland/magnifier_fidelity.py": "003b8e309d4280ea57add9da652281b64f8b050d89bf1d94ddaa574589aaeb4c",
+    "Tests/Wayland/openup.py": "2b644337d451af2eeb9f01152e83aaf0b80e58fcad6a286e6bd3f4f59a9ad7c9",
+    "Tests/Wayland/wlroots.py": "8e1d08a60cb5cf2e813b3aa3c8ca6eeba400ecaa8378e8923861ed23e028262d",
+    "Tests/Wayland/popup_sizing.py": "224432a17669db6e195a269ec3d37d3d4780e1571ec4a0cc2627411f31c0f052",
+    "Tests/Wayland/title_appearance.py": "d9f9242fdc7484831b2fbd45ad8222ae6d5dba973f5662ff8cba6522584d7df8",
+    "Tests/Wayland/preference_artwork.py": "d5af9dc947ca0fd077b1a69c4a7deb23b901ab2ddd59dec9ed57b2ab134930cc",
+    "Tests/Wayland/floppy_fidelity.py": "ddf86452492dae53410dfaf40789b4e9db2dd1f982860cf80d1f4b30b07ea383",
+    "Tests/Wayland/review_page_artwork.py": "2589624e605a996cb53dc7cb3f5dd766c4966340211c9cc47504dd1baa97b91f",
+    "Tests/Wayland/activation_fallback.py": "43be96952bebd625ac599e78321107174a81a756713ed8473951220709cc1222",
+    "Tests/Wayland/native-text-types.html": "3f645f0bcbfa52b6de2aa9e05c9b751c52190c1dcd4194fd9ec0dc026555a62a",
+    "Tests/Wayland/debian_fidelity.py": "a52df5becc034f6f77154b86d9aea2529d052257b417bdeaf4648aa70c8b12fb",
+    "Tests/Wayland/session_hooks.py": "697b585c8acc385580987bf23d55f628caf2eca7d781b29a9945bdbe684c7f3e",
+    "Tests/Wayland/radio_groups.py": "8b621084c849d6bdc3831dd5461db101bbd595f058e423b3dab96031e16c2e7d",
+    "Tests/Wayland/nextspirit.py": "f20847104111ec0bdf4ca000dd75afc8e8d6781e244eeb90aba5a66362a1cea8",
+    "Tests/Wayland/gtk3_geometry_child.py": "5d42534ca773e376e4d477a64af4010544a545685de7577f94d8590486e7c836",
+    "Tests/Wayland/document_icons.py": "1721b596e155ccc7d625720f38da3fe68e86543ac710339673a05f5b9ff23eb8",
+    "Tests/Wayland/shell-probe.c": "5a139417b5bc9f9102f3d41d0ed74dcf4885205caddde49cc3e6059b5995edb6",
+    "Tests/Wayland/native_ui_chromium.py": "4fb03c1103601f56173e67fa6118eaf9bd6f9acd907a791fd542825c5200dc31",
+    "Tests/Wayland/source_links.py": "12707b329240d2fb52e40736c2c134a83395f9654347da5488b4329555eed624",
+    "Tests/Wayland/workspace.py": "bf444864d28bcdfb49c2a8e4f2debf8eb4a6872e2a0421e7abad0c8779ac37a3",
+    "Tests/Wayland/native-email-fields.html": "738320a19a534a9eebbed479b01c45a5fa20621fc08dbd4d6685b185d9b4c79b",
+    "Tests/Wayland/pasteboard.py": "42b478f2b3bdcec5a0c8b43af8d3fe2ea2215bbcecc7d59bced8bf73fd3abeed",
+    "Tests/Wayland/services_fidelity.py": "949a1ba33eed1b770050a8e12366a46756cb05391a1a5904c1d1e3c662318289",
+    "Tests/Wayland/fcitx5.py": "f310a94d51f193c05682d06f2a22ed25da49278f1a7d5bb9c7216bc4b81e3d4d",
+    "Tests/Wayland/return_fidelity.py": "cbf5574c74acac6b7cfcfa58f7b737d1d5d87eb4787b556554b52d05b5888b7b",
+    "Tests/Wayland/native_list_scroll.py": "d8a5f228c9baa1b1adbb4b95598a77e88bd9fe5dd9c933f11a882eea15101581",
+    "Tests/Wayland/system_greetd.py": "be3b492b54f06d0ffc00c2c9033c27a2468bdb5c262e67615f7709c2e28f0baf",
+    "Tests/Wayland/icon_placement.py": "72871365225635b19f739b522052ac8022982a4cbb20313600f0ccdde30d2a4b",
+    "Tests/Wayland/login_fidelity.py": "b4f2b95ea2d1786f96cac7322ba007fa2a5d05133d418527387e36b328e69e47",
+    "Tests/Wayland/spinner_artwork.py": "d41affc44487a3ca277848439ec008669f048957afb0da9b5947c2ea8187faae",
+    "Tests/Wayland/native_ui_failures.py": "deb4b1db30f0429ee4347fd7173b23b8890714cea3f619f97b10bdabdffbc43a",
+    "Tests/Wayland/file_operation_conflicts.py": "8b3038e2f6ea59f4daa4194bd2fa744ef4ffaab4c2d93d9f6f0f93fe1dddd832",
+    "Tests/Wayland/native_placeholders.py": "0d341498c4134c51eae0ae2d1b65bb39ceaf7f66ed639a0fc5510db0f536c848",
+    "Tests/Wayland/timemon_workflow.py": "86d1c7f5f3fede56686dc678f83d7bb7172f9857b0fe92975d8e8a382abd92d9",
+    "Tests/Wayland/native_window_drag.py": "5963f5d5b53475fd69c569b286f750286a108d5d352cfb8bbfb59e365cdec5c9",
+    "Tests/Wayland/native_search_actions.py": "bd62c1c07ecc0e66236666c647860246104a810fa3d8070acbdba1bb76e29d65",
+    "Tests/Wayland/power-service-probe.c": "7017b9c94d90ec7ba57364e248b1ef841e87fe98762e70a7b6e3d091d38357b1",
+    "Tests/Wayland/selection_fidelity.py": "b8bcd78b7e348221eeaf1884b3656755269864820c7f26a082cb028a6756fbb1",
+    "Tests/Wayland/native-listboxes.html": "905e0b9bd6dfaac0f9ba141ab9b6b0bc72b1416fcfd51f5490f999170dc6b7c4",
+    "Tests/Wayland/native_fullscreen.py": "7795ad421876c4783563b634d96a25a042539015dc649ec9a68b4dd3f8c65b66",
+    "Tests/Wayland/selection_artwork.py": "1c3f2a0506f714bc25b45c99b25b762f4e3a24252ef62f93d11d96d57904d178",
+    "Tests/Wayland/native_email_fields.py": "688ff40f6f880f2398cbfb65845235b8146030fc9812729e17a6568f04a63ce6",
+    "Tests/Wayland/recycler_hover.py": "b5fb98e565adde9c1d053279e112c3f5c7d770c02ee1682e3eee73d2a40cbdab",
+    "Tests/Wayland/power.py": "52603d0993f5262af07519d7921d0d2efce894358b05913c6125e75137ade19e",
+    "Tests/Wayland/root_artwork.py": "d40bc9fef33bc7746cb408f94d31a3752dbf86b6e4496ee1fd43ed1e4423741a",
+    "Tests/Wayland/printing_textedit.py": "88de5294835a9b5b2e654bd0d6b1b6b5515db817de3dcdb86014c5b7263f287a",
+    "Tests/Wayland/native_ui_session.py": "de6dcba3e35c7ae638cfa42c3f9d5275ad52bdc8417a1f099acfa86df590f723",
+    "Tests/Wayland/volume_icons.py": "f00b404db871c4c2a391a33dda4034d7b3f88ca3ce1d4b5c91d877a817e4c2ff",
+    "Tests/Wayland/tab_views.py": "0591c9100fc559eb23ebf2a909707462e38502ec673b47472dd574ea01aade07",
+    "Tests/Wayland/button_sizing.py": "ce87fa18e3df669b7715e7c1be1e1c955a78a4b3ad471c98ed643ab1205f2e10",
+    "Tests/Wayland/login_pam.py": "2a76eed0d413613f79e6be1e25c46726dd3d6febcdd8ed341cb9929ebd63a134",
+    "Tests/Wayland/login_greeter.py": "c98eb620a4d2aa35135a9851b3462efd97ca583bf8d05d3a070738d3032fd4a2",
+    "Tests/Wayland/sound_controls_fidelity.py": "58adae543a7ce5c082bc8c0251f88334ca2e4722cd59951fc5048fc9020bd92c",
+    "Tests/Wayland/gamma.py": "3735164841d175e0fde10aa88e2e86ee0251fd536217274043839f021ecf8ef4",
+    "Tests/Wayland/gnustep.py": "3393065b08be205ef9873cccc9d7c0f3d7e140bf90b47b332c1c58c8240b3a64",
+    "Tests/Wayland/logind-service-probe.c": "f46d3a12ad93ddbe87e7206f8da191db7e576ce023a568c71187961e0f707234",
+    "Tests/Wayland/legacy_decorations.py": "c8ad74a3bc4a9e459720566d889b6cbbee5f40925bd02fae1c6ea2d2b6c46133",
+    "Tests/Wayland/folder_artwork.py": "5efa870bfda698b788765eee6928feb02795aa016d6bf4ba80e001a86f4c0c98",
+    "Tests/Wayland/terminal_footer_fidelity.py": "e1510e6a05f7afe7082fa37ae6699750c291b29cba94304495b5dd95a84b7c65",
+    "Tests/Wayland/permission_fidelity.py": "7ec4b148c169d4376b8b834f93b8672151158d3731836a88656e4b04a929a130",
+    "Tests/Wayland/native_ui_desktop_chromium.py": "06d93e85b1580f0060c6631297eefad0c82ffb62e0d27a7f76888e539201c987",
+    "Tests/Wayland/help_artwork.py": "3bb74191d5267950a631690fa55b48ad9e3d2e6aa5f97e3c6060e01691a2565f",
+    "Tests/Wayland/linux_input.py": "b6fca992387cd2da6d8a395e5ccb50553f98522b8778d2f1c84ca7022e2ee1df",
+    "Tests/Wayland/color_picker_fidelity.py": "24aae1d4b609fae6a6e6cb4848ef99587b0682f288481db2071235c8a21e128f",
+    "Tests/Wayland/outputs.py": "0ea4b36e9b69b1d8e346ea2303cdc4be6b8d9b64dea14d17d255a2440920fd51",
+    "Tests/Wayland/qt-probe.cpp": "2dbdd6c7247a6d430524f3f0e1b34facb12da6e5b4fd05b821cceb1aa3f6b33b",
+    "Tests/Wayland/workspace_power_session.py": "4ac20300e883f1c38dead78337343f1b9a8e6c487c9f2a988eac4255aa46baa9",
+    "Tests/Wayland/x11-workspace.py": "8c2eb2b4e6d72267f3dd20a4807d411c3abc450ea98b25c5361880061adf986c",
+    "Tests/Wayland/nextspirit_workspace.py": "a1989a7302ac17d43071d465f8bb280d24d295ef6b8e81d4353575cee1e14463",
+    "Tests/Wayland/printing.py": "98cad62402bd90318380504cdede377a1d2c6235df9b122ec624c66a23d2bb89",
+    "Tests/Wayland/cursor_assets.py": "6310bbe4735ba84118edf0372e3c4bc41cc6fb47e15edcfde31137349c0a5176",
+    "Tests/Wayland/artwork-originals/README.md": "e79b4d87c3bd36b22aa01ea7f21a267052bc4e7c609cd99fb70ac0dbb2ad8a5e",
+    "Tests/Wayland/artwork-originals/slider-knobs/README.md": "0b180cef04b2ab1d1161fc3e4254b8f30f939d5496c7533204c473e8f10e2012",
+    "Tests/Wayland/fixtures/greetd/README.md": "af56d0d5e940d8c3a0938468756d772adb6c9e54b09ae4ae04cbb76d83938de0",
+    "Tests/Wayland/fixtures/openup/README.md": "52a5b37b342bee9cadc2a68a18a7812c9ac6b403b2e90dc61db6a3082e6396ef",
+    "Tests/Wayland/fixtures/openup/make-macintosh.py": "b3f2b7bdec4e6416c634bc8748f1068a04c796fa7524251eece4ae0afe67cfc9",
+    "docs/Native-Control-Integration.md": "ea58ed6c44e1dad7fab15c0a684a5aabaacdca5c800728e566ade8b3d0aa8341"
+  },
+  "source_audit": "placeholder-source-audit.json",
+  "evidence_archive": ".build/evidence/components/native-browser-placeholders-20261108-v1-evidence.tar.gz",
+  "remaining": [
+    "Chromium combined-run disabled-field repaint failure",
+    "multiline placeholders",
+    "recents",
+    "broader editing/undo/style/layout/zoom/IME/accessibility contracts",
+    "other specialized controls",
+    "other browser builds and Chromium/Firefox derivatives",
+    "complete detached menus and native shortcuts",
+    "installed desktop deployment",
+    "subsequent GTK/Qt/KDE applications"
+  ]
+}

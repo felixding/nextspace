@@ -263,6 +263,10 @@ class NativeControlServer:
             native.nxs_control_text_sync.restype=C.c_int
             native.nxs_control_text_get.argtypes=[C.c_void_p,C.c_void_p,C.c_size_t,C.POINTER(TextState)]
             native.nxs_control_text_get.restype=C.c_size_t
+            if self.text_capabilities&512 and hasattr(native,'nxs_control_text_placeholder'):
+                native.nxs_control_text_placeholder.argtypes=[C.c_void_p,C.c_char_p]
+                native.nxs_control_text_placeholder.restype=C.c_int
+            else:self.text_capabilities&=~512
             if self.text_capabilities&2:
                 native.nxs_control_text_filter.argtypes=[C.c_void_p,TextShouldChange,C.c_void_p]
                 native.nxs_control_text_filter.restype=C.c_int
@@ -901,6 +905,16 @@ class NativeControlServer:
                 accepted=bool(self.item_hit_capabilities&1 and state['client'] is client and
                     self.native.nxs_control_item_at_point(state['native'],req.x,req.y,C.byref(identifier)))
                 self._respond(client,req,state,input_result=int(accepted),payload=bytes(identifier) if accepted else b'')
+                return
+            if req.operation==54:
+                text=data[C.sizeof(req):]
+                accepted=False
+                if (self.text_capabilities&512 and req.kind in (7,8,14) and state['client'] is client and
+                        req.state in (0,1) and (req.state or not req.text_size) and b'\0' not in text):
+                    try:text.decode('utf-8')
+                    except UnicodeDecodeError:pass
+                    else:accepted=bool(self.native.nxs_control_text_placeholder(state['native'],text if req.state else None))
+                self._respond(client,req,state,input_result=int(accepted),pixels=accepted)
                 return
             if req.operation==34 and req.kind==9 and self.text_capabilities&32 and not req.text_size:
                 geometry=TextGeometry(size=C.sizeof(TextGeometry))

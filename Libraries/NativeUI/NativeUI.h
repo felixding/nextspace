@@ -143,7 +143,8 @@ typedef struct {
 } NXSKeyEvent;
 enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4,
   NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16, NXS_TEXT_GEOMETRY = 32,
-  NXS_TEXT_SEARCH = 64, NXS_TEXT_SEARCH_ACTION = 128, NXS_TEXT_SEARCH_CLEAR_COMMAND = 256 };
+  NXS_TEXT_SEARCH = 64, NXS_TEXT_SEARCH_ACTION = 128, NXS_TEXT_SEARCH_CLEAR_COMMAND = 256,
+  NXS_TEXT_PLACEHOLDER = 512 };
 typedef struct {
   uint32_t size;
   NXSRect visible;
@@ -303,6 +304,7 @@ typedef struct {
   int (*control_scroll_geometry)(NXSControl *,NXSScrollGeometry *);
   int (*control_item_at_point)(NXSControl *,double,double,uint64_t *);
   NXSRect (*control_search_part)(NXSControl *,int);
+  int (*control_text_placeholder)(NXSControl *,const char *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -459,6 +461,10 @@ int nxs_control_text_geometry(NXSControl *,NXSTextGeometry *);
  * emits NXS_TEXT_CHANGED; the application reads the actual native text/range.
  * NXS_ACTIVATE retains the text field's native action (for example Return). */
 int nxs_control_text_sync(NXSControl *, const NXSTextModel *);
+/* Optional plain/secure/search field placeholder. NULL removes it. The
+ * original native cell owns display, layout and visibility; value/selection
+ * and edit notifications are unaffected. Multiline controls reject it. */
+int nxs_control_text_placeholder(NXSControl *,const char *);
 /* Returns required UTF8 buffer bytes including NUL, or 0 on failure. A NULL
  * or insufficient buffer does not copy partial text. State is optional. */
 size_t nxs_control_text_get(NXSControl *, char *buffer, size_t capacity, NXSTextState *);

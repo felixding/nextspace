@@ -257,6 +257,7 @@ __attribute__((constructor)) static void initialize(void) {
   forms_popups_enabled=forms_input_enabled&&popups&&!strcmp(popups,"1")&&metrics->parts[4].height==1&&metrics->parts[6].width==1&&metrics->parts[6].height==1;
   const char *text=getenv("NEXTSPACE_CHROMIUM_TEXT");
   forms_text_enabled=forms_input_enabled&&text&&!strcmp(text,"1")&&metrics->parts[6].x==1&&((unsigned)metrics->parts[6].y&3)==3;
+  forms_placeholder_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_PLACEHOLDER);
   forms_search_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH);
   forms_search_actions_enabled=forms_search_enabled&&forms_commands_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH_ACTION);
   forms_search_clear_enabled=forms_search_actions_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH_CLEAR_COMMAND);

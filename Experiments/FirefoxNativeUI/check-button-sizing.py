@@ -13,6 +13,7 @@ p.add_argument('--email-only',action='store_true',help='Run native email editing
 p.add_argument('--search-only',action='store_true',help='Run real GNUstep search-field checks')
 p.add_argument('--search-actions-only',action='store_true',help='Compare native search activation with original form actions')
 p.add_argument('--search-clear-only',action='store_true',help='Check native clear actions after cancellable click dispatch')
+p.add_argument('--placeholders-only',action='store_true',help='Check original native field placeholders')
 p.add_argument('--search-notifications-only',action='store_true',help='Compare native clear search events with the original engine')
 a=p.parse_args();root=a.fixture.resolve();rows=[]
 def command(text):
@@ -33,7 +34,7 @@ f=ButtonFixture(root,command,js,check,pid,origin,lambda:None)
 try:
  session=m.command('WebDriver:NewSession',{});assert session['capabilities']['moz:processID']==pid
  window=f.wait(lambda:next((w for w in command('windows') if w['pid']==pid and w['level']==0),None));assert command('focus '+str(window['id']))['ok']
- if not (a.text_types_only or a.email_only or a.search_only or a.search_actions_only or a.search_clear_only or a.search_notifications_only):
+ if not (a.text_types_only or a.email_only or a.search_only or a.search_actions_only or a.search_clear_only or a.search_notifications_only or a.placeholders_only):
   m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-button-sizing.html').as_uri()))
   f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"));buttons(f)
  if a.text_regression:
@@ -75,6 +76,11 @@ try:
   from native_search_fields import SearchFixture
   from native_search_notifications import run as notification_checks
   out=root/'search-notifications';out.mkdir();notification_checks(SearchFixture(out,command,js,check,pid,origin,lambda:None))
+ if a.placeholders_only:
+  m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-placeholders.html').as_uri()))
+  f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native field placeholders'"))
+  from native_placeholders import PlaceholderFixture,run as placeholder_checks
+  out=root/'placeholders';out.mkdir();placeholder_checks(PlaceholderFixture(out,command,js,check,pid,origin,lambda:None))
  trace=(root/'hook.log').read_text();parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native-(?:text |button |widget |widget bound|select )',line)]
  check('browser-owned-ui-preserved',not parent and 'experimental native Gecko tab container installed' not in trace and 'native Gecko frontend text binding installed' not in trace,parent_native_widgets=parent)
  print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in x['case'] for x in rows))),flush=True)
