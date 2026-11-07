@@ -1,0 +1,130 @@
+{
+  "status": "native-reference-and-candidate-engine-boundaries-only",
+  "date": "2026-11-07",
+  "baseline_commit": "16757d55",
+  "source_sha256": {
+    "Tests/NativeUI/radio-reference.m": "5fc5ee6f2d6dc5ff249797fdbf446fb294cb457f1ac9ea34878983c952be4879",
+    "Tests/NativeUI/check-radio-reference.py": "85ed36af12ffe1b9fbedba43afa167d83ef0a30c5c0aeaef8b9d99f08e13b643",
+    "Tests/Wayland/text_input.py": "d3152ac1529f10fa065484f4eff25c3cb96131ebb125b5b44f5f94b3c55eaf19",
+    "Libraries/NativeUI/CMakeLists.txt": "b60782b592179719ce9ec0d67150a39add9d1f0e632ed8457727972038be84b0",
+    "Libraries/NativeUI/GNUstep/Controls.m": "da5552af3c7696a3656c1cef346b96c69de690055968eeaacddeb4b2bad9d316",
+    "Libraries/NativeUI/NativeUI.h": "a51847c51aa052c5c1cad7c52f76a8e6f543e7df9e3a6fe22f3ad31326cd8a89",
+    "Experiments/ChromiumScrollers/forms-input.inc": "acb0c7b96066793050d46947ab2bd83968c77b6e9f496006827e8669858eb1b2",
+    "Experiments/FirefoxNativeUI/controls.inc": "5a0a73913f86bc38d9070d23a3af3511b9fbfa6cc6842c09c8c218e4b4bc8b3e",
+    "docs/Native-Control-Integration.md": "9eb5e17d8a1e788b78eaebab5e2fd49c4b4725d184437d4fea5e95d04900984d"
+  },
+  "upstream_extracts": [
+    ".build/native-ui/radio-group-source/NSMatrix.h",
+    ".build/native-ui/radio-group-source/NSMatrix.m",
+    ".build/native-ui/radio-group-source/RadioGroupContainer.cpp",
+    ".build/native-ui/radio-group-source/RadioGroupContainer.h",
+    ".build/native-ui/radio-group-source/membership-disassembly.txt",
+    ".build/native-ui/radio-group-source/radio_button_group_scope.cc",
+    ".build/native-ui/radio-group-source/radio_button_group_scope.h",
+    ".build/native-ui/radio-group-source/radio_input_type.cc",
+    ".build/native-ui/radio-group-source/sources.json",
+    ".build/native-ui/radio-group-source/symbols.json",
+    ".build/native-ui/radio-group-source/symbols.py"
+  ],
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMatrix.m",
+      "sha256": "763b2c8fdeacf84fae75cf141ba578945e1a773c935e5c852937653c37d6ab2b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Headers/AppKit/NSMatrix.h",
+      "sha256": "ae85c4e80fdf6c0697371626861250d2cd328fef5bfa156d83ce674332cbfc96"
+    },
+    {
+      "path": "radio_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/radio_input_type.cc",
+      "sha256": "c6d396e2b9f5f38fcf0bc7b68e015cb5a4e60443e70698dee27ad12ca44e0088"
+    },
+    {
+      "path": "radio_button_group_scope.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/radio_button_group_scope.h",
+      "sha256": "26d49889c57f65278d7ce30bbfa1f22246b3ba47a9bff1103760ec6b659ac56d"
+    },
+    {
+      "path": "radio_button_group_scope.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/radio_button_group_scope.cc",
+      "sha256": "faac92ac39535d4d59f7843dcc9af2f0d5fbf0d696f07bffedbd8a6393744bf2"
+    },
+    {
+      "path": "RadioGroupContainer.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/RadioGroupContainer.h",
+      "sha256": "45e4512f8a033351634833fbabe6c25414e0af9cac6c7d4515230cb5627fe6d1"
+    },
+    {
+      "path": "RadioGroupContainer.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/RadioGroupContainer.cpp",
+      "sha256": "50efede215101ea31b794d979a0ef310b929a2f161a9f2762e9d1d7bee5764ac"
+    }
+  ],
+  "original_symbols": {
+    "chromium": {
+      "debug": "/var/tmp/nextspace-chromium-prototype/debug/usr/lib/debug/.build-id/ee/eef03b83096958e9eb6385a4a92aa8d2aa404e.debug",
+      "patterns": [
+        "RadioInputType::NextRadioButtonInGroup(",
+        "RadioInputType::FindNextFocusableRadioButtonInGroup(",
+        "HTMLInputElement::GetRadioButtonGroupScope(",
+        "HTMLInputElement::GetName(",
+        "RadioButtonGroupScope::GroupSizeFor(",
+        "RadioButtonGroupScope::CheckedButtonForGroup(",
+        "RadioInputType::HandleKeydownEvent(",
+        "Document::SetFocusedElement(",
+        "Node::DispatchSimulatedClick(",
+        "RadioInputType::LegacyPreActivationBehavior(",
+        "RadioInputType::RunInputActivationBehavior("
+      ],
+      "symbols": [
+        "000000000e740df4 t blink::RadioInputType::HandleKeydownEvent(blink::KeyboardEvent&)",
+        "000000000e740c84 t blink::RadioInputType::NextRadioButtonInGroup(blink::HTMLInputElement*, bool)",
+        "000000000e7417a8 t blink::RadioInputType::RunInputActivationBehavior(blink::Event&, blink::ClickHandlingState const&)",
+        "000000000e7415e8 t blink::RadioInputType::LegacyPreActivationBehavior()",
+        "000000000e740c2c t blink::RadioInputType::FindNextFocusableRadioButtonInGroup(blink::HTMLInputElement*, bool)",
+        "000000000dd1402c t blink::Node::DispatchSimulatedClick(blink::Event const*, blink::SimulatedClickCreationScope)",
+        "000000000eed7280 t blink::Document::SetFocusedElement(blink::Element*, blink::FocusParams const&)",
+        "000000000efa56cc t blink::HTMLInputElement::GetRadioButtonGroupScope() const",
+        "000000000ef9f4c4 t blink::HTMLInputElement::GetName() const",
+        "000000000e1112b8 t blink::RadioButtonGroupScope::CheckedButtonForGroup(blink::AtomicString const&) const",
+        "000000000e7411e4 t non-virtual thunk to blink::RadioInputType::HandleKeydownEvent(blink::KeyboardEvent&)",
+        "000000000e741944 t non-virtual thunk to blink::RadioInputType::RunInputActivationBehavior(blink::Event&, blink::ClickHandlingState const&)",
+        "000000000e74179c t non-virtual thunk to blink::RadioInputType::LegacyPreActivationBehavior()",
+        "000000000ef9f4e0 t non-virtual thunk to blink::HTMLInputElement::GetName() const"
+      ]
+    },
+    "firefox": {
+      "debug": "/var/tmp/nextspace-firefox-prototype/debug/usr/lib/debug/.build-id/ac/e600697490ec169e3e371fb456dcb542e3abef.debug",
+      "patterns": [
+        "HTMLInputElement::VisitGroup",
+        "RadioGroupContainer::GetButtonsInGroup(",
+        "RadioGroupContainer::GetRadioGroup(",
+        "RadioGroupContainer::GetOrCreateRadioGroup(",
+        "HTMLInputElement::GetCurrentRadioGroupContainer(",
+        "RadioGroupContainer::WalkRadioGroup(",
+        "RadioGroupContainer::GetNextRadioButton(",
+        "RadioGroupContainer::GetCurrentRadioButton(",
+        "HTMLInputElement::FocusNextRadioButton(",
+        "HTMLInputElement::RadioSetChecked("
+      ],
+      "symbols": [
+        "000000000588c2ec t mozilla::dom::HTMLInputElement::RadioSetChecked(bool, bool)",
+        "00000000047fcb58 t mozilla::dom::RadioGroupContainer::GetNextRadioButton(nsTSubstring<char16_t> const&, bool, mozilla::dom::HTMLInputElement*, mozilla::dom::HTMLInputElement**)",
+        "00000000047fcac0 t mozilla::dom::RadioGroupContainer::GetCurrentRadioButton(nsTSubstring<char16_t> const&)",
+        "00000000047fca2c t mozilla::dom::RadioGroupContainer::GetOrCreateRadioGroup(nsTSubstring<char16_t> const&)",
+        "00000000047fd484 t mozilla::dom::RadioGroupContainer::GetButtonsInGroup(mozilla::dom::nsRadioGroupStruct*) const"
+      ]
+    }
+  },
+  "findings": [
+    "Direct installed NSMatrix in NSRadioModeMatrix owns group navigation, selection, focus decoration, hit testing and tracking. The reference supplies original NSButtonCell objects with addRowWithCells and checks their identities after real seat input.",
+    "Native selected cell, key cell and action count are independent. Shift+Arrow can change only the key cell while dispatching an action. Matching only selected-state changes loses a native action; treating every action as a click on the origin radio targets the wrong member.",
+    "Native matrix shape determines arrow navigation; ordinary arrows skip disabled choices and do not wrap. Layout metadata and native geometry must remain separate from application grouping semantics.",
+    "Original OPENSTEP matrix tracking can send an action for unchanged selection on a disabled click or an outside release. Native NSButtonCell tracks until mouse-up; dragging to a different matrix member in the measured path restores the original selection.",
+    "In this installed baseline physical Meta maps to GNUstep Alternate, whose matrix path can move the key cell onto a disabled member. Physical Alt+Up/Down belong to compositor raise/lower. These are measured native facts, not new adapter shortcut policies.",
+    "Blink NextRadioButtonInGroup at 0xe740c84 is an existing membership iterator with form owner, tree scope, radio type and name checks. Unlike FindNextFocusableRadioButtonInGroup it includes disabled/non-focusable members. It is a candidate data export boundary, not installed integration.",
+    "Gecko GetButtonsInGroup at 0x47fd484 returns the existing DOM-ordered member span without the filtered/wrapping policy of GetNextRadioButton. Pinned ARM64 disassembly returns span length in x0 and data in x1; do not assume pointer-then-length C ABI.",
+    "No browser, AppKit, native provider, transport or desktop service changed in this checkpoint. Real original DOM group membership, cancelled/trusted actions, irregular geometry, member lifetimes, recovery and browser pixels remain unqualified."
+  ]
+}

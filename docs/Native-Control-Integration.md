@@ -102,6 +102,16 @@ button-only pages. Host-epoch repaint recreates retained controls in the new
 native host. See the
 [Chromium button qualification](../Experiments/ChromiumScrollers/button-sizing-qualification.json).
 Rich button content and the broader browser/application scope remain unfinished.
+Radio-group integration needs the actual native group context, rather than
+independent radio buttons. An ordinary `NSMatrix` reference now records real-seat
+navigation, focus, selection, actions and pointer release at 1x and 2x. The
+reference passes its original `NSButtonCell` objects into the matrix and verifies
+their identities throughout input. Shift+Arrow demonstrates why key-cell and
+selected-cell identities must be transported separately. See the
+[native radio reference](../Libraries/NativeUI/radio-reference-qualification.json).
+This qualifies the installed native baseline only; the group provider, shared
+transport and browser bindings remain to implement. The existing browser radio
+bindings still use individual native buttons.
 An earlier Firefox host-replacement capture showed TimeMon while Firefox was
 focused; that run did not qualify menu presentation. The later menu/session
 qualifications above cover their measured ownership and recovery cases.

@@ -23,7 +23,7 @@ def stop_process(process):
 
 
 class Client:
-    def __init__(self, executable, mode, env, artifacts, name, broker=None, broker_role=b"I", ready_event="ready"):
+    def __init__(self, executable, mode, env, artifacts, name, broker=None, broker_role=b"I", ready_event="ready", arguments=()):
         self.events, self.pending = [], b""
         self.log = (artifacts / f"{name}.jsonl").open("w")
         connection = None
@@ -33,7 +33,7 @@ class Client:
             server.close()
             env = dict(env, WAYLAND_SOCKET=str(connection.fileno()))
         with (artifacts / f"{name}.stderr").open("w") as errors:
-            self.process = subprocess.Popen([executable, *([mode] if mode else [])], env=env,
+            self.process = subprocess.Popen([executable, *([mode] if mode else []), *arguments], env=env,
                 pass_fds=[connection.fileno()] if connection else [], stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, stderr=errors)
         if connection: connection.close()
