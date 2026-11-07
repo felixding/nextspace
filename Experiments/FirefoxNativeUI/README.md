@@ -91,9 +91,10 @@ in each pinned browser. Current Firefox text and popup regressions also pass.
 See [radio-group-qualification.json](radio-group-qualification.json) for exact
 runs and limits, and [radio-group-source-audit.json](radio-group-source-audit.json)
 for original engine interfaces and guarded calls. The broader shared button
-fixture exposes an existing automatic inline-flex sizing gap: Firefox reports
-87.4333 CSS pixels where the native preferred width is 86. The prior adapter
-fails identically; this checkpoint does not claim that broader suite passes.
+fixture exposed an existing automatic inline-flex sizing gap: Firefox reported
+87.4333 CSS pixels where the native preferred width was 86. That historical
+checkpoint retains the identical prior-adapter failure. The subsequent
+[button sizing qualification](button-sizing-qualification.json) addresses it.
 
 This opt-in group path currently models one native column at browser scale 1.
 Complete disabled/outside-release/label behavior, other layout topologies,
@@ -554,9 +555,11 @@ Rendered text is incomplete during reflow. The adapter retains the completed
 native model until Gecko's original `DidReflow` finishes, then obtains fresh
 native metrics and uses Gecko's existing reflow request when they change.
 Fractional first-layout frames retain their measurement binding until native
-automatic sizing settles. A committed title change invalidates the separate
-background display item once, so retained display lists do not leave an old
-native title on screen.
+automatic sizing settles. A committed title change requests Gecko's paint-only
+invalidation for the existing background item. Reconstructing display items from
+fallback preparation can discard a newly queued WebRender image in the same
+transaction and abort the browser. Omitting invalidation leaves stale title
+pixels when dimensions stay unchanged; paint-only invalidation handles both.
 
 The desktop runner accepts `--document Experiments/FirefoxNativeUI/test-html-buttons.html`
 and `--restart-host` for the expanded fixture. It compares complete native
@@ -566,8 +569,25 @@ restoration, label/model changes, resizing, editing, reload and host replacement
 See [qualification](html-button-qualification.json) and
 [source audit](html-button-source-audit.json). This qualifies text-label buttons
 on the pinned horizontal scale-1 build. Image/SVG/pseudo/shadow content,
-automatic flex/grid sizing, default-button policy, accessibility and broader
-layout/scale/build coverage remain open.
+default-button policy, accessibility and broader layout/scale/build coverage
+remain open.
+
+Automatic inline-flex and inline-grid buttons now feed the same native preferred
+metrics into each original Gecko intrinsic-size override. The shared metric
+helper uses original engine border/padding offsets; Gecko retains CSS sizing and
+constraints. Ordinary non-button flex/grid frames call their original methods.
+No native component or layout algorithm is copied.
+
+The expanded shared button/text suite passes 108 checks and 48 complete native
+images in Firefox, and 107/48 in the unchanged Chromium adapter. It includes
+title growth/Unicode/empty labels, min/max-content, CSS minimum/maximum/fixed
+sizes, display-type changes, original form actions and unchanged-size title
+updates. Reversing digit titles preserves native preferred size and fixed CSS
+bounds while the complete native pixels change. See the
+[qualification](button-sizing-qualification.json) and
+[source audit](button-sizing-source-audit.json) for exact runs, prior failures
+and the retained-image trace. Run `check-button-sizing.py --fixture PATH --port PORT
+--text-regression` against an owned native fixture to repeat these shared checks.
 
 Shared Workspace menu selection and menu-only activation are now qualified
 separately using actual desktop focus, visibility and native input. See

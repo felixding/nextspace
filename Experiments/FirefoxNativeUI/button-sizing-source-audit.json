@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "c568d236",
+  "status": "pinned-firefox-text-label-button-sizing-partially-qualified",
+  "source_sha256": {
+    "Experiments/FirefoxNativeUI/README.md": "428e9f8666d0d3556f247f801042fcb87753ee14cb787e27601dfc546897975d",
+    "Experiments/FirefoxNativeUI/buttons.inc": "9e0f1e76071f88c4890d76a22a57e6effb6f062a5c0c2472b814618092495025",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "573d744cf34eb120f9b854dd16a00be3b760c8286f00ba1b37ed74152ce4504b",
+    "Experiments/FirefoxNativeUI/pinned-button-size.h": "fb58e3c050a6c6f605630e70fe36b8e865060faafdf40fdb6a072dbfd05438d3",
+    "Tests/Wayland/button_sizing.py": "ce87fa18e3df669b7715e7c1be1e1c955a78a4b3ad471c98ed643ab1205f2e10",
+    "docs/Native-Control-Integration.md": "b5a760305bf188c20d105b613ae491db8751f76459671f182a590b4748080bba"
+  },
+  "upstream_extracts": [
+    ".build/native-ui/firefox-button-sizing-source/ButtonControlFrame.cpp",
+    ".build/native-ui/firefox-button-sizing-source/WebRenderCommandBuilder.cpp",
+    ".build/native-ui/firefox-button-sizing-source/WebRenderCommandBuilder.h",
+    ".build/native-ui/firefox-button-sizing-source/WebRenderUserData.cpp",
+    ".build/native-ui/firefox-button-sizing-source/WebRenderUserData.h",
+    ".build/native-ui/firefox-button-sizing-source/api_resources.rs",
+    ".build/native-ui/firefox-button-sizing-source/crash-symbols.py",
+    ".build/native-ui/firefox-button-sizing-source/crash.py",
+    ".build/native-ui/firefox-button-sizing-source/debug-pins.h",
+    ".build/native-ui/firefox-button-sizing-source/debug-pins.json",
+    ".build/native-ui/firefox-button-sizing-source/debug-pins.py",
+    ".build/native-ui/firefox-button-sizing-source/display-symbols.json",
+    ".build/native-ui/firefox-button-sizing-source/display-symbols.py",
+    ".build/native-ui/firefox-button-sizing-source/nsContainerFrame.cpp",
+    ".build/native-ui/firefox-button-sizing-source/nsFlexContainerFrame.cpp",
+    ".build/native-ui/firefox-button-sizing-source/nsFlexContainerFrame.h",
+    ".build/native-ui/firefox-button-sizing-source/nsGridContainerFrame.cpp",
+    ".build/native-ui/firefox-button-sizing-source/nsGridContainerFrame.h",
+    ".build/native-ui/firefox-button-sizing-source/nsIFrame.cpp",
+    ".build/native-ui/firefox-button-sizing-source/nsIFrame.h",
+    ".build/native-ui/firefox-button-sizing-source/pins.h",
+    ".build/native-ui/firefox-button-sizing-source/pins.json",
+    ".build/native-ui/firefox-button-sizing-source/pins.py",
+    ".build/native-ui/firefox-button-sizing-source/render-sources.json",
+    ".build/native-ui/firefox-button-sizing-source/resource-symbols.py",
+    ".build/native-ui/firefox-button-sizing-source/resource_cache.rs",
+    ".build/native-ui/firefox-button-sizing-source/sources.json",
+    ".build/native-ui/firefox-button-sizing-source/symbols.json",
+    ".build/native-ui/firefox-button-sizing-source/symbols.py"
+  ],
+  "upstream_sources": [
+    {
+      "path": "layout/generic/nsFlexContainerFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsFlexContainerFrame.cpp",
+      "sha256": "79c2c5a44d06ccaff2c5a391eacacdf8c17129f1141036da5412df3ac2b78813",
+      "bytes": 294325
+    },
+    {
+      "path": "layout/generic/nsFlexContainerFrame.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsFlexContainerFrame.h",
+      "sha256": "4071bd629802b0f68b1d225f97d1b227f3589f744d360a0bd528a87ec18da7c0",
+      "bytes": 31980
+    },
+    {
+      "path": "layout/generic/nsGridContainerFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsGridContainerFrame.cpp",
+      "sha256": "5ce28106ed5b2fb6ec3b61b41ecca106a776fc63532b5dbbff67fca51b2fa8ac",
+      "bytes": 465582
+    },
+    {
+      "path": "layout/generic/nsGridContainerFrame.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsGridContainerFrame.h",
+      "sha256": "39f425ca136cc4e0cb32bae97d08d51a59dd37a66389a12df2f7def92335d682",
+      "bytes": 24106
+    },
+    {
+      "path": "layout/generic/nsIFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.cpp",
+      "sha256": "b5e257715d6e59815c06df5273c0b258d4606054a615dffc55ec9b798c4ec6ac",
+      "bytes": 487573
+    },
+    {
+      "path": "layout/generic/nsIFrame.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsIFrame.h",
+      "sha256": "0c35e704c757776e016bd2638caae3cdc5bf3e85984215b63c1365cf2c568f7e",
+      "bytes": 233908
+    },
+    {
+      "path": "layout/generic/nsContainerFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsContainerFrame.cpp",
+      "sha256": "184753625402aa5da090f39c771fdff3d0c0a82b840358ec6820d71cf1ee737f",
+      "bytes": 116420
+    },
+    {
+      "path": "layout/forms/ButtonControlFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/ButtonControlFrame.cpp",
+      "sha256": "f183426911121396ac60adff3b5856e882f7cec9d5f6b70b00228a6ac0abcc53",
+      "bytes": 1930
+    },
+    {
+      "path": "gfx/wr/webrender/src/resource_cache.rs",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/wr/webrender/src/resource_cache.rs",
+      "sha256": "3bdf0d0402b751e938b5fa51003651c8bea966c8ddba398f6e2780392b7b45a0",
+      "bytes": 100243
+    },
+    {
+      "path": "gfx/wr/webrender/src/api_resources.rs",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/wr/webrender/src/api_resources.rs",
+      "sha256": "60715bc0637d630776ac7b26bed9cc0441d352740800488dc5713dbcbab95e79",
+      "bytes": 12725
+    },
+    {
+      "path": "gfx/layers/wr/WebRenderCommandBuilder.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/layers/wr/WebRenderCommandBuilder.cpp",
+      "sha256": "aeb64ad2a403a7c74d7d584cb84681edc8f04ee0c4f9eca4751f0983c2e713b8",
+      "bytes": 121839
+    },
+    {
+      "path": "gfx/layers/wr/WebRenderUserData.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/layers/wr/WebRenderUserData.h",
+      "sha256": "98d0cf48a1e1dc38ca155eb409649162bb0d656861e19b4fad6cbb174b076c4e",
+      "bytes": 12458
+    },
+    {
+      "path": "gfx/layers/wr/WebRenderUserData.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/layers/wr/WebRenderUserData.cpp",
+      "sha256": "68906f9135b058a7732fe5e3b6ad56bcd7a015165f680dbdd01195bce2ffa7f5",
+      "bytes": 15159
+    },
+    {
+      "path": "gfx/layers/wr/WebRenderCommandBuilder.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/layers/wr/WebRenderCommandBuilder.h",
+      "sha256": "e92870fb607fe8bfa05f126885f63f3f8b3c18eae61f98d3d2a8e99bdd449192",
+      "bytes": 9616
+    }
+  ],
+  "guarded_original_intrinsic_calls": {
+    "FLEX_INTRINSIC": {
+      "offset": 115625356,
+      "bytes": "3f2303d5fe0f1df8f65701a9f44f02a908704139"
+    },
+    "GRID_INTRINSIC": {
+      "offset": 115813324,
+      "bytes": "3f2303d5fe5fbda9f65701a9f44f02a9f403022a"
+    }
+  },
+  "invariants": [
+    "Original block, flex and grid frame IntrinsicISize overrides each consume the same button_intrinsic_size helper. It obtains actual existing NSButton preferred metrics and subtracts original nsIFrame::IntrinsicISizeOffsets. No native sizing, label or CSS constraint implementation is copied.",
+    "Original Gecko shrink-to-fit/auto sizing, min/max, explicit sizes, box sizing, flex/grid layout and original fallback remain. Native eligibility stays exact-build, horizontal browser scale 1. Non-button flex/grid paths delegate to their original methods.",
+    "Native HTML button title changes require original paint invalidation with aRebuildDisplayItems=false. The prior generic invalidate_widget call requested reconstruction from within the themed fallback transaction. The trace shows one WebRenderFallbackData object binding newly added keys 0x2200000006 and 0x2300000006 in the same resource queue and discarding the first before transaction completion.",
+    "Original Gecko ApiResources::update queues blob keys for rasterization when added or made visible. A later DeleteBlobImage removes the template without removing queued rasterization keys, so the observed add/discard sequence aborts with no blob image template. The bridge now uses the existing nsIFrame::InvalidateFrame(frame,0,false), without changing WebRender or rebuilding the browser.",
+    "Removing forced invalidation avoids the crash but leaves stale native title pixels at unchanged bounds. Added independent complete native image tests cover reversed digit titles with unchanged preferred size and fixed 180x31 bounds; paint-only invalidation preserves those updates.",
+    "Moving preparation/invalidation into block/flex/grid display-list building did not fix the failure; those experimental hooks were removed. The final patch adds only two original intrinsic call boundaries plus the shared metric helper and changes the existing invalidation flag.",
+    "The temporary image-resource instrumentation calls original AddBlobImage, SetBlobImageKey, SetBlobImageVisibleArea and AddBlobImageKeyForDiscard with their original arguments. It exists only in archived separate diagnostic adapters and is absent from final sources.",
+    "NativeUI provider, loader, scrollbar shim, ABI 520, AppKit, both browser executables and installed runtime paths are unchanged. Only the small separate Firefox adapter was rebuilt; current Chromium tests use its unchanged group 05 adapter."
+  ]
+}

@@ -14,6 +14,8 @@ _Static_assert(sizeof(struct IntrinsicOffsetsI)==12,"Pinned Gecko intrinsic offs
 static struct LogicalSizeI (*original_button_auto_size)(void *,const void *,unsigned,
   const void *,int,const void *,const struct LogicalSizeI *,const void *,unsigned);
 static int (*original_button_intrinsic)(void *,const void *,unsigned);
+static int (*original_button_flex_intrinsic)(void *,const void *,unsigned);
+static int (*original_button_grid_intrinsic)(void *,const void *,unsigned);
 static int native_button_frame(const void *frame) {
   if(!buttons_enabled||!frame||frame_kind(frame)!=NXS_BUTTON)return 0;
   void *node=*(void **)((const char *)frame+24);
@@ -65,12 +67,21 @@ static int button_preferred(void *frame,struct LogicalSizeI *size) {
 /* Gecko owns shrink-to-fit, explicit sizes, min/max, flex/grid and box sizing.
  * Supply native cell metrics at its existing intrinsic/auto-size boundaries;
  * ask its own offset accessor for the content-to-border-box conversion. */
-static int button_intrinsic(void *frame,const void *input,unsigned type) {
+static int button_intrinsic_size(void *frame,int *size) {
   struct LogicalSizeI preferred;
-  if(!button_preferred(frame,&preferred))return original_button_intrinsic(frame,input,type);
+  if(!button_preferred(frame,&preferred))return 0;
   struct IntrinsicOffsetsI offsets=((struct IntrinsicOffsetsI (*)(void *,int))(base+0x6e83058))(frame,0x3fffffff);
   int content=preferred.inline_size-offsets.border-offsets.padding;
-  return content>0?content:0;
+  *size=content>0?content:0;return 1;
+}
+static int button_intrinsic(void *frame,const void *input,unsigned type) {
+  int size;return button_intrinsic_size(frame,&size)?size:original_button_intrinsic(frame,input,type);
+}
+static int button_flex_intrinsic(void *frame,const void *input,unsigned type) {
+  int size;return button_intrinsic_size(frame,&size)?size:original_button_flex_intrinsic(frame,input,type);
+}
+static int button_grid_intrinsic(void *frame,const void *input,unsigned type) {
+  int size;return button_intrinsic_size(frame,&size)?size:original_button_grid_intrinsic(frame,input,type);
 }
 static struct LogicalSizeI button_auto_size(void *frame,const void *input,unsigned mode,
     const void *cb,int available,const void *margin,const struct LogicalSizeI *border_padding,
@@ -137,10 +148,11 @@ static int prepare_button_image(void *frame) {
   }
   w->button_label_owned=1;w->painted=1;
   if(html_button_node(w->node)&&w->button_model_changed) {
-    /* A DOM text mutation can retain the separate bezel display item. Its
-     * complete native image now includes the title, so invalidate that item
-     * once when a different canonical title has reached the native model. */
-    w->button_model_changed=0;invalidate_widget(w);
+    /* Native title pixels changed, not the display-item structure. Use
+     * Gecko's paint-only invalidation. Rebuilding items here can discard a
+     * blob image that WebRender still has queued in the same transaction. */
+    w->button_model_changed=0;
+    ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,0);
   }
   return 1;
 }
@@ -203,6 +215,8 @@ static struct Detour button_detours[]={
   {NXS_GECKO_TEXT_DISPLAY_OFFSET,gecko_text_display_bytes,text_display,(void **)&original_text_display},
   {NXS_GECKO_BUTTON_AUTO_SIZE_OFFSET,gecko_button_auto_size_bytes,button_auto_size,(void **)&original_button_auto_size},
   {NXS_GECKO_BUTTON_INTRINSIC_OFFSET,gecko_button_intrinsic_bytes,button_intrinsic,(void **)&original_button_intrinsic},
+  {NXS_GECKO_BUTTON_FLEX_INTRINSIC_OFFSET,gecko_button_flex_intrinsic_bytes,button_flex_intrinsic,(void **)&original_button_flex_intrinsic},
+  {NXS_GECKO_BUTTON_GRID_INTRINSIC_OFFSET,gecko_button_grid_intrinsic_bytes,button_grid_intrinsic,(void **)&original_button_grid_intrinsic},
   {NXS_GECKO_HTML_BUTTON_POST_OFFSET,gecko_html_button_post_bytes,html_button_post,(void **)&original_html_button_post},
   {NXS_GECKO_HTML_BUTTON_DID_REFLOW_OFFSET,gecko_html_button_did_reflow_bytes,html_button_did_reflow,(void **)&original_html_button_did_reflow},
   {NXS_GECKO_HTML_BUTTON_TEXT_PAINT_OFFSET,gecko_html_button_text_paint_bytes,html_text_paint,(void **)&original_html_text_paint},

@@ -92,8 +92,16 @@ bezel images; Gecko supplies rendered label text, descendant hit testing and
 real form activation/cancellation. Actual desktop checks include automatic
 block sizing, fixed flex/grid buttons, Unicode/nested labels, model changes,
 native editing and host replacement. The bridge preserves its completed model
-across reflow and invalidates retained backgrounds after committed title changes.
+across reflow and requests paint-only invalidation for changed native title
+pixels. Reconstructing display items inside fallback preparation could discard
+an image still queued in WebRender; omitting invalidation kept stale titles at
+unchanged bounds. The existing engine paint-only mode handles both cases.
 See the [HTML button qualification](../Experiments/FirefoxNativeUI/html-button-qualification.json).
+The subsequent [Firefox sizing qualification](../Experiments/FirefoxNativeUI/button-sizing-qualification.json)
+connects original block/flex/grid intrinsic methods to one native metric helper.
+The stronger shared button/text fixture passes 108 checks/48 full native images
+in Firefox and 107/48 in unchanged Chromium, including CSS constraints,
+display-type changes and unchanged-size title updates.
 Pinned Chromium buttons now consume the same native preferred sizes, including
 automatic regular, input, flex/grid and CSS-constrained controls. Buttons and
 selects share Blink layout primitives; actual native cells supply all metrics.
@@ -133,8 +141,9 @@ pass 40 group checks and 15 complete native member images in each browser; see
 the [Gecko qualification](../Experiments/FirefoxNativeUI/radio-group-qualification.json).
 Complete pointer/label behavior, layout topology, browser scaling, group recovery
 and broader application coverage remain unfinished. A broader Firefox button
-test also exposes an existing automatic inline-flex sizing gap, reproduced with
-the prior adapter and recorded in that qualification.
+test also exposed an existing automatic inline-flex sizing gap, reproduced with
+the prior adapter and retained in that historical qualification. The subsequent
+Firefox sizing checkpoint above addresses it.
 An earlier Firefox host-replacement capture showed TimeMon while Firefox was
 focused; that run did not qualify menu presentation. The later menu/session
 qualifications above cover their measured ownership and recovery cases.

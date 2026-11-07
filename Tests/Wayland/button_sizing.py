@@ -31,6 +31,27 @@ def run(fixture):
  js("document.getElementById('nested').firstElementChild.firstChild.data='Changed nested ';return true");compare('nested','nested-title-changed')
  js("document.getElementById('nested').lastElementChild.hidden=false;return true");compare('nested','hidden-title-revealed')
  js("document.getElementById('input-button').value='Changed input value';return true");compare('input-button','input-value-changed')
+ for identifier,display,other in [('flex','inline-flex','inline-grid'),('grid','inline-grid','inline-flex')]:
+  target='document.getElementById('+json.dumps(identifier)+')'
+  for suffix,title in [('grown','A longer native layout button'),('unicode','日本語Café🙂'),('empty','')]:
+   js(target+'.textContent='+json.dumps(title)+';return true');compare(identifier,identifier+'-title-'+suffix)
+  js(target+".textContent='Native layout button';return true");compare(identifier,identifier+'-title-restored')
+  js(target+".style.minWidth='300px';return true")
+  preferred=measure(identifier,identifier+'-minimum-probe');compare(identifier,identifier+'-minimum',expected=[max(300,preferred[0]),preferred[1]])
+  js(target+".style.minWidth='';"+target+".style.maxWidth='90px';return true")
+  preferred=measure(identifier,identifier+'-maximum-probe');compare(identifier,identifier+'-maximum',expected=[min(90,preferred[0]),preferred[1]])
+  js(target+".style.cssText='display:"+display+";width:180px;height:31px;box-sizing:border-box';return true");compare(identifier,identifier+'-fixed',expected=[180,31])
+  js(target+".textContent='123456';return true");compare(identifier,identifier+'-fixed-title-first',expected=[180,31])
+  before=measure(identifier,identifier+'-fixed-title-first-probe')
+  js(target+".firstChild.data='654321';return true");compare(identifier,identifier+'-fixed-title-changed',expected=[180,31])
+  after=measure(identifier,identifier+'-fixed-title-changed-probe')
+  check(identifier+'-changed-title-keeps-native-preferred-size',before==after,before=before,after=after)
+  for width in ['min-content','max-content']:
+   js(target+".style.cssText='display:"+display+";width:"+width+"';return true");compare(identifier,identifier+'-'+width)
+  js(target+".style.cssText='display:"+other+"';return true");compare(identifier,identifier+'-display-changed')
+ for display in ['inline-flex','inline-grid']:
+  actual=js("const e=document.createElement('div');e.style.cssText='display:"+display+";gap:8px;grid-template-columns:37px 53px';e.innerHTML='<span style=\"width:37px;height:11px\"></span><span style=\"width:53px;height:11px\"></span>';document.body.append(e);const r=e.getBoundingClientRect().toJSON();e.remove();return r")
+  check('ordinary-'+display+'-retains-engine-layout',actual['width']==98 and actual['height']==11,actual=actual)
  check('native-button-size-changes-emit-no-actions',js("return !events.some(e=>['click','submit','reset'].includes(e.type))"))
  for identifier,event in [('automatic','click'),('submit','submit'),('reset','reset')]:
   js("window.events=[];document.getElementById('form-value').value='changed';document.getElementById("+json.dumps(identifier)+").focus();return true")
