@@ -10,6 +10,7 @@ struct NativeForm {
   void *node;
   uint64_t control;
   uint32_t radio_owner,radio_member;
+  unsigned radio_clicks;
   struct NXSRectD radio_rect;
   int kind,enabled,state,painted,input_owned,indeterminate;
   struct Rect rect;
@@ -41,6 +42,8 @@ struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
 struct MouseDispatchResult {void *event;int result;};
 static struct NativeForm *native_forms,*active_form,*click_form;
+struct RadioPointerGate {uint32_t origin;uint64_t control;int armed;};
+static struct RadioPointerGate radio_pointer_gate;
 static __thread void *native_parent;
 static __thread void *form_key_node,*form_key_event;
 static uint64_t next_form_control;
@@ -99,7 +102,11 @@ static int text_kind(int);
 static int guard_radio_calls(void);
 static struct NXSResponse *radio_form_request(struct NativeForm *,int,double,double,unsigned);
 static struct NXSResponse *radio_form_focus(struct NativeForm *);
-static int radio_click_allowed(struct NativeForm *);
+static uint32_t radio_node_id(void *);
+static void *radio_node_for_id(uint64_t);
+static void *radio_pointer_target(struct NativeForm *);
+static int input_form_kind(void *);
+static void radio_pointer_complete(uint32_t,uint64_t);
 static int radio_key_input(struct NativeForm *,void *,int,unsigned,const char *,const char *,unsigned,int);
 static struct NXSResponse *sync_text_form(struct NativeForm *,struct NXSResponse *);
 static int default_text_key(void *,void *);
@@ -299,7 +306,6 @@ static void finish_form(double x,double y,unsigned modifiers) {
     response=form_request(form,5,0,0,0);
   }
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
-  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)form_click_allowed=form_click_allowed&&radio_click_allowed(form);
   if(form->kind==NXS_POPUP){click_form=NULL;popup_after_input(form,response);refresh_form_watch();return;}
   if(form->kind==NXS_SLIDER){
     void *node=form->node;uint64_t control=form->control;click_form=NULL;
@@ -313,6 +319,20 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     const void *last,void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up) {
   uintptr_t atom=*(const uintptr_t *)type;
   unsigned modifiers=event_modifiers(event);
+  if(same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0)radio_pointer_gate.armed=0;
+  if(forms_radio_groups_enabled&&radio_pointer_gate.armed&&
+     same_atom(atom,0x123a5590)&&*(const int *)((const char *)event+120)==0) {
+    uint32_t origin=radio_pointer_gate.origin;uint64_t control=radio_pointer_gate.control;radio_pointer_gate.armed=0;
+    click_form=NULL;
+    void *node=radio_node_for_id(origin);struct NativeForm *form=node?find_form(node):NULL;
+    if(!form||form->control!=control||form->kind!=NXS_RADIO)return (struct MouseDispatchResult){0};
+    void *chosen=radio_pointer_target(form);
+    if(!chosen){radio_pointer_complete(origin,control);return (struct MouseDispatchResult){0};}
+    /* Keep Blink's actual PointerEvent construction, source metadata and
+     * preactivation/cancellation. Only the native action target changes. */
+    struct MouseDispatchResult result=original_mouse_dispatch(manager,chosen,type,event,last,related,check,pointer_id,pointer_type,down,up);
+    radio_pointer_complete(origin,control);return result;
+  }
   if(forms_popups_enabled){
     int down_popup=same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0;
     void *node=down_popup&&target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
@@ -375,19 +395,48 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     }
     return result;
   }
+  if(forms_radio_groups_enabled&&same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0) {
+    void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
+    struct NativeForm *form=form_ancestor(node);
+    if(form&&form->kind==NXS_RADIO&&form->painted) {
+      uint32_t origin=radio_node_id(form->node);uint64_t control=form->control;
+      if(active_form)finish_form(-10000,-10000,0);
+      click_form=NULL;radio_pointer_gate=(struct RadioPointerGate){origin,control,1};
+      struct MouseDispatchResult result=original_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up);
+      node=radio_node_for_id(origin);form=node?find_form(node):NULL;
+      unsigned flags=result.event?*(const unsigned short *)((char *)result.event+32):0;
+      if(form&&form->control==control&&form->kind==NXS_RADIO&&input_form_kind(node)==NXS_RADIO&&
+         (flags&0x100)&&!(flags&0x20)) {
+        struct NXSResponse *sync=form_request(form,1,0,0,0);
+        if(sync) {
+          form->actions_before=sync->parts[0].width;form->radio_clicks=*(const unsigned *)((const char *)event+160);
+          struct FloatPoint point=form_point(form,event);
+          struct NXSResponse *response=form_request(form,2,point.x,point.y,modifiers);
+          if(response&&response->parts[0].y){active_form=form;invalidate_form(form);}
+        }
+      }
+      return result;
+    }
+  }
   if(same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0) {
     if(active_form)finish_form(-1,-1,0);
     click_form=NULL;
     void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
     struct NativeForm *form=form_ancestor(node);
-    if(form&&!text_kind(form->kind)&&form_enabled(form->node)) {
+    if(form&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
       form->enabled=1;form->state=form_state(form->node,form->kind);
       struct NXSResponse *sync=form_request(form,1,0,0,0);
       if(sync) {
         form->actions_before=sync->parts[0].width;
+        form->radio_clicks=*(const unsigned *)((const char *)event+160);
         struct FloatPoint point=form_point(form,event);
         struct NXSResponse *response=form_request(form,2,point.x,point.y,modifiers);
-        if(response&&response->parts[0].y){active_form=form;invalidate_form(form);note("native form tracking started");}
+        if(response&&response->parts[0].y){
+          active_form=form;
+          if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)
+            radio_pointer_gate=(struct RadioPointerGate){radio_node_id(form->node),form->control,1};
+          invalidate_form(form);note("native form tracking started");
+        }
       }
     }
   } else if(active_form&&!text_kind(active_form->kind)&&same_atom(atom,0x123a5600)) {

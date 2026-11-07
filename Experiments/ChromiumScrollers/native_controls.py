@@ -873,8 +873,13 @@ class NativeControlServer:
             if req.operation == 2 and self.idle():
                 state['starting'] = True
                 self.pending.append(lambda: self.track(state, req.x, req.y, req.modifiers))
-            elif req.operation in (3, 4) and self.active is state:
-                self.native.nxs_control_send(state['native'], 0 if req.operation == 3 else 1, req.x, req.y, req.modifiers)
+            elif req.operation in (3, 4):
+                if self.active is state:
+                    self.native.nxs_control_send(state['native'], 0 if req.operation == 3 else 1, req.x, req.y, req.modifiers)
+                elif req.operation==4 and state.get('starting'):
+                    # A view may retire before its queued native mouseDown.
+                    # No new press is accepted until this pending job drains.
+                    state['starting']=False;state['cancel_start']=True
             elif req.operation == 6:
                 state['destroy'] = True
                 if self.active is state:
@@ -1045,8 +1050,9 @@ class NativeControlServer:
             payload=self.radio_snapshot(state) if req.kind==12 and self.radio_capabilities else b'')
 
     def track(self, state, x, y, modifiers,click_count=None):
-        if state['destroy']:
+        if state['destroy'] or state.pop('cancel_start',False):
             state['starting'] = False
+            self.log('native-form-cancelled-before-start',process=state['key'][0],control=state['key'][1],kind=state['key'][2])
             return
         self.active, state['starting'] = state, False
         self.log('native-form-press', process=state['key'][0], control=state['key'][1], kind=state['key'][2], x=x, y=y,click_count=1 if click_count is None else click_count)

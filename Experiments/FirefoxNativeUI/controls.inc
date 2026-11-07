@@ -11,6 +11,7 @@ struct Widget {
   void *frame,*node;
   uint64_t id;
   uint64_t radio_owner,radio_member;
+  unsigned radio_clicks;
   struct NXSRectD radio_rect;
   int kind,painted;
   double width,height,actions;
@@ -42,13 +43,18 @@ static unsigned widget_pointer_capabilities;
 static pid_t widget_pid;
 static uint64_t next_widget;
 static struct Widget *widgets,*active_widget;
-static struct {void *event,*node;int allowed;} click_gate;
+static struct {void *event,*node;uint64_t control;int allowed,radio;} click_gate;
+static struct {void *node,*context;uint64_t control;int active;} radio_pointer_source;
 static double preferred_width[4],preferred_height[4];
 static __thread int metric_probe;
 static void reset_widget_process(void);
 static void gecko_radio_reset_process(void);
 static struct NXSResponse *gecko_radio_request(struct Widget *,unsigned,double,double,unsigned);
-static int gecko_radio_click_allowed(struct Widget *);
+static void *gecko_radio_pointer_target(void *,uint64_t);
+static void gecko_radio_pointer_complete(void *,uint64_t);
+static void gecko_radio_pointer_capture(void *);
+static void gecko_radio_pointer_release_context(void *);
+static uint32_t (*original_radio_pre_event)(void *,void *,void *,void *,void *,int *,void *);
 static uint32_t gecko_radio_key(struct Widget *,void *,void *);
 static char *utf8_text(const uint16_t *,uint32_t);
 static int prepare_button_image(void *);
@@ -313,6 +319,7 @@ static struct PointI widget_point(struct Widget *w,const void *event) {
 }
 static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,const void *event) {
   struct PointI point=widget_point(w,event);
+  if(operation==2&&w->kind==NXS_RADIO)w->radio_clicks=*(const uint32_t *)((const char *)event+236);
   if(operation==2&&(text_kind(w->kind))) {
     /* AssignMouseEventDataOnly copies the source's uint32_t mClickCount at
      * +236 in this exact libxul. No local click aggregation or word rules. */
@@ -321,6 +328,12 @@ static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,c
       return native_pointer_press(w->kind,w->id,point.x/60.,point.y/60.,widget_modifiers(event),clicks);
   }
   return widget_request(w,operation,point.x/60.,point.y/60.,widget_modifiers(event));
+}
+static uint32_t radio_pre_event(void *self,void *context,void *event,void *frame,void *content,int *status,void *override) {
+  if(radio_groups_enabled&&context&&event&&status&&*(const uint16_t *)((const char *)event+18)==15&&
+     (*(const uint8_t *)((const char *)event+48)&1)&&*(const int16_t *)((const char *)event+152)==0)
+    gecko_radio_pointer_capture(frame);
+  return original_radio_pre_event(self,context,event,frame,content,status,override);
 }
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
   uint64_t tab_target=tabs_pointer_target(frame,event);
@@ -333,7 +346,14 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
     if(text_frame||(active_widget&&(text_kind(active_widget->kind))))
       return text_pointer_post(self,context,event,frame,status,override,text_frame);
   }
-  void *down_node=NULL;
+  void *down_node=NULL,*radio_origin=NULL;uint64_t radio_control=0;
+  if(trusted&&message==14&&*(const int16_t *)((const char *)event+152)==0&&radio_pointer_source.active) {
+    /* Transfer the gesture's semantic reference across the original dispatch,
+     * even if a page callback already retired its frame or changed its type. */
+    radio_origin=radio_pointer_source.node;radio_control=radio_pointer_source.control;
+    click_gate.event=event;click_gate.node=radio_origin;click_gate.control=radio_control;click_gate.radio=1;click_gate.allowed=0;
+    memset(&radio_pointer_source,0,sizeof(radio_pointer_source));
+  }
   void *target_frame=frame;
   struct Widget *button_owner=frame?html_button_owner(*(void **)((char *)frame+24)):NULL;
   if(button_owner)target_frame=button_owner->frame;
@@ -351,15 +371,34 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
       for(int i=0;response&&response->parts[0].y&&i<100;i++) {
         struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);response=widget_request(w,5,0,0,0);
       }
-      click_gate.event=event;click_gate.node=w->node;
-      click_gate.allowed=response&&!response->parts[0].y&&response->parts[0].width>w->actions;
-      if(w->kind==NXS_RADIO&&radio_groups_enabled)click_gate.allowed=click_gate.allowed&&gecko_radio_click_allowed(w);
+      if(!click_gate.radio) {
+        click_gate.event=event;click_gate.node=w->node;click_gate.control=w->id;
+        click_gate.radio=w->kind==NXS_RADIO&&radio_groups_enabled;
+        click_gate.allowed=response&&!response->parts[0].y&&response->parts[0].width>w->actions;
+      }
+      if(w->kind==NXS_RADIO&&radio_groups_enabled&&!radio_origin) {
+        radio_origin=w->node;radio_control=w->id;
+        ((unsigned (*)(void *))(base+0x3b9f0e4))(radio_origin);
+      }
       invalidate_widget(w);
     }
   }
   uint32_t result=original_post_event(self,context,event,frame,status,override);
+  if(radio_origin) {
+    /* A native matrix can act even when Gecko has no ordinary click target. */
+    void *chosen=gecko_radio_pointer_target(radio_origin,radio_control);
+    if(chosen) {
+      int native_status=0;void *shell=*(void **)((char *)context+32);
+      if(shell)original_click_events(self,shell,event,&native_status,chosen,NULL);
+    }
+    gecko_radio_pointer_complete(radio_origin,radio_control);
+    ((unsigned (*)(void *))(base+0x47ba6b8))(radio_origin);
+  }
   tabs_pointer_post(tab_target,event,*status);
-  if(down_node&&*status!=1) {
+  struct Widget *radio_original=radio_pointer_source.node?widget_for_node(radio_pointer_source.node):NULL;
+  int radio_current=!radio_pointer_source.active||(radio_original&&radio_original->id==radio_pointer_source.control&&
+    radio_pointer_source.node==down_node&&node_kind(down_node)==NXS_RADIO);
+  if(down_node&&*status!=1&&radio_current) {
     /* Focus handlers may destroy/reconstruct the original frame. Retain only
      * the semantic node across Gecko's dispatch, then obtain its live frame. */
     struct Widget *w=bind_input_widget(*(void **)((char *)down_node+96));
@@ -377,6 +416,10 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   return result;
 }
 static uint32_t click_events(void *self,void *shell,void *event,int *status,void *target,void *override) {
+  if(click_gate.event==event&&click_gate.radio) {
+    void *chosen=gecko_radio_pointer_target(click_gate.node,click_gate.control);
+    return chosen?original_click_events(self,shell,event,status,chosen,NULL):0;
+  }
   if(click_gate.event==event&&!click_gate.allowed&&(click_gate.node==target||
      (html_button_node(click_gate.node)&&target&&((int (*)(const void *,const void *))(base+NXS_GECKO_HTML_BUTTON_DESCENDANT_OFFSET))(target,click_gate.node)))) {
     note("native Gecko gesture cancelled activation");return 0;
@@ -504,6 +547,7 @@ static void frame_destroy(void *frame,void *context) {
 }
 static void release_shell_widgets(void *shell) {
   reset_widget_process();void *context=*(void **)((char *)shell+120);
+  gecko_radio_pointer_release_context(context);
   native_popup_release_context(context);
   struct Widget **cursor=&widgets;
   while(*cursor) {
@@ -545,8 +589,8 @@ static void prepare_widget_metrics(void) {
   }
   widgets_enabled=1;
   const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
-  radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3;
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
+  radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);
   prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");

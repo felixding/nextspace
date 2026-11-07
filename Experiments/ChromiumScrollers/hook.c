@@ -241,7 +241,7 @@ __attribute__((constructor)) static void initialize(void) {
   }
   forms_input_enabled=forms_input_enabled&&forms_available;
   const char *radio_groups=getenv("NEXTSPACE_CHROMIUM_RADIO_GROUPS");
-  forms_radio_groups_enabled=forms_input_enabled&&radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)metrics->parts[4].y&3)==3;
+  forms_radio_groups_enabled=forms_input_enabled&&radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)metrics->parts[4].y&3)==3&&(forms_pointer_capabilities&NXS_POINTER_CLICK_COUNT);
   forms_notifications_enabled=metrics->parts[6].x==1;
   const char *progress=getenv("NEXTSPACE_CHROMIUM_PROGRESS");
   forms_progress_enabled=forms_available&&progress&&!strcmp(progress,"1");

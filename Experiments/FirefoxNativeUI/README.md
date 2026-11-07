@@ -690,3 +690,20 @@ grouped/disabled menu model, then verifies the first replacement-host action
 commits the original DOM index once. Wider select lifecycle, scaling, derivatives
 and installed deployment remain open. See the
 [sizing and recovery qualification](popup-sizing-qualification.json).
+
+
+### Native radio pointer actions
+
+The opt-in group adapter also routes pointer actions from the existing native
+NSMatrix through the browser's original trusted pointer-click dispatcher. Shared
+RadioBinding code retains the native action/key-cell snapshot and forwards the
+original click count through the existing NativeUI transport. AppKit determines
+selection, disabled-member behavior, outside-release behavior and multi-click
+tracking. Frame retirement cancels the original tracking operation; the adapter
+revalidates original engine membership and binding identity after page callbacks.
+No control implementation or browser UI component is added.
+
+See [pointer qualification](../FirefoxNativeUI/radio-pointer-qualification.json)
+and its source audit for measured coverage. Label activation, layouts beyond the
+current one-column model, browser scales and session-supervisor group recovery
+remain open. This is a partial browser integration checkpoint.

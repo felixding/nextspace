@@ -2,6 +2,7 @@
  * NativeUI's shared binding and original AppKit matrix own the controls.
  * GPL-2.0-or-later. */
 #include "pinned-radio-groups.h"
+#include "pinned-radio-pointer.h"
 #include "../../Libraries/NativeUI/Bridge/RadioBinding.inc"
 struct GeckoRadioSpan {uintptr_t count;void **data;};
 _Static_assert(sizeof(struct GeckoRadioSpan)==16,"Original Span returns length then data in x0/x1");
@@ -31,6 +32,7 @@ static void gecko_radio_snapshot_free(struct GeckoRadioSnapshot *s)
 {gecko_radio_nodes_free(s->nodes,s->count,1);free(s->items);memset(s,0,sizeof(*s));}
 static void gecko_radio_reset_process(void)
 {
+  memset(&radio_pointer_source,0,sizeof(radio_pointer_source));
   /* A fork inherits caches, not their parent's remote object ownership.
    * As with Widget's existing reset, do not touch inherited engine objects. */
   while(gecko_radio_groups) {
@@ -54,6 +56,8 @@ static void gecko_radio_release(struct Widget *w)
 {
   uint64_t owner=w->radio_owner;w->radio_owner=w->radio_member=0;
   if(owner) {
+    struct GeckoRadioGroup *g=gecko_radio_group(owner);
+    if(g){g->busy++;native_radio_binding_cancel(&g->native);g->busy--;}
     /* Retained display items can move without repaint. A member's frame
      * retirement must invalidate the remaining group models and pixels. */
     for(struct Widget *item=widgets;item;item=item->next)if(item->radio_owner==owner)invalidate_widget(item);
@@ -164,17 +168,72 @@ static struct NXSResponse *gecko_radio_request(struct Widget *w,unsigned operati
 {
   if(operation==6){gecko_radio_release(w);return NULL;}
   struct GeckoRadioGroup *g=(operation==1||!w->radio_owner)?gecko_radio_sync(w):gecko_radio_group(w->radio_owner);if(!g)return NULL;
-  return native_radio_binding_request(&g->native,w->radio_member,&w->radio_rect,operation,w->width,w->height,x,y,modifiers);
+  return native_radio_binding_request(&g->native,w->radio_member,&w->radio_rect,operation,w->width,w->height,x,y,modifiers,w->radio_clicks);
 }
-static int gecko_radio_click_allowed(struct Widget *w)
+static void gecko_radio_pointer_capture(void *frame)
 {
-  struct GeckoRadioGroup *g=gecko_radio_group(w->radio_owner);if(!g)return 0;g->native.tracking=0;
-  struct GeckoRadioSnapshot s;int okay=gecko_radio_snapshot(w->node,&s);
-  if(okay) {
-    gecko_radio_model(&s,g);okay=gecko_radio_same_nodes(g,&s)&&native_radio_binding_same(&g->native,s.items,s.visible,1)&&
-      native_radio_state(g->native.control,&g->native.state)&&g->native.state.selected==w->radio_member;
+  reset_widget_process();
+  if(radio_pointer_source.node)gecko_radio_release_node(radio_pointer_source.node);
+  memset(&radio_pointer_source,0,sizeof(radio_pointer_source));
+  if(active_widget&&active_widget->kind==NXS_RADIO) {
+    struct GeckoRadioGroup *g=gecko_radio_group(active_widget->radio_owner);
+    if(g){g->busy++;native_radio_binding_cancel(&g->native);g->busy--;}
+    active_widget=NULL;
   }
-  gecko_radio_snapshot_free(&s);return okay;
+  struct Widget *w=widget_for_frame(frame);
+  if(!w||w->kind!=NXS_RADIO||!w->painted||node_kind(w->node)!=NXS_RADIO)return;
+  gecko_radio_addref(w->node);radio_pointer_source.node=w->node;
+  radio_pointer_source.control=w->id;radio_pointer_source.context=*(void **)((char *)frame+40);radio_pointer_source.active=1;
+}
+static void gecko_radio_pointer_release_context(void *context)
+{
+  if(radio_pointer_source.active&&radio_pointer_source.context==context) {
+    if(radio_pointer_source.node)gecko_radio_release_node(radio_pointer_source.node);
+    /* Keep a non-owning cancellation marker until mouseup or the next press. */
+    radio_pointer_source.node=radio_pointer_source.context=NULL;
+  }
+}
+static void gecko_radio_native_focus(struct GeckoRadioGroup *g,const struct NXSRadioWireState *state)
+{
+  void *target=gecko_radio_node(g,state->key_cell);
+  if(!target||node_kind(target)!=NXS_RADIO||(*(uint64_t *)((char *)target+112)&16))return;
+  void *manager=*(void **)(base+0xa439c38);
+  if(manager&&*(void **)((char *)manager+128)!=target)
+    ((uint32_t (*)(void *,void *,unsigned))(base+NXS_GECKO_RADIO_FOCUS))(manager,target,1u<<13);
+}
+static void *gecko_radio_action_target(struct GeckoRadioGroup *g,void *origin,uint64_t id,uint64_t selected)
+{
+  struct Widget *w=widget_for_node(origin);
+  if(!w||w->id!=id||w->radio_owner!=g->native.control||node_kind(origin)!=NXS_RADIO||!selected)return NULL;
+  struct GeckoRadioSnapshot s;int valid=gecko_radio_snapshot(origin,&s);
+  if(valid){gecko_radio_model(&s,g);valid=gecko_radio_same_nodes(g,&s)&&native_radio_binding_same(&g->native,s.items,s.visible,1);}
+  void *target=valid?gecko_radio_node(g,selected):NULL;
+  gecko_radio_snapshot_free(&s);
+  return target&&node_kind(target)==NXS_RADIO&&!(*(uint64_t *)((char *)target+112)&16)?target:NULL;
+}
+static void *gecko_radio_pointer_target(void *origin,uint64_t id)
+{
+  struct Widget *w=widget_for_node(origin);
+  if(!w||w->id!=id||node_kind(origin)!=NXS_RADIO)return NULL;
+  struct GeckoRadioGroup *g=gecko_radio_group(w->radio_owner);
+  if(!g||!g->native.pointer_ready||g->native.epoch!=atomic_load(&native_host_epoch))return NULL;
+  struct NXSRadioWireState after=g->native.pointer_state;int action=g->native.pointer_pending;
+  g->native.pointer_pending=g->native.pointer_ready=0;
+  g->busy++;
+  if(gecko_radio_action_target(g,origin,id,after.key_cell))gecko_radio_native_focus(g,&after);
+  void *target=action?gecko_radio_action_target(g,origin,id,after.selected):NULL;g->busy--;
+  if(!target) {
+    for(struct Widget *item=widgets;item;item=item->next)if(item->radio_owner==g->native.control)invalidate_widget(item);
+    gecko_radio_prune(g->native.control);
+  }
+  return target;
+}
+static void gecko_radio_pointer_complete(void *origin,uint64_t id)
+{
+  struct Widget *w=widget_for_node(origin);if(!w||w->id!=id)return;
+  uint64_t owner=w->radio_owner;
+  for(struct Widget *item=widgets;item;item=item->next)if(item->radio_owner==owner)invalidate_widget(item);
+  gecko_radio_sync(w);gecko_radio_prune(owner);
 }
 static uint32_t gecko_radio_key(struct Widget *w,void *event,void *visitor)
 {
@@ -193,22 +252,15 @@ static uint32_t gecko_radio_key(struct Widget *w,void *event,void *visitor)
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS){if(advance_focus(w->node,handled))*status=1;return 0;}
   if(handled!=NXS_INPUT_UNHANDLED||after.actions!=before.actions||message==3)*status=1;
   void *origin=w->node;uint64_t id=w->id,owner=g->native.control;gecko_radio_addref(origin);g->busy++;
-  void *target=gecko_radio_node(g,after.key_cell);
-  if(target&&after.key_cell!=g->native.dom_focus&&node_kind(target)==NXS_RADIO&&!(*(uint64_t *)((char *)target+112)&16)) {
-    void *manager=*(void **)(base+0xa439c38);
-    if(manager)((uint32_t (*)(void *,void *,unsigned))(base+NXS_GECKO_RADIO_FOCUS))(manager,target,1u<<13);
-  }
-  w=widget_for_node(origin);
-  if(w&&w->id==id&&w->radio_owner==owner&&node_kind(origin)==NXS_RADIO&&after.actions!=before.actions&&after.selected) {
-    struct GeckoRadioSnapshot s;int valid=gecko_radio_snapshot(origin,&s);
-    if(valid){gecko_radio_model(&s,g);valid=gecko_radio_same_nodes(g,&s)&&native_radio_binding_same(&g->native,s.items,s.visible,1);}
-    target=valid?gecko_radio_node(g,after.selected):NULL;
-    if(target&&node_kind(target)==NXS_RADIO&&!(*(uint64_t *)((char *)target+112)&16))
-      ((uint32_t (*)(void *,int,void *))(base+0x58ce09c))(target,1,*(void **)visitor);
-    gecko_radio_snapshot_free(&s);
-  }
+  gecko_radio_native_focus(g,&after);
+  void *target=after.actions!=before.actions?gecko_radio_action_target(g,origin,id,after.selected):NULL;
+  if(target)((uint32_t (*)(void *,int,void *))(base+0x58ce09c))(target,1,*(void **)visitor);
   g->busy--;
   for(struct Widget *item=widgets;item;item=item->next)if(item->radio_owner==owner)invalidate_widget(item);
   w=widget_for_node(origin);if(w&&w->id==id)gecko_radio_sync(w);
   gecko_radio_release_node(origin);gecko_radio_prune(owner);return 0;
 }
+
+static struct Detour radio_pointer_detours[]={
+  {NXS_GECKO_RADIO_POINTER_PRE_EVENT_OFFSET,gecko_radio_pointer_pre_event_bytes,radio_pre_event,(void **)&original_radio_pre_event}
+};

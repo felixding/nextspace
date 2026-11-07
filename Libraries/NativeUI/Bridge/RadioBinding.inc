@@ -1,13 +1,13 @@
 /* Shared native group model lifetime/cache; no engine or widget behavior.
  * Include after Radios.inc. GPL-2.0-or-later. */
 struct NXSRadioBinding {
-  uint64_t control,dom_focus;
+  uint64_t control,dom_focus,pointer_actions;
   uint32_t epoch;
   unsigned count,columns;
   NXSRadioItem *items;
-  struct NXSRadioWireState state;
+  struct NXSRadioWireState state,pointer_state;
   double scale;
-  int created,focused,tracking;
+  int created,focused,tracking,pointer_pending,pointer_ready;
 };
 static void native_radio_binding_free_items(NXSRadioItem *items,unsigned count)
 {for(unsigned i=0;i<count;i++)free((void *)items[i].title);free(items);}
@@ -30,6 +30,8 @@ static int native_radio_binding_sync(struct NXSRadioBinding *binding,const NXSRa
     binding->epoch=atomic_load(&native_host_epoch);binding->created=1;binding->focused=0;
     native_radio_binding_free_items(binding->items,binding->count);binding->items=NULL;binding->count=0;
     binding->state=(struct NXSRadioWireState){0};binding->dom_focus=0;
+    binding->pointer_state=(struct NXSRadioWireState){0};
+    binding->tracking=binding->pointer_pending=binding->pointer_ready=0;binding->pointer_actions=0;
   }
   int same=native_radio_binding_same(binding,items,count,columns);
   uint64_t key=focused!=binding->dom_focus&&focused?focused:binding->state.key_cell;
@@ -63,19 +65,43 @@ static void native_radio_binding_destroy(struct NXSRadioBinding *binding)
 /* Pointer coordinates come from the application member. The native matrix
  * supplies its own cell rectangle; no grid or tracking policy is reproduced. */
 static struct NXSResponse *native_radio_binding_request(struct NXSRadioBinding *binding,uint64_t member,
-  struct NXSRectD *rectangle,unsigned operation,double width,double height,double x,double y,unsigned modifiers)
+  struct NXSRectD *rectangle,unsigned operation,double width,double height,double x,double y,unsigned modifiers,unsigned clicks)
 {
   if(operation==1||(operation==5&&!binding->tracking))return native_radio_item_draw(binding->control,member,width,height);
   if(operation==2) {
     if(!native_radio_item_draw(binding->control,member,width,height)||!native_radio_item_rect(binding->control,member,rectangle))return NULL;
+    binding->pointer_actions=binding->state.actions;binding->pointer_pending=binding->pointer_ready=0;
   }
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),
     .kind=NXS_RADIOGROUP,.control=binding->control,.x=x+rectangle->x,.y=y+rectangle->y,.modifiers=modifiers};
-  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  struct NXSResponse *response=operation==2&&clicks>1?
+    native_pointer_press(NXS_RADIOGROUP,binding->control,request.x,request.y,modifiers,clicks):exchange_bytes(&request,sizeof(request));
   if(operation==2)binding->tracking=response&&response->parts[0].y;
   if((operation==4||operation==5)&&response&&!response->parts[0].y) {
     binding->tracking=0;
-    if(native_radio_state(binding->control,&binding->state))response=native_radio_request(binding->control,44,0,0,1);
+    if(native_radio_state(binding->control,&binding->state)) {
+      binding->pointer_pending=binding->state.actions!=binding->pointer_actions;
+      binding->pointer_ready=1;
+      binding->pointer_state=binding->state;
+      response=native_radio_request(binding->control,44,0,0,1);
+    }
   }
   return response;
+}
+/* A member can retire during an application event callback. End the original
+ * native mouseDown before changing its model; discard its now-stale action. */
+static void native_radio_binding_cancel(struct NXSRadioBinding *binding)
+{
+  if(binding->created&&binding->epoch==atomic_load(&native_host_epoch)&&binding->tracking) {
+    struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=4,.process=identity(),
+      .kind=NXS_RADIOGROUP,.control=binding->control,.x=-10000,.y=-10000};
+    struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+    for(unsigned i=0;response&&response->parts[0].y&&i<100;i++) {
+      struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);
+      response=native_radio_request(binding->control,5,0,0,1);
+    }
+    binding->tracking=response&&response->parts[0].y;
+    if(response&&!binding->tracking)native_radio_state(binding->control,&binding->state);
+  }
+  binding->pointer_pending=binding->pointer_ready=0;
 }

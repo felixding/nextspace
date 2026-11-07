@@ -67,7 +67,15 @@ static void radio_prune(uint32_t root)
   struct NativeRadioGroup *g=*cursor;*cursor=g->next;native_radio_binding_destroy(&g->native);free(g);
 }
 static void radio_release(struct NativeForm *form)
-{uint32_t owner=form->radio_owner;form->radio_owner=0;form->radio_member=0;if(owner)radio_prune(owner);}
+{
+  uint32_t owner=form->radio_owner;form->radio_owner=0;form->radio_member=0;
+  if(owner) {
+    struct NativeRadioGroup *g=radio_group(owner);
+    if(g){g->busy++;native_radio_binding_cancel(&g->native);g->busy--;}
+    for(struct NativeForm *item=native_forms;item;item=item->next)if(item->radio_owner==owner)invalidate_form(item);
+    radio_prune(owner);
+  }
+}
 static struct NativeRadioGroup *radio_sync(struct NativeForm *form)
 {
   struct NativeRadioGroup *g=radio_group(form->radio_owner);if(g&&(g->busy||g->native.tracking))return g;
@@ -101,19 +109,51 @@ static struct NXSResponse *radio_form_request(struct NativeForm *form,int operat
   struct NativeRadioGroup *g=(operation==1||!form->radio_owner)?radio_sync(form):radio_group(form->radio_owner);
   if(!g)return NULL;
   return native_radio_binding_request(&g->native,form->radio_member,&form->radio_rect,operation,
-    form->rect.width,form->rect.height,x,y,modifiers);
+    form->rect.width,form->rect.height,x,y,modifiers,form->radio_clicks);
 }
 static struct NXSResponse *radio_form_focus(struct NativeForm *form)
 {
   struct NativeRadioGroup *g=radio_sync(form);return g?native_radio_request(g->native.control,44,0,0,1):NULL;
 }
-static int radio_click_allowed(struct NativeForm *form)
+static void radio_native_focus(struct NativeRadioGroup *g,const struct NXSRadioWireState *state)
 {
-  struct NativeRadioGroup *g=radio_group(form->radio_owner);if(!g)return 0;
-  g->native.tracking=0;struct RadioSnapshot snapshot;int okay=radio_snapshot(form->node,&snapshot);
-  if(okay)okay=native_radio_binding_same(&g->native,snapshot.items,snapshot.count,1)&&snapshot.root==g->root&&
-    native_radio_state(g->native.control,&g->native.state)&&g->native.state.selected==form->radio_member;
-  free(snapshot.items);return okay;
+  if(!state->key_cell||!native_radio_binding_contains(&g->native,state->key_cell))return;
+  void *target=radio_node_for_id(state->key_cell);
+  if(target&&input_form_kind(target)==NXS_RADIO&&form_enabled(target)&&!form_focused(target))
+    ((void (*)(void *))(base+NXS_RADIO_FOCUS_OFFSET))(target);
+}
+static void *radio_action_target(struct NativeRadioGroup *g,uint32_t origin,uint64_t control,uint64_t selected)
+{
+  void *node=radio_node_for_id(origin);struct NativeForm *form=node?find_form(node):NULL;
+  if(!form||form->control!=control||form->radio_owner!=g->root||input_form_kind(node)!=NXS_RADIO||!selected)return NULL;
+  struct RadioSnapshot snapshot;
+  int valid=radio_snapshot(node,&snapshot)&&snapshot.root==g->root&&native_radio_binding_same(&g->native,snapshot.items,snapshot.count,1);
+  free(snapshot.items);void *target=valid?radio_node_for_id(selected):NULL;
+  return target&&input_form_kind(target)==NXS_RADIO&&form_enabled(target)?target:NULL;
+}
+static void *radio_pointer_target(struct NativeForm *form)
+{
+  struct NativeRadioGroup *g=radio_group(form->radio_owner);
+  if(!g||!g->native.pointer_ready||g->native.epoch!=atomic_load(&native_host_epoch))return NULL;
+  struct NXSRadioWireState after=g->native.pointer_state;int action=g->native.pointer_pending;
+  g->native.pointer_pending=g->native.pointer_ready=0;
+  uint32_t origin=radio_node_id(form->node);uint64_t control=form->control;
+  g->busy++;
+  if(radio_action_target(g,origin,control,after.key_cell))radio_native_focus(g,&after);
+  void *target=action?radio_action_target(g,origin,control,after.selected):NULL;g->busy--;
+  if(!target) {
+    for(struct NativeForm *f=native_forms;f;f=f->next)if(f->radio_owner==g->root)invalidate_form(f);
+    radio_prune(g->root);
+  }
+  return target;
+}
+static void radio_pointer_complete(uint32_t origin,uint64_t control)
+{
+  void *node=radio_node_for_id(origin);struct NativeForm *form=node?find_form(node):NULL;
+  if(!form||form->control!=control)return;
+  uint32_t owner=form->radio_owner;
+  for(struct NativeForm *f=native_forms;f;f=f->next)if(f->radio_owner==owner)invalidate_form(f);
+  radio_sync(form);radio_prune(owner);
 }
 static int radio_key_input(struct NativeForm *form,void *event,int type,unsigned key,const char *text,const char *unmodified,unsigned modifiers,int repeat)
 {
@@ -133,24 +173,13 @@ static int radio_key_input(struct NativeForm *form,void *event,int type,unsigned
   /* Original engine focus and trusted activation own events, cancellation,
    * radio preactivation and rollback. Re-resolve IDs after every callback. */
   g->busy++;
-  if(after.key_cell&&after.key_cell!=g->native.dom_focus&&native_radio_binding_contains(&g->native,after.key_cell)) {
-    void *target=radio_node_for_id(after.key_cell);
-    if(target&&input_form_kind(target)==NXS_RADIO&&form_enabled(target))
-      ((void (*)(void *))(base+NXS_RADIO_FOCUS_OFFSET))(target);
-  }
-  void *node=radio_node_for_id(origin);form=node?find_form(node):NULL;
-  if(form&&form->control==control&&form->radio_owner==owner&&after.actions!=before.actions&&after.selected) {
-    struct RadioSnapshot snapshot;
-    int valid=radio_snapshot(node,&snapshot)&&snapshot.root==owner&&native_radio_binding_same(&g->native,snapshot.items,snapshot.count,1);
-    free(snapshot.items);
-    void *target=valid?radio_node_for_id(after.selected):NULL;
-    if(target&&input_form_kind(target)==NXS_RADIO&&form_enabled(target))
-      ((void (*)(void *,const void *,int))(base+0xdd1402c))(target,event,1);
-  }
+  radio_native_focus(g,&after);
+  void *target=after.actions!=before.actions?radio_action_target(g,origin,control,after.selected):NULL;
+  if(target)((void (*)(void *,const void *,int))(base+0xdd1402c))(target,event,1);
   g->busy--;
   /* Cached form pointers may have been removed by focus/click listeners. */
   for(struct NativeForm *f=native_forms;f;f=f->next)if(f->radio_owner==owner)invalidate_form(f);
-  node=radio_node_for_id(origin);form=node?find_form(node):NULL;
+  void *node=radio_node_for_id(origin);form=node?find_form(node):NULL;
   if(form&&form->control==control)radio_sync(form);
   radio_prune(owner);return 1;
 }

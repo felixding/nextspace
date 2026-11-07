@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "174f874d",
+  "status": "opt-in-pinned-one-column-radio-pointer-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "e6a0ee85dbc9fb7b89fe5e79e4909c1ad2ad007ebcc9fcf6b3b8cdc962347ba4",
+    "Experiments/ChromiumScrollers/check-radio-groups.py": "59e15db3bdde0928d7bc421aab285dd93c17070dd4d6f4d9fb08be4c439cf4ae",
+    "Experiments/ChromiumScrollers/forms-radios.inc": "94cf4fad6f9dae30a79da793c9a301207a97bd3716cb3f9cfbd5b5e521fdfee3",
+    "Experiments/ChromiumScrollers/forms.inc": "15e80f0d00a1f6d6df163d61ded59b285f79488518da133049763b8cbb693389",
+    "Experiments/ChromiumScrollers/hook.c": "bc292998036183dec9647e7839f92e5dc9b4bef71879d6295a7dd2d30c3b57c4",
+    "Experiments/ChromiumScrollers/native_controls.py": "709db1916659f34f557ef909a320777c8bc63092521833a7887524e23400c55b",
+    "Experiments/FirefoxNativeUI/README.md": "1de58eaacd8a1ad83687fa55d17b92a06a7eef570757639e9e8d287fc6ffb6d7",
+    "Experiments/FirefoxNativeUI/check-radio-groups.py": "8589ef59b3dde558215469028af2b7078d49ad0584f3ea4ddf3f06bf6dd8a243",
+    "Experiments/FirefoxNativeUI/controls.inc": "bc8f7853674ffc452ca469615310371a3e59677521692b74918b4cdf7ab7e577",
+    "Experiments/FirefoxNativeUI/hook.c": "2176dc1e7424463972295b82277f83bb344593fd3e73fbc1d47fa2196f39401f",
+    "Experiments/FirefoxNativeUI/pinned-radio-pointer.h": "528abfc2293ab1df87dc1cdb727935e22e5584597f22d0d2485fda586966cc9e",
+    "Experiments/FirefoxNativeUI/radios.inc": "dff7ff1f3c82387747f3a136117331cf72d7469dc8e603bc1b9b9ffd598c03dd",
+    "Libraries/NativeUI/Bridge/RadioBinding.inc": "4b43108d4a438100c2ef9589bd16422468760719c5442e7dd71e257890c4e88a",
+    "Tests/Wayland/radio_pointer.py": "3c7ffb2b0c5780665b0bca8ee2bc5693fa22205bb4dd939710f1f3dbdcfcca27",
+    "docs/Native-Control-Integration.md": "8aeb0a0d6715e3759f12d8fe3abd0aeb48530f216741748a0e0bbb8db3d3f5d5"
+  },
+  "upstream_extracts": [
+    ".build/native-ui/chromium-pointer-source/web_mouse_event.h",
+    ".build/native-ui/firefox-viewport-source/MouseEvents.h",
+    ".build/native-ui/radio-group-source/NSMatrix.m",
+    ".build/native-ui/radio-pointer-source/EventStateManager.cpp",
+    ".build/native-ui/radio-pointer-source/gecko-pre-event-symbols.py",
+    ".build/native-ui/radio-pointer-source/mouse_event_manager.cc",
+    ".build/native-ui/radio-pointer-source/node.h",
+    ".build/native-ui/radio-pointer-source/pin-gecko-pre-event.py",
+    ".build/native-ui/radio-pointer-source/pre-event-pins.json",
+    ".build/native-ui/radio-pointer-source/pre-event-symbols.json",
+    ".build/native-ui/radio-pointer-source/sources.json"
+  ],
+  "upstream_sources": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/node.h",
+      "sha256": "366b4c916c7970d2e1d96660c75ea43fd3173ad8e9a494ea7a240186342132db"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/input/mouse_event_manager.cc",
+      "sha256": "0f049c6f18bf2cb5ef96acf2dc292a8555bbd6a5b4ad86d1a03c14a3497bc34e"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/EventStateManager.cpp",
+      "sha256": "dc1e2b4ce9d1b1957f4490156410e1767a828782197e72c9fe16fa0636e91f1e"
+    }
+  ],
+  "invariants": [
+    "Original NSMatrix/NSButtonCell determine pointer selection, disabled-member actions, outside release, focus/key-cell state and multiple click handling. The unchanged NativeUI provider and API 520 are reused. No control drawing, layout or tracking policy is copied.",
+    "Shared RadioBinding stores native typed completion state, consumes actions once and forwards original click counts through existing counted-press transport. Frame retirement ends native mouseDown before changing models; the shared host cancels a queued press that has not started.",
+    "Chromium calls its original MouseEventManager::DispatchMouseEvent with the native action target, preserving PointerEvent construction and all original pointer-source arguments. Node publicly inherits EventTarget in the pinned source. Original radio preactivation and cancellation remain browser-owned.",
+    "Firefox calls its original EventStateManager::DispatchClickEvents. Guarded PreHandleEvent captures original radio identity before page callbacks; retained semantic references and context retirement preserve cancellation when frames disappear or nodes change type. A post-mouseup fallback uses the same original click dispatcher when no ordinary engine click target exists.",
+    "Both adapters use original canonical grouping and revalidate current frame/binding identity, membership, type and enabled state after callbacks. Focus restoration reads the real original engine focus state; the same helpers serve key and pointer transactions.",
+    "The provider, loader, scrollbar shim, both installed browser executables, AppKit and 20 measured production runtime files are unchanged. Only separate small adapters were compiled, and shared bridge/host source changed. Browser toolbar, address bar and tabs stay original."
+  ]
+}

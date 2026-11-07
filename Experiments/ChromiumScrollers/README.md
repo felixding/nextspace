@@ -874,3 +874,20 @@ overflow/groups, full pane/toolbar layout, accessibility and browser scaling
 remain unfinished. The [Firefox binding](../FirefoxNativeUI/tab-qualification.json)
 now reuses the same provider and serializer. Derivatives and installed deployment
 also remain unfinished.
+
+
+### Native radio pointer actions
+
+The opt-in group adapter also routes pointer actions from the existing native
+NSMatrix through the browser's original trusted pointer-click dispatcher. Shared
+RadioBinding code retains the native action/key-cell snapshot and forwards the
+original click count through the existing NativeUI transport. AppKit determines
+selection, disabled-member behavior, outside-release behavior and multi-click
+tracking. Frame retirement cancels the original tracking operation; the adapter
+revalidates original engine membership and binding identity after page callbacks.
+No control implementation or browser UI component is added.
+
+See [pointer qualification](../FirefoxNativeUI/radio-pointer-qualification.json)
+and its source audit for measured coverage. Label activation, layouts beyond the
+current one-column model, browser scales and session-supervisor group recovery
+remain open. This is a partial browser integration checkpoint.

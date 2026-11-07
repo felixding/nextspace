@@ -5,7 +5,7 @@ from pathlib import Path
 from marionette import Marionette
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
 from radio_groups import RadioFixture,run
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,default=2833);a=p.parse_args();root=a.fixture.resolve();rows=[];model_start=0
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,default=2833);p.add_argument('--pointer',action='store_true');a=p.parse_args();root=a.fixture.resolve();rows=[];model_start=0
 deadline=time.monotonic()+30
 while True:
  try:m=Marionette(a.port);break
@@ -41,6 +41,10 @@ fixture.identify=identify;fixture.reinsert_recreates_group=False
 try:
  session=m.command('WebDriver:NewSession',{});assert session['capabilities']['moz:processID']==pid
  window=fixture.wait(lambda:next((w for w in command('windows') if w['pid']==pid and w['level']==0),None));assert command('focus '+str(window['id']))['ok']
- run(fixture);print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in x['case'] for x in rows))))
+ run(fixture)
+ if a.pointer:
+  from radio_pointer import run as pointer_checks
+  pointer_checks(fixture)
+ print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in x['case'] for x in rows))))
 finally:
  command('button 272 0');command('key 42 0');m.close()

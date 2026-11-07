@@ -574,3 +574,16 @@ See [toolbar qualification](../Libraries/NativeUI/toolbar-qualification.json).
 Toolbar IPC, native composition with address fields and both browser toolbar
 bindings remain unfinished. The browser/derivative/deployment requirements and
 subsequent GTK/Qt/KDE integration remain open under the original objective.
+
+
+The shared native radio binding now preserves original NSMatrix pointer-action
+state and click counts for both pinned engines. Browser adapters route the
+native-selected node through their original trusted pointer-click dispatchers,
+with original preactivation/cancellation and fresh membership checks after page
+callbacks. Removing or replacing a member ends its native tracking before model
+updates. The native provider and UI library remain shared and unchanged; only
+adapters and bridge lifetime/transport handling change. See the
+[radio pointer qualification](../Experiments/FirefoxNativeUI/radio-pointer-qualification.json).
+Label activation, other layouts/scales and session-supervisor group recovery
+remain open. Browser toolbar, address bar and tabs stay original; future requested
+UI changes use optional application patches over this same shared integration.
