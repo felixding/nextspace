@@ -890,7 +890,7 @@ The shared provider forwards the original NSSearchField search-button action
 and emits performClick: through the existing command filter. Capability
 NXS_TEXT_SEARCH_ACTION gates this extension without changing API 1/592.
 The common bridge retains only an activation receipt with native control ID,
-command serial and host epoch. Adapters consume it after the original DOM
+action item, command serial and host epoch. Adapters consume it after the original DOM
 click dispatch, where page listeners can cancel, remove or change the field.
 
 Chromium uses its original TextEvent factory and internal EventTarget dispatcher
@@ -903,7 +903,32 @@ methods are guarded against the pinned binaries; no browser is recompiled.
 
 See [search-action qualification](../ChromiumScrollers/search-action-qualification.json)
 and its source audit for measured coverage and limitations. Clear-button click
-cancellation/search notifications, recents and broader editing/IME/accessibility
-contracts remain separate work. Webpage control coverage, other browser builds
+ordering and cancellation are covered by the checkpoint below. Search
+notifications, recents and broader editing/IME/accessibility contracts remain
+separate work. Webpage control coverage, other browser builds
 and derivatives, complete menus/shortcuts/deployment, then GTK/Qt/KDE remain
 open. Later toolbar/tab patches must reuse the same native UI provider.
+
+
+### Native clear actions after click dispatch
+
+The original native cancel button now offers clearSearch: through the existing
+command filter. Capability NXS_TEXT_SEARCH_CLEAR_COMMAND (256) gates this path;
+unknown commands keep the previous native behavior. Both adapters use the same
+activation receipt and existing click-default boundary as search submission.
+They commit the original native cell through control_perform_click with
+NXS_SEARCH_CANCEL after page listeners have run, retaining beforeinput/input,
+cancellation, model changes and callback retirement in the original engine.
+The provider's scoped recursion guard prevents the committed native button from
+requesting another deferred action. API 1 stays 592 bytes. No browser private
+method or control implementation is added for this change.
+
+Keyboard interruption ends native tracking before native key dispatch and
+cancels the pending pointer action. A real held-button Ctrl+A witness verifies
+GNUstep caret-beginning behavior instead of browser select-all. The corresponding
+retirement check now requires the actual key's trusted insertText beforeinput,
+rather than a delete from the former premature clear. See
+[clear-default qualification](../ChromiumScrollers/clear-default-qualification.json)
+and its source audit. Clear search notifications, recents, broader field
+contracts and other specialized controls remain open, followed by the remaining
+browser/menu/shortcut/deployment and GTK/Qt/KDE work.

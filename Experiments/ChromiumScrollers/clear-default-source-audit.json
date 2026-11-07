@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "85bd7a94",
+  "status": "pinned-native-clear-click-default-qualified-broader-native-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "81ad58e6a1fb27735724a34120e4bb88ab46d70b750bd247bb8eb2dd5ed5b8c7",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "562394544f908eefacfeba21d9f9f9dc034a189a2374c9bdb09a232c8dfb4514",
+    "Experiments/ChromiumScrollers/forms-text.inc": "34bc43ab0e39e9262a939c52e3a3a65d1c5f761b0c331de54c086ae0ec84f975",
+    "Experiments/ChromiumScrollers/forms.inc": "eeaa5fa52f3f387734f88b1d87fd80a9721c853ea534d01abee8c337322eab4c",
+    "Experiments/ChromiumScrollers/hook.c": "858a294d7bf372b82fbad6aeb703f454517d52399bd1dfc4a9b6c9fb6eb6c449",
+    "Experiments/FirefoxNativeUI/README.md": "5e557b54ef025462bc59b22ca6f2373e5572838ba80d9f8bc500b60ca0f89444",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "2475521ba4f9393bdbdd835758089890e30bd97aa6e5f4866c0b2f611ee61506",
+    "Experiments/FirefoxNativeUI/controls.inc": "e768598cb60abdab7c0dc2a6a67188aceaff4e01b5b7ac951e914d6cebf7c74b",
+    "Experiments/FirefoxNativeUI/text.inc": "619530b4c5f1770967c8af7608de108eb278500ad2671c11e9abd1758fef3836",
+    "Libraries/NativeUI/Bridge/ControlActions.inc": "ec50d5de55046bc76ef76a31a168b9972dd43c465f2ad57ceb11738e09f0a01c",
+    "Libraries/NativeUI/GNUstep/Controls.m": "f29e049673046a99af7f94f527191903c45148e91386816dd90c9a56b7ab970e",
+    "Libraries/NativeUI/NativeUI.h": "555016b742eaee9f52fcd38adc6660bee379a2b932af27a985a1fc4218387dd9",
+    "Libraries/NativeUI/README.md": "cc8cdcbef582ae70e23dad6f5f196f70f877338a3e5cadd217eff8d7c6e6ef06",
+    "Tests/NativeUI/search-probe.m": "422c740ed62bed1ea1f37f1f7fe00bcb16df257e7552a8322d5250725fae769e",
+    "Tests/Wayland/native-search-actions.html": "256aad8b1c5731c8bb9c107809348a948e5f03d1116c6e8292b418d5278de964",
+    "Tests/Wayland/native_search_clear_actions.py": "2db9c9436d5c4497d2fd38ab6ff5c44acf41003c15a455c09376774ef2fafae8",
+    "Tests/Wayland/native_search_fields.py": "1c711a4cde54f6af0b12b1c16c2127a57f444ebdfd28a376c98619bd736cb254",
+    "docs/Native-Control-Integration.md": "4635924c956c9af61cfc6ad5efb78d2e93425ba28057900c8b18a25f12754760"
+  },
+  "previous_source_audit": "search-action-source-audit.json",
+  "original_sources": [
+    {
+      "path": ".build/native-ui/clear-default-source/NSButtonCell.m",
+      "bytes": 55894,
+      "sha256": "f7956bdb2d0ad2319c1cfb3bfb571e6d59c6537bc30df6dd4513329e50f7b32e"
+    },
+    {
+      "path": ".build/native-ui/clear-default-source/NSCell.m",
+      "bytes": 90643,
+      "sha256": "db9750db0e7bf716e69eea22771617f6b4837ada3cb612ffec8c931c3881861c"
+    },
+    {
+      "path": ".build/native-ui/clear-default-source/NSSearchFieldCell.m",
+      "bytes": 19430,
+      "sha256": "f88558653c0711c19421bf40571263df75fe09a4541db5818f9c8e18b5765086"
+    },
+    {
+      "path": ".build/native-ui/clear-default-source/sources.json",
+      "bytes": 811,
+      "sha256": "120250bdf479652f3ac660cce4ce9f3664fd569a8ca75df006f1e66ea755c54a"
+    }
+  ],
+  "native_api": {
+    "version": 1,
+    "size": 592,
+    "previous_size": 592,
+    "capability": {
+      "NXS_TEXT_SEARCH_CLEAR_COMMAND": 256
+    },
+    "existing_commit": "control_perform_click(control, NXS_SEARCH_CANCEL)"
+  },
+  "new_browser_private_calls": false,
+  "invariants": [
+    "The original native cancel button offers clearSearch: on the existing command filter before its original target/action runs. An unrecognized command returns -1 and retains original immediate behavior; a handled command can be suppressed or committed by its application later.",
+    "The shared receipt carries target/control/serial/host epoch plus the native item identifier. Both browser adapters consume it after their original trusted click dispatch and validate cancellation, owner identity, enabled state and focus before committing.",
+    "Commit uses the existing semantic activation API, invoking the original cancel NSButtonCell performClickWithFrame:inView: with its original NSSearchFieldCell cancelButtonRectForBounds:. A scoped recursion guard prevents a second deferred request. No clear operation, geometry, highlight drawing or native control is copied.",
+    "After click callbacks, each adapter synchronizes its canonical model and enters its existing engine edit transaction. Original beforeinput/input, page mutation/cancellation and retirement remain in that transaction. Focus diversion does not edit another field.",
+    "Keyboard-only transactions do not commit a pending clear. Chromium invalidates that control receipt when a real key ends pointer tracking, preserving the key edit and preventing a delayed clear on mouse release.",
+    "The public API stays version 1/592; only optional capability 256 and existing selectors/item semantics change. Provider probes cover old search/no-search providers and original-action fallback. Pinned browser compatibility cohorts exercise both old-adapter/new-provider and new-adapter/old-provider directions.",
+    "Browser executables and underlying AppKit are unchanged. Toolbars/address bars/tabs keep their current components, with future optional app patches consuming the same shared native UI provider."
+  ]
+}

@@ -29,7 +29,7 @@ static int text_control(NXSControl *control)
 static NSTextView *text_editor(NXSControl *control)
 {return control->kind==NXS_TEXTAREA?(NSTextView *)[(NSScrollView *)control->view documentView]:
   (NSTextView *)[(NSTextField *)control->view currentEditor];}
-unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH|NXS_TEXT_SEARCH_ACTION;}
+unsigned nxs_gnustep_control_text_capabilities(void){return NXS_TEXT_MULTILINE|NXS_TEXT_SEARCH|NXS_TEXT_SEARCH_ACTION|NXS_TEXT_SEARCH_CLEAR_COMMAND;}
 NXSRect nxs_gnustep_control_search_part(NXSControl *control,int part) {
   if(!control||control->kind!=NXS_SEARCHFIELD||control->destroying)return (NXSRect){0};
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
@@ -106,6 +106,7 @@ static void slider_model(NXSControl *control)
   SEL search_cancel_action;
   id search_submit_target;
   SEL search_submit_action;
+  BOOL search_committing;
 }
 - (void)changed:(id)sender;
 - (void)willPopUp:(NSNotification *)notification;
@@ -115,6 +116,7 @@ static void slider_model(NXSControl *control)
 - (void)bindSearchAction;
 - (void)searchCancel:(id)sender;
 - (void)searchSubmit:(id)sender;
+- (void)performSearchClear;
 @end
 @implementation NXSControlAction
 - (void)dealloc {[editor_delegate release];[super dealloc];}
@@ -194,6 +196,9 @@ static void slider_model(NXSControl *control)
 }
 - (void)searchCancel:(id)sender
 {
+  /* An embedding may defer this original action to its cancellable default
+   * phase. Unknown commands retain the original immediate native behavior. */
+  if(!search_committing&&nxs_host_command(control->host,@selector(clearSearch:),NXS_COMMAND_EXECUTE)>=0)return;
   /* Observe the original native button action, including its actual result.
    * Text-change actions from the same search cell are distinct from this. */
   NSTextView *editor=text_editor(control);
@@ -201,6 +206,15 @@ static void slider_model(NXSControl *control)
   if(editor)control->text_selection=[editor selectedRange];
   [NSApp sendAction:search_cancel_action to:search_cancel_target from:sender];
   [control->text_value release];control->text_value=nil;
+}
+- (void)performSearchClear
+{
+  search_committing=YES;
+  @try {
+    NSSearchFieldCell *cell=[(NSSearchField *)control->view cell];
+    [[cell cancelButtonCell] performClickWithFrame:[cell cancelButtonRectForBounds:[control->view bounds]] inView:control->view];
+  }
+  @finally {search_committing=NO;}
 }
 - (void)changed:(id)sender
 {
@@ -426,9 +440,13 @@ static void perform_native_click(NSView *view,void *member)
   if(member)[(NSMatrix *)view selectCell:(NSCell *)member];
   [(NSControl *)view performClick:nil];
 }
+static void perform_native_search_clear(NSView *view,void *target)
+{[(NXSControlAction *)target performSearchClear];}
 int nxs_gnustep_control_perform_click(NXSControl *control,uint64_t item)
 {
   if(!control||control->destroying||!control->enabled||nxs_host_tracking(control->host))return 0;
+  if(control->kind==NXS_SEARCHFIELD)
+    return item==NXS_SEARCH_CANCEL?nxs_host_action(control->host,perform_native_search_clear,control->target):0;
   NSCell *member=nil;
   if(control->kind==NXS_RADIOGROUP) {
     NXSRadioAction *target=control->target;

@@ -62,7 +62,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_search_enabled;
-static int forms_search_actions_enabled;
+static int forms_search_actions_enabled,forms_search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;
 static __thread uint64_t native_search_click_time;
 static int forms_multiline_enabled;
@@ -119,6 +119,7 @@ static void native_button_size_changed(struct NativeForm *,const struct NXSRespo
 static int native_button_owned(const struct NativeForm *);
 static int text_kind(int);
 static void search_activate(void *,void *,uint64_t);
+static void search_clear(void *,uint64_t);
 static int guard_radio_calls(void);
 static struct NXSResponse *radio_form_request(struct NativeForm *,int,double,double,unsigned);
 static struct NXSResponse *radio_form_focus(struct NativeForm *);
@@ -524,8 +525,10 @@ static int dom_dispatch(void *dispatcher) {
   form_key_control=keyboard_form?keyboard_form->control:0;
   int result=native_wheel_dispatch(dispatcher);
   if(search_action.serial&&!(*(const unsigned short *)((char *)event+32)&0x20)) {
-    void *owner=(void *)(uintptr_t)search_action.target;uint64_t control=search_action.control;
-    if(native_activation_take(&search_action,(uintptr_t)owner,control))search_activate(owner,event,control);
+    void *owner=(void *)(uintptr_t)search_action.target;uint64_t control=search_action.control,item=search_action.item;
+    if(native_activation_take(&search_action,(uintptr_t)owner,control)) {
+      if(item==NXS_SEARCH_CANCEL)search_clear(owner,control);else search_activate(owner,event,control);
+    }
   }
   if(checkbox_scope)native_checkbox_activation=previous_checkbox;
   form_key_node=previous_node;form_key_event=previous_event;

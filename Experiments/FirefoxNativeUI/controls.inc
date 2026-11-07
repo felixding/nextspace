@@ -33,7 +33,7 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int search_enabled;
-static int search_actions_enabled;
+static int search_actions_enabled,search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;
 static __thread void *native_search_context;
 static __thread void *native_search_pointer_event;
@@ -625,6 +625,7 @@ static void prepare_widget_metrics(void) {
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   search_enabled=texts_enabled&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH);
   search_actions_enabled=search_enabled&&response->parts[5].y==1&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH_ACTION);
+  search_clear_enabled=search_actions_enabled&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH_CLEAR_COMMAND);
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
   multiline_enabled=texts_enabled&&multiline&&!strcmp(multiline,"1")&&((unsigned)response->parts[6].y&NXS_TEXT_MULTILINE);
   const char *viewport=getenv("NEXTSPACE_FIREFOX_MULTILINE_VIEWPORT");

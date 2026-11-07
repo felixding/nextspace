@@ -818,6 +818,18 @@ enabled state. The engines retain form policy and trusted application events.
 The UI library adds no form algorithm or second control. Older search providers
 retain editing/clear without the new action capability; API 1 stays 592 bytes.
 See [search-action qualification](../Experiments/ChromiumScrollers/search-action-qualification.json).
-This checkpoint does not close clear-button click-default cancellation/search
-notifications, recents, or the remaining specialized controls and integration
-contracts listed above.
+The following checkpoint handles clear-button click ordering and cancellation.
+Search notifications, recents and remaining specialized controls/integration
+contracts remain open.
+
+
+The native clear-button bridge now waits for the page's original click
+dispatch before invoking the original native button action. It uses the same
+shared activation receipt, command filter and semantic perform-click API as
+other controls. Page cancellation and owner removal/disable/focus changes can
+suppress the action; canonical model refresh preserves callback replacement
+values. Original engine beforeinput/input and callback lifetime rules remain
+in use. A real key interrupting button tracking clears that control's pending
+receipt and retains its own native editing behavior. Older providers and
+unknown commands retain their fallback. See
+[clear-default qualification](../Experiments/ChromiumScrollers/clear-default-qualification.json).

@@ -11,6 +11,7 @@ parser.add_argument('--text-types-only',action='store_true',help='Run shared URL
 parser.add_argument('--email-only',action='store_true',help='Run native email editing and protected selection checks')
 parser.add_argument('--search-only',action='store_true',help='Run real GNUstep search-field checks')
 parser.add_argument('--search-actions-only',action='store_true',help='Compare native search activation with original form actions')
+parser.add_argument('--search-clear-only',action='store_true',help='Check native clear actions after cancellable click dispatch')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as connection:
@@ -39,7 +40,7 @@ def origin():
 fixture=PopupFixture(root,command,js,check,pid,origin,reset)
 try:
  fixture.wait(window);assert command('focus '+str(window()['id']))['ok']
- if not (options.text_types_only or options.email_only or options.search_only or options.search_actions_only):
+ if not (options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only):
   cdp('Page.navigate',dict(url=Path(__file__).with_name('test-button-sizing.html').resolve().as_uri()))
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"))
   from button_sizing import ButtonFixture,run as buttons
@@ -71,7 +72,13 @@ try:
   from native_search_fields import SearchFixture
   from native_search_actions import run as search_actions
   out=root/'search-actions';out.mkdir();search_actions(SearchFixture(out,command,js,check,pid,origin,reset))
- if options.text_types_only or options.email_only or options.search_only or options.search_actions_only:
+ if options.search_clear_only:
+  cdp('Page.navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-search-actions.html').as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native search actions'"))
+  from native_search_fields import SearchFixture
+  from native_search_clear_actions import run as clear_actions
+  out=root/'search-clear';out.mkdir();clear_actions(SearchFixture(out,command,js,check,pid,origin,reset))
+ if options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only:
   trace=(root/'hook.log').read_text()
   parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native(?: form |-(?:text |widget ))',line)]
   check('browser-owned-ui-preserved',not parent and 'browser-owned tabs, address bar and toolbar preserved' in trace,parent_native_widgets=parent)

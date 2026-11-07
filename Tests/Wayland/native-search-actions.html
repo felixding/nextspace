@@ -20,7 +20,7 @@ window.events=[];
 window.restore=()=>{cases.innerHTML=initial;events=[]};
 for(const type of ['keydown','keypress','keyup','beforeinput','input','change','click','search','invalid','submit'])
  document.addEventListener(type,e=>{
-  events.push({type,id:e.target.id,trusted:e.isTrusted,value:e.target.value??null,submitter:e.submitter?.id??null});
+  events.push({type,id:e.target.id,trusted:e.isTrusted,value:e.target.value??null,submitter:e.submitter?.id??null,inputType:e.inputType??null,data:e.data??null});
   if(type==='submit'||type==='invalid')e.preventDefault();
  },true);
 </script>

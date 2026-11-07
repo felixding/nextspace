@@ -88,7 +88,7 @@ def buttons(f):
  check('search-native-clear-retirement-releases-native-lifetime',f.wait(lambda:any(x['event']=='native-form-destroy' and x.get('control')==owner['control'] and x.get('process')==owner['process'] for x in map(json.loads,(f.root.parent/'helper.jsonl').read_text().splitlines()))))
 
 def key_retirement(f):
- """Chromium may finish a native pointer gesture before handling a key."""
+ """A key cancels the pointer default and may retire the native control."""
  js,check=f.js,f.check
  js('dynamic.value="Held clear";dynamic.focus();dynamic.setSelectionRange(2,2);dynamic.addEventListener("mousedown",()=>window.heldDown=true,{once:true});dynamic.addEventListener("beforeinput",e=>e.currentTarget.remove(),{once:true});window.events=[];return true')
  reference=f.pixels('dynamic',True,label='search-before-key-retirement')
@@ -104,7 +104,7 @@ def key_retirement(f):
  finally:
   assert f.command('button 272 0')['ok'];assert f.command('pointer 1500 1100')['ok']
  edits=js("return events.filter(e=>e.type==='beforeinput'||e.type==='input')")
- check('search-key-can-retire-active-native-pointer',js('return !document.getElementById("dynamic")') and len(edits)==1 and edits[0]['type']=='beforeinput' and edits[0]['trusted'] and edits[0]['inputType'].startswith('delete'),events=edits)
+ check('search-key-can-retire-active-native-pointer',js('return !document.getElementById("dynamic")') and len(edits)==1 and edits[0]['type']=='beforeinput' and edits[0]['trusted'] and edits[0]['inputType']=='insertText' and edits[0]['data']=='x',events=edits)
  def released():
   return live&{(x['process'],x['control']) for x in map(json.loads,(f.root.parent/'helper.jsonl').read_text().splitlines()) if x['event']=='native-form-destroy'}
  check('search-key-retirement-releases-native-lifetime',f.wait(lambda:len(released())==1),released=sorted(released()))

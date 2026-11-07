@@ -1036,8 +1036,26 @@ forwards the original button target/action, then reports performClick: through
 the existing application-command filter. Ordinary text changes and keyboard
 Return do not enter that observer. API 1 remains 592 bytes; an older search
 provider keeps editing/clear support without advertising the new action. The
-shared bridge activation receipt carries only control identity, command serial
-and host epoch. Applications consume it after their cancellable click dispatch
+shared bridge activation receipt carries only native identity, action item,
+command serial and host epoch. Applications consume it after their cancellable click dispatch
 and retain their original form, validation and event behavior. Recents remain
 application-binding work. No widget drawing, layout, clearing or key algorithm
 is reimplemented in this provider.
+
+
+NXS_TEXT_SEARCH_CLEAR_COMMAND offers the original clearSearch: action through
+the command filter before it runs. Returning -1 keeps the immediate original
+native action; zero suppresses it; a client accepting it can commit later with
+nxs_control_perform_click(control, NXS_SEARCH_CANCEL). This uses the existing
+semantic activation API and keeps API 1/592 unchanged. The provider calls the
+original cancel NSButtonCell performClickWithFrame:inView: using its own
+cancel-button rectangle under a scoped recursion guard. The original cancel observer/edit gate still
+handles the actual native result.
+
+The browser bindings carry the item identifier in their shared activation
+receipt and commit after original click dispatch. They revalidate the owner,
+refresh its canonical text model, then enter the existing engine edit
+transaction. Disabled, retired or focus-diverted owners do not affect a peer
+field. A real key ending pointer tracking cancels that control's pending
+button action. Older providers without the capability retain their fallback.
+See [clear-default qualification](../Experiments/ChromiumScrollers/clear-default-qualification.json).

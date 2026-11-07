@@ -22,10 +22,11 @@ static int blink_application_command(const struct NXSNativeCommand *request,cons
   if(!t||request->process!=identity()||request->control!=t->control)return 0;
   struct NativeForm *form=find_form(t->node);
   if(!form||form->kind!=(int)request->kind||form->control!=t->control||text_frame(t->node)!=t->frame)return 0;
-  if(forms_search_actions_enabled&&form->kind==NXS_SEARCHFIELD&&!strcmp(selector,"performClick:")) {
-    if(t->event)return -1; /* Real Enter retains the original keyboard default. */
+  if(forms_search_actions_enabled&&form->kind==NXS_SEARCHFIELD&&(!strcmp(selector,"performClick:")||
+     (forms_search_clear_enabled&&!strcmp(selector,"clearSearch:")))) {
+    if(t->event)return !strcmp(selector,"clearSearch:")?0:-1; /* Keyboard defaults do not commit a pending clear. */
     if(request->phase==NXS_COMMAND_VALIDATE)return 1;
-    native_activation_arm(&native_search_activation,(uintptr_t)t->node,t->control,request->serial);
+    native_activation_arm(&native_search_activation,(uintptr_t)t->node,t->control,request->serial,!strcmp(selector,"clearSearch:")?NXS_SEARCH_CANCEL:NXS_SEARCH_BUTTON);
     native_search_click_time=0;t->attempted=1;return 1;
   }
   for(unsigned n=0;n<sizeof(commands)/sizeof(*commands);n++)if(!strcmp(selector,commands[n].selector)) {
@@ -190,6 +191,18 @@ static struct NXSResponse *sync_text_image(struct NativeForm *form) {
   }
   return sync_text_form(form,sync_form_focus(form,form_request(form,1,0,0,0)));
 }
+static void search_clear(void *node,uint64_t control) {
+  struct NativeForm *form=find_form(node);
+  if(!form||form->control!=control||form->kind!=NXS_SEARCHFIELD||!form_focused(node)||!form_enabled(node)||text_transaction)return;
+  if(!sync_text_image(form))return;
+  struct BlinkTextModel before={0};if(!text_model(node,&before))return;
+  struct BlinkTextTransaction transaction={.node=node,.frame=text_frame(node),.control=control,.before=before.value};
+  text_transaction=&transaction;
+  native_control_perform_click(NXS_SEARCHFIELD,control,NXS_SEARCH_CANCEL);
+  text_transaction=NULL;free(before.value);
+  form=find_form(node);
+  if(form&&form->control==control)sync_text_image(form);
+}
 static int text_mouse_press(void *self,const void *event) {
   /* Pinned EventWithHitTestResults embeds WebMouseEvent first. Its hit result
    * holds a compressed InnerNode at 204 and scrollbar at 236 (audited code). */
@@ -327,7 +340,10 @@ static int default_text_key(void *node,void *event) {
   if(down&&(logical==NXS_KEY_ENTER||(!logical&&!(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))))){free(key);return 0;}
   if(press&&(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))){free(key);return 0;}
   if(form->text_tracking) {
-    uint64_t control=form->control;end_text_pointer(form,1);form=find_form(node);
+    uint64_t control=form->control;end_text_pointer(form,1);
+    /* A key ends native button tracking without committing a later click. */
+    if(native_search_activation.control==control)native_activation_clear(&native_search_activation);
+    form=find_form(node);
     if(!form||form->control!=control){free(key);*flags|=0x40;return 1;}
   }
   char *text=(modifiers&(NXS_CONTROL|NXS_ALT|NXS_SUPER))&&!logical?strdup(key):keyboard_text(web,102,"");

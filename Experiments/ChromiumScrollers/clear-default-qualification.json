@@ -1,0 +1,570 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "85bd7a94",
+  "status": "pinned-native-clear-click-default-qualified-broader-native-integration-open",
+  "native_ui_abi": {
+    "version": 1,
+    "size": 592
+  },
+  "text_capabilities": 511,
+  "shared_ui_changed": true,
+  "adapters": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-clear-default-03-hook.so",
+      "bytes": 236120,
+      "sha256": "af4afd6065d64c2c287c7be2344eef1a3028e48022b056a707ce8a9d58a25ea9"
+    },
+    "chromium_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-clear-default-03-repro.so",
+      "bytes": 236120,
+      "sha256": "af4afd6065d64c2c287c7be2344eef1a3028e48022b056a707ce8a9d58a25ea9"
+    },
+    "prior_chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-search-action-02-hook.so",
+      "bytes": 236016,
+      "sha256": "6288ac44c24bcd9c02ef3d5be95a0a3ccba6d1cbfd9240fe0845d8bbfa00f095"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-clear-default-03-hook.so",
+      "bytes": 229648,
+      "sha256": "725a66acadc98be9eed8ded9c9300179a2993ac165aab6abb090ed7192bf7b91"
+    },
+    "firefox_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-clear-default-03-repro.so",
+      "bytes": 229648,
+      "sha256": "725a66acadc98be9eed8ded9c9300179a2993ac165aab6abb090ed7192bf7b91"
+    },
+    "prior_firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-search-action-02-hook.so",
+      "bytes": 229568,
+      "sha256": "40320eba8a983f46eda4935a81f93748eec3f7949a0db7d52f44345de8db54f5"
+    }
+  },
+  "shared_ui": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74096,
+      "sha256": "f5db0fcc0fbe77c61e61247fab0930c738dbe2ad96d06452cc7020a38883e1f3"
+    },
+    "loader_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02-repro/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74096,
+      "sha256": "f5db0fcc0fbe77c61e61247fab0930c738dbe2ad96d06452cc7020a38883e1f3"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 327040,
+      "sha256": "2cf77eec499d1a108b7b357b9f355c7a180ce1a134044a596dad699c2e90b33d"
+    },
+    "provider_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02-repro/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 327040,
+      "sha256": "2cf77eec499d1a108b7b357b9f355c7a180ce1a134044a596dad699c2e90b33d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "2b18a8c95e8a43988d33eb9205594bb86e9db0115276979556af02e695495437"
+    }
+  },
+  "prior_ui_unchanged": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/search-action-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74096,
+      "sha256": "f5db0fcc0fbe77c61e61247fab0930c738dbe2ad96d06452cc7020a38883e1f3"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/search-action-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 326136,
+      "sha256": "04936d2dec05589c94d2064e4fd9f54c83d45df84baa88c2e23ba4c8a8c63563"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/search-action-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "3068db9b1fff612d80694be032023a3663641b92744df42738f6abd8e8d47c3e"
+    }
+  },
+  "verification": {
+    "runs": {
+      "chromium": {
+        "path": "/var/tmp/nxs-chromium-clear-default-06",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-clear-default-06/button-results.json",
+          "bytes": 51426,
+          "sha256": "31f87bfd0f00506b8869cc894cbc718cecd03f4081be2382b0c6ffb8354f470d"
+        },
+        "checks": 236,
+        "native_images": 112
+      },
+      "firefox": {
+        "path": "/var/tmp/nxs-firefox-clear-default-07",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-clear-default-07/button-results.json",
+          "bytes": 47623,
+          "sha256": "fbaa281f3d0c4a506144bb68d14d1719f9265008f99f58c504bd5703e6c7a2a3"
+        },
+        "checks": 236,
+        "native_images": 112
+      },
+      "chromium_key_retirement": {
+        "path": "/var/tmp/nxs-chromium-clear-default-06/key-retirement",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-clear-default-06/key-retirement/button-results.json",
+          "bytes": 700,
+          "sha256": "e6298579824dd9bd8a14a5d5e1cc61c1e87975e0b4f895b0b754137fb99152a7"
+        },
+        "checks": 4,
+        "native_images": 1
+      },
+      "chromium_compat_old-adapter": {
+        "path": "/var/tmp/nxs-chromium-clear-default-compat-old-adapter",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-clear-default-compat-old-adapter/button-results.json",
+          "bytes": 3199,
+          "sha256": "ba4d4bd40b944848a41882a731910c463769122365b19bd8fff19e2d4e0df67c"
+        },
+        "checks": 16,
+        "native_images": 9
+      },
+      "chromium_compat_old-provider": {
+        "path": "/var/tmp/nxs-chromium-clear-default-compat-old-provider",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-clear-default-compat-old-provider/button-results.json",
+          "bytes": 3199,
+          "sha256": "ba4d4bd40b944848a41882a731910c463769122365b19bd8fff19e2d4e0df67c"
+        },
+        "checks": 16,
+        "native_images": 9
+      },
+      "firefox_compat_old-adapter": {
+        "path": "/var/tmp/nxs-firefox-clear-default-compat-old-adapter",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-clear-default-compat-old-adapter/button-results.json",
+          "bytes": 3377,
+          "sha256": "57917e68e4cc621ed176b702a23ab713f8ea4f001303db9676fd93699308eeaa"
+        },
+        "checks": 16,
+        "native_images": 9
+      },
+      "firefox_compat_old-provider": {
+        "path": "/var/tmp/nxs-firefox-clear-default-compat-old-provider",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-clear-default-compat-old-provider/button-results.json",
+          "bytes": 3377,
+          "sha256": "57917e68e4cc621ed176b702a23ab713f8ea4f001303db9676fd93699308eeaa"
+        },
+        "checks": 16,
+        "native_images": 9
+      }
+    },
+    "passing_browser_checks": 540,
+    "complete_native_images": 261,
+    "native_provider_probes": [
+      {
+        "original_search_field_class": true,
+        "original_search_cell_class": true,
+        "native_button_and_text_geometry": true,
+        "native_preferred_size": true,
+        "provider_prefix_preserved": true,
+        "original_button_action_forwarded_once": true,
+        "native_activation_command_once": true,
+        "native_clear_deferred_until_commit": true,
+        "native_clear_commit_once": true,
+        "native_clear_uses_original_button_rect": true,
+        "unknown_clear_command_keeps_original_action": true
+      },
+      {
+        "older_search_provider_without_activation": true
+      },
+      {
+        "older_search_provider_without_clear_command": true
+      },
+      {
+        "native_text_controls": 3,
+        "selection_replace": true,
+        "delete": true,
+        "unicode": true,
+        "read_only": true,
+        "disabled": true,
+        "native_navigation": true,
+        "deferred_destruction": true,
+        "emacs_control_a_e": true,
+        "alt_copy_paste": true,
+        "secure_copy_blocked": true,
+        "native_return_action": true,
+        "native_caret_invalidation_and_pixels": true
+      },
+      {
+        "native_filter_controls": 3,
+        "pre_mutation_value": true,
+        "native_ranges_and_selectors": true,
+        "typing_veto": true,
+        "deletion_veto": true,
+        "cut_veto": true,
+        "paste_proposal": true,
+        "unicode": true,
+        "focus_transfer": true,
+        "model_rebind": true,
+        "reentrant_mutation_deferred": true,
+        "filter_removal": true
+      },
+      {
+        "native_keyboard_actions": 6,
+        "controls": 4,
+        "focus_transfer": true,
+        "navigation_requests": 8,
+        "disabled_actions": 0,
+        "deferred_destruction": true
+      },
+      {
+        "older_provider_without_search": true
+      }
+    ],
+    "native_provider_probe_log": {
+      "path": "/workspace/.build/native-ui/chromium-clear-default-06-test.log",
+      "bytes": 1579,
+      "sha256": "1fc020f04bc917142795e62cd351c5fe80072a7149b3ec297740f2a64f8382d8"
+    },
+    "unchanged_production_files": 20,
+    "package_count": 1050,
+    "sandbox": {
+      "chromium": [
+        {
+          "pid": 230205,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 230213,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 230217,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 231434,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 231473,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 231546,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 231550,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 231588,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 231613,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "owned_candidate_mappings_after_cleanup": []
+  },
+  "diagnostics": {
+    "nxs-chromium-clear-default-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-clear-default-02/button-results.json",
+        "bytes": 8473,
+        "sha256": "6f3c77bb95899a1c9362048915b12ae0beccca305a2905fe3632b52f0d763e5f"
+      },
+      "checks": 26,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-chromium-clear-default-03": {
+      "excluded_from_final_totals": true,
+      "key_retirement": {
+        "results": {
+          "path": "/var/tmp/nxs-chromium-clear-default-03/key-retirement/button-results.json",
+          "bytes": 435,
+          "sha256": "a1f3d7951f39abef2e0bfd8648e4f8f89572e5404076a48e67c2983eb0eabfd5"
+        },
+        "last": {
+          "case": "search-key-can-retire-active-native-pointer",
+          "passed": false,
+          "events": [
+            {
+              "type": "beforeinput",
+              "id": "dynamic",
+              "data": "x",
+              "inputType": "insertText",
+              "trusted": true,
+              "value": "Held clear",
+              "start": 2,
+              "end": 2
+            }
+          ]
+        }
+      }
+    },
+    "nxs-chromium-clear-default-04": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-clear-default-04/button-results.json",
+        "bytes": 10220,
+        "sha256": "efd7e959f73049c372c662fa2ef986602673c9fa4aa8d4464a3dcb6b96ec6b97"
+      },
+      "checks": 29,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-chromium-clear-default-05": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-clear-default-05/button-results.json",
+        "bytes": 51293,
+        "sha256": "3cc85397e69ac4b92e979432c7204fe13dc682351ae6a47d9120cf5388bea1cd"
+      },
+      "checks": 235,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      },
+      "key_retirement": {
+        "results": {
+          "path": "/var/tmp/nxs-chromium-clear-default-05/key-retirement/button-results.json",
+          "bytes": 700,
+          "sha256": "9976149ca3fe87e578ae98aa9b42bec2ec5fbb7f386794400119a61904e14b00"
+        },
+        "last": {
+          "case": "browser-owned-ui-preserved",
+          "passed": true,
+          "parent_native_widgets": []
+        }
+      }
+    },
+    "nxs-chromium-clear-default-baseline-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-clear-default-baseline-01/button-results.json",
+        "bytes": 1104,
+        "sha256": "c6c2cd28a9498d3b91292e5be6192b8da4c650dca3fd344cb708c4521b2b87b7"
+      },
+      "checks": 3,
+      "last": {
+        "case": "cancel-native-clear-respects-click-default",
+        "passed": false,
+        "state": {
+          "present": true,
+          "value": "",
+          "type": "search",
+          "disabled": false,
+          "seen": "",
+          "focused": "single",
+          "peer": "Alpha",
+          "events": [
+            {
+              "type": "beforeinput",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "submitter": null
+            },
+            {
+              "type": "input",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "submitter": null
+            },
+            {
+              "type": "click",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "submitter": null
+            }
+          ]
+        },
+        "expected": {
+          "present": true,
+          "value": "Clear search",
+          "event_types": [
+            "click"
+          ],
+          "click_value": "Clear search"
+        }
+      }
+    },
+    "nxs-firefox-clear-default-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-clear-default-02/button-results.json",
+        "bytes": 8473,
+        "sha256": "6f3c77bb95899a1c9362048915b12ae0beccca305a2905fe3632b52f0d763e5f"
+      },
+      "checks": 26,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-firefox-clear-default-04": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-clear-default-04/button-results.json",
+        "bytes": 10172,
+        "sha256": "1693acff596ee7481fdffc1d1111f93c25cba117d34f0ecc452093b4db992094"
+      },
+      "checks": 29,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-firefox-clear-default-05": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-clear-default-05/button-results.json",
+        "bytes": 47490,
+        "sha256": "3290cb9728b051080b9508f9ecb883e77a3a76879491a9cc1791cfd70b92828d"
+      },
+      "checks": 235,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-firefox-clear-default-06": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-clear-default-06/button-results.json",
+        "bytes": 46792,
+        "sha256": "4d7c4922547ef403c50863ac97a73ebc969dec2cb0174f1566d4f344f0aab9fc"
+      },
+      "checks": 233,
+      "last": {
+        "case": "key-interruption-keeps-native-emacs-navigation",
+        "passed": false,
+        "selection": [
+          0,
+          12
+        ]
+      }
+    },
+    "nxs-firefox-clear-default-baseline-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-clear-default-baseline-01/button-results.json",
+        "bytes": 1104,
+        "sha256": "c6c2cd28a9498d3b91292e5be6192b8da4c650dca3fd344cb708c4521b2b87b7"
+      },
+      "checks": 3,
+      "last": {
+        "case": "cancel-native-clear-respects-click-default",
+        "passed": false,
+        "state": {
+          "present": true,
+          "value": "",
+          "type": "search",
+          "disabled": false,
+          "seen": "",
+          "focused": "single",
+          "peer": "Alpha",
+          "events": [
+            {
+              "type": "beforeinput",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "submitter": null
+            },
+            {
+              "type": "input",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "submitter": null
+            },
+            {
+              "type": "click",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "submitter": null
+            }
+          ]
+        },
+        "expected": {
+          "present": true,
+          "value": "Clear search",
+          "event_types": [
+            "click"
+          ],
+          "click_value": "Clear search"
+        }
+      }
+    },
+    "nxs-firefox-clear-default-key-native-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-clear-default-key-native-01/button-results.json",
+        "bytes": 1077,
+        "sha256": "01d68e8c49121ef012a431fddf7e2caa2ff66abeeaeb1c4bd79fa51bd3000305"
+      },
+      "checks": 5,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    }
+  },
+  "source_audit": "clear-default-source-audit.json",
+  "observations": [
+    "Each final pinned engine passes 236 checks/112 complete native images across existing plain/password/Unicode, URL/tel, email, search editing/clear, search submit and new clear-default contracts. The focused Chromium key-retirement cohort adds 4 checks/1 image.",
+    "Each new clear-default cohort includes 30 checks/17 full native images. Actual click listeners see the original value; click cancellation, removal, disable/type changes, focus diversion, canonical replacement values and beforeinput cancellation/removal retain the intended native/application boundaries. Real key interruption produces exactly one trusted insertText pair and no later clear.",
+    "Four browser compatibility cohorts add 64 checks/36 images: both engines with older adapters/new provider, and new adapters/older provider. Their original clear, beforeinput cancellation, read-only/disabled behavior and retirement checks remain passing. These fallback cohorts do not claim the new deferred-click feature.",
+    "Seven native-provider probes pass. The original class/cell/size/part witness now checks deferred commit exactly once, the original cancel-button rectangle at the actual native method invocation, and unknown-command original-action fallback. Older providers lacking clear commands, search activation or all search support also pass their modes.",
+    "Paired baseline failures show the original native clear runs before the DOM click: the listener sees an empty value and preventDefault cannot prevent the earlier trusted beforeinput/input. Those failures are retained and excluded from final totals.",
+    "The first deferred candidates pass 26 checks/15 images, then keyboard cases expand this to 29/17. Source review replaces the convenience cell performClick: call with the original performClickWithFrame:inView: using the original cancel rectangle, avoiding full-control button highlighting. The final provider is independently witnessed and reruns the complete paired cohorts.",
+    "A held-button plain typing check could also pass through the browser fallback. The stronger real Ctrl+A witness distinguishes native caret-beginning behavior from browser select-all. Firefox now ends native pointer tracking before its existing native key dispatch; no key table or algorithm is copied.",
+    "The old key-retirement assertion expected delete because the premature native clear ran first. Its retained diagnostic instead records the actual real key: trusted insertText beforeinput with data x and no input after callback removal. The updated assertion requires that exact key event and native lifetime release.",
+    "Both current adapter reproductions and the final shared native loader/provider reproductions are byte-identical to tested candidates. All 20 measured production files, earlier UI/adapters and 1050-package set remain unchanged. Owned renderer descendants retain Seccomp=2/NoNewPrivs=1; no owned candidate mappings remain after shutdown. No browser executable or underlying AppKit was rebuilt/deployed."
+  ],
+  "open": [
+    "Search-clear search notifications, recents, placeholders, broader keyboard/undo/editing/style/intrinsic layout/zoom/scaling/IME/accessibility contracts. Click-default qualification is not whole-search completion.",
+    "Other specialized webpage controls, other browser builds/derivatives, complete detached menus/native shortcuts and installed deployment; then GTK/Qt/KDE through the same shared library.",
+    "Future requested browser toolbar/tab changes belong to optional application patches consuming the shared provider."
+  ]
+}

@@ -3,11 +3,11 @@
 struct NXSControlAction {uint32_t epoch;int state,ready;};
 /* Transfer a real native action to an application's cancellable default phase.
  * Identity and host lifetime only; event dispatch and semantics stay there. */
-struct NXSControlActivation {uint64_t target,control,serial;uint32_t epoch;};
+struct NXSControlActivation {uint64_t target,control,serial,item;uint32_t epoch;};
 static void native_activation_clear(struct NXSControlActivation *action)
 {*action=(struct NXSControlActivation){0};}
-static void native_activation_arm(struct NXSControlActivation *action,uint64_t target,uint64_t control,uint64_t serial)
-{*action=(struct NXSControlActivation){target,control,serial,atomic_load(&native_host_epoch)};}
+static void native_activation_arm(struct NXSControlActivation *action,uint64_t target,uint64_t control,uint64_t serial,uint64_t item)
+{*action=(struct NXSControlActivation){target,control,serial,item,atomic_load(&native_host_epoch)};}
 static int native_activation_take(struct NXSControlActivation *action,uint64_t target,uint64_t control)
 {
   int valid=action->serial&&action->target==target&&action->control==control&&action->epoch==atomic_load(&native_host_epoch);

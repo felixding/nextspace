@@ -281,10 +281,11 @@ static int native_application_command(const struct NXSNativeCommand *command,con
   if(!transaction||command->process!=identity())return 0;
   struct Widget *w=widget_for_node(transaction->node);
   if(!w||w->id!=command->control||w->kind!=(int)command->kind)return 0;
-  if(search_actions_enabled&&w->kind==NXS_SEARCHFIELD&&!strcmp(selector,"performClick:")) {
-    if(!transaction->pres_context||!transaction->pointer_event)return -1;
+  if(search_actions_enabled&&w->kind==NXS_SEARCHFIELD&&(!strcmp(selector,"performClick:")||
+     (search_clear_enabled&&!strcmp(selector,"clearSearch:")))) {
+    if(!transaction->pres_context||!transaction->pointer_event)return !strcmp(selector,"clearSearch:")?0:-1;
     if(command->phase==NXS_COMMAND_VALIDATE)return 1;
-    native_activation_arm(&native_search_activation,(uintptr_t)w->node,w->id,command->serial);
+    native_activation_arm(&native_search_activation,(uintptr_t)w->node,w->id,command->serial,!strcmp(selector,"clearSearch:")?NXS_SEARCH_CANCEL:NXS_SEARCH_BUTTON);
     native_search_context=transaction->pres_context;native_search_pointer_event=transaction->pointer_event;
     transaction->attempted=1;return 1;
   }
@@ -293,15 +294,32 @@ static int native_application_command(const struct NXSNativeCommand *command,con
   transaction->attempted=1;
   return enabled?application_text_command(transaction->node,selector):0;
 }
+static void search_clear(struct Widget *w) {
+  if(text_transaction||!widget_focused(w)||!sync_text_widget(w))return;
+  void *node=w->node;uint64_t control=w->id;
+  struct TextModel before={0};if(!text_model(node,&before))return;
+  struct TextTransaction transaction={.node=node,.before=before.value};
+  transaction.editor=((void *(*)(void *))(base+NXS_GECKO_TEXT_EDITOR_OFFSET))(node);
+  if(transaction.editor) {
+    ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_ADDREF_OFFSET))(transaction.editor);
+    text_transaction=&transaction;
+    native_control_perform_click(NXS_SEARCHFIELD,control,NXS_SEARCH_CANCEL);
+    text_transaction=NULL;
+    ((unsigned (*)(void *))(base+NXS_GECKO_TEXT_EDITOR_RELEASE_OFFSET))(transaction.editor);
+    w=widget_for_node(node);if(w&&w->id==control)sync_text_widget(w);
+  }
+  free(before.value);
+}
 static uint32_t search_click_events(void *self,void *shell,void *event,int *status,void *target,void *override) {
   if(event!=native_search_pointer_event)return original_click_events(self,shell,event,status,target,override);
   struct NXSControlActivation action=native_search_activation;void *context=native_search_context;
   native_activation_clear(&native_search_activation);
   uint32_t result=original_click_events(self,shell,event,status,target,override);
-  void *node=(void *)(uintptr_t)action.target;uint64_t control=action.control;
+  void *node=(void *)(uintptr_t)action.target;uint64_t control=action.control,item=action.item;
   struct Widget *w=widget_for_node(node);
   if(*status!=1&&w&&w->id==control&&w->kind==NXS_SEARCHFIELD&&!(widget_content_state(w)&16)&&
      native_activation_take(&action,(uintptr_t)node,control)) {
+    if(item==NXS_SEARCH_CANCEL){search_clear(w);return result;}
     ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
     ((void (*)(void *))(base+NXS_GECKO_SEARCH_CHANGE_OFFSET))(node);
     w=widget_for_node(node);
@@ -389,9 +407,14 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   if(listener&&!((int (*)(void *,void *))(*(uintptr_t **)editor)[76])(editor,event))goto release_editor;
   void *document=*(void **)((char *)editor+48);
   if(document)((void (*)(void *,unsigned))(base+NXS_GECKO_TEXT_FLUSH_LAYOUT_OFFSET))(document,6);
+  struct Widget *w=widget_for_node(node);
+  if(w&&w->text_tracking) {
+    uint64_t control=w->id;end_text_pointer(w,0,NULL,NULL);
+    if(native_search_activation.control==control)native_activation_clear(&native_search_activation);
+  }
   void *frame=*(void **)((char *)node+96);
   if(!prepare_text_image(frame))goto release_editor;
-  struct Widget *w=widget_for_node(node);if(!w)goto release_editor;
+  w=widget_for_node(node);if(!w)goto release_editor;
   struct TextModel before={0};if(!text_model(node,&before))goto release_editor;
   int modifier=text_modifier_event(event);
   char *text=key_text(event);if(!text){free(before.value);goto release_editor;}
