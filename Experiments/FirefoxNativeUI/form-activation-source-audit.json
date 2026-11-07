@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "7162a6ae",
+  "status": "pinned-native-form-activation-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "b010098ca4f14eac26981d3934b79b35f54b68fa2ebdee37baf85392e73aa66e",
+    "Experiments/ChromiumScrollers/check-form-activation.py": "1f94cae6d5169c680b62f4775eaf4b3e145af13b5bc65c0657f0f3d3fbbd60fa",
+    "Experiments/ChromiumScrollers/checkbox-activation.inc": "e470c9b3a93123ba7504fc2ad207786ad55ec558a86ef003554bac9a6e595355",
+    "Experiments/ChromiumScrollers/form-labels.inc": "6a3c1b508717d838a489492647e38e3853ea4568076c8eb50743ee1a063491b7",
+    "Experiments/ChromiumScrollers/forms-input.inc": "e154dc29ed83abf7de9592acfea1fa9e10557e3764d6e6c15560ec234781f924",
+    "Experiments/ChromiumScrollers/forms.inc": "a8b5829372e58b6aa545d54236cc96be2110409ae228a3a4fee33116c690b47c",
+    "Experiments/ChromiumScrollers/hook.c": "20930e80297253c7d7d6b58f918278f191db5b57c72258eebe62f23f8facf919",
+    "Experiments/ChromiumScrollers/pinned-checkbox-activation.h": "94f45ecbf52be7b0f39502ee421c92c3db74882969ab808c4442a1a43afbdea3",
+    "Experiments/ChromiumScrollers/pinned-form-labels.h": "1ca3bf68a9ad51ac13887a9803db4f37dbb8e4183935dde6bca58183710692fa",
+    "Experiments/FirefoxNativeUI/README.md": "a33842af5812a8b40e451293028c3428e3f13d05ae61a68bbf009330edd5c048",
+    "Experiments/FirefoxNativeUI/check-form-activation.py": "0c394d6b6530692958193405ef0be5c0793e8aa2e2c2a98805729e8df58437be",
+    "Experiments/FirefoxNativeUI/checkbox-activation.inc": "d160a968fddb7b46e0149157840639b3ec05f4ca0809b97673a7c9c836475091",
+    "Experiments/FirefoxNativeUI/controls.inc": "7e4f5bf0f92935b1c6892da279819c0772e86792bebd8ae17ca2d31f6d5e1280",
+    "Experiments/FirefoxNativeUI/form-labels.inc": "cea04a6ce5ac6164f228d413112503856b283574a510a9d882853e3fb1cc763b",
+    "Experiments/FirefoxNativeUI/hook.c": "e13dd6134f2461752b07023132a8691636aa4202982524238fae7091a6a5e01d",
+    "Experiments/FirefoxNativeUI/pinned-checkbox-activation.h": "1393a0df7e4f514dabb911a41755926566bc39ef0b63677cc45f8f6b2122a0d7",
+    "Experiments/FirefoxNativeUI/pinned-form-labels.h": "d53bcbc006182bdd4400ff4c2a5452b8ddbd7dc8fac1a0acaa4699921ffe7501",
+    "Libraries/NativeUI/Bridge/ControlActions.inc": "aaed117948446ad1af0a35599087367da142c6d6c09714ca41abb08149408a5d",
+    "Tests/Wayland/form_activation.py": "7beca788c72278b86c0ca11a683bccb29b0b09b20b8d553cbb8a14d9a27f363d",
+    "Tests/Wayland/native-form-activation.html": "a6748905b5d2c51de9be43a7fe9504b30d7a70751debc17eb4a3b0de52422f17",
+    "Tests/Wayland/native_popup_fixture.py": "f4faccf335fc8e072d6c185b8902e3642f3351c3a995c3558a232190d402eac1",
+    "docs/Native-Control-Integration.md": "b4a8df51a2efc6ea53c37c9b1e53c5fd1e4471db2e331ef48843ca3b7b2050f9"
+  },
+  "removed_sources": [
+    "Experiments/ChromiumScrollers/pinned-radio-labels.h",
+    "Experiments/ChromiumScrollers/radio-labels.inc",
+    "Experiments/FirefoxNativeUI/pinned-radio-labels.h",
+    "Experiments/FirefoxNativeUI/radio-labels.inc"
+  ],
+  "upstream_extracts": [
+    ".build/native-ui/checkbox-activation-source/blink-element-preactivation-disassembly.txt",
+    ".build/native-ui/checkbox-activation-source/blink-journal-symbols.json",
+    ".build/native-ui/checkbox-activation-source/blink-journal-symbols.py",
+    ".build/native-ui/checkbox-activation-source/blink-preactivation-disassembly.txt",
+    ".build/native-ui/checkbox-activation-source/blink-thunk-disassembly.txt",
+    ".build/native-ui/checkbox-activation-source/checkbox_input_type.cc",
+    ".build/native-ui/checkbox-activation-source/event_dispatcher.cc",
+    ".build/native-ui/checkbox-activation-source/event_dispatcher.h",
+    ".build/native-ui/checkbox-activation-source/gecko-preactivation-disassembly.txt",
+    ".build/native-ui/checkbox-activation-source/html_input_element.cc",
+    ".build/native-ui/checkbox-activation-source/input_type.h",
+    ".build/native-ui/checkbox-activation-source/pin-calls.py",
+    ".build/native-ui/checkbox-activation-source/pins-type-entry-01.json",
+    ".build/native-ui/checkbox-activation-source/pins.json",
+    ".build/native-ui/checkbox-activation-source/setter-symbols.json",
+    ".build/native-ui/checkbox-activation-source/setter-symbols.py",
+    ".build/native-ui/checkbox-activation-source/sources.json",
+    ".build/native-ui/checkbox-activation-source/symbols.json",
+    ".build/native-ui/checkbox-activation-source/symbols.py",
+    ".build/native-ui/radio-group-source/gecko-HTMLInputElement.cpp",
+    ".build/native-ui/radio-group-source/sources.json",
+    ".build/native-ui/radio-label-source/blink-label.cc",
+    ".build/native-ui/radio-label-source/blink-label.h",
+    ".build/native-ui/radio-label-source/dispatch-symbols.json",
+    ".build/native-ui/radio-label-source/dispatch-symbols.py",
+    ".build/native-ui/radio-label-source/gecko-Element.cpp",
+    ".build/native-ui/radio-label-source/gecko-Element.h",
+    ".build/native-ui/radio-label-source/gecko-label-disassembly.txt",
+    ".build/native-ui/radio-label-source/gecko-label.cpp",
+    ".build/native-ui/radio-label-source/gecko-label.h",
+    ".build/native-ui/radio-label-source/pin-calls.py",
+    ".build/native-ui/radio-label-source/pins.json",
+    ".build/native-ui/radio-label-source/radio-pointer-test-pre-burst.py",
+    ".build/native-ui/radio-label-source/sources.json",
+    ".build/native-ui/radio-label-source/symbols.json",
+    ".build/native-ui/radio-label-source/symbols.py"
+  ],
+  "upstream_sources": [
+    {
+      "path": "checkbox_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/checkbox_input_type.cc",
+      "sha256": "6a8c1b158b8520ea5a7858e941fc3ca18022baa270f82fe9b94ce05e1f64f5fd"
+    },
+    {
+      "path": "input_type.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/input_type.h",
+      "sha256": "84fd8f1c1d555d79e1e5004a6a16052300504f6008e9dba10043551ad773942a"
+    },
+    {
+      "path": "html_input_element.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_input_element.cc",
+      "sha256": "e24b3b06861f2602fe38806310ffc719305dd577f0972cdd8330547db66039dc"
+    },
+    {
+      "path": "event_dispatcher.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/events/event_dispatcher.cc",
+      "sha256": "ff6815eabe56c34ee47ff02a812daa8d4222494e0779639c20d2d715dba130a0"
+    },
+    {
+      "path": "event_dispatcher.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/events/event_dispatcher.h",
+      "sha256": "466dd9ae59700ae7d6ed77d5a16343913e0039dbe4abb6149b059e5df2251290"
+    }
+  ],
+  "guarded_calls": {
+    "chromium": {
+      "CHECK_PRE": {
+        "offset": 251294064,
+        "bytes": "3f2303d5fd7bbea9c9c80190280c40f9f44f01a9"
+      },
+      "CHECK_SET": {
+        "offset": 251281284,
+        "bytes": "3f2303d5ff4301d1fd7b01a9c8aa01b0fd430091"
+      },
+      "CHECK_MIXED": {
+        "offset": 251287328,
+        "bytes": "3f2303d5ff0301d1fd7b01a9a8aa01f029000012"
+      }
+    },
+    "firefox": {
+      "CHECK_PRE": {
+        "offset": 92853308,
+        "bytes": "3f2303d5e923bc6dfe0b00f9f65702a9f44f03a9"
+      },
+      "CHECK_SET": {
+        "offset": 92812504,
+        "bytes": "3f2303d5ff4303d1fe5300f9f6570ba9f44f0ca9"
+      },
+      "CHECK_MIXED": {
+        "offset": 92826216,
+        "bytes": "5f2403d509280791088080523f0000722a0140b9"
+      }
+    }
+  },
+  "invariants": [
+    "Shared ControlActions carries native result/epoch/source identity only; actual NSButton/NSMatrix state, rendering, tracking and performClick remain in the existing native library. The NativeUI provider, loader, shim and ABI 1/528 table are unchanged from 7162a6ae.",
+    "Original trusted pointer/key/label paths carry a one-use action receipt into the original source checkbox preactivation journal. Match native host epoch, original source node, live control ID and checkbox type. Nested activation stacks/restores context and cannot reuse a consumed receipt.",
+    "Blink original HTMLInputElement::LegacyPreActivationBehavior(Event&) captures original rollback data. Its original SetChecked setter receives the actual native checked result while all original event-behavior/autofill arguments pass through. Gecko original HTMLInputElement::LegacyPreActivationBehavior and DoSetChecked similarly retain their original journal/dirty/notify flags. The guarded original mixed setter restores a native mixed result when needed; no state bits are written.",
+    "Native mixed leaves checked data unchanged; native off/on supplies actual checked data. No next-state rule is computed. Original engine activation, trusted click/input/change construction, form defaults and cancellation restore the original journal; application onclick writes afterward remain authoritative.",
+    "Generic form-label adapters retain original engine association/filtering/focus and event construction. Only the currently scoped original trusted label forwarder invokes the existing shared semantic performClick. Revalidate current binding after native calls and original callbacks. Programmatic labels retain the original model path.",
+    "Only small exact-build adapters are rebuilt. No browser/AppKit/backend or production runtime binary is replaced; no toolkit is linked into adapters. Toolbar/address bar/tabs retain original components. Optional future per-app UI patches reuse this same bridge/provider, as do subsequent GTK/Qt/KDE adapters."
+  ]
+}

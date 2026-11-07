@@ -720,6 +720,41 @@ through the original engine click constructor and preactivation/rollback.
 
 No key or pointer gesture is fabricated. The same optional NativeUI operation
 serves existing NSButton controls for later toolkit/application adapters. See
-[qualification](../FirefoxNativeUI/radio-label-qualification.json). Non-radio
-label bindings, full accessibility, topology/scaling and session group recovery
-remain open. Browser toolbar/address bar/tabs keep their existing components.
+[qualification](../FirefoxNativeUI/radio-label-qualification.json). The form
+activation checkpoint below adds checkbox and button labels. Full accessibility,
+topology/scaling and session group recovery remain open. Browser toolbar,
+address bar and tabs keep their existing components.
+
+
+### Native checkbox state and form labels
+
+Trusted pointer, keyboard and label activation now carries the actual native
+checkbox result into the original engine preactivation journal. Shared
+`Bridge/ControlActions.inc` contains only the result, host epoch and scoped
+source binding. The engine retains its original setter, dirty/model flags,
+trusted events, click-handler writes and cancellation rollback. In particular,
+an initially checked mixed checkbox follows the native button result rather
+than an independently computed browser toggle. No checkbox cycling rule is
+copied.
+
+Original label association/filtering/focus and forwarded click construction
+remain engine-owned. Checkbox and button labels use the existing shared
+`performClick` operation, including original submit/reset defaults. Programmatic
+activation follows the original model path. NativeUI provider/loader/shim and
+the 528-byte API are unchanged for this checkpoint. Only the small adapters
+are rebuilt; browser and AppKit binaries stay unchanged. See
+[form activation qualification](../FirefoxNativeUI/form-activation-qualification.json)
+and [source audit](../FirefoxNativeUI/form-activation-source-audit.json).
+
+Browser toolbar, address bar and tabs retain their existing components. Later
+requested UI changes belong in optional app-specific patches above the same
+shared native library and bridge, reused by later GTK/Qt/KDE integration.
+
+This checkpoint passes 732 scoped checks and 255 complete native image
+comparisons across both engines and the dedicated original input mode. The
+latter verifies six-control renderer cleanup, helper-loss fallback and preserved
+`Seccomp=2`/`NoNewPrivs=1`. Runtime audit retains 20 unchanged measured production
+binaries, the unchanged NativeUI SDK and no live owned candidate mappings.
+Broader browser controls, geometry/scales, accessibility, recovery, complete
+menus/shortcuts, derivatives/deployment and subsequent GTK/Qt/KDE work remain
+unfinished.

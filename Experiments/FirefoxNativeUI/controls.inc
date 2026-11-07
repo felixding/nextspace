@@ -6,6 +6,7 @@
 struct GeckoError {uint32_t result,padding;uint64_t extra;};
 _Static_assert(sizeof(struct GeckoError)==16,"Pinned release ErrorResult ABI");
 static void clear_text_error(struct GeckoError *);
+#include "../../Libraries/NativeUI/Bridge/ControlActions.inc"
 struct Widget {
   struct Widget *next;
   void *frame,*node;
@@ -31,7 +32,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
-static int radio_groups_enabled,radio_labels_enabled;
+static int radio_groups_enabled,labels_enabled;
 static int multiline_enabled;
 static int multiline_viewport_enabled;
 static int wheel_enabled;
@@ -43,7 +44,7 @@ static unsigned widget_pointer_capabilities;
 static pid_t widget_pid;
 static uint64_t next_widget;
 static struct Widget *widgets,*active_widget;
-static struct {void *event,*node;uint64_t control;int allowed,radio;} click_gate;
+static struct {void *event,*node;uint64_t control;int allowed,radio;struct NXSControlAction action;} click_gate;
 static struct {void *node,*context;uint64_t control;int active;} radio_pointer_source;
 static double preferred_width[4],preferred_height[4];
 static __thread int metric_probe;
@@ -375,6 +376,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
         click_gate.event=event;click_gate.node=w->node;click_gate.control=w->id;
         click_gate.radio=w->kind==NXS_RADIO&&radio_groups_enabled;
         click_gate.allowed=response&&!response->parts[0].y&&response->parts[0].width>w->actions;
+        native_control_action_snapshot(response,w->actions,&click_gate.action);
       }
       if(w->kind==NXS_RADIO&&radio_groups_enabled&&!radio_origin) {
         radio_origin=w->node;radio_control=w->id;
@@ -423,6 +425,11 @@ static uint32_t click_events(void *self,void *shell,void *event,int *status,void
   if(click_gate.event==event&&!click_gate.allowed&&(click_gate.node==target||
      (html_button_node(click_gate.node)&&target&&((int (*)(const void *,const void *))(base+NXS_GECKO_HTML_BUTTON_DESCENDANT_OFFSET))(target,click_gate.node)))) {
     note("native Gecko gesture cancelled activation");return 0;
+  }
+  struct Widget *w=click_gate.event==event?widget_for_node(click_gate.node):NULL;
+  if(w&&w->id==click_gate.control&&w->kind==NXS_CHECKBOX&&target==w->node&&click_gate.allowed) {
+    struct NXSCheckboxActivation previous=native_checkbox_enter((uintptr_t)w->node,w->id,click_gate.action);
+    uint32_t result=original_click_events(self,shell,event,status,target,override);native_checkbox_activation=previous;return result;
   }
   return original_click_events(self,shell,event,status,target,override);
 }
@@ -510,6 +517,7 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
   response=exchange_bytes(request,size);free(request);free(text);
   if(!response)return original(node,visitor);
   int handled=response->parts[3].x,activate=response->parts[0].width>actions;
+  struct NXSControlAction checkbox_action;native_control_action_snapshot(response,actions,&checkbox_action);
   if(w->kind==NXS_SLIDER)w->range_keypress=handled==NXS_INPUT_UNHANDLED;
   invalidate_widget(w);drain_widget_notifier();
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS) {
@@ -518,7 +526,10 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
   if(activate) {
     if(w->kind==NXS_SLIDER){range_key_action(node,response,1);return 0;}
     note("native Gecko keyboard action invokes real engine click");
+    struct NXSCheckboxActivation previous=native_checkbox_activation;
+    if(w->kind==NXS_CHECKBOX)native_checkbox_enter((uintptr_t)node,w->id,checkbox_action);
     ((uint32_t (*)(void *,int,void *))(base+0x58ce09c))(node,1,*(void **)visitor);
+    native_checkbox_activation=previous;
   }
   return 0;
 }
@@ -564,7 +575,8 @@ static void active_shell(void *shell,int active) {
 }
 #include "buttons.inc"
 #include "radios.inc"
-#include "radio-labels.inc"
+#include "checkbox-activation.inc"
+#include "form-labels.inc"
 #include "ranges.inc"
 #include "text.inc"
 #include "viewport.inc"
@@ -592,7 +604,7 @@ static void prepare_widget_metrics(void) {
   const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);
-  radio_labels_enabled=radio_groups_enabled&&((unsigned)response->parts[4].y&4);
+  labels_enabled=widgets_enabled&&((unsigned)response->parts[4].y&4);
   prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");

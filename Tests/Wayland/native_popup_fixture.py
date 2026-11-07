@@ -1,5 +1,5 @@
 """Shared native popup reference, seat-input and geometry checks for owned browsers."""
-import ctypes as C,json,socket,sys,time
+import ctypes as C,json,socket,sys,time,math
 from pathlib import Path
 from PIL import Image,ImageChops
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Experiments/ChromiumScrollers'))
@@ -38,7 +38,8 @@ class PopupFixture:
   name=(label or identifier)+('-focused' if focused else '-normal')
   reply=self.command('reference '+json.dumps(dict(name=name+'-reference',controls=[data],focus=focused)))
   expected=Image.open(Path(reply['path'])/(identifier+'.png')).convert('RGBA');canvas=Image.new('RGBA',expected.size,'white');canvas.alpha_composite(expected);expected=canvas.convert('RGB');expected.save(self.root/(name+'-expected.png'))
-  x,y=round(data['screen'][0]+data['rect']['x']),round(data['screen'][1]+data['rect']['y'])
+  # Paint origins snap to the nearest device pixel; Python round uses ties-to-even.
+  x,y=[math.floor(data['screen'][i]+data['rect'][axis]+.5) for i,axis in enumerate(['x','y'])]
   def compared():
    actual=self.image(name).crop((x,y,x+expected.width,y+expected.height));actual.save(self.root/(name+'-actual.png'))
    return ImageChops.difference(actual,expected).getbbox() is None

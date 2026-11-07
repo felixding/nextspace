@@ -5,12 +5,14 @@
 #include "pinned-multiline.h"
 #include "pinned-multiline-scroll.h"
 #include "../../Libraries/NativeUI/NativeUI.h"
+#include "../../Libraries/NativeUI/Bridge/ControlActions.inc"
 struct NativeForm {
   struct NativeForm *next;
   void *node;
   uint64_t control;
   uint32_t radio_owner,radio_member;
   unsigned radio_clicks;
+  struct NXSControlAction checkbox_action;
   struct NXSRectD radio_rect;
   int kind,enabled,state,painted,input_owned,indeterminate;
   struct Rect rect;
@@ -52,7 +54,7 @@ static int form_click_allowed;
 static uint64_t form_click_time;
 static int forms_available;
 static int forms_input_enabled;
-static int forms_radio_groups_enabled,forms_radio_labels_enabled;
+static int forms_radio_groups_enabled,forms_labels_enabled;
 static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
@@ -305,6 +307,7 @@ static void finish_form(double x,double y,unsigned modifiers) {
     struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);
     response=form_request(form,5,0,0,0);
   }
+  native_control_action_snapshot(response,form->actions_before,&form->checkbox_action);
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
   if(form->kind==NXS_POPUP){click_form=NULL;popup_after_input(form,response);refresh_form_watch();return;}
   if(form->kind==NXS_SLIDER){
@@ -450,11 +453,15 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
 static int dom_dispatch(void *dispatcher) {
   void *node=*(void **)dispatcher,*event=*((void **)dispatcher+1);
   uintptr_t atom=*(const uintptr_t *)((const char *)event+24);
+  struct NXSCheckboxActivation previous_checkbox=native_checkbox_activation;int checkbox_scope=0;
   if((*(const unsigned short *)((const char *)event+32)&0x100)&&click_form) {
     uint64_t stamp=*(const uint64_t *)((const char *)event+88);
     if(same_atom(atom,0x123a5608))form_click_time=stamp;
     if(same_atom(atom,0x123a5590)&&stamp==form_click_time&&form_ancestor(node)==click_form) {
-      int allowed=form_click_allowed;click_form=NULL;
+      struct NativeForm *source=click_form;int allowed=form_click_allowed;click_form=NULL;
+      if(allowed&&source->kind==NXS_CHECKBOX) {
+        previous_checkbox=native_checkbox_enter(radio_node_id(source->node),source->control,source->checkbox_action);checkbox_scope=1;
+      }
       if(!allowed){note("native form cancelled activation");return 3;}
     }
   }
@@ -468,6 +475,7 @@ static int dom_dispatch(void *dispatcher) {
   form_key_event=keyboard_form?event:NULL;
   form_key_control=keyboard_form?keyboard_form->control:0;
   int result=original_dom_dispatch(dispatcher);
+  if(checkbox_scope)native_checkbox_activation=previous_checkbox;
   form_key_node=previous_node;form_key_event=previous_event;
   form_key_control=previous_control;
   return result;
@@ -485,9 +493,10 @@ static void element_detach(void *node,int reattach) {
   }
   original_element_detach(node,reattach);
 }
+#include "checkbox-activation.inc"
 #include "forms-input.inc"
 #include "forms-radios.inc"
-#include "radio-labels.inc"
+#include "form-labels.inc"
 #include "forms-sliders.inc"
 #include "forms-layout.inc"
 #include "forms-buttons.inc"
@@ -509,16 +518,16 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_radio_labels_enabled||prepare_detours(radio_label_detours,sizeof(radio_label_detours)/sizeof(*radio_label_detours)))&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
-  (!forms_input_enabled||prepare_form_input())&&
+static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_labels_enabled||prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours)))&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+  (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
   (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
   (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}
-static void activate_forms(void){if(forms_radio_labels_enabled)activate_detours(radio_label_detours,sizeof(radio_label_detours)/sizeof(*radio_label_detours));activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
-  if(forms_input_enabled)activate_form_input();
+static void activate_forms(void){if(forms_labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
+  if(forms_input_enabled){activate_form_input();activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));}
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));

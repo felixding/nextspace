@@ -173,6 +173,7 @@ static int default_form_key(void *node,void *event) {
   free(text);free(unmodified);
   if(!response){*flags|=0x40;note("native keyboard transport unavailable; action cancelled");return 1;}
   int result=response->parts[3].x,action=response->parts[0].width>before;
+  struct NXSControlAction checkbox_action;native_control_action_snapshot(response,before,&checkbox_action);
   invalidate_form(form);
   if(form->kind==NXS_POPUP){
     if(result==NXS_INPUT_NEXT||result==NXS_INPUT_PREVIOUS)advance_form_focus(node,event,result);
@@ -186,7 +187,12 @@ static int default_form_key(void *node,void *event) {
     /* Native action, real trusted application activation. Chrome retains
      * preactivation, event cancellation, form submission and model rollback. */
     if(form->kind==NXS_SLIDER)apply_slider_value(form,response,3);
-    else ((void (*)(void *,const void *,int))(base+0xdd1402c))(node,event,1);
+    else {
+      struct NXSCheckboxActivation previous=native_checkbox_activation;
+      if(form->kind==NXS_CHECKBOX)native_checkbox_enter(radio_node_id(node),form->control,checkbox_action);
+      ((void (*)(void *,const void *,int))(base+0xdd1402c))(node,event,1);
+      native_checkbox_activation=previous;
+    }
     *flags|=0x40;
     note("native keyboard action applied");
   }

@@ -597,6 +597,22 @@ the original engine still constructs the forwarded event and owns DOM rollback.
 The optional NativeUI extension also supports original NSButton performClick:
 for later adapters. No label association, widget state machine or native control
 is duplicated. See [label qualification](../Experiments/FirefoxNativeUI/radio-label-qualification.json).
-Non-radio label bindings and the previously listed browser integration gaps
-remain unfinished. Future requested browser UI changes use optional per-app
-patches over the same shared library and bridge.
+The form activation checkpoint below adds non-radio labels; the previously
+listed broader browser integration gaps remain unfinished. Future requested
+browser UI changes use optional per-app patches over the shared library and bridge.
+
+
+The pinned browser adapters also bind checkbox/button labels through this same
+semantic operation. Shared `Bridge/ControlActions.inc` carries native action
+state and host/source identity; it defines no control behavior. Each engine
+uses its original preactivation journal and setters to apply the actual native
+checkbox state, preserving original trusted events, application writes and
+checked/mixed cancellation rollback. This fixes a verified divergence for
+initially checked mixed checkboxes. Original submit/reset actions and label
+filtering remain intact. See [form activation qualification](../Experiments/FirefoxNativeUI/form-activation-qualification.json).
+
+The existing 528-byte NativeUI provider/loader/shim remains unchanged. All
+widget behavior and rendering stay in the single underlying UI library.
+Toolbar/address-bar/tab changes, if requested later, are optional per-app
+patches above that shared layer; they are outside the current webpage-control
+work. This separation applies equally to subsequent GTK and Qt/KDE adapters.

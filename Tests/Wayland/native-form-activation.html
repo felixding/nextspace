@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>Native form activation</title>
+<style>body{margin:30px;background:white;color:black;font:16px sans-serif}label{display:inline-block;margin:0 12px}input[type=checkbox]{margin:3px 8px 3px 3px}button,input{vertical-align:middle}</style>
+<form id="form"></form>
+<script>
+window.events=[];window.submits=0;window.resets=0;window.actions=0;
+function configure(kind,checked=false,mixed=false){
+ const control=kind==='button'?'<button id="control" type="button">Native button</button>':kind==='checkbox'?'<input id="control" type="checkbox">':'<input id="control" type="'+(kind==='button-input'?'button':kind)+'" value="Native button">';
+ form.innerHTML='<label id="label" for="control"><span id="label-text">Native control</span></label>'+control;
+ const e=document.getElementById('control');e.checked=checked;e.indeterminate=mixed;
+ if(kind==='reset')form.insertAdjacentHTML('beforeend','<input id="reset-target" value="Original">');
+ if(kind==='button'||kind==='button-input')e.onclick=()=>window.actions++;
+ if(kind==='button-input')e.type='button';
+ window.events=[];window.submits=window.resets=window.actions=0;
+}
+form.addEventListener('submit',e=>{e.preventDefault();window.submits++});
+form.addEventListener('reset',e=>window.resets++);
+for(const type of ['click','input','change','keydown','keyup','focusin','focusout'])document.addEventListener(type,e=>{
+ const c=document.getElementById('control');events.push({type,id:e.target.id,trusted:e.isTrusted,key:e.key,kind:e.constructor.name,pointerType:e.pointerType,detail:e.detail,checked:c.checked,mixed:c.indeterminate});
+},true);
+</script>
