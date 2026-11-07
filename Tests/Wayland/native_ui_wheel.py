@@ -122,6 +122,7 @@ try:
     js('document.querySelector("label").append(__removed);true');seed()
     ab('screenshot','--screenshot-dir',str(out/'reinserted'))
     control(f'pointer {x} {y}');control('scroll 1')
-    check('reinserted-control-rebinds-native-region',wait(state,lambda s:s['top']!=200)['top']==300)
+    reinserted=wait(state,lambda s:s['top']!=200)
+    check('reinserted-control-rebinds-native-region',reinserted['top']==300,state=reinserted)
     print(json.dumps(dict(passed=len(rows),output=str(out))))
 finally:ab('close')

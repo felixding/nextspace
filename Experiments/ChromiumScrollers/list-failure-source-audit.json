@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "99f1c879",
+  "status": "pinned-chromium-list-refresh-crash-and-native-layout-recovery-qualified-broader-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/forms.inc": "1864c385a3f64c9532fe0a37f5731699836a220dd28a611f3a3e9779b0d22ce9",
+    "Experiments/ChromiumScrollers/forms-buttons.inc": "583c13167e5d3a7e8d5de2691fb9b032a690b7365a9660f01eb7be4e084b8ed3",
+    "Experiments/ChromiumScrollers/forms-layout.inc": "c2076eae0f7b7342474f9af172dcd392ffda6bd792d79f4bbec31a8bc3d8276c",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "23d6d1c91f4a90a6c0b15a9396062ef7fe82ed6c2cc7f862c3be7fabbc85b29a",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "8d17ec83554f86799b50ff23c8935d54a6398e2dc57b244eb6c3979bb85fa2b0",
+    "Experiments/ChromiumScrollers/forms-text.inc": "add5cfc8a80ee7f5940d9852f7ab269ffe33fc6c79faf191baa2112564ef1f94",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "5bde8eeef8a61f04bf233982ce9fb4d394b743e9e33755c00383ffaf17fa49f0",
+    "Experiments/ChromiumScrollers/check-lists.py": "a7604b16fc8d0f9c1ec79f119723b1f57ae30258e1623a21ff4e07a2b0711463",
+    "Experiments/ChromiumScrollers/README.md": "03b8e9249e8a0e6d56f2ea1d9bcf03b70f697d4492da5fa53895b619bc0eea3e",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "80cdbddcaf403eb6e32a8e716930a155d8efe18610e4f49ca8b373ab9f5223fe",
+    "Tests/Wayland/chromium_cdp_pipe.py": "4bfb6dd01867a9adc3a59ef1dea3604efe54eededb87bd8b146a1e57c093cf42",
+    "Tests/Wayland/native_ui_fault_helper.py": "9611736af2580f000d60536027d00bdefbfc64c155f643305014ab16ea89a9a7",
+    "Tests/Wayland/native_list_failure.py": "3becd76583f882a7d1255f59e32dc3f70464a9ec8a8844fae907648feb1b558a",
+    "Tests/Wayland/native_ui_wheel.py": "38be2fa1f207a494081b49e94ee4648b61e985672e1d9565d2ef56b0b3678dea",
+    "docs/Native-Control-Integration.md": "8ae64a484e7c8682c80378e4f02ea183867a47faac78db3ee35f0b567030447b"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/chromium-list-crash-source/resolve.py",
+      "bytes": 1010,
+      "sha256": "12c29f4041df015a8dcc65134b9d922d13b889f953f8e30c783cf66ba0b5d7c5"
+    },
+    {
+      "path": ".build/native-ui/chromium-list-crash-source/minidump_cpu_arm64.h",
+      "bytes": 7676,
+      "sha256": "20d9c1a007812291624fe009590530c581b713655a0080665ad06d736eded1c6"
+    },
+    {
+      "path": ".build/native-ui/chromium-list-crash-source/source.json",
+      "bytes": 558,
+      "sha256": "61716e9605c2fd7d96f546edaf1e7a4b6feb8b8824e7f5ae42290b78ef16cf0c"
+    },
+    {
+      "path": ".build/native-ui/chromium-list-crash-source/minidump_format.h",
+      "bytes": 46164,
+      "sha256": "18c0ab57f51d9329d27404170664e66fb63429d275ad828c9fda098b3fb21ed3"
+    }
+  ],
+  "existing_guard_headers": [
+    "Experiments/ChromiumScrollers/pinned-layout.h",
+    "Experiments/ChromiumScrollers/pinned-text.h",
+    "Experiments/ChromiumScrollers/pinned-multiline-scroll.h"
+  ],
+  "invariants": [
+    "List layout failure cannot enter text-only synchronization. The actual semantic DOM kind is checked before an original text getter is called.",
+    "The existing deferred original engine layout scheduler/invalidator is shared by button metrics and list recovery. List retries are coalesced per control, and clear on ownership release. No NSScrollView or selection/scroll/layout implementation is added.",
+    "The fault helper runs the real NativeControlServer/GUI provider. It rejects one specifically armed owned state request and otherwise delegates to the real server. Complete native images and DOM geometry use independent native references.",
+    "Owned crash metadata is matched by process ID and fixture time window before copying/reading its full dump. The minidump parser uses official Breakpad layouts. Raw PAC-bearing return values remain retained alongside only module-matching canonical candidates.",
+    "The CDP test transport records notifications and request method/ID metadata. Failed wheel reinsertion evidence remains separate from passing qualification; no assertion is weakened to accept a different native offset.",
+    "Browser and UI binaries are not rebuilt. The shared native library remains ABI 1/584. Future GTK/Qt/KDE consumers reuse it; browser toolbar/address bar/tabs remain unchanged."
+  ],
+  "existing_guard_header_sha256": {
+    "Experiments/ChromiumScrollers/pinned-layout.h": "882695affc25f2eb5adc8a78472b6b1cc23dd5cda2f18b1a8fdd121d72827dc5",
+    "Experiments/ChromiumScrollers/pinned-text.h": "a6cc1b9eae80a7f6970f9f91f734ccebb8f179eb68a40a8f5738071e7d5a3a59",
+    "Experiments/ChromiumScrollers/pinned-multiline-scroll.h": "e8727355ba4414f5b51936b94874a9f829b2a97244e868f838281568d05481a2"
+  }
+}

@@ -7,7 +7,19 @@ static int (*original_form_inline_size)(const void *);
 static int (*original_form_block_size)(const void *,int);
 static int native_button_preferred(const void *,const void *,struct SizeI *);
 static int popup_preferred(void *,const void *,struct SizeI *);
-static __thread int native_button_size_work_pending;
+static __thread int native_layout_work_pending;
+static void native_layout_changed(struct NativeForm *form) {
+  form->layout_pending=1;native_layout_work_pending=1;
+  if(current_controller)((void (*)(void *))(base+NXS_LAYOUT_SCHEDULE_OFFSET))(current_controller);
+}
+static void native_layout_work(void) {
+  if(!native_layout_work_pending)return;native_layout_work_pending=0;
+  for(struct NativeForm *form=native_forms;form;form=form->next) {
+    if(!form->layout_pending)continue;form->layout_pending=0;
+    void *layout=decode_member((char *)form->node+48);
+    if(layout)((void (*)(void *,const char *))(base+NXS_LAYOUT_INVALIDATE_OFFSET))(layout,"Native control geometry changed");
+  }
+}
 static int native_layout_unit_scale(const void *node,const void *layout) {
   if(!node||!layout||decode_member((const char *)node+48)!=layout||!(*((const unsigned char *)layout+22)&32))return 0;
   /* Read the audited zoom storage. The DOM currentCSSZoom getter flushes

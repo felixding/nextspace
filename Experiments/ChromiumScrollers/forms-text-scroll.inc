@@ -79,6 +79,9 @@ static int restore_text_viewport(struct NativeForm *form) {
   form->text_epoch=atomic_load(&native_host_epoch);return 1;
 }
 static int sync_multiline_layout(struct NativeForm *form,const void *area) {
+  /* A rejected native list refresh falls back through this common scroll
+   * boundary. Lists must never enter HTMLInputElement/textarea model access. */
+  if(form->kind!=NXS_TEXTAREA||input_form_kind(form->node)!=NXS_TEXTAREA)return 0;
   if(multiline_syncing||form->text_tracking||
      (text_transaction&&text_transaction->node==form->node))return form->text_geometry_ready;
   multiline_syncing=1;

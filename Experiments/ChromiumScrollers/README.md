@@ -1018,3 +1018,31 @@ along with broader option/layout APIs, intrinsic sizing, held scrollers,
 recovery, models/styles, scales/accessibility, derivatives/deployment and the
 Firefox viewport/target port. Browser toolbar/address bar/tabs retain their
 components; future UI changes remain app-specific patches over the shared layer.
+
+
+### Native list refresh failures
+
+A temporary native list-state rejection now remains in the list/engine fallback
+path. It cannot enter textarea layout or call HTMLInputElement's text getter on
+a select. Text model access validates the actual semantic kind. When native
+measurements recover, lists reuse the existing deferred native-control layout
+queue also used for button preferred-size changes. The original engine layout
+invalidator removes temporary engine scrollbars before the complete native
+control resumes. No control or layout algorithm is duplicated.
+
+The test fixture accepts an optional --control-helper for an isolated real-host
+fault wrapper. Tests/Wayland/native_ui_fault_helper.py rejects one armed list
+state request, while retaining actual GNUstep controls and all other messages.
+Run check-lists.py --native-failure --only-list with that fixture to exercise
+single/multiple recovery, full native pixels, DOM viewport geometry and original
+trusted native navigation. The CDP pipe retains notifications and request
+metadata, including target crashes. It does not log evaluated scripts or image
+response bodies.
+
+See [failure qualification](list-failure-qualification.json) and
+[source audit](list-failure-source-audit.json). This resolves the measured
+renderer crash from the Firefox metadata compatibility checkpoint. A separate
+textarea reinsertion wheel check still observes a few pixels of scroll drift
+in candidate runs; the unchanged previous adapter passed one comparison run.
+Its cause remains open, as do broader recovery/scaling and the full browser
+integration goal. Toolbar, address bar and tabs retain their existing components.

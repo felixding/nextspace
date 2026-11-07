@@ -9,6 +9,7 @@ parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fixtu
 parser.add_argument('--ordinary-probe',type=Path,required=True)
 parser.add_argument('--only-list',action='store_true',help='Focus the only control during parsing, before first paint')
 parser.add_argument('--scroll',action='store_true',help='Qualify native overflowing list layout and scroll ownership')
+parser.add_argument('--native-failure',action='store_true',help='Reject one armed native list layout state request')
 parser.add_argument('--hit-targets',action='store_true',help='Also require native row identities for original DOM pointer targets')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
@@ -45,6 +46,9 @@ try:
  if options.scroll:
   from native_list_scroll import run as run_scroll
   run_scroll(fixture)
+ elif options.native_failure:
+  from native_list_failure import run as run_failure
+  run_failure(fixture)
  else:run(fixture)
  trace=(root/'hook.log').read_text()
  parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native-list ',line)]

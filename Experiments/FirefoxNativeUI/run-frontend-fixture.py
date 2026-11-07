@@ -16,6 +16,7 @@ parser.add_argument('--library',type=Path,required=True)
 parser.add_argument('--hook',type=Path,required=True)
 parser.add_argument('--backend',required=True)
 parser.add_argument('--theme',help='Use the same explicit GNUstep theme for the native host and references')
+parser.add_argument('--control-helper',type=Path,help='Use an alternative control host for owned fault-injection tests')
 parser.add_argument('--capture-probe',type=Path,required=True)
 parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--export-menus',action='store_true',help='Enable Firefox menu export on a private test bus; requires the app-menu Wayland protocol')
@@ -76,7 +77,8 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   services.enter_context(pasteboard_storage(Path('/Library/bin/gpbs-wayland'),a.library.resolve().parent/'native-ui/native-pasteboard-probe',env,out))
   endpoint=runtime/'native.sock'
   (out/'native-endpoint.json').write_text(json.dumps(dict(path=str(endpoint)))+'\n')
-  helper_args=['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/helper.py'),'--library',str(a.library.resolve()),'--socket',str(endpoint),'-GSBackend',a.backend]
+  helper_script=a.control_helper or Path(__file__).resolve().parent.parent/'ChromiumScrollers/helper.py'
+  helper_args=['python3',str(helper_script.resolve()),'--library',str(a.library.resolve()),'--socket',str(endpoint),'-GSBackend',a.backend]
   if a.theme:helper_args+=['-GSTheme',a.theme]
   if a.shared_menus:
    menu_parent,menu_child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);menu_parent.settimeout(8)

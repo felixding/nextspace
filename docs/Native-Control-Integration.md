@@ -726,3 +726,15 @@ and page scrolling use the original engine event path. See
 A small shared transport extension pairs existing native row/state measurements;
 it adds no control implementation or native ABI. GTK/Qt/KDE consumers will reuse
 that shared layer, with patches only for app-specific integration.
+
+
+The isolated Chromium renderer loss recorded during Firefox list qualification
+is now traced to a native-list failure entering a text-only fallback. A retained
+owned renderer dump and deterministic one-request rejection reproduce the same
+invalid HTMLInputElement getter. Explicit semantic-kind gates prevent that route.
+Native recovery also reuses the original deferred layout invalidation already
+used for buttons, retiring temporary engine scrollbars without duplicating UI.
+See [failure qualification](../Experiments/ChromiumScrollers/list-failure-qualification.json).
+A newly observed textarea reinsertion wheel drift remains open and is excluded
+from this checkpoint's passing totals. The full browser-then-GTK/Qt/KDE scope
+remains active, using the shared native library and optional app-specific patches.

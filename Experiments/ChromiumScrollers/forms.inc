@@ -39,7 +39,7 @@ struct NativeForm {
   int text_geometry_ready;
   double preferred_width,preferred_height;
   void *button_style;
-  int button_size_pending;
+  int layout_pending,list_layout_retry;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};

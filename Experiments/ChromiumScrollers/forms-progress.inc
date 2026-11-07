@@ -112,7 +112,7 @@ static void schedule_form_paint(struct NativeForm *form) {
   if(view)((void (*)(void *))(base+0xdf93618))(view);
 }
 static void form_native_work(void *controller) {
-  native_button_size_work();
+  native_layout_work();
   if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return;
   pthread_mutex_lock(&form_watch.mutex);
   int ready=form_watch.running&&form_watch.pending&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());

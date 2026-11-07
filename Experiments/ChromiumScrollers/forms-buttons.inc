@@ -18,16 +18,7 @@ static void native_button_size_changed(struct NativeForm *form,const struct NXSR
   void *layout=decode_member((char *)form->node+48),*style=layout?decode_member((char *)layout+32):NULL;
   if(form->preferred_width==width&&form->preferred_height==height&&form->button_style==style)return;
   form->preferred_width=width;form->preferred_height=height;form->button_style=style;
-  form->button_size_pending=1;native_button_size_work_pending=1;
-  if(current_controller)((void (*)(void *))(base+NXS_LAYOUT_SCHEDULE_OFFSET))(current_controller);
-}
-static void native_button_size_work(void) {
-  if(!native_button_size_work_pending)return;native_button_size_work_pending=0;
-  for(struct NativeForm *form=native_forms;form;form=form->next) {
-    if(!form->button_size_pending)continue;form->button_size_pending=0;
-    void *layout=decode_member((char *)form->node+48);
-    if(layout)((void (*)(void *,const char *))(base+NXS_LAYOUT_INVALIDATE_OFFSET))(layout,"Native control preferred size changed");
-  }
+  native_layout_changed(form);
 }
 static void native_button_model_changed(void *node,uint64_t control) {
   struct NativeForm *form=find_form(node);

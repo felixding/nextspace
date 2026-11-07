@@ -1,0 +1,430 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "99f1c879",
+  "status": "pinned-chromium-list-refresh-crash-and-native-layout-recovery-qualified-broader-integration-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 584,
+  "shared_ui_unchanged": true,
+  "candidate_files": {
+    "adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-failure-02-hook.so",
+      "bytes": 235432,
+      "sha256": "344f51d650be6994d60bab53b4f2889bd2fdec418cea073c75f6dc0b25926063"
+    },
+    "prototype": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-failure-01-hook.so",
+      "bytes": 235440,
+      "sha256": "b22c0714fb3709c11af2c69180d67ed28acfc5dbb6fa33b710af4ba153905ab4"
+    },
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-failure-02-repro.so",
+      "bytes": 235432,
+      "sha256": "344f51d650be6994d60bab53b4f2889bd2fdec418cea073c75f6dc0b25926063"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_point_hits": {
+        "path": "/var/tmp/nxs-chromium-list-failure-03",
+        "results_file": "list-scroll-results.json",
+        "checks": 40,
+        "native_images": 12,
+        "sha256": "bf5736a896ae39c67925b8d0496c016280ae756d2baeefd376f5344c6bfaeddb"
+      },
+      "flat_list": {
+        "path": "/var/tmp/nxs-chromium-list-failure-03",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "53442f029c0ab8a49f955bb13d7ab107cc3be8bad258fe87ea80d8aab3a40825"
+      },
+      "form": {
+        "path": "/var/tmp/nxs-chromium-list-failure-03",
+        "results_file": "form-results.json",
+        "checks": 101,
+        "native_images": 28,
+        "sha256": "9712c1f163d1c9de490e70a07084e6b86c730fd14117db0ac4256e658f18f77e"
+      },
+      "radio": {
+        "path": "/var/tmp/nxs-chromium-list-failure-03",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "4c756651bfe2fa3e356dbebfee74de909cc9ae9e517b93225cad413f1d8d8863"
+      },
+      "popup": {
+        "path": "/var/tmp/nxs-chromium-list-failure-03",
+        "results_file": "popup-results.json",
+        "checks": 66,
+        "native_images": 27,
+        "sha256": "7f01935590cbb3c1b09221a5ce051836150b243c688ea3a8c5b10fd9130f5ecf"
+      },
+      "button_text": {
+        "path": "/var/tmp/nxs-chromium-list-failure-03",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "native_layout_rejection": {
+        "path": "/var/tmp/nxs-chromium-list-failure-05",
+        "results_file": "list-results.json",
+        "checks": 15,
+        "native_images": 4,
+        "sha256": "afe455f394464f3fcb95c3412e7e8cfb4a51c0dc809fd2fa09ebff3f009bd62d"
+      },
+      "textarea_viewport": {
+        "path": "/var/tmp/nxs-chromium-list-failure-06/textarea-viewport",
+        "results_file": "results.json",
+        "checks": 25,
+        "native_images": 8,
+        "sha256": "09e3876912973347345b6df042639206318ff50240f589c1f0c99da2555fb2ad"
+      },
+      "previous_568": {
+        "path": "/var/tmp/nxs-chromium-list-failure-old-568",
+        "results_file": "fallback-results.json",
+        "checks": 4,
+        "native_images": 0,
+        "sha256": "0440e00b5fc748480c0db422cf6d8fedd20245f6e84d9d6780d442fb0c9c4ea6"
+      },
+      "previous_576": {
+        "path": "/var/tmp/nxs-chromium-list-failure-old-576",
+        "results_file": "fallback-results.json",
+        "checks": 4,
+        "native_images": 0,
+        "sha256": "28dc834fd21d74ad37f7b121e0db68da15e5cadc69c8eea4aa64267e002484c9"
+      }
+    },
+    "scoped_checks": 490,
+    "complete_native_images": 169,
+    "browser_scale": 1,
+    "shared_provider_regressions_rerun": false
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "api": {
+      "version": 1,
+      "size": 584
+    },
+    "sandbox": [
+      {
+        "pid": 202008,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 202020,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 202021,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "live_owned": []
+  },
+  "resolved_failure": {
+    "original_dump": {
+      "path": "/var/tmp/nxs-chromium-list-crash-01/dd974d62-4c8c-4bc0-b7d7-865128063896.dmp",
+      "bytes": 160160,
+      "sha256": "d6f5c08920df417a9dadf62f16a37ae84b9e7187a63ec2a288911b4665d9e659"
+    },
+    "parsed_dump": {
+      "path": "/var/tmp/nxs-chromium-list-crash-01/parsed.json",
+      "bytes": 22408,
+      "sha256": "437e27e29518152ded76ebf136a40ad3434911d433769324d6697fa8f6d1f909"
+    },
+    "symbols": {
+      "path": "/var/tmp/nxs-chromium-list-crash-01/symbols.json",
+      "bytes": 4721,
+      "sha256": "885122dd8ddd5ee4f4e7402e93e367321f6a8a6d621fe339de41190697922098"
+    },
+    "owned_process": {
+      "pid": 199264,
+      "path": "/var/tmp/nxs-chromium-list-crash-01/dd974d62-4c8c-4bc0-b7d7-865128063896.dmp",
+      "source": "/home/felixding.guest/.config/chromium/Crash Reports/pending/dd974d62-4c8c-4bc0-b7d7-865128063896.dmp",
+      "bytes": 160160
+    },
+    "baseline_crash_notification": {
+      "event": "notification",
+      "time": 148692.142421545,
+      "notification": {
+        "method": "Target.targetCrashed",
+        "params": {
+          "targetId": "B4D0405CA77824F3C722598A23F397E6",
+          "status": "crashed",
+          "errorCode": 11
+        }
+      }
+    },
+    "successful_rejections": [
+      {
+        "event": "test-native-control-rejection",
+        "process": 2797878938,
+        "control": 6,
+        "kind": 13,
+        "operation": 49
+      },
+      {
+        "event": "test-native-control-rejection",
+        "process": 2797878938,
+        "control": 7,
+        "kind": 13,
+        "operation": 49
+      },
+      {
+        "event": "test-native-control-rejection",
+        "process": 2797878938,
+        "control": 8,
+        "kind": 13,
+        "operation": 49
+      }
+    ],
+    "explanation": "A rejected list layout refresh fell through to text-only synchronization and called HTMLInputElement::Value on a select. Explicit kind gates prevent that cast; deferred original layout invalidation retires temporary engine scrollbars after native recovery."
+  },
+  "open_observations": {
+    "candidate_06": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-list-failure-06/textarea-wheel/results.json",
+        "bytes": 14677,
+        "sha256": "3d9a47d1081c38429e69442897f5a0ab6be3bd06ff71f8969aa0aac5f66aa141"
+      },
+      "checks": 27,
+      "failed": [
+        {
+          "case": "reinserted-control-rebinds-native-region",
+          "passed": false
+        }
+      ]
+    },
+    "candidate_07": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-list-failure-07/textarea-wheel/results.json",
+        "bytes": 15337,
+        "sha256": "66ada8492e21c4ac86b7d8b5ea32e8093ee7eb2aae6100d218a06e249623ee86"
+      },
+      "checks": 27,
+      "failed": [
+        {
+          "case": "reinserted-control-rebinds-native-region",
+          "passed": false,
+          "state": {
+            "top": 207,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [],
+            "scroll": []
+          }
+        }
+      ]
+    },
+    "prior_adapter_08": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-list-failure-08/textarea-wheel/results.json",
+        "bytes": 15336,
+        "sha256": "6f464f034e3c688f24cb55f01e167f7e80c32096d99c07d62f5d712d264c7426"
+      },
+      "checks": 27,
+      "failed": []
+    },
+    "zoom": {
+      "engine": "chromium",
+      "state": {
+        "top": 72.80000305175781,
+        "left": 0,
+        "height": 360,
+        "width": 227,
+        "clientWidth": 227,
+        "clientHeight": 122,
+        "clientLeft": 17,
+        "clientTop": 2,
+        "start": 0,
+        "end": 0,
+        "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29",
+        "events": [
+          {
+            "top": 73,
+            "trusted": true
+          },
+          {
+            "top": 72.80000305175781,
+            "trusted": true
+          }
+        ],
+        "rect": {
+          "x": 42,
+          "y": 24,
+          "width": 307,
+          "height": 157,
+          "top": 24,
+          "right": 349,
+          "bottom": 181,
+          "left": 42
+        }
+      },
+      "qualification": "open: Firefox clientLeft=2 assertion is engine-specific"
+    }
+  },
+  "cleanup": {
+    "nxs-chromium-list-failure-01": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-02": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-03": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-04": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-05": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-06": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-07": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-08": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-baseline-01": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-old-568": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-failure-old-576": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    },
+    "nxs-chromium-list-lifecycle-01": {
+      "exits": [
+        0,
+        -15,
+        0
+      ],
+      "capture_exit": -15
+    }
+  },
+  "source_audit": "list-failure-source-audit.json",
+  "observations": [
+    "The original renderer dump process ID 199264 matches the failed fixture ancestry and report time window. Its SIGSEGV/11 at null is inside pinned HTMLInputElement::Value() const (+0x40). The captured frame chain returns through the old adapter text_model, sync_text_form and multiline_bars. Raw and module-matched PAC-stripped addresses are retained.",
+    "The unchanged adapter deterministically crashes with Target.targetCrashed errorCode 11 after one real native list-state request is rejected during layout. The fixed candidate handles three actual rejected requests in single, multiple and single-again controls, restores complete native images and DOM native viewport geometry, and retains original trusted navigation events: 15 checks/4 images.",
+    "The first kind-gated prototype survived rejection but exposed a leftover original scrollbar after native recovery. Generalizing the existing button preferred-size layout queue lets lists request the same original engine invalidation once after measurements recover. All drawing, selection, scroll bounds and key behavior remain in the unchanged shared native UI library.",
+    "Final candidate passes native list point/scroll 40/12, flat list 34/13, form activation 101/28, radio 94/29, popup 66/27 and button/text 107/48. Native textarea viewport assertions pass 25/8; the Firefox-specific unsupported-zoom clientLeft=2 assertion was not portable to Chromium and is explicitly excluded, with the observed Chromium state retained. Both actual earlier API 1/568 and 1/576 fallbacks pass four checks.",
+    "Scoped passing total is 490 checks/169 complete native images. The failed candidate textarea wheel runs are retained separately and excluded from that total. The unchanged adapter lifecycle diagnostic passed 142 checks across four rounds; that retry alone did not explain the crash and is not counted as final-candidate qualification.",
+    "The adapter reproduction is byte-identical. All 20 measured production binaries, previous adapters/SDK and API 1/584 remain unchanged, with 1050 packages, real renderer Seccomp=2/NoNewPrivs=1 and no owned mappings after cleanup. Only small isolated adapters were rebuilt."
+  ],
+  "open": [
+    "Textarea wheel reinsertion: candidate runs observed DOM top 207 while waiting for 300 and native wheel trace later reported 302. An unchanged previous-adapter comparison passed at 300. Cause and reliable recovery remain unresolved; no preexisting-only or crash-free claim is made.",
+    "Chromium CSS zoom/fractional-scale behavior: the reused Firefox assertion expected clientLeft 2, while Chromium reported 17 at zoom 1.25. Native zoom correctness is not qualified by this checkpoint.",
+    "Broader model/layout/rectangle-hit contracts, held scrollers, host loss/replacement, performance, scaling, IME/accessibility, other browser builds and installed deployment.",
+    "Remaining browser webpage controls, complete detached menus and native shortcuts, then GTK/Qt/KDE on the same shared bridge/native UI library. Browser toolbar/address bar/tabs remain original; future requested changes use app-specific patches."
+  ],
+  "stderr_notices": {
+    "count": 14,
+    "paths": [
+      "/var/tmp/nxs-chromium-list-failure-01/round-01-failure.stderr",
+      "/var/tmp/nxs-chromium-list-failure-01/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-02/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-03/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-04/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-05/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-06/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-07/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-08/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-baseline-01/round-01-failure.stderr",
+      "/var/tmp/nxs-chromium-list-failure-baseline-01/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-old-568/browser.stderr",
+      "/var/tmp/nxs-chromium-list-failure-old-576/browser.stderr",
+      "/var/tmp/nxs-chromium-list-lifecycle-01/browser.stderr"
+    ],
+    "full_text": "runtime-audit.json in the verified evidence archive"
+  }
+}

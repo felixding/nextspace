@@ -39,7 +39,7 @@ static int list_snapshot(void *node,struct ListSnapshot *snapshot)
   return 1;
 }
 static void list_forget(struct NativeForm *form)
-{native_list_binding_destroy(&form->list);form->painted=0;}
+{native_list_binding_destroy(&form->list);form->painted=0;form->list_layout_retry=0;}
 static void list_model_changed(void *node,uint64_t control)
 {struct NativeForm *form=find_form(node);if(form&&form->control==control&&form->kind==NXS_LISTBOX)invalidate_form(form);}
 static void (*original_list_selected_state)(void *,int,int);
@@ -69,7 +69,13 @@ static int list_sync(struct NativeForm *form)
     struct FloatPoint position=((struct FloatPoint (*)(const void *))(base+NXS_MULTILINE_GET_OFFSET_OFFSET))(form->text_area);
     okay=native_list_binding_scroll(&form->list,position.x,position.y);
   }
-  return okay&&form->list.pixel_width==form->rect.width&&form->list.pixel_height==form->rect.height;
+  okay=okay&&form->list.pixel_width==form->rect.width&&form->list.pixel_height==form->rect.height;
+  if(okay&&form->list_layout_retry) {
+    /* A temporary engine fallback may have installed its own scrollbars.
+     * Reuse the deferred original layout invalidation when native data returns. */
+    form->list_layout_retry=0;native_layout_changed(form);
+  }
+  return okay;
 }
 static int list_scrollbar_owner(const void *area)
 {
@@ -82,6 +88,7 @@ static int list_scrollbar_owner(const void *area)
   form->text_area=(void *)area;
   form->rect.width=lround(size.width/64.);form->rect.height=lround(size.height/64.);
   int okay=form->rect.width>0&&form->rect.height>0&&list_sync(form);
+  if(!okay)form->list_layout_retry=1;
   if(okay)native_wheel_binding(form,1);return okay;
 }
 static struct NXSResponse *list_form_request(struct NativeForm *form,unsigned operation,double x,double y,unsigned modifiers)

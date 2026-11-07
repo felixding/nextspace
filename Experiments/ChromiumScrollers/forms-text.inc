@@ -58,7 +58,8 @@ static void *text_frame(void *node) {
   return window?decode_member((char *)window+32):NULL;
 }
 static int text_model(void *node,struct BlinkTextModel *model) {
-  uintptr_t getter=input_form_kind(node)==NXS_TEXTAREA?NXS_TEXTAREA_VALUE_OFFSET:NXS_CHROMIUM_TEXT_VALUE_OFFSET;
+  int kind=node?input_form_kind(node):0;if(!text_kind(kind))return 0;
+  uintptr_t getter=kind==NXS_TEXTAREA?NXS_TEXTAREA_VALUE_OFFSET:NXS_CHROMIUM_TEXT_VALUE_OFFSET;
   void *value=((void *(*)(const void *))(base+getter))(node);
   model->value=string_text(value);
   ((void (*)(void *))(base+0x7246038))(&value);
@@ -84,7 +85,7 @@ static struct NXSResponse *send_text_model(struct NativeForm *form,const char *v
   return response&&response->parts[3].x==1?response:NULL;
 }
 static struct NXSResponse *sync_text_form(struct NativeForm *form,struct NXSResponse *response) {
-  if(!response)return NULL;
+  if(!response||!text_kind(form->kind))return NULL;
   struct BlinkTextModel model={0};if(!text_model(form->node,&model))return NULL;
   response=send_text_model(form,model.value,model.start,model.end-model.start,model.editable);
   free(model.value);
