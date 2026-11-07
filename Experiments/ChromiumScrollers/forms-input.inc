@@ -31,7 +31,7 @@ static int input_form_kind(void *node) {
   if(!type)return 0;
   int kind=!strcmp(type,"checkbox")?NXS_CHECKBOX:!strcmp(type,"radio")?NXS_RADIO:
     (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
-    (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")))?NXS_TEXTFIELD:
+    (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")||!strcmp(type,"email")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
   free(type);return kind;
@@ -39,8 +39,9 @@ static int input_form_kind(void *node) {
 static struct NativeForm *bind_input_form(void *node) {
   struct NativeForm *form=find_form(node);if(form)return form;
   int kind=input_form_kind(node);
-  if(kind==NXS_POPUP||kind==NXS_LISTBOX||text_kind(kind))return NULL; /* Theme paint establishes native ownership. */
+  if(kind==NXS_POPUP||kind==NXS_LISTBOX||kind==NXS_TEXTAREA)return NULL; /* These controls bind through theme paint. */
   if(!kind||!decode_member((const char *)node+48))return NULL;
+  if(text_kind(kind)&&!native_layout_appearance(node,decode_member((const char *)node+48),12))return NULL;
   /* Keyboard focus can precede the first paint. Use the engine's layout box
    * and semantic control type to create the native object at that boundary. */
   struct FloatRect box=((struct FloatRect (*)(const void *))(base+0xef58ad4))(node);
@@ -53,7 +54,12 @@ static struct NativeForm *bind_input_form(void *node) {
   if(kind==NXS_SLIDER&&!sync_slider_model(form)){free(form->title);free(form);return NULL;}
   form->next=native_forms;native_forms=form;
   if(log_fd>=0)dprintf(log_fd,"%d native form bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)form->control,kind);
-  form_request(form,1,0,0,0);
+  struct NXSResponse *response=form_request(form,1,0,0,0);
+  if(text_kind(kind)) {
+    response=sync_text_form(form,response);
+    if(response)form->generation=response->parts[4].x;
+    if(!response||!refresh_form_watch())form->input_owned=0;
+  }
   return form;
 }
 static struct NXSResponse *form_input_request(struct NativeForm *form,int operation,int focus,

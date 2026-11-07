@@ -833,6 +833,28 @@ The shared text-types fixture compares complete native controls, tests Alt+C/V
 from a URL field into a telephone field, and exercises read-only/disabled fields,
 script updates, changing between text/URL/telephone and retirement during an edit.
 Existing plain/password/Unicode text checks run in the same fixture. Browser
-address bars, tabs and toolbars retain their components. Search, email, number
+address bars, tabs and toolbars retain their components. Search, number
 and other specialized field types still need integration. See the paired
 [text-type qualification](../ChromiumScrollers/text-types-qualification.json).
+
+
+### Native email webpage fields
+
+Email and multiple-email inputs share the existing native NSTextField binding.
+The adapter's original internal selection methods support them while the public
+webpage API retains null selection properties and InvalidStateError for
+setSelectionRange. Native keyboard selection and clipboard actions use the same
+editor and original engine command path as ordinary fields. Validation, multiple
+address sanitization, maxlength and trusted events remain engine behavior.
+
+Independent native key sequences supply the email editor image oracle. For
+read-only focus, the reference can configure its model before focusing and use
+NXS_TEXT_NO_SELECTION so the original responder chooses its initial selection.
+The tests preserve that native result rather than assuming a hidden caret range
+or a select-all shortcut. Firefox also reuses paint-only owner invalidation from
+its original input value-change callback, keeping inactive native field images
+synchronized with script updates. Chromium reuses its existing before-paint
+control binder for eligible single-line text fields, so immediate input after a
+page changes the field type still reaches the native editor. The same guarded
+style reader serves list and text eligibility. See the paired
+[email qualification](../ChromiumScrollers/email-qualification.json).

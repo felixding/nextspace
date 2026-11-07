@@ -1,0 +1,419 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "5eeb1938",
+  "status": "pinned-chromium-and-firefox-native-email-web-fields-qualified-broader-integration-open",
+  "native_ui_abi": {
+    "version": 1,
+    "size": 584
+  },
+  "shared_ui_unchanged": true,
+  "adapters": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-email-02-hook.so",
+      "bytes": 235656,
+      "sha256": "a74257efe1d6ef63b7f710cb5ac69127132ca72904c0506cbdf5b99766554efe"
+    },
+    "chromium_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-email-02-repro.so",
+      "bytes": 235656,
+      "sha256": "a74257efe1d6ef63b7f710cb5ac69127132ca72904c0506cbdf5b99766554efe"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-email-02-hook.so",
+      "bytes": 229144,
+      "sha256": "bd805d7114028f705fefe711724bafc584413f84a0eb12c936997441990689ec"
+    },
+    "firefox_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-email-02-repro.so",
+      "bytes": 229144,
+      "sha256": "bd805d7114028f705fefe711724bafc584413f84a0eb12c936997441990689ec"
+    },
+    "prior_chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-text-types-01-hook.so",
+      "bytes": 235608,
+      "sha256": "92899a96fc68035dcd716cc07edf9e661c674960f60b3690f7d8d8db14037406"
+    },
+    "prior_firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-text-types-01-hook.so",
+      "bytes": 163440,
+      "sha256": "8868cecebc74f3bb05fedf4095163d062ad752e74012b775765156a579608dd3"
+    }
+  },
+  "shared_ui": {
+    "native-ui/libnextspace-native-ui.so.0.1": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74048,
+      "sha256": "e53aa1845fcbe64219b3b942d92564b6dd9b898cda6de7fe523c54e42cea9a56"
+    },
+    "native-ui/libnextspace-native-ui-gnustep.so.0.1": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322880,
+      "sha256": "94ab8262f4368e9eb8c47159a3cbf671fd3178641cb9a4d2ce50edcd10d72788"
+    },
+    "libnextspace-native-scroller.so.0.1": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "7d76a7c0b12d2df3ebaab4b94671f5a2bb54063c056a143c80919b6b8735c19c"
+    }
+  },
+  "verification": {
+    "runs": {
+      "chromium": {
+        "path": "/var/tmp/nxs-chromium-email-05",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-email-05/button-results.json",
+          "bytes": 18781,
+          "sha256": "16eded59de0122a3ff4f9021a5f226122fb1638d369c446b689f8810ae91247b"
+        },
+        "checks": 121,
+        "native_images": 46
+      },
+      "chromium_lists": {
+        "path": "/var/tmp/nxs-chromium-email-05",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-email-05/list-scroll-results.json",
+          "bytes": 28860,
+          "sha256": "ff347e17da39252da40b41bf6622390322f5d6de29de5b5018203888d760890a"
+        },
+        "checks": 47,
+        "native_images": 15
+      },
+      "firefox": {
+        "path": "/var/tmp/nxs-firefox-email-05",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-email-05/button-results.json",
+          "bytes": 18781,
+          "sha256": "16eded59de0122a3ff4f9021a5f226122fb1638d369c446b689f8810ae91247b"
+        },
+        "checks": 121,
+        "native_images": 46
+      }
+    },
+    "passing_checks": 289,
+    "complete_native_images": 107,
+    "unchanged_production_files": 20,
+    "package_count": 1050,
+    "sandbox": {
+      "chromium": [
+        {
+          "pid": 216068,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216079,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216080,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 216186,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216228,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216272,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216275,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216293,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 216311,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "owned_candidate_mappings_after_cleanup": []
+  },
+  "baselines": {
+    "chromium_first_key": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-first-key-baseline-01/button-results.json",
+        "bytes": 453,
+        "sha256": "9d82265a82d91c029a51fcb0098a4c5b325df3434c6e0602680772a209bf217d"
+      },
+      "failure": {
+        "case": "first-key-1-url-matches-native-editor",
+        "passed": false,
+        "state": {
+          "value": "x",
+          "type": "url",
+          "start": 1,
+          "end": 1
+        },
+        "expected": "xseed@example.test"
+      },
+      "excluded_from_final_totals": true
+    },
+    "chromium": {
+      "path": "/var/tmp/nxs-chromium-email-baseline-01",
+      "actual": {
+        "path": "/var/tmp/nxs-chromium-email-baseline-01/email/emailfield-initial-normal-actual.png",
+        "bytes": 2169,
+        "sha256": "99320b3602b0dae2af602eaafb6f7c01b4da3a05940634afb80e171229c3cf34"
+      },
+      "expected": {
+        "path": "/var/tmp/nxs-chromium-email-baseline-01/email/emailfield-initial-normal-expected.png",
+        "bytes": 1865,
+        "sha256": "37357db48477c3366e7abbdad5436a310a37521c0c930b806e04ba42b28de8e9"
+      },
+      "difference_box": [
+        0,
+        0,
+        320,
+        24
+      ],
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-baseline-01/button-results.json",
+        "bytes": 287,
+        "sha256": "5d46fe6df4e72e1fab332452c5b1d14ef6ceeb44cd29aad27c2a0ec563a9ccb5"
+      },
+      "excluded_from_final_totals": true
+    },
+    "firefox_transport_timeout": {
+      "path": "/var/tmp/nxs-firefox-email-baseline-01",
+      "outcome": "Marionette NewSession timed out before assertions; no native pixel baseline established",
+      "log": {
+        "path": "/workspace/.build/native-ui/firefox-email-baseline-01-test.log",
+        "bytes": 1529,
+        "sha256": "a0af368993a4475cab0df51ee890f14b47cf4dabee926c071adbef739446d07f"
+      },
+      "excluded_from_final_totals": true
+    }
+  },
+  "diagnostics": {
+    "nxs-chromium-email-01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-01/button-results.json",
+        "bytes": 4377,
+        "sha256": "b1f0a21c4f51f819c9a054fb3e4c551705c69114dbb0f1ec46de9b92ae38a7bb"
+      },
+      "checks": 24,
+      "last": {
+        "case": "email-readonly-keeps-original-model",
+        "passed": true
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-02": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-02/button-results.json",
+        "bytes": 5250,
+        "sha256": "610b3d881e657988941c06a1cf1729da177266da4353d4f2d46a823b7605541d"
+      },
+      "checks": 32,
+      "last": {
+        "case": "email-native-alt-select-all-and-copy",
+        "passed": false,
+        "events": []
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-03": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-03/button-results.json",
+        "bytes": 8451,
+        "sha256": "af27bdba2409e74046ac3b634f9af554400d23334ab5260b81294df25f7add55"
+      },
+      "checks": 53,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-04": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-04/button-results.json",
+        "bytes": 5991,
+        "sha256": "fa229707bf2a4c9a9039bca108a1169b3174b732444e6ebd2ff1902c272155cf"
+      },
+      "checks": 42,
+      "last": {
+        "case": "dynamic-tel-native-emacs-beginning",
+        "passed": false
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-baseline-01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-baseline-01/button-results.json",
+        "bytes": 287,
+        "sha256": "5d46fe6df4e72e1fab332452c5b1d14ef6ceeb44cd29aad27c2a0ec563a9ccb5"
+      },
+      "checks": 2,
+      "last": {
+        "case": "emailfield-initial-original-public-selection-contract",
+        "passed": true,
+        "state": {
+          "start": null,
+          "end": null,
+          "direction": null,
+          "error": "InvalidStateError"
+        }
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-first-key-02": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-first-key-02/button-results.json",
+        "bytes": 3015,
+        "sha256": "9cf35c71a08a4292da1c458958a8b9a19dfe36b2ae3fca4be380e4d519697bb0"
+      },
+      "checks": 14,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-first-key-baseline-01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-first-key-baseline-01/button-results.json",
+        "bytes": 453,
+        "sha256": "9d82265a82d91c029a51fcb0098a4c5b325df3434c6e0602680772a209bf217d"
+      },
+      "checks": 2,
+      "last": {
+        "case": "first-key-1-url-matches-native-editor",
+        "passed": false,
+        "state": {
+          "value": "x",
+          "type": "url",
+          "start": 1,
+          "end": 1
+        },
+        "expected": "xseed@example.test"
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-owner-trace-01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-owner-trace-01/button-results.json",
+        "bytes": 15872,
+        "sha256": "e4deacf0720e9dadb49786ca59dfec1dedcb9f93ca649c0f94bd93d9c986b432"
+      },
+      "checks": 108,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-chromium-email-trace-01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-email-trace-01/button-results.json",
+        "bytes": 5151,
+        "sha256": "78f290b3b066bef5a1a43bebcd22baee8c2b39ea8429ff175aaf24f7d426b4d9"
+      },
+      "checks": 31,
+      "last": {
+        "case": "multiple-to-single-normal-whole-native-pixels",
+        "passed": true
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-firefox-email-01": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-email-01/button-results.json",
+        "bytes": 4377,
+        "sha256": "b1f0a21c4f51f819c9a054fb3e4c551705c69114dbb0f1ec46de9b92ae38a7bb"
+      },
+      "checks": 24,
+      "last": {
+        "case": "email-readonly-keeps-original-model",
+        "passed": true
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-firefox-email-02": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-email-02/button-results.json",
+        "bytes": 4547,
+        "sha256": "e2c39f69a4d43164a72aa022a6966a9d59047a463b83167cb1e01a7239b8b3cb"
+      },
+      "checks": 26,
+      "last": {
+        "case": "email-original-invalidity-retained",
+        "passed": true
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-firefox-email-03": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-email-03/button-results.json",
+        "bytes": 8451,
+        "sha256": "af27bdba2409e74046ac3b634f9af554400d23334ab5260b81294df25f7add55"
+      },
+      "checks": 53,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      },
+      "excluded_from_final_totals": true
+    },
+    "nxs-firefox-email-04": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-email-04/button-results.json",
+        "bytes": 15471,
+        "sha256": "aa27a8924442fb0d8bfe161f926e283a8b248e976c634d935f4b3c9182b67a66"
+      },
+      "checks": 108,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      },
+      "excluded_from_final_totals": true
+    }
+  },
+  "source_audit": "email-source-audit.json",
+  "observations": [
+    "The committed Chromium adapter fails the first native email image comparison; original images and failed runner logs are retained. The initial Firefox baseline stops at a Marionette NewSession timeout before assertions and establishes no pixel comparison.",
+    "The final paired fixtures pass 121 checks/46 complete native images per engine, combining email, plain/password/Unicode and URL/telephone fields. The changed Chromium style reader additionally passes 47 native list checks/15 complete images.",
+    "Independent GNUstep keys preserve native Emacs beginning and selection; real-seat Alt+C/V retain original trusted copy/paste/beforeinput/input. Email public selection APIs remain protected before and after edits.",
+    "Read-only/disabled fields, native cancellation, inactive script updates, original validation/address sanitization/multiple transitions/maxlength, repeated immediate text/URL/tel/email transitions and native retirement pass.",
+    "A focused trace-free Chromium baseline yields x after type change where real GNUstep yields xseed@example.test. Binding eligible fields through the existing before-paint lifecycle fixes this first-key race without waiting for pixels.",
+    "Earlier read-only and Alt+A failures were reference assumptions: the original native responder chooses selection, and Alt+A inserts a in that context. Temporary diagnostics are retained and removed from final sources; no UI-library or key-table repair was made.",
+    "Both adapter source reproductions are byte-identical to their tested candidates. Twenty production files and current shared loader/provider/shim are unchanged. Descendant renderers retain Seccomp=2/NoNewPrivs=1; no candidate mappings remain after shutdown. Browser binaries were not rebuilt or deployed."
+  ],
+  "open": [
+    "Search/number/date/time/file/color and other specialized webpage controls, richer editing, placeholder/style semantics, IME/accessibility and wider scaling/layout/lifecycle contracts.",
+    "Other builds and derivatives, complete detached menus/native shortcuts and installed deployment, followed by GTK/Qt/KDE through the shared native UI library.",
+    "Browser toolbar, address bar and tabs keep their existing components; optional future changes belong to app-specific patches."
+  ]
+}

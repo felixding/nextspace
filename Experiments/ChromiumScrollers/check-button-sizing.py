@@ -8,6 +8,7 @@ from native_popup_fixture import PopupFixture
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fixture',type=Path,required=True)
 parser.add_argument('--text-regression',action='store_true')
 parser.add_argument('--text-types-only',action='store_true',help='Run shared URL/telephone native text checks')
+parser.add_argument('--email-only',action='store_true',help='Run native email editing and protected selection checks')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as connection:
@@ -36,7 +37,7 @@ def origin():
 fixture=PopupFixture(root,command,js,check,pid,origin,reset)
 try:
  fixture.wait(window);assert command('focus '+str(window()['id']))['ok']
- if not options.text_types_only:
+ if not (options.text_types_only or options.email_only):
   cdp('Page.navigate',dict(url=Path(__file__).with_name('test-button-sizing.html').resolve().as_uri()))
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"))
   from button_sizing import ButtonFixture,run as buttons
@@ -52,6 +53,12 @@ try:
   from form_text_regression import TextFixture
   from native_text_types import run as type_checks
   text_output=root/'text-types';text_output.mkdir();type_checks(TextFixture(text_output,command,js,check,pid,origin,reset))
+ if options.email_only:
+  cdp('Page.navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-email-fields.html').as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native email fields'"))
+  from native_email_fields import EmailFixture,run as email_checks
+  email_output=root/'email';email_output.mkdir();email_checks(EmailFixture(email_output,command,js,check,pid,origin,reset))
+ if options.text_types_only or options.email_only:
   trace=(root/'hook.log').read_text()
   parent=[line for line in trace.splitlines() if re.match(str(pid)+r' native(?: form |-(?:text |widget ))',line)]
   check('browser-owned-ui-preserved',not parent and 'browser-owned tabs, address bar and toolbar preserved' in trace,parent_native_widgets=parent)

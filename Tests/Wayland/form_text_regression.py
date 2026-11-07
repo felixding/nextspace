@@ -23,3 +23,5 @@ def run(fixture):
  fixture.key(45);check('shared-form-cancelled-edit-keeps-model',js("return normal.value==='xHello'&&!events.some(e=>e.type==='input')"))
  js("readonly.focus();readonly.setSelectionRange(0,0);window.events=[];return true")
  fixture.key(45);check('shared-form-readonly-keeps-model',js("return readonly.value==='Hello'&&!events.some(e=>e.type==='input')"))
+ js("readonly.focus();normal.value='Inactive update';return true")
+ fixture.pixels('normal',label='text-inactive-script-update')

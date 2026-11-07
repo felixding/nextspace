@@ -50,6 +50,11 @@ static int (*original_text_mouse_drag)(void *,const void *);
 static int (*original_text_pointer_up)(void *,const void *);
 static void *text_pointer_controller,*text_pointer_frame,*text_pointer_handler;
 static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA;}
+static int native_text_input_owned(const struct NativeForm *form) {
+  return form&&text_kind(form->kind)&&(form->painted||
+    (form->input_owned&&form->kind!=NXS_TEXTAREA&&
+     native_layout_appearance(form->node,decode_member((const char *)form->node+48),12)));
+}
 static void (*original_textarea_default)(void *,void *);
 static void textarea_default(void *node,void *event)
 {if(!native_wheel_default(node,event)&&(!forms_multiline_enabled||!default_text_key(node,event)))original_textarea_default(node,event);}
@@ -159,7 +164,7 @@ static int text_mouse_press(void *self,const void *event) {
   void *node=decode_member((const char *)event+204);
   struct NativeForm *form=form_ancestor(node);
   unsigned clicks=*(const unsigned *)((const char *)event+160);
-  if(form&&text_kind(form->kind)&&form->painted&&form_focused(form->node)&&form_enabled(form->node)&&
+  if(native_text_input_owned(form)&&form_focused(form->node)&&form_enabled(form->node)&&
      *(const int *)((const char *)event+120)==0&&clicks>0&&
      (clicks==1||(forms_pointer_capabilities&NXS_POINTER_CLICK_COUNT))&&
      !decode_member((const char *)event+236)) {
@@ -276,7 +281,7 @@ static void text_delete_forward(void *document,void *state,unsigned char options
 static int default_text_key(void *node,void *event) {
   struct NativeForm *form=find_form(node);
   unsigned short *flags=(unsigned short *)((char *)event+32);
-  if(!form||!form->painted||!form_focused(node)||text_transaction||!(*flags&0x100)||(*flags&0x60))return 0;
+  if(!native_text_input_owned(form)||!form_focused(node)||text_transaction||!(*flags&0x100)||(*flags&0x60))return 0;
   uintptr_t atom=*(const uintptr_t *)((char *)event+24);
   int down=same_atom(atom,0x123a55d8),press=same_atom(atom,0x123a55e0);
   if((!down&&!press)||*(const unsigned char *)((char *)event+140))return 0;

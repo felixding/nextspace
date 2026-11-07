@@ -47,7 +47,8 @@ def run(f):
  for number,kind in enumerate(['tel','url','text','tel']):
   js('dynamic.type='+json.dumps(kind)+';dynamic.value="Hello";dynamic.focus();dynamic.setSelectionRange(2,2);window.events=[];return true')
   assert f.command('key 29 1')['ok'];f.key(30);assert f.command('key 29 0')['ok']
-  check('dynamic-'+kind+'-native-emacs-beginning',js('return dynamic.selectionStart===0&&dynamic.selectionEnd===0'))
+  selection=js('return {start:dynamic.selectionStart,end:dynamic.selectionEnd,value:dynamic.value,type:dynamic.type}')
+  check('dynamic-'+kind+'-native-emacs-beginning',selection['start']==0 and selection['end']==0,state=selection)
   f.key(45)
   check('dynamic-'+kind+'-native-model',js('return dynamic.value==="xHello"'))
   f.pixels('dynamic',True,label='dynamic-'+str(number)+'-'+kind)

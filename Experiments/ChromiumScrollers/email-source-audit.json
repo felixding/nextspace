@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "5eeb1938",
+  "status": "pinned-chromium-and-firefox-native-email-web-fields-qualified-broader-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/forms-input.inc": "b9b872e0fd707ae05a5f9ef79922feb92ce5bf0c5aa0bfd40ebb7af35f12ae1b",
+    "Experiments/ChromiumScrollers/forms-layout.inc": "48a3ff69591328f80b725d345ee743b6b13cb45b7eb47b1b9340ea9056959f48",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "b68f7efd883c0a654b95ad3e3bdc54a7cc5a72e1e1dee0dfb7365fe004e93aea",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "e356f5874232bff018f8cd620574064345e40f8289b083d6a152c8a9baa0dc37",
+    "Experiments/ChromiumScrollers/forms-text.inc": "6b980949aaf9294c0b9d95709ac8d685140766626ec2bdcd340cb08d65baebb2",
+    "Experiments/ChromiumScrollers/forms.inc": "9b8a6a82a3ef8d1aeca74eb1e4f47593d7147d6b3230d78e7476277c07f1ff23",
+    "Experiments/FirefoxNativeUI/controls.inc": "e4d69a2f4760092289311a0665bc9a6b7a538d157feaeb6cade5b0713b684a64",
+    "Experiments/FirefoxNativeUI/pinned-text.h": "47f6c4b8919d1dc51205e4543300361aab705a1403804f80aa2461a34549687e",
+    "Experiments/FirefoxNativeUI/text.inc": "decbacdadc4a57f834666c2b2f36a1035115251fb66649cc62fea33ad0d7981f",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "80ed3142c4f60331342b6d57e86965b3cff932c22012cb24f756283fb605300d",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "982b36271c95687ea6601e5272a084657d4f7c1b57dfd30aa0c7d915e489ec38",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "fe5e82aae02b857ad03513af14132d4c55666ea077362668e1e0f4350b9e1d69",
+    "Tests/Wayland/native_email_fields.py": "688ff40f6f880f2398cbfb65845235b8146030fc9812729e17a6568f04a63ce6",
+    "Tests/Wayland/native-email-fields.html": "738320a19a534a9eebbed479b01c45a5fa20621fc08dbd4d6685b185d9b4c79b",
+    "Tests/Wayland/form_text_regression.py": "83f3076df3d60566d9dcdde3a55726905d3088858291a28229fcfe6469131d01",
+    "Tests/Wayland/native_text_types.py": "40dcf8cb334dc3b5a00d07ffdfdd9d9ee2fc920d7633fd83d068768a7b8032d1",
+    "Experiments/ChromiumScrollers/README.md": "dbefd308dba1dbc828909c7a4e2f14aa4ed8a31c3f3812987c0299ecc6381469",
+    "Experiments/FirefoxNativeUI/README.md": "a7cc483d85b7ae86d5919ca61832dd2cbf8c0fd9ccb7faf2e5166522c9c14fb8",
+    "docs/Native-Control-Integration.md": "7c262985e3dfb5e752ed6d538b5bc0c14be1adc1024e90e93240120f14eb9141"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/email-source/appearance-generated-sources.json",
+      "bytes": 538,
+      "sha256": "8d7ea59a9addfa12c6a700eea9d360c04f07ba588b70d91e39a0cff996b54169"
+    },
+    {
+      "path": ".build/native-ui/email-source/appearance-sources.json",
+      "bytes": 539,
+      "sha256": "49187e9ad8fe596e5c70a6485912f73601fa0353fab3438176129553a97916c9"
+    },
+    {
+      "path": ".build/native-ui/email-source/computed_style_constants.h",
+      "bytes": 18674,
+      "sha256": "0e13077bcaf3e29065f7ac8aa8b5dbe107f86c02af7830d7409d91cd0e8b61d3"
+    },
+    {
+      "path": ".build/native-ui/email-source/css_properties.json5",
+      "bytes": 390606,
+      "sha256": "be2e399c011d32102ef31c274800d34d469923add9bd1272963cdf3105eabacd"
+    },
+    {
+      "path": ".build/native-ui/email-source/gecko-HTMLInputElement.cpp",
+      "bytes": 258800,
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "path": ".build/native-ui/email-source/gecko-value-symbols.py",
+      "bytes": 434,
+      "sha256": "a89314a8235529a51e50b633e96b7700639643221294294bb506ed34184d3d5e"
+    },
+    {
+      "path": ".build/native-ui/email-source/native_email_fields-v1.py",
+      "bytes": 6881,
+      "sha256": "eb47af1f459e576069c1327b159b910fbf65fa7e5631fd7724d8edee8e2a0d37"
+    },
+    {
+      "path": ".build/native-ui/email-source/native_email_fields-v2.py",
+      "bytes": 6949,
+      "sha256": "49e236f67446b78e68eed34b9841ed9473ab9dc96e9bdaf8f53393461e87bd5b"
+    },
+    {
+      "path": ".build/native-ui/email-source/native_email_fields-v3.py",
+      "bytes": 7091,
+      "sha256": "6861d6c15838bb7cad6b0f16f2c9cfd6a6540a8fb813598ede5c6e252aab794a"
+    },
+    {
+      "path": ".build/native-ui/email-source/nsIFormControl.h",
+      "bytes": 9607,
+      "sha256": "ee0f8bee96f0f31b6a3215dca63d702b80f6654ab23d48e158defd71097b1d12"
+    },
+    {
+      "path": ".build/native-ui/email-source/owner-trace-01-forms-input.inc",
+      "bytes": 13791,
+      "sha256": "46d6a915444a8fb3e443e6c7d87c5d93cd9b6ae83f8c7fbe8143ad2b6ba43f93"
+    },
+    {
+      "path": ".build/native-ui/email-source/pin-gecko-value.py",
+      "bytes": 633,
+      "sha256": "9ba83fdefc37187041fffeda6f937de1a98b48f69c51b63f198680d01c1a1df9"
+    },
+    {
+      "path": ".build/native-ui/email-source/pristine-forms-input.inc",
+      "bytes": 13427,
+      "sha256": "392fd28f645480710f21195859863a120c7d04a886605c587fc586a326412289"
+    },
+    {
+      "path": ".build/native-ui/email-source/pristine-forms-text.inc",
+      "bytes": 22669,
+      "sha256": "5a174358e22a5a51ddb00b77238d172571cc115f07761b475da9218115b80065"
+    },
+    {
+      "path": ".build/native-ui/email-source/symbols.py",
+      "bytes": 874,
+      "sha256": "1343d363181e4c3d11e64e9196bb867d617f9770ed2665e5d89884a1acc312e0"
+    },
+    {
+      "path": ".build/native-ui/email-source/text_control_element.cc",
+      "bytes": 60546,
+      "sha256": "608155d99ce17c08282c9cf3d3a0a31cb2f2e40b6deba2a30e9ed693eab34849"
+    },
+    {
+      "path": ".build/native-ui/email-source/theme-types-source.json",
+      "bytes": 241,
+      "sha256": "4621c41b41a04fbea349577238cdd49ced17129db030761179b01a947c755a05"
+    },
+    {
+      "path": ".build/native-ui/email-source/theme_types.h",
+      "bytes": 2472,
+      "sha256": "409d51ad5d346a62b613451fbe9c45fa34675797b3c6d15c0ba2ba09d46436d5"
+    },
+    {
+      "path": ".build/native-ui/email-source/trace-01-forms-text.inc",
+      "bytes": 23274,
+      "sha256": "cb15764cfe34b0cfa6800e8113094d58a346be8d4aaceb195b3835466eedeb4a"
+    },
+    {
+      "path": ".build/native-ui/email-selection-symbols.json",
+      "bytes": 673,
+      "sha256": "34d71bf0923a8283bd5ba740d994fdb94ccf2464b052bbacefdbb960936def0f"
+    },
+    {
+      "path": ".build/native-ui/gecko-email-value-symbols.json",
+      "bytes": 153,
+      "sha256": "4de9fc4e8e4fbf0004b5df21a38c9c714ab93d4ca4ebc670b2b56e14b04413d0"
+    },
+    {
+      "path": ".build/native-ui/gecko-email-value-pins.json",
+      "bytes": 74,
+      "sha256": "cb063f3dfa52a031531bbfc48b8af22fbb385f0b10180fa14b4084bbca5e4446"
+    }
+  ],
+  "gecko_pinned_types": {
+    "InputEmail": 133
+  },
+  "guarded_engine_notification": {
+    "symbol": "mozilla::dom::HTMLInputElement::OnValueChanged(mozilla::TextControlElement::ValueChangeKind, bool, nsTSubstring<char16_t> const*)",
+    "offset": "0x588bcd8",
+    "prologue": "3f2303d5fe57bea9f44f01a9f30303aaf40300aa"
+  },
+  "new_native_abi": false,
+  "invariants": [
+    "Email and multiple-email map to existing NXS_TEXTFIELD and reuse the same real NSTextField provider, focus, original model transactions, native keys and engine clipboard commands.",
+    "Existing guarded internal selection accessors support email; public JavaScript selection properties stay null and setSelectionRange still throws InvalidStateError. No replacement caret, editor, formatter or key policy is added.",
+    "A guarded original Firefox input-value notification calls its original method first, then reuses paint-only invalidation for the native owner. It covers inactive ordinary and email fields.",
+    "Chromium reuses its existing before-paint control binder for eligible single-line text/password inputs. The same guarded effective-appearance reader serves lists and text; input-owned controls use the existing renderer watcher and real native input path.",
+    "An independent real native editor supplies expected key results and full images, including read-only initial focus and selection. No native UI library code is changed.",
+    "Shared provider/loader/shim stay at API 1/584. Original browser address bars, toolbars and tabs remain; future requested UI changes belong to optional app patches."
+  ]
+}

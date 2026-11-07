@@ -75,7 +75,7 @@ static int refresh_form_watch(void) {
   if(tabs_watch_needed())needed=1;
   if(app_menus_watch_needed())needed=1;
   for(struct NativeForm *f=native_forms;f;f=f->next)
-    if((forms_input_enabled&&f->kind!=NXS_PROGRESS&&f->painted)||(f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted)||(f->kind==NXS_POPUP&&f->popup_open)||(text_kind(f->kind)&&f->painted)){needed=1;generation=fmax(generation,f->generation);}
+    if((forms_input_enabled&&f->kind!=NXS_PROGRESS&&(f->painted||f->input_owned))||(f->kind==NXS_PROGRESS&&f->indeterminate&&f->painted)||(f->kind==NXS_POPUP&&f->popup_open)||(text_kind(f->kind)&&f->painted)){needed=1;generation=fmax(generation,f->generation);}
   pthread_mutex_lock(&form_watch.mutex);
   if(form_watch.failed)needed=0;
   if(needed&&!form_watch.started){

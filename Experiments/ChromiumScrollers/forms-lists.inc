@@ -8,11 +8,7 @@ static int list_element(void *node)
 static int list_style(void *node)
 {
   void *layout=node?decode_member((char *)node+48):NULL;
-  if(!native_layout_unit_scale(node,layout))return 0;
-  const void *style=decode_member((char *)layout+32),*data=style?decode_member((char *)style+4):NULL;
-  /* EffectiveAppearance is the same guarded application style field read by
-   * the original shared text-field painter. kListbox is 5 in this build. */
-  return data&&((*(const uint64_t *)((char *)data+56)>>15)&31)==5;
+  return native_layout_appearance(node,layout,5);
 }
 static int list_owned(const struct NativeForm *form)
 {return form&&form->kind==NXS_LISTBOX&&form->painted&&list_element(form->node)&&list_style(form->node);}

@@ -253,6 +253,16 @@ static int native_application_command(const struct NXSNativeCommand *command,con
   transaction->attempted=1;
   return enabled?application_text_command(transaction->node,selector):0;
 }
+static void (*original_text_value_changed)(void *,unsigned,int,const void *);
+static void text_value_changed(void *node,unsigned kind,int empty,const void *known) {
+  original_text_value_changed(node,kind,empty,known);
+  /* Value changes normally invalidate anonymous editor content. Its native
+   * replacement lives in the owner's background display item instead. */
+  if(texts_enabled&&text_kind(node_kind(node))) {
+    struct Widget *w=widget_for_node(node);
+    if(w&&w->text_owned)invalidate_widget(w);
+  }
+}
 static int prepare_text_image(void *frame) {
   if(!native_text_frame(frame)||fabsf(frame_scale(frame)-1)>0.000001f)goto release;
   /* Engine callbacks can reflow while the native editor is waiting for its
@@ -380,6 +390,7 @@ static uint32_t text_keypress(void *listener,void *event) {
   return original_text_keypress(listener,event);
 }
 static struct Detour text_detours[]={
+  {NXS_GECKO_TEXT_VALUE_CHANGED_OFFSET,gecko_text_value_changed_bytes,text_value_changed,(void **)&original_text_value_changed},
   {NXS_GECKO_MULTILINE_POST_OFFSET,gecko_multiline_post_bytes,textarea_post,(void **)&original_textarea_post},
   {NXS_GECKO_TEXT_FRAME_EVENT_OFFSET,gecko_text_frame_event_bytes,text_frame_event,(void **)&original_text_frame_event},
   {NXS_GECKO_TEXT_SCROLL_DISPLAY_OFFSET,gecko_text_scroll_display_bytes,text_scroll_display,(void **)&original_text_scroll_display},

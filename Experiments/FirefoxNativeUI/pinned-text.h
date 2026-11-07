@@ -41,6 +41,9 @@ static const unsigned char gecko_text_is_themed_bytes[20]={0x5f,0x24,0x03,0xd5,0
 static const unsigned char gecko_text_clear_error_bytes[20]={0x3f,0x23,0x03,0xd5,0xfe,0x4f,0xbf,0xa9,0xf3,0x03,0x00,0xaa,0xb6,0xff,0xff,0x97,0x7f,0x02,0x00,0xb9};
 #define NXS_GECKO_TEXT_DISPLAY_BACKGROUND_OFFSET 0x6e294e0ul
 static const unsigned char gecko_text_display_background_bytes[20]={0x5f,0x24,0x03,0xd5,0x08,0x10,0x40,0xf9,0x09,0x0d,0x40,0xf9,0x29,0x05,0x40,0x39,0x3f,0x05,0x00,0x71};
+/* Original HTMLInputElement model notification, same exact libxul build. */
+#define NXS_GECKO_TEXT_VALUE_CHANGED_OFFSET 0x588bcd8ul
+static const unsigned char gecko_text_value_changed_bytes[20]={0x3f,0x23,0x03,0xd5,0xfe,0x57,0xbe,0xa9,0xf4,0x4f,0x01,0xa9,0xf3,0x03,0x03,0xaa,0xf4,0x03,0x00,0xaa};
 static int guard_text_calls(void) {
 /* Actual AssignMouseEventDataOnly load/store of mClickCount (+236). */
 static const unsigned char click_count_bytes[8]={0x88,0xee,0x40,0xb9,0x68,0xee,0x00,0xb9};
@@ -65,5 +68,6 @@ return !memcmp((void *)(base+0x41345f8),click_count_bytes,8)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_FLUSH_LAYOUT_OFFSET),gecko_text_flush_layout_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_IS_THEMED_OFFSET),gecko_text_is_themed_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_CLEAR_ERROR_OFFSET),gecko_text_clear_error_bytes,20)&&
-!memcmp((void *)(base+NXS_GECKO_TEXT_DISPLAY_BACKGROUND_OFFSET),gecko_text_display_background_bytes,20);
+!memcmp((void *)(base+NXS_GECKO_TEXT_DISPLAY_BACKGROUND_OFFSET),gecko_text_display_background_bytes,20)&&
+!memcmp((void *)(base+NXS_GECKO_TEXT_VALUE_CHANGED_OFFSET),gecko_text_value_changed_bytes,20);
 }

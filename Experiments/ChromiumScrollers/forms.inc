@@ -98,6 +98,7 @@ static int popup_element(void *);
 static int list_element(void *);
 static int list_owned(const struct NativeForm *);
 static int list_style(void *);
+static int native_layout_appearance(const void *,const void *,unsigned);
 static void list_forget(struct NativeForm *);
 static void list_model_changed(void *,uint64_t);
 static struct NXSResponse *list_form_request(struct NativeForm *,unsigned,double,double,unsigned);

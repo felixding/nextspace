@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Native email fields</title>
+<style>
+body {margin:30px;background:white;color:black;font:14px sans-serif}
+label {display:block;margin-bottom:18px}
+input {box-sizing:border-box;width:320px;height:24px;padding:0}
+</style>
+<form id="form">
+<label>Email <input id="emailfield" type="email" value="user@example.test"></label>
+<label>Multiple <input id="multiple" type="email" multiple value="a@one.test, b@two.test"></label>
+<label>Read only <input id="readonly" type="email" value="user@example.test" readonly></label>
+<label>Disabled <input id="disabled" type="email" value="user@example.test" disabled></label>
+<label>Limited <input id="limited" type="email" value="a@b.test" maxlength="10"></label>
+<label>Plain clipboard peer <input id="peer" value=""></label>
+<label>Changing type <input id="dynamic" type="email" value="user@example.test"></label>
+</form>
+<script>
+window.events=[];
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','copy','cut','paste','select'])
+ document.addEventListener(type,e=>{if(e.target instanceof HTMLInputElement)events.push({type,id:e.target.id,
+  data:e.data??null,inputType:e.inputType??null,trusted:e.isTrusted,value:e.target.value,
+  start:e.target.selectionStart,end:e.target.selectionEnd});});
+</script>

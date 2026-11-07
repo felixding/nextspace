@@ -30,6 +30,13 @@ static int native_layout_unit_scale(const void *node,const void *layout) {
   float zoom=font?*(const float *)((const char *)font+48):0;
   return isfinite(zoom)&&fabsf(zoom-1)<0.000001f;
 }
+static int native_layout_appearance(const void *node,const void *layout,unsigned appearance) {
+  if(!native_layout_unit_scale(node,layout))return 0;
+  const void *style=decode_member((const char *)layout+32);
+  const void *data=style?decode_member((const char *)style+4):NULL;
+  /* EffectiveAppearance in this guarded build: kListbox=5, kTextField=12. */
+  return data&&((*(const uint64_t *)((const char *)data+56)>>15)&31)==appearance;
+}
 static int native_content_size(const void *layout,int preferred,int block) {
   struct NativeBoxStrut border=((struct NativeBoxStrut (*)(const void *))(base+NXS_LAYOUT_BORDER_OFFSET))(layout);
   struct NativeBoxStrut padding=((struct NativeBoxStrut (*)(const void *))(base+NXS_LAYOUT_PADDING_OFFSET))(layout);

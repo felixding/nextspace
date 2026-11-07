@@ -771,3 +771,19 @@ retirement during a native edit, alongside existing plain/password fields.
 See [paired text-type qualification](../Experiments/ChromiumScrollers/text-types-qualification.json).
 Other specialized fields and the broader browser-then-GTK/Qt/KDE scope remain
 open. Browser address bars, toolbars and tabs stay original.
+
+
+The same native text binding now includes email and multiple-email fields.
+Original internal caret methods remain separate from the protected webpage
+selection API. Shared tests compare independent native editing/selection images
+and real clipboard commands, while original engines retain validation, address
+sanitization, maxlength, events and cancellation. A common Firefox input model
+notification now invalidates the native owner's background image after inactive
+script changes; it reuses the existing paint-only engine operation. Chromium
+binds eligible single-line fields through its existing before-paint control
+boundary, fixing the first-key gap after a page changes the input type. Its
+original style eligibility reader is shared with the list binding.
+See [paired email qualification](../Experiments/ChromiumScrollers/email-qualification.json).
+The native UI library remains unchanged. Specialized search/number/date/time/file/
+color controls and the wider browser, menu/shortcut and GTK/Qt/KDE scope remain
+open, with browser address bars, toolbars and tabs kept original.

@@ -90,7 +90,8 @@ for item in json.loads(args.controls.read_text()):
                 assert native.nxs_control_sync(pointer,C.byref(config))
         if 'step' in item:
             assert api.range_capabilities and native.nxs_control_set_step(pointer,item['step'])
-        if args.focus and item['enabled'] and item['kind'] != 5:
+        deferred_focus=item['kind'] in (7,8,9) and item.get('focus_after_model',False)
+        if args.focus and item['enabled'] and item['kind'] != 5 and not deferred_focus:
             assert api.input_capabilities & 1
             assert native.nxs_control_focus(pointer, 1)
         if item['kind'] in (7,8,9):
@@ -98,6 +99,9 @@ for item in json.loads(args.controls.read_text()):
                 item.get('selection_start',1) if args.focus and item['enabled'] else item.get('selection_start',0),
                 item.get('selection_length',2) if args.focus and item['enabled'] else item.get('selection_length',0),item.get('editable',1))
             assert native.nxs_control_text_sync(pointer,C.byref(model))
+        if args.focus and item['enabled'] and deferred_focus:
+            assert api.input_capabilities & 1
+            assert native.nxs_control_focus(pointer,1)
         if item['kind']==9 and 'scroll' in item:
             assert native.nxs_control_text_scroll(pointer,*item['scroll'])
         if item['kind']==13 and 'scroll' in item:
