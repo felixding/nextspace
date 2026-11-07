@@ -1,0 +1,346 @@
+{
+  "date": "2026-11-07",
+  "status": "pinned-chromium-native-lists-partially-qualified",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 568,
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 105520,
+      "sha256": "eb7badf1b9cabfa3dfe8db7398497a57f6ea008b7fca38209e0bc12299df094c"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 531360,
+      "sha256": "b6a729be736ada457110c6adfa66947139ab2d2dd326666fcfa143c21d3e68aa"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/libnextspace-native-scroller.so.0.1",
+      "bytes": 81824,
+      "sha256": "1f7f5051cee8188d3492e1342807ff2e934ec6aea602f6c066bd76dfec2d50b1"
+    },
+    "firefox_list_07": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-07-hook.so",
+      "bytes": 162400,
+      "sha256": "a5d9644744674216e9d68e4793a0fbaab436c7500fbbe75968a042bc124d7084"
+    },
+    "chromium_list_01": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-01-hook.so",
+      "bytes": 233544,
+      "sha256": "11e9bd6b8720ff61f448178a1002ac5abf584c4aa952e46fa2dab356cc7a46d5"
+    },
+    "chromium_list_02": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-02-hook.so",
+      "bytes": 233600,
+      "sha256": "0bb5e45e482c527ca72aef1a9b832063a69dc98c8d6d5e4477429b96508dacea"
+    },
+    "chromium_list_03": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-03-hook.so",
+      "bytes": 233896,
+      "sha256": "65dce2827f2570beb6508db3d670159d25fde0e187d5cdbbdc27195345626c47"
+    },
+    "chromium_list_04": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-04-hook.so",
+      "bytes": 233936,
+      "sha256": "2010040563f0b10d968c0b18f2e3d08eb6a8c0f5e491aa3b9ac7d1829ca5f6ac"
+    },
+    "chromium_list_05": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-05-hook.so",
+      "bytes": 233896,
+      "sha256": "d91c74304c81ad1ac17258a6c6915299d23bab540765b0be0f1a7f84c6bc4c81"
+    },
+    "chromium_list_06": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-06-hook.so",
+      "bytes": 233896,
+      "sha256": "210dccd8fc98e3b4c73a8f840dd9a76d4be82f86ec33f79bc33a0cc11a591679"
+    },
+    "chromium_list_07": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-07-hook.so",
+      "bytes": 233896,
+      "sha256": "8f3553f4f5c1a6c408ddddfcbd9b05339d9f85ca9886af95d47d712e0fdee086"
+    },
+    "chromium_list_08": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-08-hook.so",
+      "bytes": 234064,
+      "sha256": "8f7040ecf82d8edcfe8a291eed4d9bc46acf91f0ec939a0051ec8b9568c8a6f3"
+    },
+    "ordinary_gesture": {
+      "path": "/var/tmp/nextspace-native-ui/native-list-gesture-reference-02",
+      "bytes": 84720,
+      "sha256": "97d5a25f5a406c746066b85ddc766fff495bd78bdda5aa9119724aaf00865f93"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_list": {
+        "path": "/var/tmp/nxs-chromium-list-08",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "f0110b0440769f3afaaaaa312836a09b1f851ba26daf92d3133c719daf6e62f4"
+      },
+      "form_regression": {
+        "path": "/var/tmp/nxs-chromium-list-08",
+        "results_file": "form-results.json",
+        "checks": 101,
+        "native_images": 28,
+        "sha256": "1abe8b3826a1351f0400d859f0b79b4990c8dce50c526f03b0dc4e3668b2b697"
+      },
+      "radio_regression": {
+        "path": "/var/tmp/nxs-chromium-list-08",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "b711317a98ad7fd8d462923842a0646795347efd9208dea4fe51a5a10e4fb761"
+      },
+      "popup_regression": {
+        "path": "/var/tmp/nxs-chromium-list-08",
+        "results_file": "popup-results.json",
+        "checks": 66,
+        "native_images": 27,
+        "sha256": "9bf9dfe2aafb17b0450acdb56d54b0f0970c1fb3d353cf3c813685d4cff0e14a"
+      },
+      "button_text_regression": {
+        "path": "/var/tmp/nxs-chromium-list-08",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "unchanged_firefox_list": {
+        "path": "/var/tmp/nxs-firefox-list-08-regression",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "eb7739aab807501f916bb47eaa3a90596a3a6f6801baf93093ae80d0332478bc"
+      }
+    },
+    "scoped_checks": 436,
+    "complete_native_images": 158,
+    "browser_scale": 1,
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-list-08-repro.so",
+      "bytes": 234064,
+      "sha256": "8f7040ecf82d8edcfe8a291eed4d9bc46acf91f0ec939a0051ec8b9568c8a6f3"
+    }
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "live_owned": [],
+    "cleanup": {
+      "nxs-chromium-list-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-03": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-04": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-05": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-06": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-07": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-list-08": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-firefox-list-08-regression": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      }
+    },
+    "notices": [
+      {
+        "path": "/var/tmp/nxs-chromium-list-08/browser.stderr",
+        "text": "\n(process:182912): Gtk-WARNING **: 21:26:37.137: Unable to acquire the address of the accessibility bus: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files. If you are attempting to run GTK without a11y support, GTK_A11Y should be set to 'none'.\n\nDevTools listening on ws://127.0.0.1:9248/devtools/browser/65c3db09-98cb-4f9a-830b-a3f78643a53d\n[182912:182912:1107/212637.679262:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files\n[182912:182912:1107/212637.750706:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.Get: object_path= /org/freedesktop/portal/desktop: org.freedesktop.DBus.Error.InvalidArgs: No such interface \u201corg.freedesktop.portal.FileChooser\u201d\n[182953:182965:1107/212707.501359:ERROR:components/viz/service/display/display.cc:271] Frame latency is negative: -0.004 ms\nWarning: vkCreateInstance: Found no drivers!\nWarning: vkCreateInstance failed with VK_ERROR_INCOMPATIBLE_DRIVER\n    at CheckVkSuccessImpl (../../third_party/dawn/src/dawn/native/vulkan/VulkanError.cpp:106)\n\n[182912:182912:1107/212935.774679:ERROR:services/on_device_model/public/cpp/service_client.cc:37] Unexpected on_device_model service disconnect; reason: 1, description: Error loading backend.\n[182912:182972:1107/213238.182849:ERROR:content/browser/devtools/devtools_pipe_handler.cc:188] Connection terminated while reading from pipe\n"
+      }
+    ],
+    "api": {
+      "version": 1,
+      "size": 568
+    },
+    "unchanged_browser_adapters": {
+      "chromium": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-form-activation-03-hook.so",
+        "bytes": 232496,
+        "sha256": "e0006b4bb9d0cb28d6f82557fc26a45f16919a7281290bb610a729db0b9d9051"
+      },
+      "firefox": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-form-activation-03-hook.so",
+        "bytes": 161328,
+        "sha256": "9c04f609b1052c08700e82be5344cb172c8ee7f4bfe4d70b9f03b2fc614630fc"
+      }
+    },
+    "adapter_has_no_UI_toolkit_dependency": true,
+    "sandbox": {
+      "chromium": [
+        {
+          "pid": 182985,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 182988,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 183004,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 182442,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 182489,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 182533,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 182536,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 182585,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 182612,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "diagnostic_regression": [
+      {
+        "name": "form",
+        "exit": 0,
+        "stdout": "{\"passed\": 101}\n",
+        "stderr": ""
+      },
+      {
+        "name": "radio",
+        "exit": 0,
+        "stdout": "{\"passed\": 94, \"native_images\": 29}\n",
+        "stderr": ""
+      },
+      {
+        "name": "popup",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/workspace/Experiments/ChromiumScrollers/check-popup-models.py\", line 50, in <module>\n    check('native-disabled-appearance-has-no-extra-browser-fade',js(\"return getComputedStyle(document.getElementById('disabled')).opacity==='1'\"))\n    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/Experiments/ChromiumScrollers/check-popup-models.py\", line 17, in check\n    rows.append(dict(case=case,passed=bool(passed),**data));(root/'popup-results.json').write_text(json.dumps(rows,indent=2)+'\\n');assert passed,rows[-1]\n                                                                                                                                          ^^^^^^\nAssertionError: {'case': 'native-disabled-appearance-has-no-extra-browser-fade', 'passed': False}\n"
+      }
+    ]
+  },
+  "observations": [
+    "Final Chromium candidate 08 and unchanged Firefox candidate 07 each pass the expanded 34-check/13-complete-image list suite, including parser-time focus with no other control, single/multiple native key/pointer selection, cancelled input, disabled row/control, original model mutations, script selection without synthetic events, appearance release/rebind, outside release and change-callback retirement.",
+    "Chromium candidate 07 passes the prior list scope but fails the stronger script-selection image check: original selectedness changes while the suppressed option paint leaves owner pixels stale. The final original selected-state boundary supplies owner invalidation. The failed test remains preserved separately.",
+    "Candidate 07 also passes forms/radios, then fails popup disabled opacity because a broad UA selector loses to the existing feature-specific rule. Candidate 08 retains the specific popup selector and appends list corrections; the full final regressions are recorded separately.",
+    "Actual ordinary NSMatrix outside release retains an old cell visual state even after selectedCells clears it. The ordinary window and browser whole images match; the adapter invents no selection/drawing workaround. A native correction belongs once in the underlying UI library.",
+    "Initial text-painter-only candidates retain stock Blink rendering; common theme dispatch plus the verified appearance enum establishes native ownership. Earlier assumptions and their failed images remain diagnostic evidence.",
+    "Only exact pinned builds at scale 1 and the measured flat model are qualified. No installed deployment or complete native-browser support is claimed."
+  ],
+  "open": [
+    "Native intrinsic/option/layout geometry, DOM viewport/scroll offsets and trusted scroll events, complete wheel/default ownership, held scroller updates and native host recovery in both engines.",
+    "Richer grouped/separator/hidden/dynamic models, arbitrary authored CSS/transforms/zoom, mixed-DPI/scales, key text/modifiers/IME/accessibility and complete native focus traversal.",
+    "Underlying native NSMatrix outside-release visual-state inconsistency if corrected, once in the UI library without browser-specific workarounds.",
+    "Remaining browser controls, complete detached menus/shortcuts, derivative pins and installed deployment; subsequent GTK/Qt/KDE reuse. Toolbars/address bars/tabs remain original. Future requested UI changes use optional app-specific patches."
+  ],
+  "source_audit": "list-source-audit.json"
+}

@@ -77,6 +77,9 @@ def run(f):
  keyboard('down-skips-disabled',9,108);keyboard('next-row',9,108)
  actions=len(f.native_actions());f.js('list.addEventListener("keydown",event=>event.preventDefault(),{once:true});return true');f.clear();f.key(103)
  f.check('cancelled-key-leaves-native-and-DOM-selection',f.selected()==[4] and not f.changes() and len(f.native_actions())==actions)
+ f.clear();actions=len(f.native_actions());f.js('list.selectedIndex=0;return true')
+ f.check('script-selection-keeps-original-model-without-native-action',f.selected()==[1] and not f.changes() and len(f.native_actions())==actions)
+ f.pixels('list',True,label='script-selection')
  f.clear();f.click(initial['native_item_rects'][2]);f.key_cell=3
  f.check('pointer-original-trusted-events',f.selected()==[3] and [x['type'] for x in f.changes()]==['input','change'] and all(x['trusted'] for x in f.changes()),selected=f.selected(),events=f.changes())
  f.pixels('list',True,label='pointer')

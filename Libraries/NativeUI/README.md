@@ -942,8 +942,8 @@ with native viewport/document geometry. The C serializer lives in
 and key metadata. The host supplies no selection or scrolling algorithm.
 Creating-connection checks, strict UTF8/model validation and native tracking
 mutation guards apply before mutation. See [wire qualification](list-wire-qualification.json).
-The first pinned Gecko model/DOM binding is described below. Chromium and
-complete browser list layout/scroll integration remain unfinished.
+Pinned Gecko and Chromium model/DOM bindings consume this shared transport.
+Complete browser list layout/scroll integration remains unfinished.
 
 
 `Bridge/ListBinding.inc` now shares list model, snapshot, bitmap and host-epoch
@@ -954,5 +954,6 @@ feeds native selected IDs into original DOM setters and sends original trusted
 interaction completion. Exact ordinary native key and real-seat gesture
 references cover the measured scope; see [Firefox list qualification](../../Experiments/FirefoxNativeUI/list-qualification.json).
 Native row/intrinsic layout, full wheel/scroll/DOM geometry, host recovery,
-scaling and the Chromium list consumer remain work. Toolbar/address bar/tabs
+scaling remain work. The pinned Chromium consumer now reuses the same binding
+and shared fixture; see [Chromium list qualification](../../Experiments/ChromiumScrollers/list-qualification.json). Toolbar/address bar/tabs
 remain the browsers' own components.

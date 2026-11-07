@@ -8,6 +8,10 @@ select { box-sizing:border-box; width:180px; height:96px; }
 <select id="list" size="4"><option selected>Alpha</option><option disabled>Bravo</option><option>Charlie</option><option>Delta</option></select>
 <input id="after" value="Next focus target">
 <script>
+if(new URLSearchParams(location.search).has('only')) {
+  document.getElementById('after').remove();
+  document.getElementById('list').focus();
+}
 window.events=[];
 for(const type of ['input','change','keydown','keyup','keypress','mousedown','mouseup','click'])
   document.addEventListener(type,event=>events.push({type,id:event.target.id,trusted:event.isTrusted,

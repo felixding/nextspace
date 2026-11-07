@@ -8,6 +8,7 @@ from popup_models import run
 
 parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--fixture',type=Path,required=True)
 parser.add_argument('--sizing',action='store_true')
+parser.add_argument('--lists',action='store_true',help='Expect the enabled native list binding to own disabled appearance')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as connection:
@@ -48,7 +49,8 @@ try:
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native select sizing'&&!window.__resetPending"))
   check('native-disabled-appearance-has-no-extra-browser-fade',js("return getComputedStyle(document.getElementById('disabled')).opacity==='1'"))
   check('author-opacity-remains-authoritative',js("const e=document.getElementById('disabled');e.style.opacity='.25';const okay=getComputedStyle(e).opacity==='0.25';e.style.removeProperty('opacity');return okay"))
-  check('unsupported-disabled-listbox-retains-browser-opacity',js("const e=document.createElement('select');e.disabled=true;e.size=4;e.style.display='none';document.body.append(e);const okay=getComputedStyle(e).opacity==='0.7';e.remove();return okay"))
+  opacity='1' if options.lists else '0.7'
+  check('native-list-disabled-appearance' if options.lists else 'unsupported-disabled-listbox-retains-browser-opacity',js("const e=document.createElement('select');e.disabled=true;e.size=4;e.style.display='none';document.body.append(e);const okay=getComputedStyle(e).opacity==="+json.dumps(opacity)+";e.remove();return okay"))
   from popup_sizing import run as sizing
   sizing(fixture,indent='    ')
  trace=(root/'hook.log').read_text()

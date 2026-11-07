@@ -649,8 +649,25 @@ label/text changes. Unsupported appearance releases native ownership.
 See [Firefox list qualification](../Experiments/FirefoxNativeUI/list-qualification.json).
 This is partial integration: browser option/intrinsic geometry, full scrolling
 and wheel/default ownership, richer grouped/hidden data, native-host recovery,
-scales/zoom/accessibility and Chromium list bindings remain open. An ordinary
+scales/zoom/accessibility remain open. An ordinary
 GNUstep matrix also retains a deselected cell's visual state after outside
 release; exact native gesture replay confirms the browser matches that native
 behavior. Any correction belongs in the underlying UI library, shared by all
 consumers. No app-specific selection or drawing workaround is added.
+
+
+The optional pinned Chromium list binding (`NEXTSPACE_CHROMIUM_LISTS=1`, with
+existing popup/text/input flags) now consumes the same ListBinding and native
+provider as Gecko. Original DOM identities, option setters and trusted
+interaction completion remain engine-owned. Blink routes lists to CSS before
+its text painter, so the adapter wraps the common theme boundary and delegates
+other appearances through the original dispatch. Existing model callbacks and
+the original selected-state setter repaint the complete native owner, including
+programmatic selectedness changes without synthetic DOM events.
+
+See [Chromium list qualification](../Experiments/ChromiumScrollers/list-qualification.json).
+Both engines use one shared list fixture and ordinary native behavior/image
+references. This covers measured flat-list model and input integration, not
+complete native option layout, scrolling, rich models or all browser builds.
+Toolbar/address bar/tabs stay original. Optional future browser UI patches sit
+above the shared layer; subsequent GTK/Qt/KDE integration reuses that layer.

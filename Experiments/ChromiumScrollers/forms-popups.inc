@@ -28,11 +28,12 @@ static void *popup_ua_sheet(const void *sheet) {
   if(!string||!(*(const unsigned *)((const char *)string+8)&1)||length>2097152)return original_popup_ua_sheet(sheet);
   char *text=malloc((size_t)length+1);if(!text)return original_popup_ua_sheet(sheet);
   memcpy(text,(const char *)string+12,length);text[length]=0;
-  const char *correction="\nselect:not(:-internal-list-box):not([multiple]):disabled{opacity:1}";
+  const char *correction=forms_lists_enabled?"\nselect:not(:-internal-list-box):not([multiple]):disabled{opacity:1}select:disabled{opacity:1}select:-internal-list-box{border-radius:0}":"\nselect:not(:-internal-list-box):not([multiple]):disabled{opacity:1}";
   if(!strstr(text,"select:disabled")||!strstr(text,"-internal-auto-base(")||strstr(text,correction)){free(text);return original_popup_ua_sheet(sheet);}
   /* Native NSCell already owns the disabled appearance. Override the original
    * UA fades, including their feature-dependent rules, at the same UA origin.
-   * Unsupported listboxes/multiple selects and author/user opacity stay intact. */
+   * An enabled list binding extends this to listboxes. Author/user opacity
+   * stays at its original higher cascade origin. */
   size_t extra=strlen(correction);
   char *changed=malloc((size_t)length+extra);if(!changed){free(text);return original_popup_ua_sheet(sheet);}
   memcpy(changed,text,length);memcpy(changed+length,correction,extra);
@@ -201,17 +202,19 @@ static void popup_invalidate_size(void *node,uint64_t control) {
 static void popup_option_changed(void *node,const void *option) {
   struct NativeForm *form=find_form(node);uint64_t control=form?form->control:0;
   original_popup_option_changed(node,option);
-  if(control)popup_invalidate_size(node,control);
+  if(control){popup_invalidate_size(node,control);list_model_changed(node,control);}
 }
 static void popup_option_attribute(void *option,const void *params) {
-  struct NativeForm *form=popup_owner(option);void *node=form?form->node:NULL;uint64_t control=form?form->control:0;
+  struct NativeForm *form=popup_owner(option);if(!form)form=bound_form_ancestor(option,NXS_LISTBOX);
+  void *node=form?form->node:NULL;uint64_t control=form?form->control:0;
   original_popup_option_attribute(option,params);
-  if(control)popup_invalidate_size(node,control);
+  if(control){popup_invalidate_size(node,control);list_model_changed(node,control);}
 }
 static void popup_group_attribute(void *group,const void *params) {
-  struct NativeForm *form=popup_owner(group);void *node=form?form->node:NULL;uint64_t control=form?form->control:0;
+  struct NativeForm *form=popup_owner(group);if(!form)form=bound_form_ancestor(group,NXS_LISTBOX);
+  void *node=form?form->node:NULL;uint64_t control=form?form->control:0;
   original_popup_group_attribute(group,params);
-  if(control)popup_invalidate_size(node,control);
+  if(control){popup_invalidate_size(node,control);list_model_changed(node,control);}
 }
 static void popup_after_input(struct NativeForm *form,struct NXSResponse *response)
 {
@@ -261,7 +264,7 @@ static int paint_popup(void *self,const void *element,const void *document,const
   return original_popup_paint(self,element,document,style,info,rect);
 }
 static void select_default(void *node,void *event)
-{if(!default_form_key(node,event))original_select_default(node,event);}
+{if(!list_default_event(node,event)&&!default_form_key(node,event))original_select_default(node,event);}
 static void internal_popup_show(void *self,int type)
 {
   void *node=decode_member((char *)self+20);

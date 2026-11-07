@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "11276bf2",
+  "status": "pinned-chromium-native-lists-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "6a20f9c46280ebf86d897e8f83606972f0f323394ffa43bed586e2c51d35ffaf",
+    "Experiments/ChromiumScrollers/check-lists.py": "68b27c64406a955e8c32333bd725cdca779a5a2ed6c1cee34f2971ff134a85e6",
+    "Experiments/ChromiumScrollers/check-popup-models.py": "b3cce418b20b59c0e244dc9dfc5b29bc59e5265811aa7294641f5e34f1c71c4b",
+    "Experiments/ChromiumScrollers/forms-input.inc": "e189ccd18ebe7312b1fa8e2dd8211d8ff839d36aba04d55131403771a7751536",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "65e04ed63b4836d0ea3c63dcd7e294e87abb9bdf6d9cbbc2895a16ca3ba85e6f",
+    "Experiments/ChromiumScrollers/forms-popups.inc": "36b4ab0a1d2f091a06246ed8dd7f7fae49df24ac34bd029c94560cdeb950ea86",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "7e32a2f9dc39eac7a34a240d56eebd1b5f60968722f8e0070303df780dc49d28",
+    "Experiments/ChromiumScrollers/forms.inc": "e8da2ccc6e0c600e6ba6e752e7c627a9c556f8a825ec60a56517a7e742b696dc",
+    "Experiments/ChromiumScrollers/hook.c": "790784bcbe09929656e02e7cc7a1b18aa367e9e0a2a0189b2a2d9a4681d68a27",
+    "Experiments/ChromiumScrollers/pinned-lists.h": "02fd8078dc49202b84e69927b0999b7440e1634e760c26edcbc797f9de5a77fd",
+    "Experiments/FirefoxNativeUI/check-lists.py": "7c31b58c3e4d9793bdba7c1e17fce601a1685caa6daecb8bf4372b07b7501581",
+    "Libraries/NativeUI/README.md": "1b0fbed1de352533a6f1c9c3bd7a4addd05d2f0df933c9f388717238df0bc28d",
+    "Tests/Wayland/native-listboxes.html": "2ebc639764c117db37f2a8b172d607771b60fc18548c556fa3ed6fb82f86d6e8",
+    "Tests/Wayland/native_lists.py": "fa2eddbcb1c41d7f0a2b7a39f71b3b873dd0ed42c49a792836cc1ef7f8d2ea36",
+    "docs/Native-Control-Integration.md": "39098a254d27fb44bb802551864db395cfd82426b7dbda6eb8e76edaf9e6ffb3"
+  },
+  "original_sources": [
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/html_select_element.cc",
+      "bytes": 85642,
+      "sha256": "6fff11afc90ef8421468d4df1fc811895930c3c64989c83dfdc0ae71c35dfea9"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/html_select_element.h",
+      "bytes": 26513,
+      "sha256": "48bb4d8ea57e621f37d521b633473abc4194c6156c73836a1787423410da58c6"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/html_option_element.cc",
+      "bytes": 34690,
+      "sha256": "fd700bb3bde15c4f4bc9367c4f981b2d5eaaeee612bf07ec64103650c1b85274"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/html_option_element.h",
+      "bytes": 11808,
+      "sha256": "31b520f2159381b0e4cd48a52f3865284b3d1e52446e1f5d5387a5fcca05f7d1"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/select_type.cc",
+      "bytes": 83418,
+      "sha256": "4035930d41acda98c183d9e8615060d3643138a464536c1aa1547b04927a94b0"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/select_type.h",
+      "bytes": 4582,
+      "sha256": "8f60939219f21ae7dc2c1bf14888e858c4cfd3a97b8fdf92311708192fa8d226"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/theme_painter_default.cc",
+      "bytes": 40505,
+      "sha256": "1ef50eae3d648a0d488dbb1b8a7d62ea3f658a92ded8741eab6de909437c9ab7"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/web_theme_engine.h",
+      "bytes": 9576,
+      "sha256": "945b554b00120faa6624d2dfb70a29d0260ec2487715b84e2b8bc93fd129afef"
+    },
+    {
+      "local": ".build/foreign-scrollbars/chromium-prototype/source/forms/html.css",
+      "bytes": 86552,
+      "sha256": "94064b3cd35d9ef63818fdf981d77d3cb43e7e3c40823c1c0943e7f143eb4284"
+    },
+    {
+      "local": ".build/native-ui/chromium-list-source/theme_painter.cc",
+      "bytes": 18003,
+      "sha256": "c8409284532b2487bbe229ce16ed418c17390bdf27629347782a9984029a55f6"
+    },
+    {
+      "local": ".build/native-ui/list-control-source/NSBrowser.m",
+      "bytes": 93735,
+      "sha256": "08ff916c0c868f3a74c98525d0d31ecb17b03c6a602729394ad0c82f807198f8"
+    },
+    {
+      "local": ".build/native-ui/list-control-source/NSMatrix.m",
+      "bytes": 107242,
+      "sha256": "763b2c8fdeacf84fae75cf141ba578945e1a773c935e5c852937653c37d6ab2b"
+    }
+  ],
+  "pinned_calls": {
+    "PAINT": {
+      "offset": 243622784,
+      "bytes": "3f2303d5fd7bbba9f90b00f9b9e40190fd030091"
+    },
+    "BORDER": {
+      "offset": 243624280,
+      "bytes": "5f2403d5a10000b4281440b9080d00121f050071"
+    },
+    "SAVE": {
+      "offset": 236042444,
+      "bytes": "3f2303d5ff0301d1fd7b01a9081f02b0fd430091"
+    },
+    "CHANGE": {
+      "offset": 236041000,
+      "bytes": "3f2303d5fd7bbda9f50b00f9751e02f0fd030091"
+    },
+    "SET_SELECTED": {
+      "offset": 235888636,
+      "bytes": "3f2303d5fd7bbda9f65701a915c04139b61f0290f44f02a928000012f30300aad6a645f9bf02086bfd03009120030054f403012a21000012e00313aae2031f2a81ffff97685680b9c90240f9200d08ea00020054b400003608844939e10313aa0201005209000014098049390884493989000036a8020034e2031f2a02000014"
+    },
+    "SELECTED_STATE": {
+      "offset": 235888192,
+      "bytes": "3f2303d5ff4301d1fd7b01a9282002f0fd430091"
+    },
+    "ID": {
+      "offset": 231839012,
+      "bytes": "3f2303d5ffc301d1fd7b01a9083f02f0fd430091"
+    },
+    "NODE": {
+      "offset": 231840348,
+      "bytes": "5f2403d5c00600343f2303d5ff8300d1fd7b01a9"
+    },
+    "FOCUS": {
+      "offset": 251079748,
+      "bytes": "3f2303d5ff4301d1fd7b04a948ac01d08950f9f0"
+    },
+    "STYLE_DATA": {
+      "offset": 243630648,
+      "bytes": "892a4069680340f957da01d0f7820491e00317aae1031f2ae20314aa090d098a0a0d0a8ae3031faa290580b9581d40f9080d098a083140bd"
+    },
+    "STYLE_APPEARANCE": {
+      "offset": 243630784,
+      "bytes": "084f0f53a98a40b900e4006fff3300f91f150071ea179f1a1f35007128050051"
+    }
+  },
+  "invariants": [
+    "Both engines use unchanged shared ListBinding, Lists and Inputs. The single GNUstep provider owns actual NSBrowser/NSMatrix/cells/scrollers. The adapter copies no control rendering, layout, selection, tracking or key algorithm.",
+    "Blink original GetListItems recalculation, traversal, labels, visibility and DOMNodeIds supply the application model. Original option selectedness and select multiple mode supply list-specific state; stable DOM identities are re-resolved across native input and original callbacks.",
+    "ThemePainter::Paint sends listbox appearance directly to CSS. The common theme/border wrappers handle owned listboxes and delegate every other appearance to original dispatch, preserving existing text virtual hooks. Guarded style data at +4, uint64 +56 bits 15..19 identifies appearance 5; compiled public struct stores and actual runtime confirm the enum.",
+    "Original ListBoxSelectType::SaveLastSelection, HTMLOptionElement::setSelectedForBinding and ListBoxOnChange own DOM selectedness, dirty/validity/accessibility updates and trusted interaction completion. Only changed selectedness produces DOM input/change. Original trusted event dispatch, cancellation and focus remain intact.",
+    "The original SetSelectedState method runs exactly once before owner invalidation for programmatic selection. Existing option-content/group-attribute observers also dirty the complete native owner. No synthetic script input/change events are introduced.",
+    "Existing scroll-area scrollbar ownership suppresses duplicate engine bars for the measured native list; complete browser scroll/option geometry integration remains open. Loss of supported appearance and original frame detach release native ownership.",
+    "The existing specific UA popup disabled rule is retained when appending list disabled/radius corrections. All corrections remain at UA origin below author/user styles. Broader styled controls are not qualified.",
+    "The shared real-seat fixture compares whole native images and canonical DOM events. Independent native responder calls define key/focus results; a separate ordinary NSBrowser window replays outside gestures and records full cell visual state.",
+    "Only the optional small Chromium adapter is rebuilt. Firefox adapter, browsers, AppKit/backend, shared provider/loader/shim and API 1/568 remain unchanged. Toolbars/address bars/tabs remain original. Future requested UI changes use optional app-specific patches over the same shared layer for subsequent GTK/Qt/KDE."
+  ]
+}

@@ -8,6 +8,7 @@
 #include "../../Libraries/NativeUI/Bridge/ControlActions.inc"
 struct NativeForm {
   struct NativeForm *next;
+  struct NXSListBinding list;
   void *node;
   uint64_t control;
   uint32_t radio_owner,radio_member;
@@ -58,7 +59,7 @@ static int forms_radio_groups_enabled,forms_labels_enabled;
 static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
-static int forms_popups_enabled;
+static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_multiline_enabled;
 static int forms_multiline_viewport_enabled;
@@ -94,6 +95,17 @@ static int sync_slider_model(struct NativeForm *);
 static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
 static int slider_mouse_default(void *,void *);
 static int popup_element(void *);
+static int list_element(void *);
+static int list_owned(const struct NativeForm *);
+static int list_style(void *);
+static void list_forget(struct NativeForm *);
+static void list_model_changed(void *,uint64_t);
+static struct NXSResponse *list_form_request(struct NativeForm *,unsigned,double,double,unsigned);
+static int list_sync(struct NativeForm *);
+static void list_after_input(uint32_t,uint64_t,uint64_t);
+static int list_key_input(struct NativeForm *,void *,int,unsigned,const char *,const char *,unsigned,int);
+static int list_default_event(void *,void *);
+static int list_mouse_dispatch(void *,void *,const void *,const void *,const void *,void *,int,const void *,const void *,void *,void *,struct MouseDispatchResult *);
 static struct NXSResponse *sync_popup_model(struct NativeForm *,struct NXSResponse *);
 static void popup_after_input(struct NativeForm *,struct NXSResponse *);
 static void popup_free_model(struct NativeForm *);
@@ -184,6 +196,7 @@ static char *form_title(void *node) {
   return result;
 }
 static struct NXSResponse *form_request(struct NativeForm *form,int operation,double x,double y,unsigned modifiers) {
+  if(form->kind==NXS_LISTBOX)return list_form_request(form,operation,x,y,modifiers);
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return radio_form_request(form,operation,x,y,modifiers);
   if(operation==1&&form->kind==NXS_POPUP&&!popup_measuring)popup_sync_origin(form);
   size_t title_size=operation==1&&form->title?strlen(form->title):0;
@@ -212,7 +225,7 @@ static void invalidate_form(struct NativeForm *form) {
 static struct NXSResponse *sync_form_focus(struct NativeForm *,struct NXSResponse *);
 static int paint_form(int kind,void *self,const void *element,const void *document,const void *style,const void *info,const struct Rect *rect) {
   struct NativeForm *form=find_form(element);
-  if(form)form->painted=0;
+  if(form){if(form->kind==NXS_LISTBOX&&kind!=NXS_LISTBOX)list_forget(form);form->painted=0;}
   if(rect->width<1||rect->height<1)return 0;
   char *title=kind==1?form_title((void *)element):strdup("");
   if(!title)return 1;
@@ -252,6 +265,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
     getpid(),(unsigned long long)form->control,form->value,rect->x,rect->y,rect->width,rect->height,canvas);
   if(canvas)draw_native_bitmap(canvas,pixels,header.width,rect->x,rect->y,0,0,header.width,header.height);
   free(pixels);form->painted=!!canvas;
+  if(kind==NXS_LISTBOX&&canvas&&log_fd>=0)dprintf(log_fd,"%d native-list id=%llu count=%u selected=%u rect=%d,%d %dx%d\n",getpid(),(unsigned long long)form->control,form->list.state.count,form->list.state.selected_count,rect->x,rect->y,rect->width,rect->height);
   if(kind==NXS_BUTTON&&canvas)native_button_size_changed(form,&header);
   return canvas?0:1;
 }
@@ -276,9 +290,11 @@ static void box_paint(void *self,const void *info) {
   void *fragment=*(void **)((char *)self+32),*layout=fragment?decode_member(fragment):NULL;
   void *node=layout?((void *(*)(const void *))(base+0xe565500))(layout):NULL;
   void *previous=native_parent;native_parent=node;
-  original_box_paint(self,info);native_parent=previous;
+  original_box_paint(self,info);
+  struct NativeForm *form=node?find_form(node):NULL;if(form&&form->kind==NXS_LISTBOX&&!list_style(form->node))list_forget(form);
+  native_parent=previous;
 }
-static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||text_kind(f->kind))&&f->painted);}
+static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||text_kind(f->kind)||list_owned(f))&&f->painted);}
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
 static void block_children(void*s,const void*i,uint64_t offset)
@@ -298,6 +314,7 @@ static struct FloatPoint form_point(struct NativeForm *form,const void *event) {
 }
 static void finish_form(double x,double y,unsigned modifiers) {
   struct NativeForm *form=active_form;if(!form)return;
+  if(form->kind==NXS_LISTBOX){uint32_t node=radio_node_id(form->node);uint64_t control=form->control,before=form->list.state.actions;active_form=NULL;struct NXSResponse *r=list_form_request(form,4,x,y,modifiers);for(unsigned i=0;r&&r->parts[0].y&&i<100;i++){struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);r=native_list_request(control,5,0,0,1);}list_after_input(node,control,before);return;}
   if(text_kind(form->kind)) {
     form->text_x=x;form->text_y=y;end_text_pointer(form,1);invalidate_form(form);return;
   }
@@ -320,6 +337,8 @@ static void finish_form(double x,double y,unsigned modifiers) {
 }
 static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,const void *type,const void *event,
     const void *last,void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up) {
+  struct MouseDispatchResult list_result;
+  if(forms_lists_enabled&&list_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   uintptr_t atom=*(const uintptr_t *)type;
   unsigned modifiers=event_modifiers(event);
   if(same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0)radio_pointer_gate.armed=0;
@@ -503,6 +522,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-popups.inc"
 #include "forms-progress.inc"
 #include "forms-text.inc"
+#include "forms-lists.inc"
 #include "forms-text-scroll.inc"
 #include "forms-wheel.inc"
 static struct Detour form_detours[]={
@@ -523,14 +543,16 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
+  (!forms_lists_enabled||(guard_list_calls()&&prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))&&
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
-  (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
+  (!(forms_multiline_viewport_enabled||forms_lists_enabled)||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
   (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}
 static void activate_forms(void){if(forms_labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled){activate_form_input();activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));}
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));
+  if(forms_lists_enabled)activate_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours));
   if(forms_text_enabled)activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));
-  if(forms_multiline_viewport_enabled)activate_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours));
+  if(forms_multiline_viewport_enabled||forms_lists_enabled)activate_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours));
   if(forms_wheel_enabled)activate_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours));}

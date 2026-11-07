@@ -22,6 +22,7 @@ static int form_focused(const void *node) {
 static int input_form_kind(void *node) {
   uintptr_t table=*(const uintptr_t *)node;
   if(table==base+0x11cf3500+16)return NXS_BUTTON;
+  if(forms_lists_enabled&&list_element(node))return NXS_LISTBOX;
   if(forms_popups_enabled&&popup_element(node))return NXS_POPUP;
   if(forms_multiline_enabled&&table==base+NXS_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(table!=base+0x11dc01d8+16)return 0;
@@ -38,7 +39,7 @@ static int input_form_kind(void *node) {
 static struct NativeForm *bind_input_form(void *node) {
   struct NativeForm *form=find_form(node);if(form)return form;
   int kind=input_form_kind(node);
-  if(kind==NXS_POPUP||text_kind(kind))return NULL; /* Theme paint establishes native ownership. */
+  if(kind==NXS_POPUP||kind==NXS_LISTBOX||text_kind(kind))return NULL; /* Theme paint establishes native ownership. */
   if(!kind||!decode_member((const char *)node+48))return NULL;
   /* Keyboard focus can precede the first paint. Use the engine's layout box
    * and semantic control type to create the native object at that boundary. */
@@ -57,6 +58,7 @@ static struct NativeForm *bind_input_form(void *node) {
 }
 static struct NXSResponse *form_input_request(struct NativeForm *form,int operation,int focus,
     int type,unsigned logical,const char *text,const char *unmodified,unsigned modifiers,int repeat) {
+  if(form->kind==NXS_LISTBOX){NXSKeyEvent key={.size=sizeof(key),.type=type,.key=logical,.text=text,.unmodified_text=unmodified,.modifiers=modifiers,.repeat=repeat};struct NXSResponse *r=native_list_input(form->control,focus,operation==8?&key:NULL);if(r&&operation==7){native_list_binding_snapshot(&form->list,r);form->list.focused=!!focus;}return r;}
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled&&operation==7)return radio_form_focus(form);
   size_t a=text?strlen(text):0,b=unmodified?strlen(unmodified):0;
   if(a+b>65536)return NULL;
@@ -70,7 +72,7 @@ static struct NXSResponse *form_input_request(struct NativeForm *form,int operat
   struct NXSResponse *response=exchange_bytes(req,size);free(req);return response;
 }
 static struct NXSResponse *sync_form_focus(struct NativeForm *form,struct NXSResponse *response) {
-  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return response;
+  if(form->kind==NXS_LISTBOX||(form->kind==NXS_RADIO&&forms_radio_groups_enabled))return response;
   if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_FOCUS)||!response)return response;
   int focus=form_focused(form->node);
   if(!!response->parts[3].y==focus)return response;
@@ -157,6 +159,7 @@ static int default_form_key(void *node,void *event) {
   char *text=keyboard_text(web,102,key),*unmodified=keyboard_text(web,110,key);
   free(key);
   if(!text||!unmodified){free(text);free(unmodified);*flags|=0x40;return 1;}
+  if(form->kind==NXS_LISTBOX){int handled=list_key_input(form,event,modifier?NXS_KEY_MODIFIERS:down?NXS_KEY_DOWN:NXS_KEY_UP,modifier?NXS_KEY_TEXT:logical,modifier?"":text,modifier?"":unmodified,modifiers,!!(*(const unsigned *)((char *)event+108)&(1u<<5)));free(text);free(unmodified);return handled;}
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled) {
     int handled=radio_key_input(form,event,modifier?NXS_KEY_MODIFIERS:down?NXS_KEY_DOWN:NXS_KEY_UP,
       modifier?NXS_KEY_TEXT:logical,modifier?"":text,modifier?"":unmodified,modifiers,

@@ -942,3 +942,43 @@ binaries, the unchanged NativeUI SDK and no live owned candidate mappings.
 Broader browser controls, geometry/scales, accessibility, recovery, complete
 menus/shortcuts, derivatives/deployment and subsequent GTK/Qt/KDE work remain
 unfinished.
+
+
+### Native listboxes and multiple selects
+
+`NEXTSPACE_CHROMIUM_LISTS=1` enables the pinned Blink list binding with the
+existing native popup, text and input flags. It uses the same
+`Bridge/ListBinding.inc`, wire transport and ordinary GNUstep `NSBrowser` as
+the Firefox binding. There is no second list control or selection algorithm.
+Original Blink DOM identities, option labels, visibility and selectedness form
+the application model. Native selected IDs are applied through original option
+setters and original trusted interaction completion.
+
+Blink routes listboxes directly to CSS at its common theme boundary. The
+adapter wraps that boundary once, keeps existing text hooks intact and supplies
+the complete native bitmap. Existing engine option notifications and the
+original selected-state setter invalidate that native owner after model changes,
+including script selection. UA-origin corrections remove the extra disabled
+fade and radius clipping; author/user cascade origins remain higher.
+
+The shared real-seat suite compares whole images with ordinary native controls,
+including a focused-only document before first paint, single/multiple selection,
+script selection, cancelled input, model updates, outside release and frame
+retirement. An independent ordinary window replays the outside gesture, since
+the underlying matrix can retain visual state beyond its selected set.
+
+This is opt-in integration for the exact pinned build at scale 1. Native
+intrinsic/option geometry, full wheel/DOM/default scrolling, richer models,
+host recovery, scales/zoom/accessibility, other browser builds and deployment
+remain open. See [list qualification](list-qualification.json) and
+[source audit](list-source-audit.json). Browser toolbar/address bar/tabs retain
+their existing components; future requested changes use optional app patches
+over the same shared layer used by later GTK/Qt/KDE adapters.
+
+Final candidate 08 passes 34 list checks/13 whole native images. The same
+adapter passes forms 101/28, radios 94/29, popups 66/27 and button/text 107/48.
+The unchanged Firefox adapter passes the expanded shared list suite, 34/13.
+The scoped total is 436 checks/158 complete images. Runtime audit retains all
+20 measured production hashes, unchanged NativeUI SDK/API 1/568 and renderer
+sandboxing. A separate source reproduction is byte-identical; all owned
+fixtures are stopped. Earlier failing candidates remain separate evidence.

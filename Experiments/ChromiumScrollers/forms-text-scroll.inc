@@ -123,6 +123,7 @@ static struct FixedRect multiline_contracted_box(int edge,const void *style,cons
   return original_multiline_contracted_box(edge,style,fragments,size);
 }
 static void multiline_bars(const void *area,uint8_t *horizontal,uint8_t *vertical,int option) {
+  if(forms_lists_enabled&&list_scrollbar_owner(area)){*horizontal=0;*vertical=0;return;}
   struct NativeForm *form=multiline_area(area,1);
   if(form&&sync_multiline_layout(form,area)){
     /* Both scrollers belong to the real native NSScrollView. */

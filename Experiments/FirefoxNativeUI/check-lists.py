@@ -8,6 +8,7 @@ from native_lists import ListFixture,run
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,default=2835)
 p.add_argument('--ordinary-probe',type=Path,required=True)
+p.add_argument('--only-list',action='store_true',help='Focus the only control during parsing, before first paint')
 a=p.parse_args();root=a.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as s:
@@ -23,7 +24,8 @@ while True:
 launch=json.loads((root/'launch.json').read_text());pid=launch['pids'][-1];assert launch['engine']=='firefox'
 def js(script):return m.command('WebDriver:ExecuteScript',dict(script=script,args=[]))['value']
 def reset():
- m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-listboxes.html').as_uri()))
+ url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-listboxes.html').as_uri()
+ m.command('WebDriver:Navigate',dict(url=url+('?only=1' if a.only_list else '')))
  f.wait(lambda:js('return document.readyState==="complete"&&!!document.getElementById("list")'))
 f=ListFixture(root,command,js,check,pid,lambda:js('return [mozInnerScreenX,mozInnerScreenY]'),reset)
 f.ordinary_probe=a.ordinary_probe
