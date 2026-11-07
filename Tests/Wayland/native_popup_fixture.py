@@ -28,9 +28,11 @@ class PopupFixture:
   head=self.command('outputs')[0];reply=self.command('capture '+head['name']);event=reply['event']
   image=Image.frombytes('RGBA' if event['format']==0 else 'RGB',(event['width'],event['height']),Path(reply['path']).read_bytes(),'raw','BGRA' if event['format']==0 else 'BGRX',event['stride'],-1 if event['flags']&1 else 1).convert('RGB')
   image.save(self.root/(name+'-desktop.png'));return image
+ def control_model(self,identifier):
+  return self.js("const e=document.getElementById("+json.dumps(identifier)+");return {id:e.id,kind:6,title:'',state:0,width:e.offsetWidth,height:e.offsetHeight,enabled:!e.disabled,selected:e.selectedIndex,items:[...e.options].map(x=>({title:x.label,enabled:!x.disabled})),rect:e.getBoundingClientRect().toJSON()}")
  def pixels(self,identifier,focused=False,model=None,label=None):
   self.js('document.getElementById('+json.dumps(identifier)+').'+('focus()' if focused else 'blur()')+';return true');time.sleep(.15)
-  data=self.js("const e=document.getElementById("+json.dumps(identifier)+");return {id:e.id,kind:6,title:'',state:0,width:e.offsetWidth,height:e.offsetHeight,enabled:!e.disabled,selected:e.selectedIndex,items:[...e.options].map(x=>({title:x.label,enabled:!x.disabled})),rect:e.getBoundingClientRect().toJSON()}")
+  data=self.control_model(identifier)
   data['screen']=self.origin()
   if model:data.update(model)
   name=(label or identifier)+('-focused' if focused else '-normal')

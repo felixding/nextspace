@@ -31,6 +31,9 @@ struct NativeForm {
   NXSTextViewport text_viewport;
   NXSTextGeometry text_geometry;
   int text_geometry_ready;
+  double preferred_width,preferred_height;
+  void *button_style;
+  int button_size_pending;
 };
 struct FloatRect {float x,y,width,height;};
 struct SizeI {int width,height;};
@@ -87,6 +90,8 @@ static struct NXSResponse *sync_popup_model(struct NativeForm *,struct NXSRespon
 static void popup_after_input(struct NativeForm *,struct NXSResponse *);
 static void popup_free_model(struct NativeForm *);
 static void popup_sync_origin(struct NativeForm *);
+static void native_button_size_changed(struct NativeForm *,const struct NXSResponse *);
+static int native_button_owned(const struct NativeForm *);
 static int text_kind(int);
 static struct NXSResponse *sync_text_form(struct NativeForm *,struct NXSResponse *);
 static int default_text_key(void *,void *);
@@ -97,6 +102,13 @@ static void echo_text_viewport(struct NativeForm *);
 static int read_text_viewport(struct NativeForm *);
 static int restore_text_viewport(struct NativeForm *);
 static void native_wheel_binding(struct NativeForm *,int);
+static struct NativeForm *bound_form_ancestor(void *node,int kind) {
+  for(unsigned depth=0;node&&depth<4096;depth++) {
+    struct NativeForm *form=find_form(node);if(form&&form->kind==kind)return form;
+    node=((void *(*)(void *))(base+0xdd0e0ac))(node);
+  }
+  return NULL;
+}
 static struct NativeForm *form_ancestor(void *node) {
   for(int i=0;node&&i<256;i++) {
     struct NativeForm *f=find_form(node);
@@ -212,11 +224,17 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   memcpy(pixels,response+1,(size_t)header.stride*header.height);
   if(kind==NXS_TEXTAREA&&forms_multiline_viewport_enabled)read_text_viewport(form);
   void *canvas=*(void **)*(void **)info;
+  /* The desktop host validates every input against a registered renderer
+   * lifetime, including documents containing only buttons or other controls.
+   * Establish ownership before committing any native pixels. */
+  form->painted=!!canvas;
+  if(canvas&&forms_input_enabled&&!refresh_form_watch()){form->painted=0;free(pixels);return 1;}
   static __thread unsigned progress_paints;
   if(kind==NXS_PROGRESS&&progress_paints++<32&&log_fd>=0)dprintf(log_fd,"%d progress paint id=%llu value=%.8g rect=%d,%d,%d,%d canvas=%p\n",
     getpid(),(unsigned long long)form->control,form->value,rect->x,rect->y,rect->width,rect->height,canvas);
   if(canvas)draw_native_bitmap(canvas,pixels,header.width,rect->x,rect->y,0,0,header.width,header.height);
   free(pixels);form->painted=!!canvas;
+  if(kind==NXS_BUTTON&&canvas)native_button_size_changed(form,&header);
   return canvas?0:1;
 }
 static int paint_checkbox(void*s,const void*e,const void*d,const void*style,const void*i,const struct Rect*r)
@@ -242,7 +260,7 @@ static void box_paint(void *self,const void *info) {
   void *previous=native_parent;native_parent=node;
   original_box_paint(self,info);native_parent=previous;
 }
-static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON||f->kind==NXS_POPUP||text_kind(f->kind))&&f->painted;}
+static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||text_kind(f->kind))&&f->painted);}
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
 static void block_children(void*s,const void*i,uint64_t offset)
@@ -410,6 +428,8 @@ static void element_detach(void *node,int reattach) {
 }
 #include "forms-input.inc"
 #include "forms-sliders.inc"
+#include "forms-layout.inc"
+#include "forms-buttons.inc"
 #include "forms-popups.inc"
 #include "forms-progress.inc"
 #include "forms-text.inc"
@@ -428,7 +448,7 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return guard_form_coordinates()&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+static int prepare_forms(void){return guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
@@ -436,7 +456,7 @@ static int prepare_forms(void){return guard_form_coordinates()&&prepare_detours(
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
   (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
   (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}
-static void activate_forms(void){activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
+static void activate_forms(void){activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));

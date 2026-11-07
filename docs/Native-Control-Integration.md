@@ -94,11 +94,17 @@ block sizing, fixed flex/grid buttons, Unicode/nested labels, model changes,
 native editing and host replacement. The bridge preserves its completed model
 across reflow and invalidates retained backgrounds after committed title changes.
 See the [HTML button qualification](../Experiments/FirefoxNativeUI/html-button-qualification.json).
-Rich button content, select controls and the broader browser/application scope
-remain unfinished.
-The full host-replacement capture also shows a menu-presentation gap: Firefox
-remains focused and its D-Bus menu is bound, while the detached menu shows
-TimeMon. Native control-image recovery does not qualify that menu behavior.
+Pinned Chromium buttons now consume the same native preferred sizes, including
+automatic regular, input, flex/grid and CSS-constrained controls. Buttons and
+selects share Blink layout primitives; actual native cells supply all metrics.
+Painted interactive controls register the shared input lifetime even on
+button-only pages. Host-epoch repaint recreates retained controls in the new
+native host. See the
+[Chromium button qualification](../Experiments/ChromiumScrollers/button-sizing-qualification.json).
+Rich button content and the broader browser/application scope remain unfinished.
+An earlier Firefox host-replacement capture showed TimeMon while Firefox was
+focused; that run did not qualify menu presentation. The later menu/session
+qualifications above cover their measured ownership and recovery cases.
 
 The provider now also supplies an ordinary `NSTextView`/`NSScrollView` multiline
 control, including native document/viewport geometry. Opt-in bindings for both

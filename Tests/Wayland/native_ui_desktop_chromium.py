@@ -16,7 +16,10 @@ parser.add_argument('--activation-fallback',action='store_true',help='Verify pro
 parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through the Chromium profile preference')
 parser.add_argument('--native-tabs',action='store_true',help='Verify the experimental shared native tab container')
 parser.add_argument('--popup-recovery',action='store_true',help='Verify retained native select models and first actions after host replacement')
+parser.add_argument('--button-sizing',action='store_true',help='Verify native button sizes/pixels/actions before and after host replacement')
+parser.add_argument('--document',type=Path,help='Optional owned HTML control fixture')
 args=parser.parse_args()
+if args.button_sizing and not args.document:parser.error('--button-sizing requires --document')
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','chromium']:
  assert getattr(args,name).is_file(),name
@@ -102,7 +105,7 @@ try:
  heads=command('outputs');head=heads[0];assert command('resize-output '+head['name']+' 1600 1000')['ok']
 
  wait(lambda:command('windows'),lambda windows:len({w['pid'] for w in windows if w['accepts_focus'] and w['level']==0 and not w['legacy']})>=2)
- browser_env=dict(env,**published());url=(repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
+ browser_env=dict(env,**published());url=(args.document.resolve() if args.document else repo/'Experiments/FirefoxNativeUI/test-desktop.html').as_uri()
  current=dict(browser_env,LD_PRELOAD=str(args.hook))
  current['NEXTSPACE_CHROMIUM_SOCKET']=browser_env['NEXTSPACE_NATIVE_UI_SOCKET'];current['NEXTSPACE_CHROMIUM_LOG']=str(root/'chromium-hook.log')
  if args.native_tabs:current.update(NEXTSPACE_CHROMIUM_TABS='1',NEXTSPACE_CHROMIUM_TABS_TRACE='1')
@@ -110,7 +113,7 @@ try:
   prepare_native_frame('chromium',runtime/'chromium-profile',current)
  for flag in ['FORMS','INPUT','TEXT','MULTILINE','MULTILINE_VIEWPORT','WHEEL','VIEWS','PROGRESS','ANIMATION','SLIDERS','POPUPS','MENUS','MENU_KEYS']:current['NEXTSPACE_CHROMIUM_'+flag]='1'
  launch=[str(args.chromium),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-sync','--disable-component-update','--password-store=basic','--remote-debugging-port='+str(args.port),'--window-size=1120,800','--user-data-dir='+str(runtime/'chromium-profile'),url]
- if args.popup_recovery:
+ if args.popup_recovery or args.button_sizing:
   from chromium_cdp_pipe import CDPPipe
   launch.append('--remote-debugging-pipe');cdp_pipe=CDPPipe(launch,current,root,args.hook);browser=cdp_pipe.process
  else:
@@ -189,7 +192,7 @@ try:
  selected_root=next(w for w in menus if w['pid'] in owned_hosts() and w['level']==20 and w['visible'])
  menu_box=(selected_root['x'],selected_root['y'],selected_root['x']+selected_root['width'],selected_root['y']+selected_root['height'])
  before_replacement=desktop('before-host-replacement').crop(menu_box);before_replacement.save(root/'menu-reference-before-replacement.png')
- if args.popup_recovery:
+ if args.popup_recovery or args.button_sizing:
   from popup_recovery import PopupRecovery
   page=next(page for page in pages() if page['url']==url)
   def cdp(method,params=None,target=True):
@@ -204,13 +207,46 @@ try:
   def origin():
    w=next(w for w in command('windows') if w['id']==window['id']);inside=js('return {height:innerHeight,scale:devicePixelRatio}');assert inside['scale']==1
    return [w['x']+(w['frame_left'] if w['server_decorated'] else 0),w['y']+(w['frame_top'] if w['server_decorated'] else 0)+w['surface_height']-inside['height']]
-  popup_recovery=PopupRecovery(js,check,command,wait,desktop,root,args,browser_env,repo,owned_hosts,origin=origin,indent='    ');popup_recovery.before()
+  if args.button_sizing:
+   def button_lifetime():
+    entries=[json.loads(line) for line in (root/'session.stdout').read_text().splitlines() if line.startswith('{') and line.endswith('}')]
+    processes={entry['process'] for entry in entries if entry.get('event')=='native-form-control' and entry.get('kind')==1}
+    registered={entry['process'] for entry in entries if entry.get('event')=='native-notifier' and entry.get('operation')==15 and entry.get('accepted')}
+    return dict(controls=sorted(processes),registered=sorted(registered),ready=bool(processes) and processes<=registered)
+   lifetime=wait(button_lifetime,lambda state:state['ready']);check('button-only-renderer-native-input-lifetime-registered',lifetime['ready'],**lifetime)
+  if args.popup_recovery:
+   popup_recovery=PopupRecovery(js,check,command,wait,desktop,root,args,browser_env,repo,owned_hosts,origin=origin,indent='    ');popup_recovery.before()
+  if args.button_sizing:
+   from button_sizing import ButtonFixture,run as button_checks
+   button_phase='before-host';button_root=root/('buttons-'+button_phase);button_root.mkdir()
+   class DesktopButtonFixture(ButtonFixture):
+    def image(self,label):return desktop('button-'+button_phase+'-'+label)
+   def button_command(text):
+    if not text.startswith('reference '):return command(text)
+    spec=json.loads(text[10:]);definition=button_root/'references-controls.json';definition.write_text(json.dumps(spec['controls'])+'\n');location=button_root/spec['name']
+    subprocess.run([sys.executable,str(repo/'Experiments/ChromiumScrollers/native-control-reference.py'),'--library',str(args.library),'--controls',str(definition),'--output',str(location),'-GSBackend','wayland']+(['--focus'] if spec.get('focus') else []),env=browser_env,check=True,stdout=(button_root/'references.log').open('a'),stderr=(button_root/'references.stderr').open('a'),timeout=20)
+    return dict(path=str(location))
+   def button_check(case,passed,**evidence):check('button-'+button_phase+'-'+case,passed,**evidence)
+   button_fixture=DesktopButtonFixture(button_root,button_command,js,button_check,browser.pid,origin,lambda:None)
+   js('window.__nativeButtonRecoveryMarker="retained";return true');button_checks(button_fixture)
+ if args.button_sizing:
+  entries=[json.loads(line) for line in (root/'session.stdout').read_text().splitlines() if line.startswith('{') and line.endswith('}')]
+  button_processes={entry['process'] for entry in entries if entry.get('event')=='native-form-key' and entry.get('kind')==1}
+  button_models={(entry['process'],entry['control']) for entry in entries if entry.get('event')=='native-form-control' and entry.get('kind')==1 and entry['process'] in button_processes}
+  check('buttons-bound-before-host-replacement',bool(button_models),models=sorted(button_models))
+  button_host_log_offset=(root/'session.stdout').stat().st_size
  old_hosts=owned_hosts();check('one-owned-native-host',len(old_hosts)==1,hosts=old_hosts)
  before_ready=(root/'session.stdout').read_text().count('NEXTSPACE_NATIVE_UI_SOCKET=')
  os.kill(old_hosts[0],signal.SIGKILL)
  replacement=wait(owned_hosts,lambda pids:len(pids)==1 and pids[0]!=old_hosts[0])
  wait(lambda:(root/'session.stdout').read_text(),lambda text:text.count('NEXTSPACE_NATIVE_UI_SOCKET=')>before_ready)
  if args.popup_recovery:popup_recovery.after()
+ if args.button_sizing:
+  check('host-replacement-retains-button-document',js('return window.__nativeButtonRecoveryMarker')=='retained')
+  button_phase='after-host';button_root=root/('buttons-'+button_phase);button_root.mkdir();button_fixture.root=button_root;button_checks(button_fixture)
+  entries=[json.loads(line) for line in (root/'session.stdout').read_bytes()[button_host_log_offset:].decode().splitlines() if line.startswith('{') and line.endswith('}')]
+  recreated={(entry['process'],entry['control']) for entry in entries if entry.get('event')=='native-form-control' and entry.get('kind')==1}
+  check('every-retained-button-recreated-in-new-native-host',button_models<=recreated,before=sorted(button_models),recreated=sorted(recreated))
  if args.activation_fallback:check('host-replacement-retains-browser-keyboard-focus',any(w['id']==window['id'] and w['focused'] for w in command('windows')))
  restored=browser_menu('host-replaced-menu')
  if args.activation_fallback:menu_title_click('host-replaced-menu-title-retains-focus',restored)

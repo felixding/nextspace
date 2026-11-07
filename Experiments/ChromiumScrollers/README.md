@@ -326,6 +326,28 @@ key equivalents, IME, accessibility and the other controls/frontends are still
 open. AppKit and Chromium were not rebuilt. Changing appearance or widget key
 behavior belongs in the UI library; this bridge remains a consumer of it.
 
+The current native button binding also consumes `NSButton` preferred sizes for
+ordinary, input, flex and grid buttons. Buttons and selects share one guarded
+Blink layout adapter and its original border/padding accessors. The existing
+intrinsic override preserves original containment values and outer CSS size
+constraints. Complete native models supply metrics after paint; the existing
+renderer work loop schedules normal intrinsic invalidation outside paint.
+Original DOM child/attribute/value notifications refresh retained backgrounds
+for changed rendered titles, including nested and hidden descendants.
+
+Every painted interactive form control now registers the existing native input
+lifetime before native pixels are committed, including button-only documents.
+On an observed host epoch change, all painted native controls re-enter the
+existing paint path. Actual desktop checks verify all 13 retained button models
+are recreated in the replacement host, alongside native sizes, complete pixels,
+trusted submit/reset actions and cancelled keys before and after replacement.
+`check-button-sizing.py --fixture OUTPUT --text-regression` checks the same
+button cases plus native text pixels, Emacs navigation and edit cancellation;
+the existing select cases cover the shared layout path. See the
+[button sizing qualification](button-sizing-qualification.json).
+Rich button content, broader CSS/scaling, animation/default-button behavior,
+accessibility, derivatives and installed deployment remain unfinished.
+
 ## Determinate progress indicators
 
 Set `NEXTSPACE_CHROMIUM_FORMS=1 NEXTSPACE_CHROMIUM_PROGRESS=1` for the additional

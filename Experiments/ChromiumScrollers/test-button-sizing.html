@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8"><title>Native button sizing</title>
+<style>
+body {margin:24px;background:white;color:black;font:16px sans-serif}
+.row {display:flex;align-items:flex-start;min-height:38px;gap:20px}
+label {width:170px}
+#fixed {width:180px;height:31px;box-sizing:border-box}
+#minimum {min-width:300px}
+#maximum {max-width:90px}
+</style>
+<h1>Native button sizes</h1>
+<form id=actions>
+<input id=form-value name=note value=original hidden>
+<div class=row><label>Automatic</label><button id=automatic type=button>Native button</button></div>
+<div class=row><label>Empty</label><button id=empty type=button></button></div>
+<div class=row><label>Disabled</label><button id=disabled type=button disabled>Unavailable</button></div>
+<div class=row><label>Unicode</label><button id=unicode type=button>日本語Café🙂</button></div>
+<div class=row><label>Nested label</label><button id=nested type=button><span>Nested <strong>label</strong></span><span hidden>ignored</span></button></div>
+<div class=row><label>Input button</label><input id=input-button type=button value="Input button"></div>
+<div class=row><label>Submit</label><button id=submit type=submit>Send form</button></div>
+<div class=row><label>Reset</label><input id=reset type=reset value="Reset form"></div>
+<div class=row><label>Explicit dimensions</label><button id=fixed type=button>Fixed button</button></div>
+<div class=row><label>Minimum width</label><button id=minimum type=button>Minimum</button></div>
+<div class=row><label>Maximum width</label><button id=maximum type=button>A native label constrained by CSS</button></div>
+<div class=row><label>Flex</label><button id=flex type=button style="display:inline-flex">Flex button</button></div>
+<div class=row><label>Grid</label><button id=grid type=button style="display:inline-grid">Grid button</button></div>
+</form>
+<script>
+window.events=[];
+for(const type of ['click','keyup','keydown','mousedown','mouseup','submit','reset'])document.addEventListener(type,e=>{events.push({type,id:e.target.id,trusted:e.isTrusted});if(type==='submit')e.preventDefault()});
+</script>
