@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -29,7 +29,11 @@ for item in json.loads(args.controls.read_text()):
         image = native.nxs_control_draw(pointer, 1)
         assert image.pixels and image.stride == image.width * 4
         pixels = C.string_at(image.pixels, image.stride * image.height)
-        Image.frombytes('RGBA', (image.width, image.height), pixels, 'raw', 'BGRA').save(args.output / (item['id'] + suffix + '.png'))
+        rendered=Image.frombytes('RGBA', (image.width, image.height), pixels, 'raw', 'BGRA')
+        if item['kind']==12:
+            rect=native.nxs_control_radio_item_rect(pointer,item['member'])
+            rendered=rendered.crop((round(rect.x),round(rect.y),round(rect.x+rect.width),round(rect.y+rect.height)))
+        rendered.save(args.output / (item['id'] + suffix + '.png'))
         return image
     def release(_):
         if pointer_case is not None:
@@ -57,6 +61,10 @@ for item in json.loads(args.controls.read_text()):
                                item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
                                item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
+        if item['kind']==12:
+            entries=(RadioItem*len(item['items']))(*[RadioItem(C.sizeof(RadioItem),entry['id'],b'',entry['enabled']) for entry in item['items']])
+            assert native.nxs_control_radio_items(pointer,entries,len(entries),1,item['selected'],item['key_cell'])
+            assert native.nxs_control_radio_cell_size(pointer,item['width'],item['height'])
         if item.get('preferred_size') and item['kind']!=6:
             preferred = native.nxs_control_size(pointer)
             config.width, config.height = math.ceil(preferred.width), math.ceil(preferred.height)
@@ -138,7 +146,7 @@ for item in json.loads(args.controls.read_text()):
             frame=native.nxs_control_popup_state(pointer).frame
             results[-1]['native_menu_frame']={key:getattr(frame,key) for key in ('x','y','width','height')}
             assert native.nxs_control_popup_open(pointer,0)
-        if item['enabled'] and item['kind'] not in (5,6,7,8,9):
+        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))

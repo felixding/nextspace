@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><title>Native radio groups</title>
+<style>body{background:white;color:black;font:16px sans-serif;margin:30px}label{display:block;height:28px}section{display:inline-block;vertical-align:top;width:260px}input[type=radio]{margin:3px 7px 3px 3px}</style>
+<section><h3>Original group</h3><form id="main">
+<label><input type="radio" name="choice" id="r0" checked>First</label>
+<label><input type="radio" name="choice" id="r1" disabled>Disabled</label>
+<label><input type="radio" name="choice" id="r2">Third</label>
+<label><input type="radio" name="choice" id="r3">Fourth</label>
+<input type="radio" name="choice" id="hidden-radio" hidden>
+</form></section>
+<section><h3>Separate form</h3><form id="other">
+<label><input type="radio" name="choice" id="s0" checked>Separate first</label>
+<label><input type="radio" name="choice" id="s1">Separate second</label>
+</form><h3>Unnamed</h3>
+<label><input type="radio" id="u0" checked>Independent one</label>
+<label><input type="radio" id="u1" checked>Independent two</label></section>
+<section><h3>Outside a form</h3>
+<label><input type="radio" name="choice" id="loose0" checked>Document first</label>
+<label><input type="radio" name="choice" id="loose1">Document second</label></section>
+<div id="shadow-host"></div>
+<script>
+const shadow=document.getElementById('shadow-host').attachShadow({mode:'open'});
+shadow.innerHTML='<label><input type="radio" name="choice" id="shadow0" checked>Shadow first</label><label><input type="radio" name="choice" id="shadow1">Shadow second</label>';
+window.events=[];
+for(const root of [document,shadow])for(const type of ['keydown','keyup','click','input','change','focus','blur'])
+ root.addEventListener(type,e=>events.push({type,id:e.target.id,trusted:e.isTrusted,key:e.key,checked:e.target.checked}),true);
+</script>

@@ -902,11 +902,11 @@ class NativeControlServer:
             if not rect.width>0 or not rect.height>0:self._respond(client,req);return
             if operation==45:
                 self._respond(client,req,state,input_result=1,rectangle=rect);return
-            if self._tracking(state):self._respond(client,req);return
             if req.width or req.height:
-                if not self.radio_capabilities&2 or not self.native.nxs_control_radio_cell_size(state['native'],req.width,req.height):
-                    self._respond(client,req);return
-                rect=self.native.nxs_control_radio_item_rect(state['native'],req.identifier)
+                if req.width!=rect.width or req.height!=rect.height:
+                    if self._tracking(state) or not self.radio_capabilities&2 or not self.native.nxs_control_radio_cell_size(state['native'],req.width,req.height):
+                        self._respond(client,req);return
+                    rect=self.native.nxs_control_radio_item_rect(state['native'],req.identifier)
             scale=state.get('scale',1);bitmap=self.native.nxs_control_draw(state['native'],scale)
             x,y,width,height=[math.floor(v*scale+.5) for v in (rect.x,rect.y,rect.width,rect.height)]
             if not bitmap.pixels or min(x,y)<0 or min(width,height)<1 or x+width>bitmap.width or y+height>bitmap.height:

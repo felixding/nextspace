@@ -119,9 +119,13 @@ navigation and tracking. The provider qualifies 24 complete native images at
 The subsequent [shared group transport](../Libraries/NativeUI/radio-transport-qualification.json)
 carries models, typed native state, member geometry and native member pixels.
 Original native cell sizing accepts application field bounds, and the shared host
-uses the actual native backing density during startup. Browser group membership
-and DOM transaction bindings remain to implement; existing browser radio bindings
-still use individual native buttons.
+uses the actual native backing density during startup. The first opt-in pinned
+Chromium group binding now supplies original engine membership/identities and
+DOM focus/activation through a common group model cache; native matrices supply
+member painting and input. Its
+[qualification](../Experiments/ChromiumScrollers/radio-group-qualification.json)
+records the partial tested scope. Complete Chromium group integration, the Gecko
+group binding and broader application coverage remain unfinished.
 An earlier Firefox host-replacement capture showed TimeMon while Firefox was
 focused; that run did not qualify menu presentation. The later menu/session
 qualifications above cover their measured ownership and recovery cases.

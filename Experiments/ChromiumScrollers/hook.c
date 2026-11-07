@@ -43,6 +43,7 @@ static __thread struct NXSResponse cached_response;
 static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),text);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
+#include "../../Libraries/NativeUI/Bridge/Radios.inc"
 
 static struct NXSResponse *query(const void *bar,int layer,float value,int override_value) {
   if(!bar||channel<0||!shared)return NULL;
@@ -239,6 +240,8 @@ __attribute__((constructor)) static void initialize(void) {
     else form_sizes[kind]=(struct SizeI){ceil(width),ceil(height)};
   }
   forms_input_enabled=forms_input_enabled&&forms_available;
+  const char *radio_groups=getenv("NEXTSPACE_CHROMIUM_RADIO_GROUPS");
+  forms_radio_groups_enabled=forms_input_enabled&&radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)metrics->parts[4].y&3)==3;
   forms_notifications_enabled=metrics->parts[6].x==1;
   const char *progress=getenv("NEXTSPACE_CHROMIUM_PROGRESS");
   forms_progress_enabled=forms_available&&progress&&!strcmp(progress,"1");

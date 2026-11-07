@@ -53,6 +53,9 @@ static void click(uint64_t from,uint64_t to,uint64_t actions)
   struct NXSRectD start,end;assert(native_radio_item_rect(1,from,&start));
   if(to)assert(native_radio_item_rect(1,to,&end));else end=(struct NXSRectD){.x=-20,.y=-20};
   struct NXSResponse *r=pointer(22,start.x+start.width/2,start.y+start.height/2);assert(r&&r->parts[3].x==1);
+  r=native_radio_item_draw(1,from,start.width,start.height);
+  check("busy-native-member-remains-renderable",r&&r->width>0&&r->height>0&&r->parts[0].y==1);
+  check("busy-native-member-cannot-change-layout",!native_radio_item_draw(1,from,start.width+1,start.height));
   check("busy-native-model-rejected",!native_radio_model(1,items,4,1,id(0),id(0),scale));
   assert(pointer(3,end.x+end.width/2,end.y+end.height/2));
   assert(pointer(4,end.x+end.width/2,end.y+end.height/2));

@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "4210c909",
+  "status": "opt-in-pinned-chromium-one-column-groups-partially-qualified",
+  "candidate_flag": "NEXTSPACE_CHROMIUM_RADIO_GROUPS=1",
+  "prerequisites": [
+    "NEXTSPACE_CHROMIUM_FORMS=1",
+    "NEXTSPACE_CHROMIUM_INPUT=1",
+    "shared radio wire capability3"
+  ],
+  "candidate_files": {
+    "adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-radio-groups-04-hook.so",
+      "bytes": 165624,
+      "sha256": "540c339e934073ee691a8dc2afd9cb4390b26a44ed7a1e771093c56f21f3fa1b"
+    },
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 102296,
+      "sha256": "3df83715945723d1a22787643731b2a9bf87f5199d2302854c24248bb17fadb3"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 449440,
+      "sha256": "2b2bf4309c7a1f2ffc4c67a37d05fee6592157dd19ba1e626d6b936cc63df053"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/libnextspace-native-scroller.so.0.1",
+      "bytes": 81264,
+      "sha256": "f7c351804aa9d773ccdadcf5065b7f66c3e1fa6234f1566a4332489f39195e54"
+    },
+    "transport_probe": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/native-ui/native-radio-transport-probe",
+      "bytes": 127272,
+      "sha256": "871334e84f2bd0fe539b4a9b48796be06754f1249863a4eb53e202e17c698a68"
+    }
+  },
+  "native_ui_abi_bytes": 520,
+  "verification": {
+    "runs": {
+      "groups": {
+        "path": "/var/tmp/nxs-chromium-radio-groups-04",
+        "results_file": "radio-results.json",
+        "checks": 39,
+        "native_images": 15,
+        "results_sha256": "0044f7285c65e3e62dd1a9c547576b6c945f50808efb0eb46194296c748d4568"
+      },
+      "button_text_regression": {
+        "path": "/var/tmp/nxs-chromium-radio-groups-04",
+        "results_file": "button-results.json",
+        "checks": 55,
+        "native_images": 24,
+        "results_sha256": "0b1ecd48bb1046b968c669a2f2f61ea82af80e8dcbdac1c1fcf998693d3b3e24"
+      },
+      "transport": {
+        "path": "/var/tmp/nxs-radio-browser-transport-01",
+        "results_file": "results.json",
+        "checks": 139,
+        "native_images": 34,
+        "results_sha256": "d1807080e6aa596b9f0bc613eb42f5b5017abd6b31813b317767466cc83f186b"
+      }
+    },
+    "scoped_check_rows": 233,
+    "whole_native_image_comparisons": 73,
+    "chromium_group_scale": 1,
+    "transport_backing_densities": [
+      1,
+      2
+    ]
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "live_owned": [],
+    "package_count": 1050,
+    "cleanup": {
+      "nxs-chromium-radio-groups-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-radio-groups-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-radio-groups-03": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-radio-groups-04": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      }
+    },
+    "notices": [
+      {
+        "path": "/var/tmp/nxs-chromium-radio-groups-04/helper.stderr",
+        "text": "WARNING: system time changed by -2 seconds: Sat Nov  7 14:21:17 2026\n\n"
+      },
+      {
+        "path": "/var/tmp/nxs-chromium-radio-groups-04/references.stderr",
+        "text": "WARNING: system time changed by -2 seconds: Sat Nov  7 14:21:07 2026\n\n"
+      }
+    ],
+    "adapter_has_no_ui_toolkit_dependency": true
+  },
+  "observations": [
+    "Chromium groups pass 39 checks and 15 complete native member images. Normal/disabled/focus, native disabled skipping and stopping boundaries, Shift selection/focus separation and Space actions use actual seat input.",
+    "Original trusted click/input/change behavior and original click cancellation/rollback pass. Removing, regrouping or changing a focused target type cancels stale radio activation; removing the original key target cancels its gesture.",
+    "Original backend node IDs independently verify group metadata for separate forms, unnamed controls, unowned controls, shadow scopes and an external form-associated member. Hidden checked data does not add a fake native cell.",
+    "Detach/reinsert retains the original DOM ID, recreates the native group with a fresh control ID and passes a subsequent trusted action and native image comparison. Helper logs show exactly 6 live matrices for 6 groups and no individual kind 3 radio controls.",
+    "The prior first pointer test sent fractional compositor coordinates; the command was rejected. Tests now round measured coordinates and assert command success. A later image mismatch was the real desktop cursor overlay; the cursor is moved outside complete member captures.",
+    "Final helper/reference stderr includes external system-clock correction notices, retained in runtime metadata. Owned compositor and browser exit0; helper/capture are intentionally stopped with SIGTERM. No candidate adapter remains mapped."
+  ],
+  "open": [
+    "Complete pointer semantics, disabled-cell native actions, outside-release actions and label activation; current browser proof covers ordinary enabled pointer activation only.",
+    "Native layout topology beyond the current one-column model, CSS visibility variants, large groups and efficient member rendering. The common host currently renders a complete matrix per requested member.",
+    "Actual browser zoom/mixed/fractional/HiDPI mapping and group recovery through the session supervisor. The shared cache stores epochs, but browser recovery is not claimed from that data alone.",
+    "Gecko group binding using the same common cache/provider, remaining browser controls/shortcuts/menus and accessibility/IME requirements, derivatives, installed deployment, followed by GTK/Qt/KDE integration."
+  ],
+  "source_audit": "radio-group-source-audit.json"
+}

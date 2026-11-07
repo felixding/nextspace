@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "4210c909",
+  "status": "opt-in-pinned-chromium-one-column-groups-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "3862ac24c853268ae4f3db092cd45ec6d31785b999879d39cc237f41c5bc06ad",
+    "Experiments/ChromiumScrollers/check-radio-groups.py": "7144f3cbbfdcb806bc625ac1f0efc4408546d79fced08cf9aea426b76d5c24e2",
+    "Experiments/ChromiumScrollers/forms-input.inc": "d390f2986c735d491072bb730fecd870435e81d06a736852cc00481468dae53e",
+    "Experiments/ChromiumScrollers/forms-radios.inc": "9b5f3df5f6f4f938f534c90e40290a3b2645db1296fca876eba95eb2893cd79f",
+    "Experiments/ChromiumScrollers/forms.inc": "d1efa0b385d9f66b900a9edb761104e33592205e6d8841e0c5b6b0d3192c060a",
+    "Experiments/ChromiumScrollers/hook.c": "c58262a5fc4f336eba33d331c9a9e0bc9db320895ffecda01b7983d8f947f67a",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "189ab3f6bd1531394bbdc37624c4df7504351ea117c394b92e2f30b143a206a7",
+    "Experiments/ChromiumScrollers/native_controls.py": "8f7b98a50d6ad224227bfb33928b9d0308e046954f0796dfbc0680693afcf15c",
+    "Experiments/ChromiumScrollers/pinned-radio-groups.h": "3b21ddee547bd4a9e31d900c9b6abc52bb1053975ab11cdc9d764ce1149c7a0b",
+    "Libraries/NativeUI/Bridge/RadioBinding.inc": "ff0acfed99241acaa039f09e2284f05ef2b56e39d4b97d309e2910a9511f6df5",
+    "Libraries/NativeUI/Bridge/Radios.inc": "c67adacb3c1d2b5367a7e33f0800d414cdc009de355fa277f2b54e7a8274059e",
+    "Libraries/NativeUI/README.md": "8be77f5ac9900e4dab8d77ab3979a5ca8a74f231bcee5824024c23fdd01bcb10",
+    "Tests/NativeUI/radio-transport-probe.c": "9f938636077dee69e5c447ee3309042b458ecfd16d12ceb679721120940faf49",
+    "Tests/Wayland/native-radio-groups.html": "402827fcff5c124991d8c77dec12f411d366d21d7f9aa536b17a6ffc676673dc",
+    "Tests/Wayland/radio_groups.py": "1c1057ed13a07cf996a7375cb68cb0865749f466b1ba216cc84e063c524f83ba",
+    "docs/Native-Control-Integration.md": "3db1937dfabc3c6e9c450297526dd755dc3929d8907c20a16dabdbc1196049d9"
+  },
+  "upstream_extracts": [
+    ".build/native-ui/radio-group-source/radio_input_type.cc",
+    ".build/native-ui/radio-group-source/radio_button_group_scope.h",
+    ".build/native-ui/radio-group-source/radio_button_group_scope.cc",
+    ".build/native-ui/radio-group-source/dom_node_ids.cc",
+    ".build/native-ui/radio-group-source/focus_params.h",
+    ".build/native-ui/radio-group-source/sources.json",
+    ".build/native-ui/radio-group-source/symbols.json",
+    ".build/native-ui/radio-group-source/engine-bindings-symbols.json",
+    ".build/native-ui/radio-group-source/engine-call-pins.json",
+    ".build/native-ui/radio-group-source/membership-disassembly.txt"
+  ],
+  "additional_upstream": [
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/dom_node_ids.cc",
+      "sha256": "33f40333b67fb9a00071dcd69131671ac007da23c3755f0c2777bcbdb4d40e3b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/focus_params.h",
+      "sha256": "71b532fd44e1d739e855f7b27c8602c374ce39d72b12410a9a6f56d693516a19"
+    }
+  ],
+  "invariants": [
+    "Original RadioInputType::NextRadioButtonInGroup supplies membership, including disabled/hidden and externally form-associated nodes. The original group data keeps form and tree scopes separate; empty names remain independent application controls.",
+    "Original DOMNodeIds::IdForNode and weak NodeForId supply stable engine identities. Native control IDs are separate fresh object lifetimes, so detach/reinsert cannot reuse a retired remote ID.",
+    "The shared RadioBinding cache owns only item data, typed native state, focus identity and host epochs. A live group owns one original native matrix; members do not create individual native radio buttons.",
+    "Original native cell sizing and member rectangles supply all matrix geometry. Native member bitmaps supply normal/disabled/checked/focused pixels. No drawing, selection, focus navigation or tracking algorithm is copied.",
+    "Native typed input chooses selected and key identities independently. Original Element::Focus and trusted Node::DispatchSimulatedClick own DOM focus, preactivation, events, cancellation and rollback. IDs and membership are revalidated after callbacks.",
+    "Native member pixels remain readable during tracking at unchanged native cell bounds; attempts to change layout while tracking are refused. The same engine-neutral host path is available to later adapters.",
+    "Current browser toolbar, address bar and tabs remain original. Only the small separate candidate adapter was rebuilt; all 20 production hashes, AppKit and the candidate 520-byte shared libraries remain unchanged."
+  ]
+}

@@ -9,6 +9,8 @@ struct NativeForm {
   struct NativeForm *next;
   void *node;
   uint64_t control;
+  uint32_t radio_owner,radio_member;
+  struct NXSRectD radio_rect;
   int kind,enabled,state,painted,input_owned,indeterminate;
   struct Rect rect;
   char *title;
@@ -47,6 +49,7 @@ static int form_click_allowed;
 static uint64_t form_click_time;
 static int forms_available;
 static int forms_input_enabled;
+static int forms_radio_groups_enabled;
 static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
@@ -93,6 +96,11 @@ static void popup_sync_origin(struct NativeForm *);
 static void native_button_size_changed(struct NativeForm *,const struct NXSResponse *);
 static int native_button_owned(const struct NativeForm *);
 static int text_kind(int);
+static int guard_radio_calls(void);
+static struct NXSResponse *radio_form_request(struct NativeForm *,int,double,double,unsigned);
+static struct NXSResponse *radio_form_focus(struct NativeForm *);
+static int radio_click_allowed(struct NativeForm *);
+static int radio_key_input(struct NativeForm *,void *,int,unsigned,const char *,const char *,unsigned,int);
 static struct NXSResponse *sync_text_form(struct NativeForm *,struct NXSResponse *);
 static int default_text_key(void *,void *);
 static struct NXSResponse *sync_text_image(struct NativeForm *);
@@ -167,6 +175,7 @@ static char *form_title(void *node) {
   return result;
 }
 static struct NXSResponse *form_request(struct NativeForm *form,int operation,double x,double y,unsigned modifiers) {
+  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return radio_form_request(form,operation,x,y,modifiers);
   if(operation==1&&form->kind==NXS_POPUP&&!popup_measuring)popup_sync_origin(form);
   size_t title_size=operation==1&&form->title?strlen(form->title):0;
   size_t size=sizeof(struct NXSControlRequest)+title_size;
@@ -290,6 +299,7 @@ static void finish_form(double x,double y,unsigned modifiers) {
     response=form_request(form,5,0,0,0);
   }
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
+  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)form_click_allowed=form_click_allowed&&radio_click_allowed(form);
   if(form->kind==NXS_POPUP){click_form=NULL;popup_after_input(form,response);refresh_form_watch();return;}
   if(form->kind==NXS_SLIDER){
     void *node=form->node;uint64_t control=form->control;click_form=NULL;
@@ -427,6 +437,7 @@ static void element_detach(void *node,int reattach) {
   original_element_detach(node,reattach);
 }
 #include "forms-input.inc"
+#include "forms-radios.inc"
 #include "forms-sliders.inc"
 #include "forms-layout.inc"
 #include "forms-buttons.inc"
@@ -448,7 +459,7 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&

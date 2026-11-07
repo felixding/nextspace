@@ -57,6 +57,7 @@ static struct NativeForm *bind_input_form(void *node) {
 }
 static struct NXSResponse *form_input_request(struct NativeForm *form,int operation,int focus,
     int type,unsigned logical,const char *text,const char *unmodified,unsigned modifiers,int repeat) {
+  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled&&operation==7)return radio_form_focus(form);
   size_t a=text?strlen(text):0,b=unmodified?strlen(unmodified):0;
   if(a+b>65536)return NULL;
   size_t size=sizeof(struct NXSControlInputRequest)+a+b;
@@ -69,6 +70,7 @@ static struct NXSResponse *form_input_request(struct NativeForm *form,int operat
   struct NXSResponse *response=exchange_bytes(req,size);free(req);return response;
 }
 static struct NXSResponse *sync_form_focus(struct NativeForm *form,struct NXSResponse *response) {
+  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return response;
   if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_FOCUS)||!response)return response;
   int focus=form_focused(form->node);
   if(!!response->parts[3].y==focus)return response;
@@ -155,6 +157,12 @@ static int default_form_key(void *node,void *event) {
   char *text=keyboard_text(web,102,key),*unmodified=keyboard_text(web,110,key);
   free(key);
   if(!text||!unmodified){free(text);free(unmodified);*flags|=0x40;return 1;}
+  if(form->kind==NXS_RADIO&&forms_radio_groups_enabled) {
+    int handled=radio_key_input(form,event,modifier?NXS_KEY_MODIFIERS:down?NXS_KEY_DOWN:NXS_KEY_UP,
+      modifier?NXS_KEY_TEXT:logical,modifier?"":text,modifier?"":unmodified,modifiers,
+      !!(*(const unsigned *)((char *)event+108)&(1u<<5)));
+    free(text);free(unmodified);return handled;
+  }
   form->enabled=1;form->state=form_state(node,form->kind);
   if(form->kind==NXS_SLIDER&&!sync_slider_model(form)){free(text);free(unmodified);*flags|=0x40;return 1;}
   struct NXSResponse *response=sync_form_focus(form,form_request(form,1,0,0,0));

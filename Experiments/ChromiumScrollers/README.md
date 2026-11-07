@@ -21,8 +21,22 @@ native-host epoch change. The existing invalidation work loop schedules this on
 Chromium's own UI task queue before another key is required; commands are never
 replayed. `Tests/Wayland/native_ui_desktop_chromium.py` checks app switching,
 same-process host recovery, native New Tab once before/after recovery and complete
-menu pixels captured from the full Workspace desktop. Browser tabs, surrounding
-chrome and remaining shortcuts still need native integration.
+menu pixels captured from the full Workspace desktop. Browser tabs, address bar
+and toolbar remain original; remaining controls and shortcuts still need work.
+
+`NEXTSPACE_CHROMIUM_RADIO_GROUPS=1`, together with the existing forms/input flags
+and a current shared provider, binds radio groups to actual native matrices.
+Original Blink group traversal and DOM node IDs supply membership and identity;
+original focus and trusted activation retain page events and cancellation. A
+shared model/state cache and serializer live in `Libraries/NativeUI/Bridge` for
+reuse by other engines and toolkits. NativeUI supplies all cell sizing, geometry,
+pixels, navigation and tracking. Each live group owns one matrix; individual
+members do not create a second set of native radio buttons.
+
+This opt-in binding currently models groups as one native column. Complete
+pointer/label behavior, CSS visibility and layout variants, scaling, host
+replacement, derivatives and installed deployment remain open. See the
+[group qualification](radio-group-qualification.json) for measured coverage.
 
 ## Native multiline viewport experiment
 
