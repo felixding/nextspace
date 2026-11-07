@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "32387c59",
+  "status": "pinned-chromium-native-list-model-viewport-echo-and-paired-wheel-lifetimes-qualified-broader-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/forms-progress.inc": "8fc8ad2dfa76d5d3d56437120b99e32b6a253bc773b30c1a601b195d584a4382",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "52018c59cc955aaceebf38859f9a0b48df256dea045aae3458b26b2c9633f198",
+    "Experiments/ChromiumScrollers/forms-text-scroll.inc": "5bde8eeef8a61f04bf233982ce9fb4d394b743e9e33755c00383ffaf17fa49f0",
+    "Experiments/ChromiumScrollers/forms-wheel.inc": "ff35b0777b4b0902c2da983db7768783cbc9cb950bec2616b264919519c45da7",
+    "Libraries/NativeUI/Bridge/ListBinding.inc": "12750dc707baa8d35986237f56b775503311095b293104cca6c2cabdd0e1ddd6",
+    "Tests/Wayland/native_list_scroll.py": "d8a5f228c9baa1b1adbb4b95598a77e88bd9fe5dd9c933f11a882eea15101581",
+    "Experiments/ChromiumScrollers/README.md": "1de620768c9eb03d867a3941c076568f20446d1b08d3835984903deb3d3a8a61",
+    "Experiments/FirefoxNativeUI/README.md": "a68cc51fa6a25c186d15ac1c348cbda5936c4ea82aa41f68a8f8e3ea8286eb29",
+    "docs/Native-Control-Integration.md": "afc7e3edffa4ff6c58a3e312c7d6dfca8641ede14cd9d88c3dd7a73b21ce8efc"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/html_select_element.cc",
+      "bytes": 85642,
+      "sha256": "6fff11afc90ef8421468d4df1fc811895930c3c64989c83dfdc0ae71c35dfea9"
+    },
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/pristine-forms-lists.inc",
+      "bytes": 18501,
+      "sha256": "52018c59cc955aaceebf38859f9a0b48df256dea045aae3458b26b2c9633f198"
+    },
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/pristine-forms-text-scroll.inc",
+      "bytes": 13828,
+      "sha256": "5bde8eeef8a61f04bf233982ce9fb4d394b743e9e33755c00383ffaf17fa49f0"
+    },
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/select_type.cc",
+      "bytes": 83418,
+      "sha256": "4035930d41acda98c183d9e8615060d3643138a464536c1aa1547b04927a94b0"
+    },
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/source.json",
+      "bytes": 607,
+      "sha256": "68d253759618816611b7b9cfcc7692e3ffe8fed983b5299786fa756768a602bc"
+    },
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/trace-01-forms-lists.inc",
+      "bytes": 19459,
+      "sha256": "35d932517ced7bcde2744975a9e4483a15cedf76a777301751a9526598b46f74"
+    },
+    {
+      "path": ".build/native-ui/list-wheel-lifetime-source/trace-01-forms-text-scroll.inc",
+      "bytes": 14132,
+      "sha256": "700db79dea0c757eaee0e98455052cf9202617d88f3b17a8e4ac5732d4f3033b"
+    }
+  ],
+  "new_engine_calls_or_abi": false,
+  "invariants": [
+    "The existing renderer-thread native invalidation worker handles native lists alongside native textareas. Read the actual native binding state and reuse echo_text_viewport and the original engine scroll setter.",
+    "The real GNUstep list supplies selection reveal, row geometry, visible origin and full control pixels. Do not copy ScrollToOptionTask, a reveal algorithm, scroll geometry, control or renderer into the adapter.",
+    "Keep exact independent native target assertions. Record immediate DOM reads and asynchronous samples; a retained original-adapter failure remains at 118 for eight seconds while native state already reports 223.",
+    "Both pinned engines run the same list lifecycle test: trusted callback retirement, real native release, reinsertion, physical wheel, stable offset and complete independent native images.",
+    "The shared native UI library remains API 1/584; Firefox is unchanged. Toolbar, address bar and tabs retain browser components, with optional future UI patches above the shared engine/toolkit layer."
+  ]
+}

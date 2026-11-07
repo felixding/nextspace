@@ -1071,3 +1071,21 @@ new visible frame. See [qualification](wheel-default-qualification.json) and
 [source audit](wheel-default-source-audit.json). This remains a pinned scale-1
 Chromium adapter; zoom, other builds/derivatives and broader browser integration
 remain open. Browser toolbars, address bars and tabs keep their components.
+
+
+### Native list model reveal
+
+The existing renderer-thread native invalidation worker now mirrors list
+viewports alongside textarea viewports. A real native list can reveal a new
+script-selected row while its model is synchronized. Chromium must adopt that
+measured native viewport through the existing original scroll setter; otherwise
+its later reveal task sees a visible native row while DOM scrollTop stays stale.
+The binding refresh and viewport setter are shared with native input. No reveal
+or scrolling algorithm is added.
+
+The shared engine test now retains immediate and asynchronous reveal samples,
+requiring the exact original native target. It also removes a list during its
+trusted wheel callback, verifies native release, reinserts it and compares a
+subsequent physical wheel and stable viewport with the original native list.
+Both engines run that same module. See
+[reveal/lifecycle qualification](list-reveal-qualification.json).

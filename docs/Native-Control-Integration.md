@@ -205,10 +205,10 @@ required integration surfaces differ:
 | Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
 | Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing, editing keys and single/Shift/double/triple-click selection and dragging connected to real Blink transactions. Native clipboard validation/execution now uses the existing Blink commands. IME, sizing/scaling and broader commands remain open. |
-| Chrome/Chromium browser UI | Views controls, text editing and menu models | The pinned Chromium Omnibox uses the shared native field for pixels, editing, clipboard and pointer selection. Its real application menu model also binds to native detached menus. Broader command availability, IME and other Views controls remain open; Chrome builds are not qualified. |
-| Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | No frontend adapter implemented; Chromium coverage cannot establish Vivaldi coverage. |
+| Chrome/Chromium browser UI | Views controls, text editing and menu models | An earlier optional Views patch bound the Omnibox to the shared native field; the current browser scope keeps the original address bar, toolbar and tabs. The application menu model binds to native detached menus. Chrome builds and broader command availability remain unqualified. |
+| Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | The current scope preserves Vivaldi's frontend components. Its underlying engine, menus and native command integration still require qualification; pinned Chromium evidence does not establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single/Shift/double/triple-click selection and dragging through the shared provider. Native clipboard validation/execution now uses the existing Gecko controllers. Selected-text data dragging, IME, other controls, scaled output and broader input remain open. |
-| Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | The pinned Firefox address editor uses the shared native field for pixels, editing and pointer selection. Its actual D-Bus menu model supplies native detached menus, lazy bookmark branches and real commands. Sharing the menu and field host now qualifies native Undo/Redo shortcuts, Emacs navigation and clipboard commands in webpage/address fields. Production desktop association, other frontend controls and wider qualification remain open. |
+| Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | An earlier optional frontend patch bound the address editor to the shared field; the current scope keeps the original address bar, toolbar and tabs. The actual D-Bus menu model supplies native detached menus and commands. Native webpage editing and original-component app commands share the native host; broader commands, derivatives and installed deployment remain open. |
 | Other toolkits and application-specific controls | Their actual frontend, rendering and binary interfaces | Must be inspected and tested; a toolkit or engine family name alone does not prove coverage. |
 
 Chromium's own documentation describes its Linux GTK integration as primarily
@@ -749,3 +749,13 @@ No control, key map, scroll animation or rendering implementation is duplicated.
 See [wheel default qualification](../Experiments/ChromiumScrollers/wheel-default-qualification.json).
 The wider browser integration and later GTK/Qt/KDE work remain open; future
 browser UI changes stay in optional app-specific patches above the common layer.
+
+
+Native list lifecycle checks now cover trusted wheel callbacks that remove and
+reinsert the owner in both pinned engines. The shared test compares the next
+physical wheel, stable native viewport and complete pixels with an independent
+GNUstep list. A Chromium model-reveal gap exposed by the same test is addressed
+in the existing renderer invalidation worker: it mirrors the native list
+viewport through the original engine setter, as it already does for native
+textarea movement. Firefox uses its existing viewport path without modification.
+See [paired reveal/lifecycle qualification](../Experiments/ChromiumScrollers/list-reveal-qualification.json).

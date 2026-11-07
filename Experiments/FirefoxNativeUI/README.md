@@ -808,3 +808,14 @@ rectangle/list-based contracts, held scrollers, host/failure recovery, scaling,
 IME/accessibility, metadata performance and derivative builds/deployment remain
 open. Browser toolbar, address bar and tabs retain their existing components;
 future changes belong in optional app-specific patches above the shared layer.
+
+
+### Native list wheel lifetimes
+
+The shared list scroll fixture now removes a native list from a trusted wheel
+callback, checks its released native lifetime, reinserts it and compares the next
+physical wheel with an independent actual GNUstep list. It observes the native
+offset over 350ms and compares the complete control after reinsertion. The same
+module runs in Chromium and preserves the exact native script-reveal target.
+The pinned Firefox adapter needs no change for these cases; see the paired
+[reveal/lifecycle qualification](../ChromiumScrollers/list-reveal-qualification.json).
