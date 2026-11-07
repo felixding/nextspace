@@ -116,8 +116,12 @@ before replacement. Native methods supply preferred size, cell geometry, drawing
 navigation and tracking. The provider qualifies 24 complete native images at
 1x/2x, with separate selection/key identities and native action counts; see the
 [shared radio-group qualification](../Libraries/NativeUI/radio-group-qualification.json).
-Group transport and browser bindings remain to implement. The existing browser
-radio bindings still use individual native buttons.
+The subsequent [shared group transport](../Libraries/NativeUI/radio-transport-qualification.json)
+carries models, typed native state, member geometry and native member pixels.
+Original native cell sizing accepts application field bounds, and the shared host
+uses the actual native backing density during startup. Browser group membership
+and DOM transaction bindings remain to implement; existing browser radio bindings
+still use individual native buttons.
 An earlier Firefox host-replacement capture showed TimeMon while Firefox was
 focused; that run did not qualify menu presentation. The later menu/session
 qualifications above cover their measured ownership and recovery cases.

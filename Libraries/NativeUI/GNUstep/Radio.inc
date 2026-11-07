@@ -48,6 +48,30 @@ static void radio_enabled(NXSControl *control)
   }
   [control->view setNeedsDisplay:YES];
 }
+static void radio_restore(NSMatrix *matrix,NSArray *saved,NSCell *selected,NSCell *key,BOOL allows_empty)
+{
+  for(NSDictionary *model in saved) {
+    NSButtonCell *cell=[model objectForKey:@"cell"];
+    [cell setControlView:matrix];[cell setTitle:[model objectForKey:@"title"]];
+    [cell setEnabled:[[model objectForKey:@"enabled"] boolValue]];
+    [cell setState:[[model objectForKey:@"state"] integerValue]];
+    [cell setHighlighted:[[model objectForKey:@"highlighted"] boolValue]];
+  }
+  NSInteger row,column;
+  if(selected&&[matrix getRow:&row column:&column ofCell:selected])[matrix selectCellAtRow:row column:column];
+  if(key) {
+    /* A native Alternate gesture can retain a disabled key cell. Restore that
+     * data with public setters, without reimplementing native navigation. */
+    BOOL enabled=[key isEnabled];[key setEnabled:YES];[matrix setKeyCell:key];[key setEnabled:enabled];
+  }
+  [matrix setAllowsEmptySelection:allows_empty];
+}
+static void radio_discard(NSMatrix *candidate,NSMatrix *previous,NSArray *saved,NSCell *selected,NSCell *key,BOOL allows_empty)
+{
+  [candidate setAllowsEmptySelection:YES];[candidate deselectAllCells];
+  for(NSCell *cell in [candidate cells])[cell setControlView:nil];
+  radio_restore(previous,saved,selected,key,allows_empty);[candidate release];
+}
 int nxs_gnustep_control_radio_items(NXSControl *control,const NXSRadioItem *items,
   uint32_t count,uint32_t columns,uint64_t selected,uint64_t key_cell)
 {
@@ -69,10 +93,15 @@ int nxs_gnustep_control_radio_items(NXSControl *control,const NXSRadioItem *item
     [pool drain];return 0;
   }
   NXSRadioAction *target=control->target;
+  NSMatrix *previous=(NSMatrix *)control->view;
+  NSCell *previous_selected=[previous selectedCell],*previous_key=[previous keyCell];
+  BOOL previous_empty=[previous allowsEmptySelection];NSMutableArray *saved=[NSMutableArray array];
+  for(NSButtonCell *cell in [previous cells])
+    [saved addObject:@{@"cell":cell,@"title":[cell title],@"enabled":@([cell isEnabled]),
+      @"state":@([cell state]),@"highlighted":@([cell isHighlighted])}];
   /* Let the original owner clear its native selection bookkeeping before
    * handing the same cells to a new matrix. Adding existing cells alone does
    * not import their selected flags into NSMatrix's selection model. */
-  NSMatrix *previous=(NSMatrix *)control->view;
   [previous setAllowsEmptySelection:YES];[previous deselectAllCells];
   NSMatrix *matrix=[[NSMatrix alloc] initWithFrame:NSZeroRect mode:NSRadioModeMatrix
     cellClass:[NSButtonCell class] numberOfRows:0 numberOfColumns:columns];
@@ -108,8 +137,17 @@ int nxs_gnustep_control_radio_items(NXSControl *control,const NXSRadioItem *item
   [matrix setAllowsEmptySelection:NO];
   if(key_cell)[matrix setKeyCell:[[models objectForKey:@(key_cell)] objectForKey:@"cell"]];
   [matrix sizeToFit];NSSize preferred=[matrix frame].size;
+  double scale=[[previous window] backingScaleFactor];
+  if(!isfinite(preferred.width)||!isfinite(preferred.height)||preferred.width<0||preferred.height<0||
+     preferred.width>32768||preferred.height>32768||preferred.width*scale*preferred.height*scale>8*1024*1024) {
+    radio_discard(matrix,previous,saved,previous_selected,previous_key,previous_empty);
+    [pool drain];return 0;
+  }
   [matrix setTarget:target];[matrix setAction:@selector(changed:)];
-  if(!nxs_host_replace_view(control->host,matrix)){[matrix release];[pool drain];return 0;}
+  if(!nxs_host_replace_view(control->host,matrix)) {
+    radio_discard(matrix,previous,saved,previous_selected,previous_key,previous_empty);
+    [pool drain];return 0;
+  }
   control->view=matrix;[matrix release];
   [target->identifiers release];target->identifiers=[identifiers copy];
   [target->models release];target->models=[models copy];target->preferred=preferred;
@@ -134,4 +172,16 @@ NXSRect nxs_gnustep_control_radio_item_rect(NXSControl *control,uint64_t identif
   NSInteger row,column;
   return cell&&[matrix getRow:&row column:&column ofCell:cell]?
     nxs_host_rect_from_view(control->host,matrix,[matrix cellFrameAtRow:row column:column]):(NXSRect){0};
+}
+int nxs_gnustep_control_radio_cell_size(NXSControl *control,double width,double height)
+{
+  if(!control||control->kind!=NXS_RADIOGROUP||control->destroying||nxs_host_tracking(control->host)||
+     !isfinite(width)||!isfinite(height)||width<1||height<1||width>32768||height>32768)return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];NSMatrix *matrix=(NSMatrix *)control->view;
+  NSSize previous=[matrix cellSize];[matrix setCellSize:NSMakeSize(width,height)];
+  NSSize size=[matrix frame].size;double scale=[[matrix window] backingScaleFactor];
+  if(size.width>32768||size.height>32768||size.width*scale*size.height*scale>8*1024*1024) {
+    [matrix setCellSize:previous];[pool drain];return 0;
+  }
+  nxs_host_resize(control->host,size);[matrix setNeedsDisplay:YES];[pool drain];return 1;
 }

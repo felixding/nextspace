@@ -21,6 +21,8 @@ struct NXSControl {
   SEL text_command;
   BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
 };
+double nxs_gnustep_control_backing_scale(NXSControl *control)
+{return control&&!control->destroying?[[control->view window] backingScaleFactor]:0;}
 static int text_control(NXSControl *control)
 {return control&&(control->kind==NXS_TEXTFIELD||control->kind==NXS_PASSWORD||control->kind==NXS_TEXTAREA);}
 static NSTextView *text_editor(NXSControl *control)

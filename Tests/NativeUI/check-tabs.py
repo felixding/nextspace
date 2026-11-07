@@ -11,6 +11,7 @@ from text_input import Client
 p=argparse.ArgumentParser(description=__doc__)
 for name in ['build','compositor','capture-probe','backend-bundle','output']:p.add_argument('--'+name,type=Path,required=True)
 p.add_argument('--previous-provider',type=Path)
+p.add_argument('--previous-group-provider',type=Path)
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
 p.add_argument('--popup-title',action='store_true',help='Qualify popup display titles with the same desktop capture harness')
@@ -18,7 +19,7 @@ p.add_argument('--radio',action='store_true',help='Qualify shared native radio g
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
 binary='native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
 reference_title='Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
-images=12 if a.radio else 8 if a.popup_title else 5
+images=13 if a.radio else 8 if a.popup_title else 5
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)
@@ -88,6 +89,15 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
     try:code=actor.wait(timeout=15)
     except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
    rows.append(dict(case='previous-provider-without-'+('radio-groups' if a.radio else 'popup-title' if a.popup_title else 'tabs'),passed=code==0))
+   (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
+  if a.previous_group_provider:
+   assert a.radio
+   old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_group_provider))
+   with (a.output/'previous-group-provider.stdout').open('w') as stdout,(a.output/'previous-group-provider.stderr').open('w') as stderr:
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-radio-size','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
+    try:code=actor.wait(timeout=15)
+    except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
+   rows.append(dict(case='previous-group-provider-without-cell-size',passed=code==0))
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
   if a.previous_client:
    for name,library in [('previous-client',a.build/'native-ui')]+([('previous-loader-and-client',a.previous_loader)] if a.previous_loader else []):

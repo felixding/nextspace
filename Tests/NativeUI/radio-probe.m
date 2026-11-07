@@ -115,6 +115,12 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
   NSWindow *window=[[NSWindow alloc] initWithContentRect:[reference bounds] styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:NO];
   [window setReleasedWhenClosed:NO];[window setBackgroundColor:[NSColor controlBackgroundColor]];
   [[window contentView] addSubview:reference];
+  /* Keep keyboard focus on an ordinary native control outside the capture
+   * when testing an unfocused matrix. A window/nil responder lets AppKit
+   * choose its initial matrix again during delayed activation at 2x. */
+  NSButton *other=[[NSButton alloc] initWithFrame:NSMakeRect(-100,-100,1,1)];
+  [[window contentView] addSubview:other];[other release];
+  NSView *responder=focused?(NSView *)reference:other;[window setInitialFirstResponder:responder];
   [window setTitle:[NSString stringWithFormat:@"Native radio group reference %s",name]];
   [window makeKeyAndOrderFront:nil];[NSApp activateIgnoringOtherApps:YES];
   /* The first real activation may choose an initial responder. Set the
@@ -125,7 +131,7 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
   char reply[32];assert(fgets(reply,sizeof(reply),stdin)&&!strcmp(reply,"ready\n"));
   deadline=[NSDate dateWithTimeIntervalSinceNow:5];
   while((![NSApp isActive]||![window isKeyWindow])&&[deadline timeIntervalSinceNow]>0)nxs_native_ui_dispatch_events(.01);
-  assert([window makeFirstResponder:focused?reference:nil]);[window display];
+  assert([window makeFirstResponder:responder]);[window display];
   assert(nxs_control_focus(p->control,focused));NXSBitmap actual=nxs_control_draw(p->control,p->scale);assert(actual.pixels);
   char path[1024];snprintf(path,sizeof(path),"%s/%s-native.argb",p->directory,name);FILE *file=fopen(path,"wb");assert(file);
   assert(fwrite(actual.pixels,actual.stride,actual.height,file)==(size_t)actual.height);fclose(file);
@@ -146,13 +152,23 @@ int main(int argc,char **argv)
     assert(!nxs_control_radio_state(NULL).selected&&!nxs_control_radio_item_rect(NULL,1).width);
     puts("{\"older_provider_without_radio_groups\":true}");[pool drain];return 0;
   }
-  assert(argc>1&&nxs_control_radio_capabilities()==NXS_RADIO_GROUP);
+  if(argc>1&&!strcmp(argv[1],"--expect-no-radio-size")) {
+    assert(nxs_control_radio_capabilities()==NXS_RADIO_GROUP);
+    NXSControl *group=nxs_control_create(NXS_RADIOGROUP,NULL,NULL,NULL);assert(group);
+    assert(nxs_control_backing_scale(group)==0);
+    NXSRadioItem items[]={{sizeof(NXSRadioItem),1,"One",1},{sizeof(NXSRadioItem),2,"Two",1}};
+    assert(nxs_control_radio_items(group,items,2,1,1,1));
+    assert(!nxs_control_radio_cell_size(group,16,16)&&nxs_control_radio_state(group).selected==1);
+    assert(nxs_control_destroy(group));puts("{\"prior_groups_without_cell_size\":true}");[pool drain];return 0;
+  }
+  assert(argc>1&&nxs_control_radio_capabilities()==(NXS_RADIO_GROUP|NXS_RADIO_CELL_SIZE));
   Method method=class_getInstanceMethod([NSMatrix class],@selector(initWithFrame:mode:cellClass:numberOfRows:numberOfColumns:));
   original_init=method_setImplementation(method,(IMP)witness_init);
   struct Probe p={.directory=argv[1],.scale=argc>2?atof(argv[2]):1,.enabled=1};
   const char *titles[]={"First","Disabled","Third","Fourth"};
   for(unsigned i=0;i<4;i++)p.items[i]=(NXSRadioItem){sizeof(NXSRadioItem),identifier(i),titles[i],i!=1};
   p.control=nxs_control_create(NXS_RADIOGROUP,changed,pump,&p);assert(p.control);
+  check(&p,"actual-native-backing-density",nxs_control_backing_scale(p.control)==p.scale&&nxs_control_backing_scale(NULL)==0);
   model(&p,1,identifier(0),identifier(0));NSArray *original_cells=[[p.native cells] copy];
   state(&p,"initial-full-width-identities",identifier(0),identifier(0),0);compare(&p,"unfocused",NO);compare(&p,"focused",YES);
   assert(key(&p,NXS_KEY_DOWN_ARROW,NULL,0)==NXS_INPUT_HANDLED);
@@ -190,11 +206,36 @@ int main(int argc,char **argv)
     !nxs_control_radio_items(p.control,p.items,4,1,UINT64_MAX,0)&&!nxs_control_radio_items(p.control,p.items,4,1,0,UINT64_MAX));
   NXSRadioState after=nxs_control_radio_state(p.control);
   check(&p,"invalid-models-are-atomic",!memcmp(&before,&after,sizeof(before))&&matrix==p.native);
+  char *huge=malloc(40001);assert(huge);memset(huge,'M',40000);huge[40000]=0;
+  memcpy(invalid,p.items,sizeof(invalid));invalid[0].title=huge;
+  check(&p,"native-preferred-backing-bound-rejected",!nxs_control_radio_items(p.control,invalid,4,1,identifier(0),0));
+  state(&p,"native-size-rejection-restores-original-cells",identifier(2),identifier(2),7);
   for(unsigned i=0;i<50;i++)model(&p,i%2?1:2,identifier(0),identifier(0));
   state(&p,"repeated-model-replacement-has-no-actions",identifier(0),identifier(0),7);
+  /* Keep the cell sizing reference independent of Alternate's native
+   * transient highlight, which a freshly constructed matrix does not have. */
+  model(&p,1,identifier(3),identifier(0));
+  before=nxs_control_radio_state(p.control);NSSize old_size=[p.native cellSize];
+  check(&p,"application-cell-bounds-use-native-layout",nxs_control_radio_cell_size(p.control,32,30)&&
+    [p.native cellSize].width==32&&[p.native cellSize].height==30);
+  after=nxs_control_radio_state(p.control);
+  check(&p,"cell-layout-retains-native-identities-and-actions",!memcmp(&before,&after,sizeof(before)));
+  compare(&p,"cell-bounds",NO);
+  check(&p,"oversized-cell-grid-is-rejected",!nxs_control_radio_cell_size(p.control,8192,8192)&&
+    [p.native cellSize].width==32&&[p.native cellSize].height==30);
+  check(&p,"invalid-cell-bounds-are-rejected",!nxs_control_radio_cell_size(p.control,NAN,16)&&
+    !nxs_control_radio_cell_size(p.control,16,INFINITY)&&!nxs_control_radio_cell_size(p.control,0,16));
+  assert(nxs_control_radio_cell_size(p.control,old_size.width,old_size.height));
+  model(&p,1,identifier(3),identifier(3));assert(nxs_control_focus(p.control,1));
+  key(&p,NXS_KEY_DOWN_ARROW,NULL,NXS_SUPER);
+  state(&p,"native-alternate-retains-disabled-key-context",identifier(3),identifier(1),8);
+  BOOL highlighted[4];for(unsigned i=0;i<4;i++)highlighted[i]=[[[p.native cells] objectAtIndex:i] isHighlighted];
+  check(&p,"oversized-model-rejects-disabled-key-context",!nxs_control_radio_items(p.control,invalid,4,1,identifier(0),0));
+  state(&p,"native-size-rejection-restores-disabled-key-context",identifier(3),identifier(1),8);
+  for(unsigned i=0;i<4;i++)assert(highlighted[i]==[[[p.native cells] objectAtIndex:i] isHighlighted]);free(huge);
   assert(nxs_control_radio_items(p.control,NULL,0,1,0,0));p.native=observed;
   NXSRadioState empty=nxs_control_radio_state(p.control);
-  check(&p,"empty-model-has-no-placeholder-controls",!empty.count&&!empty.rows&&!empty.selected&&!empty.key_cell&&[[p.native cells] count]==0&&empty.actions==7);
+  check(&p,"empty-model-has-no-placeholder-controls",!empty.count&&!empty.rows&&!empty.selected&&!empty.key_cell&&[[p.native cells] count]==0&&empty.actions==8);
   check(&p,"empty-model-has-no-invented-size",nxs_control_size(p.control).width==0&&nxs_control_size(p.control).height==0);
   check(&p,"destroy",nxs_control_destroy(p.control));[original_cells release];
   printf("{\"passed\":%u,\"images\":%u,\"api_bytes\":%zu}\n",p.checks,p.images,sizeof(NXSNativeUIAPI));

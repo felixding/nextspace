@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "1c0bf016",
+  "status": "shared-radio-transport-qualified-engine-group-bindings-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "c702a4aee5608607aa1d7dacbd935cada726abc7ed27f59db9607d57710ba211",
+    "Experiments/ChromiumScrollers/native_controls.py": "7aa82aadb9793b8c9c533acf12ff2efed6251237a5d9528dab7e0a1364c1dbd9",
+    "Libraries/NativeUI/Bridge/Protocol.h": "db055a64d59627d155624ee5d80ce381b636aab0c1b5bbe84ede0598237cc54a",
+    "Libraries/NativeUI/Bridge/Radios.inc": "c67adacb3c1d2b5367a7e33f0800d414cdc009de355fa277f2b54e7a8274059e",
+    "Libraries/NativeUI/Bridge/Transport.inc": "f3ec6a0b4718b5ecb20cc9142d33b2b965e32d9e327fbfcac7f60af93ab369d3",
+    "Libraries/NativeUI/CMakeLists.txt": "b82f434f7db8765b23b36dc0590c11f043ccc2a0d4043f739c4bf9051a39e9bc",
+    "Libraries/NativeUI/GNUstep/Controls.m": "fa407f1f008bca72c429d42eaa9ae22817bb42e2657206683178b8eb2819c79e",
+    "Libraries/NativeUI/GNUstep/Provider.h": "1a00962d714ebda035d0cd51278bbe29cd5c9b3b5e276edc143ce07347570956",
+    "Libraries/NativeUI/GNUstep/Provider.m": "db4b838dd062b73aa038a835f49c27f636708c979f0df25d01c8c149464734ce",
+    "Libraries/NativeUI/GNUstep/Radio.inc": "0b8adc63af400d867489325641692fea425074ffb020071811242c02a6191e80",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "bcc2e2fee7a9aa7edcd396180155809ee97a963eeea55ffca7f04c60ebfb8bce",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "716e5ee38abc63da1c4cbac305edabe214c5467756e5f2a2f8c242d879fbce78",
+    "Libraries/NativeUI/Loader.c": "baaa5408510118f14a6940c6d6e1600cb3a966e3ab22bf5660aa73017ae36b94",
+    "Libraries/NativeUI/NativeUI.h": "92c86ebff2b034c679bcff4a0a03f73723d8d4a60f9527677cd2c0d388b87808",
+    "Libraries/NativeUI/README.md": "c20d318f8620e711b37d3e6581f11a1cdd0192186c19e93e22cc5b9db65796ac",
+    "Tests/NativeUI/check-tab-transport.py": "1d996dbf28245e126757ec0cb6ab579088eb9094924509c21aa4a38cad915805",
+    "Tests/NativeUI/check-tabs.py": "08a2e4ac55e5a6fe32a2349b334d376baa100f42f4650ad23f92413aa844c67b",
+    "Tests/NativeUI/radio-probe.m": "da6eecd34e944c2df107f1d9a35848bd9893e15da2c7cccda6bf57680398ce83",
+    "Tests/NativeUI/radio-transport-probe.c": "fbde0e67bfa813c863abf3420bdb48414792add2e69de84c92fe17e0b36aed83",
+    "docs/Native-Control-Integration.md": "58f2d0924460d0b3349ec21f434a9ba9e5b180db55a025e91bc878fba80857f5"
+  },
+  "invariants": [
+    "Original NSMatrix and retained NSButtonCell objects own drawing, grid sizing, selection, focus navigation and pointer tracking. No widget algorithm is copied into the wire or adapters.",
+    "Wire op43 carries item data and exact uint64 selected/key IDs. Op44 and native focus/key replies carry a typed state and native action counter. Ops45/46 return native geometry and native member pixels.",
+    "Member pixels are memory crops from the original matrix bitmap using its native rectangles; application cell bounds use original NSMatrix setCellSize, without reconstructing grid metrics.",
+    "Native preferred and cell-sized backing limits are checked before resizing the host window. Rejected models restore original cell data, original selection, disabled native key context and transient highlights through public native methods.",
+    "The optional cell-size API appends at byte504 and actual backing-density getter at512. ABI1 is520bytes. Prior504 providers retain C group support and report no new wire capability; prior480 providers reject groups.",
+    "The shared helper uses the native backing-density getter for warmup and group creation. A missing optional getter preserves the existing legacy density1 path.",
+    "All20 production artifact hashes remain unchanged; only separate candidate shared loader/provider/shim and test probes were built. Browser adapters still use individual radio buttons until engine bindings are completed."
+  ],
+  "upstream_extracts": [
+    ".build/native-ui/radio-group-source/NSMatrix.m",
+    ".build/native-ui/radio-group-source/NSMatrix.h",
+    ".build/native-ui/radio-group-source/sources.json"
+  ]
+}

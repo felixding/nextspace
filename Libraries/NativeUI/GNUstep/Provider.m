@@ -51,7 +51,9 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_popup_title=nxs_gnustep_control_popup_title,
     .control_radio_items=nxs_gnustep_control_radio_items,
     .control_radio_state=nxs_gnustep_control_radio_state,
-    .control_radio_item_rect=nxs_gnustep_control_radio_item_rect
+    .control_radio_item_rect=nxs_gnustep_control_radio_item_rect,
+    .control_radio_cell_size=nxs_gnustep_control_radio_cell_size,
+    .control_backing_scale=nxs_gnustep_control_backing_scale
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

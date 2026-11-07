@@ -6,6 +6,12 @@ starting integration, not the acceptance criterion. Controls, detached menus,
 editing, focus, shortcuts and dialogs must use the shared native UI library.
 See the [application-wide scope and coverage](../../docs/Native-Control-Integration.md).
 
+Browser toolbars, address bars and built-in tabs remain unchanged in the current
+integration. Future requested changes to those components belong in optional
+browser-specific patches above the shared bridge. Those patches must consume
+the same native provider used by webpage controls and subsequent GTK/Qt/KDE
+adapters, so changes to native controls stay in one UI library.
+
 The optional [session host](Host/README.md) now starts through the user launcher
 and supervisor when installed. It reuses the shared bridge and this provider,
 with no copied control implementation. Its staged session checks and remaining
@@ -38,9 +44,11 @@ The bridge and the underlying UI implementation are separate libraries:
 - Optional radio groups use one actual `NSMatrix` with retained `NSButtonCell`
   objects. Stable IDs, selected/key identities and action counts are separate
   application data. Native methods own sizing, drawing and input. The optional
-  table tail grows ABI 1 from 480 to 504 bytes without changing existing offsets;
-  older providers report no group capability. Group transport/browser bindings
-  remain open. See the [provider qualification](radio-group-qualification.json).
+  group methods start at byte 480; optional cell sizing and backing-density
+  access extend ABI 1 to 520 bytes without changing existing offsets. Older
+  providers retain their supported capabilities. See the original
+  [provider qualification](radio-group-qualification.json) and subsequent
+  [transport qualification](radio-transport-qualification.json).
 - `libnextspace-native-scroller.so.1` preserves the existing scrollbar ABI as a
   C forwarding shim, so its GTK/Qt consumers keep their existing interface.
 
@@ -52,6 +60,16 @@ with `NEXTSPACE_NATIVE_UI_PROVIDER=/path/to/provider.so`. The provider is loaded
 once per process and remains loaded for the lifetime of its native objects.
 The C loader rejects an absent, incompatible or incomplete provider. Its error
 is available through `nxs_native_ui_error()`; it does not emulate a control.
+
+The shared [radio transport](Bridge/Radios.inc) carries models, exact selected/key
+IDs, action snapshots and native member geometry. Member images crop the actual
+matrix backing using its native cell rectangles. Application field dimensions
+go through native `NSMatrix setCellSize:`; adapters do not recreate grid layout.
+Native preferred metrics remain available separately. Invalid models or oversized
+native geometry preserve the prior model, selection and key context. The helper
+warms controls at `nxs_control_backing_scale()` rather than assuming a 1x display;
+the getter returns zero with providers predating that optional API. Browser group
+membership, DOM transactions and member binding remain unfinished.
 
 The optional wheel extension appends one function to ABI 1 (416 to 424 bytes
 on ARM64). Query `nxs_control_wheel_capabilities()` before calling

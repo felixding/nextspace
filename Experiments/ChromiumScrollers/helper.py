@@ -76,6 +76,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
                 result.parts[5].y=forms.command_capabilities
                 result.parts[5].height=forms.menus.capabilities
                 result.parts[4].x=forms.tab_capabilities
+                result.parts[4].y=forms.radio_capabilities
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):

@@ -38,7 +38,7 @@ typedef struct {
 } NXSControlState;
 typedef void (*NXSControlChanged)(void *context, int event, const NXSControlState *state);
 
-enum NXSRadioCapability { NXS_RADIO_GROUP = 1 };
+enum NXSRadioCapability { NXS_RADIO_GROUP = 1, NXS_RADIO_CELL_SIZE = 2 };
 typedef struct {
   uint32_t size;
   uint64_t identifier;
@@ -269,6 +269,8 @@ typedef struct {
   int (*control_radio_items)(NXSControl *,const NXSRadioItem *,uint32_t,uint32_t,uint64_t,uint64_t);
   NXSRadioState (*control_radio_state)(NXSControl *);
   NXSRect (*control_radio_item_rect)(NXSControl *,uint64_t);
+  int (*control_radio_cell_size)(NXSControl *,double,double);
+  double (*control_backing_scale)(NXSControl *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -283,6 +285,8 @@ int nxs_control_sync(NXSControl *control, const NXSControlConfig *config);
 NXSControlState nxs_control_state(NXSControl *control);
 NXSSize nxs_control_size(NXSControl *control);
 NXSBitmap nxs_control_draw(NXSControl *control, double scale);
+/* Actual native backing density, or zero when unsupported/unavailable. */
+double nxs_control_backing_scale(NXSControl *);
 void nxs_control_track(NXSControl *control, double x, double y, unsigned modifiers);
 unsigned nxs_control_pointer_capabilities(void);
 /* Forward the embedding application's positive click count to the actual
@@ -359,6 +363,10 @@ int nxs_control_radio_items(NXSControl *,const NXSRadioItem *,uint32_t count,uin
 NXSRadioState nxs_control_radio_state(NXSControl *);
 /* Native logical cell geometry in the group's bitmap coordinates. */
 NXSRect nxs_control_radio_item_rect(NXSControl *,uint64_t identifier);
+/* Application cell bounds; native NSMatrix owns layout of the grid. This
+ * emits no action and preserves native cell, selection and key identities.
+ * Native preferred sizes remain available through control_size. */
+int nxs_control_radio_cell_size(NXSControl *,double width,double height);
 /* Native menu geometry uses control bitmap coordinates, including positions
  * outside that bitmap. A hidden menu returns a zero frame/item rectangle. */
 NXSPopupState nxs_control_popup_state(NXSControl *);

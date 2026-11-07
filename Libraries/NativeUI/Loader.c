@@ -53,6 +53,8 @@ void nxs_control_track(NXSControl *c,double x,double y,unsigned m)
 void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_send(c,event,x,y,m);}
 #define HAS_INPUT(p, field) ((p) && (p)->size >= offsetof(NXSNativeUIAPI, field)+sizeof((p)->field) && (p)->field)
+double nxs_control_backing_scale(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_backing_scale)?p->control_backing_scale(c):0;}
 unsigned nxs_control_pointer_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_track_clicks)?NXS_POINTER_CLICK_COUNT:0;}
 int nxs_control_track_clicks(NXSControl *c,double x,double y,unsigned m,unsigned clicks)
@@ -94,13 +96,15 @@ unsigned nxs_control_popup_title_capabilities(void)
 int nxs_control_popup_title(NXSControl *c,const char *title)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_title)?p->control_popup_title(c,title):0;}
 unsigned nxs_control_radio_capabilities(void)
-{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_radio_items)&&HAS_INPUT(p,control_radio_state)&&HAS_INPUT(p,control_radio_item_rect)?NXS_RADIO_GROUP:0;}
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_radio_items)&&HAS_INPUT(p,control_radio_state)&&HAS_INPUT(p,control_radio_item_rect)?NXS_RADIO_GROUP|(HAS_INPUT(p,control_radio_cell_size)?NXS_RADIO_CELL_SIZE:0):0;}
 int nxs_control_radio_items(NXSControl *c,const NXSRadioItem *items,uint32_t count,uint32_t columns,uint64_t selected,uint64_t key)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_radio_items)?p->control_radio_items(c,items,count,columns,selected,key):0;}
 NXSRadioState nxs_control_radio_state(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_radio_state)?p->control_radio_state(c):(NXSRadioState){.size=sizeof(NXSRadioState)};}
 NXSRect nxs_control_radio_item_rect(NXSControl *c,uint64_t identifier)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_radio_item_rect)?p->control_radio_item_rect(c,identifier):(NXSRect){0};}
+int nxs_control_radio_cell_size(NXSControl *c,double width,double height)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_radio_cell_size)?p->control_radio_cell_size(c,width,height):0;}
 NXSPopupState nxs_control_popup_state(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_state)?p->control_popup_state(c):(NXSPopupState){.size=sizeof(NXSPopupState),.highlighted=-1};}
 NXSRect nxs_control_popup_item_rect(NXSControl *c,int index)

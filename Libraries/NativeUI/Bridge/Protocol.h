@@ -222,4 +222,32 @@ struct NXSTabWireState {
   uint64_t selected;
   struct NXSRectD content;
 };
+/* Radio groups use kind 12. Bootstrap part 4.y / generic part 1.y advertise
+ * the optional capability. Operation 43 replaces application item data,
+ * preserving uint64 identities throughout. Each item is followed by UTF8
+ * title bytes. Operation 44 returns NXSRadioWireState; focus/key replies also
+ * carry this snapshot, so a native action and its exact targets travel together.
+ * Operation 45 returns native item geometry in part 6. Operation 46 returns
+ * that native cell's pixels, cropped from the original matrix bitmap using
+ * its native rectangle. Ordinary press/move/release coordinates remain group
+ * coordinates. No control layout, key or tracking policy crosses the wire. */
+struct NXSControlRadioRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved,count,columns;
+  uint64_t selected,key_cell;
+  double scale;
+};
+struct NXSRadioWireItem {uint64_t identifier;uint32_t enabled,title_size;};
+struct NXSControlRadioItemRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  uint64_t identifier;
+  double width,height; /* Optional application cell bounds for operation 46. */
+};
+struct NXSRadioWireState {
+  uint32_t count,rows,columns,reserved;
+  uint64_t selected,key_cell,actions;
+};
 #endif

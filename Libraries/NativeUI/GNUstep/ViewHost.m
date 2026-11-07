@@ -377,11 +377,12 @@ int nxs_host_replace_view(NXSViewHost *host,NSView *view)
 }
 void nxs_host_resize(NXSViewHost *host,NSSize size)
 {
-  if(!host||NSEqualSizes([host->view frame].size,size))return;
+  if(!host)return;
   /* The backing covers complete device pixels; the actual native view keeps
    * its logical fractional bounds. Its parent must cover the antialiased edge. */
-  [host->window setContentSize:NSMakeSize(ceil(size.width),ceil(size.height))];
-  [host->view setFrame:NSMakeRect(0,0,size.width,size.height)];
+  NSSize backing=NSMakeSize(ceil(size.width),ceil(size.height));
+  if(!NSEqualSizes([[host->window contentView] frame].size,backing))[host->window setContentSize:backing];
+  if(!NSEqualSizes([host->view frame].size,size))[host->view setFrame:NSMakeRect(0,0,size.width,size.height)];
 }
 int nxs_host_set_screen_origin(NXSViewHost *host,double x,double y)
 {
