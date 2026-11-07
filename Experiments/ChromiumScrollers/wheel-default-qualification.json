@@ -1,0 +1,203 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "d793b20d",
+  "status": "pinned-chromium-native-wheel-default-and-retired-target-lifecycle-qualified-broader-integration-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 584,
+  "shared_ui_unchanged": true,
+  "candidate_files": {
+    "adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-wheel-default-05-hook.so",
+      "bytes": 235608,
+      "sha256": "fcc8d91082822fdbd1c840ec01a73152276f3f578d75e961000ef83cf5212833"
+    },
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-wheel-default-05-repro.so",
+      "bytes": 235608,
+      "sha256": "fcc8d91082822fdbd1c840ec01a73152276f3f578d75e961000ef83cf5212833"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_point_hits": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-06",
+        "results_file": "list-scroll-results.json",
+        "checks": 40,
+        "native_images": 12,
+        "sha256": "bf5736a896ae39c67925b8d0496c016280ae756d2baeefd376f5344c6bfaeddb"
+      },
+      "flat_list": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-06",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "41af33af027564e4b4961e6f0423be02608f3b3c74226c23505dcaa1ef20aad0"
+      },
+      "form": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-06",
+        "results_file": "form-results.json",
+        "checks": 101,
+        "native_images": 28,
+        "sha256": "a106b1c0df90ce128730902d73d40100ede9167a674be5757c281c274a36fbe8"
+      },
+      "radio": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-06",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "d34b79fdbc5920755c0dfa0bb9f0f73859f930c5716a52b525b9abaf49bd13a7"
+      },
+      "popup": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-06",
+        "results_file": "popup-results.json",
+        "checks": 66,
+        "native_images": 27,
+        "sha256": "2178a82fe45a4b5d6a7102c325a2d4dec3384ed896f8706b9df8db41fde4af5a"
+      },
+      "button_text": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-06",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "textarea_viewport": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-05",
+        "results_file": "textarea-viewport/results.json",
+        "checks": 25,
+        "native_images": 8,
+        "sha256": "5be069d3111d6495fa662340a12e84deed739b746fffa9f9647179ba5d3708b2"
+      },
+      "textarea_wheel": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-05",
+        "results_file": "textarea-wheel/results.json",
+        "checks": 33,
+        "native_images": 9,
+        "sha256": "e532509a143e3f75b0103de8fdde081515c3cc024a6473170700b7ea31f7e708"
+      },
+      "textarea_wheel_repeat": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-07",
+        "results_file": "textarea-wheel/results.json",
+        "checks": 33,
+        "native_images": 9,
+        "sha256": "1fb0b06d23ec38daa792525e0d00a892ab377a93b31d2f17fbf181b543819fcf"
+      }
+    },
+    "passing_checks": 533,
+    "complete_native_images": 183,
+    "unchanged_production_binaries": 20,
+    "package_count": 1050,
+    "sandbox": [
+      {
+        "pid": 206337,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 206348,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 206350,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "owned_candidate_mappings_after_cleanup": []
+  },
+  "source_audit": "wheel-default-source-audit.json",
+  "diagnostics": {
+    "01": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-01/textarea-wheel/results.json",
+        "bytes": 14124,
+        "sha256": "c4636fa78816ac7b3950e235d814c6981d52df584730af7ffddc1d57c29634a4"
+      },
+      "checks": 22,
+      "failed": [],
+      "outcome": "failed; inspect retained runner log as well as assertion rows"
+    },
+    "02": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-02/textarea-wheel/results.json",
+        "bytes": 15337,
+        "sha256": "66ada8492e21c4ac86b7d8b5ea32e8093ee7eb2aae6100d218a06e249623ee86"
+      },
+      "checks": 27,
+      "failed": [
+        {
+          "case": "reinserted-control-rebinds-native-region",
+          "passed": false,
+          "state": {
+            "top": 207,
+            "start": 0,
+            "end": 0,
+            "value": "Line 0\nLine 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\nLine 11\nLine 12\nLine 13\nLine 14\nLine 15\nLine 16\nLine 17\nLine 18\nLine 19\nLine 20\nLine 21\nLine 22\nLine 23\nLine 24\nLine 25\nLine 26\nLine 27\nLine 28\nLine 29\nLine 30\nLine 31\nLine 32\nLine 33\nLine 34\nLine 35\nLine 36\nLine 37\nLine 38\nLine 39\nLine 40\nLine 41\nLine 42\nLine 43\nLine 44\nLine 45\nLine 46\nLine 47\nLine 48\nLine 49\nLine 50\nLine 51\nLine 52\nLine 53\nLine 54\nLine 55\nLine 56\nLine 57\nLine 58\nLine 59",
+            "events": [],
+            "scroll": []
+          }
+        }
+      ],
+      "outcome": "failed; inspect retained runner log as well as assertion rows"
+    },
+    "03": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-03/textarea-wheel/results.json",
+        "bytes": 15636,
+        "sha256": "be606cc2d328e9c37ccc5e9c43d8a445afbf5b7a1b9d9bf9dd68a4857e61cc82"
+      },
+      "checks": 28,
+      "failed": [
+        {
+          "case": "native-reinserted-offset-rejects-late-competing-scroll",
+          "passed": false,
+          "positions": [
+            300,
+            302,
+            314,
+            326,
+            351,
+            369,
+            387,
+            407,
+            419,
+            420,
+            420,
+            420,
+            420,
+            420,
+            420,
+            420
+          ]
+        }
+      ],
+      "outcome": "failed; inspect retained runner log as well as assertion rows"
+    },
+    "04": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-wheel-default-04/textarea-wheel/results.json",
+        "bytes": 15746,
+        "sha256": "ba96b5a4ed5a8c0f9ddac0e6b14597a07c800df5593cac0a5fcd9c1de90d0187"
+      },
+      "checks": 29,
+      "failed": [],
+      "outcome": "diagnostic pass, excluded from final totals"
+    }
+  },
+  "observations": [
+    "A page wheel callback removed the native target. The old path returned unhandled, permitting compositor scrolling. Its reinserted successor accepted native 300 then received competing engine positions; original animator cancellation/takeover did not solve it.",
+    "Diagnostic 02 observes DOM top 207; diagnostic 03 records native 300 followed by positions 302 through 420. Its raw next physical event is nonblocking. Handling retired native defaults restores original blocking acknowledgement and stable native 300.",
+    "Final candidate passes 33 wheel checks/nine complete native images in two distinct fixtures, one after 25 viewport checks/eight images. Both reinsertion traces stay exactly 300 over 350ms and final native pixels match. Nested synthetic input does not reenter native delivery and content defaultPrevented stays false.",
+    "Point/list, flat lists, form activation, radios, popups and button/text regressions use the final trace-free adapter. The separate adapter reproduction is byte-identical. All 20 production files and the previous committed adapter remain unchanged.",
+    "Failed and diagnostic prototype runs are retained separately and excluded from final totals. Readiness waits for the newly navigated visible frame before physical input; expected native offsets are unchanged. Independent native-seat comparison and host-replacement branches of the reused textarea harness are excluded from this checkpoint."
+  ],
+  "open": [
+    "Chromium CSS zoom/fractional-scale correctness remains unqualified; the retained zoom observation is engine-specific and excluded.",
+    "Broader model/layout/rectangle-hit contracts, held scrollers, host replacement/loss, performance, scaling, IME/accessibility, other browser builds/derivatives and installed deployment.",
+    "Remaining browser web-page controls, complete detached menus and native shortcuts, then GTK/Qt/KDE through the same shared native UI library. Browser toolbar/address bar/tabs stay original."
+  ]
+}

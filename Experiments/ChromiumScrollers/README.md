@@ -1041,8 +1041,33 @@ response bodies.
 
 See [failure qualification](list-failure-qualification.json) and
 [source audit](list-failure-source-audit.json). This resolves the measured
-renderer crash from the Firefox metadata compatibility checkpoint. A separate
-textarea reinsertion wheel check still observes a few pixels of scroll drift
-in candidate runs; the unchanged previous adapter passed one comparison run.
-Its cause remains open, as do broader recovery/scaling and the full browser
-integration goal. Toolbar, address bar and tabs retain their existing components.
+renderer crash from the Firefox metadata compatibility checkpoint. A later wheel lifecycle fix resolves the separately retained textarea
+reinsertion drift; see the native wheel default section below. Broader
+recovery/scaling and the full browser integration goal remain open. Toolbar, address bar and tabs retain their existing components.
+
+
+### Native wheel defaults and retired targets
+
+Native wheel delivery runs inside the original trusted textarea/select default
+handler. The adapter stages the original input only during original DOM
+dispatch, checks actual WheelEvent class/trust/cancellation, and marks the
+original default handled after the real shared NSScrollView accepts it. The
+original manager supplies acknowledgement and target lifecycle. Nested
+synthetic DOM events cannot trigger another native wheel action.
+
+If a page listener removes or replaces the native target, the existing common
+DOM dispatch boundary consumes that retired widget's default without calling
+the released control. Otherwise the browser can begin a compositor scroll
+which later overwrites the reinserted native viewport. Page listeners and
+explicit cancellation retain their original behavior; native handling does
+not set the content-visible defaultPrevented flag. No animation, scroll
+algorithm or native component is copied.
+
+The wheel regression checks observe the reinserted offset over 350ms and compare
+the final complete native control, as well as cancellation, page mutation,
+removal/reinsertion, nested synthetic events, fractional/modifier input and
+unrelated engine scroll areas. Physical-seat input after reload waits for the
+new visible frame. See [qualification](wheel-default-qualification.json) and
+[source audit](wheel-default-source-audit.json). This remains a pinned scale-1
+Chromium adapter; zoom, other builds/derivatives and broader browser integration
+remain open. Browser toolbars, address bars and tabs keep their components.

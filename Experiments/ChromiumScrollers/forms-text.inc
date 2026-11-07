@@ -52,7 +52,7 @@ static void *text_pointer_controller,*text_pointer_frame,*text_pointer_handler;
 static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA;}
 static void (*original_textarea_default)(void *,void *);
 static void textarea_default(void *node,void *event)
-{if(!forms_multiline_enabled||!default_text_key(node,event))original_textarea_default(node,event);}
+{if(!native_wheel_default(node,event)&&(!forms_multiline_enabled||!default_text_key(node,event)))original_textarea_default(node,event);}
 static void *text_frame(void *node) {
   void *document=node_document(node),*window=document?decode_member((char *)document+264):NULL;
   return window?decode_member((char *)window+32):NULL;

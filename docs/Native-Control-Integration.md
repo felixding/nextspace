@@ -735,6 +735,17 @@ invalid HTMLInputElement getter. Explicit semantic-kind gates prevent that route
 Native recovery also reuses the original deferred layout invalidation already
 used for buttons, retiring temporary engine scrollbars without duplicating UI.
 See [failure qualification](../Experiments/ChromiumScrollers/list-failure-qualification.json).
-A newly observed textarea reinsertion wheel drift remains open and is excluded
-from this checkpoint's passing totals. The full browser-then-GTK/Qt/KDE scope
+The textarea reinsertion wheel drift was excluded from that historical
+checkpoint; the following wheel lifecycle fix addresses it. The full browser-then-GTK/Qt/KDE scope
 remains active, using the shared native library and optional app-specific patches.
+
+
+The pinned Chromium wheel adapter now delivers through the original DOM default
+handler and acknowledges native targets retired by page callbacks. This avoids
+a competing compositor scroll after reinsertion while leaving explicit page
+cancellation and original event dispatch intact. The same binding handles
+textarea and select list controls, using the existing shared GNUstep wheel API.
+No control, key map, scroll animation or rendering implementation is duplicated.
+See [wheel default qualification](../Experiments/ChromiumScrollers/wheel-default-qualification.json).
+The wider browser integration and later GTK/Qt/KDE work remain open; future
+browser UI changes stay in optional app-specific patches above the common layer.

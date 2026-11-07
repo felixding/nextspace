@@ -131,6 +131,8 @@ static void echo_text_viewport(struct NativeForm *);
 static int read_text_viewport(struct NativeForm *);
 static int restore_text_viewport(struct NativeForm *);
 static void native_wheel_binding(struct NativeForm *,int);
+static int native_wheel_default(void *,void *);
+static int native_wheel_dispatch(void *);
 static struct NativeForm *bound_form_ancestor(void *node,int kind) {
   for(unsigned depth=0;node&&depth<4096;depth++) {
     struct NativeForm *form=find_form(node);if(form&&form->kind==kind)return form;
@@ -493,7 +495,7 @@ static int dom_dispatch(void *dispatcher) {
   form_key_node=keyboard_form?keyboard_form->node:NULL;
   form_key_event=keyboard_form?event:NULL;
   form_key_control=keyboard_form?keyboard_form->control:0;
-  int result=original_dom_dispatch(dispatcher);
+  int result=native_wheel_dispatch(dispatcher);
   if(checkbox_scope)native_checkbox_activation=previous_checkbox;
   form_key_node=previous_node;form_key_event=previous_event;
   form_key_control=previous_control;

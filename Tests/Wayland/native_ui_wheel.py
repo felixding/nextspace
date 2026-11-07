@@ -42,6 +42,11 @@ def wheel(dx,dy,modifiers=0,x=130,y=90):
     pages=[p for p in pages if p.get('type')=='page' and p.get('url')=='file:///workspace/Experiments/ChromiumScrollers/test-multiline.html'];assert len(pages)==1,pages
     code="""const s=new WebSocket(process.argv[1]);await new Promise((r,j)=>{s.addEventListener('open',r,{once:true});s.addEventListener('error',j,{once:true})});const result=await new Promise((r,j)=>{const t=setTimeout(()=>j(new Error('Owned input timed out')),10000);s.addEventListener('message',e=>{const v=JSON.parse(e.data);if(v.id===1){clearTimeout(t);r(v)}});s.send(JSON.stringify({id:1,method:'Input.dispatchMouseEvent',params:JSON.parse(process.argv[2])}))});s.close();if(result.error)throw new Error(JSON.stringify(result));"""
     subprocess.run([a.node,'--input-type=module','-e',code,pages[0]['webSocketDebuggerUrl'],json.dumps(dict(type='mouseWheel',x=x,y=y,deltaX=dx,deltaY=dy,modifiers=modifiers))],check=True,timeout=15)
+def native_pixels(label,rect,reference):
+    screenshot=ab('screenshot','--screenshot-dir',str(out/label));image=Path(re.search(r'Screenshot saved to (.+)',screenshot).group(1).strip())
+    mounted='/workspace/'+str(image.relative_to(repo));box=tuple(round(rect[k]) for k in ['left','top','right','bottom'])
+    diff=remote('from PIL import Image,ImageChops\nimport json\na=Image.open('+repr(mounted)+').convert("RGB").crop('+repr(box)+')\nb=Image.open('+repr(reference['path']+'/textarea.png')+').convert("RGB");d=ImageChops.difference(a,b);print(json.dumps(dict(equal=d.getbbox() is None,box=d.getbbox())))')
+    check(label+'-native-pixels',diff['equal'],**diff)
 def compare(label,dy,cdp_modifiers=0,native_modifiers=0,start=200,x=130,y=90):
     seed(start);rect=js('document.getElementById("normal").getBoundingClientRect().toJSON()')
     reference=control('reference '+json.dumps(dict(name=out.name+'-'+label,controls=[dict(id='textarea',kind=9,
@@ -53,10 +58,7 @@ def compare(label,dy,cdp_modifiers=0,native_modifiers=0,start=200,x=130,y=90):
     if expected!=start:
         actual=wait(state,lambda s:any(v['trusted'] and v['top']==expected for v in s['scroll']))
         check(label+'-trusted-events',any(v['trusted'] and v['cancelable'] for v in actual['events']),state=actual)
-    screenshot=ab('screenshot','--screenshot-dir',str(out/label));image=Path(re.search(r'Screenshot saved to (.+)',screenshot).group(1).strip())
-    mounted='/workspace/'+str(image.relative_to(repo));box=tuple(round(rect[k]) for k in ['left','top','right','bottom'])
-    diff=remote('from PIL import Image,ImageChops\nimport json\na=Image.open('+repr(mounted)+').convert("RGB").crop('+repr(box)+')\nb=Image.open('+repr(reference['path']+'/textarea.png')+').convert("RGB");d=ImageChops.difference(a,b);print(json.dumps(dict(equal=d.getbbox() is None,box=d.getbbox())))')
-    check(label+'-native-pixels',diff['equal'],**diff)
+    native_pixels(label,rect,reference)
 
 try:
     ab('open','file:///workspace/Experiments/ChromiumScrollers/test-multiline.html');seed()
@@ -96,6 +98,10 @@ try:
     canceled=wait(state,lambda s:len(s['events'])==1)
     check('page-cancels-native-default',canceled['top']==200 and canceled['events'][0]['trusted'] and canceled['events'][0]['cancelable'],state=canceled)
     js('window.__cancelWheel=false')
+    js('document.getElementById("normal").addEventListener("wheel",function nested(v){window.__nativeWheelEvent=v;if(v.isTrusted)this.dispatchEvent(new WheelEvent("wheel",{deltaY:10,bubbles:true,cancelable:true}))},{once:true});true')
+    compare('nested-untrusted',2)
+    nested=state();prevented=js('window.__nativeWheelEvent.defaultPrevented')
+    check('nested-synthetic-wheel-does-not-reenter-native-default',len(nested['events'])==2 and sum(v['trusted'] for v in nested['events'])==1 and not prevented,state=nested,defaultPrevented=prevented)
     for label,dy,cdp_mod,native_mod,start,px,py in [
         ('down',2,0,0,200,130,90),('fractional',.25,0,0,200,130,90),
         ('end',1000,0,0,200,130,90),('top',-1000,0,0,200,130,90),
@@ -106,6 +112,8 @@ try:
     control(f'pointer {x} {y}');control('scroll 1')
     check('removing-page-listener-retains-native-region',wait(state,lambda s:s['top']!=200)['top']==300)
     ab('open','file:///workspace/Experiments/ChromiumScrollers/test-multiline.html');seed()
+    # Physical seat input needs the newly navigated surface to be presented.
+    ab('screenshot','--screenshot-dir',str(out/'reload-ready'))
     control(f'pointer {x} {y}');control('scroll 1')
     check('reload-rebinds-native-region',wait(state,lambda s:s['top']!=200)['top']==300)
     js('(()=>{let d=document.createElement("div");d.id="wheel-other";d.style="position:absolute;left:400px;top:40px;width:200px;height:150px;overflow:scroll";d.innerHTML="<div style=height:2000px>Other scroll area</div>";document.body.append(d);return true})()')
@@ -124,5 +132,12 @@ try:
     control(f'pointer {x} {y}');control('scroll 1')
     reinserted=wait(state,lambda s:s['top']!=200)
     check('reinserted-control-rebinds-native-region',reinserted['top']==300,state=reinserted)
+    positions=[];deadline=time.monotonic()+.35
+    while time.monotonic()<deadline:
+        positions.append(state()['top']);time.sleep(.02)
+    check('native-reinserted-offset-rejects-late-competing-scroll',positions and all(v==300 for v in positions),positions=positions)
+    rect=js('document.getElementById("normal").getBoundingClientRect().toJSON()')
+    reference=control('reference '+json.dumps(dict(name=out.name+'-reinserted-native',controls=[dict(id='textarea',kind=9,width=rect['width'],height=rect['height'],enabled=1,state=0,title='',text=text,scroll=[0,200],wheel=[dict(dy=10)])])))
+    native_pixels('reinserted-native',rect,reference)
     print(json.dumps(dict(passed=len(rows),output=str(out))))
 finally:ab('close')

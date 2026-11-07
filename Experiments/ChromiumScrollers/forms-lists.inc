@@ -147,6 +147,7 @@ static int list_key_input(struct NativeForm *form,void *event,int type,unsigned 
 }
 static int list_default_event(void *node,void *event)
 {
+  if(native_wheel_default(node,event))return 1;
   struct NativeForm *form=find_form(node);if(!list_owned(form))return 0;
   unsigned short *flags=(unsigned short *)((char *)event+32);
   if(!(*flags&0x100)||(*flags&0x60))return 0;

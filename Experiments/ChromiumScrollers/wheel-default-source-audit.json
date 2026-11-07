@@ -1,0 +1,300 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "d793b20d",
+  "status": "pinned-chromium-native-wheel-default-and-retired-target-lifecycle-qualified-broader-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/forms.inc": "d86ea7047b9cf3c76c53ed2687d9ac674dd869e95b3b4682c5d9f66a48e9da61",
+    "Experiments/ChromiumScrollers/forms-wheel.inc": "ff35b0777b4b0902c2da983db7768783cbc9cb950bec2616b264919519c45da7",
+    "Experiments/ChromiumScrollers/forms-text.inc": "5a174358e22a5a51ddb00b77238d172571cc115f07761b475da9218115b80065",
+    "Experiments/ChromiumScrollers/forms-lists.inc": "52018c59cc955aaceebf38859f9a0b48df256dea045aae3458b26b2c9633f198",
+    "Experiments/ChromiumScrollers/pinned-wheel.h": "3da8aca5cc43db3e54eedace4347f56ac54c82e815a9e20c0b5f7c9cf7be4c5a",
+    "Experiments/ChromiumScrollers/README.md": "8573aec1157d010a90c3030fd5b7f9289982eb1ca62d3a03f6b99bc5e957ba82",
+    "Tests/Wayland/native_ui_wheel.py": "9e2c057ea7e6800fa0305f14a8ef17ccb4391a0588e77a57fa98b2b7a37678d0",
+    "docs/Native-Control-Integration.md": "1d592c3b6720afb5a671310e0c570bf85952b0224f84f0ad995f0796a499944f"
+  },
+  "guarded_binary": {
+    "build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "source_revision": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+    "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+  },
+  "class_identity": {
+    "name": "blink::WheelEvent",
+    "vtable_offset": "0x11ce0790",
+    "address_point_bias": 16,
+    "symbol_evidence": ".build/native-ui/chromium-wheel-dom-symbols.json"
+  },
+  "original_sources": [
+    {
+      "path": ".build/native-ui/wheel-source/NSEvent.h",
+      "bytes": 18703,
+      "sha256": "a53dab810977bd71487810f4da09dd4eb8a418f89cef7bcfa43710a6e77c792f"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/NSEvent.m",
+      "bytes": 35690,
+      "sha256": "4e570fb0724fcfd7171690a0f4295ec9eb97f200ce969895d4204e0ab3131046"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/NSScrollView.m",
+      "bytes": 49070,
+      "sha256": "75a86fdf882af992982c961b77e645876a8c5c313065d6518994845180538b6c"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event.cc",
+      "bytes": 42931,
+      "sha256": "5fb0a9d4b1ddaf994f674d5806676c766bebc3ae9a93a48bdafc6ae0e332171c"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event_constants.h",
+      "bytes": 9375,
+      "sha256": "faafc4e6950a16876bd631f5fd63faf8464ca2e51013e0c384c53378a85d7139"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event_handler.cc",
+      "bytes": 111441,
+      "sha256": "792361122d2946779dadba2aa5507499e921848c7bb7e71a70b3ade76a325c54"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event_handler.h",
+      "bytes": 21551,
+      "sha256": "2ec72b3c32fafb82bccdccd97f6afbad501dbeb5bb6ab23c10e9b705ea84f366"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event_handler_registry.cc",
+      "bytes": 16278,
+      "sha256": "bfec2d456757a55bf307e95151473d9092a14c15244eb8d2ab126641a7c947d4"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event_handler_registry.h",
+      "bytes": 5798,
+      "sha256": "8efbec87a9bb551e41e924b85f4a849f88e5ea1b4f5db233211e89875c5d55fc"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/event_target.cc",
+      "bytes": 47133,
+      "sha256": "dfd02d762e2321c0fdf9cc1f6c799f02e0f7150d76d295bf07122cd571b841d8"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/local_frame.cc",
+      "bytes": 180085,
+      "sha256": "0aa36be248d7deab26bf101f4f01ab89d43ba841bffab696e4752222968b1c13"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/local_frame.h",
+      "bytes": 57923,
+      "sha256": "e0e7f42ecd10063043aace80509a10b8dcfa2ee6c9642ffadeee21f573b5dd4c"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/mouse_wheel_event_manager.cc",
+      "bytes": 9492,
+      "sha256": "f5cf899a44ed0765e0ff4383a7b7cce17fe660594c45eb21e4ce681ae86bf954"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/mouse_wheel_event_manager.h",
+      "bytes": 1932,
+      "sha256": "1a9a152b189547607300d1ac1ea2a72aaacc0bfebdb3130165b440853ea95178"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/node-listener-disassembly.txt",
+      "bytes": 4741,
+      "sha256": "8cb0743331af0a41cea605c41b2afb1eb1140a791e0f3374d2f9c6eadd7b1ac3"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/node.cc",
+      "bytes": 142783,
+      "sha256": "91df8682ae46df62860f1dd653573243d3d255c1ebe349bd59e898117f7fa0d7"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/scroll_types.h",
+      "bytes": 555,
+      "sha256": "eb8c9aca36e235c7eab36cc5571588758c7569038e6e0c8dcf8f30142f14aebe"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/spin_button_element.cc",
+      "bytes": 9585,
+      "sha256": "f2016d2cdda686d9498ddc9c3275a1223fe3c30d769a386ef8d3eac27896332a"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/wayland_event_source.cc",
+      "bytes": 46790,
+      "sha256": "f76f915f6dfde875390b82429aa131d61f4aa2f943b5853ff698a4022704a6b2"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/wayland_pointer.cc",
+      "bytes": 10580,
+      "sha256": "49907ad2afb6a64ad9956be643b117d5644ea3e6e1b5a7860c56472c52e128ad"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/web_input_event_result.h",
+      "bytes": 806,
+      "sha256": "6af60bdab41ae55a7814c19d43f90c89d7adfde92be466ed77d9e1b6aa19e58e"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/web_mouse_wheel_event.h",
+      "bytes": 4755,
+      "sha256": "81d50f16302d92b1ed65508fc3c272a2bf53744223c9ce7f21e5f8676d38f1f4"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/wheel-event-disassembly.txt",
+      "bytes": 6145,
+      "sha256": "03daaad02f3fa668e951b039e0e20d4423227023221d94382804f9a69fbdc968"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/wheel-manager-disassembly.txt",
+      "bytes": 15737,
+      "sha256": "fdc63f4566a821cd536e352e05161df6cad1cb02fd6884089a75e4e3c6d42cb3"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/wheel_event.cc",
+      "bytes": 7826,
+      "sha256": "5f43b8a50b309326591a50dfd0082bfb6abdff3ef28c15ebb598c14ca55f9ec1"
+    },
+    {
+      "path": ".build/native-ui/wheel-source/wheel_event.h",
+      "bytes": 3957,
+      "sha256": "80dc72b7ac4be1f0000783d2a8b4408626d40c9606deb0edb66ac47b2e933012"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/cancel-takeover-disassembly.txt",
+      "bytes": 3108,
+      "sha256": "5549d806ee324ba4de37f391b4fe69e5eec55799f41cdce741074eda371bab08"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/candidate-02-forms-text-scroll.inc",
+      "bytes": 15410,
+      "sha256": "c95b6ccdf5e1df4dc0398d729eecbf536c85858124038c65311e3cc1bfae1102"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/candidate-02-forms-wheel.inc",
+      "bytes": 4110,
+      "sha256": "ec3ee5ad4562b8aad1e88af7159a63f256b64ca496ef15d83bb6cd7dfdbaf7e7"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/candidate-02-forms.inc",
+      "bytes": 33988,
+      "sha256": "7c3f7d2547fadb814bd5141a6a8a15f07372f8e654d46529c0613c1adf5ab671"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/candidate-02-pinned-scroll-ownership.h",
+      "bytes": 3367,
+      "sha256": "e0a3ed29d4e6ea894616a5f788237d0d4b9d9e4c7643c92530b6155f82391597"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/default-01-forms-wheel.inc",
+      "bytes": 4644,
+      "sha256": "6ffac2fc44ee152c05847d7af38239e62d81bb337af227a0723736bc2e7469a7"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/default-03-forms-wheel.inc",
+      "bytes": 4945,
+      "sha256": "d44ac87234c7c00074fe640db1ab9b71d3c4b68f68b4b1cf1962be0ecdc841b1"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/default-04-forms-wheel.inc",
+      "bytes": 6225,
+      "sha256": "90fe4100196b506c6fe3c61a4a0d9046670d9e0c45ae7ecd07fc3f4d202a0ea7"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/event-dispatch-result-source.json",
+      "bytes": 258,
+      "sha256": "c042e93f262dbd3f9d653e7a39322ae1be600318f3f8e7de4bcdce5a33db4ef7"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/event_dispatch_result.h",
+      "bytes": 1320,
+      "sha256": "ce28c83c3e85bdd6845e142e11f04bdc76fb377d4358edccf6c4ba23434a9087"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/layout_object.h",
+      "bytes": 163210,
+      "sha256": "a9e5a35561ac648778a21346202d5064b06cb2473efb5aafd97dc0dd9b67fbff"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/paint_property_tree_builder.cc",
+      "bytes": 219598,
+      "sha256": "64117ff4daa9ff4aeb4468f5659fa9bd200866e1b96c25e69486e530d4290ad8"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/pins-02.log",
+      "bytes": 620,
+      "sha256": "01bf06f5647c4ad18546697dea7dbce52f2ba33aae76052f363ab6264309576f"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/pins.json",
+      "bytes": 1033,
+      "sha256": "a53289bdf21ee01f9d4ef78143b5f26e383acfeaf8d59d226fa38aee83babf3b"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/pins.log",
+      "bytes": 620,
+      "sha256": "01bf06f5647c4ad18546697dea7dbce52f2ba33aae76052f363ab6264309576f"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/pins.py",
+      "bytes": 1099,
+      "sha256": "eff667846a5a2fa10f21a1b963f84fddec460c8094611786da4e727a2007329b"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/pre_paint_tree_walk.cc",
+      "bytes": 69704,
+      "sha256": "93fcd953ab23c99e68e491af9bbfeb80a1622aecfbfb785048798a6702b18f1c"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/region-trace-03-forms-wheel.inc",
+      "bytes": 6665,
+      "sha256": "d1dc9d85f17ed1a56551770b540cebe4f53d9f0524f230078368a297c22e38fd"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/region-trace-03-pinned-wheel-region-lifetime.h",
+      "bytes": 418,
+      "sha256": "0ade5584a4c542daec246a46528321079073d663919a723728a3fcef341c49e6"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/scroll_animator.cc",
+      "bytes": 15679,
+      "sha256": "2fcdacf20acbc096aa7a40cd66f0e3d62be8a0bc933e83d813844a2cc226f374"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/scroll_animator_base.cc",
+      "bytes": 3950,
+      "sha256": "928efedd1c4ee14876adff216e166768d23c01eae3c0ffef47f4b7c2db7ce463"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/scroll_animator_base.h",
+      "bytes": 4815,
+      "sha256": "7acbc9a9670ec36cf824707967f84140bca79516242ae5ed8c4e81d50f7567e3"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/scroll_animator_compositor_coordinator.cc",
+      "bytes": 12826,
+      "sha256": "9f4d6fff54ca42707285e4bb75455bad35e3ef0e8363c556d2b23b96928bd21e"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/source.json",
+      "bytes": 2317,
+      "sha256": "73a66a69a12296fab126648aa91a9fe04fbfc54d2af42909203bec39c187a5d3"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/trace-01-forms-text-scroll.inc",
+      "bytes": 15799,
+      "sha256": "e23d489e1a57f997870b8c33921cd92a12a8f65c39ba1023a2fe09b0cd481499"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/trace-01-forms-wheel.inc",
+      "bytes": 4602,
+      "sha256": "b5c4cf4d5415c3dfbe795611ddb0d79b9dc8aa5f35d638be4553f1391c7c22a0"
+    },
+    {
+      "path": ".build/native-ui/chromium-scroll-ownership-source/wheel-lifetime-pins.py",
+      "bytes": 1002,
+      "sha256": "cbc38189dd8673a7589f8cdedc992e6bbc6b74761cfeb0859027a34b78c6d06a"
+    }
+  ],
+  "invariants": [
+    "Use the existing EventDispatcher, textarea/select default hooks and original wheel manager; do not add page event listeners or a second native wheel default.",
+    "Only the staged original trusted WheelEvent can reach the real shared native wheel API. Explicit page cancellation and nested synthetic events retain original behavior.",
+    "Capture semantic node/control identity before page callbacks. If retired, complete that old native target default without accessing its freed control. Return original DispatchEventResult value 2; the original manager converts it to its acknowledgement.",
+    "All wheel distances, bounds, selection, clipping and images remain owned by the unchanged real GNUstep controls. No animation implementation is copied; failed cancellation/takeover prototypes remain only in evidence.",
+    "Toolbar, address bar and tabs keep browser components. Later GTK/Qt/KDE consumers reuse the shared provider/bridge with optional app-specific patches."
+  ]
+}
