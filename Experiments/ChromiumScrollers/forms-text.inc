@@ -4,11 +4,11 @@ struct BlinkTextModel {char *value;uint32_t start,end;int editable;};
 struct BlinkEditorCommand {void *command;int source,padding;void *frame;};
 _Static_assert(sizeof(struct BlinkEditorCommand)==24,"Pinned menu/key command ABI");
 struct BlinkTextTransaction {
-  void *node,*frame,*event;
+  void *node,*frame,*event,*edit_dispatch;
   uint64_t control;
   const char *before;
   const struct NXSNativeTextEdit *edit;
-  int attempted;
+  int attempted,delete_executed,notify_clear,automatic_search;
 };
 static __thread struct BlinkTextTransaction *text_transaction;
 static int native_text_proposal(const struct NXSNativeTextEdit *,const char *,const char *);
@@ -196,12 +196,18 @@ static void search_clear(void *node,uint64_t control) {
   if(!form||form->control!=control||form->kind!=NXS_SEARCHFIELD||!form_focused(node)||!form_enabled(node)||text_transaction)return;
   if(!sync_text_image(form))return;
   struct BlinkTextModel before={0};if(!text_model(node,&before))return;
-  struct BlinkTextTransaction transaction={.node=node,.frame=text_frame(node),.control=control,.before=before.value};
+  struct BlinkTextTransaction transaction={.node=node,.frame=text_frame(node),.control=control,.before=before.value,.notify_clear=1};
   text_transaction=&transaction;
   native_control_perform_click(NXS_SEARCHFIELD,control,NXS_SEARCH_CANCEL);
   text_transaction=NULL;free(before.value);
   form=find_form(node);
-  if(form&&form->control==control)sync_text_image(form);
+  if(form&&form->control==control) {
+    sync_text_image(form);
+    /* The original deletion hook runs only after beforeinput is accepted.
+     * Keep the engine's timer cancellation, trusted dispatch and callbacks. */
+    if(transaction.delete_executed&&!transaction.automatic_search&&input_form_kind(node)==NXS_SEARCHFIELD)
+      ((void (*)(void *))(base+NXS_CHROMIUM_SEARCH_NOTIFY_OFFSET))(node);
+  }
 }
 static int text_mouse_press(void *self,const void *event) {
   /* Pinned EventWithHitTestResults embeds WebMouseEvent first. Its hit result
@@ -267,7 +273,7 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
   if(!transaction||edit->process!=identity()||edit->control!=transaction->control)return 0;
   struct NativeForm *form=find_form(transaction->node);
   if(!form||form->control!=transaction->control||form->kind!=(int)edit->kind)return 0;
-  transaction->edit=edit;transaction->attempted=1;
+  transaction->edit=edit;transaction->edit_dispatch=native_dispatch_event;transaction->attempted=1;
   if(!command||!strcmp(command,"insertText:")||!strcmp(command,"yank:")) {
     void *value=((void *(*)(const char *,size_t))(base+NXS_CHROMIUM_TEXT_FROM_UTF8_OFFSET))(replacement,strlen(replacement));
     int cancelled=((int (*)(void *,const void *,int,void *))(base+NXS_CHROMIUM_TEXT_BEFORE_INSERT_OFFSET))
@@ -307,7 +313,7 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
 }
 static void native_delete_selection(void) {
   struct BlinkTextTransaction *transaction=text_transaction;
-  if(!transaction||!transaction->edit)return;
+  if(!transaction||!transaction->edit||transaction->edit_dispatch!=native_dispatch_event)return;
   struct NativeForm *form=find_form(transaction->node);
   if(!form||form->control!=transaction->control)return;
   struct BlinkTextModel current={0};
@@ -321,7 +327,25 @@ static void native_delete_selection(void) {
   }
 }
 static void text_delete_backward(void *document,unsigned char options,int granularity) {
+  struct BlinkTextTransaction *transaction=text_transaction;
+  int owned=transaction&&transaction->edit&&transaction->edit_dispatch==native_dispatch_event;
   native_delete_selection();original_text_delete_backward(document,options,granularity);
+  if(owned&&text_transaction==transaction)transaction->delete_executed=1;
+}
+static void (*original_search_user_edit)(void *);
+static void search_user_edit(void *type) {
+  struct BlinkTextTransaction *t=text_transaction;
+  /* Observe the engine's incremental policy at its own user-edit callback,
+   * before script input handlers can change attributes. Its scheduler stays
+   * original; a queued search must not receive a second notification. */
+  if(t&&t->notify_clear&&t->edit_dispatch==native_dispatch_event) {
+    struct NativeForm *form=find_form(t->node);
+    if(form&&form->control==t->control&&
+       decode_member((char *)t->node+NXS_CHROMIUM_SEARCH_INPUT_TYPE_MEMBER)==type&&
+       ((unsigned char (*)(const void *,const void *))(base+NXS_CHROMIUM_SEARCH_INCREMENTAL_OFFSET))
+         (t->node,*(void **)(base+NXS_CHROMIUM_INCREMENTAL_ATTRIBUTE_OFFSET)))t->automatic_search=1;
+  }
+  original_search_user_edit(type);
 }
 static void text_delete_forward(void *document,void *state,unsigned char options,int granularity) {
   native_delete_selection();original_text_delete_forward(document,state,options,granularity);
@@ -413,6 +437,7 @@ static int text_selection_changed(void *node,unsigned start,unsigned end,int dir
   return changed;
 }
 static struct Detour text_detours[]={
+  {NXS_CHROMIUM_SEARCH_USER_EDIT_OFFSET,chromium_search_user_edit_bytes,search_user_edit,(void **)&original_search_user_edit},
   {NXS_TEXTAREA_DEFAULT_OFFSET,nxs_textarea_default_bytes,textarea_default,(void **)&original_textarea_default},
   {NXS_CHROMIUM_TEXT_MOUSE_PRESS_OFFSET,chromium_text_mouse_press_bytes,text_mouse_press,(void **)&original_text_mouse_press},
   {NXS_CHROMIUM_TEXT_MOUSE_DRAG_OFFSET,chromium_text_mouse_drag_bytes,text_mouse_drag,(void **)&original_text_mouse_drag},

@@ -7,13 +7,14 @@ struct TextTransaction {
   void *node,*editor,*pres_context,*pointer_event;
   const struct NXSNativeTextEdit *edit;
   const char *before;
-  int attempted;
+  int attempted,delete_depth;
 };
 static __thread struct TextTransaction *text_transaction;
 static int native_text_proposal(const struct NXSNativeTextEdit *,const char *,const char *);
 static void (*original_text_scroll_display)(void *,void *,const void *);
 static uint32_t (*original_text_keypress)(void *,void *);
 static void *original_text_delete_subaction;
+static uint32_t (*original_text_delete_action)(void *,short,short,void *);
 static uint32_t (*original_text_frame_event)(void *,void *,void *,int *);
 static unsigned text_watch;
 static int (*text_watch_remove)(unsigned);
@@ -266,8 +267,9 @@ static int native_text_proposal(const struct NXSNativeTextEdit *edit,const char 
       {"deleteToBeginningOfLine:",5},{"deleteToEndOfLine:",6},{"delete:",0}};
     int found=0;
     for(size_t i=0;i<sizeof(commands)/sizeof(*commands);i++)if(!strcmp(command,commands[i].name)) {
-      result=((uint32_t (*)(void *,short,short,void *))(base+NXS_GECKO_TEXT_DELETE_ACTION_OFFSET))
-        (transaction->editor,commands[i].direction,1,NULL);found=1;break;
+      transaction->delete_depth=1;
+      result=original_text_delete_action(transaction->editor,commands[i].direction,1,NULL);
+      transaction->delete_depth=0;found=1;break;
     }
     if(!found)note("native text command has no engine transaction binding yet");
   }
@@ -375,12 +377,20 @@ static void text_scroll_display(void *frame,void *builder,const void *lists) {
   struct Widget *w=widget_for_frame(frame);if(w&&text_kind(w->kind))w->text_owned=0;
   original_text_scroll_display(frame,builder,lists);
 }
+static uint32_t text_delete_action(void *editor,short direction,short strip,void *principal) {
+  struct TextTransaction *t=text_transaction;
+  int nested=t&&t->editor==editor&&t->delete_depth;
+  if(nested)t->delete_depth++;
+  uint32_t result=original_text_delete_action(editor,direction,strip,principal);
+  if(nested)t->delete_depth--;
+  return result;
+}
 __attribute__((naked)) static void call_text_delete(void *function,void *editor,short direction,short strip,void *output) {
   __asm__("mov x16,x0\nmov x0,x1\nmov w1,w2\nmov w2,w3\nmov x8,x4\nbr x16");
 }
 __attribute__((used,noinline)) static void text_delete_impl(void *editor,short direction,short strip,void *output) {
   struct TextTransaction *transaction=text_transaction;
-  if(transaction&&transaction->editor==editor&&transaction->edit) {
+  if(transaction&&transaction->editor==editor&&transaction->edit&&transaction->delete_depth<=1) {
     struct TextModel current={0};
     if(text_model(transaction->node,&current)) {
       const struct NXSNativeTextEdit *edit=transaction->edit;
@@ -470,6 +480,7 @@ static uint32_t text_keypress(void *listener,void *event) {
   return original_text_keypress(listener,event);
 }
 static struct Detour text_detours[]={
+  {NXS_GECKO_TEXT_DELETE_ACTION_OFFSET,gecko_text_delete_action_bytes,text_delete_action,(void **)&original_text_delete_action},
   {NXS_GECKO_TEXT_VALUE_CHANGED_OFFSET,gecko_text_value_changed_bytes,text_value_changed,(void **)&original_text_value_changed},
   {NXS_GECKO_MULTILINE_POST_OFFSET,gecko_multiline_post_bytes,textarea_post,(void **)&original_textarea_post},
   {NXS_GECKO_TEXT_FRAME_EVENT_OFFSET,gecko_text_frame_event_bytes,text_frame_event,(void **)&original_text_frame_event},

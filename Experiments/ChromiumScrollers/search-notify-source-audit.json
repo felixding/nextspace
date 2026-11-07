@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "8c7f81fd",
+  "status": "pinned-native-clear-search-notifications-and-nested-delete-scope-qualified-broader-integration-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "8b9a2afc8f9c1183695ce5d8eebd89eb06df02e4a989e8e6cd08b950d794497f",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "53fb523f04bf033a0f2544766206977b4f222f3cad1f2af58a7e6aab8a584e7b",
+    "Experiments/ChromiumScrollers/forms-text.inc": "a54c182e959594172cd12c65840a383e45904c2142987f36117c0d7a746b8bac",
+    "Experiments/ChromiumScrollers/forms.inc": "1595b35900f57a8ab1b867f11a873394c874cc297ee07992a79d782bb4cb66e0",
+    "Experiments/ChromiumScrollers/pinned-text.h": "5727d8a4b1b7188b83175b46cd59ffd129367f135aa43e7d556e3cc389867460",
+    "Experiments/FirefoxNativeUI/README.md": "27e1a45b7b60442ced88ad9df3c8f8f56a50ff495cfa38c5a4bc47800dc81596",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "35c78e386e29f7be1b97dc4629bc3d711defddac2d1cbf5f39b36ff3db3a7a48",
+    "Experiments/FirefoxNativeUI/text.inc": "f04df47d5c6cd2876ce8d8ef2e9de6c87c837f5481b7837ccf321b5aad065843",
+    "Libraries/NativeUI/README.md": "3f071680847b290352f01b4f3e7f261ea9739fc7857ae543e6f6892583e0bd01",
+    "Tests/Wayland/native-search-notifications.html": "0c1b18b7d67987a0ddab40a9dc7347a25199574986d5a7461a028ddb39656767",
+    "Tests/Wayland/native_search_notifications.py": "93cb37b723b75a0de32c27132900e5f80457f0250c702b96bc5a074f5a013fd1",
+    "docs/Native-Control-Integration.md": "8cd117829c78710891d46ea78f8b2666dce52eef0ff8a6eb332b8c649682caca"
+  },
+  "previous_source_audit": "clear-default-source-audit.json",
+  "original_sources": [
+    {
+      "path": ".build/native-ui/search-notify-source/EditorBase.cpp",
+      "bytes": 305510,
+      "sha256": "de39870b299e713ce2d138fbac239166abb2374b4ce3bf1a22b1d26316ca2d33"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/attribute-size.py",
+      "bytes": 508,
+      "sha256": "f976b3f6e79ed66d77b4ec113bceecb73eed08d450ff07839be58137c691a45d"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/attribute-symbols.py",
+      "bytes": 675,
+      "sha256": "19a0aa7d4634bf4d06be2485335d220bddb47fa1522186de24ae8cd4ccb834b7"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/editor_command.cc",
+      "bytes": 101534,
+      "sha256": "1f70c87441bf80861349c7edfc93245c4b6ace44ffcbdac85b7626ba0c90e8fc"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/extra-pins.py",
+      "bytes": 1149,
+      "sha256": "c6c10305b7f968fc50cc5496b4bf562b694b94a892b86d8752ce1f4d86f124e7"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/gecko-HTMLInputElement.cpp",
+      "bytes": 258800,
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/gecko-symbols.py",
+      "bytes": 519,
+      "sha256": "0f7632b12fc27e66a7559637572fb6c00990d7d9044e4e376b37587e9225db85"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/html_input_element.cc",
+      "bytes": 99989,
+      "sha256": "e24b3b06861f2602fe38806310ffc719305dd577f0972cdd8330547db66039dc"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/pins.py",
+      "bytes": 956,
+      "sha256": "2ed918b05b1cdd9f280cbe3ba732e5d7e7115f5124b95baaf0bfca3185ab0d7b"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/search_input_type.cc",
+      "bytes": 6561,
+      "sha256": "f8779bf84b97ea18b936f96c7a96f5491ea9a90caf4ceb1cea7e89a95210e254"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/sources.json",
+      "bytes": 1283,
+      "sha256": "d1dba1d4c510577c8485fcd297152b2b4c286c102860dd3e549133cd4b4c88c6"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/symbols.py",
+      "bytes": 503,
+      "sha256": "c0df9dc55de76eac6385c485a7ae2d7e30331ef94e942ed928e7bfef0bca63f7"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/text_control_inner_elements.cc",
+      "bytes": 13646,
+      "sha256": "dad7986ccddceab3b62506eb50d5a9bde3e3f92bd25c972b783e06cbbee451fb"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/timer-pins.py",
+      "bytes": 980,
+      "sha256": "a652444adee114fbb41c7f0e9bdb8f2f04c0db4134e125eaa6fe9b3b81b8b4da"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/timer-symbols.py",
+      "bytes": 521,
+      "sha256": "fc96589c8678303d918ef19a2563d1f719b61497e2925608ce10387145c4d38f"
+    },
+    {
+      "path": ".build/native-ui/search-notify-source/type-symbols.py",
+      "bytes": 497,
+      "sha256": "707bd2edeb9c9ace525e84a3298ffdc6141e6245b1807515403e9acadba05926"
+    }
+  ],
+  "native_api": {
+    "version": 1,
+    "size": 592,
+    "unchanged": true,
+    "text_capabilities": 511
+  },
+  "private_bindings": {
+    "chromium": [
+      {
+        "name": "blink::HTMLInputElement::OnSearch()",
+        "offset": "0xefa78e4",
+        "operation": "original notification call"
+      },
+      {
+        "name": "blink::SearchInputType::DidSetValueByUserEdit()",
+        "offset": "0xe744900",
+        "operation": "original user-edit observer"
+      },
+      {
+        "name": "blink::Element::FastHasAttribute(blink::QualifiedNameWithHash const&) const",
+        "offset": "0xe0945dc",
+        "operation": "original incremental attribute query"
+      }
+    ],
+    "chromium_data": {
+      "input_type_member": 272,
+      "incremental_attribute_reference": "0x123a7388",
+      "reference_bytes": 8
+    },
+    "firefox": {
+      "existing_guarded_method": "mozilla::EditorBase::DeleteSelectionAsAction(short, short, nsIPrincipal*)",
+      "offset": "0x6b71c58",
+      "operation": "native/nested delete scope",
+      "new_private_entrypoint": false
+    }
+  },
+  "invariants": [
+    "NativeUI provider, loader, shim, API and underlying GNUstep controls are unchanged. No native widget, event constructor, debounce scheduler or key algorithm is duplicated.",
+    "Chromium notifies through original OnSearch only after the original native delete proceeds in its own DOM dispatch context. An empty value alone does not prove the edit was accepted, and nested script deletion is not mistaken for the native clear.",
+    "The original user-edit callback and original incremental attribute getter identify the engine scheduling path at its own boundary. The original callback still runs; a queued incremental notification does not receive a second manual event. Input callbacks adding/removing incremental are tested.",
+    "Chromium range injection is scoped to the native edit dispatch. Firefox scopes the already guarded delete action and excludes nested script actions from the native proposed range. Both engines keep their original validation, event dispatch and undo.",
+    "The original-engine reference is a separate appearance:none search field. A real Ctrl+A select-all witness distinguishes it from the native field editor. Native clear search events are compared to real original Escape, while full native images use independent GNUstep controls.",
+    "Firefox keeps its original zero search events. The fixture derives search-listener effects from actual original notifications rather than adding a cross-engine event implementation.",
+    "Browser toolbar/address bar/tabs keep their existing components. Future requested UI patches remain optional application bindings over the shared native provider."
+  ]
+}

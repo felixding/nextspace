@@ -48,6 +48,7 @@ static struct NativeForm *native_forms,*active_form,*click_form;
 struct RadioPointerGate {uint32_t origin;uint64_t control;int armed;};
 static struct RadioPointerGate radio_pointer_gate;
 static __thread void *native_parent;
+static __thread void *native_dispatch_event;
 static __thread void *form_key_node,*form_key_event;
 static uint64_t next_form_control;
 static __thread uint64_t form_key_control;
@@ -514,7 +515,8 @@ static int dom_dispatch(void *dispatcher) {
       if(!allowed){note("native form cancelled activation");return 3;}
     }
   }
-  void *previous_node=form_key_node,*previous_event=form_key_event;
+  void *previous_node=form_key_node,*previous_event=form_key_event,*previous_dispatch=native_dispatch_event;
+  native_dispatch_event=event;
   uint64_t previous_control=form_key_control;
   struct NativeForm *keyboard_form=NULL;
   if(forms_input_enabled&&(*(const unsigned short *)((const char *)event+32)&0x100)&&
@@ -532,7 +534,7 @@ static int dom_dispatch(void *dispatcher) {
   }
   if(checkbox_scope)native_checkbox_activation=previous_checkbox;
   form_key_node=previous_node;form_key_event=previous_event;
-  form_key_control=previous_control;
+  form_key_control=previous_control;native_dispatch_event=previous_dispatch;
   return result;
 }
 static void element_detach(void *node,int reattach) {

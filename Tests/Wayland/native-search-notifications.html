@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>Native search notifications</title>
+<style>
+body {margin:25px;background:white;color:black;font:14px sans-serif}
+p {margin:0 0 12px} label {display:inline-block;width:130px}
+input {box-sizing:border-box;width:260px;height:24px;padding:0}
+</style>
+<div id="cases">
+<p><label>Native field</label><input type="search" id="single" value="Clear search"></p>
+<p><label>Engine reference</label><input type="search" id="engineOracle" value="Clear search" style="appearance:none"></p>
+</div>
+<script>
+const initial=cases.innerHTML;
+window.events=[];
+window.restore=()=>{cases.innerHTML=initial;events=[]};
+for(const type of ['keydown','keypress','keyup','beforeinput','input','change','click','search','submit'])
+ document.addEventListener(type,e=>{
+  events.push({type,id:e.target.id,trusted:e.isTrusted,value:e.target.value??null,inputType:e.inputType??null,data:e.data??null});
+  if(type==='submit')e.preventDefault();
+ },true);
+</script>

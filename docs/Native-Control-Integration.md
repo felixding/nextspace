@@ -819,8 +819,8 @@ The UI library adds no form algorithm or second control. Older search providers
 retain editing/clear without the new action capability; API 1 stays 592 bytes.
 See [search-action qualification](../Experiments/ChromiumScrollers/search-action-qualification.json).
 The following checkpoint handles clear-button click ordering and cancellation.
-Search notifications, recents and remaining specialized controls/integration
-contracts remain open.
+Recents and remaining specialized controls/integration contracts remain open;
+search notification coverage is recorded below.
 
 
 The native clear-button bridge now waits for the page's original click
@@ -833,3 +833,14 @@ in use. A real key interrupting button tracking clears that control's pending
 receipt and retains its own native editing behavior. Older providers and
 unknown commands retain their fallback. See
 [clear-default qualification](../Experiments/ChromiumScrollers/clear-default-qualification.json).
+
+
+Native clear search notifications now use each browser's existing event
+semantics: Chromium's original search dispatcher and incremental scheduling
+path, and Firefox's original absence of that event. NativeUI's provider and
+API stay unchanged. DOM/edit-action scope metadata also prevents a native
+clear's proposed range from leaking into a nested script delete operation.
+The original editors continue to own application callbacks, validation and
+undo. See [search notification qualification](../Experiments/ChromiumScrollers/search-notify-qualification.json).
+Recents/placeholders and broader control/editing/style/IME/accessibility
+contracts remain part of the active browser-first objective.

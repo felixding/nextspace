@@ -929,6 +929,31 @@ GNUstep caret-beginning behavior instead of browser select-all. The correspondin
 retirement check now requires the actual key's trusted insertText beforeinput,
 rather than a delete from the former premature clear. See
 [clear-default qualification](../ChromiumScrollers/clear-default-qualification.json)
-and its source audit. Clear search notifications, recents, broader field
+and its source audit. Search notification coverage is described below. Recents, broader field
 contracts and other specialized controls remain open, followed by the remaining
 browser/menu/shortcut/deployment and GTK/Qt/KDE work.
+
+
+### Native clear search notifications and nested edits
+
+Chromium sends native clear notifications through its original
+HTMLInputElement::OnSearch. Its original user-edit callback and incremental
+attribute getter identify an already scheduled notification, preserving the
+engine's timer and event behavior without adding a second event. Attribute
+changes from input handlers are observed at the original engine boundary.
+Firefox retains its original absence of this search event. The shared native
+control implementation and API 1/592 are unchanged.
+
+Native proposal ranges must stay with their own edit. Chromium tracks DOM
+dispatch context; Firefox distinguishes its native delete action from nested
+script delete actions through the existing guarded editor entry point. Page
+scripts keep their original ranges even when they edit during a cancelled
+beforeinput. Validation, undo and event creation remain in the original engine.
+
+See [search notification qualification](../ChromiumScrollers/search-notify-qualification.json)
+and its source audit for measured coverage and remaining scope. The engine
+reference uses appearance:none and a real original select-all witness; native
+field images remain compared with independent GNUstep controls. Recents,
+placeholders, broader editing/style/zoom/IME/accessibility contracts, other
+specialized controls and complete browser/derivative/menu/shortcut/deployment
+work remain open, followed by GTK/Qt/KDE through the shared native library.

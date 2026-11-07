@@ -1,0 +1,498 @@
+{
+  "date": "2026-11-08",
+  "baseline_commit": "8c7f81fd",
+  "status": "pinned-native-clear-search-notifications-and-nested-delete-scope-qualified-broader-integration-open",
+  "native_ui_abi": {
+    "version": 1,
+    "size": 592
+  },
+  "text_capabilities": 511,
+  "shared_ui_changed": false,
+  "adapters": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-search-notify-04-hook.so",
+      "bytes": 236456,
+      "sha256": "23cdde63fc6e46e8d5babcc6ec5a1011032a13a0ad51cbaddaa6198d1bc486a4"
+    },
+    "chromium_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-search-notify-04-repro.so",
+      "bytes": 236456,
+      "sha256": "23cdde63fc6e46e8d5babcc6ec5a1011032a13a0ad51cbaddaa6198d1bc486a4"
+    },
+    "prior_chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-clear-default-03-hook.so",
+      "bytes": 236120,
+      "sha256": "af4afd6065d64c2c287c7be2344eef1a3028e48022b056a707ce8a9d58a25ea9"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-search-notify-01-hook.so",
+      "bytes": 229752,
+      "sha256": "4b090fa1518471cdc9cd0ce2c6257b08fea15fcfe2afcd8974cf5bebe1867995"
+    },
+    "firefox_source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-search-notify-01-repro.so",
+      "bytes": 229752,
+      "sha256": "4b090fa1518471cdc9cd0ce2c6257b08fea15fcfe2afcd8974cf5bebe1867995"
+    },
+    "prior_firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-clear-default-03-hook.so",
+      "bytes": 229648,
+      "sha256": "725a66acadc98be9eed8ded9c9300179a2993ac165aab6abb090ed7192bf7b91"
+    }
+  },
+  "shared_ui_unchanged": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74096,
+      "sha256": "f5db0fcc0fbe77c61e61247fab0930c738dbe2ad96d06452cc7020a38883e1f3"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 327040,
+      "sha256": "2cf77eec499d1a108b7b357b9f355c7a180ce1a134044a596dad699c2e90b33d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/clear-default-02/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "2b18a8c95e8a43988d33eb9205594bb86e9db0115276979556af02e695495437"
+    }
+  },
+  "verification": {
+    "runs": {
+      "chromium": {
+        "path": "/var/tmp/nxs-chromium-search-notify-05",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-search-notify-05/button-results.json",
+          "bytes": 72563,
+          "sha256": "3310f021418147d71626ade5906be1a0d0727e66929a901f103859001399162a"
+        },
+        "checks": 295,
+        "native_images": 144
+      },
+      "chromium_key_retirement": {
+        "path": "/var/tmp/nxs-chromium-search-notify-05/key-retirement",
+        "results": {
+          "path": "/var/tmp/nxs-chromium-search-notify-05/key-retirement/button-results.json",
+          "bytes": 700,
+          "sha256": "9bfd8881f73e34fcb14954282515bb090fc5d666697b16bad06f1a92689d32cb"
+        },
+        "checks": 4,
+        "native_images": 1
+      },
+      "firefox": {
+        "path": "/var/tmp/nxs-firefox-search-notify-05",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-search-notify-05/button-results.json",
+          "bytes": 65718,
+          "sha256": "dfe850d79fd9f696cdc3d437f39648aa205fce963a7631c6db072954f5049960"
+        },
+        "checks": 295,
+        "native_images": 144
+      },
+      "firefox_key_retirement": {
+        "path": "/var/tmp/nxs-firefox-search-notify-05/key-retirement",
+        "results": {
+          "path": "/var/tmp/nxs-firefox-search-notify-05/key-retirement/button-results.json",
+          "bytes": 699,
+          "sha256": "190e0c539585af1f5f0ce98bae8288de5be6bf2ac2e3eb6158732b1fec386a43"
+        },
+        "checks": 4,
+        "native_images": 1
+      }
+    },
+    "passing_browser_checks": 598,
+    "complete_native_images": 290,
+    "unchanged_production_files": 20,
+    "package_count": 1050,
+    "sandbox": {
+      "chromium": [
+        {
+          "pid": 235440,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235448,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235452,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 235577,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235624,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235661,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235691,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235694,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 235730,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "owned_candidate_mappings_after_cleanup": [],
+    "native_provider_probes": [
+      {
+        "original_search_field_class": true,
+        "original_search_cell_class": true,
+        "native_button_and_text_geometry": true,
+        "native_preferred_size": true,
+        "provider_prefix_preserved": true,
+        "original_button_action_forwarded_once": true,
+        "native_activation_command_once": true,
+        "native_clear_deferred_until_commit": true,
+        "native_clear_commit_once": true,
+        "native_clear_uses_original_button_rect": true,
+        "unknown_clear_command_keeps_original_action": true
+      },
+      {
+        "older_search_provider_without_activation": true
+      },
+      {
+        "older_search_provider_without_clear_command": true
+      },
+      {
+        "native_text_controls": 3,
+        "selection_replace": true,
+        "delete": true,
+        "unicode": true,
+        "read_only": true,
+        "disabled": true,
+        "native_navigation": true,
+        "deferred_destruction": true,
+        "emacs_control_a_e": true,
+        "alt_copy_paste": true,
+        "secure_copy_blocked": true,
+        "native_return_action": true,
+        "native_caret_invalidation_and_pixels": true
+      },
+      {
+        "native_filter_controls": 3,
+        "pre_mutation_value": true,
+        "native_ranges_and_selectors": true,
+        "typing_veto": true,
+        "deletion_veto": true,
+        "cut_veto": true,
+        "paste_proposal": true,
+        "unicode": true,
+        "focus_transfer": true,
+        "model_rebind": true,
+        "reentrant_mutation_deferred": true,
+        "filter_removal": true
+      },
+      {
+        "native_keyboard_actions": 6,
+        "controls": 4,
+        "focus_transfer": true,
+        "navigation_requests": 8,
+        "disabled_actions": 0,
+        "deferred_destruction": true
+      },
+      {
+        "older_provider_without_search": true
+      }
+    ],
+    "native_provider_probes_reused_from_identical_binaries": true,
+    "native_provider_probe_log": {
+      "path": "/workspace/.build/native-ui/chromium-clear-default-06-test.log",
+      "bytes": 1579,
+      "sha256": "1fc020f04bc917142795e62cd351c5fe80072a7149b3ec297740f2a64f8382d8"
+    }
+  },
+  "diagnostics": {
+    "nxs-chromium-search-notify-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-search-notify-02/button-results.json",
+        "bytes": 3541,
+        "sha256": "45aa65b80966dfab6d2f8b4c62d489dabefe9510273364273cac7db76b3d951b"
+      },
+      "checks": 9,
+      "last": {
+        "case": "incremental-native-clear-matches-original-search-notifications",
+        "passed": false,
+        "actual": [
+          {
+            "trusted": true,
+            "value": ""
+          },
+          {
+            "trusted": true,
+            "value": ""
+          }
+        ],
+        "expected": [
+          {
+            "trusted": true,
+            "value": ""
+          }
+        ],
+        "state": {
+          "value": "",
+          "disabled": false,
+          "focused": "single",
+          "events": [
+            {
+              "type": "click",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "inputType": null,
+              "data": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "inputType": "deleteContentBackward",
+              "data": null
+            },
+            {
+              "type": "input",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "inputType": "deleteContentBackward",
+              "data": null
+            },
+            {
+              "type": "search",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "inputType": null,
+              "data": null
+            },
+            {
+              "type": "search",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "inputType": null,
+              "data": null
+            }
+          ]
+        }
+      }
+    },
+    "nxs-chromium-search-notify-03": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-search-notify-03/button-results.json",
+        "bytes": 20254,
+        "sha256": "26e8346d0ae3cbb02b6936562b73e9412716e8d335136278eac546edb8503843"
+      },
+      "checks": 59,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-chromium-search-notify-04": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-search-notify-04/button-results.json",
+        "bytes": 21243,
+        "sha256": "b595ef654ae00f5dd6a35b54e1bac57e6c59e6d78f3c07970ca711924f58a1c1"
+      },
+      "checks": 60,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-chromium-search-notify-baseline-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-chromium-search-notify-baseline-01/button-results.json",
+        "bytes": 1490,
+        "sha256": "d4f726ac2dd88165c9619303e2dd505b5e5b354eab5c78d852e8e31f833b5621"
+      },
+      "checks": 5,
+      "last": {
+        "case": "plain-native-clear-matches-original-search-notifications",
+        "passed": false,
+        "actual": [],
+        "expected": [
+          {
+            "trusted": true,
+            "value": ""
+          }
+        ],
+        "state": {
+          "value": "",
+          "disabled": false,
+          "focused": "single",
+          "events": [
+            {
+              "type": "click",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "inputType": null,
+              "data": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "inputType": "deleteContentBackward",
+              "data": null
+            },
+            {
+              "type": "input",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "inputType": "deleteContentBackward",
+              "data": null
+            }
+          ]
+        }
+      }
+    },
+    "nxs-firefox-search-notify-02": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-search-notify-02/button-results.json",
+        "bytes": 13671,
+        "sha256": "cb24e0a2bde1881af323ce82a33d8a4f83122b6746100cd711d9bbc906c9903e"
+      },
+      "checks": 48,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-firefox-search-notify-03": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-search-notify-03/button-results.json",
+        "bytes": 13315,
+        "sha256": "3b6c007539478fa6c501baa85805667147bf89741ccc786139efd6737099fb43"
+      },
+      "checks": 44,
+      "last": {
+        "case": "nested-caret-delete-cancel-does-not-notify-a-cancelled-or-inapplicable-clear",
+        "passed": false,
+        "state": {
+          "present": true,
+          "value": "",
+          "type": "search",
+          "focused": "single",
+          "events": [
+            {
+              "type": "click",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "inputType": null,
+              "data": null
+            },
+            {
+              "type": "beforeinput",
+              "id": "single",
+              "trusted": true,
+              "value": "Clear search",
+              "inputType": "deleteContent",
+              "data": null
+            },
+            {
+              "type": "input",
+              "id": "single",
+              "trusted": true,
+              "value": "",
+              "inputType": "deleteContentBackward",
+              "data": null
+            }
+          ]
+        },
+        "search": []
+      }
+    },
+    "nxs-firefox-search-notify-04": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-search-notify-04/button-results.json",
+        "bytes": 18201,
+        "sha256": "fd444ca9ffd0bfe1579f782e7bc904c3183c2baa01202a08fcf5c9229d38d1de"
+      },
+      "checks": 60,
+      "last": {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    },
+    "nxs-firefox-search-notify-baseline-01": {
+      "excluded_from_final_totals": true,
+      "results": {
+        "path": "/var/tmp/nxs-firefox-search-notify-baseline-01/button-results.json",
+        "bytes": 5322,
+        "sha256": "55405d95f7a535b28dae4fde15ae3f2deb664d7e67388f9020ca809cfbbca90a"
+      },
+      "checks": 19,
+      "last": {
+        "case": "search-value-original-escape-clears-reference",
+        "passed": false,
+        "events": [],
+        "value": ""
+      }
+    }
+  },
+  "source_audit": "search-notify-source-audit.json",
+  "observations": [
+    "Each final pinned engine passes 295 checks/144 complete native images across existing text/password/Unicode, URL/tel, email, search edit/clear, submit and new notification contracts. Focused real-seat key-retirement cohorts add 4 checks/1 image per engine. Total fresh evidence is 598 browser checks/290 native images.",
+    "Each notification-only cohort passes 60 checks/32 native images. Ordinary and incremental clears, attribute addition/removal in input handlers, input/search value callbacks and input disabling match original Escape notifications. Cancelled, empty, read-only/disabled, removed and retyped cases do not introduce inappropriate notifications.",
+    "The nested script-delete reference independently proves its original caret range: a script deletion during a cancelled native clear removes one character, with no native range takeover or extra search notification. Both corrected adapters preserve that original result.",
+    "The initial Chromium baseline clears through trusted click/beforeinput/input but misses the trusted search event produced by original Escape. The first notification candidate fixes that case but duplicates incremental notifications; the final observer delegates that scheduling to the original engine.",
+    "An initial Firefox fixture incorrectly expected a search listener to run even though its original reference emits no search event. The corrected oracle preserves that engine difference. Expanded testing then catches Firefox applying the native clear range to a nested script delete; scoped original delete actions correct the range leak.",
+    "StartSearchEventTimer is inlined and has no standalone symbol in the pinned binary. The retained symbol/byte/disassembly evidence supports the original user-edit callback and getter instead. OnSearch guards the input-type member load; the namespace attribute is an eight-byte reference. Early unused builds are not runtime evidence.",
+    "Both current adapter reproductions are byte-identical to tested candidates. All 20 measured production files, all three NativeUI binaries and preceding adapters remain unchanged. API stays 1/592, text capabilities 511 and package count 1050. Renderer descendants retain Seccomp=2/NoNewPrivs=1, and no owned candidate mappings remain after shutdown.",
+    "The seven existing provider probes apply to the identical shared UI binaries and are linked as retained evidence, not counted as freshly rerun tests. No browser executable, native UI provider or underlying AppKit was rebuilt/deployed for this checkpoint."
+  ],
+  "open": [
+    "Recents, placeholders, broader editing/undo/style/intrinsic layout/zoom/scaling/IME/accessibility contracts. Notification qualification does not establish whole-search or whole-browser completion.",
+    "Other specialized webpage controls, other browser builds/derivatives, complete detached menus/native shortcuts and installed deployment; then GTK/Qt/KDE through the same shared library.",
+    "Future requested toolbar/tab changes remain optional app-specific patches consuming the shared provider."
+  ]
+}

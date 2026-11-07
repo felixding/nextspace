@@ -1059,3 +1059,11 @@ transaction. Disabled, retired or focus-diverted owners do not affect a peer
 field. A real key ending pointer tracking cancels that control's pending
 button action. Older providers without the capability retain their fallback.
 See [clear-default qualification](../Experiments/ChromiumScrollers/clear-default-qualification.json).
+
+
+Search notification dispatch belongs to application bindings. The paired
+browser bindings reuse the original engine dispatch/scheduling methods and
+retain native edit provenance across nested script actions. No search timer,
+DOM event implementation or native widget is added to this library; its API
+and provider binaries are unchanged by that checkpoint. See
+[search notification qualification](../Experiments/ChromiumScrollers/search-notify-qualification.json).
