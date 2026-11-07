@@ -76,6 +76,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
                 result.parts[5].y=forms.command_capabilities
                 result.parts[5].height=forms.menus.capabilities
                 result.parts[3].x=forms.list_capabilities
+                result.parts[3].y=forms.scroll_capabilities
                 result.parts[4].x=forms.tab_capabilities
                 result.parts[4].y=forms.radio_capabilities
                 result.parts[4].y+=4*bool(forms.activation_capabilities)

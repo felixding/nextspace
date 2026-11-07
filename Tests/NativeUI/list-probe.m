@@ -4,6 +4,7 @@
 #include "NativeUI.h"
 #include "Bridge/Protocol.h"
 #include <assert.h>
+#include <float.h>
 #include <math.h>
 #include <poll.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 #include <unistd.h>
 #include <objc/runtime.h>
 _Static_assert(offsetof(NXSNativeUIAPI,control_list_items)==528,"Preserve the prior provider prefix");
+_Static_assert(offsetof(NXSNativeUIAPI,control_scroll_geometry)==568,"Preserve the list provider prefix");
 _Static_assert(sizeof(NXSListState)==88,"Typed native list state");
 static IMP original_init;static NSBrowser *observed;
 static id witness_init(id self,SEL selector,NSRect frame)
@@ -126,6 +128,17 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
  assert(fwrite(&expected,sizeof(expected),1,state_file)==1);
  for(NSCell *cell in input_selected){uint64_t identity=cell_id(p,input_matrix,cell);assert(fwrite(&identity,sizeof(identity),1,state_file)==1);}fclose(state_file);
  NSScrollView *input_scroll=(NSScrollView *)[[input_matrix superview] superview];NSScroller *input_scroller=[input_scroll verticalScroller];
+ NSClipView *input_clip=[input_scroll contentView];
+ NSRect clip_rect=[input_clip convertRect:[input_clip bounds] toView:p->reference];
+ NSSize client=[NSScrollView contentSizeForFrameSize:[input_scroll frame].size hasHorizontalScroller:NO hasVerticalScroller:NO borderType:[input_scroll borderType]];
+ NSPoint minimum=[input_clip constrainScrollPoint:NSMakePoint(-FLT_MAX,-FLT_MAX)],maximum=[input_clip constrainScrollPoint:NSMakePoint(FLT_MAX,FLT_MAX)];
+ NXSScrollGeometry geometry={.size=sizeof(geometry)},wanted={0};wanted.size=sizeof(wanted);
+ wanted.clip=(NXSRect){clip_rect.origin.x,[p->reference isFlipped]?clip_rect.origin.y:[p->reference bounds].size.height-NSMaxY(clip_rect),clip_rect.size.width,clip_rect.size.height};
+ wanted.client=(NXSSize){client.width,client.height};wanted.minimum=(NXSPoint){minimum.x,minimum.y};wanted.maximum=(NXSPoint){maximum.x,maximum.y};
+ uint64_t actions=nxs_control_list_state(p->control).actions;
+ check(p,"native-scroll-geometry-matches-independent-ordinary-list",nxs_control_scroll_geometry(p->control,&geometry)&&geometry.size==sizeof(geometry)&&
+   !memcmp(&geometry.clip,&wanted.clip,sizeof(geometry)-offsetof(NXSScrollGeometry,clip))&&nxs_control_list_state(p->control).actions==actions);
+ snprintf(state_path,sizeof(state_path),"%s/%s-geometry.bin",p->directory,name);state_file=fopen(state_path,"wb");assert(state_file);assert(fwrite(&wanted,sizeof(wanted),1,state_file)==1);fclose(state_file);
  NSRect arrow=[input_scroller convertRect:[input_scroller rectForPart:NSScrollerIncrementLine] toView:p->reference];
  struct NXSRectD scroll_part={arrow.origin.x,[p->reference isFlipped]?arrow.origin.y:[p->reference bounds].size.height-NSMaxY(arrow),arrow.size.width,arrow.size.height};
  snprintf(state_path,sizeof(state_path),"%s/%s-scroll-part.bin",p->directory,name);state_file=fopen(state_path,"wb");assert(state_file);assert(fwrite(&scroll_part,sizeof(scroll_part),1,state_file)==1);fclose(state_file);
@@ -175,15 +188,33 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
 int main(int argc,char **argv)
 {
  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+ if(argc>1&&!strcmp(argv[1],"--expect-no-scroll")) {
+  assert(nxs_native_ui_api()->size==568&&!nxs_control_scroll_capabilities()&&nxs_control_list_capabilities()==NXS_LIST_ITEMS);
+  NXSControl *list=nxs_control_create(NXS_LISTBOX,NULL,NULL,NULL),*text=nxs_control_create(NXS_TEXTAREA,NULL,NULL,NULL);assert(list&&text);
+  NXSScrollGeometry geometry,saved;memset(&geometry,0x6a,sizeof(geometry));geometry.size=sizeof(geometry);saved=geometry;
+  assert(!nxs_control_scroll_geometry(list,&geometry)&&!memcmp(&geometry,&saved,sizeof(geometry)));
+  assert(!nxs_control_scroll_geometry(text,&geometry)&&!memcmp(&geometry,&saved,sizeof(geometry)));
+  assert(nxs_control_text_geometry(text,&geometry)&&nxs_control_destroy(list)&&nxs_control_destroy(text));
+  puts("{\"older_list_provider_without_scroll_geometry\":true}");[pool drain];return 0;
+ }
  if(argc>1&&!strcmp(argv[1],"--expect-no-list")) {
   assert(!nxs_control_list_capabilities()&&!nxs_control_create(NXS_LISTBOX,NULL,NULL,NULL));
   assert(!nxs_control_list_items(NULL,NULL,0,0,0)&&!nxs_control_list_scroll(NULL,0,0)&&!nxs_control_list_selection(NULL,NULL,0));
   printf("{\"older_provider_without_lists\":true}\n");[pool drain];return 0;
  }
- assert(argc>2&&nxs_control_list_capabilities()==NXS_LIST_ITEMS);struct Probe p={.directory=argv[1],.scale=atof(argv[2])};
+ assert(argc>2&&nxs_control_list_capabilities()==NXS_LIST_ITEMS&&nxs_control_scroll_capabilities()==NXS_SCROLL_GEOMETRY);struct Probe p={.directory=argv[1],.scale=atof(argv[2])};
  NXSControl *bootstrap=nxs_control_create(NXS_BUTTON,NULL,NULL,NULL);assert(bootstrap&&nxs_control_destroy(bootstrap));
+ NXSScrollGeometry invalid={.size=sizeof(invalid)};
+ check(&p,"invalid-scroll-geometry-control-and-buffer-rejected",!nxs_control_scroll_geometry(NULL,&invalid));
+ NXSControl *text=nxs_control_create(NXS_TEXTAREA,NULL,NULL,NULL);assert(text);
+ NXSTextGeometry previous={.size=sizeof(previous)};NXSScrollGeometry shared={.size=sizeof(shared)};
+ check(&p,"text-and-list-share-one-scroll-geometry-entry",nxs_control_text_geometry(text,&previous)&&nxs_control_scroll_geometry(text,&shared)&&
+   previous.size==shared.size&&!memcmp(&previous.clip,&shared.clip,sizeof(shared)-offsetof(NXSScrollGeometry,clip)));
+ assert(nxs_control_destroy(text));
  Method init=class_getInstanceMethod([NSBrowser class],@selector(initWithFrame:));original_init=method_setImplementation(init,(IMP)witness_init);
  p.control=nxs_control_create(NXS_LISTBOX,changed,pump,&p);assert(p.control);p.native=observed;method_setImplementation(init,original_init);
+ invalid.size=sizeof(invalid)-1;
+ check(&p,"short-scroll-geometry-buffer-rejected",!nxs_control_scroll_geometry(p.control,&invalid)&&!nxs_control_scroll_geometry(p.control,NULL));
  check(&p,"actual-native-browser-control",[p.native class]==[NSBrowser class]);
  model(&p,4,0,1);compare(&p,"single",YES);key(&p,NXS_KEY_DOWN_ARROW,108,0);compare(&p,"single-key",YES);
  key(&p,NXS_KEY_DOWN_ARROW,108,0);compare(&p,"single-next",YES);

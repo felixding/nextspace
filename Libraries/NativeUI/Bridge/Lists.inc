@@ -70,6 +70,13 @@ static struct NXSResponse *native_list_wheel(uint64_t control,const NXSWheelEven
     .process=identity(),.kind=NXS_LISTBOX,.control=control,.x=event->x,.y=event->y,.minimum=event->delta_x,.maximum=event->delta_y,.modifiers=event->modifiers};
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));return response&&response->parts[3].x==1?response:NULL;
 }
+static int native_list_geometry(uint64_t control,NXSScrollGeometry *geometry)
+{
+  struct NXSResponse *response=native_list_request(control,52,0,0,1);
+  if(!response||!geometry||response->parts[3].x!=1||response->size!=sizeof(*response)+sizeof(*geometry))return 0;
+  NXSScrollGeometry value;memcpy(&value,response+1,sizeof(value));
+  if(value.size!=sizeof(value))return 0;*geometry=value;return 1;
+}
 #include "Inputs.inc"
 static struct NXSResponse *native_list_input(uint64_t control,int focused,const NXSKeyEvent *event)
 {return native_control_input(NXS_LISTBOX,control,focused,event);}

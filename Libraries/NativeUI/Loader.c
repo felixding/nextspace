@@ -65,6 +65,10 @@ NXSRect nxs_control_list_item_rect(NXSControl *c,uint64_t id)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_item_rect)?p->control_list_item_rect(c,id):(NXSRect){0};}
 int nxs_control_list_scroll(NXSControl *c,double x,double y)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_scroll)?p->control_list_scroll(c,x,y):0;}
+int nxs_control_scroll_geometry(NXSControl *c,NXSScrollGeometry *geometry)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_scroll_geometry)?p->control_scroll_geometry(c,geometry):0;}
+unsigned nxs_control_scroll_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_scroll_geometry)?NXS_SCROLL_GEOMETRY:0;}
 double nxs_control_backing_scale(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_backing_scale)?p->control_backing_scale(c):0;}
 unsigned nxs_control_activation_capabilities(void)

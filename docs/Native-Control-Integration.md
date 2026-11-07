@@ -671,3 +671,12 @@ references. This covers measured flat-list model and input integration, not
 complete native option layout, scrolling, rich models or all browser builds.
 Toolbar/address bar/tabs stay original. Optional future browser UI patches sit
 above the shared layer; subsequent GTK/Qt/KDE integration reuses that layer.
+
+
+Native scroll geometry is now measured once in the shared UI provider for both
+text areas and lists. The optional ABI 1/576 extension preserves the 568-byte
+prefix and original text API. The shared host carries the actual native clip
+frame and limits through owned operation 52; ListBinding caches the result per
+host epoch. See [qualification](../Libraries/NativeUI/scroll-geometry-qualification.json).
+Engine option/layout and DOM scroll ownership still need to consume these
+measurements. No consumer calculates a second native scrollbar or clamp.

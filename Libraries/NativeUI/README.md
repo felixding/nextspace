@@ -957,3 +957,25 @@ Native row/intrinsic layout, full wheel/scroll/DOM geometry, host recovery,
 scaling remain work. The pinned Chromium consumer now reuses the same binding
 and shared fixture; see [Chromium list qualification](../../Experiments/ChromiumScrollers/list-qualification.json). Toolbar/address bar/tabs
 remain the browsers' own components.
+
+
+The optional shared scroll geometry method appends one pointer after the
+568-byte provider prefix (ABI 1/576). `NXSScrollGeometry` preserves the existing
+text geometry layout. Both list and text callers use one native helper to
+measure the real clip frame in control coordinates, client size before
+scrollers and limits returned by `NSClipView`. No scrollbar dimensions or
+clamping policy are reproduced in a consumer. The original text API remains
+available.
+
+`nxs_control_scroll_capabilities` reports support through the size-checked
+loader. Bootstrap part 3.y carries this capability independently of list
+capabilities in 3.x; owned operation 52 returns the measurements for a list or
+text area. Actual older 568-byte providers retain list rendering and reject
+this optional query without changing the caller buffer. Shared ListBinding
+stores geometry per host epoch and provides the same scroll/wheel plus native
+snapshot/image refresh for both browser engines and future toolkit adapters.
+See [scroll geometry qualification](scroll-geometry-qualification.json).
+
+These measurements prepare browser option/layout and DOM scroll binding.
+They do not by themselves complete native browser scrolling, intrinsic sizing,
+wheel/default routing or host recovery. Toolbar/address bar/tabs stay original.

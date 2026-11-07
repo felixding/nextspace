@@ -114,3 +114,11 @@ int nxs_gnustep_control_list_scroll(NXSControl *control,double x,double y)
   [clip scrollToPoint:[clip constrainScrollPoint:NSMakePoint(x,y)]];[(NSScrollView *)[clip superview] reflectScrolledClipView:clip];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
+int nxs_gnustep_control_scroll_geometry(NXSControl *control,NXSScrollGeometry *geometry)
+{
+  if(!geometry||geometry->size<sizeof(*geometry)||!control||control->destroying)return 0;
+  if(control->kind==NXS_TEXTAREA)return scroll_geometry(control,(NSScrollView *)control->view,geometry);
+  if(control->kind!=NXS_LISTBOX)return 0;
+  NSScrollView *scroll=(NSScrollView *)[[list_matrix(control) superview] superview];
+  return scroll_geometry(control,scroll,geometry);
+}

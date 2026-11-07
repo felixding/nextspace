@@ -50,12 +50,10 @@ int nxs_gnustep_control_text_scroll(NXSControl *control,double x,double y)
   [clip scrollToPoint:[clip constrainScrollPoint:point]];[scroll reflectScrolledClipView:clip];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
-int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geometry)
+static int scroll_geometry(NXSControl *control,NSScrollView *scroll,NXSScrollGeometry *geometry)
 {
-  if(!geometry||geometry->size<sizeof(*geometry)||!control||control->kind!=NXS_TEXTAREA||control->destroying)return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  NSScrollView *scroll=(NSScrollView *)control->view;NSClipView *clip=[scroll contentView];
-  NSView *view=[scroll documentView];NSRect frame=[clip frame];
+  NSClipView *clip=[scroll contentView];NSView *view=[scroll documentView];
   NSSize client=[NSScrollView contentSizeForFrameSize:[scroll frame].size
     hasHorizontalScroller:NO hasVerticalScroller:NO borderType:[scroll borderType]];
   NSPoint minimum=[clip constrainScrollPoint:NSMakePoint(-FLT_MAX,-FLT_MAX)];
@@ -64,10 +62,15 @@ int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geome
     double bottom=[view bounds].size.height-[clip bounds].size.height;
     double first=bottom-maximum.y;maximum.y=bottom-minimum.y;minimum.y=first;
   }
-  *geometry=(NXSTextGeometry){.size=sizeof(*geometry),
-    .clip={frame.origin.x,[scroll isFlipped]?frame.origin.y:[scroll bounds].size.height-NSMaxY(frame),frame.size.width,frame.size.height},
+  *geometry=(NXSScrollGeometry){.size=sizeof(*geometry),
+    .clip=nxs_host_rect_from_view(control->host,clip,[clip bounds]),
     .client={client.width,client.height},.minimum={minimum.x,minimum.y},.maximum={maximum.x,maximum.y}};
   [pool drain];return 1;
+}
+int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geometry)
+{
+  if(!geometry||geometry->size<sizeof(*geometry)||!control||control->kind!=NXS_TEXTAREA||control->destroying)return 0;
+  return scroll_geometry(control,(NSScrollView *)control->view,geometry);
 }
 int nxs_gnustep_control_wheel(NXSControl *control,const NXSWheelEvent *event)
 {return control&&(control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX)&&!control->destroying?nxs_host_wheel(control->host,event):0;}

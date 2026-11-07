@@ -154,6 +154,10 @@ typedef struct {
   NXSSize client;
   NXSPoint minimum, maximum;
 } NXSTextGeometry;
+/* The same native scroll-view measurement applies to text and list controls.
+ * Keep the original text spelling and layout for existing callers. */
+typedef NXSTextGeometry NXSScrollGeometry;
+enum NXSScrollCapability { NXS_SCROLL_GEOMETRY = 1 };
 #define NXS_TEXT_NO_SELECTION UINT64_MAX
 /* Selection and marked ranges use native NSString/UTF16 code units. A model
  * with NO_SELECTION leaves initial selection to the native responder. */
@@ -293,6 +297,7 @@ typedef struct {
   size_t (*control_list_selection)(NXSControl *,uint64_t *,size_t);
   NXSRect (*control_list_item_rect)(NXSControl *,uint64_t);
   int (*control_list_scroll)(NXSControl *,double,double);
+  int (*control_scroll_geometry)(NXSControl *,NXSScrollGeometry *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -314,6 +319,10 @@ NXSListState nxs_control_list_state(NXSControl *);
 size_t nxs_control_list_selection(NXSControl *,uint64_t *,size_t capacity);
 NXSRect nxs_control_list_item_rect(NXSControl *,uint64_t identifier);
 int nxs_control_list_scroll(NXSControl *,double x,double y);
+/* Actual clip frame, unscrolled client size and native scroll limits.
+ * Returns unsupported for providers predating this optional extension. */
+int nxs_control_scroll_geometry(NXSControl *,NXSScrollGeometry *);
+unsigned nxs_control_scroll_capabilities(void);
 NXSControl *nxs_control_create(int kind, NXSControlChanged changed, NXSPump pump, void *context);
 int nxs_control_destroy(NXSControl *control);
 int nxs_control_sync(NXSControl *control, const NXSControlConfig *config);

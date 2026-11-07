@@ -1,0 +1,423 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "9fb364bc",
+  "status": "shared-native-scroll-geometry-qualified-browser-layout-binding-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 576,
+  "preserved_prefix_bytes": 568,
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73936,
+      "sha256": "03752fb271f593f0fe19a145d1605549ef688b3c11a36876d4fe729af0befdbf"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322416,
+      "sha256": "8970a15ccd3036c1e7bffc6cd3a2c7396e149104fd5d6e33d8c1226ccac0379d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "d050b1399de66a663d34b4531437beb2ef1328e4a733a1d2db26857a63bc6b36"
+    },
+    "native_probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/native-list-probe",
+      "bytes": 97680,
+      "sha256": "dea9cdee95893141bcddad366a7116fb5c53efce0a5a9a0e112bce9a4d392575"
+    },
+    "initial_native_probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-reference-01",
+      "bytes": 97680,
+      "sha256": "0fcb2350260b458d6e46298260e4e54bf6d33aff7c8ecae5b3f3bd5ac2e78950"
+    },
+    "wire_probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-list-transport-probe",
+      "bytes": 74856,
+      "sha256": "79b4a473e957163368b6ea24a64d8c896074fcd7717ac77aa531520507a17fb4"
+    },
+    "binding_wire_probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-list-binding-transport-probe-02",
+      "bytes": 75200,
+      "sha256": "bdf10d49753b9cc042e6e154f936a787870945d6ce2bc52b6ce634416c6545a6"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-chromium-01-hook.so",
+      "bytes": 234064,
+      "sha256": "a0349744695f6b33a0016223b3538a1170056cb6ea423b6b7127e09b784ef77d"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/list-geometry-firefox-01-hook.so",
+      "bytes": 162400,
+      "sha256": "09d85b0064fb1698694c3c9b023a7a67b700fb7160294106bdce65a1c4f793a5"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_geometry": {
+        "path": "/var/tmp/nxs-list-geometry-02",
+        "results_file": "results.json",
+        "checks": 141,
+        "native_images": 26,
+        "results_sha256": "d6d60f0a9e5d6aaaef95fafc2983064a069d1367fb08dec8ebee76dd9626e801"
+      },
+      "shared_geometry_wire": {
+        "path": "/var/tmp/nxs-list-geometry-wire-02",
+        "results_file": "results.json",
+        "checks": 308,
+        "native_images": 26,
+        "results_sha256": "ff741c150a497f9c3adda6ad8a52bc959654769a0b4317a4067c62bbfd2db472"
+      },
+      "unchanged_list_client": {
+        "path": "/var/tmp/nxs-list-geometry-previous-client-01",
+        "results_file": "results.json",
+        "checks": 108,
+        "native_images": 26,
+        "results_sha256": "a09de52fd777107a4f97c30ade148813b34f7403fa49b3406910a616f2c88034"
+      },
+      "chromium_list": {
+        "path": "/var/tmp/nxs-list-geometry-chromium-01",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "results_sha256": "7a8adfb2c8319ad70dbea368f50d8c616db79e0245b8d141cff4ffbd2f79e733"
+      },
+      "firefox_list": {
+        "path": "/var/tmp/nxs-list-geometry-firefox-01",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "results_sha256": "a7ca0d64ad49a0b95a664c9cc327a710b0eaefdbf93dd9f1cdf2c1fa2ddf9580"
+      },
+      "chromium_text": {
+        "path": "/var/tmp/nxs-list-geometry-chromium-01",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "results_sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "firefox_text": {
+        "path": "/var/tmp/nxs-list-geometry-firefox-01",
+        "results_file": "button-results.json",
+        "checks": 108,
+        "native_images": 48,
+        "results_sha256": "d318ea4b5dc51adbabeb57a12612750da62c06f916b1998b01d302905301cffc"
+      }
+    },
+    "scoped_checks": 840,
+    "complete_native_images": 200,
+    "native_reference_scales": [
+      1,
+      2
+    ],
+    "browser_scale": 1,
+    "native_ui_regression": {
+      "path": "/var/tmp/nxs-list-geometry-regression-01",
+      "sections": 35,
+      "results_sha256": "90cfede496a1a10b648441417d46cc65fd358cbf4a7db4387fbbdce433404457"
+    }
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "live_owned": [],
+    "api": {
+      "version": 1,
+      "size": 576,
+      "list_capabilities": 1,
+      "scroll_capabilities": 1
+    },
+    "unchanged_candidates": {
+      "loader": {
+        "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui.so.0.1",
+        "bytes": 105520,
+        "sha256": "eb7badf1b9cabfa3dfe8db7398497a57f6ea008b7fca38209e0bc12299df094c"
+      },
+      "provider": {
+        "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+        "bytes": 531360,
+        "sha256": "b6a729be736ada457110c6adfa66947139ab2d2dd326666fcfa143c21d3e68aa"
+      },
+      "shim": {
+        "path": "/var/tmp/nextspace-native-ui/list-provider-02/libnextspace-native-scroller.so.0.1",
+        "bytes": 81824,
+        "sha256": "1f7f5051cee8188d3492e1342807ff2e934ec6aea602f6c066bd76dfec2d50b1"
+      },
+      "chromium_list_08": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-08-hook.so",
+        "bytes": 234064,
+        "sha256": "8f7040ecf82d8edcfe8a291eed4d9bc46acf91f0ec939a0051ec8b9568c8a6f3"
+      },
+      "firefox_list_07": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-list-07-hook.so",
+        "bytes": 162400,
+        "sha256": "a5d9644744674216e9d68e4793a0fbaab436c7500fbbe75968a042bc124d7084"
+      }
+    },
+    "unchanged_browser_adapters": {
+      "chromium": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-form-activation-03-hook.so",
+        "bytes": 232496,
+        "sha256": "e0006b4bb9d0cb28d6f82557fc26a45f16919a7281290bb610a729db0b9d9051"
+      },
+      "firefox": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-form-activation-03-hook.so",
+        "bytes": 161328,
+        "sha256": "9c04f609b1052c08700e82be5344cb172c8ee7f4bfe4d70b9f03b2fc614630fc"
+      }
+    },
+    "C_clients_and_loader_have_no_UI_toolkit_dependency": true,
+    "sandbox": {
+      "nxs-list-geometry-chromium-01": [
+        {
+          "pid": 185190,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185198,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185199,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "nxs-list-geometry-firefox-01": [
+        {
+          "pid": 185299,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185345,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185380,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185386,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185428,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 185445,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "cleanup": {
+      "nxs-list-geometry-01": [
+        {
+          "pid": 184875,
+          "exit": 0
+        },
+        {
+          "pid": 184878,
+          "exit": -15
+        },
+        {
+          "pid": 184879,
+          "exit": 0
+        },
+        {
+          "pid": 184895,
+          "exit": 0
+        },
+        {
+          "pid": 184902,
+          "exit": 0
+        }
+      ],
+      "nxs-list-geometry-02": [
+        {
+          "pid": 184996,
+          "exit": 0
+        },
+        {
+          "pid": 184999,
+          "exit": -15
+        },
+        {
+          "pid": 185000,
+          "exit": 0
+        },
+        {
+          "pid": 185004,
+          "exit": 0
+        },
+        {
+          "pid": 185005,
+          "exit": 0
+        }
+      ],
+      "nxs-list-geometry-chromium-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-list-geometry-firefox-01": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-list-geometry-previous-client-01": [
+        {
+          "pid": 185574,
+          "exit": 0
+        },
+        {
+          "pid": 185577,
+          "exit": -15
+        },
+        {
+          "pid": 185578,
+          "exit": 0
+        },
+        {
+          "pid": 185580,
+          "exit": 0
+        }
+      ],
+      "nxs-list-geometry-wire-01": [
+        {
+          "pid": 184984,
+          "exit": 0
+        },
+        {
+          "pid": 184987,
+          "exit": -15
+        },
+        {
+          "pid": 184990,
+          "exit": 0
+        },
+        {
+          "pid": 184991,
+          "exit": -15
+        },
+        {
+          "pid": 184992,
+          "exit": 0
+        },
+        {
+          "pid": 184993,
+          "exit": -15
+        },
+        {
+          "pid": 184994,
+          "exit": 0
+        }
+      ],
+      "nxs-list-geometry-wire-02": [
+        {
+          "pid": 185010,
+          "exit": 0
+        },
+        {
+          "pid": 185013,
+          "exit": -15
+        },
+        {
+          "pid": 185016,
+          "exit": 0
+        },
+        {
+          "pid": 185017,
+          "exit": -15
+        },
+        {
+          "pid": 185024,
+          "exit": 0
+        },
+        {
+          "pid": 185025,
+          "exit": -15
+        },
+        {
+          "pid": 185026,
+          "exit": 0
+        }
+      ]
+    }
+  },
+  "notices": {
+    "count": 9,
+    "paths": [
+      "/var/tmp/nxs-list-geometry-01/compositor.stderr",
+      "/var/tmp/nxs-list-geometry-02/compositor.stderr",
+      "/var/tmp/nxs-list-geometry-chromium-01/browser.stderr",
+      "/var/tmp/nxs-list-geometry-firefox-01/browser.stderr",
+      "/var/tmp/nxs-list-geometry-firefox-01/helper.stderr",
+      "/var/tmp/nxs-list-geometry-previous-client-01/compositor.stderr",
+      "/var/tmp/nxs-list-geometry-regression-01/legacy.stderr",
+      "/var/tmp/nxs-list-geometry-wire-01/compositor.stderr",
+      "/var/tmp/nxs-list-geometry-wire-02/compositor.stderr"
+    ],
+    "full_text": "runtime-audit.json in the verified evidence archive"
+  },
+  "observations": [
+    "Final ordinary native reference passes 141 checks/26 complete images, final C transport/shared-cache suite 308/26, and unchanged previous list client 108/26. Both browser list suites pass 34/13; Chromium button/text passes 107/48 and Firefox 108/48. Scoped total is 840 checks/200 complete images. All 35 existing provider/transport regression sections pass separately.",
+    "The real 180x96 native list reports clip (21,2,157,92), unscrolled client (176,92), and maximum y 268 for the tested 24-row model. These are observations, never constants used by an adapter. The ordinary empty list even has a native y limit of 8, which consumers must not replace with an invented empty-list rule.",
+    "Actual previous 568-byte provider fallback is exercised through both C API and IPC. Generic geometry is unavailable while original list models and pixels remain usable. Read queries do not add selection actions; other connections cannot read geometry for the creating owner.",
+    "Shared cache scrolling and wheel calls retain native state/geometry/pixels without adding selection actions. Existing native text geometry and the generic entry return identical measured fields.",
+    "Only isolated candidate SDK and small browser adapters/probes are built. Existing production components, prior shared SDK and prior browser adapters retain their hashes. Real content renderers retain Seccomp=2 and NoNewPrivs=1. All owned fixtures are stopped with no candidate mappings.",
+    "Geometry measurement and transport are a dependency for full browser scrolling. They do not establish native DOM option layout, intrinsic sizing, script scroll synchronization or wheel/default ownership."
+  ],
+  "open": [
+    "Consume native clip/document/limits in both original browser layout/scroll models, with original trusted scroll lifecycle, script/native offset synchronization, option geometry and intrinsic sizing.",
+    "Complete list wheel/APZ/default routing, held-scroller repaint/echo, selection reveal ownership and host/session replacement replay.",
+    "Broader models/CSS/transforms/zoom/mixed-DPI, IME/accessibility/focus traversal, other browser builds/derivatives and installed deployment.",
+    "Remaining browser controls, complete detached menus and native shortcuts, then GTK/Qt/KDE using the same shared layer. Browser toolbar/address bar/tabs remain original."
+  ],
+  "source_audit": "scroll-geometry-source-audit.json"
+}

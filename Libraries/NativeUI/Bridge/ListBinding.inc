@@ -7,6 +7,9 @@ struct NXSListBinding {
   unsigned count,flags;
   NXSListItem *items;
   struct NXSListWireState state;
+  NXSScrollGeometry geometry;
+  uint32_t geometry_epoch;
+  int geometry_checked,geometry_supported,geometry_ready;
   uint64_t *selection;
   uint32_t *pixels;
   int pixel_width,pixel_height,created,focused,enabled,tracking;
@@ -35,6 +38,13 @@ static int native_list_binding_refresh(struct NXSListBinding *binding)
   if(!binding->created||binding->epoch!=atomic_load(&native_host_epoch))return 0;
   struct NXSResponse *response=native_list_request(binding->control,49,0,0,1);
   if(!response||response->parts[3].x!=1||!native_list_binding_snapshot(binding,response))return 0;
+  uint32_t epoch=atomic_load(&native_host_epoch);
+  if(!binding->geometry_checked||binding->geometry_epoch!=epoch) {
+    response=exchange((struct NXSRequest){.magic=NXS_CHROMIUM_MAGIC,.operation=7,.process=identity()});
+    binding->geometry_supported=response&&response->parts[3].y==NXS_SCROLL_GEOMETRY;
+    binding->geometry_checked=!!response;binding->geometry_epoch=atomic_load(&native_host_epoch);
+  }
+  binding->geometry_ready=binding->geometry_supported&&native_list_geometry(binding->control,&binding->geometry);
   response=native_list_request(binding->control,5,0,0,1);
   if(!response||response->width<1||response->height<1||response->width>8192||response->height>8192||
     response->stride!=response->width*4||response->size!=sizeof(*response)+(size_t)response->stride*response->height)return 0;
@@ -56,6 +66,7 @@ static int native_list_binding_sync(struct NXSListBinding *binding,const NXSList
     binding->width=width;binding->height=height;binding->enabled=!!enabled;
     native_list_binding_free_items(binding->items,binding->count);binding->items=NULL;binding->count=0;
     binding->state=(struct NXSListWireState){0};free(binding->selection);binding->selection=NULL;
+    binding->geometry=(NXSScrollGeometry){0};binding->geometry_checked=binding->geometry_ready=binding->geometry_supported=0;
     /* Force even an empty model to establish its flags in the new host. */
     binding->flags=~flags;
   }
@@ -84,6 +95,16 @@ static int native_list_binding_sync(struct NXSListBinding *binding,const NXSList
     binding->focused=!!focused;
   }
   return native_list_binding_refresh(binding);
+}
+static int native_list_binding_scroll(struct NXSListBinding *binding,double x,double y)
+{
+  if(!binding||!binding->created||binding->epoch!=atomic_load(&native_host_epoch))return 0;
+  return native_list_binding_snapshot(binding,native_list_scroll(binding->control,x,y))&&native_list_binding_refresh(binding);
+}
+static int native_list_binding_wheel(struct NXSListBinding *binding,const NXSWheelEvent *event)
+{
+  if(!binding||!binding->created||binding->epoch!=atomic_load(&native_host_epoch))return 0;
+  return native_list_binding_snapshot(binding,native_list_wheel(binding->control,event))&&native_list_binding_refresh(binding);
 }
 static void native_list_binding_destroy(struct NXSListBinding *binding)
 {

@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "9fb364bc",
+  "status": "shared-native-scroll-geometry-qualified-browser-layout-binding-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "b0f316814f95502d786b316ef805b1ba168ac84da60530b3eb624f7c9ae827ef",
+    "Experiments/ChromiumScrollers/native_controls.py": "2c9f773f2e65a5f3ddb728533191e20fc7818311be9d74f75b2391d45ae5f6bf",
+    "Libraries/NativeUI/Bridge/ListBinding.inc": "12750dc707baa8d35986237f56b775503311095b293104cca6c2cabdd0e1ddd6",
+    "Libraries/NativeUI/Bridge/Lists.inc": "ec8a5f9e2619fd94dbbc2e4094fe9c3ad68d617e76ac642a267a4b5d301414dd",
+    "Libraries/NativeUI/Bridge/Protocol.h": "660370cc3d150901c820bca644ef4fc07726735b9286e9f2b62a6fd780735735",
+    "Libraries/NativeUI/GNUstep/Controls.m": "e874734af4ca09dc5acc373af6e264e6d7ccdf9b507e88e72b681139fd3fee94",
+    "Libraries/NativeUI/GNUstep/List.inc": "5ba3a09213002a740d470e1573679e88fab66cb5be80f0153eb7c7a6e731dce1",
+    "Libraries/NativeUI/GNUstep/Provider.h": "c0761545585bca72177c5b50af57265cccc338edbe1c9ac8aec8abd53da3fbb9",
+    "Libraries/NativeUI/GNUstep/Provider.m": "8b9b051573ca72376bcf3575f0901fc6258e1eb7ce1ed59707b1caa189110c6c",
+    "Libraries/NativeUI/Loader.c": "31a0c125e757204d92c24c84fa765b29130c4c13b4ef884de294fe54596d3a5d",
+    "Libraries/NativeUI/NativeUI.h": "a4c638db9ef21f11986431a24408d0bc86c0673c207ebd8d43510410f8088e10",
+    "Libraries/NativeUI/README.md": "32f3cb024225c58090fcf1d5dd1bb4326ea84fedcc1fefba3d436a9ec193ed0e",
+    "Tests/NativeUI/check-tab-transport.py": "d612aacdabf035326c8f563efb939b7809771bce1c33bef8b773146a5097f864",
+    "Tests/NativeUI/check-tabs.py": "40db91f88dcb0ae156846ac11ca7c37e2baa7ee78cfc6d82c7f913f3c0d7ae09",
+    "Tests/NativeUI/list-probe.m": "c4c43ab28018158cf3a5167556fc3d2ba79016cf8cfb1b8ee5c4d7cf262d5557",
+    "Tests/NativeUI/list-transport-probe.c": "ff829fb631a923892e4b88e4343178adeb8599d50f01f69ebb835e61290da98b",
+    "docs/Native-Control-Integration.md": "4cd648d8188aa63fe46ea9acc5edfb85a4c1d6084eb00c31f0bfa722bfad6535"
+  },
+  "invariants": [
+    "One native helper measures NSScrollView/NSClipView geometry for existing ordinary text and list controls. It calls native constrainScrollPoint and native view-coordinate conversion, rather than reproducing scrollbar dimensions or clamping/layout algorithms.",
+    "Optional control_scroll_geometry appends one pointer at offset 568, preserving the complete previous provider prefix. API remains version 1 with size 576. NXSScrollGeometry aliases the existing text geometry layout; original text methods and capability values remain unchanged.",
+    "The size-checked loader exposes generic scroll capability separately from existing list capability. Actual previous 568-byte providers report unsupported and do not change the output buffer; existing list creation/model/pixels remain usable.",
+    "Owned generic operation 52 uses NXSControlRequest for kinds 9/13 and returns the native geometry. Bootstrap part 3.y advertises this independently of unchanged part 3.x list capabilities. Creating-connection checks apply; geometry reads remain valid during native tracking.",
+    "Shared ListBinding stores native geometry and probes support per host epoch. Its scroll and wheel methods perform existing native RPC and refresh complete snapshots/images; no selection, wheel, coordinate geometry or clamp algorithm is added.",
+    "Independent ordinary NSBrowser controls supply geometry and complete real-seat image references at actual 1x/2x, including empty/scrollable/disabled states. A C-only client compares those geometry files through IPC and exercises shared cache methods. A prior compiled list client runs unchanged against the new loader/provider.",
+    "Both pinned browser adapters rebuild only to consume the changed shared cache and pass list and text regression images. Original browser, AppKit/backend and 20 measured production hashes remain unchanged. Browser option/layout, DOM scroll and wheel/default routing are not completed by these measurements.",
+    "Toolbar/address bar/tabs remain original. Future requested UI changes use optional app-specific patches over the shared layer for browsers and subsequent GTK/Qt/KDE."
+  ]
+}

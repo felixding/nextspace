@@ -290,4 +290,8 @@ struct NXSListWireState {
   struct NXSRectD visible;
   double content_width,content_height;
 };
+/* Bootstrap part 3.y advertises NXSScrollCapability independently of the
+ * existing list capability. Owned operation 52 (NXSControlRequest, kind 9/13)
+ * returns NXSScrollGeometry using the same layout as legacy text geometry.
+ * Providers without the appended method advertise zero and reject the query. */
 #endif

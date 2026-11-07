@@ -10,6 +10,7 @@ p=argparse.ArgumentParser(description=__doc__)
 for name in ['build','compositor','backend-bundle','reference','output']:p.add_argument('--'+name,type=Path,required=True)
 p.add_argument('--previous-provider',type=Path)
 p.add_argument('--previous-group-provider',type=Path)
+p.add_argument('--previous-scroll-provider',type=Path,help='List provider without the optional shared scroll geometry')
 p.add_argument('--list',action='store_true',help='Qualify shared native list model/input/state transport')
 p.add_argument('--probe',type=Path,help='Use a separately built C transport probe')
 p.add_argument('--radio',action='store_true',help='Use the shared group model/input and member pixel transport')
@@ -35,6 +36,9 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
   line=server.stdout.readline().strip();assert line.startswith('WAYLAND_DISPLAY='),line
   env['WAYLAND_DISPLAY']=line.split('=',1)[1]
   variants=([('current-120',None,120),('current-240',None,240)] if a.radio or a.list else [('current',None,120)])+([('previous',a.previous_provider,120)] if a.previous_provider else [])+([('previous-group',a.previous_group_provider,120)] if a.previous_group_provider else [])
+  if a.previous_scroll_provider:
+   assert a.list
+   variants.append(('previous-scroll',a.previous_scroll_provider,120))
   for name,provider,density in variants:
    if a.radio or a.list:
     control.send(b'outputs');output=json.loads(control.recv(65536))[0]['name']
@@ -48,7 +52,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
     assert helper.poll() is None,(helper.returncode,(out/'helper.stderr').read_text())
     assert time.monotonic()<deadline,'Native host readiness';time.sleep(.02)
    with (out/'probe.stdout').open('w') as stdout,(out/'probe.stderr').open('w') as stderr:
-    arguments=([str(a.probe or a.build/'native-ui/native-list-transport-probe'),str(endpoint),str(out),str(density/120),str(a.reference/str(density)),*(['--expect-no-list'] if provider else [])] if a.list else [str(a.probe or a.build/'native-ui/native-radio-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-radio'] if provider else [])] if a.radio else [str(a.build/'native-ui/native-tab-transport-probe'),str(endpoint),str(out),*(['--expect-no-tabs'] if provider else [])])
+    arguments=([str(a.probe or a.build/'native-ui/native-list-transport-probe'),str(endpoint),str(out),str(density/120),str(a.reference/str(density)),*(['--expect-no-scroll' if name=='previous-scroll' else '--expect-no-list'] if provider else [])] if a.list else [str(a.probe or a.build/'native-ui/native-radio-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-radio'] if provider else [])] if a.radio else [str(a.build/'native-ui/native-tab-transport-probe'),str(endpoint),str(out),*(['--expect-no-tabs'] if provider else [])])
     actor=subprocess.Popen(arguments,env=local,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=45)
     except subprocess.TimeoutExpired:stop(actor);raise

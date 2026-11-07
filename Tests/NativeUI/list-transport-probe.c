@@ -9,6 +9,7 @@
 static void note(const char *message){fprintf(stderr,"%s\n",message);}
 #include "Bridge/Transport.inc"
 #include "Bridge/Lists.inc"
+#include "Bridge/ListBinding.inc"
 _Static_assert(sizeof(struct NXSControlListRequest)==56,"List model wire");
 _Static_assert(sizeof(struct NXSListWireItem)==24,"List row wire");
 _Static_assert(sizeof(struct NXSControlListItemRequest)==40,"List geometry wire");
@@ -32,6 +33,10 @@ static void expected(const char *name)
   if(memcmp(&actual,&want,sizeof(want.value)+want.value.selected_count*sizeof(uint64_t)))
     fprintf(stderr,"%s actual count %u selection %u primary %llu key %llu actions %llu y %g; expected count %u selection %u primary %llu key %llu actions %llu y %g\n",name,actual.value.count,actual.value.selected_count,(unsigned long long)actual.value.primary,(unsigned long long)actual.value.key_cell,(unsigned long long)actual.value.actions,actual.value.visible.y,want.value.count,want.value.selected_count,(unsigned long long)want.value.primary,(unsigned long long)want.value.key_cell,(unsigned long long)want.value.actions,want.value.visible.y);
   check(name,!memcmp(&actual,&want,sizeof(want.value)+want.value.selected_count*sizeof(uint64_t)));
+  snprintf(path,sizeof(path),"%s/%s-geometry.bin",reference,name);in=fopen(path,"rb");assert(in);
+  NXSScrollGeometry geometry={0},wanted={0};assert(fread(&wanted,sizeof(wanted),1,in)==1&&fgetc(in)==EOF);fclose(in);
+  check("native-scroll-geometry-matches-ordinary-reference-through-IPC",native_list_geometry(1,&geometry)&&geometry.size==sizeof(geometry)&&
+    !memcmp(&geometry.clip,&wanted.clip,sizeof(geometry)-offsetof(NXSScrollGeometry,clip)));
 }
 static void image(const char *name)
 {
@@ -62,6 +67,7 @@ static void click_at(double x,double y,unsigned modifiers)
   struct NXSResponse *r=pointer(22,x,y,modifiers);check("native-list-pointer-accepted",r&&r->parts[3].x==1);
   struct Snapshot busy=snapshot();(void)busy;
   check("native-list-model-rejected-during-tracking",!native_list_model(1,items,count,flags,0,scale));
+  check("native-scroll-geometry-readable-during-tracking",native_list_geometry(1,&(NXSScrollGeometry){0}));
   check("native-list-scroll-rejected-during-tracking",!native_list_scroll(1,0,0));
   r=native_list_request(1,1,180,96,1);check("native-list-config-rejected-during-tracking",r&&!r->width);
   r=native_list_request(1,5,0,0,1);check("native-list-remains-renderable-during-tracking",r&&r->width>0&&r->parts[0].y);
@@ -109,13 +115,25 @@ int main(int argc,char **argv)
     check("older-provider-rejects-typed-list-query",!native_list_state(1,&(struct NXSListWireState){0},&(const uint64_t *){0}));
   } else {
     check("native-list-capability-crosses-shared-wire",r->parts[3].x==NXS_LIST_ITEMS);
+    int previous_scroll=argc>5&&!strcmp(argv[5],"--expect-no-scroll");
+    check("shared-scroll-capability-crosses-wire",r->parts[3].y==(previous_scroll?0:NXS_SCROLL_GEOMETRY));
     r=native_list_request(1,1,180,96,1);check("native-list-created-at-actual-density",r&&r->width==lround(180*scale)&&r->height==lround(96*scale)&&r->parts[5].y==scale);
+    if(previous_scroll) {
+      NXSScrollGeometry geometry,saved;memset(&geometry,0x6a,sizeof(geometry));saved=geometry;
+      check("older-list-provider-rejects-optional-scroll-geometry-without-write",!native_list_geometry(1,&geometry)&&!memcmp(&geometry,&saved,sizeof(geometry)));
+      check("older-list-provider-retains-original-model",native_list_model(1,NULL,0,0,0,scale)!=NULL);
+      struct NXSListBinding binding={.control=77};
+      check("shared-binding-keeps-older-provider-pixels-without-geometry",native_list_binding_sync(&binding,NULL,0,0,180,96,1,0)&&
+        !binding.geometry_supported&&!binding.geometry_ready&&binding.pixels&&binding.pixel_width==180);
+      native_list_binding_destroy(&binding);
+      assert(native_list_request(1,6,0,0,1));close(channel);printf("{\"passed\":%u,\"images\":0}\n",checks);return 0;
+    }
     r=native_list_request(99,1,scale>1?2048:8192,scale>1?2048:8192,1);check("oversized-initial-list-is-rejected",r&&!r->width);
     check("rejected-initial-list-registers-no-native-state",!native_list_state(99,&(struct NXSListWireState){0},&(const uint64_t *){0}));
     r=native_list_request(99,1,180,96,1);check("valid-create-after-rejected-initial-size-succeeds",r&&r->width>0);assert(native_list_request(99,6,0,0,1));
     model(4,0,1);assert(native_list_input(1,1,NULL));expected("single");image("single");key(0);expected("single-key");image("single-key");key(0);expected("single-next");image("single-next");
     for(unsigned op=1;op<=8;op++)if(op!=2&&op!=3&&op!=4&&op!=5)foreign(argv[1],op);
-    foreign(argv[1],48);foreign(argv[1],49);foreign(argv[1],50);foreign(argv[1],51);foreign(argv[1],35);expected("single-next");
+    foreign(argv[1],48);foreign(argv[1],49);foreign(argv[1],50);foreign(argv[1],51);foreign(argv[1],52);foreign(argv[1],35);expected("single-next");
     click(0,0);expected("single-pointer");image("single-pointer");
     model(4,1,5);expected("multiple");image("multiple");key(NXS_SHIFT);expected("multiple-shift");image("multiple-shift");
     check("same-model-is-a-native-no-op",native_list_model(1,items,count,flags,0,scale)!=NULL);expected("multiple-shift");click(3,NXS_SHIFT);expected("multiple-pointer");image("multiple-pointer");
@@ -125,6 +143,12 @@ int main(int argc,char **argv)
     r=native_list_request(1,1,scale>1?2048:8192,scale>1?2048:8192,1);check("actual-density-bitmap-budget-is-enforced",r&&!r->width);expected("multiple-pointer");
     model(24,1,1);expected("scrollable");image("scrollable");check("native-scroll-position-crosses-IPC",native_list_scroll(1,0,120)!=NULL);expected("scrolled");image("scrolled");
     check("native-wheel-crosses-existing-input-operation",native_list_wheel(1,&(NXSWheelEvent){.size=sizeof(NXSWheelEvent),.x=90,.y=50,.delta_y=20})!=NULL);expected("wheel");image("wheel");
+    struct NXSListBinding binding={.control=77};
+    check("shared-binding-retains-native-geometry",native_list_binding_sync(&binding,items,count,flags,180,96,1,0)&&binding.geometry_supported&&binding.geometry_ready&&binding.pixels);
+    check("shared-binding-scroll-keeps-native-state-and-geometry",native_list_binding_scroll(&binding,0,120)&&binding.geometry_ready&&binding.state.visible.y==120);
+    uint64_t actions=binding.state.actions;
+    check("shared-binding-wheel-keeps-native-state-without-selection-action",native_list_binding_wheel(&binding,&(NXSWheelEvent){.size=sizeof(NXSWheelEvent),.x=90,.y=50,.delta_y=20})&&binding.state.visible.y>120&&binding.state.actions==actions&&binding.geometry_ready);
+    native_list_binding_destroy(&binding);
     assert(native_list_request(1,1,180,96,0));assert(native_list_input(1,0,NULL));expected("disabled");image("disabled");assert(native_list_scroll(1,0,0));
     char path[1024];snprintf(path,sizeof(path),"%s/disabled-scroll-part.bin",reference);FILE *part_file=fopen(path,"rb");assert(part_file);struct NXSRectD part;assert(fread(&part,sizeof(part),1,part_file)==1&&part.width>0&&part.height>0);fclose(part_file);
     click_at(part.x+part.width/2,part.y+part.height/2,0);expected("disabled-scrolled");image("disabled-scrolled");
