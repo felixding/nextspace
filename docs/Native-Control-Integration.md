@@ -124,8 +124,17 @@ Chromium group binding now supplies original engine membership/identities and
 DOM focus/activation through a common group model cache; native matrices supply
 member painting and input. Its
 [qualification](../Experiments/ChromiumScrollers/radio-group-qualification.json)
-records the partial tested scope. Complete Chromium group integration, the Gecko
-group binding and broader application coverage remain unfinished.
+records the partial tested scope. The opt-in pinned Gecko binding now uses the
+same cache, member transport and pointer serializer. Its original group container
+supplies ordered members and selection; retained engine nodes supply safe opaque
+binding identities. Native key actions return through original Gecko focus and
+trusted activation, with membership rechecked after callbacks. The shared tests
+pass 40 group checks and 15 complete native member images in each browser; see
+the [Gecko qualification](../Experiments/FirefoxNativeUI/radio-group-qualification.json).
+Complete pointer/label behavior, layout topology, browser scaling, group recovery
+and broader application coverage remain unfinished. A broader Firefox button
+test also exposes an existing automatic inline-flex sizing gap, reproduced with
+the prior adapter and recorded in that qualification.
 An earlier Firefox host-replacement capture showed TimeMon while Firefox was
 focused; that run did not qualify menu presentation. The later menu/session
 qualifications above cover their measured ownership and recovery cases.

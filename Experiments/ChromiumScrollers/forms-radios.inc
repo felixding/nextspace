@@ -12,7 +12,7 @@ struct NativeRadioGroup {
   struct NativeRadioGroup *next;
   struct NXSRadioBinding native;
   uint32_t root;
-  int busy,tracking;
+  int busy;
 };
 static struct NativeRadioGroup *radio_groups;
 static int guard_radio_calls(void)
@@ -70,7 +70,7 @@ static void radio_release(struct NativeForm *form)
 {uint32_t owner=form->radio_owner;form->radio_owner=0;form->radio_member=0;if(owner)radio_prune(owner);}
 static struct NativeRadioGroup *radio_sync(struct NativeForm *form)
 {
-  struct NativeRadioGroup *g=radio_group(form->radio_owner);if(g&&(g->busy||g->tracking))return g;
+  struct NativeRadioGroup *g=radio_group(form->radio_owner);if(g&&(g->busy||g->native.tracking))return g;
   struct RadioSnapshot snapshot;if(!radio_snapshot(form->node,&snapshot))return NULL;
   g=radio_group(snapshot.root);
   if(!g) {
@@ -100,21 +100,8 @@ static struct NXSResponse *radio_form_request(struct NativeForm *form,int operat
   if(operation==6){radio_release(form);return NULL;}
   struct NativeRadioGroup *g=(operation==1||!form->radio_owner)?radio_sync(form):radio_group(form->radio_owner);
   if(!g)return NULL;
-  if(operation==1||(operation==5&&!g->tracking))
-    return native_radio_item_draw(g->native.control,form->radio_member,form->rect.width,form->rect.height);
-  if(operation==2) {
-    if(!native_radio_item_draw(g->native.control,form->radio_member,form->rect.width,form->rect.height)||
-       !native_radio_item_rect(g->native.control,form->radio_member,&form->radio_rect))return NULL;
-  }
-  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),
-    .kind=NXS_RADIOGROUP,.control=g->native.control,.x=x+form->radio_rect.x,.y=y+form->radio_rect.y,.modifiers=modifiers};
-  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
-  if(operation==2)g->tracking=response&&response->parts[0].y;
-  if((operation==4||operation==5)&&response&&!response->parts[0].y) {
-    g->tracking=0;
-    if(native_radio_state(g->native.control,&g->native.state))response=native_radio_request(g->native.control,44,0,0,1);
-  }
-  return response;
+  return native_radio_binding_request(&g->native,form->radio_member,&form->radio_rect,operation,
+    form->rect.width,form->rect.height,x,y,modifiers);
 }
 static struct NXSResponse *radio_form_focus(struct NativeForm *form)
 {
@@ -123,7 +110,7 @@ static struct NXSResponse *radio_form_focus(struct NativeForm *form)
 static int radio_click_allowed(struct NativeForm *form)
 {
   struct NativeRadioGroup *g=radio_group(form->radio_owner);if(!g)return 0;
-  g->tracking=0;struct RadioSnapshot snapshot;int okay=radio_snapshot(form->node,&snapshot);
+  g->native.tracking=0;struct RadioSnapshot snapshot;int okay=radio_snapshot(form->node,&snapshot);
   if(okay)okay=native_radio_binding_same(&g->native,snapshot.items,snapshot.count,1)&&snapshot.root==g->root&&
     native_radio_state(g->native.control,&g->native.state)&&g->native.state.selected==form->radio_member;
   free(snapshot.items);return okay;

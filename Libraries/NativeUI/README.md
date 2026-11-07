@@ -70,11 +70,14 @@ native geometry preserve the prior model, selection and key context. The helper
 warms controls at `nxs_control_backing_scale()` rather than assuming a 1x display;
 the getter returns zero with providers predating that optional API. The shared
 [group binding cache](Bridge/RadioBinding.inc) retains only application models,
-native state and host epochs. The first opt-in pinned Chromium binding uses it
-for original engine membership, native member paint/input and original DOM
-focus/activation; see its
-[qualification](../../Experiments/ChromiumScrollers/radio-group-qualification.json).
-Complete Chromium group coverage and the Gecko binding remain unfinished.
+native state and host epochs. Both pinned browser adapters now use that cache
+and the same member paint/pointer serializer. Chromium supplies original weak
+DOM node IDs; Gecko retains original engine nodes and assigns opaque binding IDs.
+Each engine supplies its original group membership, focus and trusted activation.
+See the partial [Chromium](../../Experiments/ChromiumScrollers/radio-group-qualification.json)
+and [Gecko](../../Experiments/FirefoxNativeUI/radio-group-qualification.json)
+qualifications. Complete pointer/label behavior, layout topology, browser scaling
+and group recovery through the session supervisor remain unfinished.
 
 The optional wheel extension appends one function to ABI 1 (416 to 424 bytes
 on ARM64). Query `nxs_control_wheel_capabilities()` before calling

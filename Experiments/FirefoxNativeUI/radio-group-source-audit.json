@@ -1,0 +1,109 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "d7404a81",
+  "status": "opt-in-pinned-firefox-one-column-groups-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/forms-radios.inc": "62abac5109cd6ba83f5f13566549e65f10ebc4db68f33b53435d4365f658bf1c",
+    "Experiments/FirefoxNativeUI/README.md": "232dda8990566e0fe1423671bfc3cdbd111d3951ee3ce92b8351648349e1e09a",
+    "Experiments/FirefoxNativeUI/check-radio-groups.py": "e5d580724ae682b01f2df58177d91cf0095972d6315344e2bebb0d6bc0ee00cf",
+    "Experiments/FirefoxNativeUI/controls.inc": "6686d7fe169375ffc4765730afa487888a0afda1e6520fbcbfab0f022d2940c0",
+    "Experiments/FirefoxNativeUI/hook.c": "8cc5ec1f187ad8749ef4e5af6922fd08a545203d12eeb171c657735319c33071",
+    "Experiments/FirefoxNativeUI/pinned-radio-groups.h": "9f6b9da377eeb047802a99abe34bfaa92d7678171fa623523698c10d062abef6",
+    "Experiments/FirefoxNativeUI/radios.inc": "0886d797e38b24a69f9c47779fff7c5aec2672be8b071ccbc9ee4536b4a657f7",
+    "Libraries/NativeUI/Bridge/RadioBinding.inc": "89f69f3cc14045e04114c7a322c11fc1c375d49b20098061f29c815dae47956c",
+    "Libraries/NativeUI/Bridge/Radios.inc": "c67adacb3c1d2b5367a7e33f0800d414cdc009de355fa277f2b54e7a8274059e",
+    "Libraries/NativeUI/README.md": "6c6f85ee8a9919492c1021155de776d506c80c589daaa17691f71fc373a74c9e",
+    "Tests/Wayland/native-radio-groups.html": "402827fcff5c124991d8c77dec12f411d366d21d7f9aa536b17a6ffc676673dc",
+    "Tests/Wayland/radio_groups.py": "8b621084c849d6bdc3831dd5461db101bbd595f058e423b3dab96031e16c2e7d",
+    "docs/Native-Control-Integration.md": "03de0ac3088f1eae5e320ac92e038bc8dbb0971ad0e935ff196a9aab6dd56c98"
+  },
+  "upstream_extracts": [
+    ".build/native-ui/radio-group-source/RadioGroupContainer.h",
+    ".build/native-ui/radio-group-source/RadioGroupContainer.cpp",
+    ".build/native-ui/radio-group-source/gecko-HTMLInputElement.h",
+    ".build/native-ui/radio-group-source/gecko-HTMLInputElement.cpp",
+    ".build/native-ui/radio-group-source/gecko-HTMLFormElement.h",
+    ".build/native-ui/radio-group-source/gecko-input-sources.json",
+    ".build/native-ui/radio-group-source/gecko-binding-symbols.json",
+    ".build/native-ui/radio-group-source/gecko-call-pins.json",
+    ".build/native-ui/radio-group-source/sources.json"
+  ],
+  "additional_upstream": [
+    {
+      "path": "dom/html/HTMLInputElement.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.h",
+      "sha256": "05d97a7d6603ddb1b954900a8c524b7f75323dcb8365e2f88d39582ac0bb8f65"
+    },
+    {
+      "path": "dom/html/HTMLInputElement.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.cpp",
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    {
+      "path": "dom/html/HTMLFormElement.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLFormElement.h",
+      "sha256": "44ba6671c607192f2f19eae987f3620784a8ed5f77be4760bbce5f295446c7fb"
+    }
+  ],
+  "guarded_original_calls": {
+    "GROUP": {
+      "offset": 75483692,
+      "bytes": "3f2303d5ff4302d1fe4f08a928d702f000200091"
+    },
+    "MEMBERS": {
+      "offset": 75486340,
+      "bytes": "5f2403d5280440f9291040f90a0140b9400109eb"
+    },
+    "SELECTED": {
+      "offset": 75483840,
+      "bytes": "3f2303d5ff4302d1fe4f08a928d702f000200091"
+    },
+    "FOCUS": {
+      "offset": 75968876,
+      "bytes": "3f2303d5fe5fbda9f65701a9f44f02a993d402b0"
+    },
+    "ATTR": {
+      "offset": 74878152,
+      "bytes": "3f2303d5fe0f1ef8f44f01a900000291f30302aa"
+    },
+    "ATOMIZE": {
+      "offset": 61865104,
+      "bytes": "3f2303d5ff0301d1fe1300f9f44f03a9283f0390"
+    },
+    "ADDREF": {
+      "offset": 62517476,
+      "bytes": "5f2403d5e20300aa490c42f828f97e9208210091"
+    },
+    "RELEASE": {
+      "offset": 75212472,
+      "bytes": "3f2303d5ffc300d1fe5701a9f44f02a948d902b0"
+    },
+    "CHECKED": {
+      "offset": 92848428,
+      "bytes": "3f2303d5fe0f1df8f65701a9f44f02a916280791"
+    },
+    "SET_CHECKED": {
+      "offset": 92848876,
+      "bytes": "3f2303d5ff4303d1fe5300f9f6570ba9f44f0ca9a85202f0f403012af30300aa088944f9080140f9e84f00f90207003675ea40f9350600b4e9078052e8030091"
+    },
+    "STRING_RELEASE": {
+      "offset": 58879788,
+      "bytes": "3f2303d5fe4fbfa90818407988001837fe4fc1a8"
+    },
+    "MODIFIER": {
+      "offset": 111566740,
+      "bytes": "5f2403d5080c0051093d00123f350071c8000054"
+    }
+  },
+  "invariants": [
+    "Original RadioGroupContainer supplies canonical ordered membership and selection. HTMLInputElement original container pointer is loaded at offset464, verified in guarded original RadioSetChecked. Null container means an independent control as chosen by the original engine.",
+    "Original GetButtonsInGroup returns a 16-byte Span with length in x0 and data in x1. Do not reverse the fields or use filtered keyboard-navigation methods to enumerate membership.",
+    "Canonical engine nodes are retained through original nsINode AddRef/Release. The adapter assigns opaque uint64 IDs to those retained nodes; these are not Gecko DOM IDs. Group identity remains stable when the first member is detached and reinserted while the original container survives.",
+    "Original primary frame, theme eligibility, bounds and ElementState supply eligible visible native cells and enabled state. Hidden selected engine data remains canonical without inventing a native cell.",
+    "Gecko and Chromium use the same RadioBinding model/state cache and member paint/pointer serializer. One original AppKit matrix retains original native cells. No sizing, drawing, focus navigation or tracking implementation is duplicated.",
+    "Original Gecko SetFocus and trusted DispatchSimulatedClick retain preactivation, click cancellation, rollback and trusted input/change. Revalidate widget identity, target type and canonical/visible membership after callbacks before activation.",
+    "Retiring a member frame invalidates remaining group display items. Retained display items can otherwise move without repaint and keep stale canonical models.",
+    "The shared test explicitly accesses window.events and window.retained because Marionette sandbox assignments can shadow the page globals. Both browsers now assert native flagsChanged modifier delivery.",
+    "Only small separate adapters were rebuilt. The shared 520-byte provider/loader/shim, AppKit, both browsers, installed runtime paths and package inventory remain unchanged."
+  ]
+}

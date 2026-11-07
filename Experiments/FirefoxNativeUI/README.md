@@ -62,14 +62,45 @@ recovery test misses.
 
 Qualification remains limited to this exact ARM64 build and scale 1 horizontal
 fixtures. Other scales retain Gecko's rendering until scaled native transport
-is connected. Native radio-group arrow navigation is still open: the provider
-currently hosts individual radio buttons rather than a native group container.
-The tested radio-group data changes use real engine mouse/Space activation.
+is connected. The initial binding hosts individual radio buttons; the optional
+group binding described below instead uses the shared native matrix.
 Indeterminate animation, remaining controls, menus, editing, IME, accessibility,
 browser application interfaces and derivatives remain open.
 The progress fixture retains its author-styled engine path; broader styled
 interactive controls remain unqualified. This is not full native Firefox support
 and is not activated outside the private test session.
+
+`NEXTSPACE_FIREFOX_RADIO_GROUPS=1`, with native input enabled and shared radio
+wire capability 3, binds each eligible original engine group to one ordinary
+`NSMatrix`. Gecko's original `RadioGroupContainer` supplies the ordered members
+and selection, preserving disabled/hidden members, form ownership, shadow scopes
+and independent unnamed controls. Retained engine nodes have opaque binding IDs;
+they are released when the canonical group changes or retires. No Gecko DOM ID
+or address-reuse assumption supplies lifetime safety.
+
+The engine-neutral `RadioBinding.inc` cache and member paint/pointer serializer
+are shared with Chromium. The provider retains the actual native cells and owns
+sizing, drawing, tracking and key interpretation. Original Gecko focus and
+trusted click dispatch retain DOM input/change, cancellation and rollback.
+Focus callbacks are followed by fresh widget, node-type and group checks before
+activation. Modifier events use native `flagsChanged:`. Retiring a member frame
+invalidates its peers so retained display items cannot keep an obsolete model.
+
+The shared group fixture passes 40 checks and 15 complete native member images
+in each pinned browser. Current Firefox text and popup regressions also pass.
+See [radio-group-qualification.json](radio-group-qualification.json) for exact
+runs and limits, and [radio-group-source-audit.json](radio-group-source-audit.json)
+for original engine interfaces and guarded calls. The broader shared button
+fixture exposes an existing automatic inline-flex sizing gap: Firefox reports
+87.4333 CSS pixels where the native preferred width is 86. The prior adapter
+fails identically; this checkpoint does not claim that broader suite passes.
+
+This opt-in group path currently models one native column at browser scale 1.
+Complete disabled/outside-release/label behavior, other layout topologies,
+browser scaling and group recovery through the session supervisor remain open.
+Browser toolbar, address bar and tabs retain the current browser components.
+Future requested UI changes belong in optional application patches over this
+shared layer. Neither browser nor AppKit was rebuilt.
 
 The optional range binding (`NEXTSPACE_FIREFOX_SLIDERS=1` with
 `NEXTSPACE_FIREFOX_INPUT=1`) uses the same provider's actual `NSSlider`. Gecko's

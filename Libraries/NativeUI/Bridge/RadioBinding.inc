@@ -7,7 +7,7 @@ struct NXSRadioBinding {
   NXSRadioItem *items;
   struct NXSRadioWireState state;
   double scale;
-  int created,focused;
+  int created,focused,tracking;
 };
 static void native_radio_binding_free_items(NXSRadioItem *items,unsigned count)
 {for(unsigned i=0;i<count;i++)free((void *)items[i].title);free(items);}
@@ -59,4 +59,23 @@ static void native_radio_binding_destroy(struct NXSRadioBinding *binding)
 {
   if(binding->created&&binding->epoch==atomic_load(&native_host_epoch))native_radio_request(binding->control,6,0,0,1);
   native_radio_binding_free_items(binding->items,binding->count);memset(binding,0,sizeof(*binding));
+}
+/* Pointer coordinates come from the application member. The native matrix
+ * supplies its own cell rectangle; no grid or tracking policy is reproduced. */
+static struct NXSResponse *native_radio_binding_request(struct NXSRadioBinding *binding,uint64_t member,
+  struct NXSRectD *rectangle,unsigned operation,double width,double height,double x,double y,unsigned modifiers)
+{
+  if(operation==1||(operation==5&&!binding->tracking))return native_radio_item_draw(binding->control,member,width,height);
+  if(operation==2) {
+    if(!native_radio_item_draw(binding->control,member,width,height)||!native_radio_item_rect(binding->control,member,rectangle))return NULL;
+  }
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),
+    .kind=NXS_RADIOGROUP,.control=binding->control,.x=x+rectangle->x,.y=y+rectangle->y,.modifiers=modifiers};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  if(operation==2)binding->tracking=response&&response->parts[0].y;
+  if((operation==4||operation==5)&&response&&!response->parts[0].y) {
+    binding->tracking=0;
+    if(native_radio_state(binding->control,&binding->state))response=native_radio_request(binding->control,44,0,0,1);
+  }
+  return response;
 }

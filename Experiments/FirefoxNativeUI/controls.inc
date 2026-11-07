@@ -10,6 +10,8 @@ struct Widget {
   struct Widget *next;
   void *frame,*node;
   uint64_t id;
+  uint64_t radio_owner,radio_member;
+  struct NXSRectD radio_rect;
   int kind,painted;
   double width,height,actions;
   uint32_t *button_pixels;int button_width,button_height,button_label_owned,button_focused;
@@ -28,6 +30,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
+static int radio_groups_enabled;
 static int multiline_enabled;
 static int multiline_viewport_enabled;
 static int wheel_enabled;
@@ -43,6 +46,10 @@ static struct {void *event,*node;int allowed;} click_gate;
 static double preferred_width[4],preferred_height[4];
 static __thread int metric_probe;
 static void reset_widget_process(void);
+static void gecko_radio_reset_process(void);
+static struct NXSResponse *gecko_radio_request(struct Widget *,unsigned,double,double,unsigned);
+static int gecko_radio_click_allowed(struct Widget *);
+static uint32_t gecko_radio_key(struct Widget *,void *,void *);
 static char *utf8_text(const uint16_t *,uint32_t);
 static int prepare_button_image(void *);
 static struct Widget *bind_input_widget(void *);
@@ -116,6 +123,7 @@ static void invalidate_widget(struct Widget *w) {
   ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,1);
 }
 static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
+  if(w->kind==NXS_RADIO&&radio_groups_enabled)return gecko_radio_request(w,operation,x,y,modifiers);
   uint64_t state=((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=w->kind,.control=w->id,.width=w->width,.height=w->height,
@@ -136,6 +144,7 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
   free(title);return response;
 }
 static struct NXSResponse *widget_sync(struct Widget *w) {
+  if(w->kind==NXS_RADIO&&radio_groups_enabled)return widget_request(w,1,0,0,0);
   if(text_kind(w->kind))return sync_text_widget(w);
   if(w->button_reflow_pending)return widget_request(w,5,0,0,0);
   struct NXSResponse *response=widget_request(w,1,0,0,0);
@@ -162,6 +171,7 @@ static void drain_widget_notifier(void) {
 }
 static void reset_widget_process(void) {
   if(widget_pid!=getpid()) {
+    gecko_radio_reset_process();
     remove_text_watch();
     while(widgets){struct Widget *next=widgets->next;free(widgets->button_pixels);free(widgets->button_model_title);free(widgets);widgets=next;}
     active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
@@ -343,6 +353,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
       }
       click_gate.event=event;click_gate.node=w->node;
       click_gate.allowed=response&&!response->parts[0].y&&response->parts[0].width>w->actions;
+      if(w->kind==NXS_RADIO&&radio_groups_enabled)click_gate.allowed=click_gate.allowed&&gecko_radio_click_allowed(w);
       invalidate_widget(w);
     }
   }
@@ -441,6 +452,7 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
   if(!w||!w->painted||message<2||message>4||!(*(uint8_t *)((char *)event+48)&1)||*status==1||!widget_focused(w))
     return original(node,visitor);
   if(message==2)return w->kind==NXS_SLIDER&&w->range_keypress?original(node,visitor):0;
+  if(w->kind==NXS_RADIO&&radio_groups_enabled)return gecko_radio_key(w,event,visitor);
   struct NXSResponse *response=widget_sync(w);
   if(!response||!response->parts[2].x)return original(node,visitor);
   double actions=response->parts[0].width;
@@ -507,6 +519,7 @@ static void active_shell(void *shell,int active) {
   original_active(shell,active);
 }
 #include "buttons.inc"
+#include "radios.inc"
 #include "ranges.inc"
 #include "text.inc"
 #include "viewport.inc"
@@ -531,6 +544,8 @@ static void prepare_widget_metrics(void) {
     preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
   }
   widgets_enabled=1;
+  const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
+  radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3;
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;

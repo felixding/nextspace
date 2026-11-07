@@ -23,6 +23,7 @@ static int log_fd=-1,installed;
 static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),message);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
+#include "../../Libraries/NativeUI/Bridge/Radios.inc"
 static void writable(void *p,size_t size,int protect) {
   uintptr_t start=(uintptr_t)p&~(uintptr_t)(getpagesize()-1);
   size_t length=((uintptr_t)p+size-start+getpagesize()-1)&~(size_t)(getpagesize()-1);
@@ -180,6 +181,7 @@ static void install(void) {
   if(multiline_viewport_enabled&&(!guard_viewport_calls()||!prepare_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours)))){note("Gecko viewport guard failed; unchanged");return;}
   if(wheel_enabled&&(!guard_wheel_calls()||!prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours)))){note("Gecko wheel guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
+  if(radio_groups_enabled&&!guard_radio_calls()){note("Gecko radio group guard failed; unchanged");return;}
   if((buttons_enabled||popups_requested)&&(!guard_html_button_calls()||!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours)))){note("Gecko button guard failed; unchanged");return;}
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}

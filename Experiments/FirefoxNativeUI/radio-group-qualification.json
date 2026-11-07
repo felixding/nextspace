@@ -1,0 +1,310 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "d7404a81",
+  "status": "opt-in-pinned-firefox-one-column-groups-partially-qualified",
+  "candidate_flag": "NEXTSPACE_FIREFOX_RADIO_GROUPS=1",
+  "prerequisites": [
+    "NEXTSPACE_FIREFOX_INPUT=1",
+    "shared radio wire capability3"
+  ],
+  "candidate_files": {
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-radio-groups-03-hook.so",
+      "bytes": 159584,
+      "sha256": "2ec1035234a61a900b1f5a29abdd55e2a2c0ed6b44b850741890a515986e38ec"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-radio-groups-05-hook.so",
+      "bytes": 165536,
+      "sha256": "0bf7f3d81b62008cd38107189fd5bce2bc9a32297f6d9482a7f9dd3394668da1"
+    },
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 102296,
+      "sha256": "3df83715945723d1a22787643731b2a9bf87f5199d2302854c24248bb17fadb3"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 449440,
+      "sha256": "2b2bf4309c7a1f2ffc4c67a37d05fee6592157dd19ba1e626d6b936cc63df053"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/libnextspace-native-scroller.so.0.1",
+      "bytes": 81264,
+      "sha256": "f7c351804aa9d773ccdadcf5065b7f66c3e1fa6234f1566a4332489f39195e54"
+    },
+    "transport_probe": {
+      "path": "/var/tmp/nextspace-native-ui/radio-transport-03/native-ui/native-radio-transport-probe",
+      "bytes": 127272,
+      "sha256": "871334e84f2bd0fe539b4a9b48796be06754f1249863a4eb53e202e17c698a68"
+    }
+  },
+  "native_ui_abi_bytes": 520,
+  "verification": {
+    "runs": {
+      "firefox_groups": {
+        "path": "/var/tmp/nxs-firefox-radio-groups-04",
+        "results_file": "radio-results.json",
+        "checks": 40,
+        "native_images": 15,
+        "results_sha256": "76b7e1b4d4a084762a7e87a8da87a13a9efc8909c048f2cb786cee3fc0924b68",
+        "reused_previous_evidence": false
+      },
+      "firefox_text": {
+        "path": "/var/tmp/nxs-firefox-radio-groups-04",
+        "results_file": "text-results.json",
+        "checks": 12,
+        "native_images": 6,
+        "results_sha256": "b3264e464cc8b783a4355559e0740122334daa52813e7b031bd274f84dbca977",
+        "reused_previous_evidence": false
+      },
+      "firefox_popup": {
+        "path": "/var/tmp/nxs-firefox-radio-groups-04",
+        "results_file": "popup-results.json",
+        "checks": 74,
+        "native_images": 29,
+        "results_sha256": "c6dadf538ab7a6cedacfb407ee5440f84090c976c948f87acc26b0e77fa2018f",
+        "reused_previous_evidence": false
+      },
+      "chromium_groups": {
+        "path": "/var/tmp/nxs-chromium-radio-groups-05",
+        "results_file": "radio-results.json",
+        "checks": 40,
+        "native_images": 15,
+        "results_sha256": "a935c63f3e8683f859b29618876034c655c2dad72ea139e4a26236dc33dc0595",
+        "reused_previous_evidence": false
+      },
+      "chromium_button_text": {
+        "path": "/var/tmp/nxs-chromium-radio-groups-05",
+        "results_file": "button-results.json",
+        "checks": 55,
+        "native_images": 24,
+        "results_sha256": "0b1ecd48bb1046b968c669a2f2f61ea82af80e8dcbdac1c1fcf998693d3b3e24",
+        "reused_previous_evidence": false
+      },
+      "firefox_input_buttons": {
+        "path": "/var/tmp/nxs-firefox-radio-button-regression-02",
+        "results_file": "checks/results.json",
+        "checks": 54,
+        "native_images": 33,
+        "results_sha256": "a8fd07c65d76f1e0b6d50e2bdef7636513d70ecd435d47bc85e9495f6c28f2a0",
+        "reused_previous_evidence": false
+      },
+      "unchanged_transport": {
+        "path": "/var/tmp/nxs-radio-browser-transport-01",
+        "results_file": "results.json",
+        "checks": 139,
+        "native_images": 34,
+        "results_sha256": "d1807080e6aa596b9f0bc613eb42f5b5017abd6b31813b317767466cc83f186b",
+        "reused_previous_evidence": true
+      }
+    },
+    "new_scoped_check_rows": 275,
+    "new_whole_native_image_comparisons": 122,
+    "browser_group_scale": 1,
+    "previous_unchanged_transport_densities": [
+      1,
+      2
+    ]
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "live_owned": [],
+    "package_count": 1050,
+    "cleanup": {
+      "nxs-firefox-radio-groups-01": {
+        "exits": [
+          0,
+          -15,
+          255
+        ],
+        "capture_exit": -15
+      },
+      "nxs-firefox-radio-groups-02": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-firefox-radio-groups-03": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-firefox-radio-groups-04": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-firefox-radio-baseline-01": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-radio-groups-05": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      }
+    },
+    "notices": [
+      {
+        "path": "/var/tmp/nxs-firefox-radio-groups-04/helper.stderr",
+        "text": "WARNING: system time changed by -2 seconds: Sat Nov  7 15:01:37 2026\n\n"
+      },
+      {
+        "path": "/var/tmp/nxs-chromium-radio-groups-05/helper.stderr",
+        "text": "WARNING: system time changed by -2 seconds: Sat Nov  7 14:58:57 2026\n\n"
+      },
+      {
+        "path": "/var/tmp/nxs-firefox-radio-button-regression-02/helper.stderr",
+        "text": "2026-11-07 15:12:57.147 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10.000000\n2026-11-07 15:12:57.166 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10.000000\n2026-11-07 15:12:57.181 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 118.000000\n2026-11-07 15:12:57.181 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 18.000000\n2026-11-07 15:12:57.184 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 107.000000\n2026-11-07 15:12:57.184 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 24.000000\n2026-11-07 15:12:57.187 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 117.000000\n2026-11-07 15:12:57.188 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 19.000000\n2026-11-07 15:12:57.191 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 1.000000\n2026-11-07 15:12:57.191 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:12:57.194 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:12:57.194 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:09.837 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 75.000000\n2026-11-07 15:13:09.838 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:09.846 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 90.000000\n2026-11-07 15:13:09.846 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:09.854 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:09.856 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:09.864 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:09.868 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:09.890 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:09.890 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:09.894 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:09.894 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:10.552 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:10.552 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:10.565 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:10.565 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:10.579 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:10.579 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:10.587 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:10.587 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:10.606 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:10.606 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:10.629 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:10.629 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:10.863 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:10.863 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:11.122 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.122 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:11.127 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.127 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:11.130 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.130 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:11.133 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:11.133 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:11.139 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:11.139 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:11.272 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.272 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:11.547 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:11.547 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:11.552 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.552 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:11.562 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.563 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:11.567 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.567 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:11.572 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:11.572 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:11.577 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.577 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:11.968 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:11.968 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:11.980 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:11.980 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:11.985 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:11.985 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:11.993 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 89.000000\n2026-11-07 15:13:11.994 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:11.998 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:11.998 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:12.006 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:12.006 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:12.278 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:12.278 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:12.282 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.282 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:12.284 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.284 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:12.288 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:12.288 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:12.298 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.299 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:12.302 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:12.302 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:12.737 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.738 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:12.742 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.742 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:12.745 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.745 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:12.762 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:12.762 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:12.764 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.765 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:12.774 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:12.774 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:13.169 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:13.170 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:13.185 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:13.185 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:13.207 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:13.207 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:13.216 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:13.216 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:13.240 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:13.240 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:13.260 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 65.000000\n2026-11-07 15:13:13.260 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:14.497 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:14.499 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:14.507 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:14.507 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:14.514 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:14.514 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:14.523 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:14.523 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:14.535 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:14.535 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:14.545 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:14.545 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:16.212 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:16.212 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:16.218 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.218 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:16.222 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.223 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:16.227 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.227 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:16.234 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.234 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:16.240 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:16.240 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:16.630 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.630 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:16.636 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:16.636 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:16.642 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.642 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:16.645 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:16.645 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:16.650 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:16.650 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:16.656 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:16.656 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:17.197 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:17.198 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:17.202 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.203 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.208 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:17.209 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:17.212 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.212 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.223 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:17.223 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:17.228 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.228 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.673 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:17.673 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:17.678 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:17.678 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:17.686 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:17.686 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:17.694 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:17.694 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:17.702 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:17.702 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:17.709 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:17.709 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:18.899 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:18.899 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:18.902 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:18.902 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:18.906 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:18.906 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:18.908 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:18.908 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:18.911 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:18.911 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:18.913 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:18.914 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:19.179 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.179 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:19.183 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.183 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:19.187 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 229.000000\n2026-11-07 15:13:19.187 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:19.190 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.190 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.198 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.198 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:19.204 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.204 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:19.699 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.699 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.701 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.701 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:19.704 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.704 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.708 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.708 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:19.711 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:19.711 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:19.713 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.713 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:19.831 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:19.832 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:20.423 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:20.423 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:20.427 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.427 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.429 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.429 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.430 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:20.430 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:20.434 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:20.434 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:20.435 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:20.435 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:20.629 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:20.630 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:20.631 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.631 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.634 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:20.634 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:20.639 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:20.640 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:20.644 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.644 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:20.646 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 63.000000\n2026-11-07 15:13:20.646 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:21.053 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:21.053 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:21.057 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.057 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:21.060 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:21.060 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:21.062 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.062 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:21.064 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:21.064 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:21.066 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 0.000000\n2026-11-07 15:13:21.066 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 0.000000\n2026-11-07 15:13:21.557 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.557 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:21.565 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.565 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:21.569 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.569 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:21.572 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.573 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:21.575 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:21.575 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:21.577 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:21.577 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:22.372 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:22.372 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:22.391 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 15:13:22.391 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 15:13:22.397 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:22.398 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:22.402 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:22.402 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 23.000000\n2026-11-07 15:13:22.404 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 144.000000\n2026-11-07 15:13:22.405 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 15:13:22.409 python3[157817:157817] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 149.000000\n2026-11-07 15:13:22.409 python3[157817:157817] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n"
+      },
+      {
+        "path": "/var/tmp/nxs-firefox-radio-button-regression-02/firefox.stderr",
+        "text": "[Parent 157818, IPC I/O Parent] WARNING: process 157958 exited on signal 9: file ipc/chromium/src/chrome/common/process_watcher_posix_sigchld.cc:161\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\n"
+      }
+    ],
+    "adapters_have_no_ui_toolkit_dependency": true,
+    "input_button_lifetime": {
+      "sandbox": [
+        {
+          "pid": 157958,
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 158140,
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "native_created": 188,
+      "native_destroyed": 181,
+      "helper_loss": {
+        "helper_exit": -9,
+        "value": 2,
+        "engine_action": "Activated",
+        "elapsed_seconds": 0.9678786380100064,
+        "native_objects_reclaimed_by_helper_exit": 7,
+        "mouse_and_key_retained": true
+      },
+      "renderer_crash": {
+        "pid": 157958,
+        "seccomp": 2,
+        "no_new_privs": 1,
+        "native_objects_released": 7,
+        "kernel_owner_exit": true
+      },
+      "firefox_sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    }
+  },
+  "baseline_confirmed_button_gap": {
+    "prior_adapter": {
+      "path": "/var/tmp/nxs-firefox-radio-baseline-01/button-text-results.json",
+      "sha256": "6dd051c995ed1e4de67874ecea8806145b7edd2609d2b36939875f5cb3a2d564",
+      "result": {
+        "case": "flex-native-size",
+        "passed": false,
+        "preferred": [
+          86,
+          20
+        ],
+        "expected": [
+          86,
+          20
+        ],
+        "actual": {
+          "x": 214,
+          "y": 501.433349609375,
+          "width": 87.43333435058594,
+          "height": 20,
+          "top": 501.433349609375,
+          "right": 301.43333435058594,
+          "bottom": 521.433349609375,
+          "left": 214
+        }
+      }
+    },
+    "group_adapter": {
+      "path": "/var/tmp/nxs-firefox-radio-groups-03/button-text-results.json",
+      "sha256": "6dd051c995ed1e4de67874ecea8806145b7edd2609d2b36939875f5cb3a2d564",
+      "result": {
+        "case": "flex-native-size",
+        "passed": false,
+        "preferred": [
+          86,
+          20
+        ],
+        "expected": [
+          86,
+          20
+        ],
+        "actual": {
+          "x": 214,
+          "y": 501.433349609375,
+          "width": 87.43333435058594,
+          "height": 20,
+          "top": 501.433349609375,
+          "right": 301.43333435058594,
+          "bottom": 521.433349609375,
+          "left": 214
+        }
+      }
+    }
+  },
+  "observations": [
+    "Each browser passes 40 group checks and 15 complete native member images. Original grouping covers forms, independent unnamed fields, unowned groups, shadow scopes, disabled/hidden data and externally associated members.",
+    "Native arrow navigation, disabled skipping/stopping boundaries, Shift key/selection separation, Space, focus and normal enabled pointer activation use actual seat input. There are exactly 6 live native matrices and no individual kind 3 radio views.",
+    "Focus callbacks removing, regrouping or changing target type cancel stale activation. Original trusted events, original click cancellation and rollback remain intact. Detach/reinsert follows each engine original identity policy rather than imposing one policy.",
+    "Firefox text 12/6 images and popup 74/29 images pass. Chromium button/text 55/24 images pass. Firefox dedicated input-button suite passes 54/33 images including original form actions; renderer crash releases 7 controls and helper loss preserves original input. This does not establish group recovery.",
+    "A broader shared HTML button suite fails automatic inline-flex sizing: native preferred 86x20, original rendered 87.43333435058594x20. Both previous production adapter and this group candidate fail the identical eighteenth row after 17 passes. Expected dimensions were not changed.",
+    "The first independent input-button regression observation ended with only 41 passing rows and no final lifetime report; that incomplete run is retained, not counted as a qualified 54-row result. The second independently owned run terminates successfully with the complete report.",
+    "Final owned fixtures stopped. Chromium exits0; Firefox and helpers/captures are intentionally stopped with SIGTERM. Startup diagnostic 01 could not load libatk until its private dependency path was added. Actual cleanup values and stderr notices are retained."
+  ],
+  "open": [
+    "Existing Firefox HTML inline-flex automatic size gap described above; the broader shared button suite remains failing.",
+    "Complete pointer semantics, disabled/outside-release native actions and label activation; only ordinary enabled pointer activation is qualified here.",
+    "Layout topology beyond one native column, CSS visibility variants, large groups and efficient member rendering. The host currently renders a full matrix for each member image.",
+    "Actual browser zoom/mixed/fractional/HiDPI mapping and group recovery through the session supervisor. Cached epochs and standalone helper loss do not prove browser group recovery.",
+    "Remaining browser controls, detached menus and native shortcuts, accessibility and IME, derivatives and installed deployment; GTK/Qt/KDE follow browser work over the same shared layer."
+  ],
+  "source_audit": "radio-group-source-audit.json"
+}

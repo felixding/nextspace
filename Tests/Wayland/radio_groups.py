@@ -6,8 +6,8 @@ from native_popup_fixture import PopupFixture
 
 class RadioFixture(PopupFixture):
  def model(self,first,shadow=False):
-  root=self.identify(first,shadow)
   def read():
+   root=self.identify(first,shadow)
    records=[json.loads(line) for line in (self.root/'hook.log').read_text().splitlines() if line.startswith('{') and line.endswith('}')]
    return next((row for row in reversed(records) if row.get('event')=='native-radio-model' and row.get('root')==root),None)
   return self.wait(read)
@@ -28,9 +28,9 @@ class RadioFixture(PopupFixture):
 
 def run(f):
  js,check=f.js,f.check
- def clear():js('events=[];return true')
+ def clear():js('window.events=[];return true')
  def select(identifier,focus=None):
-  js('document.getElementById('+json.dumps(identifier)+').checked=true;document.getElementById('+json.dumps(focus or identifier)+').focus();events=[];return true')
+  js('document.getElementById('+json.dumps(identifier)+').checked=true;document.getElementById('+json.dumps(focus or identifier)+').focus();window.events=[];return true')
  def action(code,identifier,selected,changes=1,clicks=1):
   clear();f.key(code);s=f.state();events=s['events']
   change=[e for e in events if e['type'] in ['input','change']];click=[e for e in events if e['type']=='click']
@@ -73,10 +73,10 @@ def run(f):
  s=f.state();check('native-matrix-pointer-original-trusted-activation',len([e for e in s['events'] if e['type']=='click'])==1 and len([e for e in s['events'] if e['type'] in ['input','change']])==2 and all(e['trusted'] for e in s['events']),state=s)
  f.pixels('r2',members,'r2','r2',True,label='pointer-selected-r2')
  old=f.model('r0')['control']
- js("window.retained=document.getElementById('r0').parentElement;retained.remove();return true")
+ js("window.retained=document.getElementById('r0').parentElement;window.retained.remove();return true")
  f.wait(lambda:f.model('r1')['total']==4)
- js("document.getElementById('main').prepend(retained);document.getElementById('r0').checked=true;document.getElementById('r0').focus();return true")
- f.wait(lambda:f.model('r0')['control']!=old)
+ js("document.getElementById('main').prepend(window.retained);document.getElementById('r0').checked=true;document.getElementById('r0').focus();return true")
+ f.wait(lambda:(f.model('r0')['control']!=old)==getattr(f,'reinsert_recreates_group',True))
  action(108,'r2','r2');f.pixels('r2',members,'r2','r2',True,label='reinserted-owner-r2')
  js("const e=document.createElement('input');e.type='radio';e.id='external';e.name='choice';e.setAttribute('form','main');document.body.append(e);document.getElementById('r3').checked=true;document.getElementById('r3').focus();return true")
  f.wait(lambda:f.model('r0')['total']==6)
@@ -90,3 +90,4 @@ def run(f):
    if row['event']=='native-form-control':live.add(key)
    elif row['event']=='native-form-destroy':live.discard(key)
  check('one-native-matrix-per-live-engine-group',len(live)==6 and not any(row['event']=='native-form-control' and row.get('kind')==3 for row in records),live_groups=len(live))
+ check('modifier-keys-use-native-flags-changed',len([row for row in records if row['event']=='native-form-key' and row.get('kind')==12 and row.get('type')==2])>=2)
