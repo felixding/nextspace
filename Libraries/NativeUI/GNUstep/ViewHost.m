@@ -71,7 +71,7 @@ static void end_draw_density(struct NXSDrawDensity *scope)
   if(scope->window){object_setClass(scope->window,scope->original);draw_density=scope->previous;[scope->window release];}
 }
 static BOOL native_backing(NSView *view)
-{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:[NSMatrix class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
+{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:[NSMatrix class]]||[view isKindOfClass:[NSBrowser class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
 static NSView *focus_view(NXSViewHost *host)
 {return [host->view isKindOfClass:[NSScrollView class]]?[(NSScrollView *)host->view documentView]:host->view;}
 static NXSMenuLoop *menu_loop;
@@ -548,11 +548,11 @@ int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifi
   /* Native cells may prepare their track/knob geometry while drawing. An
    * offscreen host has no automatic display pass between resize and input;
    * let the native view finish that pass instead of reproducing its layout. */
-  if([control->view needsDisplay])nxs_host_draw(control,1);
+  if([control->view needsDisplay])nxs_host_draw(control,[control->window backingScaleFactor]);
   active = control; control->tracking = YES;control->modifiers=modifiers;control->release_queued=NO;control->click_count=clicks;
   NSEvent *event=mouse(control,NSLeftMouseDown,x,y,modifiers);control->pointer=[event locationInWindow];
   NSView *target=control->view;
-  if([target isKindOfClass:[NSScrollView class]]||[target isKindOfClass:NSClassFromString(@"GSToolbarView")])
+  if([target isKindOfClass:[NSScrollView class]]||[target isKindOfClass:[NSBrowser class]]||[target isKindOfClass:NSClassFromString(@"GSToolbarView")])
     target=[target hitTest:[[target superview] convertPoint:[event locationInWindow] fromView:nil]];
   @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:target]; }
   @finally { control->tracking = NO; active = NULL; }
@@ -593,7 +593,7 @@ int nxs_host_focused(NXSViewHost *host)
 {
   if(!host||focused!=host)return 0;
   NSResponder *responder=[host->window firstResponder];
-  return responder==focus_view(host)||([host->view isKindOfClass:[NSControl class]]&&
+  return responder==focus_view(host)||([responder isKindOfClass:[NSView class]]&&[(NSView *)responder isDescendantOf:host->view])||([host->view isKindOfClass:[NSControl class]]&&
     [(NSControl *)host->view currentEditor]==responder);
 }
 int nxs_host_focus(NXSViewHost *host,int focus)

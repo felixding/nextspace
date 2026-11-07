@@ -1,6 +1,11 @@
 /* GNUstep binding declarations, private to this provider. GPL-2.0-or-later. */
 #include "../NativeUI.h"
 int nxs_gnustep_control_perform_click(NXSControl *,uint64_t);
+int nxs_gnustep_control_list_items(NXSControl *,const NXSListItem *,uint32_t,unsigned,uint64_t);
+NXSListState nxs_gnustep_control_list_state(NXSControl *);
+size_t nxs_gnustep_control_list_selection(NXSControl *,uint64_t *,size_t);
+NXSRect nxs_gnustep_control_list_item_rect(NXSControl *,uint64_t);
+int nxs_gnustep_control_list_scroll(NXSControl *,double,double);
 NXSScroller *nxs_gnustep_scroller_create(int,NXSChanged,NXSPump,void *);
 void nxs_gnustep_scroller_destroy(NXSScroller *);
 double nxs_gnustep_scroller_width(void);

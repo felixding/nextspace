@@ -16,10 +16,11 @@ p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
 p.add_argument('--popup-title',action='store_true',help='Qualify popup display titles with the same desktop capture harness')
 p.add_argument('--radio',action='store_true',help='Qualify shared native radio groups against ordinary matrices')
+p.add_argument('--list',action='store_true',help='Qualify shared native lists against ordinary NSBrowser controls')
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
-binary='native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
-reference_title='Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
-images=13 if a.radio else 8 if a.popup_title else 5
+binary='native-list-probe' if a.list else 'native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
+reference_title='Native list reference ' if a.list else 'Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
+images=13 if a.list else 13 if a.radio else 8 if a.popup_title else 5
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)
@@ -56,7 +57,27 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
        title=reference_title+event['name']
        window=until(lambda:next((w for w in command('windows') if w['pid']==actor.pid and w['title']==title and w['visible'] and w['focused']),None),'native reference activation')
        assert command(f"move {window['id']} 20 20")['ok']
+       if a.list:assert command('pointer 600 340')['ok']
        actor.stdin.write(b'ready\n');actor.stdin.flush()
+      elif event.get('event')=='reference-key-ready':
+       window=until(lambda:next((w for w in command('windows') if w['pid']==actor.pid and w['title']==event['title'] and w['visible']),None),'native key reference')
+       assert command(f"focus {window['id']}")['ok']
+       try:
+        if event['modifiers']&1:assert command('key 42 1')['ok']
+        for down in (1,0):assert command(f"key {event['code']} {down}")['ok']
+       finally:
+        if event['modifiers']&1:assert command('key 42 0')['ok']
+       actor.stdin.write(b'key-done\n');actor.stdin.flush()
+      elif event.get('event')=='reference-pointer-ready':
+       window=until(lambda:next((w for w in command('windows') if w['pid']==actor.pid and w['title']==event['title'] and w['visible']),None),'native pointer reference')
+       assert command(f"focus {window['id']}")['ok']
+       assert command(f"pointer {round(window['x']+event['x'])} {round(window['y']+event['y'])}")['ok']
+       try:
+        if event['modifiers']&1:assert command('key 42 1')['ok']
+        assert command('button 272 1')['ok'];assert command('button 272 0')['ok']
+       finally:
+        if event['modifiers']&1:assert command('key 42 0')['ok']
+       actor.stdin.write(b'pointer-done\n');actor.stdin.flush()
       elif event.get('event')=='reference':
        title=reference_title+event['name']
        def reference():
@@ -85,10 +106,10 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
   if a.previous_provider:
    old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_provider))
    with (a.output/'previous-provider.stdout').open('w') as stdout,(a.output/'previous-provider.stderr').open('w') as stderr:
-    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-radio' if a.radio else '--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-list' if a.list else '--expect-no-radio' if a.radio else '--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=15)
     except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
-   rows.append(dict(case='previous-provider-without-'+('radio-groups' if a.radio else 'popup-title' if a.popup_title else 'tabs'),passed=code==0))
+   rows.append(dict(case='previous-provider-without-'+('lists' if a.list else 'radio-groups' if a.radio else 'popup-title' if a.popup_title else 'tabs'),passed=code==0))
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
   if a.previous_group_provider:
    assert a.radio

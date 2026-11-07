@@ -53,6 +53,18 @@ void nxs_control_track(NXSControl *c,double x,double y,unsigned m)
 void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_send(c,event,x,y,m);}
 #define HAS_INPUT(p, field) ((p) && (p)->size >= offsetof(NXSNativeUIAPI, field)+sizeof((p)->field) && (p)->field)
+unsigned nxs_control_list_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_items)&&HAS_INPUT(p,control_list_state)&&HAS_INPUT(p,control_list_selection)&&HAS_INPUT(p,control_list_item_rect)&&HAS_INPUT(p,control_list_scroll)?NXS_LIST_ITEMS:0;}
+int nxs_control_list_items(NXSControl *c,const NXSListItem *items,uint32_t count,unsigned flags,uint64_t key)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_items)?p->control_list_items(c,items,count,flags,key):0;}
+NXSListState nxs_control_list_state(NXSControl *c)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_state)?p->control_list_state(c):(NXSListState){.size=sizeof(NXSListState)};}
+size_t nxs_control_list_selection(NXSControl *c,uint64_t *items,size_t capacity)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_selection)?p->control_list_selection(c,items,capacity):0;}
+NXSRect nxs_control_list_item_rect(NXSControl *c,uint64_t id)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_item_rect)?p->control_list_item_rect(c,id):(NXSRect){0};}
+int nxs_control_list_scroll(NXSControl *c,double x,double y)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_scroll)?p->control_list_scroll(c,x,y):0;}
 double nxs_control_backing_scale(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_backing_scale)?p->control_backing_scale(c):0;}
 unsigned nxs_control_activation_capabilities(void)

@@ -54,7 +54,12 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_radio_item_rect=nxs_gnustep_control_radio_item_rect,
     .control_radio_cell_size=nxs_gnustep_control_radio_cell_size,
     .control_backing_scale=nxs_gnustep_control_backing_scale,
-    .control_perform_click=nxs_gnustep_control_perform_click
+    .control_perform_click=nxs_gnustep_control_perform_click,
+    .control_list_items=nxs_gnustep_control_list_items,
+    .control_list_state=nxs_gnustep_control_list_state,
+    .control_list_selection=nxs_gnustep_control_list_selection,
+    .control_list_item_rect=nxs_gnustep_control_list_item_rect,
+    .control_list_scroll=nxs_gnustep_control_list_scroll
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

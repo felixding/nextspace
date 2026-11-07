@@ -22,7 +22,8 @@ enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
-  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR, NXS_RADIOGROUP
+  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR, NXS_RADIOGROUP,
+  NXS_LISTBOX
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 typedef struct {
@@ -49,6 +50,21 @@ typedef struct {
   uint32_t size,count,rows,columns;
   uint64_t selected,key_cell,actions;
 } NXSRadioState;
+
+enum NXSListCapability { NXS_LIST_ITEMS = 1 };
+enum NXSListFlag { NXS_LIST_MULTIPLE = 1 };
+typedef struct {
+  uint32_t size;
+  uint64_t identifier;
+  const char *title;
+  int enabled,selected;
+} NXSListItem;
+typedef struct {
+  uint32_t size,count,selected_count,flags;
+  uint64_t primary,key_cell,actions;
+  NXSRect visible; /* Original native document coordinates. */
+  NXSSize content;
+} NXSListState;
 
 enum NXSTabCapability { NXS_TAB_ITEMS = 1 };
 typedef struct {
@@ -272,6 +288,11 @@ typedef struct {
   int (*control_radio_cell_size)(NXSControl *,double,double);
   double (*control_backing_scale)(NXSControl *);
   int (*control_perform_click)(NXSControl *,uint64_t);
+  int (*control_list_items)(NXSControl *,const NXSListItem *,uint32_t,unsigned,uint64_t);
+  NXSListState (*control_list_state)(NXSControl *);
+  size_t (*control_list_selection)(NXSControl *,uint64_t *,size_t);
+  NXSRect (*control_list_item_rect)(NXSControl *,uint64_t);
+  int (*control_list_scroll)(NXSControl *,double,double);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -280,6 +301,19 @@ typedef struct {
  * NEXTSPACE_NATIVE_UI_PROVIDER before the first call. */
 const NXSNativeUIAPI *nxs_native_ui_api(void);
 const char *nxs_native_ui_error(void);
+unsigned nxs_control_list_capabilities(void);
+/* Supply flat application rows to the original native list control. Unique,
+ * nonzero identifiers and selection are data; native controls own navigation,
+ * multi-selection, tracking and scrollbars. No action is emitted by sync.
+ * key_cell is zero for native selection-derived focus, or a supplied row ID.
+ * Model/scroll mutation during native tracking is rejected. */
+int nxs_control_list_items(NXSControl *,const NXSListItem *,uint32_t count,unsigned flags,uint64_t key_cell);
+NXSListState nxs_control_list_state(NXSControl *);
+/* Returns required capacity; writes the complete selection only when it fits.
+ * NULL with zero capacity queries the count. IDs retain all 64 bits. */
+size_t nxs_control_list_selection(NXSControl *,uint64_t *,size_t capacity);
+NXSRect nxs_control_list_item_rect(NXSControl *,uint64_t identifier);
+int nxs_control_list_scroll(NXSControl *,double x,double y);
 NXSControl *nxs_control_create(int kind, NXSControlChanged changed, NXSPump pump, void *context);
 int nxs_control_destroy(NXSControl *control);
 int nxs_control_sync(NXSControl *control, const NXSControlConfig *config);

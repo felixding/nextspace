@@ -83,7 +83,7 @@ The optional wheel extension appends one function to ABI 1 (416 to 424 bytes
 on ARM64). Query `nxs_control_wheel_capabilities()` before calling
 `nxs_control_wheel()`. Its size-tagged 40-byte event carries top-left control
 coordinates, physical modifiers and unaccelerated surface distances, positive
-right/down. The GNUstep provider currently accepts multiline controls, performs
+right/down. The GNUstep provider accepts multiline and flat-list controls, performs
 native hit testing independently of keyboard focus, applies the native mouse
 multiplier and dispatches to the actual responder. `NSScrollView` supplies
 scrolling policy and clamping. Busy, invalid and unsupported input returns zero;
@@ -94,7 +94,7 @@ transport, browser and compatibility checks are recorded in
 
 The API supports native push buttons, checkboxes, radio buttons, sliders,
 progress indicators, popup buttons/menus, single-line text/password fields,
-multiline text areas and the existing scrollbar contract. Normal/disabled state,
+multiline text areas, flat lists and the existing scrollbar contract. Normal/disabled state,
 model updates, native preferred metrics, bitmap output and synchronous mouse
 tracking are exposed. The application owns its data model; the native control
 owns its actual input loop. The event pump services application/transport events
@@ -897,3 +897,33 @@ creating connection, current idle state and exact request shape. It carries the
 existing typed matrix state and preserves the existing sequence field. Browser
 label association/default-action rules stay in each original engine; GTK/Qt/KDE
 can reuse this operation for their own semantic activation boundaries.
+
+
+### Native flat lists
+
+The optional `NXS_LISTBOX` provider binds an ordinary one-column `NSBrowser`.
+Its original `NSBrowserCell`, matrix and scroll views own native drawing,
+selection, keyboard interpretation and scrolling. `GNUstep/List.inc` is only
+a data source and action binding. The bridge and future application adapters
+supply ordered IDs, titles, enabled flags and selected data. They do not
+implement a list control.
+
+The ABI 1 extension appends five methods after the unchanged 528-byte prefix
+(new size 568): model replacement, typed native state, complete selected IDs,
+native row geometry and native scroll positioning. IDs retain all 64 bits.
+Invalid models are rejected before mutation; unchanged models retain native
+cell/key context. Model replacement emits no action, and tracking/callbacks
+reject model mutation and destruction. The original native scrollbar remains
+interactive when rows are disabled. Pointer preparation uses the actual native
+backing density. Older providers return unsupported through the size-checked
+loader, and existing clients keep their original ABI.
+
+Independent ordinary controls receive real Wayland seat pointer/key input;
+full images use a fresh ordinary native list populated from that reference's
+resulting state. This avoids using accumulated transparent-cell damage as the
+image oracle. See [qualification](list-qualification.json).
+
+This is shared provider infrastructure. Browser listbox/multiple-select IPC,
+original DOM transactions, intrinsic layout, broader lifecycle, accessibility
+and deployment remain work. The existing browser adapters, toolbar, address
+bar and tabs are unchanged. Later GTK/Qt/KDE adapters will consume the same API.

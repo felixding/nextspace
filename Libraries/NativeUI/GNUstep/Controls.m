@@ -70,7 +70,7 @@ int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geome
   [pool drain];return 1;
 }
 int nxs_gnustep_control_wheel(NXSControl *control,const NXSWheelEvent *event)
-{return control&&control->kind==NXS_TEXTAREA&&!control->destroying?nxs_host_wheel(control->host,event):0;}
+{return control&&(control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX)&&!control->destroying?nxs_host_wheel(control->host,event):0;}
 static void slider_model(NXSControl *control)
 {
   NSSlider *view=(NSSlider *)control->view;
@@ -178,16 +178,19 @@ static void slider_model(NXSControl *control)
 
 #include "Toolbar.inc"
 #include "Radio.inc"
+#include "List.inc"
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_RADIOGROUP)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_LISTBOX)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_RADIOGROUP) {
+  if(kind==NXS_LISTBOX) {
+    view=list_create(control);
+  } else if(kind==NXS_RADIOGROUP) {
     view=radio_create(control);
   } else if(kind==NXS_TOOLBAR) {
     view=toolbar_create(control);
@@ -227,7 +230,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   if(!control->host){[control->target release];free(control);[pool drain];return NULL;}
   control->kind=kind;control->enabled=1;control->text_editable=YES;control->changed=changed;control->context=context;
   control->text_selection=NSMakeRange(NSNotFound,0);
-  if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR&&kind!=NXS_RADIOGROUP) {
+  if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR&&kind!=NXS_RADIOGROUP&&kind!=NXS_LISTBOX) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
     if(kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:(id)target];
     else if(kind!=NXS_TEXTAREA){[(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];}
@@ -254,7 +257,8 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   }
   NSView *view=[control->view retain];
   if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
-  if(control->kind==NXS_TEXTAREA)[(NSTextView *)[(NSScrollView *)view documentView] setDelegate:nil];
+  if(control->kind==NXS_LISTBOX)[(NSBrowser *)view setDelegate:nil];
+  else if(control->kind==NXS_TEXTAREA)[(NSTextView *)[(NSScrollView *)view documentView] setDelegate:nil];
   else if(control->kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:nil];
   else if(text_control(control))[(NSTextField *)view setDelegate:nil];
   if(control->kind==NXS_POPUP||text_control(control))[[NSNotificationCenter defaultCenter] removeObserver:control->target];
@@ -264,7 +268,7 @@ int nxs_gnustep_control_destroy(NXSControl *control)
 }
 int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
 {
-  if(control&&control->kind==NXS_RADIOGROUP&&nxs_host_tracking(control->host))return 0;
+  if(control&&(control->kind==NXS_RADIOGROUP||control->kind==NXS_LISTBOX)&&nxs_host_tracking(control->host))return 0;
   if(!control||!config||config->size<sizeof(*config)||!isfinite(config->width)||!isfinite(config->height)||
      config->width<1||config->height<1||config->width>32768||config->height>32768||
      !isfinite(config->minimum)||!isfinite(config->maximum)||!isfinite(config->value)||config->minimum>config->maximum||
@@ -286,6 +290,8 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     [view setIndeterminate:!!config->indeterminate];
     if(config->indeterminate&&control->enabled)[view startAnimation:nil];
     else [view stopAnimation:nil];
+  } else if(control->kind==NXS_LISTBOX) {
+    list_enabled(control);
   } else if(control->kind==NXS_RADIOGROUP) {
     radio_enabled(control);
   } else if(control->kind==NXS_TOOLBAR) {
@@ -319,7 +325,9 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
   NXSControlState state={.size=sizeof(state)};
   if(!control)return state;
   state.enabled=control->enabled;state.tracking=nxs_host_tracking(control->host);
-  if(control->kind==NXS_TOOLBAR) {
+  if(control->kind==NXS_LISTBOX) {
+    state.value=[list_matrix(control) selectedRow];state.state=[[list_matrix(control) selectedCells] count]>0;
+  } else if(control->kind==NXS_TOOLBAR) {
     NXSToolbarAction *target=control->target;state.value=-1;
     for(unsigned i=0;i<[target->models count];i++)if([[[target->models objectAtIndex:i] objectForKey:@"id"] unsignedLongLongValue]==target->command){state.value=i;break;}
   } else if(control->kind==NXS_RADIOGROUP) {
@@ -338,15 +346,15 @@ NXSSize nxs_gnustep_control_size(NXSControl *control)
   if(!control)return (NXSSize){0};
   NSSize size=control->kind==NXS_RADIOGROUP?((NXSRadioAction *)control->target)->preferred:
     control->kind==NXS_TOOLBAR?NSMakeSize([control->view frame].size.width,[control->view _heightFromLayout]):control->kind==NXS_TABVIEW?[(NSTabView *)control->view minimumSize]:
-    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
+    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
   return (NXSSize){size.width,size.height};
 }
 NXSBitmap nxs_gnustep_control_draw(NXSControl *control,double scale)
 {return control?nxs_host_draw(control->host,scale):(NXSBitmap){0};}
 void nxs_gnustep_control_track(NXSControl *control,double x,double y,unsigned modifiers)
-{if(control&&control->enabled&&control->kind!=NXS_PROGRESS)nxs_host_track(control->host,x,y,modifiers);}
+{if(control&&(control->enabled||control->kind==NXS_LISTBOX)&&control->kind!=NXS_PROGRESS)nxs_host_track(control->host,x,y,modifiers);}
 int nxs_gnustep_control_track_clicks(NXSControl *control,double x,double y,unsigned modifiers,unsigned clicks)
-{return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_track_clicks(control->host,x,y,modifiers,clicks):0;}
+{return control&&(control->enabled||control->kind==NXS_LISTBOX)&&control->kind!=NXS_PROGRESS?nxs_host_track_clicks(control->host,x,y,modifiers,clicks):0;}
 void nxs_gnustep_control_send(NXSControl *control,int event,double x,double y,unsigned modifiers)
 {if(control)nxs_host_send(control->host,event,x,y,modifiers);}
 static void perform_native_click(NSView *view,void *member)

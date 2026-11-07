@@ -616,3 +616,13 @@ widget behavior and rendering stay in the single underlying UI library.
 Toolbar/address-bar/tab changes, if requested later, are optional per-app
 patches above that shared layer; they are outside the current webpage-control
 work. This separation applies equally to subsequent GTK and Qt/KDE adapters.
+
+
+A shared flat-list provider now instantiates the existing one-column
+`NSBrowser`, including its native cells, matrix and scrollbar. The optional
+ABI 1 extension preserves the 528-byte prefix and appends row-model/state/
+selection/geometry/scroll methods (568 bytes). It supplies data and native
+actions to subsequent consumers without duplicating list selection, layout,
+key interpretation or drawing. See the [provider qualification](../Libraries/NativeUI/list-qualification.json).
+Browser listbox and multiple-select bindings are still unfinished; their shared
+transport and original engine transactions are the next integration work.

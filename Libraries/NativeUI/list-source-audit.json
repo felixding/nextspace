@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "1a1fd48a",
+  "status": "shared-native-list-provider-partially-qualified",
+  "source_sha256": {
+    "Libraries/NativeUI/CMakeLists.txt": "ca650fde41ece4470db9aaafd40178f50df735c601bd5cdf512b77b77022b2fa",
+    "Libraries/NativeUI/GNUstep/Controls.m": "d04f407068cf1dd967141b503a8bfbcf1500c164da3e9ed5a055c2185e22e2e2",
+    "Libraries/NativeUI/GNUstep/List.inc": "bd7b3acf762054ff80055959577f4f41686e1cb0808424b0bda4b5f69f320692",
+    "Libraries/NativeUI/GNUstep/Provider.h": "f3ccfd711b1c114091bd4304506dcbf0ef4771ac9db107878cdd933ee3a5f594",
+    "Libraries/NativeUI/GNUstep/Provider.m": "407e2c280ea9d7c9727d7d2c761d47610a4d458d69a66bf3ecdacbdb891d3402",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "34eb11fd76e15ea9c8ffc7c7f3ec438ba8bd60a4454a0eabfb87e00366d03e19",
+    "Libraries/NativeUI/Loader.c": "715c65a464c9fe42d95199f95712d58d4a12f1b251bbc95bec99484989e42e21",
+    "Libraries/NativeUI/NativeUI.h": "bbc5b67b4401e682307f51f6ba52e00d2a3b22a2492a3493b98a149536cb2b38",
+    "Libraries/NativeUI/README.md": "9bc0eb48190e670ee3ec145140b0b6ba9c9882062ff21fce2edabb2687bc1757",
+    "Tests/NativeUI/check-tabs.py": "c30d8224200984f5dac2a8597d43f716eade0633aa515789e31ea352746ea154",
+    "Tests/NativeUI/list-probe.m": "73f425ab247de1618c21516229f55cd4a4b151d4110043483e804b5c05359f75",
+    "docs/Native-Control-Integration.md": "d6053b719da902d4d1d8e4d10e3898a446509f59e31405d20693b745e1fb6892"
+  },
+  "upstream_sources": [
+    {
+      "path": "NSBrowser.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSBrowser.m",
+      "sha256": "08ff916c0c868f3a74c98525d0d31ecb17b03c6a602729394ad0c82f807198f8"
+    },
+    {
+      "path": "NSBrowserCell.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSBrowserCell.m",
+      "sha256": "553a9319e14cc437c49e0b446cc30e988bd1a6b0250f953f66ab298e2b1f6b30"
+    },
+    {
+      "path": "NSMatrix.m",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Source/NSMatrix.m",
+      "sha256": "763b2c8fdeacf84fae75cf141ba578945e1a773c935e5c852937653c37d6ab2b"
+    },
+    {
+      "path": "NSBrowser.h",
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/4c1687d2b404f271ce7806dcb80a5b24b5284432/Headers/AppKit/NSBrowser.h",
+      "sha256": "91c459117ff68363f0e65b39d11c1c40bc3fd59e0e52c84fea23a0c23405cd02"
+    }
+  ],
+  "upstream_extracts": [
+    ".build/native-ui/list-control-source/sources.json",
+    ".build/native-ui/list-control-source/NSBrowser.h",
+    ".build/native-ui/list-control-source/NSBrowserCell.m",
+    ".build/native-ui/list-control-source/NSBrowser.m",
+    ".build/native-ui/list-control-source/NSMatrix.m"
+  ],
+  "invariants": [
+    "One ordinary NSBrowser with its original NSBrowserCell/NSMatrix/NSScrollView/NSScroller owns each list. NXSListAction is an NSObject data-source/action delegate; List.inc implements no view/cell, drawing, layout, selection, key interpretation, tracking or scrolling algorithm.",
+    "Unique nonzero uint64 application identities map original ordered rows and native selected/key cells. Model validation precedes mutation. Unchanged data preserves original native cells/key context. Native methods apply canonical selection and key data without an action. Native callbacks/tracking reject model/scroll mutation and destruction.",
+    "ABI 1 preserves the 528-byte prefix and appends list model/state/selection/row geometry/scroll methods, size 568. The loader size-checks each optional method. Real older 528-byte providers report list unsupported; older clients/loaders continue using their supported prefix.",
+    "The view host recognizes the actual native descendant matrix as first responder, uses native browser subview hit testing and native backing readback. Pointer preparation draws at the actual backing density. Disabled list rows remain disabled while their original native scrollbar can still receive pointer input.",
+    "Input comparison uses an independent ordinary list receiving actual Wayland seat keys/pointer events. Image comparison creates a fresh ordinary native list from that reference control's resulting native row/selection/key/scroll state; no provider result supplies the expected selection algorithm. Its complete native image is frozen until screencopy completes.",
+    "Browser adapters and all 20 measured production binaries remain unchanged. No browser/AppKit/backend is rebuilt or replaced; candidates are only the shared provider/loader/shim and probes. Browser listbox transport and engine DOM/layout bindings remain future work on the same shared layer."
+  ]
+}
