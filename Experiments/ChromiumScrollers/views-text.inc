@@ -286,10 +286,10 @@ static int views_command_key(struct ViewsField *f,const void *event) {
   int handled=0;if(text){handled=views_key(f,event,NULL,0,text,0);free(text);}return handled;
 }
 static int views_accelerator_key(void *manager,const void *event) {
-  /* A focused native editor gets its own modified editing commands before
-   * browser accelerators. The UI library decides which commands it handles;
-   * there is no duplicated browser or GNUstep shortcut table here. */
-  if(views_modifiers(event)&(NXS_CONTROL|NXS_ALT|NXS_SUPER))
+  /* Native menus also route keys from the stock address bar. Optional
+   * app-patch editors retain their existing priority without owning the
+   * default browser fields or introducing a shortcut table. */
+  if(views_enabled&&views_modifiers(event)&(NXS_CONTROL|NXS_ALT|NXS_SUPER))
     for(struct ViewsField *f=views_fields;f;f=f->next)
       if(f->owned&&original_views_has_focus(f->transport.node)&&
          ((void *(*)(void *))(base+NXS_CHROMIUM_VIEWS_FOCUS_MANAGER_OFFSET))(f->transport.node)==manager&&
@@ -316,12 +316,15 @@ static void views_insert_text(void *view,const void *string,int behavior) {
   int handled=f&&text&&views_key(f,NULL,string,behavior,text,0);free(text);
   if(!handled)original_views_insert_text(view,string,behavior);
 }
+/* A command boundary, independent of browser widget replacement. */
+static struct Detour browser_accelerator_detour[]={
+ {NXS_CHROMIUM_VIEWS_ACCELERATOR_KEY_OFFSET,chromium_views_accelerator_key_bytes,views_accelerator_key,(void **)&original_views_accelerator_key},
+};
 static struct Detour views_detours[]={
  {NXS_CHROMIUM_VIEWS_POINTER_PRESS_OFFSET,chromium_views_pointer_press_bytes,views_pointer_press,(void **)&original_views_pointer_press},
  {NXS_CHROMIUM_VIEWS_POINTER_DRAG_OFFSET,chromium_views_pointer_drag_bytes,views_pointer_drag,(void **)&original_views_pointer_drag},
  {NXS_CHROMIUM_VIEWS_POINTER_RELEASE_OFFSET,chromium_views_pointer_release_bytes,views_pointer_release,(void **)&original_views_pointer_release},
  {NXS_CHROMIUM_VIEWS_POINTER_LOST_OFFSET,chromium_views_pointer_lost_bytes,views_pointer_lost,(void **)&original_views_pointer_lost},
- {NXS_CHROMIUM_VIEWS_ACCELERATOR_KEY_OFFSET,chromium_views_accelerator_key_bytes,views_accelerator_key,(void **)&original_views_accelerator_key},
  {NXS_CHROMIUM_VIEWS_OMNIBOX_PAINT_OFFSET,chromium_views_omnibox_paint_bytes,views_omnibox_paint,(void **)&original_views_omnibox_paint},
  {NXS_CHROMIUM_VIEWS_TEXT_PAINT_OFFSET,chromium_views_text_paint_bytes,views_text_paint,(void **)&original_views_text_paint},
  {NXS_CHROMIUM_VIEWS_BORDER_OFFSET,chromium_views_border_bytes,views_border,(void **)&original_views_border},

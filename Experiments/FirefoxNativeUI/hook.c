@@ -17,6 +17,7 @@
 #include <sys/eventfd.h>
 #include <time.h>
 #include "../../Libraries/NativeUI/NativeUI.h"
+#include "../../Libraries/NativeUI/Bridge/BrowserPolicy.h"
 static uintptr_t base;
 static int log_fd=-1,installed;
 static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),message);}
@@ -57,7 +58,23 @@ static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pi
     x=end;
   }
 }
+/* Browser chrome stays with Gecko. Process role is evaluated at use time,
+ * after child startup, using the same guarded engine getter as menu dispatch. */
+static int native_web_process(void) {
+  return base&&(NXS_BROWSER_UI_PATCH||!((int (*)(void))(base+0x7546c5c))());
+}
 static int tabs_requested,tabs_trace_enabled;
+static int popups_requested;
+static int native_popup_frame(const void *);
+static int native_popup_owned(const void *);
+static int prepare_popup_image(void *);
+static int native_popup_display(void *,void *,const void *);
+static int draw_popup_image(void *,void *,const struct RectF *);
+static void native_popup_forget(void *);
+static void native_popup_release_context(void *);
+static void native_popup_notification(void);
+static int native_popups_exist(void);
+static void native_popup_pointer_post(const void *);
 static int tabs_frame_owned(const void *);
 static int tabs_draw(void *,void *,const struct RectF *);
 static void tabs_forget(void *);
@@ -66,6 +83,8 @@ static uint64_t tabs_pointer_target(void *,void *);
 static void tabs_pointer_post(uint64_t,void *,int);
 #include "controls.inc"
 #include "tabs.inc"
+#include "popups.inc"
+#include "geometry.inc"
 #include "menus.inc"
 #include "../../Libraries/NativeUI/Bridge/Menu.inc"
 #include "global-keys.inc"
@@ -73,6 +92,7 @@ static void tabs_pointer_post(uint64_t,void *,int);
 /* Frame/content and model access are audited against this libxul, including
  * Gecko's own FromNode tag/namespace check. NativeUI has no DOM knowledge. */
 static double progress_position(void *frame) {
+  if(!native_web_process())return -2;
   void *content=*(void **)((char *)frame+24);
   if(!content)return -2;
   void *info=*(void **)((char *)content+40);
@@ -82,6 +102,7 @@ static double progress_position(void *frame) {
 }
 static int eligible(void *frame,unsigned appearance) {
   if(channel<0)return 0;
+  if(native_popup_owned(frame))return 1;
   if(texts_enabled&&native_text_frame(frame)&&widget_for_frame(frame)&&widget_for_frame(frame)->text_owned)return 1;
   if(widgets_enabled&&(appearance==4||appearance==5||(buttons_enabled&&appearance==10)||(sliders_enabled&&appearance==19))&&frame_kind(frame))return 1;
   if(appearance!=9)return 0;
@@ -158,24 +179,28 @@ static void install(void) {
   if(multiline_viewport_enabled&&(!guard_viewport_calls()||!prepare_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours)))){note("Gecko viewport guard failed; unchanged");return;}
   if(wheel_enabled&&(!guard_wheel_calls()||!prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours)))){note("Gecko wheel guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
-  if(buttons_enabled&&(!guard_html_button_calls()||!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours)))){note("Gecko button guard failed; unchanged");return;}
+  if((buttons_enabled||popups_requested)&&(!guard_html_button_calls()||!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours)))){note("Gecko button guard failed; unchanged");return;}
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
   if(!prepare_background_bindings()){note("Gecko native background guard failed; unchanged");return;}
-  if(frontend_requested&&!prepare_frontend_bindings()){note("Gecko frontend guard failed; unchanged");return;}
+  if(widgets_enabled&&!prepare_frontend_bindings()){note("Gecko owned-background guard failed; unchanged");return;}
+  if(popups_requested&&(!guard_popup_calls()||!prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))){note("Gecko select guard failed; unchanged");return;}
+  if(!prepare_geometry()){note("Gecko geometry guard failed; unchanged");return;}
   if(tabs_requested&&!prepare_tabs()){note("Gecko tab guard failed; unchanged");return;}
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
   if(!prepare_global_keys()){note("Gecko global menu key guard failed; unchanged");return;}
+  if(gtk_surface_geometry){activate_detours(geometry_detours,1);note("experimental shared GTK surface geometry binding installed");}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   activate_detours(background_detours,sizeof(background_detours)/sizeof(*background_detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
-  if(buttons_enabled){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note("native Gecko input buttons installed");}
+  if(buttons_enabled||popups_requested){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note(buttons_enabled?"native Gecko input buttons installed":"native Gecko block display binding installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
   if(texts_enabled){activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));note("native Gecko text bindings installed");}
   if(multiline_viewport_enabled){activate_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours));note("native Gecko multiline viewport installed");}
   if(wheel_enabled){activate_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours));note("native Gecko wheel binding installed");}
-  if(frontend_requested){activate_detours(frontend_detours,sizeof(frontend_detours)/sizeof(*frontend_detours));note("native Gecko frontend text binding installed");}
+  if(widgets_enabled){activate_detours(frontend_detours,sizeof(frontend_detours)/sizeof(*frontend_detours));note(frontend_requested?"native Gecko frontend text binding installed":"native Gecko webpage background binding installed");}
+  if(popups_requested){activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));note("experimental native Gecko select binding installed");}
   if(tabs_requested){activate_detours(tabs_detours,sizeof(tabs_detours)/sizeof(*tabs_detours));note("experimental native Gecko tab container installed");}
   if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));note("native Gecko external menu lifecycle binding installed");}
   if(menu_keys_requested){activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));note("native Gecko global menu key binding installed");}
@@ -202,7 +227,8 @@ __attribute__((constructor)) static void initialize(void) {
   tabs_requested=frontend_requested&&tabs&&!strcmp(tabs,"1");
   tabs_trace_enabled=tabs_requested&&tab_trace&&!strcmp(tab_trace,"1");
   const char *menu_keys=getenv("NEXTSPACE_FIREFOX_MENU_KEYS");
-  menu_keys_requested=menu_keys&&!strcmp(menu_keys,"1")&&frontend_requested&&application_menu_keys;
+  menu_keys_requested=menu_keys&&!strcmp(menu_keys,"1")&&application_menu_keys;
   if(menu_keys&&!strcmp(menu_keys,"1")&&!menu_keys_requested)note("native global menu keys unavailable in this helper/configuration");
+  if(!NXS_BROWSER_UI_PATCH)note("browser-owned tabs, address bar and toolbar preserved");
   note("Firefox native transport connected before sandbox");install();
 }

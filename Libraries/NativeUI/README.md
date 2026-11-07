@@ -795,3 +795,19 @@ standard item types, exact IDs and empty/restore lifecycle checks. The
 Toolbar IPC and browser toolbar bindings remain unfinished. This foundation does
 not make either complete browser interface native; GTK/Qt/KDE integration and the
 remaining browser/derivative/deployment requirements remain open.
+
+
+The optional [GTK3 geometry bridge](Bridge/Gtk3Geometry.h) transports authoritative
+Wayland surface origins for toolkit adapters. It uses the compositor's read-only
+version-10 surface observer on the actual GDK connection and the existing GLib
+idle queue. GDK owns window/display lifetime. Popup and non-Wayland windows keep
+their original path; an unavailable compositor reports unavailable rather than
+inventing coordinates. This component draws no controls and changes no focus,
+window metadata or toolkit layout.
+
+Build it independently with `cmake -S Libraries/NativeUI/Bridge -B BUILD` and
+`cmake --build BUILD`, or enable `NXS_BUILD_GTK3_GEOMETRY` in the NativeUI build.
+It links Wayland/GLib only, and resolves the public GTK3/GDK functions at use
+time. It requires neither a provider nor an AppKit/browser rebuild. The existing
+NativeUI public control ABI remains unchanged. See
+[geometry qualification](gtk3-geometry-qualification.json) for the tested scope.

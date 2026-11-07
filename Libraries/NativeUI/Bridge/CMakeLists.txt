@@ -1,0 +1,23 @@
+cmake_minimum_required(VERSION 3.19)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  project(NextSpaceGtk3Geometry LANGUAGES C)
+  if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "/usr/NextSpace" CACHE PATH "NEXTSPACE prefix" FORCE)
+  endif()
+endif()
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK3_GEOMETRY REQUIRED IMPORTED_TARGET wayland-client glib-2.0 gobject-2.0)
+find_program(WAYLAND_SCANNER wayland-scanner REQUIRED)
+set(APPLICATION_PROTOCOL "${CMAKE_CURRENT_SOURCE_DIR}/../../gnustep/back/Source/wayland/protocols/nextspace-application-v1.xml")
+set(APPLICATION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/nextspace-application-v1-client-protocol.h")
+set(APPLICATION_CODE "${CMAKE_CURRENT_BINARY_DIR}/nextspace-application-v1-protocol.c")
+add_custom_command(OUTPUT "${APPLICATION_HEADER}" "${APPLICATION_CODE}"
+  COMMAND "${WAYLAND_SCANNER}" client-header "${APPLICATION_PROTOCOL}" "${APPLICATION_HEADER}"
+  COMMAND "${WAYLAND_SCANNER}" private-code "${APPLICATION_PROTOCOL}" "${APPLICATION_CODE}"
+  DEPENDS "${APPLICATION_PROTOCOL}" VERBATIM)
+add_library(nextspace-gtk3-geometry SHARED Gtk3Geometry.c "${APPLICATION_HEADER}" "${APPLICATION_CODE}")
+target_include_directories(nextspace-gtk3-geometry PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_link_libraries(nextspace-gtk3-geometry PRIVATE PkgConfig::GTK3_GEOMETRY ${CMAKE_DL_LIBS})
+set_target_properties(nextspace-gtk3-geometry PROPERTIES VERSION 0.1 SOVERSION 1)
+install(TARGETS nextspace-gtk3-geometry LIBRARY DESTINATION lib/nextspace-scrollbars)
+install(FILES Gtk3Geometry.h DESTINATION include/NextSpaceNativeUI)

@@ -25,7 +25,7 @@ XML retains its license notices. `manifest.json` records provenance and hashes.
 | primary-selection-unstable-v1 | Focused primary offers, separate from the persistent clipboard |
 | text-input-unstable-v3 | Native text-client focus, UTF-8 surrounding text, preedit, commit and deletion |
 | input-method-unstable-v2 + virtual-keyboard-unstable-v1 | Session-authorized IME, candidate surfaces and forwarding of unconsumed keys |
-| nextspace_application_v1 v1–9 | Owned placement, preferred output, focus hints, levels, ordering, minimization, frame metadata/extents, validated drag context, retained presentation, read-only work areas, gesture-authorized color selection and explicit auxiliary activation fallback |
+| nextspace_application_v1 v1–10 | Owned placement, preferred output, focus hints, levels, ordering, minimization, frame metadata/extents, validated drag context, retained presentation, read-only work areas, gesture-authorized color selection, explicit auxiliary activation fallback and read-only owned surface geometry |
 | nextspace_shell_v1 v1–18 | Authorized window enumeration, placement, activation, window state, desktop assignment/shortcuts, icon tracking, output transactions, input settings, desktop color, work areas, maximized dragging, frame click timing/appearance, session locking and hardware gamma |
 | wlr-layer-shell v1 client | Upstream client support; not advertised by the prototype compositor |
 
@@ -323,6 +323,16 @@ receives pointer input while its application's document keeps the keyboard;
 the hint cannot activate another window or application. Version 1 placement
 clients remain supported. The extension grants no access to other clients or
 output settings.
+
+Version 10 adds `get_surface_geometry`, a read-only observer of an owned xdg
+toplevel. It can coexist with the placement object and other observers. It
+reports the actual `wl_surface` origin in logical desktop coordinates, committed
+logical size, mapped state and eventual toplevel closure. The compositor reuses
+its scene position and wlroots' xdg geometry offset, including the current server
+frame. Observing does not register application metadata or change window policy.
+A mapped surface may still be hidden on another desktop or minimized; the event
+is not a focus or visibility grant. Unsupported roles are rejected, and older
+clients retain their existing protocol versions.
 
 The backend converts returned positions into AppKit's bottom-left space and
 updates `NSWindow.frame`/`screen`. Xdg popup offsets remain parent-relative; edge

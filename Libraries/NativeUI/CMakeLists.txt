@@ -131,3 +131,10 @@ target_include_directories(native-menu-transport-probe PRIVATE ${CMAKE_CURRENT_S
 target_link_libraries(native-menu-transport-probe PRIVATE pthread)
 target_compile_options(native-menu-transport-probe PRIVATE -UNDEBUG)
 set_target_properties(native-menu-transport-probe PROPERTIES AUTOMOC OFF)
+
+# Transport remains independent of the GNUstep control provider. It can also be
+# built directly from Bridge/ without linking or rebuilding AppKit/NativeUI.
+option(NXS_BUILD_GTK3_GEOMETRY "Build the optional GTK3 Wayland geometry bridge" OFF)
+if(NXS_BUILD_GTK3_GEOMETRY)
+  add_subdirectory(Bridge)
+endif()

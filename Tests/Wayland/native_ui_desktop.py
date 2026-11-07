@@ -20,6 +20,8 @@ parser.add_argument('--menus',action='store_true',help='Verify exclusive detache
 parser.add_argument('--menu-only-activation',action='store_true',help='Verify actual icon activation and native keys without a document window')
 parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through Firefox system-decoration settings')
 parser.add_argument('--native-tabs',action='store_true',help='Verify the opt-in shared native Firefox tab container')
+# Browser component replacement is outside the default integration scope.
+parser.set_defaults(no_frontend=True)
 args=parser.parse_args()
 if args.native_tabs and args.no_frontend:parser.error('--native-tabs requires frontend integration')
 if args.menu_only_activation and not args.menus:parser.error('--menu-only-activation requires --menus')
@@ -120,9 +122,9 @@ try:
  (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+','+json.dumps(v)+');\n' for k,v in prefs.items()))
  if args.native_frame:prepare_native_frame('firefox',profile,current)
  current.update(LD_PRELOAD=str(args.hook),MOZ_ENABLE_WAYLAND='1')
- for flag in ['INPUT','TEXT','BUTTONS','SLIDERS','MULTILINE','MULTILINE_VIEWPORT','WHEEL','FRONTEND','MENU_LIFECYCLE','MENU_KEYS']:current[prefix+flag]='1'
+ for flag in ['INPUT','TEXT','BUTTONS','SLIDERS','MULTILINE','MULTILINE_VIEWPORT','WHEEL','MENU_LIFECYCLE','MENU_KEYS']:current[prefix+flag]='1'
  if args.native_tabs:current.update(NEXTSPACE_FIREFOX_TABS='1',NEXTSPACE_FIREFOX_TABS_TRACE='1')
- if args.no_frontend:current.pop(prefix+'FRONTEND')
+ if args.no_frontend:current.pop(prefix+'FRONTEND',None)
  browser_command=[str(args.firefox),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access','--width','1120','--height','800',url]
  with (root/(family+'.stdout')).open('w') as log,(root/(family+'.stderr')).open('w') as error:browser=subprocess.Popen(browser_command,env=current,stdout=log,stderr=error)
  children.append(browser)

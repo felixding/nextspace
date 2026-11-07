@@ -16,14 +16,16 @@ parser.add_argument('--chromium', type=Path, required=True)
 parser.add_argument('--native-library', type=Path, required=True)
 parser.add_argument('--hook', type=Path, required=True)
 parser.add_argument('--backend', help='Optional GNUstep backend name, passed only to the helper')
+parser.add_argument('--native-controls', action='store_true',
+                    help='Use the shared native webpage controls while preserving browser-owned UI')
 parser.add_argument('--native-views', action='store_true',
-                    help='Enable the experimental native address field and its required form/text bindings')
+                    help='Retired; browser-owned UI remains unchanged')
 parser.add_argument('--native-menus', action='store_true',
-                    help='Bind the pinned application menu model to GNUstep menus; also enables native Views')
+                    help='Bind the pinned application menu model to GNUstep menus')
 parser.add_argument('--native-frame', action='store_true',
                     help='Use the compositor frame through the existing system-decoration preference')
 parser.add_argument('--native-tabs', action='store_true',
-                    help='Bind the experimental browser tab container to GNUstep NSTabView; also enables native Views')
+                    help='Retired; browser-owned tabs remain unchanged')
 parser.add_argument('--log-directory', type=Path, required=True)
 parser.add_argument('arguments', nargs=argparse.REMAINDER)
 args = parser.parse_args()
@@ -60,6 +62,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
     endpoint = root / 'native.sock'
     environment = dict(os.environ)
     environment.pop('LD_PRELOAD', None)
+    for flag in ('NEXTSPACE_CHROMIUM_VIEWS','NEXTSPACE_CHROMIUM_TABS'):environment.pop(flag,None)
     helper_command = [sys.executable, str(Path(__file__).with_name('helper.py')),
                       '--library', str(args.native_library.resolve()), '--socket', str(endpoint)]
     if args.backend:
@@ -77,13 +80,14 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
             environment.update(LD_PRELOAD=str(args.hook.resolve()),
                                NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),
                                NEXTSPACE_CHROMIUM_LOG=str((args.log_directory / 'hook.log').resolve()))
-            if args.native_views or args.native_menus or args.native_tabs:
+            if args.native_controls or args.native_menus:
                 environment.update(NEXTSPACE_CHROMIUM_FORMS='1', NEXTSPACE_CHROMIUM_INPUT='1',
-                                   NEXTSPACE_CHROMIUM_TEXT='1', NEXTSPACE_CHROMIUM_VIEWS='1')
+                                   NEXTSPACE_CHROMIUM_TEXT='1')
+            if args.native_controls:
+                for flag in ('PROGRESS','ANIMATION','SLIDERS','POPUPS','MULTILINE','MULTILINE_VIEWPORT','WHEEL'):
+                    environment['NEXTSPACE_CHROMIUM_'+flag] = '1'
             if args.native_menus:
                 environment['NEXTSPACE_CHROMIUM_MENUS'] = '1'
-            if args.native_tabs:
-                environment['NEXTSPACE_CHROMIUM_TABS'] = '1'
             if args.native_frame:
                 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Libraries/NativeUI/Bridge'))
                 from browser_frames import prepare_native_frame

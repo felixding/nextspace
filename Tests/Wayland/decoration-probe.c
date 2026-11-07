@@ -32,6 +32,8 @@ struct probe {
   struct wl_pointer *pointer;
   struct nextspace_application_v1 *application;
   struct nextspace_window_v1 *owned;
+  struct nextspace_surface_geometry_v1 *geometry[2];
+  bool observe_geometry;
   int width, height;
   uint32_t mode;
   bool closed, fullscreen, legacy_mode;
@@ -145,6 +147,24 @@ static void drag_context(void *data, struct nextspace_window_v1 *object, struct 
 static const struct nextspace_window_v1_listener owned_listener = {.position = position,
   .preferred_output = preferred_output, .closed = owned_closed, .minimized = minimized,
   .drag_context = drag_context};
+static void geometry_changed(void *data, struct nextspace_surface_geometry_v1 *object,
+    int32_t x, int32_t y, int32_t width, int32_t height, uint32_t mapped)
+{
+  printf("{\"event\":\"surface-geometry\",\"observer\":%u,\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"mapped\":%u}\n",
+    (unsigned)(uintptr_t)data, x, y, width, height, mapped); fflush(stdout);
+}
+static void geometry_closed(void *data, struct nextspace_surface_geometry_v1 *object)
+{ printf("{\"event\":\"geometry-closed\",\"observer\":%u}\n", (unsigned)(uintptr_t)data); fflush(stdout); }
+static const struct nextspace_surface_geometry_v1_listener geometry_listener = {
+  .geometry = geometry_changed, .closed = geometry_closed
+};
+static void watch_geometry(struct probe *probe, unsigned index)
+{
+  if (index > 1 || probe->geometry[index] || !probe->application ||
+      nextspace_application_v1_get_version(probe->application) < 10) return;
+  probe->geometry[index] = nextspace_application_v1_get_surface_geometry(probe->application, probe->surface);
+  nextspace_surface_geometry_v1_add_listener(probe->geometry[index], &geometry_listener, (void *)(uintptr_t)index);
+}
 static void global(void *data, struct wl_registry *registry, uint32_t name, const char *interface, uint32_t version)
 {
   struct probe *probe = data;
@@ -163,7 +183,9 @@ static void global(void *data, struct wl_registry *registry, uint32_t name, cons
   if (!strcmp(interface, "zxdg_decoration_manager_v1"))
     probe->manager = wl_registry_bind(registry, name, &zxdg_decoration_manager_v1_interface, 1);
   if (!strcmp(interface, "nextspace_application_v1")) {
-    probe->application = wl_registry_bind(registry, name, &nextspace_application_v1_interface, version < 7 ? version : 7);
+    uint32_t requested = probe->observe_geometry ? 10 : 7;
+    probe->application = wl_registry_bind(registry, name, &nextspace_application_v1_interface,
+      version < requested ? version : requested);
     if (version >= 6) nextspace_application_v1_add_listener(probe->application, &application_listener, probe);
   }
   if (!strcmp(interface, "xdg_wm_base")) {
@@ -184,6 +206,7 @@ int main(int argc, char **argv)
 {
   setvbuf(stdin, NULL, _IONBF, 0);
   struct probe probe = {.width = 321, .height = 241};
+  probe.observe_geometry = argc > 1 && (!strcmp(argv[1], "--geometry") || !strcmp(argv[1], "--geometry-metrics"));
   bool legacy_early = argc > 1 && !strcmp(argv[1], "--legacy-early");
   bool legacy_dual = argc > 1 && !strcmp(argv[1], "--legacy-dual");
   probe.legacy_mode = legacy_early || legacy_dual || (argc > 1 && !strcmp(argv[1], "--legacy"));
@@ -200,7 +223,7 @@ int main(int argc, char **argv)
   xdg_toplevel_add_listener(probe.top, &top_listener, &probe);
   xdg_surface_add_listener(probe.xdg, &surface_listener, &probe);
   xdg_toplevel_set_title(probe.top, "DecorationProbe");
-  bool metrics = argc > 1 && !strcmp(argv[1], "--metrics");
+  bool metrics = argc > 1 && (!strcmp(argv[1], "--metrics") || !strcmp(argv[1], "--geometry-metrics"));
   if (metrics) {
     if (!probe.application || nextspace_application_v1_get_version(probe.application) < 7) return 1;
     probe.owned = nextspace_application_v1_get_window(probe.application, probe.surface);
@@ -208,6 +231,7 @@ int main(int argc, char **argv)
     nextspace_window_v1_set_metadata(probe.owned, 1, 15, 23);
     nextspace_window_v1_set_frame_extents(probe.owned, 1, 23, 1, 9);
   }
+  if (probe.observe_geometry) { watch_geometry(&probe, 0); watch_geometry(&probe, 1); }
   if (probe.legacy_mode) {
     if (!legacy_early) create_legacy_decoration(&probe);
   } else create_decoration(&probe);
@@ -218,7 +242,7 @@ int main(int argc, char **argv)
     probe.appmenu = org_kde_kwin_appmenu_manager_create(probe.appmenu_manager, probe.surface);
     org_kde_kwin_appmenu_set_address(probe.appmenu, ":1.42", "/test/menu");
   }
-  if (argc > 1 && !metrics && !appmenu && !probe.legacy_mode) zxdg_toplevel_decoration_v1_set_mode(probe.decoration, strtoul(argv[1], NULL, 10));
+  if (argc > 1 && !metrics && !appmenu && !probe.legacy_mode && !probe.observe_geometry) zxdg_toplevel_decoration_v1_set_mode(probe.decoration, strtoul(argv[1], NULL, 10));
   wl_surface_commit(probe.surface);
   char line[128];
   while (!probe.closed && wl_display_dispatch_pending(display) >= 0) {
@@ -231,6 +255,25 @@ int main(int argc, char **argv)
       unsigned mode, left, top, right, bottom;
       char action[32];
       char service[256], path[4097];
+      int gx, gy, gw, gh;
+      if (sscanf(line, "watch %u", &mode) == 1) { watch_geometry(&probe, mode); continue; }
+      if (sscanf(line, "unwatch %u", &mode) == 1 && mode < 2 && probe.geometry[mode]) {
+        nextspace_surface_geometry_v1_destroy(probe.geometry[mode]); probe.geometry[mode] = NULL; continue;
+      }
+      if (sscanf(line, "geometry %d %d %d %d", &gx, &gy, &gw, &gh) == 4 && probe.xdg) {
+        xdg_surface_set_window_geometry(probe.xdg, gx, gy, gw, gh); wl_surface_commit(probe.surface); continue;
+      }
+      if (!strncmp(line, "unmap", 5)) { wl_surface_attach(probe.surface, NULL, 0, 0); wl_surface_commit(probe.surface); continue; }
+      if (!strncmp(line, "remap", 5)) { wl_surface_commit(probe.surface); continue; }
+      if (!strncmp(line, "close-toplevel", 14) && probe.top) {
+        if (probe.decoration) { zxdg_toplevel_decoration_v1_destroy(probe.decoration); probe.decoration = NULL; }
+        xdg_toplevel_destroy(probe.top); xdg_surface_destroy(probe.xdg); wl_surface_destroy(probe.surface);
+        probe.top = NULL; probe.xdg = NULL; probe.surface = NULL; continue;
+      }
+      if (!strncmp(line, "invalid-observer", 16)) {
+        struct wl_surface *invalid = wl_compositor_create_surface(probe.compositor);
+        nextspace_application_v1_get_surface_geometry(probe.application, invalid); continue;
+      }
       if (!strncmp(line, "menu ", 5) && sscanf(line, "menu %255s %4096s", service, path) == 2 && probe.appmenu) {
         org_kde_kwin_appmenu_set_address(probe.appmenu, service, path);
       } else if (!strncmp(line, "menu-release", 12) && probe.appmenu) {
@@ -297,10 +340,13 @@ int main(int argc, char **argv)
     if (probe.appmenu) org_kde_kwin_appmenu_release(probe.appmenu);
     if (probe.appmenu_manager && org_kde_kwin_appmenu_manager_get_version(probe.appmenu_manager) >= 2)
       org_kde_kwin_appmenu_manager_release(probe.appmenu_manager);
+    for (unsigned i = 0; i < 2; i++) if (probe.geometry[i]) nextspace_surface_geometry_v1_destroy(probe.geometry[i]);
     if (probe.owned) nextspace_window_v1_destroy(probe.owned);
     if (probe.decoration) zxdg_toplevel_decoration_v1_destroy(probe.decoration);
     if (probe.legacy_decoration) org_kde_kwin_server_decoration_release(probe.legacy_decoration);
-    xdg_toplevel_destroy(probe.top); xdg_surface_destroy(probe.xdg); wl_surface_destroy(probe.surface);
+    if (probe.top) xdg_toplevel_destroy(probe.top);
+    if (probe.xdg) xdg_surface_destroy(probe.xdg);
+    if (probe.surface) wl_surface_destroy(probe.surface);
     wl_display_flush(display);
   }
   wl_display_disconnect(display);

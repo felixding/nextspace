@@ -51,8 +51,8 @@
     },
     {
       "path": "Libraries/gnustep/back/Source/wayland/protocols/nextspace-application-v1.xml",
-      "sha256": "4a177989a664a34c128ec3eed1de69b4f5e547c85ed1c6bc817b6695a4516597",
-      "source": "NEXTSPACE application extension versions 1-9",
+      "sha256": "16cdf9e9a1d5daefb14b293d4925e0a90b16d30d081bbd507d270e1a9260146d",
+      "source": "NEXTSPACE application extension versions 1-10",
       "license": "MIT"
     },
     {

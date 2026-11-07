@@ -22,7 +22,7 @@ parser.add_argument('--port',type=int,default=2833)
 parser.add_argument('--library-path',action='append',default=[])
 parser.add_argument('--hold',action='store_true',help='Keep the owned test/control fixture open until quit')
 parser.add_argument('--native-frame',action='store_true',help='Use the compositor frame through the existing system-decoration settings')
-parser.add_argument('--native-tabs',action='store_true',help='Bind the browser tab container to the shared GNUstep NSTabView')
+parser.add_argument('--native-tabs',action='store_true',help='Retired; browser-owned tabs remain unchanged')
 a=parser.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 if a.shared_menus and not a.export_menus:parser.error('--shared-menus requires --export-menus')
 if a.menu_shell_probe and not a.shared_menus:parser.error('--menu-shell-probe requires --shared-menus')
@@ -92,8 +92,8 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
    sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge'))
    from browser_frames import prepare_native_frame
    prepare_native_frame('firefox',profile,env)
-  env.update(LD_PRELOAD=str(a.hook.resolve()),NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1',NEXTSPACE_FIREFOX_FRONTEND='1')
-  if a.native_tabs:env['NEXTSPACE_FIREFOX_TABS']='1'
+  env.update(LD_PRELOAD=str(a.hook.resolve()),NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1')
+  for flag in ('NEXTSPACE_FIREFOX_FRONTEND','NEXTSPACE_FIREFOX_TABS'):env.pop(flag,None)
   if a.export_menus:env['NEXTSPACE_FIREFOX_MENU_LIFECYCLE']='1'
   if a.shared_menus:env['NEXTSPACE_FIREFOX_MENU_KEYS']='1'
   args=[str(a.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',Path(__file__).with_name('test-text.html').resolve().as_uri()]

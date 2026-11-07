@@ -21,7 +21,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
   </copyright>
-  <interface name="nextspace_application_v1" version="9">
+  <interface name="nextspace_application_v1" version="10">
     <description summary="application-owned window placement">
       This interface controls only a client's own xdg toplevels. It grants no
       authority over other clients, the desktop shell, activation or output settings.
@@ -51,8 +51,18 @@
       <arg name="width" type="int"/><arg name="height" type="int"/>
     </event>
     <event name="work_areas_done" since="6"/>
+    <request name="get_surface_geometry" since="10">
+      <description summary="observe an owned toplevel surface without changing its policy">
+        Creates a read-only observer of an owned xdg toplevel's surface origin
+        and size. It coexists with placement objects and other observers. It
+        grants no control over placement, decoration, focus or other clients.
+        Destroy the observer when its surface is no longer needed.
+      </description>
+      <arg name="id" type="new_id" interface="nextspace_surface_geometry_v1"/>
+      <arg name="surface" type="object" interface="wl_surface"/>
+    </request>
   </interface>
-  <interface name="nextspace_window_v1" version="9">
+  <interface name="nextspace_window_v1" version="10">
     <description summary="asynchronous logical window position">
       Positions use the top-left of the complete logical window frame in desktop
       units. With client-side decorations this is xdg window geometry; with
@@ -260,5 +270,32 @@
       </description>
       <arg name="enabled" type="uint"/>
     </request>
+  </interface>
+  <!-- New-id objects inherit the manager version in generated clients. -->
+  <interface name="nextspace_surface_geometry_v1" version="10">
+    <description summary="authoritative geometry for one owned surface">
+      This observer does not create or change a window role or application
+      metadata. Coordinates use logical desktop units with a top-left origin.
+      They identify wl_surface coordinate (0,0), including any compositor frame
+      and xdg window-geometry offset. Width and height are the committed logical
+      surface size. mapped is one while the toplevel has mapped surface content;
+      it does not imply visibility on the current desktop or keyboard focus.
+    </description>
+    <request name="destroy" type="destructor"/>
+    <event name="geometry">
+      <description summary="complete current geometry snapshot">
+        Sent on creation and whenever geometry or mapped state changes.
+        Coordinates may be retained while unmapped; do not place visible UI
+        relative to an unmapped surface.
+      </description>
+      <arg name="x" type="int"/><arg name="y" type="int"/>
+      <arg name="width" type="int"/><arg name="height" type="int"/>
+      <arg name="mapped" type="uint"/>
+    </event>
+    <event name="closed">
+      <description summary="the observed toplevel no longer exists">
+        No further events follow. The client should destroy this observer.
+      </description>
+    </event>
   </interface>
 </protocol>

@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-07",
+  "baseline": "54b9fcc7",
+  "status": "Shared surface geometry and preservation of browser-owned UI are qualified for the recorded cases. Firefox single-select binding is an initial prototype; complete webpage controls and subsequent GTK/Qt integration remain open.",
+  "checks": 247,
+  "whole_native_images": 161,
+  "additional_assertion_suite": "Existing server-decoration negotiation, density, geometry, titlebar input and lifecycle suite passes.",
+  "runs": {
+    "protocol": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/surface-geometry-results",
+      "checks": 39,
+      "all_passed": true
+    },
+    "gtk": {
+      "path": "/var/tmp/nxs-gtk3-surface-geometry-standalone-01",
+      "checks": 15,
+      "all_passed": true
+    },
+    "legacy": {
+      "path": "/var/tmp/nxs-surface-geometry-legacy-01",
+      "checks": 25,
+      "all_passed": true,
+      "cleanup": [
+        {
+          "pid": 136391,
+          "exit": 0
+        },
+        {
+          "pid": 136394,
+          "exit": -15
+        },
+        {
+          "pid": 136395,
+          "exit": -15
+        },
+        {
+          "pid": 136396,
+          "exit": -15
+        },
+        {
+          "pid": 136397,
+          "exit": -15
+        }
+      ]
+    },
+    "decoration": {
+      "path": "/var/tmp/nxs-surface-geometry-decorations-01",
+      "status": "assertion suite PASS",
+      "sections": [
+        "densities",
+        "mixed_output",
+        "native_metrics",
+        "titlebar",
+        "state_requests",
+        "title_hints",
+        "checks"
+      ]
+    },
+    "firefox": {
+      "path": "/var/tmp/nxs-firefox-web-controls-02",
+      "checks": 31,
+      "all_passed": true,
+      "whole_native_images": 6,
+      "cleanup": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      }
+    },
+    "firefox_desktop": {
+      "path": "/var/tmp/nxs-firefox-web-desktop-01",
+      "checks": 82,
+      "all_passed": true,
+      "whole_native_images": 153,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          -15
+        ],
+        "live": []
+      }
+    },
+    "chromium_desktop": {
+      "path": "/var/tmp/nxs-chromium-web-controls-02",
+      "checks": 55,
+      "all_passed": true,
+      "whole_native_images": 2,
+      "cleanup": {
+        "session_exit": 0,
+        "browser_exits": [
+          0
+        ],
+        "live": []
+      }
+    }
+  },
+  "public_native_ui_api": {
+    "version": 1,
+    "bytes": 472,
+    "changed": false
+  },
+  "compiled_components": [
+    "nextspace-compositor",
+    "shared GTK3 geometry bridge",
+    "small pinned Chromium and Firefox preload adapters"
+  ],
+  "unchanged_components": [
+    "chromium",
+    "firefox",
+    "libxul",
+    "appkit",
+    "supervisor",
+    "workspace",
+    "backend",
+    "gtk3",
+    "native_shim",
+    "native_loader",
+    "native_provider",
+    "chromium_adapter_tabs_disabled_regression",
+    "firefox_chrome_archive"
+  ],
+  "coverage": [
+    "Owned read-only surface observers without application policy metadata.",
+    "Multiple observers and coexistence with owned placement; custom extents and xdg geometry offsets.",
+    "CSD/SSD, move, fullscreen/restore, unmap/remap, closed observers and invalid roles.",
+    "Plain GTK window/move/replacement/display-close, popup fallback and older-compositor unavailability.",
+    "Native Firefox single-select full images, trusted DOM selection, cancellation, stale identity, reentrant removal and blur.",
+    "Native popup anchors in independent compositor coordinates and real pointer tracking.",
+    "Unchanged browser tabs/address field, shared native menus and original tab commands, including Alt+T from the stock Chromium omnibox after host recovery.",
+    "Existing Firefox webpage-control regressions: 153 whole native images."
+  ],
+  "limitations": [
+    "Firefox dropdown group headings, separators, hidden/hidden-selected options and intrinsic sizing are unfinished.",
+    "General browser controls, derivatives, broader DPI/input/IME/accessibility coverage and installed deployment remain unfinished.",
+    "GTK and Qt/KDE control/menu/shortcut adapters are subsequent work under the same full goal.",
+    "Browser UI replacement is skipped. Any later tab/address-field/toolbar changes require an explicitly requested app-specific patch above the shared layer."
+  ],
+  "source_audit": "gtk3-geometry-source-audit.json",
+  "runtime_audit": ".build/native-ui/browser-geometry-runtime-audit.json",
+  "archive": {
+    "path": ".build/evidence/components/native-shared-geometry-20261107-v1-evidence.tar.gz",
+    "sha256": "55d8b87adc1c0af35459c76b63759b4f9fc29c83edd9be0b098977ab694e34ab",
+    "bytes": 6984424,
+    "files": 948,
+    "member_hashes_verified_after_transfer": true
+  }
+}

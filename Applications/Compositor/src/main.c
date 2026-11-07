@@ -274,6 +274,7 @@ struct nextspace_toplevel {
     bool valid;
   } shell_state;
   struct nextspace_application_window *application_window;
+  struct wl_list geometry_observers;
   bool mapped;
 	unsigned id;
 	struct wl_list link;
@@ -1396,6 +1397,7 @@ static void xdg_toplevel_unmap(struct wl_listener *listener, void *data) {
   }
 	bool focused = toplevel->server->seat->keyboard_state.focused_surface == view_surface(toplevel);
 	toplevel->mapped = false;
+  application_geometry_changed(toplevel);
   if (toplevel->xdg_toplevel) {
     if (toplevel->maximized || toplevel->fullscreen)
       wlr_scene_node_set_position(&toplevel->scene_tree->node,
@@ -1581,6 +1583,7 @@ static void server_new_xdg_toplevel(struct wl_listener *listener, void *data) {
 	/* Allocate a nextspace_toplevel for this surface */
 	struct nextspace_toplevel *toplevel = calloc(1, sizeof(*toplevel));
 	toplevel->id = ++server->next_window_id;
+  wl_list_init(&toplevel->geometry_observers);
 	toplevel->server = server;
   toplevel->frame = (struct ns_frame_extents){DECORATION_BORDER_WIDTH, DECORATION_TITLE_HEIGHT,
     DECORATION_BORDER_WIDTH, DECORATION_RESIZE_HEIGHT};

@@ -6,6 +6,7 @@
 #error "The pinned Chromium adapter requires Clang on AArch64 for its naked ABI wrapper"
 #endif
 #include "protocol.h"
+#include "../../Libraries/NativeUI/Bridge/BrowserPolicy.h"
 #include <dlfcn.h>
 #include <elf.h>
 #include <errno.h>
@@ -258,13 +259,13 @@ __attribute__((constructor)) static void initialize(void) {
   const char *wheel=getenv("NEXTSPACE_CHROMIUM_WHEEL");
   forms_wheel_enabled=forms_multiline_viewport_enabled&&wheel&&!strcmp(wheel,"1")&&((unsigned)metrics->parts[0].x&NXS_WHEEL_EVENTS);
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
-  views_enabled=forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
+  views_enabled=NXS_BROWSER_UI_PATCH&&forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");
   const char *tabs=getenv("NEXTSPACE_CHROMIUM_TABS"),*tabs_trace=getenv("NEXTSPACE_CHROMIUM_TABS_TRACE");
   tabs_enabled=views_enabled&&tabs&&!strcmp(tabs,"1")&&((unsigned)metrics->parts[4].x&NXS_TAB_ITEMS);
   tabs_trace_enabled=tabs_enabled&&tabs_trace&&!strcmp(tabs_trace,"1");
   const char *menus=getenv("NEXTSPACE_CHROMIUM_MENUS"),*menu_trace=getenv("NEXTSPACE_CHROMIUM_MENUS_TRACE");
-  menus_enabled=views_enabled&&menus&&!strcmp(menus,"1")&&((unsigned)metrics->parts[5].height&1);
+  menus_enabled=forms_text_enabled&&menus&&!strcmp(menus,"1")&&((unsigned)metrics->parts[5].height&1);
   menus_trace_enabled=menus_enabled&&menu_trace&&!strcmp(menu_trace,"1");
   const char *menu_keys=getenv("NEXTSPACE_CHROMIUM_MENU_KEYS");
   menu_keys_enabled=menus_enabled&&menu_keys&&!strcmp(menu_keys,"1")&&((unsigned)metrics->parts[5].height&4);
@@ -276,8 +277,9 @@ __attribute__((constructor)) static void initialize(void) {
   if(!prepare_input()){note("input guard failed; unchanged");return;}
   if(forms_available&&!prepare_forms()){note("form guard failed; unchanged");return;}
   if(views_enabled&&(!guard_views_calls()||!prepare_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours)))){note("Views guard failed; unchanged");return;}
+  if((views_enabled||menu_keys_enabled)&&!prepare_detours(browser_accelerator_detour,1)){note("browser command boundary guard failed; unchanged");return;}
   if(tabs_enabled&&!prepare_tabs()){note("tab binding guard failed; unchanged");return;}
-  if(menus_enabled&&!prepare_app_menus()){note("application menu guard failed; unchanged");return;}
+  if(menus_enabled&&(!guard_views_calls()||!prepare_app_menus())){note("application menu guard failed; unchanged");return;}
   if(menu_keys_enabled&&!prepare_global_menu_keys()){note("global menu key guard failed; unchanged");return;}
   const uint32_t patch[]={0xd503245f,0x52800020,0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
@@ -291,7 +293,9 @@ __attribute__((constructor)) static void initialize(void) {
   if(forms_text_enabled)note("experimental native text fields enabled");
   if(forms_multiline_viewport_enabled)note("experimental native multiline viewport enabled");
   if(forms_wheel_enabled)note("experimental native wheel dispatch enabled");
+  if(!NXS_BROWSER_UI_PATCH)note("browser-owned tabs, address bar and toolbar preserved");
   if(views_enabled){activate_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours));note("experimental native address-bar fields enabled");}
+  if(views_enabled||menu_keys_enabled)activate_detours(browser_accelerator_detour,1);
   if(tabs_enabled){activate_tabs();note("experimental native browser tabs enabled");}
   if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));note("experimental native application menu binding enabled");}
   if(menu_keys_enabled){activate_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));note("experimental native global menu keys enabled");}

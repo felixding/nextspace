@@ -1,4 +1,80 @@
 /* Client-owned placement; privileged shell control stays separate. MIT license. */
+/* Geometry observers are independent of application policy/placement objects. */
+struct nextspace_geometry_observer {
+  struct wl_resource *resource;
+  struct nextspace_toplevel *view;
+  struct wl_list link;
+  struct wlr_box geometry;
+  bool sent, mapped;
+};
+
+static void application_geometry_send(struct nextspace_geometry_observer *observer)
+{
+  struct nextspace_toplevel *view = observer->view;
+  struct wlr_box xdg, geometry;
+  wlr_xdg_surface_get_geometry(view->xdg_toplevel->base, &xdg);
+  wlr_scene_node_coords(&view->content_tree->node, &geometry.x, &geometry.y);
+  /* The existing wlroots xdg scene applies this offset to its surface tree. */
+  geometry.x -= xdg.x; geometry.y -= xdg.y;
+  geometry.width = view_surface(view)->current.width;
+  geometry.height = view_surface(view)->current.height;
+  if (observer->sent && observer->mapped == view->mapped &&
+      observer->geometry.x == geometry.x && observer->geometry.y == geometry.y &&
+      observer->geometry.width == geometry.width && observer->geometry.height == geometry.height) return;
+  observer->sent = true; observer->mapped = view->mapped; observer->geometry = geometry;
+  nextspace_surface_geometry_v1_send_geometry(observer->resource, geometry.x, geometry.y,
+    geometry.width, geometry.height, view->mapped);
+}
+
+static void application_geometry_changed(struct nextspace_toplevel *view)
+{
+  struct nextspace_geometry_observer *observer;
+  wl_list_for_each(observer, &view->geometry_observers, link) application_geometry_send(observer);
+}
+
+static void application_geometry_detach(struct nextspace_toplevel *view)
+{
+  struct nextspace_geometry_observer *observer, *next;
+  wl_list_for_each_safe(observer, next, &view->geometry_observers, link) {
+    nextspace_surface_geometry_v1_send_closed(observer->resource);
+    wl_list_remove(&observer->link); wl_list_init(&observer->link); observer->view = NULL;
+  }
+}
+
+static void application_geometry_resource_destroy(struct wl_resource *resource)
+{
+  struct nextspace_geometry_observer *observer = wl_resource_get_user_data(resource);
+  wl_list_remove(&observer->link); free(observer);
+}
+
+static void application_geometry_destroy(struct wl_client *client, struct wl_resource *resource)
+{ wl_resource_destroy(resource); }
+
+static const struct nextspace_surface_geometry_v1_interface geometry_impl = {
+  .destroy = application_geometry_destroy
+};
+
+static void application_get_surface_geometry(struct wl_client *client, struct wl_resource *manager,
+    uint32_t id, struct wl_resource *surface_resource)
+{
+  struct wlr_surface *surface = wlr_surface_from_resource(surface_resource);
+  struct wlr_xdg_toplevel *toplevel = wlr_xdg_toplevel_try_from_wlr_surface(surface);
+  if (wl_resource_get_client(surface_resource) != client || !toplevel || !toplevel->base->data) {
+    wl_resource_post_error(manager, NEXTSPACE_APPLICATION_V1_ERROR_INVALID_SURFACE,
+      "Geometry requires an owned xdg toplevel"); return;
+  }
+  struct nextspace_geometry_observer *observer = calloc(1, sizeof(*observer));
+  if (!observer) { wl_client_post_no_memory(client); return; }
+  observer->resource = wl_resource_create(client, &nextspace_surface_geometry_v1_interface, wl_resource_get_version(manager), id);
+  if (!observer->resource) { free(observer); wl_client_post_no_memory(client); return; }
+  struct wlr_scene_tree *tree = toplevel->base->data;
+  observer->view = tree->node.data;
+  wl_list_insert(&observer->view->geometry_observers, &observer->link);
+  wl_resource_set_implementation(observer->resource, &geometry_impl, observer,
+    application_geometry_resource_destroy);
+  application_geometry_send(observer);
+}
+
 struct nextspace_application_window {
   struct wl_resource *resource;
   struct nextspace_toplevel *view;
@@ -58,6 +134,7 @@ static void application_position(struct nextspace_toplevel *view)
 {
   struct nextspace_application_window *window = view->application_window;
   shell_window_changed(view);
+  application_geometry_changed(view);
   if (!window || !view->mapped) return;
   application_watch(window);
   struct wlr_surface_state *state = &view_surface(view)->current;
@@ -73,6 +150,7 @@ static void application_position(struct nextspace_toplevel *view)
 
 static void application_detach(struct nextspace_toplevel *view)
 {
+  application_geometry_detach(view);
   struct nextspace_application_window *window = view->application_window;
   if (!window) return;
   if (view->server->color_pick_window == window)
@@ -293,7 +371,8 @@ static void application_get_window(struct wl_client *client, struct wl_resource 
 }
 
 static const struct nextspace_application_v1_interface application_manager_impl = {
-  .destroy = destroy_application_object, .get_window = application_get_window
+  .destroy = destroy_application_object, .get_window = application_get_window,
+  .get_surface_geometry = application_get_surface_geometry
 };
 
 static void application_send_work_areas(struct wl_resource *resource)
@@ -332,7 +411,7 @@ static void bind_application(struct wl_client *client, void *data, uint32_t vers
 
 static void create_application_global(struct nextspace_server *server)
 {
-  wl_global_create(server->wl_display, &nextspace_application_v1_interface, 9, server, bind_application);
+  wl_global_create(server->wl_display, &nextspace_application_v1_interface, 10, server, bind_application);
 }
 
 static void application_layout_changed(struct wl_listener *listener, void *data)

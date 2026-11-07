@@ -124,7 +124,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
 static int text_notification(int fd,unsigned condition,void *unused) {
   if(condition&~1u){text_watch=0;return 0;}
   drain_widget_notifier();
-  tabs_native_notification();
+  tabs_native_notification();native_popup_notification();
   if(active_widget&&text_kind(active_widget->kind)) {
     void *node=active_widget->node;
     ((unsigned (*)(void *))(base+0x3b9f0e4))(node);

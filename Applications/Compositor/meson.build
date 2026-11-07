@@ -102,10 +102,13 @@ test('gamma', executable('test-gamma', '../../Tests/Wayland/gamma.c',
 executable('title-layout-probe', '../../Tests/Wayland/title-layout-probe.c', dependencies: title_dependencies[0])
 executable('title-font-probe', '../../Tests/Wayland/title-font-probe.c',
   dependencies: title_dependencies)
-executable('decoration-probe', ['../../Tests/Wayland/decoration-probe.c', xdg_client_header,
+decoration_probe = executable('decoration-probe', ['../../Tests/Wayland/decoration-probe.c', xdg_client_header,
   xdg_code, decoration_client_header, decoration_code, application_client_header, application_code,
   appmenu_client_header, appmenu_code, legacy_decoration_header, legacy_decoration_code],
   dependencies: dependency('wayland-client'))
+test('surface-geometry', python, args: [files('../../Tests/Wayland/surface_geometry.py'),
+  '--compositor', compositor, '--probe', decoration_probe,
+  '--artifacts', meson.current_build_dir() / 'surface-geometry-results'])
 input_protocols = []
 foreach name, path : {
   'text-input-unstable-v3': '../../Libraries/gnustep/back/Source/wayland/protocols/text-input-unstable-v3.xml',

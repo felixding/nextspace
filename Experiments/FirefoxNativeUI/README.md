@@ -1,5 +1,14 @@
 # Firefox native UI integration
 
+Current scope (2026-11-07): keep the browser's own tabs, address bar and toolbar.
+Native browser-UI replacement is skipped. The shared default scope policy
+ignores the earlier frontend/tab opt-in flags; related qualification below is
+historical evidence. Continue webpage controls, then shared detached-menu and
+native-shortcut integration, followed by GTK and Qt/KDE apps. Future toolbar or
+other browser-UI changes belong to optional app-specific patches above the
+shared bridge/provider layer.
+
+
 This is the Gecko side of the browser-first
 [native application integration](../../docs/Native-Control-Integration.md).
 The goal includes complete browser interfaces and other non-GNUstep apps.
@@ -571,3 +580,36 @@ This is an opt-in pinned scale-1 tab-container prototype. Native tab icons,
 loading indicators, alerts, new-tab and per-tab close buttons, context menus,
 dragging/touch, overflow/groups, complete pane/toolbar layout, accessibility, broader scaling,
 derivatives and installed deployment remain unfinished.
+
+
+`NEXTSPACE_FIREFOX_POPUPS=1` enables an in-progress webpage single-select
+binding when native input is configured. It sends Gecko's option data to the
+existing kind-6 `NSPopUpButton`/`NSMenu` provider. Gecko's original selection
+method dispatches application events; its original WebIDL setter and
+`AutoJSContext` manage `:open`. Native drawing, menu layout, tracking and key
+interpretation remain in the shared GNUstep implementation. The browser,
+AppKit, provider and public NativeUI ABI remain unchanged.
+
+This binding is not qualified for deployment. The initial owned fixture passes
+17 checks, including five whole native control images, trusted selection,
+Escape, cancellation, stale identities, reentrant removal and blur. An optional `NEXTSPACE_GTK3_GEOMETRY_LIBRARY` points to the shared GTK3 geometry
+bridge. The pinned adapter supplies its compositor origin to Gecko's existing
+bounds calculation and original parent/content dimension notifications. Initial,
+moved, fullscreen and restored menu anchors now pass, including real native
+press-drag-release selection and the subsequent complete native control image.
+Group headings, separators, hidden options, automatic sizing, broader lifecycle
+and full desktop regressions remain open. Do not infer complete select coverage
+from those initial checks.
+
+The current implementation order is webpage controls, detached menus, then
+native shortcuts. Each must reuse the existing GNUstep/AppKit component and
+behavior through the bridge. Toolbar work is skipped at the user's request.
+
+
+The initial single-select checks are reproducible with
+`check-popups.py --fixture OUTPUT --geometry` against a held owned fixture
+launched with `NEXTSPACE_FIREFOX_POPUPS=1`. The checker uses whole desktop
+captures, independent provider images, original DOM events, native item
+rectangles and compositor geometry. It also rejects native browser field/tab
+bindings. These initial checks do not cover the unfinished group/hidden-option
+or intrinsic-size cases.

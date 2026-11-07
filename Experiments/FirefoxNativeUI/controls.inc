@@ -85,6 +85,7 @@ static int html_button_node(const void *node) {
   return buttons_enabled&&node&&*(const uintptr_t *)node==base+0xa008c98+16;
 }
 static int node_kind(const void *node) {
+  if(!native_web_process())return 0;
   if(html_button_node(node))return NXS_BUTTON;
   if(node&&multiline_enabled&&*(const uintptr_t *)node==base+NXS_GECKO_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
@@ -315,6 +316,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   uint64_t tab_target=tabs_pointer_target(frame,event);
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
+  if(trusted)native_popup_pointer_post(event);
   if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
   if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
     void *text_frame=text_pointer_frame(frame);
@@ -468,18 +470,21 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
 static uint32_t input_post(void *node,void *visitor) {
   return widget_post(node,visitor,original_input_post);
 }
-static void forget_widget(struct Widget **cursor) {
-  struct Widget *w=*cursor;
-  if(active_widget==w)active_widget=NULL;
-  widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w->button_model_title);free(w);
-  if(!widgets&&widget_notifier>=0) {
+static void release_idle_widget_notifier(void) {
+  if(!widgets&&!native_popups_exist()&&widget_notifier>=0) {
     remove_text_watch();
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
     exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
   }
 }
+static void forget_widget(struct Widget **cursor) {
+  struct Widget *w=*cursor;
+  if(active_widget==w)active_widget=NULL;
+  widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w->button_model_title);free(w);
+  release_idle_widget_notifier();
+}
 static void frame_destroy(void *frame,void *context) {
-  tabs_forget(frame);
+  tabs_forget(frame);native_popup_forget(frame);
   reset_widget_process();
   struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
   if(*cursor)forget_widget(cursor);
@@ -487,6 +492,7 @@ static void frame_destroy(void *frame,void *context) {
 }
 static void release_shell_widgets(void *shell) {
   reset_widget_process();void *context=*(void **)((char *)shell+120);
+  native_popup_release_context(context);
   struct Widget **cursor=&widgets;
   while(*cursor) {
     if(*(void **)((char *)(*cursor)->frame+40)==context)forget_widget(cursor);
@@ -527,6 +533,7 @@ static void prepare_widget_metrics(void) {
   widgets_enabled=1;
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   prepare_range_bindings(response);
+  const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");
@@ -539,5 +546,5 @@ static void prepare_widget_metrics(void) {
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
   application_menu_keys=!!((unsigned)response->parts[5].height&2);
-  const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=texts_enabled&&frontend&&!strcmp(frontend,"1");
+  const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=NXS_BROWSER_UI_PATCH&&texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

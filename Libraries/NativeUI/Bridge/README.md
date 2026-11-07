@@ -2,7 +2,9 @@
 
 This directory contains the Linux transport and ARM64 instruction adapter
 machinery shared by the Chromium and Firefox experiments. It contains no
-native control implementations and has no GNUstep, GTK or Qt dependency.
+native control implementations. The core wire transport has no toolkit
+dependency; the optional GTK geometry target uses public GDK APIs with
+Wayland/GLib and does not link the GNUstep provider.
 Actual control drawing, metrics and input stay in the separate NativeUI
 provider and its underlying UI library.
 
@@ -108,3 +110,16 @@ size. The helper requires the originating control connection for these requests.
 The provider owns clipping and bounds. Browser adapters must still connect this
 native geometry to their layout and DOM scroll contracts; exposing it alone
 does not synchronize a browser text area.
+
+
+Current integration scope preserves browser-owned tabs, address bars and
+toolbars. `BrowserPolicy.h` keeps that rule common to both engines; old
+frontend/tab flags cannot opt into native browser widgets in the default build.
+A later explicitly requested browser-specific patch can opt in at build time,
+while still reusing the shared provider. Webpage controls, system detached
+menus and shortcut routing remain separate integrations.
+
+The same boundary applies to subsequent GTK and Qt/KDE work: GNUstep/AppKit
+owns the controls and behavior; toolkit adapters translate models, events and
+lifecycle. App-specific patches above those bridges handle individual quirks.
+Never fork the control renderer, menu tracking or shortcut matching per app.

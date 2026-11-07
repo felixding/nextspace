@@ -1,5 +1,14 @@
 # Chromium native scrollbar experiment
 
+Current scope (2026-11-07): keep the browser's own tabs, address bar and toolbar.
+Native browser-UI replacement is skipped. The shared default scope policy
+ignores the earlier frontend/tab opt-in flags; related qualification below is
+historical evidence. Continue webpage controls, then shared detached-menu and
+native-shortcut integration, followed by GTK and Qt/KDE apps. Future toolbar or
+other browser-UI changes belong to optional app-specific patches above the
+shared bridge/provider layer.
+
+
 This opt-in prototype replaces web-content scrollbars in **one unchanged Debian
 ARM64 Chromium build** with the existing NEXTSPACE `NSScroller` bridge. Only the
 small preload library is compiled for the browser binding. Chromium and AppKit
