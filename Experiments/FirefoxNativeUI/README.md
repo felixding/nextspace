@@ -604,7 +604,7 @@ the shared `Bridge/Popups.inc` serializer and the provider's existing independen
 popup-title method. Actual option indices and retained DOM identities guard
 commits when hidden options change the mapping. An empty visible model keeps
 the engine/native menu closed. All drawing, tracking and key handling stay
-native. Automatic sizing, broader lifecycle, moving owners while open, zoom,
+native. Broader lifecycle, moving owners while open, zoom,
 listboxes, IME and accessibility remain unfinished.
 
 The current implementation order is webpage controls, detached menus, then
@@ -613,11 +613,29 @@ behavior through the bridge. Toolbar work is skipped at the user's request.
 
 
 The single-select checks are reproducible with
-`check-popups.py --fixture OUTPUT --geometry --models` against a held owned fixture
+`check-popups.py --fixture OUTPUT --geometry --models --sizing` against a held owned fixture
 launched with `NEXTSPACE_FIREFOX_POPUPS=1`. The checker uses whole desktop
 captures, independent provider images, original DOM events, native item
 rectangles and compositor geometry. It also rejects native browser field/tab
 bindings. `Tests/Wayland/popup_models.py` and `native_popup_fixture.py` supply
 the same model cases, native references, real seat input and geometry checks
-for both browser engines. Browser-owned UI stays preserved. Intrinsic sizing
-and complete select coverage remain open.
+for both browser engines. Browser-owned UI stays preserved.
+
+At scale 1, the pinned Firefox adapter now feeds the existing native cell's
+preferred size into Gecko's intrinsic inline and automatic block sizing.
+Gecko retains explicit CSS dimensions, min/max and box sizing; its separate
+dropmarker allocation is suppressed while the complete native control supplies
+the arrow. Gecko's existing select mutation observer schedules ordinary
+intrinsic-size invalidation after light-tree changes. No text measurement,
+widget geometry, additional DOM observer or polling loop is implemented here.
+The shared `Tests/Wayland/popup_sizing.py` checks independent native sizes and
+complete pixels for empty/disabled/Unicode/grouped controls, CSS constraints,
+changed text/labels, visibility, insertion and removal without application actions.
+
+Native-host replacement also replays an unchanged retained popup model and
+resets its action counter for the new host. The optional desktop
+`--restart-host --popup-recovery` check retains a hidden selected option and
+grouped/disabled menu model, then verifies the first replacement-host action
+commits the original DOM index once. Wider select lifecycle, scaling, derivatives
+and installed deployment remain open. See the
+[sizing and recovery qualification](popup-sizing-qualification.json).

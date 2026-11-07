@@ -8,6 +8,7 @@ static void (*original_text_display)(void *,void *,const void *);
 #include "pinned-button-size.h"
 struct LogicalSizeI {int inline_size,block_size;};
 struct IntrinsicOffsetsI {int padding,border,margin;};
+static int popup_preferred(void *,struct LogicalSizeI *);
 _Static_assert(sizeof(struct LogicalSizeI)==8,"Pinned Gecko logical size ABI");
 _Static_assert(sizeof(struct IntrinsicOffsetsI)==12,"Pinned Gecko intrinsic offsets ABI");
 static struct LogicalSizeI (*original_button_auto_size)(void *,const void *,unsigned,
@@ -75,7 +76,7 @@ static struct LogicalSizeI button_auto_size(void *frame,const void *input,unsign
     const void *cb,int available,const void *margin,const struct LogicalSizeI *border_padding,
     const void *overrides,unsigned flags) {
   struct LogicalSizeI result=original_button_auto_size(frame,input,mode,cb,available,margin,border_padding,overrides,flags),preferred;
-  if(!(mode&1)&&button_preferred(frame,&preferred)) {
+  if(!(mode&1)&&(button_preferred(frame,&preferred)||popup_preferred(frame,&preferred))) {
     int content=preferred.block_size-border_padding->block_size;
     result.block_size=content>0?content:0;
   }

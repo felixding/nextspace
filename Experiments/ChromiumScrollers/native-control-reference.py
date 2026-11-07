@@ -57,7 +57,7 @@ for item in json.loads(args.controls.read_text()):
                                item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
                                item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
-        if item.get('preferred_size'):
+        if item.get('preferred_size') and item['kind']!=6:
             preferred = native.nxs_control_size(pointer)
             config.width, config.height = math.ceil(preferred.width), math.ceil(preferred.height)
             assert native.nxs_control_sync(pointer, C.byref(config))
@@ -70,6 +70,11 @@ for item in json.loads(args.controls.read_text()):
                 assert api.popup_title_capabilities
                 value=item['popup_title']
                 assert native.nxs_control_popup_title(pointer,None if value is None else value.encode('utf-8'))
+            if item.get('preferred_size'):
+                preferred=native.nxs_control_size(pointer)
+                config.width,config.height=math.ceil(preferred.width),math.ceil(preferred.height)
+                config.value=native.nxs_control_state(pointer).value
+                assert native.nxs_control_sync(pointer,C.byref(config))
         if 'step' in item:
             assert api.range_capabilities and native.nxs_control_set_step(pointer,item['step'])
         if args.focus and item['enabled'] and item['kind'] != 5:

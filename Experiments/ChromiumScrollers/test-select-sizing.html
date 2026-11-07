@@ -1,0 +1,26 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native select sizing</title>
+<style>
+body { margin:24px; color:black; background:white; font:16px sans-serif; }
+.row { display:flex; align-items:flex-start; min-height:38px; gap:20px; }
+label { width:170px; }
+#fixed { width:180px; height:31px; box-sizing:border-box; }
+#minimum { min-width:300px; }
+#maximum { max-width:90px; }
+#borderbox { box-sizing:border-box; }
+</style>
+<h1>Native preferred sizes</h1>
+<div class=row><label for=automatic>Automatic</label><select id=automatic><option>First</option><option>A longer native label</option></select></div>
+<div class=row><label for=empty>Empty</label><select id=empty></select></div>
+<div class=row><label for=disabled>Disabled</label><select id=disabled disabled><option>Unavailable</option></select></div>
+<div class=row><label for=unicode>Unicode</label><select id=unicode><option>日本語Café🙂</option></select></div>
+<div class=row><label for=grouped>Group heading</label><select id=grouped><optgroup label="A long native group heading"><option>Short</option></optgroup></select></div>
+<div class=row><label for=borderbox>Border box</label><select id=borderbox><option>Border box</option></select></div>
+<div class=row><label for=fixed>Explicit dimensions</label><select id=fixed><option>Fixed</option></select></div>
+<div class=row><label for=minimum>Minimum width</label><select id=minimum><option>Minimum</option></select></div>
+<div class=row><label for=maximum>Maximum width</label><select id=maximum><option>A long native label constrained by CSS</option></select></div>
+<script>
+window.events=[];
+for(const type of ['input','change','keyup'])document.addEventListener(type,e=>events.push({type,id:e.target.id,index:e.target.selectedIndex,trusted:e.isTrusted}));
+</script>

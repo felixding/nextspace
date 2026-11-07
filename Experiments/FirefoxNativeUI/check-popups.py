@@ -11,6 +11,7 @@ parser.add_argument('--fixture',type=Path,required=True)
 parser.add_argument('--port',type=int,default=2833)
 parser.add_argument('--geometry',action='store_true')
 parser.add_argument('--models',action='store_true')
+parser.add_argument('--sizing',action='store_true')
 options=parser.parse_args();root=options.fixture.resolve();results=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as c:
@@ -91,6 +92,11 @@ try:
  if options.models:
   sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
   from popup_models import run
+  run(fixture)
+ if options.sizing:
+  m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-select-sizing.html').as_uri()))
+  wait(lambda:js("return document.readyState==='complete'&&document.title==='Native select sizing'"))
+  from popup_sizing import run
   run(fixture)
  trace=(root/'hook.log').read_text()
  parent_bindings=[line for line in trace.splitlines() if re.match(str(pid)+r" native-(?:text |button |widget |widget bound|select )",line)]

@@ -16,6 +16,7 @@ parser.add_argument('--port',type=int,default=2863)
 parser.add_argument('--no-frontend',action='store_true')
 parser.add_argument('--document',type=Path,help='Optional owned HTML control fixture')
 parser.add_argument('--restart-host',action='store_true',help='Verify actual desktop native pixels after owned host replacement')
+parser.add_argument('--popup-recovery',action='store_true',help='Verify retained select models and first native actions across host replacement')
 parser.add_argument('--menus',action='store_true',help='Verify exclusive detached menus across the actual desktop applications')
 parser.add_argument('--menu-only-activation',action='store_true',help='Verify actual icon activation and native keys without a document window')
 parser.add_argument('--native-frame',action='store_true',help='Request the existing desktop frame through Firefox system-decoration settings')
@@ -25,6 +26,7 @@ parser.set_defaults(no_frontend=True)
 args=parser.parse_args()
 if args.native_tabs and args.no_frontend:parser.error('--native-tabs requires frontend integration')
 if args.menu_only_activation and not args.menus:parser.error('--menu-only-activation requires --menus')
+if args.popup_recovery and not args.restart_host:parser.error('--popup-recovery requires --restart-host')
 assert 1<=args.port<=65535
 for name in ['supervisor','compositor','workspace','capture_probe','library','hook','firefox']:
  assert getattr(args,name).is_file(),name
@@ -342,12 +344,16 @@ try:
  js('document.body.tabIndex=-1;document.body.focus({preventScroll:true});notes.scrollTop=73;return true')
  compare('reloaded')
  if args.restart_host:
+  if args.popup_recovery:
+   from popup_recovery import PopupRecovery
+   popup_recovery=PopupRecovery(js,check,command,wait,desktop,root,args,browser_env,repo,owned_hosts);popup_recovery.before()
   old_hosts=owned_hosts();check('one-owned-native-host',len(old_hosts)==1,hosts=old_hosts)
   before_ready=(root/'session.stdout').read_text().count('NEXTSPACE_NATIVE_UI_SOCKET=')
   js('window.__nativeDesktopMarker="retained";return true');os.kill(old_hosts[0],signal.SIGKILL)
   replacement=wait(owned_hosts,lambda pids:len(pids)==1 and pids[0]!=old_hosts[0])
   wait(lambda:(root/'session.stdout').read_text(),lambda text:text.count('NEXTSPACE_NATIVE_UI_SOCKET=')>before_ready)
   check('owned-host-replacement-retains-document',js('return window.__nativeDesktopMarker')=='retained',old_host=old_hosts[0],new_host=replacement[0])
+  if args.popup_recovery:popup_recovery.after()
   if args.menus:browser_menu('host-replaced-menu');menu_shortcut('host-replaced')
   compare('host-replaced')
   if args.native_tabs:tabs.recovered()

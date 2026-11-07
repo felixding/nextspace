@@ -13,6 +13,8 @@ struct GeckoPopup {
   void *frame,*node;
   uint64_t id;
   double width,height,actions;
+  double preferred_width,preferred_height;
+  uint32_t model_epoch;
   struct GeckoPopupModel model;
   uint32_t *pixels;
   int pixel_width,pixel_height,owned,visible;
@@ -24,6 +26,12 @@ static __thread const void *popup_mouse_event;
 static uint64_t popup_tracking_id;
 static uint32_t (*original_popup_chrome_event)(void *,void *,const void *,int,int,int *);
 static uint32_t (*original_popup_post)(void *,void *);
+static int (*original_popup_longest)(void *,void *);
+static int (*original_popup_has_button)(void *);
+static void (*original_popup_attribute_changed)(void *,void *,int,void *,unsigned,void *);
+static void (*original_popup_character_changed)(void *,void *,const void *);
+static void (*original_popup_content_removed)(void *,void *,const void *);
+static void (*original_popup_content_added)(void *,void *,int);
 static struct GeckoPopup *popup_find(const void *frame) {
   for(struct GeckoPopup *p=gecko_popups;p;p=p->next)if(p->frame==frame)return p;
   return NULL;
@@ -162,12 +170,14 @@ static void popup_invalidate(struct GeckoPopup *p) {
 }
 static struct NXSResponse *popup_sync(struct GeckoPopup *p) {
   struct NXSResponse *r=popup_request(p,1,0);if(!r)return NULL;
+  uint32_t epoch=atomic_load(&native_host_epoch);
+  if(p->model_epoch!=epoch)p->actions=r->parts[0].width;
   struct GeckoPopupModel model;if(!popup_snapshot(p->node,&model))return NULL;
   if(model.title&&r->parts[1].x!=1){popup_model_free(&model);return NULL;}
-  if(r->parts[6].width<=0&&!popup_model_same(&p->model,&model)) {
+  if(r->parts[6].width<=0&&(p->model_epoch!=epoch||!popup_model_same(&p->model,&model))) {
     model.packet->control=p->id;r=exchange_bytes(model.packet,sizeof(*model.packet)+model.packet->text_size);
     if(r&&r->parts[3].x==1&&r->parts[1].x==1)r=native_popup_title(p->id,model.title);
-    if(r&&r->parts[3].x==1){popup_model_free(&p->model);p->model=model;memset(&model,0,sizeof(model));}
+    if(r&&r->parts[3].x==1){popup_model_free(&p->model);p->model=model;p->model_epoch=epoch;memset(&model,0,sizeof(model));}
     else r=NULL;
   }
   popup_model_free(&model);if(!r)return NULL;
@@ -177,22 +187,90 @@ static struct NXSResponse *popup_sync(struct GeckoPopup *p) {
   if(!focused&&r->parts[6].width>0){r=popup_request(p,14,0);if(!r)return NULL;}
   if(!!r->parts[3].y!=focused) {
     struct NXSControlInputRequest focus={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=7,.process=identity(),.kind=NXS_POPUP,.control=p->id,.focused=focused};
-    if(!exchange_bytes(&focus,sizeof(focus)))return NULL;r=popup_request(p,5,0);
+    if(!exchange_bytes(&focus,sizeof(focus)))return NULL;r=popup_request(p,1,0);
   }
   if(!popup_cache(p,r))return NULL;
   return r;
 }
-static int prepare_popup_image(void *frame) {
-  if(!native_popup_frame(frame))return 0;
+static struct GeckoPopup *popup_bind(void *frame) {
+  if(!native_popup_frame(frame))return NULL;
   struct GeckoPopup *p=popup_find(frame);
   if(!p) {
-    if(!ensure_widget_lifetime()||!ensure_text_watch())return 0;
-    p=calloc(1,sizeof(*p));if(!p)return 0;
+    if(!ensure_widget_lifetime()||!ensure_text_watch())return NULL;
+    p=calloc(1,sizeof(*p));if(!p)return NULL;
     p->frame=frame;p->node=*(void **)((char *)frame+24);p->id=++next_widget;p->next=gecko_popups;gecko_popups=p;
   }
+  return p;
+}
+static int popup_preferred(void *frame,struct LogicalSizeI *size) {
+  struct GeckoPopup *p=popup_bind(frame);if(!p||(*((const unsigned char *)frame+108)&1))return 0;
+  /* The one-unit probe hosts only the native model before first reflow.
+   * NSPopUpButtonCell::cellSize supplies all title/arrow/border metrics. */
+  if(p->width<1||p->height<1)p->width=p->height=1;
+  struct NXSResponse *r=popup_sync(p);if(!r)return 0;
+  double width=r->parts[1].width,height=r->parts[1].height;
+  if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return 0;
+  p->preferred_width=width;p->preferred_height=height;
+  *size=(struct LogicalSizeI){ceil(width)*60,ceil(height)*60};return 1;
+}
+static int popup_longest(void *frame,void *rendering) {
+  struct LogicalSizeI preferred;
+  if(!popup_preferred(frame,&preferred))return original_popup_longest(frame,rendering);
+  struct IntrinsicOffsetsI offsets=((struct IntrinsicOffsetsI (*)(void *,int))(base+0x6e83058))(frame,0x3fffffff);
+  /* Gecko still owns contain/field-sizing, CSS min/max, flex/grid and box
+   * sizing. The complete native control owns its arrow, so the separate
+   * engine dropmarker allocation is suppressed below. */
+  int content=preferred.inline_size-offsets.padding-offsets.border;
+  return content>0?content:0;
+}
+static int popup_has_button(void *frame) {
+  struct GeckoPopup *p=popup_find(frame);
+  return p&&p->preferred_width>0&&channel>=0&&native_popup_frame(frame)?0:original_popup_has_button(frame);
+}
+static void popup_reflow(struct GeckoPopup *p) {
+  if(!p||!native_popup_frame(p->frame))return;
+  void *context=*(void **)((char *)p->frame+40),*shell=*(void **)((char *)context+32);
+  if(shell)((void (*)(void *,void *,unsigned,uint64_t,unsigned))(base+NXS_GECKO_HTML_BUTTON_REFLOW_OFFSET))(shell,p->frame,2,0x400,2);
+}
+static uint64_t popup_mutation(void *node,void *changed) {
+  for(struct GeckoPopup *p=gecko_popups;p;p=p->next)if(p->node==node) {
+    /* Keep Gecko's existing mutation observer and anonymous-tree boundary.
+     * Only schedule its ordinary intrinsic-size invalidation; the next layout
+     * obtains the complete model and preferred size from the native cell. */
+    return ((int (*)(const void *,const void *))(base+NXS_GECKO_POPUP_SAME_ANONYMOUS_TREE))(node,changed)?p->id:0;
+  }
+  return 0;
+}
+static void popup_attribute_changed(void *node,void *element,int ns,void *attribute,unsigned change,void *old) {
+  uint64_t id=popup_mutation(node,element);
+  original_popup_attribute_changed(node,element,ns,attribute,change,old);
+  if(id)popup_reflow(popup_find_id(id));
+}
+static void popup_character_changed(void *node,void *content,const void *info) {
+  uint64_t id=popup_mutation(node,content);
+  original_popup_character_changed(node,content,info);
+  if(id)popup_reflow(popup_find_id(id));
+}
+static void popup_content_removed(void *node,void *child,const void *info) {
+  uint64_t id=popup_mutation(node,child);
+  original_popup_content_removed(node,child,info);
+  if(id)popup_reflow(popup_find_id(id));
+}
+static void popup_content_added(void *node,void *child,int append) {
+  uint64_t id=popup_mutation(node,child);
+  original_popup_content_added(node,child,append);
+  if(id)popup_reflow(popup_find_id(id));
+}
+static int prepare_popup_image(void *frame) {
+  struct GeckoPopup *p=popup_bind(frame);if(!p)return 0;
   int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);p->width=rect[2]/60.;p->height=rect[3]/60.;p->owned=0;
   if(p->width<1||p->height<1||p->width!=floor(p->width)||p->height!=floor(p->height)||p->width>8192||p->height>8192)return 0;
-  p->owned=popup_sync(p)!=NULL;return p->owned;
+  struct NXSResponse *r=popup_sync(p);p->owned=r!=NULL;
+  if(r&&(p->preferred_width!=r->parts[1].width||p->preferred_height!=r->parts[1].height)) {
+    p->preferred_width=r->parts[1].width;p->preferred_height=r->parts[1].height;
+    popup_reflow(p);
+  }
+  return p->owned;
 }
 static int native_popup_owned(const void *frame) {struct GeckoPopup *p=popup_find(frame);return p&&p->owned;}
 static int native_popup_display(void *frame,void *builder,const void *lists) {
@@ -202,7 +280,12 @@ static int native_popup_display(void *frame,void *builder,const void *lists) {
   frontend_background_frame=previous;return 1;
 }
 static int draw_popup_image(void *target,void *frame,const struct RectF *area) {
-  struct GeckoPopup *p=popup_find(frame);if(!p||!p->owned||!p->pixels||p->pixel_width!=lround(area->width)||p->pixel_height!=lround(area->height))return 0;
+  struct GeckoPopup *p=popup_find(frame);if(!p||!p->owned||!p->pixels)return 0;
+  if(p->pixel_width!=lround(area->width)||p->pixel_height!=lround(area->height)) {
+    static unsigned notes;
+    if(log_fd>=0&&notes++<16)dprintf(log_fd,"%d native-select size mismatch id=%llu bitmap=%dx%d area=%.3f,%.3f %.3fx%.3f\n",getpid(),(unsigned long long)p->id,p->pixel_width,p->pixel_height,area->x,area->y,area->width,area->height);
+    return 0;
+  }
   draw_bitmap(target,area,p->pixels,p->pixel_width,p->pixel_height);
   if(log_fd>=0)dprintf(log_fd,"%d native-select id=%llu count=%u selected=%d rect=%.0f,%.0f %dx%d\n",getpid(),(unsigned long long)p->id,p->model.packet->count,p->model.packet->selected,area->x,area->y,p->pixel_width,p->pixel_height);
   return 1;
@@ -321,6 +404,12 @@ static void native_popup_release_context(void *context) {
   }
 }
 static struct Detour popup_detours[]={
+ {NXS_GECKO_POPUP_LONGEST,gecko_popup_longest_bytes,popup_longest,(void **)&original_popup_longest},
+ {NXS_GECKO_POPUP_HAS_BUTTON,gecko_popup_has_button_bytes,popup_has_button,(void **)&original_popup_has_button},
+ {NXS_GECKO_POPUP_ATTRIBUTE_CHANGED,gecko_popup_attribute_changed_bytes,popup_attribute_changed,(void **)&original_popup_attribute_changed},
+ {NXS_GECKO_POPUP_CHARACTER_CHANGED,gecko_popup_character_changed_bytes,popup_character_changed,(void **)&original_popup_character_changed},
+ {NXS_GECKO_POPUP_CONTENT_REMOVED,gecko_popup_content_removed_bytes,popup_content_removed,(void **)&original_popup_content_removed},
+ {NXS_GECKO_POPUP_CONTENT_ADDED,gecko_popup_content_added_bytes,popup_content_added,(void **)&original_popup_content_added},
  {NXS_GECKO_POPUP_CHROME_EVENT,gecko_popup_chrome_event_bytes,popup_chrome_event,(void **)&original_popup_chrome_event},
  {NXS_GECKO_POPUP_POST_EVENT,gecko_popup_post_event_bytes,popup_post,(void **)&original_popup_post}
 };
