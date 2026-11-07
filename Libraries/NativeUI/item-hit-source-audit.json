@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "81e90a69",
+  "status": "shared-native-item-hit-query-qualified-browser-event-target-binding-open",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "96d5534f77eeede23bbe656b33f10e46cf56bb46acbb48a2ee96a973fe106931",
+    "Experiments/ChromiumScrollers/native_controls.py": "b0ad737a700cf7c38b179df86d2feb90149540b3849d5aac80bda894d78e7d95",
+    "Libraries/NativeUI/Bridge/ItemHits.inc": "5a9e43a1e751fc786e57025e775b7ff4e7087f55bc239dc4f67585acd7246689",
+    "Libraries/NativeUI/Bridge/Protocol.h": "1bfd9468fc4c4541a23809a770d52a9dc583f61d5c38567ade7f49a13d5a11f1",
+    "Libraries/NativeUI/Bridge/README.md": "787573c38011d1eb06140c7c2b63535b24301bef75c8f379f5b0a0160786732f",
+    "Libraries/NativeUI/GNUstep/List.inc": "8138237f8bb9a0c2d66c2e32295c12e6ad75ed62055549d3dfbdfde569458bfc",
+    "Libraries/NativeUI/GNUstep/Provider.h": "254d671e2d5f416453dd295741639516cbf048aea200e6e1b38207c754ee0026",
+    "Libraries/NativeUI/GNUstep/Provider.m": "89277b832ff0030b8d76d35bac5d3672788da153aee30cd5a33a0a2a41f6fee0",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "feac69d7488bd2299daa08ccddc7e8b67d85365b3e497c931868d7d156a69dac",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "4f9f8f2628882454414b23e24185a1b8bd9159d6884964135e4f0025f1abb5c5",
+    "Libraries/NativeUI/Loader.c": "b0af008fba09abe7f94c7337c1e0e443aa2ab3dd3d5b6b124786a429c1afae02",
+    "Libraries/NativeUI/NativeUI.h": "f2e886560d8e6309824db1aec15511b19e6f2986baab5bf2715b8504bc2b4d9e",
+    "Libraries/NativeUI/README.md": "f2c5dcd2bc40c53267bde5a7da303398f093d0ade4c6940673971a8748923412",
+    "Tests/NativeUI/check-tab-transport.py": "bb3ef23dc46f1cb44ae8a7db25688a183b7ecacab6e0f07c52f672d60f0275c5",
+    "Tests/NativeUI/check-tabs.py": "b010eaa8740eed7f92305aae67c053610cc8d38cade6344bc9b0324ac9303c8a",
+    "Tests/NativeUI/list-probe.m": "32512901a3faaa118407a83aa7cb37da5f704491fa06962ac7e588f29f7aa02b",
+    "Tests/NativeUI/list-transport-probe.c": "5672f1e59e9dce810f5e52c2eb040b21281eda92cbf00b0309737bd91580c32a",
+    "docs/Native-Control-Integration.md": "4c6d2233d0a21b8209c8639905ad24dc1b45ea25d6d3dc066e02736bf169b667"
+  },
+  "invariants": [
+    "Optional control_item_at_point appends at offset 576, preserving all previous methods. API version stays 1 with size 584. Separate acceptance and uint64 output distinguish unsupported queries from native non-item areas without losing ID bits.",
+    "GNUstep owns the original hitTest, native coordinate conversion and NSMatrix getRow:column:forPoint: lookup. The provider maps the resulting original cell to existing application row IDs. No view/control subclass or row, clipping, scrollbar, drawing or hit algorithm is copied.",
+    "The shared host view-hit helper also serves existing native wheel dispatch. Item queries do not alter selection, focus or actions, and remain readable during native tracking. Invalid controls/coordinates/output are rejected without changing caller output.",
+    "Owned operation 53 uses the unchanged generic request with x/y and returns exactly one uint64 ID, zero for native non-item areas. Bootstrap part 2.x advertises support independently of unchanged list and scroll capability fields. ItemHits.inc is one reusable engine/toolkit transport helper.",
+    "Independent ordinary NSBrowser windows supply a grid of more than 700 native hit observations per state at actual 1x/2x, covering clip edges, scrollers, off-control points, scroll positions, empty lists and disabled controls/cells. Shared C transport preserves IDs above the exact-double range and rejects other connections.",
+    "Actual previous API 1/576 and 1/568 providers remain usable, reject missing optional methods without caller writes, and preserve existing list/scroll behavior. An unchanged compiled previous list client passes against the new SDK.",
+    "Only the isolated shared SDK and probes are built. Existing browser adapters are unchanged and retain original toolbar/address bar/tabs. All 20 measured production hashes and package inventory remain unchanged. Browser content processes retain Seccomp=2 and NoNewPrivs=1.",
+    "This checkpoint exposes the native hit decision; it does not replace the original browser event target yet. The known Chromium DOM mousedown row mismatch remains open and is not claimed fixed. Subsequent browser/toolkit adapters must map native IDs through their original hit-result lifetime and trusted event/cancellation paths."
+  ]
+}

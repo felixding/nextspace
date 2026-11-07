@@ -69,6 +69,10 @@ int nxs_control_scroll_geometry(NXSControl *c,NXSScrollGeometry *geometry)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_scroll_geometry)?p->control_scroll_geometry(c,geometry):0;}
 unsigned nxs_control_scroll_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_scroll_geometry)?NXS_SCROLL_GEOMETRY:0;}
+int nxs_control_item_at_point(NXSControl *c,double x,double y,uint64_t *identifier)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_item_at_point)?p->control_item_at_point(c,x,y,identifier):0;}
+unsigned nxs_control_item_hit_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_item_at_point)?1:0;}
 double nxs_control_backing_scale(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_backing_scale)?p->control_backing_scale(c):0;}
 unsigned nxs_control_activation_capabilities(void)

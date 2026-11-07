@@ -979,3 +979,21 @@ See [scroll geometry qualification](scroll-geometry-qualification.json).
 These measurements prepare browser option/layout and DOM scroll binding.
 They do not by themselves complete native browser scrolling, intrinsic sizing,
 wheel/default routing or host recovery. Toolbar/address bar/tabs stay original.
+
+
+The optional native item query appends `control_item_at_point` after the
+unchanged 576-byte prefix (ABI 1/584). The size-checked loader exposes
+`nxs_control_item_hit_capabilities`; an older provider leaves the query output
+unchanged. For lists, the provider uses the ordinary native view hit test,
+coordinate conversion and `NSMatrix` cell lookup to return the existing 64-bit
+model ID. Zero denotes a non-item area, including native scrollbars and clipped
+rows. Queries do not alter selection, focus or actions. No row geometry or hit
+algorithm is reproduced in an adapter.
+
+Owned operation 53 transports this result through shared `Bridge/ItemHits.inc`;
+bootstrap part 2.x advertises it independently of existing capabilities.
+Independent ordinary native windows and the C-only transport client compare
+hits across a grid at 1x/2x, including scrolling, disabled cells and clip edges.
+See [item hit qualification](item-hit-qualification.json). Browser event target
+binding still needs to consume this shared query; the known Chromium DOM row
+mismatch remains open. Existing browser toolbar/address bar/tabs stay original.

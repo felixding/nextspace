@@ -171,6 +171,13 @@ class NativeControlServer:
         self.radio_capabilities=0
         self.list_capabilities=0
         self.scroll_capabilities=0
+        self.item_hit_capabilities=0
+        if hasattr(native,'nxs_control_item_hit_capabilities'):
+            native.nxs_control_item_hit_capabilities.restype=C.c_uint
+            self.item_hit_capabilities=native.nxs_control_item_hit_capabilities()
+            if self.item_hit_capabilities&1:
+                native.nxs_control_item_at_point.argtypes=[C.c_void_p,C.c_double,C.c_double,C.POINTER(C.c_uint64)]
+                native.nxs_control_item_at_point.restype=C.c_int
         if hasattr(native,'nxs_control_scroll_capabilities'):
             native.nxs_control_scroll_capabilities.restype=C.c_uint
             self.scroll_capabilities=native.nxs_control_scroll_capabilities()
@@ -887,6 +894,12 @@ class NativeControlServer:
                 accepted=bool(self.scroll_capabilities&1 and state['client'] is client and
                     self.native.nxs_control_scroll_geometry(state['native'],C.byref(geometry)))
                 self._respond(client,req,state,input_result=int(accepted),payload=bytes(geometry) if accepted else b'')
+                return
+            if req.operation==53 and not req.text_size:
+                identifier=C.c_uint64()
+                accepted=bool(self.item_hit_capabilities&1 and state['client'] is client and
+                    self.native.nxs_control_item_at_point(state['native'],req.x,req.y,C.byref(identifier)))
+                self._respond(client,req,state,input_result=int(accepted),payload=bytes(identifier) if accepted else b'')
                 return
             if req.operation==34 and req.kind==9 and self.text_capabilities&32 and not req.text_size:
                 geometry=TextGeometry(size=C.sizeof(TextGeometry))

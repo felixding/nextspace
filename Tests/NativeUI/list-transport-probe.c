@@ -10,6 +10,7 @@ static void note(const char *message){fprintf(stderr,"%s\n",message);}
 #include "Bridge/Transport.inc"
 #include "Bridge/Lists.inc"
 #include "Bridge/ListBinding.inc"
+#include "Bridge/ItemHits.inc"
 _Static_assert(sizeof(struct NXSControlListRequest)==56,"List model wire");
 _Static_assert(sizeof(struct NXSListWireItem)==24,"List row wire");
 _Static_assert(sizeof(struct NXSControlListItemRequest)==40,"List geometry wire");
@@ -37,6 +38,14 @@ static void expected(const char *name)
   NXSScrollGeometry geometry={0},wanted={0};assert(fread(&wanted,sizeof(wanted),1,in)==1&&fgetc(in)==EOF);fclose(in);
   check("native-scroll-geometry-matches-ordinary-reference-through-IPC",native_list_geometry(1,&geometry)&&geometry.size==sizeof(geometry)&&
     !memcmp(&geometry.clip,&wanted.clip,sizeof(geometry)-offsetof(NXSScrollGeometry,clip)));
+  snprintf(path,sizeof(path),"%s/%s-hits.bin",reference,name);in=fopen(path,"rb");assert(in);
+  double point[2];uint64_t identifier;unsigned samples=0;int okay=1;
+  while(fread(point,sizeof(point),1,in)==1) {
+    assert(fread(&identifier,sizeof(identifier),1,in)==1);uint64_t actual=0;
+    if(!native_control_item_at_point(NXS_LISTBOX,1,point[0],point[1],&actual)||actual!=identifier)okay=0;
+    samples++;
+  }
+  assert(feof(in));fclose(in);check("native-item-hits-match-ordinary-reference-through-IPC",okay&&samples>700);
 }
 static void image(const char *name)
 {
@@ -68,6 +77,8 @@ static void click_at(double x,double y,unsigned modifiers)
   struct Snapshot busy=snapshot();(void)busy;
   check("native-list-model-rejected-during-tracking",!native_list_model(1,items,count,flags,0,scale));
   check("native-scroll-geometry-readable-during-tracking",native_list_geometry(1,&(NXSScrollGeometry){0}));
+  uint64_t hit=UINT64_MAX;
+  check("native-item-hit-readable-during-tracking",native_control_item_at_point(NXS_LISTBOX,1,x,y,&hit));
   check("native-list-scroll-rejected-during-tracking",!native_list_scroll(1,0,0));
   r=native_list_request(1,1,180,96,1);check("native-list-config-rejected-during-tracking",r&&!r->width);
   r=native_list_request(1,5,0,0,1);check("native-list-remains-renderable-during-tracking",r&&r->width>0&&r->parts[0].y);
@@ -114,9 +125,17 @@ int main(int argc,char **argv)
     r=native_list_request(1,1,180,96,1);check("older-provider-rejects-list-creation",r&&!r->width);
     check("older-provider-rejects-typed-list-query",!native_list_state(1,&(struct NXSListWireState){0},&(const uint64_t *){0}));
   } else {
+    if(argc>5&&!strcmp(argv[5],"--expect-no-item-hit")) {
+      check("older-provider-advertises-no-item-hit-wire",r->parts[2].x==0&&r->parts[3].y==NXS_SCROLL_GEOMETRY);
+      r=native_list_request(1,1,180,96,1);check("older-provider-retains-list-creation",r&&r->width>0);
+      uint64_t identifier=UINT64_C(0xf000000000000123);
+      check("older-provider-rejects-optional-item-query-without-write",!native_control_item_at_point(NXS_LISTBOX,1,30,30,&identifier)&&identifier==UINT64_C(0xf000000000000123));
+      assert(native_list_request(1,6,0,0,1));close(channel);printf("{\"passed\":%u,\"images\":0}\n",checks);return 0;
+    }
     check("native-list-capability-crosses-shared-wire",r->parts[3].x==NXS_LIST_ITEMS);
     int previous_scroll=argc>5&&!strcmp(argv[5],"--expect-no-scroll");
     check("shared-scroll-capability-crosses-wire",r->parts[3].y==(previous_scroll?0:NXS_SCROLL_GEOMETRY));
+    if(!previous_scroll)check("native-item-hit-capability-crosses-shared-wire",r->parts[2].x==1);
     r=native_list_request(1,1,180,96,1);check("native-list-created-at-actual-density",r&&r->width==lround(180*scale)&&r->height==lround(96*scale)&&r->parts[5].y==scale);
     if(previous_scroll) {
       NXSScrollGeometry geometry,saved;memset(&geometry,0x6a,sizeof(geometry));saved=geometry;
@@ -128,12 +147,15 @@ int main(int argc,char **argv)
       native_list_binding_destroy(&binding);
       assert(native_list_request(1,6,0,0,1));close(channel);printf("{\"passed\":%u,\"images\":0}\n",checks);return 0;
     }
+    uint64_t invalid_hit=UINT64_C(0xf000000000000123);
+    check("invalid-item-hit-coordinate-preserves-output",!native_control_item_at_point(NXS_LISTBOX,1,NAN,0,&invalid_hit)&&invalid_hit==UINT64_C(0xf000000000000123));
+    check("unknown-item-hit-control-does-not-create-an-owner",!native_control_item_at_point(NXS_LISTBOX,987,30,30,&invalid_hit)&&invalid_hit==UINT64_C(0xf000000000000123));
     r=native_list_request(99,1,scale>1?2048:8192,scale>1?2048:8192,1);check("oversized-initial-list-is-rejected",r&&!r->width);
     check("rejected-initial-list-registers-no-native-state",!native_list_state(99,&(struct NXSListWireState){0},&(const uint64_t *){0}));
     r=native_list_request(99,1,180,96,1);check("valid-create-after-rejected-initial-size-succeeds",r&&r->width>0);assert(native_list_request(99,6,0,0,1));
     model(4,0,1);assert(native_list_input(1,1,NULL));expected("single");image("single");key(0);expected("single-key");image("single-key");key(0);expected("single-next");image("single-next");
     for(unsigned op=1;op<=8;op++)if(op!=2&&op!=3&&op!=4&&op!=5)foreign(argv[1],op);
-    foreign(argv[1],48);foreign(argv[1],49);foreign(argv[1],50);foreign(argv[1],51);foreign(argv[1],52);foreign(argv[1],35);expected("single-next");
+    foreign(argv[1],48);foreign(argv[1],49);foreign(argv[1],50);foreign(argv[1],51);foreign(argv[1],52);foreign(argv[1],53);foreign(argv[1],35);expected("single-next");
     click(0,0);expected("single-pointer");image("single-pointer");
     model(4,1,5);expected("multiple");image("multiple");key(NXS_SHIFT);expected("multiple-shift");image("multiple-shift");
     check("same-model-is-a-native-no-op",native_list_model(1,items,count,flags,0,scale)!=NULL);expected("multiple-shift");click(3,NXS_SHIFT);expected("multiple-pointer");image("multiple-pointer");

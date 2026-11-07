@@ -114,6 +114,15 @@ int nxs_gnustep_control_list_scroll(NXSControl *control,double x,double y)
   [clip scrollToPoint:[clip constrainScrollPoint:NSMakePoint(x,y)]];[(NSScrollView *)[clip superview] reflectScrolledClipView:clip];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
+int nxs_gnustep_control_item_at_point(NXSControl *control,double x,double y,uint64_t *identifier)
+{
+  if(!control||control->destroying||control->kind!=NXS_LISTBOX||!identifier||!isfinite(x)||!isfinite(y))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];NSMatrix *matrix=list_matrix(control);NSInteger row,column;
+  NSView *hit=nxs_host_hit_view(control->host,x,y);uint64_t result=0;
+  if(hit==matrix&&[matrix getRow:&row column:&column forPoint:nxs_host_point_to_view(control->host,matrix,x,y)])
+    result=list_identifier(control,[matrix cellAtRow:row column:column]);
+  *identifier=result;[pool drain];return 1;
+}
 int nxs_gnustep_control_scroll_geometry(NXSControl *control,NXSScrollGeometry *geometry)
 {
   if(!geometry||geometry->size<sizeof(*geometry)||!control||control->destroying)return 0;

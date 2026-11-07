@@ -137,3 +137,11 @@ The same boundary applies to subsequent GTK and Qt/KDE work: GNUstep/AppKit
 owns the controls and behavior; toolkit adapters translate models, events and
 lifecycle. App-specific patches above those bridges handle individual quirks.
 Never fork the control renderer, menu tracking or shortcut matching per app.
+
+
+`ItemHits.inc` provides the shared optional item-at-point query. Bootstrap
+part 2.x advertises support; owned operation 53 uses ordinary control x/y and
+returns one complete uint64 ID, zero for a native non-item area. A rejected or
+unsupported query leaves the caller output untouched. GNUstep supplies the
+view/cell hit decision; engines and toolkits map the returned semantic ID to
+their existing model. Browser event target integration remains separate work.

@@ -1,0 +1,580 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "81e90a69",
+  "status": "shared-native-item-hit-query-qualified-browser-event-target-binding-open",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 584,
+  "preserved_prefix_bytes": 576,
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74048,
+      "sha256": "e53aa1845fcbe64219b3b942d92564b6dd9b898cda6de7fe523c54e42cea9a56"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322880,
+      "sha256": "94ab8262f4368e9eb8c47159a3cbf671fd3178641cb9a4d2ce50edcd10d72788"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "7d76a7c0b12d2df3ebaab4b94671f5a2bb54063c056a143c80919b6b8735c19c"
+    },
+    "native_probe": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/native-list-probe",
+      "bytes": 98616,
+      "sha256": "4305234cfd124d7119a05acda06a9465e9f33f843dd3987a2b6b2e6c11cbb8e4"
+    },
+    "C_probe": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-01/native-ui/native-list-transport-probe",
+      "bytes": 75344,
+      "sha256": "59a30c04b4da3bc3fa83c2e43560bd48f56448550d1e2fc29464508594c62d3d"
+    }
+  },
+  "source_reproduction": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-repro-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74048,
+      "sha256": "e53aa1845fcbe64219b3b942d92564b6dd9b898cda6de7fe523c54e42cea9a56"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/item-hit-repro-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 322880,
+      "sha256": "94ab8262f4368e9eb8c47159a3cbf671fd3178641cb9a4d2ce50edcd10d72788"
+    }
+  },
+  "verification": {
+    "runs": {
+      "provider": {
+        "path": "/var/tmp/nxs-item-hit-provider-02",
+        "results_file": "results.json",
+        "checks": 200,
+        "native_images": 26,
+        "sha256": "85ee44e2e52a8c224ecb7cd12f23e0658db152c48f7e9e20a87481a75aa4de5c"
+      },
+      "wire": {
+        "path": "/var/tmp/nxs-item-hit-wire-02",
+        "results_file": "results.json",
+        "checks": 391,
+        "native_images": 26,
+        "sha256": "80d77c6c6e394f9ff3fe81b56816e10200af0567d41e1c87f1dd3657dda651f8"
+      },
+      "previous_client": {
+        "path": "/var/tmp/nxs-item-hit-previous-client-01",
+        "results_file": "results.json",
+        "checks": 140,
+        "native_images": 26,
+        "sha256": "92b711861e027ff0f74c041c43232f55e2aa4e593811cade54d26b32e8387ce5"
+      },
+      "chromium_scroll": {
+        "path": "/var/tmp/nxs-item-hit-chromium-01",
+        "results_file": "list-scroll-results.json",
+        "checks": 31,
+        "native_images": 12,
+        "sha256": "af63df10e9ef1d14ea03744f31a313ea0193b80fd689d7a22f7628510310b054"
+      },
+      "chromium_list": {
+        "path": "/var/tmp/nxs-item-hit-chromium-01",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "e7118af42a4e060a6c00016e2c9216f3e88e16f49d0afa803534865d1d6ebb45"
+      },
+      "chromium_text": {
+        "path": "/var/tmp/nxs-item-hit-chromium-04",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "firefox_list": {
+        "path": "/var/tmp/nxs-item-hit-firefox-05",
+        "results_file": "list-results.json",
+        "checks": 34,
+        "native_images": 13,
+        "sha256": "a340136721540453ad8502ddacf6bbc1c1f8fd60c4bc11cb63d0457ef5d102e0"
+      },
+      "firefox_text": {
+        "path": "/var/tmp/nxs-item-hit-firefox-05",
+        "results_file": "button-results.json",
+        "checks": 108,
+        "native_images": 48,
+        "sha256": "d318ea4b5dc51adbabeb57a12612750da62c06f916b1998b01d302905301cffc"
+      }
+    },
+    "scoped_checks": 1045,
+    "complete_native_images": 212,
+    "native_reference_scales": [
+      1,
+      2
+    ],
+    "browser_scale": 1,
+    "native_ui_regression": {
+      "path": "/var/tmp/nxs-item-hit-regression-01",
+      "sections": 35,
+      "results_sha256": "cb2ea02774dbf2fd4c218bce78689f8ba2a52bc3aed99744f01ab704c1dc052a"
+    }
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "live_owned": [],
+    "api": {
+      "version": 1,
+      "size": 584
+    },
+    "unchanged_candidates": {
+      "loader": {
+        "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/libnextspace-native-ui.so.0.1",
+        "bytes": 73936,
+        "sha256": "03752fb271f593f0fe19a145d1605549ef688b3c11a36876d4fe729af0befdbf"
+      },
+      "provider": {
+        "path": "/var/tmp/nextspace-native-ui/list-geometry-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+        "bytes": 322416,
+        "sha256": "8970a15ccd3036c1e7bffc6cd3a2c7396e149104fd5d6e33d8c1226ccac0379d"
+      },
+      "shim": {
+        "path": "/var/tmp/nextspace-native-ui/list-geometry-01/libnextspace-native-scroller.so.0.1",
+        "bytes": 69968,
+        "sha256": "d050b1399de66a663d34b4531437beb2ef1328e4a733a1d2db26857a63bc6b36"
+      },
+      "firefox_adapter": {
+        "path": "/var/tmp/nextspace-native-ui/list-geometry-firefox-01-hook.so",
+        "bytes": 162400,
+        "sha256": "09d85b0064fb1698694c3c9b023a7a67b700fb7160294106bdce65a1c4f793a5"
+      },
+      "chromium_scroll_01": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-01-hook.so",
+        "bytes": 234112,
+        "sha256": "0ad6bee35d6195f306424aaf6fabcf271a6027011056acdaea6079d52437e8db"
+      },
+      "chromium_scroll_02": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-02-hook.so",
+        "bytes": 234488,
+        "sha256": "72e42eedb9c5add46fdfc8f0852603ee4825ad8b86198e3148542bc53bd0bf2a"
+      },
+      "chromium_scroll_03": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-03-hook.so",
+        "bytes": 234488,
+        "sha256": "72514b6b96062318adfe9205f55024fbfb922ed5d6c3035a40de25c69db2286d"
+      },
+      "chromium_scroll_04": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-04-hook.so",
+        "bytes": 234488,
+        "sha256": "f1ad64035eb4e5089cf22794e61a7bcd350a69f89eedeb88e4a9417471f09de0"
+      },
+      "chromium_scroll_05": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-05-hook.so",
+        "bytes": 234664,
+        "sha256": "9ebb72e53af04721b6f3a80089d9a60b2a77bc81ef44155ce2ee0832ce1ba8f9"
+      },
+      "chromium_scroll_06": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-06-hook.so",
+        "bytes": 234752,
+        "sha256": "305d5389ace86df186e4aaacd4a70c8fe86779da2bce77491b8e3e6dd15013e8"
+      },
+      "chromium_scroll_07": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-07-hook.so",
+        "bytes": 234752,
+        "sha256": "a73ebdd5d11b2acb3c1002ccf12e99d289e076508de054be7e6e077f02930b8d"
+      },
+      "chromium_scroll_08": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-list-scroll-08-hook.so",
+        "bytes": 234800,
+        "sha256": "3ff92a86447fa1b8e1e7cae274876fe48571a292a9216c8e1bdf0fc7eafb68f7"
+      },
+      "ordinary_gesture": {
+        "path": "/var/tmp/nextspace-native-ui/native-list-gesture-reference-02",
+        "bytes": 84720,
+        "sha256": "97d5a25f5a406c746066b85ddc766fff495bd78bdda5aa9119724aaf00865f93"
+      }
+    },
+    "C_clients_and_loader_have_no_UI_toolkit_dependency": true,
+    "sandbox": {
+      "nxs-item-hit-chromium-01": [
+        {
+          "pid": 190791,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 190799,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 190800,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "nxs-item-hit-chromium-04": [
+        {
+          "pid": 191644,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191657,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191665,
+          "name": "chromium",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "nxs-item-hit-firefox-01": [
+        {
+          "pid": 190953,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 190997,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191031,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191050,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191080,
+          "name": "Web Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191098,
+          "name": "Privileged Cont",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "nxs-item-hit-firefox-04": [
+        {
+          "pid": 191741,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 191777,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ],
+      "nxs-item-hit-firefox-05": [
+        {
+          "pid": 192236,
+          "name": "WebExtensions",
+          "seccomp": 2,
+          "no_new_privs": 1
+        },
+        {
+          "pid": 192280,
+          "name": "file:// Content",
+          "seccomp": 2,
+          "no_new_privs": 1
+        }
+      ]
+    },
+    "cleanup": {
+      "nxs-item-hit-chromium-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-chromium-02": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-chromium-03": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-chromium-04": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-firefox-01": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-firefox-02": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-firefox-03": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-firefox-04": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-firefox-05": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-item-hit-previous-client-01": [
+        {
+          "pid": 191195,
+          "exit": 0
+        },
+        {
+          "pid": 191198,
+          "exit": -15
+        },
+        {
+          "pid": 191199,
+          "exit": 0
+        },
+        {
+          "pid": 191207,
+          "exit": 0
+        }
+      ],
+      "nxs-item-hit-provider-01": [
+        {
+          "pid": 190509,
+          "exit": 0
+        },
+        {
+          "pid": 190512,
+          "exit": -15
+        },
+        {
+          "pid": 190513,
+          "exit": 0
+        },
+        {
+          "pid": 190517,
+          "exit": 0
+        },
+        {
+          "pid": 190518,
+          "exit": 0
+        },
+        {
+          "pid": 190519,
+          "exit": 0
+        }
+      ],
+      "nxs-item-hit-provider-02": [
+        {
+          "pid": 190677,
+          "exit": 0
+        },
+        {
+          "pid": 190680,
+          "exit": -15
+        },
+        {
+          "pid": 190681,
+          "exit": 0
+        },
+        {
+          "pid": 190683,
+          "exit": 0
+        },
+        {
+          "pid": 190684,
+          "exit": 0
+        },
+        {
+          "pid": 190685,
+          "exit": 0
+        }
+      ],
+      "nxs-item-hit-wire-01": [
+        {
+          "pid": 190545,
+          "exit": 0
+        },
+        {
+          "pid": 190548,
+          "exit": -15
+        },
+        {
+          "pid": 190551,
+          "exit": 0
+        },
+        {
+          "pid": 190552,
+          "exit": -15
+        },
+        {
+          "pid": 190553,
+          "exit": 0
+        },
+        {
+          "pid": 190554,
+          "exit": -15
+        },
+        {
+          "pid": 190555,
+          "exit": 0
+        },
+        {
+          "pid": 190556,
+          "exit": -15
+        },
+        {
+          "pid": 190557,
+          "exit": 0
+        }
+      ],
+      "nxs-item-hit-wire-02": [
+        {
+          "pid": 190686,
+          "exit": 0
+        },
+        {
+          "pid": 190689,
+          "exit": -15
+        },
+        {
+          "pid": 190690,
+          "exit": 0
+        },
+        {
+          "pid": 190691,
+          "exit": -15
+        },
+        {
+          "pid": 190692,
+          "exit": 0
+        },
+        {
+          "pid": 190693,
+          "exit": -15
+        },
+        {
+          "pid": 190694,
+          "exit": 0
+        },
+        {
+          "pid": 190695,
+          "exit": -15
+        },
+        {
+          "pid": 190696,
+          "exit": 0
+        }
+      ]
+    }
+  },
+  "notices": {
+    "count": 14,
+    "paths": [
+      "/var/tmp/nxs-item-hit-chromium-01/button-text-test.stderr",
+      "/var/tmp/nxs-item-hit-chromium-01/browser.stderr",
+      "/var/tmp/nxs-item-hit-chromium-04/browser.stderr",
+      "/var/tmp/nxs-item-hit-firefox-01/browser.stderr",
+      "/var/tmp/nxs-item-hit-firefox-04/list-test.stderr",
+      "/var/tmp/nxs-item-hit-firefox-04/browser.stderr",
+      "/var/tmp/nxs-item-hit-firefox-05/browser.stderr",
+      "/var/tmp/nxs-item-hit-firefox-05/helper.stderr",
+      "/var/tmp/nxs-item-hit-previous-client-01/compositor.stderr",
+      "/var/tmp/nxs-item-hit-provider-01/compositor.stderr",
+      "/var/tmp/nxs-item-hit-provider-02/compositor.stderr",
+      "/var/tmp/nxs-item-hit-regression-01/legacy.stderr",
+      "/var/tmp/nxs-item-hit-wire-01/compositor.stderr",
+      "/var/tmp/nxs-item-hit-wire-02/compositor.stderr"
+    ],
+    "full_text": "runtime-audit.json in the verified evidence archive"
+  },
+  "observations": [
+    "Final native provider suite passes 200 checks/26 complete images; shared wire suite 391/26; unchanged compiled previous list client 140/26. Both browser list suites and Chromium overflowing-list suite pass with the unchanged adapters; button/text regressions pass against the same shared SDK. Scoped totals derive from the listed final result files. All 35 existing UI/provider/transport sections pass separately.",
+    "Grid tests compare actual GNUstep view and cell decisions with independent ordinary windows rather than reconstructing them from row rectangles. Queries preserve native state/focus and can read during native tracking. Full uint64 IDs cross IPC without double conversion.",
+    "Actual previous providers reject the optional API/IPC query without writing the caller buffer. Existing list/scroll capability values remain stable. Creating-connection checks reject foreign item metadata reads.",
+    "Separate loader and provider source reproductions are byte-identical. Original production components, previous SDKs and browser adapters retain hashes. Real renderer sandboxing is measured by fixture ancestry. All owned fixtures stop and no owned candidate mappings remain.",
+    "Build and orchestration errors are retained separately: an incorrect GCC Objective-C include override, a stream socket used for a SEQPACKET fixture, a nonexistent Chromium test filename, readiness checks before the launch record/window existed, and a Firefox test port that differed from its launcher. None is counted as a passing product suite."
+  ],
+  "open": [
+    "Bind native item IDs into original browser hit-result/event targets with native root/non-item behavior, stable identity revalidation, original trusted dispatch, cancellation, hover/enter/leave/related-target semantics and default focus.",
+    "Complete Firefox list viewport/native row geometry and scrolling using the shared measurements/transport, then qualify the required native target checks in both engines.",
+    "Full option/intrinsic layout contracts, held-scroller DOM synchronization, richer models/CSS/transforms/zoom/scales, host recovery, IME/accessibility, other browser builds/derivatives and installed deployment.",
+    "Remaining webpage controls, detached menus and native shortcuts, then GTK/Qt/KDE using the shared UI library and bridge. Optional future toolbar/UI changes belong in app-specific patches; current toolbar/address bar/tabs remain original."
+  ],
+  "source_audit": "item-hit-source-audit.json"
+}

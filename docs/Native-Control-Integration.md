@@ -694,3 +694,14 @@ row can select correctly while the original DOM event names a different hidden
 engine option. The explicit failing diagnostic is preserved. Complete native
 browser integration remains open, including the Firefox viewport port; later
 GTK/Qt/KDE adapters must consume the same native measurements and hit behavior.
+
+
+A shared native item-at-point query now exposes GNUstep's original view and
+matrix hit tests through one optional API and IPC operation, preserving full
+64-bit model IDs. The provider owns clipping, cell lookup and coordinate
+conversion. Independent native-window and transport tests cover 1x/2x,
+scrolling, disabled cells and non-item areas; see the
+[item hit qualification](../Libraries/NativeUI/item-hit-qualification.json).
+This is the shared dependency for browser/toolkit event targeting. The known
+Chromium native-row/DOM-target mismatch remains open until the original engine
+hit-result path consumes it. No browser event-target fix is claimed here.

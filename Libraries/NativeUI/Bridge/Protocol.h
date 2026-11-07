@@ -294,4 +294,8 @@ struct NXSListWireState {
  * existing list capability. Owned operation 52 (NXSControlRequest, kind 9/13)
  * returns NXSScrollGeometry using the same layout as legacy text geometry.
  * Providers without the appended method advertise zero and reject the query. */
+/* Bootstrap part 2.x advertises optional native item hit queries independently
+ * of list/scroll capabilities. Owned operation 53 uses NXSControlRequest x/y.
+ * Accepted replies (part 3.x=1) contain one uint64 model ID, zero for a native
+ * non-item area, with no bitmap. No row metrics or hit rules cross IPC. */
 #endif

@@ -14,6 +14,7 @@ p.add_argument('--previous-provider',type=Path)
 p.add_argument('--probe',type=Path,help='Use a separately built native reference probe')
 p.add_argument('--previous-group-provider',type=Path)
 p.add_argument('--previous-scroll-provider',type=Path,help='List provider predating shared scroll geometry')
+p.add_argument('--previous-item-hit-provider',type=Path,help='Provider predating optional native item hit queries')
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
 p.add_argument('--popup-title',action='store_true',help='Qualify popup display titles with the same desktop capture harness')
@@ -130,6 +131,15 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
     try:code=actor.wait(timeout=15)
     except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
    rows.append(dict(case='previous-list-provider-without-scroll-geometry',passed=code==0))
+   (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
+  if a.previous_item_hit_provider:
+   assert a.list
+   old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_item_hit_provider))
+   with (a.output/'previous-item-hit-provider.stdout').open('w') as stdout,(a.output/'previous-item-hit-provider.stderr').open('w') as stderr:
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-item-hit','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
+    try:code=actor.wait(timeout=15)
+    except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
+   rows.append(dict(case='previous-provider-without-item-hits',passed=code==0))
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
   if a.previous_client:
    for name,library in [('previous-client',a.build/'native-ui')]+([('previous-loader-and-client',a.previous_loader)] if a.previous_loader else []):

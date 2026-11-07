@@ -14,6 +14,7 @@
 #include <objc/runtime.h>
 _Static_assert(offsetof(NXSNativeUIAPI,control_list_items)==528,"Preserve the prior provider prefix");
 _Static_assert(offsetof(NXSNativeUIAPI,control_scroll_geometry)==568,"Preserve the list provider prefix");
+_Static_assert(offsetof(NXSNativeUIAPI,control_item_at_point)==576,"Preserve the scroll geometry provider prefix");
 _Static_assert(sizeof(NXSListState)==88,"Typed native list state");
 static IMP original_init;static NSBrowser *observed;
 static id witness_init(id self,SEL selector,NSRect frame)
@@ -119,6 +120,23 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
  /* Input is checked against p->reference. Render its resulting state in a
   * fresh ordinary control so old transparent-cell damage is not the oracle. */
  NSMatrix *input_matrix=[p->reference matrixInColumn:0];NSArray *input_selected=[input_matrix selectedCells];
+ /* Compare native hit results with a separate ordinary window, including
+  * scrollers, clip edges, disabled cells and off-control points. */
+ char hit_path[1024];snprintf(hit_path,sizeof(hit_path),"%s/%s-hits.bin",p->directory,name);
+ FILE *hits=fopen(hit_path,"wb");assert(hits);BOOL hits_match=YES;
+ NXSListState hit_before=nxs_control_list_state(p->control);int hit_focus=nxs_control_focused(p->control);
+ for(int y=-2;y<=98;y+=5)for(int x=-2;x<=182;x+=5) {
+   NSPoint local=NSMakePoint(x,[p->reference isFlipped]?y:[p->reference bounds].size.height-y);
+   NSPoint parent=[p->reference convertPoint:local toView:[p->reference superview]];
+   NSView *view=[p->reference hitTest:parent];NSInteger row,column;uint64_t expected=0,actual=UINT64_MAX;
+   if(view==input_matrix&&[input_matrix getRow:&row column:&column forPoint:[input_matrix convertPoint:local fromView:p->reference]])
+     expected=cell_id(p,input_matrix,[input_matrix cellAtRow:row column:column]);
+   if(!nxs_control_item_at_point(p->control,x,y,&actual)||actual!=expected)hits_match=NO;
+   double coordinates[2]={x,y};assert(fwrite(coordinates,sizeof(coordinates),1,hits)==1&&fwrite(&expected,sizeof(expected),1,hits)==1);
+ }
+ fclose(hits);NXSListState hit_after=nxs_control_list_state(p->control);
+ check(p,"native-item-hits-match-independent-native-view-and-cell-tests",hits_match);
+ check(p,"item-hit-queries-preserve-native-selection-focus-and-actions",!memcmp(&hit_before,&hit_after,sizeof(hit_before))&&hit_focus==nxs_control_focused(p->control));
  NSRect visible=[input_matrix visibleRect];NSSize content=[input_matrix bounds].size;
  struct NXSListWireState expected={.count=[input_matrix numberOfRows],.selected_count=[input_selected count],
   .flags=[p->reference allowsMultipleSelection]?NXS_LIST_MULTIPLE:0,.primary=cell_id(p,input_matrix,[input_matrix selectedCell]),
@@ -188,6 +206,14 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
 int main(int argc,char **argv)
 {
  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+ if(argc>1&&!strcmp(argv[1],"--expect-no-item-hit")) {
+  assert(nxs_native_ui_api()->size==576&&!nxs_control_item_hit_capabilities());
+  NXSControl *list=nxs_control_create(NXS_LISTBOX,NULL,NULL,NULL);assert(list);
+  uint64_t result=UINT64_C(0xf000000000000123);
+  assert(!nxs_control_item_at_point(list,30,30,&result)&&result==UINT64_C(0xf000000000000123));
+  assert(nxs_control_list_capabilities()==NXS_LIST_ITEMS&&nxs_control_scroll_capabilities()==NXS_SCROLL_GEOMETRY&&nxs_control_destroy(list));
+  puts("{\"older_geometry_provider_without_item_hits\":true}");[pool drain];return 0;
+ }
  if(argc>1&&!strcmp(argv[1],"--expect-no-scroll")) {
   assert(nxs_native_ui_api()->size==568&&!nxs_control_scroll_capabilities()&&nxs_control_list_capabilities()==NXS_LIST_ITEMS);
   NXSControl *list=nxs_control_create(NXS_LISTBOX,NULL,NULL,NULL),*text=nxs_control_create(NXS_TEXTAREA,NULL,NULL,NULL);assert(list&&text);
@@ -204,9 +230,13 @@ int main(int argc,char **argv)
  }
  assert(argc>2&&nxs_control_list_capabilities()==NXS_LIST_ITEMS&&nxs_control_scroll_capabilities()==NXS_SCROLL_GEOMETRY);struct Probe p={.directory=argv[1],.scale=atof(argv[2])};
  NXSControl *bootstrap=nxs_control_create(NXS_BUTTON,NULL,NULL,NULL);assert(bootstrap&&nxs_control_destroy(bootstrap));
+ uint64_t hit=UINT64_C(0xf000000000000123);
+ check(&p,"item-hit-query-is-optional-and-rejects-invalid-controls",nxs_control_item_hit_capabilities()==1&&
+   !nxs_control_item_at_point(NULL,0,0,&hit)&&hit==UINT64_C(0xf000000000000123));
  NXSScrollGeometry invalid={.size=sizeof(invalid)};
  check(&p,"invalid-scroll-geometry-control-and-buffer-rejected",!nxs_control_scroll_geometry(NULL,&invalid));
  NXSControl *text=nxs_control_create(NXS_TEXTAREA,NULL,NULL,NULL);assert(text);
+ check(&p,"unsupported-item-control-preserves-output",!nxs_control_item_at_point(text,0,0,&hit)&&hit==UINT64_C(0xf000000000000123));
  NXSTextGeometry previous={.size=sizeof(previous)};NXSScrollGeometry shared={.size=sizeof(shared)};
  check(&p,"text-and-list-share-one-scroll-geometry-entry",nxs_control_text_geometry(text,&previous)&&nxs_control_scroll_geometry(text,&shared)&&
    previous.size==shared.size&&!memcmp(&previous.clip,&shared.clip,sizeof(shared)-offsetof(NXSScrollGeometry,clip)));
@@ -216,6 +246,8 @@ int main(int argc,char **argv)
  invalid.size=sizeof(invalid)-1;
  check(&p,"short-scroll-geometry-buffer-rejected",!nxs_control_scroll_geometry(p.control,&invalid)&&!nxs_control_scroll_geometry(p.control,NULL));
  check(&p,"actual-native-browser-control",[p.native class]==[NSBrowser class]);
+ check(&p,"item-hit-rejects-invalid-coordinates-and-output",!nxs_control_item_at_point(p.control,NAN,0,&hit)&&
+   !nxs_control_item_at_point(p.control,0,INFINITY,&hit)&&!nxs_control_item_at_point(p.control,0,0,NULL)&&hit==UINT64_C(0xf000000000000123));
  model(&p,4,0,1);compare(&p,"single",YES);key(&p,NXS_KEY_DOWN_ARROW,108,0);compare(&p,"single-key",YES);
  key(&p,NXS_KEY_DOWN_ARROW,108,0);compare(&p,"single-next",YES);
  pointer(&p,0,0);compare(&p,"single-pointer",YES);

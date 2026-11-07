@@ -298,6 +298,7 @@ typedef struct {
   NXSRect (*control_list_item_rect)(NXSControl *,uint64_t);
   int (*control_list_scroll)(NXSControl *,double,double);
   int (*control_scroll_geometry)(NXSControl *,NXSScrollGeometry *);
+  int (*control_item_at_point)(NXSControl *,double,double,uint64_t *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -323,6 +324,12 @@ int nxs_control_list_scroll(NXSControl *,double x,double y);
  * Returns unsupported for providers predating this optional extension. */
 int nxs_control_scroll_geometry(NXSControl *,NXSScrollGeometry *);
 unsigned nxs_control_scroll_capabilities(void);
+/* Query the actual native view/cell hit test in top-left control coordinates.
+ * A successful query writes a stable model ID, or zero for non-item areas.
+ * Unsupported controls/providers and invalid input leave the output intact.
+ * This read-only query does not change selection, focus or actions. */
+int nxs_control_item_at_point(NXSControl *,double x,double y,uint64_t *identifier);
+unsigned nxs_control_item_hit_capabilities(void);
 NXSControl *nxs_control_create(int kind, NXSControlChanged changed, NXSPump pump, void *context);
 int nxs_control_destroy(NXSControl *control);
 int nxs_control_sync(NXSControl *control, const NXSControlConfig *config);

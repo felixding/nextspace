@@ -299,6 +299,13 @@ static NSPoint mouse_location(NXSViewHost *control,double x,double y)
   double localY=[control->view isFlipped]?y:[control->view bounds].size.height-y;
   return [control->view convertPoint:NSMakePoint(x, localY) toView:nil];
 }
+NSPoint nxs_host_point_to_view(NXSViewHost *host,NSView *view,double x,double y)
+{return [view convertPoint:mouse_location(host,x,y) fromView:nil];}
+NSView *nxs_host_hit_view(NXSViewHost *host,double x,double y)
+{
+  NSPoint point=mouse_location(host,x,y);
+  return [host->view hitTest:[[host->view superview] convertPoint:point fromView:nil]];
+}
 static NSEvent *mouse(NXSViewHost *control, NSEventType type, double x, double y, unsigned modifiers)
 {
   return [NSEvent mouseEventWithType:type location:mouse_location(control,x,y) modifierFlags:flags(modifiers)
@@ -689,7 +696,7 @@ int nxs_host_wheel(NXSViewHost *host,const NXSWheelEvent *input)
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if([host->view needsDisplay])nxs_host_draw(host,1);
   NSPoint point=mouse_location(host,input->x,input->y);
-  NSView *target=[host->view hitTest:[[host->view superview] convertPoint:point fromView:nil]];
+  NSView *target=nxs_host_hit_view(host,input->x,input->y);
   if(!target){[pool drain];return 0;}
   double multiplier=[[NSUserDefaults standardUserDefaults] integerForKey:@"GSMouseScrollMultiplier"];
   if(multiplier<.0001)multiplier=1;
