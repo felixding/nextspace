@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run an owned Firefox frontend fixture with native provider, input and capture."""
+"""Run an owned browser control fixture with native provider, input and capture."""
 import argparse,array,signal
 import json,os,select,socket,subprocess,tempfile,time,sys,uuid
 from contextlib import ExitStack
@@ -9,7 +9,9 @@ from gnustep import pasteboard_storage
 from text_input import Client
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--output',type=Path,required=True)
-parser.add_argument('--firefox',type=Path,required=True)
+browsers=parser.add_mutually_exclusive_group(required=True)
+browsers.add_argument('--firefox',type=Path)
+browsers.add_argument('--chromium',type=Path)
 parser.add_argument('--library',type=Path,required=True)
 parser.add_argument('--hook',type=Path,required=True)
 parser.add_argument('--backend',required=True)
@@ -26,14 +28,31 @@ parser.add_argument('--native-tabs',action='store_true',help='Retired; browser-o
 a=parser.parse_args();out=a.output.resolve();out.mkdir(parents=True,exist_ok=True)
 if a.shared_menus and not a.export_menus:parser.error('--shared-menus requires --export-menus')
 if a.menu_shell_probe and not a.shared_menus:parser.error('--menu-shell-probe requires --shared-menus')
-pin=json.loads((Path(__file__).with_name('binary-pin.json')).read_text())
+if a.chromium and (a.export_menus or not a.hold):parser.error('--chromium currently requires --hold and the standalone control helper')
 import hashlib
-for name,path in [('firefox-esr',a.firefox),('libxul.so',a.firefox.parent/'libxul.so')]:
- assert hashlib.file_digest(path.open('rb'),'sha256').hexdigest()==pin['files_sha256']['usr/lib/firefox-esr/'+name],path
+if a.firefox:
+ pin=json.loads((Path(__file__).with_name('binary-pin.json')).read_text())
+ for name,path in [('firefox-esr',a.firefox),('libxul.so',a.firefox.parent/'libxul.so')]:
+  assert hashlib.file_digest(path.open('rb'),'sha256').hexdigest()==pin['files_sha256']['usr/lib/firefox-esr/'+name],path
+else:assert hashlib.file_digest(a.chromium.open('rb'),'sha256').hexdigest()=='7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1'
 with socket.socket() as port_probe:port_probe.bind(('127.0.0.1',a.port))
 def interrupted(signum,frame):raise KeyboardInterrupt
 signal.signal(signal.SIGTERM,interrupted)
-children=[];services=ExitStack();capture=None;menu_parent=menu_child=None;menu_shell=None
+children=[];services=ExitStack();capture=None;menu_parent=menu_child=None;menu_shell=None;cdp_pipe=None;cdp_pending=b'';cdp_serial=0
+
+def cdp_call(request):
+ global cdp_pending,cdp_serial
+ assert cdp_pipe is not None;cdp_serial+=1;request=dict(request,id=cdp_serial)
+ os.write(cdp_pipe[0],json.dumps(request).encode()+b'\0');deadline=time.monotonic()+15
+ while True:
+  while b'\0' in cdp_pending:
+   line,cdp_pending=cdp_pending.split(b'\0',1)
+   if not line:continue
+   reply=json.loads(line)
+   if reply.get('id')==cdp_serial:return reply
+  assert time.monotonic()<deadline,'Owned CDP pipe response'
+  if not select.select([cdp_pipe[1]],[],[],1)[0]:continue
+  data=os.read(cdp_pipe[1],65536);assert data,'Owned CDP pipe closed';cdp_pending+=data
 
 def stop(p):
  if p.poll() is None:
@@ -66,6 +85,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   assert capture.events[0]['manager_visible']
   services.enter_context(pasteboard_storage(Path('/Library/bin/gpbs-wayland'),a.library.resolve().parent/'native-ui/native-pasteboard-probe',env,out))
   endpoint=runtime/'native.sock'
+  (out/'native-endpoint.json').write_text(json.dumps(dict(path=str(endpoint)))+'\n')
   helper_args=['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/helper.py'),'--library',str(a.library.resolve()),'--socket',str(endpoint),'-GSBackend',a.backend]
   if a.shared_menus:
    menu_parent,menu_child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);menu_parent.settimeout(8)
@@ -87,18 +107,34 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   profile=runtime/'profile';profile.mkdir()
   prefs={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','datareporting.policy.dataSubmissionEnabled':False,'gfx.webrender.software':True}
   if a.export_menus:prefs.update({'widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True})
-  (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in prefs.items()))
+  if a.firefox:(profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in prefs.items()))
   if a.native_frame:
    sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge'))
    from browser_frames import prepare_native_frame
-   prepare_native_frame('firefox',profile,env)
-  env.update(LD_PRELOAD=str(a.hook.resolve()),NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1')
+   prepare_native_frame('firefox' if a.firefox else 'chromium',profile,env)
+  env['LD_PRELOAD']=str(a.hook.resolve())
+  env.update(NEXTSPACE_FIREFOX_SOCKET=str(endpoint),NEXTSPACE_FIREFOX_LOG=str(out/'hook.log'),NEXTSPACE_FIREFOX_INPUT='1',NEXTSPACE_FIREFOX_TEXT='1')
   for flag in ('NEXTSPACE_FIREFOX_FRONTEND','NEXTSPACE_FIREFOX_TABS'):env.pop(flag,None)
   if a.export_menus:env['NEXTSPACE_FIREFOX_MENU_LIFECYCLE']='1'
   if a.shared_menus:env['NEXTSPACE_FIREFOX_MENU_KEYS']='1'
-  args=[str(a.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',Path(__file__).with_name('test-text.html').resolve().as_uri()]
-  browser=subprocess.Popen(args,env=env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'));children.append(browser)
-  (out/'launch.json').write_text(json.dumps(dict(pids=[p.pid for p in children],capture=capture.process.pid,command=args),indent=2)+'\n')
+  launch_options={}
+  if a.firefox:
+   args=[str(a.firefox.resolve()),'--no-remote','--profile',str(profile),'--marionette','--remote-allow-system-access',Path(__file__).with_name('test-text.html').resolve().as_uri()]
+  else:
+   env.update(NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),NEXTSPACE_CHROMIUM_LOG=str(out/'hook.log'))
+   for flag in ['FORMS','INPUT','TEXT','PROGRESS','ANIMATION','SLIDERS','POPUPS','MULTILINE','MULTILINE_VIEWPORT','WHEEL']:env['NEXTSPACE_CHROMIUM_'+flag]='1'
+   for flag in ['NEXTSPACE_CHROMIUM_VIEWS','NEXTSPACE_CHROMIUM_TABS']:env.pop(flag,None)
+   args=[str(a.chromium.resolve()),'--ozone-platform=wayland','--gtk-version=4','--disable-gpu','--disable-dev-shm-usage','--no-first-run','--no-default-browser-check','--disable-background-networking','--disable-sync','--disable-component-update','--password-store=basic','--remote-debugging-pipe','--remote-debugging-port='+str(a.port),'--window-size=1120,800','--user-data-dir='+str(profile),Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-popups.html').as_uri()]
+   read_input,write_input=os.pipe();read_output,write_output=os.pipe();cdp_pipe=(write_input,read_output)
+   pipe_launcher=out/'chromium-pipe.py'
+   pipe_launcher.write_text('import os,sys\nr,w=int(sys.argv[1]),int(sys.argv[2])\nos.dup2(r,3);os.dup2(w,4)\nos.set_inheritable(3,True);os.set_inheritable(4,True)\nfor fd in (r,w):\n if fd not in (3,4):os.close(fd)\nos.environ["LD_PRELOAD"]=sys.argv[3]\nos.execv(sys.argv[4],sys.argv[4:])\n')
+   launch_options=dict(pass_fds=(read_input,write_output))
+  launch=args if a.firefox else [sys.executable,str(pipe_launcher),str(read_input),str(write_output),str(a.hook.resolve()),*args]
+  launch_env=dict(env)
+  if a.chromium:launch_env.pop('LD_PRELOAD',None)
+  browser=subprocess.Popen(launch,env=launch_env,stdout=(out/'browser.stdout').open('w'),stderr=(out/'browser.stderr').open('w'),**launch_options);children.append(browser)
+  if a.chromium:os.close(read_input);os.close(write_output)
+  (out/'launch.json').write_text(json.dumps(dict(pids=[p.pid for p in children],capture=capture.process.pid,command=args,engine='firefox' if a.firefox else 'chromium'),indent=2)+'\n')
   if a.shared_menus:
    deadline=time.monotonic()+30
    while True:
@@ -116,7 +152,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
    (out/'menu-binding.json').write_text(json.dumps(dict(shared_helper=True,pid=helper.pid,owner=browser.pid,
        window=window['id'],output=str(menu_output),log=str(out/'helper.jsonl'),arguments=helper_args,
        association='workspace' if menu_shell else 'fixture'),indent=2)+'\n')
-  print('Owned Firefox frontend fixture ready',flush=True)
+  print('Owned '+('Firefox' if a.firefox else 'Chromium')+' control fixture ready',flush=True)
   if not a.hold:
    sys.path.insert(0,str(Path(__file__).resolve().parent))
    from marionette import Marionette
@@ -134,6 +170,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
    with connection:
     request=json.loads(connection.recv(65536));text=request['command']
     if text=='quit':connection.send(json.dumps(dict(ok=True)).encode());break
+    if text.startswith('cdp '):connection.send(json.dumps(cdp_call(json.loads(text[4:]))).encode());continue
     if text.startswith('menu-broker ') and menu_parent and not menu_shell:
      menu_parent.send(text.split(' ',1)[1].encode());connection.send(menu_parent.recv(4096))
      continue
@@ -148,6 +185,8 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
      connection.send(json.dumps(dict(event=event,path=str(path),output=head)).encode())
     else:connection.send(json.dumps(command(text)).encode())
  finally:
+  if cdp_pipe:
+   for descriptor in cdp_pipe:os.close(descriptor)
   if menu_parent:menu_parent.close()
   if capture:capture.stop()
   for p in reversed(children[1:]):stop(p)

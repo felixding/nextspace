@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-07",
+  "baseline": "70d9a7fd",
+  "qualification": "browser-popup-model-qualification.json",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "0d730249be0632635cdb83438bf2dba7fe643f40b20b21cc5aae73cefa546141",
+    "Experiments/ChromiumScrollers/build.py": "300498443495e468353bb0d67855c7a344ee78bb1db3d118b798a976ab1f7db4",
+    "Experiments/ChromiumScrollers/check-popup-models.py": "6db5087c368830b6775f7be2f4bc8572888d717e65f022ef5b422e7f92bc0736",
+    "Experiments/ChromiumScrollers/forms-popups.inc": "9fcad85ff5f57a66bbd832ba8dc456423167aef9d8c9e0ba3affc20d8aaaf3c8",
+    "Experiments/ChromiumScrollers/forms.inc": "2dc8fda1a6a233acedaf9d01b445160fd6d13d0013a43934953e840b0acf30f1",
+    "Experiments/ChromiumScrollers/hook.c": "e45d740e10fc745260ca8591c079ef8d23439beac54f0bde5ff106d40e732b9f",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "d89896e85afa33ee52b518673efca7856150d5ccb7dc3cf6f52977437b923ab7",
+    "Experiments/ChromiumScrollers/pinned-popups.h": "12ba9982f25a25941e0e3223c57d8385cdc48e2943cc1cf9fb0c29393528e561",
+    "Experiments/FirefoxNativeUI/README.md": "a467e66162f7d6ca9bef2c1ca7ca595b50e7f1c8913e9fd5f7ff1c9d1494f708",
+    "Experiments/FirefoxNativeUI/build.py": "d6a14be6b91cb8fa45b68af50c95b324425dcb4fbaae7844423c2cf7672ee6aa",
+    "Experiments/FirefoxNativeUI/check-popups.py": "98e2faa132f5250ecb657d82ee21cb45c13e0399d3a385426f13a558e2562c77",
+    "Experiments/FirefoxNativeUI/hook.c": "a0fa3fa2741c5b4f78c71780cfd98c9c99a731a2dd3d1503b5520483ea4e9b56",
+    "Experiments/FirefoxNativeUI/pinned-popups.h": "3a814d6124db630ff5af3a3df3d9f2d576864eaabbd0d248d9ca6b83f6d51293",
+    "Experiments/FirefoxNativeUI/popups.inc": "fd394365fd29f1b4481602173906df07edf727d9c5eda6ed327e4dd96d3f44d1",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "ba85edae8d0cdcdd85b72e323bbc8b2221c66d1859b363d3c346e8bc34af5a54",
+    "Libraries/NativeUI/Bridge/BrowserPolicy.h": "8890b7e8288469f474c034dd7773715dc523a4c1e3b69e328b0ca4219987dedd",
+    "Libraries/NativeUI/Bridge/Popups.inc": "d359b4732ee6889ec9755ee714aa17183e8129a9b716c9fff9555c7c14ce7b5f",
+    "Libraries/NativeUI/Bridge/Protocol.h": "f89bb3c23a1797768b634b8eb061d1a54c5e647926a7bc5aa0e443e23f96d87e",
+    "Libraries/NativeUI/Bridge/README.md": "13a80c92de8fb0b72073ba5eb419e8f7842e654ee88891f379ff9acf552caf77",
+    "Libraries/NativeUI/Bridge/Transport.inc": "f3ec6a0b4718b5ecb20cc9142d33b2b965e32d9e327fbfcac7f60af93ab369d3",
+    "Libraries/NativeUI/GNUstep/Controls.m": "da5552af3c7696a3656c1cef346b96c69de690055968eeaacddeb4b2bad9d316",
+    "Libraries/NativeUI/NativeUI.h": "a51847c51aa052c5c1cad7c52f76a8e6f543e7df9e3a6fe22f3ad31326cd8a89",
+    "Libraries/NativeUI/README.md": "e0250b87c1ff6196da56847bae9a2a5c49d937228d7979716c1b335724844694",
+    "Tests/Wayland/native_popup_fixture.py": "f667cdf337bf48549b3e675c503dfb80c0f1579ca58849daa47caa331eb1864a",
+    "Tests/Wayland/popup_models.py": "074e1a3514f2c0c6091adaa86b3e6b02f90f4054338a8216537a6c4f93af211a",
+    "docs/Native-Control-Integration.md": "89b2f91f6b95d8f325be5d9c20a2dc6cdf281a5c67c4302eb4549ec972f8ae5e"
+  },
+  "upstream_extracts": {
+    ".build/native-ui/firefox-select-source/dom__html__HTMLSelectElement.cpp": "1be794bdb10cc3b0ca98a43148a7b63d4f2b8c5bdd840c4b99f5be56215f2d4d",
+    ".build/native-ui/firefox-select-source/dom__html__HTMLOptionElement.h": "012b171eb9d3f0a75a730fb13b0a5b71041763b9f6e992e896c9bf71899c9db4",
+    ".build/native-ui/firefox-select-source/toolkit__actors__SelectChild.sys.mjs": "89031db6fd9186bf1d12da8685b9f66fd27b2b21c0b0e5556d2bacf1f8f8defc",
+    ".build/native-ui/firefox-select-source/toolkit__actors__SelectParent.sys.mjs": "f1b1afaa4f86755fba59bc233ea5bd586e3dbc0393fc9b51a6c603454539ffd4",
+    ".build/native-ui/firefox-select-source/nsComputedDOMStyle.cpp": "70ca4aa4b82d167f5446bb22ee8deba10e75136650f5424d3b1e2d6936b25f7e",
+    ".build/foreign-scrollbars/chromium-prototype/source/forms/html_select_element.cc": "6fff11afc90ef8421468d4df1fc811895930c3c64989c83dfdc0ae71c35dfea9",
+    ".build/foreign-scrollbars/chromium-prototype/source/forms/html_option_element.cc": "fd700bb3bde15c4f4bc9367c4f981b2d5eaaeee612bf07ec64103650c1b85274"
+  },
+  "engine_pins": {
+    "firefox_libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+    "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e"
+  },
+  "observations": [
+    "Original Gecko no-flush computed style returns owned style in x0; original Servo release owns destruction",
+    "Gecko option indices differ from native rows once group captions/separators/hidden data occur",
+    "Chromium original display predicate touches only common Element style storage and original EnsureComputedStyle; original parent accessor supplies ancestry",
+    "Both engines compare hidden-selection and original-index data so invisible insertion cannot commit a stale row",
+    "The generic test fixture uses Chromium DevTools pipe descriptors only after exec; the Python descriptor launcher has no browser preload",
+    "Underlying provider, loader, shim, AppKit, backend, browser binaries and desktop services retain baseline hashes"
+  ]
+}

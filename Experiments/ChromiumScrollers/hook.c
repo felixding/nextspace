@@ -42,6 +42,7 @@ static __thread struct NXSRequest cached_request;
 static __thread struct NXSResponse cached_response;
 static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),text);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
+#include "../../Libraries/NativeUI/Bridge/Popups.inc"
 
 static struct NXSResponse *query(const void *bar,int layer,float value,int override_value) {
   if(!bar||channel<0||!shared)return NULL;

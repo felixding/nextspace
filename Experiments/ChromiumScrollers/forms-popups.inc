@@ -1,9 +1,15 @@
 /* Select application data/lifecycle bindings. NSPopUpButton/NSMenu stay native. */
 #include "pinned-popups.h"
+static int guard_popup_model_calls(void) {
+  return !memcmp((void *)(base+NXS_POPUP_DISPLAY_NONE_OFFSET),nxs_popup_display_none_bytes,20)&&
+    !memcmp((void *)(base+NXS_POPUP_PARENT_OFFSET),nxs_popup_parent_bytes,20);
+}
 struct PopupSnapshot {
   struct NXSControlPopupRequest *request;
   int *indices;
-  void **nodes;
+  void **nodes,*selected_node;
+  int selected_list;
+  char *title;
 };
 static int (*original_popup_paint)(void *,const void *,const void *,const void *,const void *,const struct Rect *);
 static void (*original_select_default)(void *,void *);
@@ -47,42 +53,57 @@ static int popup_element(void *node)
 }
 static void popup_free_model(struct NativeForm *form)
 {
-  free(form->popup_model);free(form->popup_indices);free(form->popup_nodes);
-  form->popup_model=NULL;form->popup_indices=NULL;form->popup_nodes=NULL;
+  free(form->popup_model);free(form->popup_indices);free(form->popup_nodes);free(form->popup_title);
+  form->popup_model=NULL;form->popup_indices=NULL;form->popup_nodes=NULL;form->popup_title=NULL;form->popup_selected_node=NULL;
   form->popup_size=0;form->popup_count=0;
 }
 static void popup_snapshot_free(struct PopupSnapshot *snapshot)
-{free(snapshot->request);free(snapshot->indices);free(snapshot->nodes);memset(snapshot,0,sizeof(*snapshot));}
+{free(snapshot->request);free(snapshot->indices);free(snapshot->nodes);free(snapshot->title);memset(snapshot,0,sizeof(*snapshot));}
+static int popup_item_visible(void *item,void *select) {
+  /* This guarded display accessor uses only Element's common style storage
+   * and original EnsureComputedStyle. It has no HTMLOptionElement fields.
+   * Reuse it for the engine's list elements and their original DOM ancestry. */
+  for(unsigned depth=0;item&&item!=select&&depth<4096;depth++) {
+    if(((int (*)(void *,int))(base+NXS_POPUP_DISPLAY_NONE_OFFSET))(item,1))return 0;
+    item=((void *(*)(void *))(base+NXS_POPUP_PARENT_OFFSET))(item);
+  }
+  return item==select;
+}
+static char *popup_item_label(void *select,void *item) {
+  void *label=((void *(*)(const void *,const void *))(base+0xe102cd0))(select,item);
+  char *title=string_text(label);((void (*)(void *))(base+0x7246038))(&label);return title;
+}
 static int popup_snapshot(void *node,struct PopupSnapshot *snapshot)
 {
   memset(snapshot,0,sizeof(*snapshot));
   /* The real SelectedListIndex calls GetListItems and recalculates it when
    * dirty. Only its pinned vector representation is decoded below. */
   int selected=((int (*)(const void *))(base+0xe0ff7b8))(node);
+  snapshot->selected_list=selected;
   unsigned count=*(unsigned *)((char *)node+588);
   void *items=*(void **)((char *)node+576);
   if(count>65536||(!items&&count))return 0;
-  snapshot->request=calloc(1,sizeof(*snapshot->request)+65536);
+  snapshot->request=native_popup_model_new(-1);
   snapshot->indices=calloc(count?count:1,sizeof(int));snapshot->nodes=calloc(count?count:1,sizeof(void *));
   if(!snapshot->request||!snapshot->indices||!snapshot->nodes){popup_snapshot_free(snapshot);return 0;}
   struct NXSControlPopupRequest *request=snapshot->request;
-  *request=(struct NXSControlPopupRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=11,.kind=NXS_POPUP,.selected=-1};
-  unsigned char *data=(unsigned char *)(request+1);
   for(unsigned i=0;i<count;i++) {
     void *item=decode_member((char *)items+i*4);if(!item)continue;
     unsigned kind=*((unsigned char *)*(uintptr_t *)item-17);
-    if(kind==0x38&&((int (*)(void *,int))(base+0xe0f7434))(item,1))continue;
-    void *label=((void *(*)(const void *,const void *))(base+0xe102cd0))(node,item);
-    char *title=string_text(label);((void (*)(void *))(base+0x7246038))(&label);
+    if((int)i==selected)snapshot->selected_node=item;
+    if(!popup_item_visible(item,node))continue;
+    char *title=popup_item_label(node,item);
     if(!title){popup_snapshot_free(snapshot);return 0;}
-    size_t length=strlen(title);
-    if(request->text_size+8+length>65536){free(title);popup_snapshot_free(snapshot);return 0;}
-    uint32_t flags=kind==0x38?(form_enabled(item)?1:0):kind==0x37?0:2;
-    uint32_t size=length;memcpy(data+request->text_size,&flags,4);memcpy(data+request->text_size+4,&size,4);
-    memcpy(data+request->text_size+8,title,length);free(title);request->text_size+=8+length;
-    snapshot->indices[request->count]=i;snapshot->nodes[request->count]=item;
-    if((int)i==selected)request->selected=request->count;
-    request->count++;
+    unsigned row=request->count;
+    if(!native_popup_model_append(request,title,kind==0x38&&form_enabled(item),kind!=0x38&&kind!=0x37)){
+      free(title);popup_snapshot_free(snapshot);return 0;
+    }
+    free(title);snapshot->indices[row]=i;snapshot->nodes[row]=item;
+    if((int)i==selected)request->selected=row;
+  }
+  if(request->selected<0&&snapshot->selected_node) {
+    snapshot->title=popup_item_label(node,snapshot->selected_node);
+    if(!snapshot->title){popup_snapshot_free(snapshot);return 0;}
   }
   return 1;
 }
@@ -90,22 +111,27 @@ static int popup_same_model(struct NativeForm *form,struct PopupSnapshot *snapsh
 {
   struct NXSControlPopupRequest *request=snapshot->request;
   return form->popup_model&&form->popup_size==request->text_size&&form->popup_count==request->count&&
-    form->popup_selected==request->selected&&!memcmp(form->popup_model,request+1,request->text_size)&&
+    form->popup_selected==request->selected&&form->popup_selected_list==snapshot->selected_list&&form->popup_selected_node==snapshot->selected_node&&
+    (form->popup_title&&snapshot->title?!strcmp(form->popup_title,snapshot->title):form->popup_title==snapshot->title)&&
+    !memcmp(form->popup_indices,snapshot->indices,request->count*sizeof(int))&&!memcmp(form->popup_model,request+1,request->text_size)&&
     !memcmp(form->popup_nodes,snapshot->nodes,request->count*sizeof(void *));
 }
 static struct NXSResponse *sync_popup_model(struct NativeForm *form,struct NXSResponse *response)
 {
   struct PopupSnapshot snapshot;if(!popup_snapshot(form->node,&snapshot))return NULL;
   struct NXSControlPopupRequest *request=snapshot.request;
+  if(snapshot.title&&response->parts[1].x!=1){popup_snapshot_free(&snapshot);return NULL;}
   if(popup_same_model(form,&snapshot)||response->parts[6].width>0){popup_snapshot_free(&snapshot);return response;}
   request->process=identity();request->control=form->control;
   response=exchange_bytes(request,sizeof(*request)+request->text_size);
+  if(response&&response->parts[3].x==1&&response->parts[1].x==1)response=native_popup_title(form->control,snapshot.title);
   if(response&&response->parts[3].x==1) {
     popup_free_model(form);
     form->popup_model=malloc(request->text_size?request->text_size:1);
     if(!form->popup_model){popup_snapshot_free(&snapshot);return NULL;}
     memcpy(form->popup_model,request+1,request->text_size);form->popup_size=request->text_size;
-    form->popup_count=request->count;form->popup_selected=request->selected;
+    form->popup_count=request->count;form->popup_selected=request->selected;form->popup_selected_list=snapshot.selected_list;
+    form->popup_selected_node=snapshot.selected_node;form->popup_title=snapshot.title;snapshot.title=NULL;
     form->popup_indices=snapshot.indices;form->popup_nodes=snapshot.nodes;
     snapshot.indices=NULL;snapshot.nodes=NULL;
   } else response=NULL;

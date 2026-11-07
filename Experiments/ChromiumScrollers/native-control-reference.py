@@ -66,6 +66,10 @@ for item in json.loads(args.controls.read_text()):
             entries=(PopupItem*len(model))(*[PopupItem(C.sizeof(PopupItem),title,
                 entry.get('enabled',1),entry.get('separator',0)) for entry,title in zip(model,titles)])
             assert native.nxs_control_popup_items(pointer,entries,len(model),item['selected'])
+            if 'popup_title' in item:
+                assert api.popup_title_capabilities
+                value=item['popup_title']
+                assert native.nxs_control_popup_title(pointer,None if value is None else value.encode('utf-8'))
         if 'step' in item:
             assert api.range_capabilities and native.nxs_control_set_step(pointer,item['step'])
         if args.focus and item['enabled'] and item['kind'] != 5:
@@ -126,6 +130,8 @@ for item in json.loads(args.controls.read_text()):
                 rect=native.nxs_control_popup_item_rect(pointer,index)
                 rectangles.append({key:getattr(rect,key) for key in ('x','y','width','height')})
             results[-1]['native_item_rects']=rectangles
+            frame=native.nxs_control_popup_state(pointer).frame
+            results[-1]['native_menu_frame']={key:getattr(frame,key) for key in ('x','y','width','height')}
             assert native.nxs_control_popup_open(pointer,0)
         if item['enabled'] and item['kind'] not in (5,6,7,8,9):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)

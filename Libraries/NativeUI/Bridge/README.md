@@ -8,6 +8,11 @@ Wayland/GLib and does not link the GNUstep provider.
 Actual control drawing, metrics and input stay in the separate NativeUI
 provider and its underlying UI library.
 
+`Popups.inc` supplies the same bounded row serializer and independent display
+title request to both engines. Engine adapters retain application node identities,
+visibility, selection indices and commit methods. The shared code only packs
+data and invokes NativeUI; it contains no popup, menu, layout or input behavior.
+
 `browser_frames.py` selects existing system-decoration settings before an owned
 browser profile is launched. Chromium's `browser.custom_chrome_frame=false`
 requests xdg server decoration. Firefox uses `browser.tabs.inTitlebar=0`,

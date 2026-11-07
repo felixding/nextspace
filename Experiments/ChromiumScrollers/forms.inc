@@ -13,12 +13,13 @@ struct NativeForm {
   struct Rect rect;
   char *title;
   double actions_before,actions_seen,value,generation,minimum,maximum,step;
-  char *popup_model;
+  char *popup_model,*popup_title;
   size_t popup_size;
   int *popup_indices;
   void **popup_nodes;
   unsigned popup_count;
-  int popup_selected,popup_open;
+  int popup_selected,popup_selected_list,popup_open;
+  void *popup_selected_node;
   void *popup_engine;
   int text_tracking,text_width,text_height;
   uint32_t text_start,text_end;
@@ -429,7 +430,7 @@ static int prepare_forms(void){return guard_form_coordinates()&&prepare_detours(
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
-  (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))&&
+  (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
   (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
   (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}

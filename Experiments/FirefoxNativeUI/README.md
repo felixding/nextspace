@@ -11,7 +11,8 @@ shared bridge/provider layer.
 
 This is the Gecko side of the browser-first
 [native application integration](../../docs/Native-Control-Integration.md).
-The goal includes complete browser interfaces and other non-GNUstep apps.
+The current browser goal covers webpage controls, detached menus and native
+shortcuts, followed by other non-GNUstep apps under the scope above.
 
 The optional progress binding renders determinate HTML progress indicators through
 actual GNUstep `NSProgressIndicator` objects in the existing NativeUI provider.
@@ -590,26 +591,33 @@ method dispatches application events; its original WebIDL setter and
 interpretation remain in the shared GNUstep implementation. The browser,
 AppKit, provider and public NativeUI ABI remain unchanged.
 
-This binding is not qualified for deployment. The initial owned fixture passes
+This binding is not qualified for deployment. The historical initial fixture passed
 17 checks, including five whole native control images, trusted selection,
 Escape, cancellation, stale identities, reentrant removal and blur. An optional `NEXTSPACE_GTK3_GEOMETRY_LIBRARY` points to the shared GTK3 geometry
 bridge. The pinned adapter supplies its compositor origin to Gecko's existing
 bounds calculation and original parent/content dimension notifications. Initial,
 moved, fullscreen and restored menu anchors now pass, including real native
 press-drag-release selection and the subsequent complete native control image.
-Group headings, separators, hidden options, automatic sizing, broader lifecycle
-and full desktop regressions remain open. Do not infer complete select coverage
-from those initial checks.
+The current model includes ordered group headings, disabled options, native
+separators, attribute/computed visibility and hidden-selected labels. It uses
+the shared `Bridge/Popups.inc` serializer and the provider's existing independent
+popup-title method. Actual option indices and retained DOM identities guard
+commits when hidden options change the mapping. An empty visible model keeps
+the engine/native menu closed. All drawing, tracking and key handling stay
+native. Automatic sizing, broader lifecycle, moving owners while open, zoom,
+listboxes, IME and accessibility remain unfinished.
 
 The current implementation order is webpage controls, detached menus, then
 native shortcuts. Each must reuse the existing GNUstep/AppKit component and
 behavior through the bridge. Toolbar work is skipped at the user's request.
 
 
-The initial single-select checks are reproducible with
-`check-popups.py --fixture OUTPUT --geometry` against a held owned fixture
+The single-select checks are reproducible with
+`check-popups.py --fixture OUTPUT --geometry --models` against a held owned fixture
 launched with `NEXTSPACE_FIREFOX_POPUPS=1`. The checker uses whole desktop
 captures, independent provider images, original DOM events, native item
 rectangles and compositor geometry. It also rejects native browser field/tab
-bindings. These initial checks do not cover the unfinished group/hidden-option
-or intrinsic-size cases.
+bindings. `Tests/Wayland/popup_models.py` and `native_popup_fixture.py` supply
+the same model cases, native references, real seat input and geometry checks
+for both browser engines. Browser-owned UI stays preserved. Intrinsic sizing
+and complete select coverage remain open.

@@ -621,7 +621,14 @@ also checks title changes and ownership through the shared IPC helper.
 The [component qualification](popup-title-qualification.json) records 210 check
 rows, 24 complete native images and all 35 existing suite sections. The
 [source audit](popup-title-source-audit.json) records the shared implementation
-and unchanged runtime dependencies. Browser hidden-option binding remains open.
+and unchanged runtime dependencies. Browser hidden-option binding remained open
+at that checkpoint.
+
+The subsequent [browser model qualification](browser-popup-model-qualification.json)
+binds that existing title method and the shared row transport in both engines.
+It covers groups, hidden selections, disabled data, separators and original
+index mapping through actual native input. It adds no provider or UI-library
+implementation. Native intrinsic sizing and complete browser coverage remain open.
 
 `nxs_control_popup_state()` and `nxs_control_popup_item_rect()` read native
 visibility, highlight and geometry in control bitmap coordinates; rectangles

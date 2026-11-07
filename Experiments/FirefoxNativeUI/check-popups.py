@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Initial native single-select checks; groups, hidden options and sizing remain open."""
+"""Native single-select controls, engine option models and desktop geometry."""
 import argparse,json,re,socket,sys,time
 from pathlib import Path
-from PIL import Image,ImageChops
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from marionette import Marionette
+sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
+from native_popup_fixture import PopupFixture
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--fixture',type=Path,required=True)
 parser.add_argument('--port',type=int,default=2833)
 parser.add_argument('--geometry',action='store_true')
+parser.add_argument('--models',action='store_true')
 options=parser.parse_args();root=options.fixture.resolve();results=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as c:
@@ -24,26 +26,12 @@ def wait(fn,okay=lambda x:x):
   if okay(v):return v
   time.sleep(.05)
  raise AssertionError(v)
-def key(c):
- before=js("return window.events.filter(x=>x.type==='keyup').length")
- for pressed in [1,0]:assert command(f'key {c} {pressed}')['ok']
- wait(lambda:js("return window.events.filter(x=>x.type==='keyup').length"),lambda n:n>before)
-def state():return js("const e=document.getElementById('select');return {index:e.selectedIndex,value:e.value,open:e.matches(':open'),changes:window.events.filter(x=>x.type==='input'||x.type==='change')}")
 def reset():
  m.command('WebDriver:Navigate',dict(url=(Path(__file__).resolve().parent.parent/'ChromiumScrollers/test-popups.html').as_uri()));wait(lambda:js("return document.readyState==='complete'&&!!window.events"));time.sleep(.15)
-def focus():js("document.getElementById('select').focus();return true")
-def image(name):
- head=command('outputs')[0];r=command('capture '+head['name']);e=r['event'];im=Image.frombytes('RGBA' if e['format']==0 else 'RGB',(e['width'],e['height']),Path(r['path']).read_bytes(),'raw','BGRA' if e['format']==0 else 'BGRX',e['stride'],-1 if e['flags']&1 else 1).convert('RGB');im.save(root/(name+'-desktop.png'));return im
-def pixels(identifier,focused=False):
- js('document.getElementById('+json.dumps(identifier)+').'+('focus()' if focused else 'blur()')+';return true');time.sleep(.15)
- d=js("const e=document.getElementById("+json.dumps(identifier)+");return {id:e.id,kind:6,title:'',state:0,width:e.offsetWidth,height:e.offsetHeight,enabled:!e.disabled,selected:e.selectedIndex,items:[...e.options].map(x=>({title:x.label,enabled:!x.disabled})),rect:e.getBoundingClientRect().toJSON(),screen:[mozInnerScreenX,mozInnerScreenY]}")
- name=identifier+('-focused' if focused else '-normal');r=command('reference '+json.dumps(dict(name=name+'-reference',controls=[d],focus=focused)))
- expected=Image.open(Path(r['path'])/(identifier+'.png')).convert('RGBA');canvas=Image.new('RGBA',expected.size,'white');canvas.alpha_composite(expected);expected=canvas.convert('RGB');expected.save(root/(name+'-expected.png'))
- x=round(d['screen'][0]+d['rect']['x']);y=round(d['screen'][1]+d['rect']['y'])
- def compared():
-  actual=image(name).crop((x,y,x+expected.width,y+expected.height));actual.save(root/(name+'-actual.png'))
-  return ImageChops.difference(actual,expected).getbbox() is None
- check(name+'-whole-native-pixels',wait(compared))
+pid=json.loads((root/'launch.json').read_text())['pids'][-1]
+fixture=PopupFixture(root,command,js,check,pid,lambda:js('return [mozInnerScreenX,mozInnerScreenY]'),reset)
+key,state,focus,image,pixels=fixture.key,fixture.state,fixture.focus,fixture.image,fixture.pixels
+native_menu,highlight,model_geometry=fixture.native_menu,fixture.highlight,fixture.model_geometry
 def window():return next(w for w in command('windows') if w['pid']==pid)
 def origin():
  content=js("return {x:mozInnerScreenX,y:mozInnerScreenY}")
@@ -53,8 +41,16 @@ def origin():
  w=window();return content,dict(x=w['x']+(w['frame_left'] if w['server_decorated'] else 0)+r['x'],y=w['y']+(w['frame_top'] if w['server_decorated'] else 0)+r['y'])
 def correct_origin():
  a,b=origin();return abs(a['x']-b['x'])<.01 and abs(a['y']-b['y'])<.01
-def native_menu():return next((w for w in command('windows') if w['pid']!=pid and w['level']==101 and w['visible']),None)
 def open_at_owner(name):
+ # Firefox's existing fullscreen toolbar animates. A fixed-position assertion
+ # samples settled owner geometry; live movement while open is a separate case.
+ previous=None;since=time.monotonic()
+ def settled():
+  nonlocal previous,since
+  current=js("const r=document.getElementById('select').getBoundingClientRect();return [mozInnerScreenX+r.x,mozInnerScreenY+r.y]")
+  if current!=previous:previous=current;since=time.monotonic()
+  return time.monotonic()-since>.25
+ wait(settled)
  focus();key(57);wait(state,lambda s:s['open']);menu=wait(native_menu)
  a=js("const r=document.getElementById('select').getBoundingClientRect();return {x:mozInnerScreenX+r.x,y:mozInnerScreenY+r.y}")
  check(name+'-native-anchor',menu['x']==round(a['x'])-1 and menu['y']==round(a['y'])-1,menu=menu,anchor=a);image(name);key(1);wait(state,lambda s:not s['open'])
@@ -92,6 +88,10 @@ try:
   command(f"pointer {round(a['x']+item['x']+item['width']/2)} {round(a['y']+item['y']+item['height']/2)}");time.sleep(.1);command('button 272 0')
   s=wait(state,lambda s:not s['open']);check('native-pointer-choice-real-model',s['index']==1 and [x['type'] for x in s['changes']]==['input','change'] and all(x['trusted'] for x in s['changes']),actual=s)
   pixels('select',True);image('pointer-committed')
+ if options.models:
+  sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
+  from popup_models import run
+  run(fixture)
  trace=(root/'hook.log').read_text()
  parent_bindings=[line for line in trace.splitlines() if re.match(str(pid)+r" native-(?:text |button |widget |widget bound|select )",line)]
  check('browser-owned-ui-preserved',not parent_bindings and 'experimental native Gecko tab container installed' not in trace and 'native Gecko frontend text binding installed' not in trace,parent_native_widgets=parent_bindings)

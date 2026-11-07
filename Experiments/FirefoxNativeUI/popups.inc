@@ -4,6 +4,9 @@
 struct GeckoPopupModel {
   struct NXSControlPopupRequest *packet;
   void **nodes;
+  int *indices,selected_index;
+  void *selected_node;
+  char *title;
 };
 struct GeckoPopup {
   struct GeckoPopup *next;
@@ -16,7 +19,7 @@ struct GeckoPopup {
 };
 struct PopupRectI {int x,y,width,height;};
 static struct GeckoPopup *gecko_popups;
-static void *popup_label_atom;
+static void *popup_label_atom,*popup_hidden_atom;
 static __thread const void *popup_mouse_event;
 static uint64_t popup_tracking_id;
 static uint32_t (*original_popup_chrome_event)(void *,void *,const void *,int,int,int *);
@@ -46,40 +49,93 @@ static struct NXSResponse *popup_request(struct GeckoPopup *p,unsigned op,int va
 static void popup_model_free(struct GeckoPopupModel *model) {
   if(model->packet)for(unsigned i=0;i<model->packet->count;i++)
     ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_RELEASE))(model->nodes[i]);
-  free(model->nodes);free(model->packet);memset(model,0,sizeof(*model));
+  if(model->selected_node)((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_RELEASE))(model->selected_node);
+  free(model->nodes);free(model->indices);free(model->title);free(model->packet);memset(model,0,sizeof(*model));
+}
+static char *popup_label(void *node,int option) {
+  static const uint16_t empty;
+  struct GeckoString label={.data=&empty,.flags=1};
+  ((int (*)(const void *,const void *,void *))(base+NXS_GECKO_POPUP_GET_ATTR))(node,popup_label_atom,&label);
+  if(option&&!label.length)((void (*)(void *,void *))(base+NXS_GECKO_POPUP_OPTION_TEXT))(node,&label);
+  char *title=utf8_text(label.data,label.length);((void (*)(void *))(base+0x3826f2c))(&label);return title;
+}
+static int popup_visible(void *element,void *select) {
+  /* Application data only: native DOM ancestry and original computed style
+   * determine whether an option/group/separator belongs in the menu model.
+   * Disabled entries remain visible. No menu layout or navigation is copied. */
+  static const uint16_t empty;
+  for(unsigned depth=0;element&&element!=select&&depth<4096;depth++) {
+    if(depth&&*(uintptr_t *)element!=base+NXS_GECKO_POPUP_GROUP_VTABLE+16)return 0;
+    struct GeckoString hidden={.data=&empty,.flags=1};
+    int present=((int (*)(const void *,const void *,void *))(base+NXS_GECKO_POPUP_GET_ATTR))(element,popup_hidden_atom,&hidden);
+    ((void (*)(void *))(base+0x3826f2c))(&hidden);if(present)return 0;
+    /* The guarded engine's PseudoStyleRequest is 16 bytes; 95 is NotPseudo,
+     * StyleType::All is 1. Its original style ownership/release stays native. */
+    uint64_t pseudo[2]={95,0};
+    void *style=((void *(*)(const void *,const void *,unsigned))(base+NXS_GECKO_POPUP_COMPUTED_STYLE))(element,pseudo,1);
+    if(!style)return 0;
+    int display=*(const uint16_t *)*(const void **)((const char *)style+80);
+    ((void (*)(const void *))(base+NXS_GECKO_POPUP_STYLE_RELEASE))(style);if(!display)return 0;
+    element=*(void **)((char *)element+48);
+    if(element&&!(*(uint8_t *)((char *)element+28)&16))return 0;
+  }
+  return element==select;
 }
 static int popup_snapshot(void *node,struct GeckoPopupModel *model) {
   memset(model,0,sizeof(*model));
-  void *options=*(void **)((char *)node+264);if(!options)return 0;
-  unsigned count=((unsigned (*)(void *))(base+NXS_GECKO_POPUP_LIST_LENGTH))(options);if(count>4096)return 0;
-  model->packet=calloc(1,sizeof(*model->packet)+65536);model->nodes=calloc(count?count:1,sizeof(void *));
-  if(!model->packet||!model->nodes){popup_model_free(model);return 0;}
-  struct NXSControlPopupRequest *request=model->packet;
-  *request=(struct NXSControlPopupRequest){.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=11,.process=identity(),.kind=NXS_POPUP,
-    .selected=((int (*)(void *))(base+NXS_GECKO_POPUP_SELECTED_INDEX))(node)};
   if(!popup_label_atom)popup_label_atom=((void *(*)(const char *))(base+NXS_GECKO_POPUP_ATOMIZE))("label");
-  if(!popup_label_atom){popup_model_free(model);return 0;}
-  static const uint16_t empty;
-  for(unsigned i=0;i<count;i++) {
-    void *option=((void *(*)(void *,unsigned))(base+NXS_GECKO_POPUP_LIST_ITEM))(options,i);if(!option){popup_model_free(model);return 0;}
-    struct GeckoString label={.data=&empty,.flags=1};
-    ((int (*)(const void *,const void *,void *))(base+NXS_GECKO_POPUP_GET_ATTR))(option,popup_label_atom,&label);
-    if(!label.length)((void (*)(void *,void *))(base+NXS_GECKO_POPUP_OPTION_TEXT))(option,&label);
-    char *title=utf8_text(label.data,label.length);((void (*)(void *))(base+0x3826f2c))(&label);
-    uint8_t disabled=0;uint32_t result=((uint32_t (*)(void *,int,void *))(base+NXS_GECKO_POPUP_OPTION_DISABLED))(node,i,&disabled);
-    if(!title||result&0x80000000u){free(title);popup_model_free(model);return 0;}
-    size_t length=strlen(title);
-    if(length>65536||request->text_size+8+length>65536){free(title);popup_model_free(model);return 0;}
-    uint32_t flags=!disabled,size=length;unsigned char *body=(unsigned char *)(request+1)+request->text_size;
-    memcpy(body,&flags,4);memcpy(body+4,&size,4);memcpy(body+8,title,length);free(title);request->text_size+=8+length;
-    ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_ADDREF))(option);model->nodes[request->count++]=option;
+  if(!popup_hidden_atom)popup_hidden_atom=((void *(*)(const char *))(base+NXS_GECKO_POPUP_ATOMIZE))("hidden");
+  if(!popup_label_atom||!popup_hidden_atom)return 0;
+  static const uint16_t wildcard[]={'*',0};
+  const struct GeckoString tag={.data=wildcard,.length=1,.flags=1};
+  void *list=((void *(*)(void *,const void *))(base+NXS_GECKO_POPUP_GET_ELEMENTS))(node,&tag);if(!list)return 0;
+  unsigned count=((unsigned (*)(void *))(base+NXS_GECKO_POPUP_LIST_LENGTH))(list);
+  int okay=count<=4096;
+  if(okay) {
+    model->packet=native_popup_model_new(-1);model->nodes=calloc(count?count:1,sizeof(void *));model->indices=calloc(count?count:1,sizeof(int));
+    okay=model->packet&&model->nodes&&model->indices;
   }
-  return 1;
+  if(okay) {
+    model->selected_index=((int (*)(void *))(base+NXS_GECKO_POPUP_SELECTED_INDEX))(node);
+    void *options=*(void **)((char *)node+264);
+    if(model->selected_index>=0) {
+      model->selected_node=((void *(*)(void *,unsigned))(base+NXS_GECKO_POPUP_LIST_ITEM))(options,model->selected_index);
+      if(model->selected_node)((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_ADDREF))(model->selected_node);else okay=0;
+    }
+  }
+  for(unsigned i=0;okay&&i<count;i++) {
+    void *item=((void *(*)(void *,unsigned))(base+NXS_GECKO_POPUP_LIST_ITEM))(list,i);if(!item){okay=0;break;}
+    uintptr_t table=*(uintptr_t *)item;
+    int option=table==base+NXS_GECKO_POPUP_OPTION_VTABLE+16,group=table==base+NXS_GECKO_POPUP_GROUP_VTABLE+16,separator=table==base+NXS_GECKO_POPUP_HR_VTABLE+16;
+    if((!option&&!group&&!separator)||!popup_visible(item,node))continue;
+    unsigned row=model->packet->count;
+    if(separator&&row) {
+      void *previous=model->nodes[row-1];
+      if(*(uintptr_t *)previous==base+NXS_GECKO_POPUP_HR_VTABLE+16&&*(void **)((char *)previous+48)==*(void **)((char *)item+48))continue;
+    }
+    int index=option?((int (*)(void *))(base+NXS_GECKO_POPUP_OPTION_INDEX))(item):-1;
+    if(option&&index<0)continue;
+    char *title=separator?strdup(""):popup_label(item,option);uint8_t disabled=1;
+    if(option) {
+      uint32_t result=((uint32_t (*)(void *,int,void *))(base+NXS_GECKO_POPUP_OPTION_DISABLED))(node,index,&disabled);
+      if(result&0x80000000u){free(title);okay=0;break;}
+    }
+    if(!title||!native_popup_model_append(model->packet,title,!disabled,separator)){free(title);okay=0;break;}
+    free(title);((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_ADDREF))(item);model->nodes[row]=item;model->indices[row]=index;
+    if(option&&index==model->selected_index)model->packet->selected=row;
+  }
+  ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_LIST_RELEASE))(list);
+  if(okay&&model->selected_node&&model->packet->selected<0) {
+    model->title=popup_label(model->selected_node,1);okay=model->title!=NULL;
+  }
+  if(!okay)popup_model_free(model);return okay;
 }
 static int popup_model_same(const struct GeckoPopupModel *a,const struct GeckoPopupModel *b) {
   return a->packet&&b->packet&&a->packet->count==b->packet->count&&a->packet->selected==b->packet->selected&&
+    a->selected_index==b->selected_index&&a->selected_node==b->selected_node&&
+    (a->title&&b->title?!strcmp(a->title,b->title):a->title==b->title)&&
     a->packet->text_size==b->packet->text_size&&!memcmp(a->packet+1,b->packet+1,a->packet->text_size)&&
-    !memcmp(a->nodes,b->nodes,a->packet->count*sizeof(void *));
+    !memcmp(a->indices,b->indices,a->packet->count*sizeof(int))&&!memcmp(a->nodes,b->nodes,a->packet->count*sizeof(void *));
 }
 /* Call the original WebIDL setter with a real engine JSContext and a native
  * boolean argument. It owns popup state, :open invalidation and notifications. */
@@ -107,8 +163,10 @@ static void popup_invalidate(struct GeckoPopup *p) {
 static struct NXSResponse *popup_sync(struct GeckoPopup *p) {
   struct NXSResponse *r=popup_request(p,1,0);if(!r)return NULL;
   struct GeckoPopupModel model;if(!popup_snapshot(p->node,&model))return NULL;
+  if(model.title&&r->parts[1].x!=1){popup_model_free(&model);return NULL;}
   if(r->parts[6].width<=0&&!popup_model_same(&p->model,&model)) {
     model.packet->control=p->id;r=exchange_bytes(model.packet,sizeof(*model.packet)+model.packet->text_size);
+    if(r&&r->parts[3].x==1&&r->parts[1].x==1)r=native_popup_title(p->id,model.title);
     if(r&&r->parts[3].x==1){popup_model_free(&p->model);p->model=model;memset(&model,0,sizeof(model));}
     else r=NULL;
   }
@@ -162,10 +220,10 @@ static void popup_after_input(uint64_t id,const struct NXSResponse *response) {
   if(action&&selected>=0&&p->model.packet&&(unsigned)selected<p->model.packet->count&&!(*(uint64_t *)((char *)node+112)&16)) {
     struct GeckoPopupModel current;
     if(popup_snapshot(node,&current)) {
-      int valid=popup_model_same(&p->model,&current);popup_model_free(&current);
-      if(valid) {
+      int valid=popup_model_same(&p->model,&current),index=valid?p->model.indices[selected]:-1;popup_model_free(&current);
+      if(valid&&index>=0) {
         ((void (*)(unsigned))(base+NXS_GECKO_POPUP_USER_START))(0);
-        ((void (*)(void *,int,unsigned,int,int))(base+NXS_GECKO_POPUP_POST_KEY))(node,selected,0,0,0);
+        ((void (*)(void *,int,unsigned,int,int))(base+NXS_GECKO_POPUP_POST_KEY))(node,index,0,0,0);
         ((void (*)(unsigned))(base+NXS_GECKO_POPUP_USER_STOP))(0);
       } else note("native select stale model action discarded");
     }
@@ -208,6 +266,9 @@ static uint32_t popup_chrome_event(void *document,void *target,const void *name,
     void *frame=*(void **)((char *)target+96);
     if((show||hide)&&prepare_popup_image(frame)) {
       struct GeckoPopup *p=popup_find(frame);uint64_t id=p->id;
+      /* A native empty model has no menu to open. Keep the original engine
+       * lifecycle closed instead of creating a second, empty actor window. */
+      if(show&&p->model.packet&&!p->model.packet->count){popup_engine_open(target,0);if(result)*result=1;return 0;}
       if(popup_origin(p)) {
         struct NXSResponse *r=show&&popup_mouse_event?popup_pointer_request(p,2,popup_mouse_event):popup_request(p,14,show);
         if(r&&(r->parts[3].x==1||(show&&popup_mouse_event&&r->parts[0].y))) {

@@ -22,6 +22,7 @@ static uintptr_t base;
 static int log_fd=-1,installed;
 static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),message);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
+#include "../../Libraries/NativeUI/Bridge/Popups.inc"
 static void writable(void *p,size_t size,int protect) {
   uintptr_t start=(uintptr_t)p&~(uintptr_t)(getpagesize()-1);
   size_t length=((uintptr_t)p+size-start+getpagesize()-1)&~(size_t)(getpagesize()-1);

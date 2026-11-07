@@ -15,11 +15,26 @@ Recompiling each application is excluded. The branch is now
 the starting experiment. Acceptance is application-wide native integration
 across foreign toolkits and frontends.
 
-Implementation priority, 2026-11-05: first make the Chromium-based and
-Firefox-based browser families native, including their application interfaces
-and web controls. Then continue with the remaining non-GNUstep applications.
+Implementation priority, clarified 2026-11-07: first integrate the Chromium-based
+and Firefox-based browser families, then continue with the remaining non-GNUstep applications.
 Both stages use the same native UI library and keep the no-duplication and
 no-application-recompile requirements.
+
+The current browser scope keeps each browser's built-in tabs, address bar and
+toolbar. Work proceeds through webpage controls, detached menus and native
+shortcuts. Native command routing can operate the existing tabs without
+replacing their component. Later requested browser-UI changes belong to optional
+app-specific patches above the shared engine/toolkit bridges and UI library.
+GTK and Qt/KDE integration will reuse that shared layer, with app-specific
+patches only for application-specific issues.
+
+The shared popup row/title transport now binds both pinned engines' ordinary
+single-select models, including groups, disabled children, separators and hidden
+selected labels. The same real-seat cases reject stale indices after a hidden
+insertion and commit the updated original option on the next menu. See the
+[model qualification](../Libraries/NativeUI/browser-popup-model-qualification.json).
+Native automatic sizing, complete popup lifecycle/scaling, derivative builds
+and installed deployment remain unfinished.
 
 Detached-menu visibility is an application-agnostic desktop policy: present
 the active application's menu and hide inactive applications' menus. Workspace

@@ -447,6 +447,15 @@ retains `:open`, mutation observers and its accessibility notifications.
 Application `showPicker()`/hide requests use optional native operation 14;
 they do not synthesize a particular opening key.
 
+The current option model also omits display-hidden groups and descendants,
+preserves a hidden selected label through the shared native popup-title method,
+and validates original list indices as well as visible identities before a
+commit. Inserting a hidden option can change those indices without changing
+any visible row. Both engines now share `Bridge/Popups.inc` for row/title
+transport and `Tests/Wayland/popup_models.py` for the same actual-seat model
+cases. `check-popup-models.py --fixture OUTPUT` uses the owned CDP-pipe fixture
+and whole desktop captures; it keeps the browser's own tabs/address bar/toolbar.
+
 `check-popups.py` passes 29 checks, including seven full control images,
 keyboard/mouse selection, cancellation, focus navigation, application opening
 and blur, duplicate labels, disabled items, stale option identities and
