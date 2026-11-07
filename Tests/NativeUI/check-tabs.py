@@ -14,10 +14,11 @@ p.add_argument('--previous-provider',type=Path)
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
 p.add_argument('--popup-title',action='store_true',help='Qualify popup display titles with the same desktop capture harness')
+p.add_argument('--radio',action='store_true',help='Qualify shared native radio groups against ordinary matrices')
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
-binary='native-popup-title-probe' if a.popup_title else 'native-tab-probe'
-reference_title='Native popup title reference ' if a.popup_title else 'Native tab reference '
-images=8 if a.popup_title else 5
+binary='native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
+reference_title='Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
+images=12 if a.radio else 8 if a.popup_title else 5
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)
@@ -50,10 +51,15 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
      stdout.write(data);stdout.flush();pending+=data
      while b'\n' in pending:
       line,pending=pending.split(b'\n',1);event=json.loads(line)
-      if event.get('event')=='reference':
+      if event.get('event')=='reference-ready':
+       title=reference_title+event['name']
+       window=until(lambda:next((w for w in command('windows') if w['pid']==actor.pid and w['title']==title and w['visible'] and w['focused']),None),'native reference activation')
+       assert command(f"move {window['id']} 20 20")['ok']
+       actor.stdin.write(b'ready\n');actor.stdin.flush()
+      elif event.get('event')=='reference':
        title=reference_title+event['name']
        def reference():
-        return next((w for w in command('windows') if w['pid']==actor.pid and w['title']==title and w['visible'] and w['buffer_width']==event['pixel_width'] and w['buffer_height']==event['pixel_height']),None)
+        return next((w for w in command('windows') if w['pid']==actor.pid and w['title']==title and w['visible'] and w['buffer_width']==event.get('window_pixel_width',event['pixel_width']) and w['buffer_height']==event.get('window_pixel_height',event['pixel_height'])),None)
        window=until(reference,'native reference backing at requested density')
        assert command(f"move {window['id']} 20 20")['ok'];window=reference()
        assert command('pointer 600 340')['ok']
@@ -61,7 +67,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
        desktop=Image.frombytes('RGBA' if frame['format']==0 else 'RGB',(frame['width'],frame['height']),raw.read_bytes(),'raw','BGRA' if frame['format']==0 else 'BGRX',frame['stride'],-1 if frame['flags']&1 else 1).convert('RGB');raw.unlink()
        desktop.save(out/(event['name']+'-desktop.png'))
        (out/(event['name']+'-geometry.json')).write_text(json.dumps(dict(window=window,frame=frame,reference=event),indent=2)+'\n')
-       left,top=round(window['x']*scale/120),round(window['y']*scale/120)
+       left,top=round((window['x']+event.get('crop_x',0))*scale/120),round((window['y']+event.get('crop_y',0))*scale/120)
        expected=desktop.crop((left,top,left+event['pixel_width'],top+event['pixel_height']));expected.save(out/(event['name']+'-reference.png'))
        actual=Image.frombytes('RGBA',(event['pixel_width'],event['pixel_height']),(out/(event['name']+'-native.argb')).read_bytes(),'raw','BGRA',event['stride']);actual.save(out/(event['name']+'-native.png'))
        row=dict(case=event['name']+'-whole-desktop-native-pixels',passed=actual.convert('RGB').tobytes()==expected.tobytes() and actual.getchannel('A').getextrema()==(255,255),density=scale)
@@ -73,15 +79,15 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
     code=actor.wait(timeout=5)
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
    assert code==0,(code,(out/'probe.stdout').read_text()[-1500:],(out/'probe.stderr').read_text()[-2500:])
-   assert checks[-1]['images']==images and checks[-1]['api_bytes']==480
+   assert checks[-1]['images']==images and checks[-1]['api_bytes']>=480
    assert all(row['passed'] for row in rows),[row for row in rows if not row['passed']]
   if a.previous_provider:
    old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_provider))
    with (a.output/'previous-provider.stdout').open('w') as stdout,(a.output/'previous-provider.stderr').open('w') as stderr:
-    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-radio' if a.radio else '--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=15)
     except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
-   rows.append(dict(case='previous-provider-without-'+('popup-title' if a.popup_title else 'tabs'),passed=code==0))
+   rows.append(dict(case='previous-provider-without-'+('radio-groups' if a.radio else 'popup-title' if a.popup_title else 'tabs'),passed=code==0))
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
   if a.previous_client:
    for name,library in [('previous-client',a.build/'native-ui')]+([('previous-loader-and-client',a.previous_loader)] if a.previous_loader else []):

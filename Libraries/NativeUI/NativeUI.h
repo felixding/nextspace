@@ -22,7 +22,7 @@ enum { NXS_MOVE, NXS_RELEASE };
 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
-  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR
+  NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR, NXS_RADIOGROUP
 };
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 typedef struct {
@@ -37,6 +37,18 @@ typedef struct {
   int state, enabled, tracking;
 } NXSControlState;
 typedef void (*NXSControlChanged)(void *context, int event, const NXSControlState *state);
+
+enum NXSRadioCapability { NXS_RADIO_GROUP = 1 };
+typedef struct {
+  uint32_t size;
+  uint64_t identifier;
+  const char *title;
+  int enabled;
+} NXSRadioItem;
+typedef struct {
+  uint32_t size,count,rows,columns;
+  uint64_t selected,key_cell,actions;
+} NXSRadioState;
 
 enum NXSTabCapability { NXS_TAB_ITEMS = 1 };
 typedef struct {
@@ -254,6 +266,9 @@ typedef struct {
   NXSToolbarState (*control_toolbar_state)(NXSControl *);
   NXSRect (*control_toolbar_item_rect)(NXSControl *,uint64_t);
   int (*control_popup_title)(NXSControl *,const char *);
+  int (*control_radio_items)(NXSControl *,const NXSRadioItem *,uint32_t,uint32_t,uint64_t,uint64_t);
+  NXSRadioState (*control_radio_state)(NXSControl *);
+  NXSRect (*control_radio_item_rect)(NXSControl *,uint64_t);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -326,6 +341,24 @@ unsigned nxs_control_popup_title_capabilities(void);
  * string is a real override. This does not change menu data or selection and
  * emits no action. Visible menus and native tracking reject title changes. */
 int nxs_control_popup_title(NXSControl *, const char *title);
+unsigned nxs_control_radio_capabilities(void);
+/* One native matrix owns the group's actual radio cells. IDs are unique and
+ * nonzero; selected/key_cell name members or zero. Rows follow application
+ * order in a complete grid (count must divide evenly by positive columns).
+ * Model replacement emits no action, retains cells by identity, and sizes the
+ * group to its native preferred size. control_sync may then resize the group.
+ * A zero key_cell leaves the new matrix's native selection-derived focus.
+ * Native enabled state applies when setting key_cell; configure enabled before
+ * requesting a newly enabled key cell. key_cell remains native group context
+ * even while the host is unfocused; control_focused reports actual focus.
+ * Native ACTIVATE reports the selected index in state.value; radio_state keeps
+ * exact selected/key identities and the native action counter separately.
+ * Tracking/dispatch reject model replacement and destruction. */
+int nxs_control_radio_items(NXSControl *,const NXSRadioItem *,uint32_t count,uint32_t columns,
+  uint64_t selected,uint64_t key_cell);
+NXSRadioState nxs_control_radio_state(NXSControl *);
+/* Native logical cell geometry in the group's bitmap coordinates. */
+NXSRect nxs_control_radio_item_rect(NXSControl *,uint64_t identifier);
 /* Native menu geometry uses control bitmap coordinates, including positions
  * outside that bitmap. A hidden menu returns a zero frame/item rectangle. */
 NXSPopupState nxs_control_popup_state(NXSControl *);

@@ -175,16 +175,19 @@ static void slider_model(NXSControl *control)
 @end
 
 #include "Toolbar.inc"
+#include "Radio.inc"
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_TOOLBAR)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_RADIOGROUP)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_TOOLBAR) {
+  if(kind==NXS_RADIOGROUP) {
+    view=radio_create(control);
+  } else if(kind==NXS_TOOLBAR) {
     view=toolbar_create(control);
   } else if(kind==NXS_TABVIEW) {
     view=[[NSTabView alloc] initWithFrame:NSMakeRect(0,0,320,120)];
@@ -222,7 +225,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   if(!control->host){[control->target release];free(control);[pool drain];return NULL;}
   control->kind=kind;control->enabled=1;control->text_editable=YES;control->changed=changed;control->context=context;
   control->text_selection=NSMakeRange(NSNotFound,0);
-  if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR) {
+  if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR&&kind!=NXS_RADIOGROUP) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
     if(kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:(id)target];
     else if(kind!=NXS_TEXTAREA){[(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];}
@@ -259,6 +262,7 @@ int nxs_gnustep_control_destroy(NXSControl *control)
 }
 int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
 {
+  if(control&&control->kind==NXS_RADIOGROUP&&nxs_host_tracking(control->host))return 0;
   if(!control||!config||config->size<sizeof(*config)||!isfinite(config->width)||!isfinite(config->height)||
      config->width<1||config->height<1||config->width>32768||config->height>32768||
      !isfinite(config->minimum)||!isfinite(config->maximum)||!isfinite(config->value)||config->minimum>config->maximum||
@@ -280,6 +284,8 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     [view setIndeterminate:!!config->indeterminate];
     if(config->indeterminate&&control->enabled)[view startAnimation:nil];
     else [view stopAnimation:nil];
+  } else if(control->kind==NXS_RADIOGROUP) {
+    radio_enabled(control);
   } else if(control->kind==NXS_TOOLBAR) {
     toolbar_layout(control);
   } else if(control->kind==NXS_TABVIEW) {
@@ -314,6 +320,9 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
   if(control->kind==NXS_TOOLBAR) {
     NXSToolbarAction *target=control->target;state.value=-1;
     for(unsigned i=0;i<[target->models count];i++)if([[[target->models objectAtIndex:i] objectForKey:@"id"] unsignedLongLongValue]==target->command){state.value=i;break;}
+  } else if(control->kind==NXS_RADIOGROUP) {
+    state.value=radio_index(control,[(NSMatrix *)control->view selectedCell]);
+    state.state=[[(NSMatrix *)control->view selectedCell] state];
   } else if(control->kind==NXS_TABVIEW)state.value=nxs_gnustep_control_tab_state(control).selected_index;
   else if(control->kind==NXS_PROGRESS)state.value=[(NSProgressIndicator *)control->view doubleValue];
   else if(!text_control(control)) {
@@ -325,7 +334,8 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
 NXSSize nxs_gnustep_control_size(NXSControl *control)
 {
   if(!control)return (NXSSize){0};
-  NSSize size=control->kind==NXS_TOOLBAR?NSMakeSize([control->view frame].size.width,[control->view _heightFromLayout]):control->kind==NXS_TABVIEW?[(NSTabView *)control->view minimumSize]:
+  NSSize size=control->kind==NXS_RADIOGROUP?((NXSRadioAction *)control->target)->preferred:
+    control->kind==NXS_TOOLBAR?NSMakeSize([control->view frame].size.width,[control->view _heightFromLayout]):control->kind==NXS_TABVIEW?[(NSTabView *)control->view minimumSize]:
     (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
   return (NXSSize){size.width,size.height};
 }

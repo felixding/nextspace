@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "053502cc",
+  "status": "shared-native-provider-qualified-browser-group-bindings-open",
+  "source_sha256": {
+    "Libraries/NativeUI/NativeUI.h": "d0197a895440db58f845512645a2fbacb09d95aec47abd1ad6c48b72051f2b26",
+    "Libraries/NativeUI/Loader.c": "2998125baba6d3fc3220229003da3d106f9d9e93ad81c3338e9c322153a13d23",
+    "Libraries/NativeUI/GNUstep/Provider.h": "6426b153c73fa2124952b270721b1d2041f59e0470616fd51aa38632ce9e57fc",
+    "Libraries/NativeUI/GNUstep/Provider.m": "acb32b8105b30333ed4489ef7a02d0002ab369a8dce6855f587d684bf94ce076",
+    "Libraries/NativeUI/GNUstep/Controls.m": "9435b9ab261857f14c937d4dc8586096491c0fd48ded2457833b05acfceb4595",
+    "Libraries/NativeUI/GNUstep/Radio.inc": "e32c4f5a00ef99f725f9a0010f8c276f8bec2f254a790a705cb4eb3f165d483b",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "bcc2e2fee7a9aa7edcd396180155809ee97a963eeea55ffca7f04c60ebfb8bce",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "0f60e28d8de6dd5debe3532bae25179cc5ae3cd1e144497bfe3e548f30f4c607",
+    "Libraries/NativeUI/CMakeLists.txt": "ec5773cbb4305e387580044b97f3db505aa581507e349a0688c2ce36c5a0bdd5",
+    "Libraries/NativeUI/README.md": "2227e6b51c894e71863798048969cd7ea383005678fce1b35dd10dd5068b4651",
+    "Tests/NativeUI/radio-probe.m": "dd9c3e2195e0b23350efe2378518f891cd2f3bbeac2a43acd80d8dc07c152410",
+    "Tests/NativeUI/check-tabs.py": "34e6a34d64666643dd7c03f4e1e30bda494a08149dbf53b0012c4f9397abb807",
+    "Tests/NativeUI/check-toolbars.py": "de1746d7c18df8494b458a892f86aab945aff58c63cfb4ad95de89c26a3adc4e",
+    "docs/Native-Control-Integration.md": "fc2900841aa2993c73dd89624b7528f24090c646ca787bdba030c8dc2d17c634"
+  },
+  "native_reference": "Libraries/NativeUI/radio-reference-qualification.json",
+  "upstream_extracts": [
+    ".build/native-ui/radio-group-source/NSMatrix.m",
+    ".build/native-ui/radio-group-source/NSMatrix.h",
+    ".build/native-ui/radio-group-source/sources.json"
+  ],
+  "invariants": [
+    "One ordinary NSMatrix owns the group. Original NSButtonCell instances are retained by stable application IDs across reorder, title changes and model replacement.",
+    "Native deselectAllCells clears the previous owner selection before transfer; native setControlView transfers weak ownership before old matrix destruction. Removed members have that association cleared.",
+    "Native sizeToFit, cellFrameAtRow, selectedCell, keyCell, event interpretation and tracking remain original AppKit methods. No native drawing, geometry, keyboard or selection algorithm is copied.",
+    "The same shared backing path already used by text/popup controls supports NSMatrix lockFocus/drawCell during native key interpretation. A host view replacement preserves the existing window, input context, command filter and logical focus association.",
+    "The model is validated before native state is touched; invalid IDs, UTF8, membership and incomplete grids are rejected. Native tracking/dispatch reject model changes, geometry changes and destruction.",
+    "Three optional methods append at byte 480, retaining ABI 1 and previous offsets. Exact uint64 identities and an action counter distinguish native selection/key context from input focus.",
+    "Native provider/loader are candidate artifacts only. Unchanged browser adapters and current session host still use the prior native runtime; group transport and original engine model/DOM bindings are unfinished."
+  ]
+}

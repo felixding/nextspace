@@ -12,6 +12,9 @@ void nxs_host_menu_end(NXSMenuLoop *);
 int nxs_host_initialize(void);
 NXSViewHost *nxs_host_create(NSView *view,NXSPump pump,void *context);
 int nxs_host_destroy(NXSViewHost *host);
+/* Replace a native view without replacing the host's input, command or screen
+ * association. The incoming view supplies its own native size. */
+int nxs_host_replace_view(NXSViewHost *,NSView *);
 void nxs_host_resize(NXSViewHost *host,NSSize size);
 NXSBitmap nxs_host_draw(NXSViewHost *host,double scale);
 void nxs_host_track(NXSViewHost *host,double x,double y,unsigned modifiers);

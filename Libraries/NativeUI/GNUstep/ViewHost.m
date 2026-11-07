@@ -71,7 +71,7 @@ static void end_draw_density(struct NXSDrawDensity *scope)
   if(scope->window){object_setClass(scope->window,scope->original);draw_density=scope->previous;[scope->window release];}
 }
 static BOOL native_backing(NSView *view)
-{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
+{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:[NSMatrix class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
 static NSView *focus_view(NXSViewHost *host)
 {return [host->view isKindOfClass:[NSScrollView class]]?[(NSScrollView *)host->view documentView]:host->view;}
 static NXSMenuLoop *menu_loop;
@@ -354,6 +354,26 @@ int nxs_host_destroy(NXSViewHost *host)
   [host->fallback release];
   [host->bitmap release];free(host->pixels);free(host);
   return 1;
+}
+int nxs_host_replace_view(NXSViewHost *host,NSView *view)
+{
+  if(!host||!view||nxs_host_tracking(host))return 0;
+  BOOL had_focus=nxs_host_focused(host);
+  if(had_focus&&!nxs_host_focus(host,0))return 0;
+  NSView *previous=host->view;
+  host->view=[view retain];[previous removeFromSuperview];
+  [view setFrameOrigin:NSZeroPoint];[[host->window contentView] addSubview:view];
+  NSSize size=[view frame].size;
+  [host->window setContentSize:NSMakeSize(MAX(1,ceil(size.width)),MAX(1,ceil(size.height)))];
+  [view setNeedsDisplay:YES];
+  if(had_focus&&!nxs_host_focus(host,1)) {
+    [view removeFromSuperview];[view release];host->view=previous;
+    [[host->window contentView] addSubview:previous];
+    size=[previous frame].size;
+    [host->window setContentSize:NSMakeSize(MAX(1,ceil(size.width)),MAX(1,ceil(size.height)))];
+    nxs_host_focus(host,1);return 0;
+  }
+  [previous release];return 1;
 }
 void nxs_host_resize(NXSViewHost *host,NSSize size)
 {

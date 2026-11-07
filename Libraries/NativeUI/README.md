@@ -35,6 +35,12 @@ The bridge and the underlying UI implementation are separate libraries:
   `NSScroller` objects and calls their drawing and input methods. The shared
   view host supplies offscreen backing and event dispatch, with no control
   drawing, geometry or tracking algorithms.
+- Optional radio groups use one actual `NSMatrix` with retained `NSButtonCell`
+  objects. Stable IDs, selected/key identities and action counts are separate
+  application data. Native methods own sizing, drawing and input. The optional
+  table tail grows ABI 1 from 480 to 504 bytes without changing existing offsets;
+  older providers report no group capability. Group transport/browser bindings
+  remain open. See the [provider qualification](radio-group-qualification.json).
 - `libnextspace-native-scroller.so.1` preserves the existing scrollbar ABI as a
   C forwarding shim, so its GTK/Qt consumers keep their existing interface.
 

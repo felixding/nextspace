@@ -1,0 +1,116 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "053502cc",
+  "status": "shared-provider-qualified-group-transport-and-browser-bindings-open",
+  "native_ui_abi": {
+    "version": 1,
+    "previous_bytes": 480,
+    "current_bytes": 504,
+    "optional_capability": "NXS_RADIO_GROUP",
+    "capability_value": 1
+  },
+  "candidate_build": "/var/tmp/nextspace-native-ui/radio-provider-04",
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/radio-provider-04/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 107120,
+      "sha256": "d967e9f43d51dbf5293a03624ad4010094650b6ba8558a206988193ee16aa406"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/radio-provider-04/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 445464,
+      "sha256": "e1b36f398430db4501c3e70659139d9fd01faad4f2d8591916e82739dfb32e24"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/radio-provider-04/libnextspace-native-scroller.so.0.1",
+      "bytes": 82824,
+      "sha256": "2389554bcca91b9272e597802fac1b28f8e966fe4a96fef5f4159b85fa203b4f"
+    },
+    "probe": {
+      "path": "/var/tmp/nextspace-native-ui/radio-provider-04/native-ui/native-radio-probe",
+      "bytes": 142048,
+      "sha256": "f368faa2f8a309d69b3d6aef298e182f58c0e999efea8c39b91af2a28e59b784"
+    }
+  },
+  "verification": {
+    "runs": {
+      "radio": {
+        "path": "/var/tmp/nxs-radio-provider-05",
+        "checks": 233,
+        "native_images": 24,
+        "results_sha256": "5f712e714f04f8454d3c112ac43cc69d9cc2e496ed75af1f5a3bf0917a7c087a"
+      },
+      "popup_regression": {
+        "path": "/var/tmp/nxs-radio-provider-popup-regression-01",
+        "checks": 88,
+        "native_images": 16,
+        "results_sha256": "8d74656cf32693d9d11a261d4da93f4253a758ba6975eaea73f8953946d976fb"
+      },
+      "provider_regression": {
+        "path": "/var/tmp/nxs-radio-provider-regression-02",
+        "sections": 35,
+        "results_sha256": "6a5e189f1a2b133701912b80eb6c4a51003af3ac91478bd18197f632c657e8a2"
+      }
+    },
+    "scoped_check_rows": 321,
+    "whole_native_image_comparisons": 40,
+    "radio_group_native_images": 24,
+    "radio_group_checks": 233,
+    "popup_regression_native_images": 16,
+    "popup_regression_checks": 88,
+    "provider_regression_sections": 35,
+    "older_480_byte_provider_rejects_group_extension": true,
+    "older_clients_and_loader_accept_new_provider": true,
+    "stderr_empty_at_both_densities": true,
+    "live_owned_processes": []
+  },
+  "production_audit": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050
+  },
+  "behavior": [
+    "Native arrow navigation and disabled skips, separate Shift+Arrow key/selection identity, boundary action counts, Space activation, native Tab request and Return behavior.",
+    "Original native cells retained across reorder, title/Unicode changes, enabled changes and 50 repeated group replacements per density, with no model-generated actions.",
+    "Native preferred sizes and complete native cell rectangles agree with independent ordinary matrices.",
+    "Whole group pixels match actual compositor screenshots of independent native references at 1x and 2x, including focus, empty selection, disabled group, horizontal/grid layouts and pointer selection.",
+    "Pointer activation, disabled-member native matrix action and outside-release restoration; reentrant model/config/destruction requests rejected during native input.",
+    "Exact IDs above the floating-point integer range survive native selection/key state; empty groups contain no placeholder controls or invented native sizes.",
+    "Existing button/checkbox/radio, text/password/multiline, wheel, popup/menu, clipboard/command, callback ownership, IPC and old loader/client regressions pass unchanged."
+  ],
+  "source_audit": "Libraries/NativeUI/radio-provider-source-audit.json",
+  "evidence_archive": ".build/evidence/components/native-radio-groups-20261107-v1-evidence.tar.gz",
+  "reproduce": [
+    "cmake -S /workspace/Libraries/ForeignScrollers -B /var/tmp/nextspace-native-ui/radio-provider-04 -DNEXTSPACE_BUILD_TOOLKIT_ADAPTERS=OFF -DCMAKE_OBJC_COMPILER=clang -DCMAKE_BUILD_TYPE=RelWithDebInfo",
+    "cmake --build /var/tmp/nextspace-native-ui/radio-provider-04 -j2",
+    "python3 /workspace/Tests/NativeUI/check-tabs.py --radio --build /var/tmp/nextspace-native-ui/radio-provider-04 --compositor /var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor --capture-probe /var/tmp/nextspace-native-ui/views-tools/capture-probe --backend-bundle /var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle --previous-provider /var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.1 --output /var/tmp/nxs-radio-provider-05",
+    "python3 /workspace/.build/native-ui/run-radio-regressions.py /var/tmp/nxs-radio-provider-regression-02"
+  ],
+  "remaining": [
+    "Shared group transport, per-member browser painting/input geometry and live original engine group export remain to implement; current browser radio bindings still create independent native buttons.",
+    "Real DOM trusted/cancelled actions, stale group membership, pointer coordinate translation, original engine focus changes, destruction and host-replacement recovery remain unqualified for groups.",
+    "This provider API models complete native grids. Arbitrary webpage member geometry, large groups/backing limits, broad CSS/scaling, accessibility and full application integration remain unfinished.",
+    "Other browser controls, derivative builds and deployment remain open before GTK/Qt/KDE integration. Original browser toolbar/address bar/tabs remain unchanged; later UI changes use optional browser-specific patches."
+  ]
+}

@@ -109,9 +109,15 @@ reference passes its original `NSButtonCell` objects into the matrix and verifie
 their identities throughout input. Shift+Arrow demonstrates why key-cell and
 selected-cell identities must be transported separately. See the
 [native radio reference](../Libraries/NativeUI/radio-reference-qualification.json).
-This qualifies the installed native baseline only; the group provider, shared
-transport and browser bindings remain to implement. The existing browser radio
-bindings still use individual native buttons.
+The shared provider now exposes an ordinary native matrix through an optional
+API extension. Stable application IDs retain the same radio cells across model
+updates; the old matrix clears its native selection and transfers cell ownership
+before replacement. Native methods supply preferred size, cell geometry, drawing,
+navigation and tracking. The provider qualifies 24 complete native images at
+1x/2x, with separate selection/key identities and native action counts; see the
+[shared radio-group qualification](../Libraries/NativeUI/radio-group-qualification.json).
+Group transport and browser bindings remain to implement. The existing browser
+radio bindings still use individual native buttons.
 An earlier Firefox host-replacement capture showed TimeMon while Firefox was
 focused; that run did not qualify menu presentation. The later menu/session
 qualifications above cover their measured ownership and recovery cases.
