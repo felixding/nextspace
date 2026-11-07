@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "5430e688",
+  "status": "shared-native-list-transport-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/helper.py": "d6820ff5647d06b397cfc1d7c2bcb378285ad2a4babd3b619c63b2a1a682ab22",
+    "Experiments/ChromiumScrollers/native_controls.py": "4106086cdd76db2def0ec4886fa11a4496639a11cebf5959ae323c64f838963a",
+    "Libraries/NativeUI/Bridge/Inputs.inc": "2f4a0d9e9bd4540372968d59802104522ea5e6d064aae426f99eee35d3437a7e",
+    "Libraries/NativeUI/Bridge/Lists.inc": "4ee9583510709495c54b8d425ab17b4474ef3d19f728b991ff77238feec8ce1b",
+    "Libraries/NativeUI/Bridge/Protocol.h": "e7fd36e874f3c151dcba0ad59c9f1d82141c7d5c8ba8bb24d42764e4c4a3a937",
+    "Libraries/NativeUI/Bridge/Radios.inc": "b45d1b233ebc960b8282695e1532889669fc6cc70b2b9e27113820889ed2a0f2",
+    "Libraries/NativeUI/CMakeLists.txt": "2f41a9e7219840bb36359cdd04f1bab77a41bb4f2bd1d2d804279318da5ae91e",
+    "Libraries/NativeUI/README.md": "2ec9e76126c902b396af5ca96b08d71c09d0196a1769ab409df769846bba8688",
+    "Tests/NativeUI/check-tab-transport.py": "ec5cd6450d3ac91b235c670e5ed592b6ec42446b692d30a1c82e63b4f1d9a2ba",
+    "Tests/NativeUI/check-tabs.py": "d217580433832a95b13e2810f1051e4c2c403e564308288f491f43a0a22cc66f",
+    "Tests/NativeUI/list-probe.m": "b80ad6ccd619ed789995e631dcda210df57472c7d91a7bb6e6b5d30168ba7c99",
+    "Tests/NativeUI/list-transport-probe.c": "a0116834e79728817ff1e51841e181ade1718b2d66aa4f0978dadc4105e761c0",
+    "docs/Native-Control-Integration.md": "9bc3f60f818fbe335ac5742b68b71e82eabf300afd421ad1ace7faaf5b0ee2a2"
+  },
+  "invariants": [
+    "Kind 13 uses existing owned configure/draw/pointer/focus/key/wheel/notification/cleanup paths. New operations 48/49/50/51 carry application row data, complete native snapshots, original row geometry and native scroll positions. No control, selection/navigation, layout, tracking or drawing algorithm is added.",
+    "Bootstrap part 3.x advertises lists without changing old fields. Owned list replies expose actual native backing density in part 5.y. Model scale must match the native control, and bitmap budgets use its physical backing. Oversized fresh allocations are destroyed before registration; a valid retry remains possible.",
+    "The exact 56-byte model and 24-byte rows carry uint64 identities and flags/title bytes. Typed 88-byte state plus every selected uint64 ID preserves primary/key/action identities and native clip/document geometry, including focus separate from selection. The creating connection owns state, model, geometry, input and destruction.",
+    "Entire model shape, UTF8/NULs, count, flags and density validate before native mutation. Original provider validation handles canonical unique IDs/selection/key data. Native tracking permits read/draw but rejects model/config/scroll mutation. Model updates and rejected requests add no native action.",
+    "Lists.inc is shared C-only serialization; Inputs.inc now serves both list and radio focus/key envelopes. The application-agnostic host calls the existing NativeUI methods. Provider/loader/shim and API 1/568 are unchanged; no browser/AppKit/backend binary is rebuilt or replaced.",
+    "Independent ordinary native lists receive real seat input and record exact native state/selection/scrollbar rectangles. A separate C-only wire client compares complete typed state and images. Original engine DOM/model/layout bindings are not implemented by this transport checkpoint."
+  ]
+}

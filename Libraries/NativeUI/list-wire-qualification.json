@@ -1,0 +1,1195 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "5430e688",
+  "status": "shared-native-list-transport-partially-qualified",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 568,
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 105520,
+      "sha256": "eb7badf1b9cabfa3dfe8db7398497a57f6ea008b7fca38209e0bc12299df094c"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 531360,
+      "sha256": "b6a729be736ada457110c6adfa66947139ab2d2dd326666fcfa143c21d3e68aa"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/libnextspace-native-scroller.so.0.1",
+      "bytes": 81824,
+      "sha256": "1f7f5051cee8188d3492e1342807ff2e934ec6aea602f6c066bd76dfec2d50b1"
+    },
+    "01_native-list-reference": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-01/native-list-reference",
+      "bytes": 96960,
+      "sha256": "5a38b12628c83f90dedaa3570ec6b5298be8b2c00c3c359e61b4934c2595e477"
+    },
+    "01_native-list-transport-probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-01/native-list-transport-probe",
+      "bytes": 74856,
+      "sha256": "e077b09cf4cdeb93bf932041b20d437aeaca0a89f7c9b62e682f3e0409195085"
+    },
+    "01_native-radio-transport-probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-01/native-radio-transport-probe",
+      "bytes": 74480,
+      "sha256": "c80111beb87af0b7d6ef530e69ed7b32c083c333c680d2f9fbf958ffbb44609c"
+    },
+    "02_native-list-reference": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-02/native-list-reference",
+      "bytes": 96960,
+      "sha256": "5a38b12628c83f90dedaa3570ec6b5298be8b2c00c3c359e61b4934c2595e477"
+    },
+    "02_native-list-transport-probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-02/native-list-transport-probe",
+      "bytes": 74856,
+      "sha256": "22d960779b079d77a75866a75514c6cc0af22d0555e8415df89c6f2c703bf581"
+    },
+    "03_native-list-reference": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-03/native-list-reference",
+      "bytes": 96960,
+      "sha256": "5a38b12628c83f90dedaa3570ec6b5298be8b2c00c3c359e61b4934c2595e477"
+    },
+    "03_native-list-transport-probe": {
+      "path": "/var/tmp/nextspace-native-ui/list-wire-03/native-list-transport-probe",
+      "bytes": 74856,
+      "sha256": "bddb5e197915d7b8f257f1b82f29e821f3d936334c25324ba748156836eb61af"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_reference": {
+        "path": "/var/tmp/nxs-list-wire-reference-02",
+        "checks": 108,
+        "native_images": 26,
+        "results_sha256": "a09de52fd777107a4f97c30ade148813b34f7403fa49b3406910a616f2c88034"
+      },
+      "native_list_wire": {
+        "path": "/var/tmp/nxs-list-wire-03",
+        "checks": 225,
+        "native_images": 26,
+        "results_sha256": "d86948a51f4ef1bd28836ab5357db345ce8090f8dc468830837ccb3177532981"
+      },
+      "radio_wire_regression": {
+        "path": "/var/tmp/nxs-list-wire-radio-regression-01",
+        "checks": 163,
+        "native_images": 42,
+        "results_sha256": "be3c221acf50ecfd1045e9cfbe60cbe7d8cf718ea465787b2a49dbf111e4d61d"
+      }
+    },
+    "scoped_rows": 496,
+    "whole_native_image_comparisons": 94,
+    "native_ui_regression": {
+      "path": "/var/tmp/nxs-list-wire-regression-01",
+      "sections": 35,
+      "results_sha256": "bdf404ad708e3901f42f3b86d9e7becb6ccd2ce36c829746003a6f392e5032cd",
+      "report": {
+        "controls": [
+          {
+            "kind": 1,
+            "preferred": [
+              101,
+              20
+            ],
+            "native_actions": 1,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 2,
+            "preferred": [
+              101,
+              15
+            ],
+            "native_actions": 1,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 3,
+            "preferred": [
+              102,
+              16
+            ],
+            "native_actions": 1,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 4,
+            "preferred": [
+              8,
+              4
+            ],
+            "native_actions": 2,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 5,
+            "preferred": [
+              128,
+              24
+            ],
+            "native_actions": 0,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          }
+        ],
+        "legacy_tracking": {
+          "tracked_value": 541.463,
+          "slow_value": 358.537,
+          "alternate_arrow_value": 480
+        },
+        "no_mapped_backing_window": true,
+        "native_input": {
+          "native_keyboard_actions": 6,
+          "controls": 4,
+          "focus_transfer": true,
+          "navigation_requests": 8,
+          "disabled_actions": 0,
+          "deferred_destruction": true
+        },
+        "native_backing": {
+          "native_cases": 6,
+          "identical_redraws": 30,
+          "selection_retained": true
+        },
+        "native_mouse": {
+          "native_click_metadata": true,
+          "legacy_single_click": true,
+          "focus_keyboard_capabilities_unchanged": true,
+          "invalid_input_rejected": true
+        },
+        "previous_input_client": {
+          "native_keyboard_actions": 6,
+          "controls": 4,
+          "focus_transfer": true,
+          "navigation_requests": 8,
+          "disabled_actions": 0,
+          "deferred_destruction": true
+        },
+        "native_text": {
+          "native_text_controls": 2,
+          "selection_replace": true,
+          "delete": true,
+          "unicode": true,
+          "read_only": true,
+          "disabled": true,
+          "native_navigation": true,
+          "deferred_destruction": true,
+          "emacs_control_a_e": true,
+          "alt_copy_paste": true,
+          "secure_copy_blocked": true,
+          "native_return_action": true,
+          "native_caret_invalidation_and_pixels": true
+        },
+        "native_wheel": {
+          "native_wheel_reference_cases": 11,
+          "unfocused_dispatch": true,
+          "native_modifiers_and_preferences": true,
+          "invalid_input_rejected": true,
+          "text_unchanged": true,
+          "keyboard_capabilities_unchanged": true
+        },
+        "multiline_reference": {
+          "native_reference_images": 3
+        },
+        "multiline_provider": {
+          "native_multiline": true,
+          "images": 3,
+          "native_viewport_and_clamping": true,
+          "native_scrollbar_pointer": true,
+          "native_double_triple_click": true,
+          "line_navigation": true,
+          "newline": true,
+          "native_tab": true,
+          "preedit_veto": true,
+          "utf16": true,
+          "read_only": true,
+          "disabled": true,
+          "busy_destruction_rejected": true
+        },
+        "multiline_short_native_pixels": true,
+        "multiline_scrolling_native_pixels": true,
+        "multiline_wrapped_native_pixels": true,
+        "native_command_filter": {
+          "native_controls": 2,
+          "empty_clipboard_command": true,
+          "application_validation": true,
+          "native_copy_fallback": true,
+          "secure_copy_protected": true,
+          "no_second_edit": true,
+          "reentrant_mutation_deferred": true,
+          "filter_removal": true
+        },
+        "native_menu": {
+          "native_menu_model": true,
+          "native_submenus": true,
+          "native_key_equivalents": true,
+          "native_modifier_preferences": true,
+          "application_validation": true,
+          "field_menu_routing": true,
+          "atomic_invalid_model_rejection": true,
+          "reentrant_mutation_rejected": true,
+          "show_hide_destroy": true
+        },
+        "native_command_thread": {
+          "passed": true,
+          "command_callbacks": 2,
+          "edit_callbacks": 1,
+          "wrong_thread_callbacks": 0,
+          "worker_edit_registration": 0,
+          "worker_command_registration": 0,
+          "worker_unregister": 0,
+          "owner_unregister": 1
+        },
+        "native_text_filter": {
+          "native_filter_controls": 2,
+          "pre_mutation_value": true,
+          "native_ranges_and_selectors": true,
+          "typing_veto": true,
+          "deletion_veto": true,
+          "cut_veto": true,
+          "paste_proposal": true,
+          "unicode": true,
+          "focus_transfer": true,
+          "model_rebind": true,
+          "reentrant_mutation_deferred": true,
+          "filter_removal": true
+        },
+        "native_range": {
+          "coarse_native_keys": 3,
+          "dense_native_keys": 1,
+          "range_update": true,
+          "invalid_rejected": true
+        },
+        "native_popup": {
+          "native_popup": true,
+          "duplicate_labels": true,
+          "disabled_item_no_action": true,
+          "separator": true,
+          "keyboard_actions": 1,
+          "mouse_actions": 1,
+          "deferred_destruction": 2,
+          "empty_model": true,
+          "invalid_model_atomic": true,
+          "destroy_open_menu": true,
+          "native_descriptor_wakeup": true,
+          "explicit_open_close": true,
+          "screen_origin": true,
+          "sync_retains_live_highlight": true,
+          "model_retains_disabled_state": true
+        },
+        "native_animation": {
+          "frames": 12,
+          "unique_native_images": 3,
+          "static_invalidations": 0,
+          "restart": true,
+          "actions": 0,
+          "times": [
+            0.050693,
+            0.132768,
+            0.208545,
+            0.301169,
+            0.378218,
+            0.457555,
+            0.546611,
+            0.623764,
+            0.717858,
+            0.801068,
+            0.878736,
+            0.9633
+          ],
+          "native_next_delays": [
+            0.072975,
+            0.074231,
+            0.081815,
+            0.072522,
+            0.078784,
+            0.082788,
+            0.077145,
+            0.08325,
+            0.072492,
+            0.072606,
+            0.078298,
+            0.077086
+          ]
+        },
+        "previous_client_unchanged_with_new_provider": true,
+        "previous_loader_and_client_unchanged_with_new_provider": true,
+        "alternate_provider_same_client_and_native_behavior": true,
+        "wrong_provider_abi_rejected": true,
+        "loader_has_no_ui_toolkit_dependency": true,
+        "provider_internals_not_exported": true,
+        "transport_transport": [
+          {
+            "kind": 1,
+            "actions": 1.0,
+            "cancelled_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 2,
+            "actions": 1.0,
+            "cancelled_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 3,
+            "actions": 1.0,
+            "cancelled_actions": 0,
+            "disabled_actions": 0
+          }
+        ],
+        "transport_input": [
+          {
+            "kind": 1,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          },
+          {
+            "kind": 2,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          },
+          {
+            "kind": 3,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          },
+          {
+            "kind": 4,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          }
+        ],
+        "transport_animation": {
+          "frames": 12,
+          "unique_native_images": 3,
+          "idle_native_wakeup": true,
+          "process_isolation": true,
+          "stopped_stable": true,
+          "restart": true,
+          "destroy_stops_invalidation": true,
+          "native_actions": 0,
+          "generations": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0
+          ],
+          "native_next_delays": [
+            0.06883454322814941,
+            0.07156383991241455,
+            0.07236528396606445,
+            0.06844162940979004,
+            0.07128298282623291,
+            0.0641094446182251,
+            0.06350874900817871,
+            0.06390917301177979,
+            0.07069754600524902,
+            0.07151484489440918,
+            0.0629262924194336,
+            0.07099759578704834
+          ]
+        },
+        "transport_notifications": {
+          "passed": 27,
+          "results": [
+            {
+              "case": "fresh-connection-first-packet-credentials",
+              "passed": true,
+              "connections": 128
+            },
+            {
+              "case": "register-separate-process-descriptors",
+              "passed": true
+            },
+            {
+              "case": "idle-descriptors-not-readable",
+              "passed": true
+            },
+            {
+              "case": "native-action-wakes-owner",
+              "passed": true
+            },
+            {
+              "case": "generation-follows-native-action",
+              "passed": true
+            },
+            {
+              "case": "invalidations-coalesce",
+              "passed": true
+            },
+            {
+              "case": "reject-file-descriptor",
+              "passed": true
+            },
+            {
+              "case": "reject-blocking-counter-without-changing-flags",
+              "passed": true
+            },
+            {
+              "case": "reject-semaphore-counter",
+              "passed": true
+            },
+            {
+              "case": "bad-registration-retains-original",
+              "passed": true
+            },
+            {
+              "case": "reject-cross-process-shared-counter",
+              "passed": true
+            },
+            {
+              "case": "process-isolation-after-rejection",
+              "passed": true
+            },
+            {
+              "case": "unregister-preserves-caller-descriptor",
+              "passed": true
+            },
+            {
+              "case": "unregistered-no-notification",
+              "passed": true
+            },
+            {
+              "case": "registration-catches-missed-generation",
+              "passed": true
+            },
+            {
+              "case": "saturated-counter-never-blocks",
+              "passed": true
+            },
+            {
+              "case": "counter-usable-after-drain",
+              "passed": true
+            },
+            {
+              "case": "replace-registration",
+              "passed": true
+            },
+            {
+              "case": "replacement-closes-old-helper-reference",
+              "passed": true
+            },
+            {
+              "case": "replacement-is-exclusive",
+              "passed": true
+            },
+            {
+              "case": "native-timer-wakes-without-polling",
+              "passed": true,
+              "seconds": 0.08653357299044728
+            },
+            {
+              "case": "unregister-idempotent",
+              "passed": true
+            },
+            {
+              "case": "other-process-still-registered",
+              "passed": true
+            },
+            {
+              "case": "unregister-closes-helper-references",
+              "passed": true
+            },
+            {
+              "case": "disconnect-closes-only-helper-reference",
+              "passed": true
+            },
+            {
+              "case": "owner-crash-releases-notifier-with-shared-connection-alive",
+              "passed": true
+            },
+            {
+              "case": "owner-crash-destroys-its-native-control",
+              "passed": true
+            }
+          ]
+        },
+        "transport_popup": {
+          "passed": 33,
+          "results": [
+            {
+              "case": "popup-capability",
+              "passed": true
+            },
+            {
+              "case": "native-screen-origin-request",
+              "passed": true
+            },
+            {
+              "case": "native-item-model",
+              "passed": true
+            },
+            {
+              "case": "native-control-pixels",
+              "passed": true
+            },
+            {
+              "case": "independent-popup-title-capability",
+              "passed": true
+            },
+            {
+              "case": "native-independent-title",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-preserves-pixels",
+              "passed": true
+            },
+            {
+              "case": "other-connection-title-rejected",
+              "passed": true
+            },
+            {
+              "case": "other-connection-preserves-title",
+              "passed": true
+            },
+            {
+              "case": "empty-native-title",
+              "passed": true
+            },
+            {
+              "case": "native-selected-title-restored",
+              "passed": true
+            },
+            {
+              "case": "native-focus",
+              "passed": true
+            },
+            {
+              "case": "native-focus-pixels",
+              "passed": true
+            },
+            {
+              "case": "explicit-native-open-unfocused",
+              "passed": true
+            },
+            {
+              "case": "explicit-native-close-no-action",
+              "passed": true
+            },
+            {
+              "case": "native-open-key",
+              "passed": true
+            },
+            {
+              "case": "open-menu-rejects-title",
+              "passed": true
+            },
+            {
+              "case": "idle-menu-no-busy-poll",
+              "passed": true,
+              "cpu_seconds": 0.0,
+              "wall_seconds": 0.2
+            },
+            {
+              "case": "native-escape-cancels",
+              "passed": true
+            },
+            {
+              "case": "disabled-item-no-selection",
+              "passed": true
+            },
+            {
+              "case": "native-keyboard-selection",
+              "passed": true
+            },
+            {
+              "case": "duplicate-label-index-retained",
+              "passed": true
+            },
+            {
+              "case": "other-process-model-isolated",
+              "passed": true
+            },
+            {
+              "case": "invalid-model-atomic",
+              "passed": true
+            },
+            {
+              "case": "tracking-rejects-model-replacement",
+              "passed": true
+            },
+            {
+              "case": "tracking-rejects-title-replacement",
+              "passed": true
+            },
+            {
+              "case": "native-mouse-selection",
+              "passed": true
+            },
+            {
+              "case": "disabled-no-menu-or-action",
+              "passed": true
+            },
+            {
+              "case": "destroy-open-menu",
+              "passed": true
+            }
+          ]
+        },
+        "transport_text": {
+          "native_text_transport": [
+            {
+              "case": "text-created",
+              "passed": true
+            },
+            {
+              "case": "text-model",
+              "passed": true
+            },
+            {
+              "case": "text-native-pixels",
+              "passed": true
+            },
+            {
+              "case": "text-focus",
+              "passed": true
+            },
+            {
+              "case": "text-reject-click-count-0",
+              "passed": true
+            },
+            {
+              "case": "text-reject-click-count--1",
+              "passed": true
+            },
+            {
+              "case": "text-click-count-accepted-2",
+              "passed": true
+            },
+            {
+              "case": "text-busy-click-rejected-2",
+              "passed": true
+            },
+            {
+              "case": "text-native-click-selection-2",
+              "passed": true
+            },
+            {
+              "case": "text-click-count-accepted-3",
+              "passed": true
+            },
+            {
+              "case": "text-busy-click-rejected-3",
+              "passed": true
+            },
+            {
+              "case": "text-native-click-selection-3",
+              "passed": true
+            },
+            {
+              "case": "text-native-focused-pixels",
+              "passed": true
+            },
+            {
+              "case": "text-selection-replace",
+              "passed": true
+            },
+            {
+              "case": "text-native-command-selector",
+              "passed": true
+            },
+            {
+              "case": "text-tab",
+              "passed": true
+            },
+            {
+              "case": "text-backtab",
+              "passed": true
+            },
+            {
+              "case": "text-utf16-unicode",
+              "passed": true
+            },
+            {
+              "case": "emacs-control-a",
+              "passed": true
+            },
+            {
+              "case": "emacs-control-e",
+              "passed": true
+            },
+            {
+              "case": "native-copy-command-without-mutation",
+              "passed": true
+            },
+            {
+              "case": "native-alt-copy-paste",
+              "passed": true
+            },
+            {
+              "case": "native-alt-cut",
+              "passed": true
+            },
+            {
+              "case": "text-return-activation",
+              "passed": true
+            },
+            {
+              "case": "text-read-only",
+              "passed": true
+            },
+            {
+              "case": "text-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "text-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "text-reject-invalid-range",
+              "passed": true
+            },
+            {
+              "case": "text-disabled-click",
+              "passed": true
+            },
+            {
+              "case": "text-disabled-focus",
+              "passed": true
+            },
+            {
+              "case": "text-disabled-key",
+              "passed": true
+            },
+            {
+              "case": "text-destroyed",
+              "passed": true
+            },
+            {
+              "case": "password-created",
+              "passed": true
+            },
+            {
+              "case": "password-model",
+              "passed": true
+            },
+            {
+              "case": "password-native-pixels",
+              "passed": true
+            },
+            {
+              "case": "password-focus",
+              "passed": true
+            },
+            {
+              "case": "password-reject-click-count-0",
+              "passed": true
+            },
+            {
+              "case": "password-reject-click-count--1",
+              "passed": true
+            },
+            {
+              "case": "password-click-count-accepted-2",
+              "passed": true
+            },
+            {
+              "case": "password-busy-click-rejected-2",
+              "passed": true
+            },
+            {
+              "case": "password-native-click-selection-2",
+              "passed": true
+            },
+            {
+              "case": "password-click-count-accepted-3",
+              "passed": true
+            },
+            {
+              "case": "password-busy-click-rejected-3",
+              "passed": true
+            },
+            {
+              "case": "password-native-click-selection-3",
+              "passed": true
+            },
+            {
+              "case": "password-native-focused-pixels",
+              "passed": true
+            },
+            {
+              "case": "password-selection-replace",
+              "passed": true
+            },
+            {
+              "case": "password-native-command-selector",
+              "passed": true
+            },
+            {
+              "case": "password-tab",
+              "passed": true
+            },
+            {
+              "case": "password-backtab",
+              "passed": true
+            },
+            {
+              "case": "password-utf16-unicode",
+              "passed": true
+            },
+            {
+              "case": "secure-copy-keeps-previous-clipboard",
+              "passed": true
+            },
+            {
+              "case": "password-return-activation",
+              "passed": true
+            },
+            {
+              "case": "password-read-only",
+              "passed": true
+            },
+            {
+              "case": "password-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "password-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "password-reject-invalid-range",
+              "passed": true
+            },
+            {
+              "case": "password-disabled-click",
+              "passed": true
+            },
+            {
+              "case": "password-disabled-focus",
+              "passed": true
+            },
+            {
+              "case": "password-disabled-key",
+              "passed": true
+            },
+            {
+              "case": "password-destroyed",
+              "passed": true
+            }
+          ]
+        },
+        "transport_text_filter": {
+          "native_pre_edit_ipc": true,
+          "proposals": 8,
+          "nested_reads": 16,
+          "nested_mutations_rejected": 8,
+          "other_process_request_during_validation": true,
+          "cancelled_typing_and_deletion": true,
+          "accepted_typing_and_deletion": true,
+          "callback_peer_loss_veto": true,
+          "expired_decision_veto": true,
+          "destroy_during_validation": true,
+          "idle_after_expiry_and_destroy": true,
+          "explicit_unregister": true,
+          "native_application_command_ipc": true,
+          "application_command_validation": true,
+          "command_nested_reads_and_mutation_rejection": true,
+          "command_peer_loss_veto": true,
+          "command_expiry_veto": true,
+          "command_frame_destruction": true,
+          "command_idle_after_expiry_and_destroy": true,
+          "late_command_before_current_edit_decision": true,
+          "late_menu_before_current_edit_decision": true
+        },
+        "transport_multiline": {
+          "native_pre_edit_ipc": true,
+          "proposals": 8,
+          "nested_reads": 16,
+          "nested_mutations_rejected": 8,
+          "other_process_request_during_validation": true,
+          "cancelled_typing_and_deletion": true,
+          "accepted_typing_and_deletion": true,
+          "callback_peer_loss_veto": true,
+          "expired_decision_veto": true,
+          "destroy_during_validation": true,
+          "idle_after_expiry_and_destroy": true,
+          "explicit_unregister": true,
+          "native_application_command_ipc": true,
+          "application_command_validation": true,
+          "command_nested_reads_and_mutation_rejection": true,
+          "command_peer_loss_veto": true,
+          "command_expiry_veto": true,
+          "command_frame_destruction": true,
+          "command_idle_after_expiry_and_destroy": true,
+          "late_command_before_current_edit_decision": true,
+          "late_menu_before_current_edit_decision": true
+        }
+      }
+    },
+    "native_reference_scales": [
+      1,
+      2
+    ]
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "live_owned": [],
+    "cleanup": {
+      "nxs-list-wire-reference-01": [
+        {
+          "pid": 177043,
+          "exit": 0
+        },
+        {
+          "pid": 177046,
+          "exit": -15
+        },
+        {
+          "pid": 177047,
+          "exit": 0
+        },
+        {
+          "pid": 177051,
+          "exit": 0
+        }
+      ],
+      "nxs-list-wire-reference-02": [
+        {
+          "pid": 177106,
+          "exit": 0
+        },
+        {
+          "pid": 177109,
+          "exit": -15
+        },
+        {
+          "pid": 177110,
+          "exit": 0
+        },
+        {
+          "pid": 177114,
+          "exit": 0
+        }
+      ],
+      "nxs-list-wire-01": [
+        {
+          "pid": 177120,
+          "exit": 0
+        },
+        {
+          "pid": 177123,
+          "exit": -15
+        },
+        {
+          "pid": 177126,
+          "exit": 0
+        },
+        {
+          "pid": 177127,
+          "exit": -15
+        },
+        {
+          "pid": 177128,
+          "exit": 0
+        },
+        {
+          "pid": 177129,
+          "exit": -15
+        },
+        {
+          "pid": 177130,
+          "exit": 0
+        }
+      ],
+      "nxs-list-wire-02": [
+        {
+          "pid": 177259,
+          "exit": 0
+        },
+        {
+          "pid": 177262,
+          "exit": -15
+        },
+        {
+          "pid": 177265,
+          "exit": 0
+        },
+        {
+          "pid": 177266,
+          "exit": -15
+        },
+        {
+          "pid": 177267,
+          "exit": 0
+        },
+        {
+          "pid": 177268,
+          "exit": -15
+        },
+        {
+          "pid": 177269,
+          "exit": 0
+        }
+      ],
+      "nxs-list-wire-03": [
+        {
+          "pid": 177309,
+          "exit": 0
+        },
+        {
+          "pid": 177312,
+          "exit": -15
+        },
+        {
+          "pid": 177315,
+          "exit": 0
+        },
+        {
+          "pid": 177316,
+          "exit": -15
+        },
+        {
+          "pid": 177317,
+          "exit": 0
+        },
+        {
+          "pid": 177318,
+          "exit": -15
+        },
+        {
+          "pid": 177319,
+          "exit": 0
+        }
+      ],
+      "nxs-list-wire-radio-regression-01": [
+        {
+          "pid": 177153,
+          "exit": 0
+        },
+        {
+          "pid": 177156,
+          "exit": -15
+        },
+        {
+          "pid": 177161,
+          "exit": 0
+        },
+        {
+          "pid": 177169,
+          "exit": -15
+        },
+        {
+          "pid": 177172,
+          "exit": 0
+        }
+      ]
+    },
+    "notices": [
+      {
+        "path": "/var/tmp/nxs-list-wire-reference-02/compositor.stderr",
+        "text": "00:00:00.008 [INFO] [backend/backend.c:350] Loading user-specified backends due to WLR_BACKENDS: headless\n00:00:00.008 [INFO] [backend/headless/backend.c:67] Creating headless backend\n00:00:00.008 [INFO] [util/env.c:25] Loading WLR_RENDERER option: pixman\n00:00:00.008 [INFO] [render/pixman/renderer.c:328] Creating pixman renderer\n00:00:00.012 [INFO] [backend/headless/backend.c:17] Starting headless backend\n00:00:00.034 [INFO] [../../../../workspace/Applications/Compositor/src/main.c:1958] Running Wayland compositor on WAYLAND_DISPLAY=wayland-0\n"
+      },
+      {
+        "path": "/var/tmp/nxs-list-wire-03/compositor.stderr",
+        "text": "00:00:00.007 [INFO] [backend/backend.c:350] Loading user-specified backends due to WLR_BACKENDS: headless\n00:00:00.007 [INFO] [backend/headless/backend.c:67] Creating headless backend\n00:00:00.007 [INFO] [util/env.c:25] Loading WLR_RENDERER option: pixman\n00:00:00.007 [INFO] [render/pixman/renderer.c:328] Creating pixman renderer\n00:00:00.010 [INFO] [backend/headless/backend.c:17] Starting headless backend\n00:00:00.013 [INFO] [../../../../workspace/Applications/Compositor/src/main.c:1958] Running Wayland compositor on WAYLAND_DISPLAY=wayland-0\n"
+      },
+      {
+        "path": "/var/tmp/nxs-list-wire-radio-regression-01/compositor.stderr",
+        "text": "00:00:00.006 [INFO] [backend/backend.c:350] Loading user-specified backends due to WLR_BACKENDS: headless\n00:00:00.006 [INFO] [backend/headless/backend.c:67] Creating headless backend\n00:00:00.006 [INFO] [util/env.c:25] Loading WLR_RENDERER option: pixman\n00:00:00.006 [INFO] [render/pixman/renderer.c:328] Creating pixman renderer\n00:00:00.010 [INFO] [backend/headless/backend.c:17] Starting headless backend\n00:00:00.012 [INFO] [../../../../workspace/Applications/Compositor/src/main.c:1958] Running Wayland compositor on WAYLAND_DISPLAY=wayland-0\n"
+      },
+      {
+        "path": "/var/tmp/nxs-list-wire-regression-01/legacy.stderr",
+        "text": "2026-11-07 19:41:32.489 native-scroller-probe[177171:177171] WARNING: -drawGState called with a NULL target context ((null)) or source context (0xaaaaedb6ccd0)\n2026-11-07 19:41:32.514 native-scroller-probe[177171:177171] WARNING: -drawGState called with a NULL target context ((null)) or source context (0xaaaaedbf52c0)\n"
+      }
+    ],
+    "unchanged_browser_adapters": {
+      "chromium": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-form-activation-03-hook.so",
+        "bytes": 232496,
+        "sha256": "e0006b4bb9d0cb28d6f82557fc26a45f16919a7281290bb610a729db0b9d9051"
+      },
+      "firefox": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-form-activation-03-hook.so",
+        "bytes": 161328,
+        "sha256": "9c04f609b1052c08700e82be5344cb172c8ee7f4bfe4d70b9f03b2fc614630fc"
+      }
+    },
+    "api": {
+      "version": 1,
+      "size": 568
+    },
+    "C_clients_have_no_UI_toolkit_dependency": true
+  },
+  "observations": [
+    "Final C-only list transport run 03 passes 225 rows/26 complete native images at actual 1x/2x, including actual older 528-byte-provider fallback. The independent ordinary list reference passes 108/26 and records native state/selected IDs and native scrollbar geometry as binary test data. Current radio wire regression passes 163/42. Combined scoped total is 496 rows/94 images; all 35 existing provider/transport regression sections pass separately.",
+    "Native list replies match every independent native field: count/flags, primary/key/action uint64 IDs, every selected uint64 ID, document size and visible rectangle. Pointer/key/Shift actions, single/multiple selection, wheel/scrolling, empty data and disabled-row scrollbar behavior match native references. Owner-connection attacks cannot read/change/input/destroy another connection's list.",
+    "Malformed models, invalid UTF8, bad item flags/reserved data, duplicate/zero IDs, unknown keys/flags, wrong row count/trailing bytes, multiple selection in single mode and wrong/nonfinite density are rejected without changing the previous native state. Read/draw remain available during original tracking while model/config/scroll mutation is refused. Late model messages cannot implicitly recreate destroyed controls.",
+    "The first complete run passes 219/26. Run 02 additionally checks actual backing density in replies. Final run 03 adds explicit oversized initial-allocation cleanup and successful valid creation afterward, reaching 225/26. Earlier passing raw observations remain separate from the final scoped total.",
+    "The C native-reference probe adds state/selection/scrollbar-geometry observations to its existing actual AppKit comparisons. Reference 01 predates scrollbar-geometry files; final reference 02 includes them. Its exact source snapshot is retained under .build/native-ui/list-wire-source-01; later protocol comments add density documentation without changing its state layout.",
+    "This checkpoint rebuilds only small test probes. Runtime retains 20 production hashes, prior browser-adapter hashes, the unchanged provider/loader/shim and package count 1050. Current UI API readback is version 1/568, with no owned candidate mappings. Stderr notices are retained in runtime evidence."
+  ],
+  "open": [
+    "Chromium and Gecko listbox/multiple-select bindings, original DOM focus/default/input/change/cancellation transactions, native intrinsic layout and option identity/lifetime handling.",
+    "List model/selection/scroll replay through actual session-host replacement, pidfd owner cleanup and broader renderer lifecycle. Existing general cleanup is reused but this checkpoint does not qualify every list recovery scenario.",
+    "Large payloads/lists beyond current bounded IPC, richer rows/group headers/separators, topology/visibility/transforms, mixed-DPI/browser zoom, accessibility/IME and native focus traversal.",
+    "Remaining browser controls, complete detached menus/native shortcuts, derivatives and installed deployment; subsequent GTK/Qt/KDE integration through the same shared layer. Browser toolbar/address bar/tabs remain original; future requested changes use optional per-app patches."
+  ],
+  "source_audit": "list-wire-source-audit.json"
+}

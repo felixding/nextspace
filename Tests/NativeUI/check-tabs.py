@@ -11,6 +11,7 @@ from text_input import Client
 p=argparse.ArgumentParser(description=__doc__)
 for name in ['build','compositor','capture-probe','backend-bundle','output']:p.add_argument('--'+name,type=Path,required=True)
 p.add_argument('--previous-provider',type=Path)
+p.add_argument('--probe',type=Path,help='Use a separately built native reference probe')
 p.add_argument('--previous-group-provider',type=Path)
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
@@ -43,7 +44,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
    assert command(f'test-scale {head} {scale} 10000')['ok'];assert command('confirm')['ok']
    out=a.output/str(scale);out.mkdir()
    with (out/'probe.stdout').open('wb') as stdout,(out/'probe.stderr').open('w') as stderr:
-    actor=subprocess.Popen([str(a.build/'native-ui'/binary),str(out),str(scale/120),'-GSBackend','wayland','-GSTheme','NextSpace'],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr,bufsize=0);children.append(actor)
+    actor=subprocess.Popen([str(a.probe or a.build/'native-ui'/binary),str(out),str(scale/120),'-GSBackend','wayland','-GSTheme','NextSpace'],env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr,bufsize=0);children.append(actor)
     os.set_blocking(actor.stdout.fileno(),False);pending=b'';checks=[];deadline=time.monotonic()+60
     while actor.poll() is None or select.select([actor.stdout],[],[],0)[0]:
      assert time.monotonic()<deadline,'Native control probe deadline'

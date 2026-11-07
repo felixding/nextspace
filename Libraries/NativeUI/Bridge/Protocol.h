@@ -255,4 +255,39 @@ struct NXSRadioWireState {
   uint32_t count,rows,columns,reserved;
   uint64_t selected,key_cell,actions;
 };
+/* Flat lists use kind 13. Bootstrap part 3.x advertises list capabilities,
+ * leaving all existing capability fields unchanged. Operation 48 replaces an
+ * existing owned list model; each wire item is followed by title_size UTF8
+ * bytes (no NULs). Scale must equal the control's actual backing density.
+ * Operation 49 reads NXSListWireState followed by selected_count uint64 IDs.
+ * Focus/key and list scroll/wheel replies carry the same complete snapshot.
+ * Owned list replies also expose actual native backing density in part 5.y;
+ * consumers need not infer it from raster bounds or hard-code a scale.
+ * Operation 50 returns original native row geometry in part 6. Operation 51
+ * uses NXSControlRequest x/y for native scroll position; existing operation
+ * 35 delivers native wheel input. Generic configure/draw/press/move/release/
+ * poll/destroy retain their original envelopes. No list behavior crosses IPC. */
+struct NXSControlListRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved,count,flags;
+  uint64_t key_cell;
+  double scale;
+};
+struct NXSListWireItem {
+  uint64_t identifier;
+  uint32_t enabled,selected,title_size,reserved;
+};
+struct NXSControlListItemRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  uint64_t identifier;
+};
+struct NXSListWireState {
+  uint32_t count,selected_count,flags,reserved;
+  uint64_t primary,key_cell,actions;
+  struct NXSRectD visible;
+  double content_width,content_height;
+};
 #endif

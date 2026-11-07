@@ -2,6 +2,7 @@
  * GPL-2.0-or-later. */
 #import <AppKit/AppKit.h>
 #include "NativeUI.h"
+#include "Bridge/Protocol.h"
 #include <assert.h>
 #include <math.h>
 #include <poll.h>
@@ -116,6 +117,20 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
  /* Input is checked against p->reference. Render its resulting state in a
   * fresh ordinary control so old transparent-cell damage is not the oracle. */
  NSMatrix *input_matrix=[p->reference matrixInColumn:0];NSArray *input_selected=[input_matrix selectedCells];
+ NSRect visible=[input_matrix visibleRect];NSSize content=[input_matrix bounds].size;
+ struct NXSListWireState expected={.count=[input_matrix numberOfRows],.selected_count=[input_selected count],
+  .flags=[p->reference allowsMultipleSelection]?NXS_LIST_MULTIPLE:0,.primary=cell_id(p,input_matrix,[input_matrix selectedCell]),
+  .key_cell=cell_id(p,input_matrix,[input_matrix keyCell]),.actions=p->action_base+p->data->actions,
+  .visible={visible.origin.x,visible.origin.y,visible.size.width,visible.size.height},.content_width=content.width,.content_height=content.height};
+ char state_path[1024];snprintf(state_path,sizeof(state_path),"%s/%s-state.bin",p->directory,name);FILE *state_file=fopen(state_path,"wb");assert(state_file);
+ assert(fwrite(&expected,sizeof(expected),1,state_file)==1);
+ for(NSCell *cell in input_selected){uint64_t identity=cell_id(p,input_matrix,cell);assert(fwrite(&identity,sizeof(identity),1,state_file)==1);}fclose(state_file);
+ NSScrollView *input_scroll=(NSScrollView *)[[input_matrix superview] superview];NSScroller *input_scroller=[input_scroll verticalScroller];
+ NSRect arrow=[input_scroller convertRect:[input_scroller rectForPart:NSScrollerIncrementLine] toView:p->reference];
+ struct NXSRectD scroll_part={arrow.origin.x,[p->reference isFlipped]?arrow.origin.y:[p->reference bounds].size.height-NSMaxY(arrow),arrow.size.width,arrow.size.height};
+ snprintf(state_path,sizeof(state_path),"%s/%s-scroll-part.bin",p->directory,name);state_file=fopen(state_path,"wb");assert(state_file);assert(fwrite(&scroll_part,sizeof(scroll_part),1,state_file)==1);fclose(state_file);
+
+
  ReferenceData *data=[ReferenceData new];NSMutableArray *rows=[NSMutableArray array];
  for(NSBrowserCell *cell in [input_matrix cells])[rows addObject:@{@"title":[cell stringValue],@"enabled":@([cell isEnabled])}];
  data->rows=[rows copy];NSSize frame=[p->reference frame].size;

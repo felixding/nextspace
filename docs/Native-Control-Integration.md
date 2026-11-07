@@ -624,5 +624,14 @@ ABI 1 extension preserves the 528-byte prefix and appends row-model/state/
 selection/geometry/scroll methods (568 bytes). It supplies data and native
 actions to subsequent consumers without duplicating list selection, layout,
 key interpretation or drawing. See the [provider qualification](../Libraries/NativeUI/list-qualification.json).
-Browser listbox and multiple-select bindings are still unfinished; their shared
-transport and original engine transactions are the next integration work.
+Browser listbox and multiple-select bindings are still unfinished; the shared
+transport below prepares their original engine transactions and layout work.
+
+The shared list transport now carries exact native selection/focus/action
+snapshots, native row geometry, scrolling and pixels through the existing
+owned host paths. Both browser engines can consume the same C serializer;
+radio/list key packets also share one encoder. Provider/loader/shim and AppKit
+binaries are unchanged from the native-list provider checkpoint. See the
+[list wire qualification](../Libraries/NativeUI/list-wire-qualification.json).
+The transport is ready for original Chromium/Gecko model, DOM/default-action
+and layout bindings; those browser controls are still implementation work.

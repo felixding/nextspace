@@ -923,7 +923,23 @@ full images use a fresh ordinary native list populated from that reference's
 resulting state. This avoids using accumulated transparent-cell damage as the
 image oracle. See [qualification](list-qualification.json).
 
-This is shared provider infrastructure. Browser listbox/multiple-select IPC,
-original DOM transactions, intrinsic layout, broader lifecycle, accessibility
+This is shared provider infrastructure. Browser listbox/multiple-select model/
+DOM transactions, intrinsic layout, broader lifecycle, accessibility
 and deployment remain work. The existing browser adapters, toolbar, address
 bar and tabs are unchanged. Later GTK/Qt/KDE adapters will consume the same API.
+
+The shared list wire uses kind 13 and operations 48–51 for models, complete
+native snapshots, row rectangles and scroll position. Existing operation 35
+routes wheel input; existing owned configure, draw, pointer, focus/key and
+retirement paths serve lists as well. Bootstrap part 3.x advertises this wire
+capability without changing old fields. Replies expose actual native backing
+density, and models must use that density within the existing bitmap budget.
+
+Snapshots preserve native primary/key/action IDs and every selected 64-bit ID,
+with native viewport/document geometry. The C serializer lives in
+`Bridge/Lists.inc`; radio and list callers share `Bridge/Inputs.inc` for focus
+and key metadata. The host supplies no selection or scrolling algorithm.
+Creating-connection checks, strict UTF8/model validation and native tracking
+mutation guards apply before mutation. See [wire qualification](list-wire-qualification.json).
+Browser listbox/multiple-select model, DOM transaction and intrinsic-layout
+bindings remain unfinished.
