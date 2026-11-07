@@ -31,7 +31,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
-static int radio_groups_enabled;
+static int radio_groups_enabled,radio_labels_enabled;
 static int multiline_enabled;
 static int multiline_viewport_enabled;
 static int wheel_enabled;
@@ -564,6 +564,7 @@ static void active_shell(void *shell,int active) {
 }
 #include "buttons.inc"
 #include "radios.inc"
+#include "radio-labels.inc"
 #include "ranges.inc"
 #include "text.inc"
 #include "viewport.inc"
@@ -591,6 +592,7 @@ static void prepare_widget_metrics(void) {
   const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);
+  radio_labels_enabled=radio_groups_enabled&&((unsigned)response->parts[4].y&4);
   prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");

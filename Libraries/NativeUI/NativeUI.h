@@ -271,6 +271,7 @@ typedef struct {
   NXSRect (*control_radio_item_rect)(NXSControl *,uint64_t);
   int (*control_radio_cell_size)(NXSControl *,double,double);
   double (*control_backing_scale)(NXSControl *);
+  int (*control_perform_click)(NXSControl *,uint64_t);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -367,6 +368,13 @@ NXSRect nxs_control_radio_item_rect(NXSControl *,uint64_t identifier);
  * emits no action and preserves native cell, selection and key identities.
  * Native preferred sizes remain available through control_size. */
 int nxs_control_radio_cell_size(NXSControl *,double width,double height);
+/* Optional semantic activation for associated labels/accessibility adapters.
+ * Native buttons take item=0; native radio matrices take an existing member ID.
+ * Selection, state changes and action dispatch use original native methods.
+ * Disabled controls/members, unsupported kinds, tracking and reentry reject it.
+ * No mouse or keyboard event is invented; this does not move input focus. */
+unsigned nxs_control_activation_capabilities(void);
+int nxs_control_perform_click(NXSControl *,uint64_t item);
 /* Native menu geometry uses control bitmap coordinates, including positions
  * outside that bitmap. A hidden menu returns a zero frame/item rectangle. */
 NXSPopupState nxs_control_popup_state(NXSControl *);

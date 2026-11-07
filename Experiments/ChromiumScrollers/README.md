@@ -891,3 +891,19 @@ See [pointer qualification](../FirefoxNativeUI/radio-pointer-qualification.json)
 and its source audit for measured coverage. Label activation, layouts beyond the
 current one-column model, browser scales and session-supervisor group recovery
 remain open. This is a partial browser integration checkpoint.
+
+
+### Native radio labels
+
+With the shared semantic-activation capability, the pinned group adapter keeps
+the original browser label handler and intercepts only its trusted forwarded
+control activation. Original association, interactive descendants, text-selection
+drag, focus and DOM cancellation remain engine-owned. The shared provider calls
+original NSMatrix selectCell: and performClick:; native action state then passes
+through the original engine click constructor and preactivation/rollback.
+
+No key or pointer gesture is fabricated. The same optional NativeUI operation
+serves existing NSButton controls for later toolkit/application adapters. See
+[qualification](../FirefoxNativeUI/radio-label-qualification.json). Non-radio
+label bindings, full accessibility, topology/scaling and session group recovery
+remain open. Browser toolbar/address bar/tabs keep their existing components.

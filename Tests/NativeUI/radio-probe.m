@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <objc/runtime.h>
 _Static_assert(offsetof(NXSNativeUIAPI,control_radio_items)==480,"Existing provider prefix");
+_Static_assert(offsetof(NXSNativeUIAPI,control_perform_click)==520,"Existing 520-byte provider prefix");
 _Static_assert(sizeof(NXSRadioState)==40,"Radio state ABI");
 static IMP original_init;static NSMatrix *observed;
 static id witness_init(id self,SEL selector,NSRect frame,NSMatrixMode mode,Class kind,NSInteger rows,NSInteger columns)
@@ -50,6 +51,7 @@ static void changed(void *context,int event,const NXSControlState *value)
   assert(!nxs_control_radio_items(p->control,NULL,0,1,0,0));
   NXSControlConfig config={.size=sizeof(config),.width=180,.height=99,.enabled=1};
   assert(!nxs_control_sync(p->control,&config)&&!nxs_control_destroy(p->control));
+  if(nxs_control_activation_capabilities())assert(!nxs_control_perform_click(p->control,identifier(0)));
 }
 static void pump(void *context)
 {
@@ -146,6 +148,12 @@ static void compare(struct Probe *p,const char *name,BOOL focused)
 int main(int argc,char **argv)
 {
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  if(argc>1&&!strcmp(argv[1],"--expect-no-activation")) {
+    assert(!nxs_control_activation_capabilities()&&!nxs_control_perform_click(NULL,0));
+    NXSControl *group=nxs_control_create(NXS_RADIOGROUP,NULL,NULL,NULL);assert(group);
+    assert(!nxs_control_perform_click(group,1)&&nxs_control_destroy(group));
+    puts("{\"older_provider_without_semantic_activation\":true}");[pool drain];return 0;
+  }
   if(argc>1&&!strcmp(argv[1],"--expect-no-radio")) {
     assert(!nxs_control_radio_capabilities()&&!nxs_control_create(NXS_RADIOGROUP,NULL,NULL,NULL));
     assert(!nxs_control_radio_items(NULL,NULL,0,1,0,0));
@@ -238,6 +246,25 @@ int main(int argc,char **argv)
   check(&p,"empty-model-has-no-placeholder-controls",!empty.count&&!empty.rows&&!empty.selected&&!empty.key_cell&&[[p.native cells] count]==0&&empty.actions==8);
   check(&p,"empty-model-has-no-invented-size",nxs_control_size(p.control).width==0&&nxs_control_size(p.control).height==0);
   check(&p,"destroy",nxs_control_destroy(p.control));[original_cells release];
-  printf("{\"passed\":%u,\"images\":%u,\"api_bytes\":%zu}\n",p.checks,p.images,sizeof(NXSNativeUIAPI));
+  if(nxs_control_activation_capabilities()) {
+    p.callbacks=0;p.control=nxs_control_create(NXS_RADIOGROUP,changed,pump,&p);assert(p.control);
+    model(&p,1,identifier(0),identifier(0));
+    check(&p,"semantic-click-rejects-disabled-and-unknown-members",!nxs_control_perform_click(p.control,identifier(1))&&
+      !nxs_control_perform_click(p.control,UINT64_MAX)&&!nxs_control_perform_click(p.control,0));
+    state(&p,"rejected-semantic-click-retains-native-state",identifier(0),identifier(0),0);
+    check(&p,"semantic-member-click-accepted",nxs_control_perform_click(p.control,identifier(2)));
+    state(&p,"semantic-click-native-selection-key-and-action",identifier(2),identifier(2),1);
+    check(&p,"semantic-click-does-not-invent-input-focus",!nxs_control_focused(p.control));compare(&p,"semantic-unfocused",NO);
+    assert(nxs_control_focus(p.control,1));
+    check(&p,"selected-member-semantic-click-acts-again",nxs_control_perform_click(p.control,identifier(2)));
+    state(&p,"selected-semantic-click-keeps-native-state",identifier(2),identifier(2),2);compare(&p,"semantic-focused",YES);
+    check(&p,"another-member-semantic-click-accepted",nxs_control_perform_click(p.control,identifier(3)));
+    state(&p,"another-member-semantic-click-uses-native-selection",identifier(3),identifier(3),3);compare(&p,"semantic-other",YES);
+    p.enabled=0;assert(nxs_control_sync(p.control,&disabled));
+    check(&p,"disabled-group-rejects-semantic-click",!nxs_control_perform_click(p.control,identifier(0)));
+    state(&p,"disabled-semantic-click-retains-native-state",identifier(3),identifier(3),3);compare(&p,"semantic-disabled",NO);
+    check(&p,"semantic-control-destroy",nxs_control_destroy(p.control));
+  }
+  printf("{\"passed\":%u,\"images\":%u,\"api_bytes\":%zu,\"semantic_activation\":%s}\n",p.checks,p.images,sizeof(NXSNativeUIAPI),nxs_control_activation_capabilities()?"true":"false");
   [pool drain];return 0;
 }

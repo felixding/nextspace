@@ -62,6 +62,15 @@ static void native_radio_binding_destroy(struct NXSRadioBinding *binding)
   if(binding->created&&binding->epoch==atomic_load(&native_host_epoch))native_radio_request(binding->control,6,0,0,1);
   native_radio_binding_free_items(binding->items,binding->count);memset(binding,0,sizeof(*binding));
 }
+static int native_radio_binding_activate(struct NXSRadioBinding *binding,uint64_t item)
+{
+  if(!binding->created||binding->tracking||binding->epoch!=atomic_load(&native_host_epoch)||
+     !native_radio_binding_contains(binding,item))return 0;
+  uint64_t actions=binding->state.actions;struct NXSRadioWireState after;
+  if(!native_radio_response_state(native_control_perform_click(NXS_RADIOGROUP,binding->control,item),&after)||
+     binding->epoch!=atomic_load(&native_host_epoch))return 0;
+  binding->state=after;return after.actions!=actions;
+}
 /* Pointer coordinates come from the application member. The native matrix
  * supplies its own cell rectangle; no grid or tracking policy is reproduced. */
 static struct NXSResponse *native_radio_binding_request(struct NXSRadioBinding *binding,uint64_t member,

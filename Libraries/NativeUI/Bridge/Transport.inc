@@ -318,3 +318,11 @@ static int __attribute__((unused)) native_menu_filter_register(int (*handler)(co
   if(!response||response->parts[3].x!=1)return 0;
   native_menu_handler=handler;native_menu_pid=getpid();return 1;
 }
+
+static struct NXSResponse * __attribute__((unused)) native_control_perform_click(unsigned kind,uint64_t control,uint64_t item)
+{
+  struct NXSControlRadioItemRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=47,
+    .process=identity(),.kind=kind,.control=control,.identifier=item};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  return response&&response->parts[3].x==1?response:NULL;
+}

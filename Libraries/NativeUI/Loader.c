@@ -55,6 +55,10 @@ void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
 #define HAS_INPUT(p, field) ((p) && (p)->size >= offsetof(NXSNativeUIAPI, field)+sizeof((p)->field) && (p)->field)
 double nxs_control_backing_scale(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_backing_scale)?p->control_backing_scale(c):0;}
+unsigned nxs_control_activation_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_perform_click)?1:0;}
+int nxs_control_perform_click(NXSControl *c,uint64_t item)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return c&&HAS_INPUT(p,control_perform_click)?p->control_perform_click(c,item):0;}
 unsigned nxs_control_pointer_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_track_clicks)?NXS_POINTER_CLICK_COUNT:0;}
 int nxs_control_track_clicks(NXSControl *c,double x,double y,unsigned m,unsigned clicks)

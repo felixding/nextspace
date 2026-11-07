@@ -11,6 +11,7 @@ static void changed(void *context,int event,const NXSControlState *state)
   assert(event==NXS_ACTIVATE||event==NXS_VALUE_CHANGED);
   assert(state->tracking); /* Native input still owns the control's stack. */
   assert(!nxs_control_destroy(p->control));
+  if(nxs_control_activation_capabilities())assert(!nxs_control_perform_click(p->control,0));
 }
 static int key(struct Probe *p,int type,int logical,const char *text,unsigned modifiers)
 {

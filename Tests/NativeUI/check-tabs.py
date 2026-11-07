@@ -80,7 +80,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
     code=actor.wait(timeout=5)
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
    assert code==0,(code,(out/'probe.stdout').read_text()[-1500:],(out/'probe.stderr').read_text()[-2500:])
-   assert checks[-1]['images']==images and checks[-1]['api_bytes']>=480
+   assert checks[-1]['images']==images+(4 if a.radio and checks[-1].get('semantic_activation') else 0) and checks[-1]['api_bytes']>=480
    assert all(row['passed'] for row in rows),[row for row in rows if not row['passed']]
   if a.previous_provider:
    old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_provider))
@@ -120,4 +120,4 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
    except subprocess.TimeoutExpired:server.kill();server.wait()
   control.close();broker.close()
   (a.output/'cleanup.json').write_text(json.dumps([dict(pid=c.pid,exit=c.returncode) for c in children],indent=2)+'\n')
-print(json.dumps(dict(passed=len(rows),native_images=images*2)))
+print(json.dumps(dict(passed=len(rows),native_images=sum("whole-desktop-native-pixels" in row["case"] for row in rows))))

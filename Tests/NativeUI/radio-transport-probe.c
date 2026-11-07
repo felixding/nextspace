@@ -12,6 +12,7 @@ _Static_assert(sizeof(struct NXSControlRadioRequest)==64,"Radio model wire ABI")
 _Static_assert(sizeof(struct NXSControlRadioItemRequest)==56,"Radio item wire ABI");
 _Static_assert(sizeof(struct NXSRadioWireState)==40,"Radio state wire ABI");
 static unsigned checks,images;static double scale;static const char *directory;
+static int semantic_activation;
 static uint64_t id(unsigned index){return UINT64_C(0x1000000000000001)+index;}
 static NXSRadioItem items[4];
 static void check(const char *name,int passed)
@@ -57,6 +58,7 @@ static void click(uint64_t from,uint64_t to,uint64_t actions)
   check("busy-native-member-remains-renderable",r&&r->width>0&&r->height>0&&r->parts[0].y==1);
   check("busy-native-member-cannot-change-layout",!native_radio_item_draw(1,from,start.width+1,start.height));
   check("busy-native-model-rejected",!native_radio_model(1,items,4,1,id(0),id(0),scale));
+  if(semantic_activation)check("busy-native-semantic-click-rejected",!native_control_perform_click(12,1,id(0)));
   assert(pointer(3,end.x+end.width/2,end.y+end.height/2));
   assert(pointer(4,end.x+end.width/2,end.y+end.height/2));
   for(unsigned i=0;i<100&&state().actions!=actions;i++)usleep(10000);
@@ -85,7 +87,9 @@ static void foreign_connection(const char *path,unsigned operation)
   assert(!connect(peer,(void *)&address,sizeof(address)));
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
     .process=identity(),.kind=NXS_RADIOGROUP,.control=1,.width=180,.height=99,.enabled=1};
-  assert(send(peer,&request,sizeof(request),MSG_NOSIGNAL)==sizeof(request));struct NXSResponse response;
+  struct NXSControlRadioItemRequest click={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=47,.process=identity(),.kind=12,.control=1,.identifier=id(0)};
+  const void *data=operation==47?(const void *)&click:(const void *)&request;size_t size=operation==47?sizeof(click):sizeof(request);
+  assert(send(peer,data,size,MSG_NOSIGNAL)==(ssize_t)size);struct NXSResponse response;
   assert(recv(peer,&response,sizeof(response),0)==sizeof(response)&&response.parts[3].x==0&&response.width==0&&response.parts[0].width==0);close(peer);
 }
 int main(int argc,char **argv)
@@ -94,10 +98,11 @@ int main(int argc,char **argv)
   struct NXSRequest bootstrap={.magic=NXS_CHROMIUM_MAGIC,.operation=7};struct NXSResponse *r=exchange(bootstrap);assert(r);
   unsigned capabilities=r->parts[4].y;
   if(argc>4&&!strcmp(argv[4],"--expect-no-radio")) {
-    check("previous-provider-reports-no-radio-wire",capabilities==0);
+    check("previous-provider-reports-no-radio-wire",!(capabilities&3));
     r=native_radio_request(1,1,180,99,1);check("previous-provider-rejects-group-creation",r&&!r->width&&!r->height);
   } else {
-    check("native-radio-capability-crosses-IPC",capabilities==(NXS_RADIO_GROUP|NXS_RADIO_CELL_SIZE));
+    check("native-radio-capability-crosses-IPC",(capabilities&3)==(NXS_RADIO_GROUP|NXS_RADIO_CELL_SIZE)&&!(capabilities&~7));
+    semantic_activation=!!(capabilities&4);
     const char *titles[]={"First","Disabled","Third","Fourth"};
     for(unsigned i=0;i<4;i++)items[i]=(NXSRadioItem){sizeof(NXSRadioItem),id(i),titles[i],i!=1};
     /* Creation uses the host's default density; the model request supplies
@@ -159,9 +164,33 @@ int main(int argc,char **argv)
       assert(native_radio_model(1,NULL,0,1,0,0,scale));
     }
     check("repeated-empty-restore-has-no-actions",state().actions==6);
+    if(semantic_activation) {
+      model(1,id(0),id(0));assert(native_radio_input(1,0,NULL));
+      struct NXSRadioWireState clicked;
+      check("semantic-click-typed-result-crosses-IPC",native_radio_response_state(native_control_perform_click(12,1,id(2)),&clicked)&&
+        clicked.selected==id(2)&&clicked.key_cell==id(2)&&clicked.actions==7);
+      image(native_radio_request(1,5,0,0,1),"semantic-unfocused","semantic-unfocused",0);
+      assert(native_radio_input(1,1,NULL));
+      check("selected-semantic-click-crosses-IPC",native_control_perform_click(12,1,id(2))!=NULL);
+      expect("selected-semantic-click-keeps-native-state",id(2),id(2),8);
+      image(native_radio_request(1,5,0,0,1),"semantic-focused","semantic-focused",0);
+      check("semantic-click-rejects-disabled-and-unknown-members",!native_control_perform_click(12,1,id(1))&&
+        !native_control_perform_click(12,1,UINT64_MAX)&&!native_control_perform_click(12,1,0));
+      struct NXSControlRadioItemRequest bad={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=47,
+        .process=identity(),.kind=12,.control=1,.identifier=id(0),.width=1};
+      r=exchange_bytes(&bad,sizeof(bad));check("semantic-click-rejects-nonzero-unused-dimensions",r&&r->parts[3].x==0);
+      foreign_connection(argv[1],47);expect("other-connection-cannot-perform-semantic-click",id(2),id(2),8);
+      check("another-member-semantic-click-crosses-IPC",native_control_perform_click(12,1,id(3))!=NULL);
+      expect("semantic-click-retains-exact-member-identities",id(3),id(3),9);
+      image(native_radio_request(1,5,0,0,1),"semantic-other","semantic-other",0);
+      assert(native_radio_request(1,1,180,99,0));assert(native_radio_input(1,0,NULL));
+      check("disabled-group-refuses-semantic-click",!native_control_perform_click(12,1,id(0)));
+      image(native_radio_request(1,5,0,0,1),"semantic-disabled","semantic-disabled",0);
+      assert(native_radio_request(1,1,180,99,1));
+    }
     model(1,id(3),id(0));assert(native_radio_request(1,6,0,0,1));
     struct NXSRadioWireState retired;check("destroy-retires-native-state",!native_radio_state(1,&retired));
     check("late-model-cannot-recreate-retired-group",!native_radio_model(1,items,4,1,id(3),id(0),scale));
   }
-  close(channel);printf("{\"passed\":%u,\"images\":%u}\n",checks,images);return 0;
+  close(channel);printf("{\"passed\":%u,\"images\":%u,\"semantic_activation\":%s}\n",checks,images,semantic_activation?"true":"false");return 0;
 }

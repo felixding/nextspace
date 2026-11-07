@@ -155,6 +155,12 @@ class NativeControlServer:
         self.wheel_capabilities=0
         self.tab_capabilities=0
         self.radio_capabilities=0
+        self.activation_capabilities=0
+        if hasattr(native,'nxs_control_activation_capabilities'):
+            native.nxs_control_activation_capabilities.restype=C.c_uint
+            self.activation_capabilities=native.nxs_control_activation_capabilities()
+            native.nxs_control_perform_click.argtypes=[C.c_void_p,C.c_uint64]
+            native.nxs_control_perform_click.restype=C.c_int
         if hasattr(native,'nxs_control_radio_capabilities'):
             native.nxs_control_radio_capabilities.restype=C.c_uint
             self.radio_capabilities=native.nxs_control_radio_capabilities()
@@ -676,6 +682,18 @@ class NativeControlServer:
 
     def message(self, client, data, descriptors=(),sender_pid=None):
         if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==47:
+            if len(data)!=C.sizeof(ControlRadioItemRequest):return
+            req=ControlRadioItemRequest.from_buffer_copy(data)
+            state=self.controls.get((req.process,req.control,req.kind))
+            if state and (state['destroy'] or state['client'] is not client):state=None
+            accepted=bool(req.magic==MAGIC and not req.text_size and not req.width and not req.height and
+                self.activation_capabilities and state and not state['destroy'] and
+                state['client'] is client and self.idle() and not self._tracking(state) and
+                self.native.nxs_control_perform_click(state['native'],req.identifier))
+            self.log('native-form-perform-click',process=req.process,control=req.control,kind=req.kind,identifier=req.identifier,accepted=int(accepted))
+            self._respond(client,req,state,input_result=int(accepted),payload=self.radio_snapshot(state) if accepted and req.kind==12 else b'')
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little') in (43,45,46):
             self.radio_message(client,data)
             return

@@ -587,3 +587,16 @@ adapters and bridge lifetime/transport handling change. See the
 Label activation, other layouts/scales and session-supervisor group recovery
 remain open. Browser toolbar, address bar and tabs stay original; future requested
 UI changes use optional application patches over this same shared integration.
+
+
+Pinned radio label activation now uses the same shared native controls. The
+original browser label default handler owns association, interactive descendants,
+text-selection drag and cancellation. Only its trusted forwarded control action
+crosses the shared semantic activation transport to existing NSMatrix methods;
+the original engine still constructs the forwarded event and owns DOM rollback.
+The optional NativeUI extension also supports original NSButton performClick:
+for later adapters. No label association, widget state machine or native control
+is duplicated. See [label qualification](../Experiments/FirefoxNativeUI/radio-label-qualification.json).
+Non-radio label bindings and the previously listed browser integration gaps
+remain unfinished. Future requested browser UI changes use optional per-app
+patches over the same shared library and bridge.

@@ -1,0 +1,1213 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "ea727010",
+  "status": "pinned-radio-label-semantic-activation-partially-qualified",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 528,
+  "flags": [
+    "NEXTSPACE_CHROMIUM_RADIO_GROUPS=1",
+    "NEXTSPACE_FIREFOX_RADIO_GROUPS=1"
+  ],
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/semantic-click-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 108792,
+      "sha256": "d4309c6bd5eda2e6829d6aab191a0e88e28e276cbc470a352d5e226d7c8ad89d"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/semantic-click-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 516712,
+      "sha256": "8e4ce0be4234ca79371a87ea1ed5c4b7ba33a7e8a3ff3c8d00335d627d30a61b"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/semantic-click-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 82976,
+      "sha256": "e3dd8cb58086f78f12e07ac854f83b232b9e9b7cc1f9bc499666b499512a78ac"
+    },
+    "radio_probe": {
+      "path": "/var/tmp/nextspace-native-ui/semantic-click-01/native-ui/native-radio-probe",
+      "bytes": 151704,
+      "sha256": "b7ec4fc9353df72dea71c1345ca7401268002206411818af9a89c2237fb9227d"
+    },
+    "wire_probe": {
+      "path": "/var/tmp/nextspace-native-ui/semantic-click-01/native-ui/native-radio-transport-probe",
+      "bytes": 129464,
+      "sha256": "f24b4e3e60e1b621e21a79b3b530d43591ab3c0483355e015faa3260156505fc"
+    },
+    "semantic_probe": {
+      "path": "/var/tmp/nextspace-native-ui/semantic-click-01/native-ui/native-semantic-click-probe",
+      "bytes": 116264,
+      "sha256": "43f4848f91a3bb790163482374265b533be8db080a60ac753e61387129c7e8f1"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-radio-label-01-hook.so",
+      "bytes": 166320,
+      "sha256": "5d9e0eac44651b3e77877e66f11178df89447c40e6e79ca655cb6817d5de9e02"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-radio-label-01-hook.so",
+      "bytes": 160696,
+      "sha256": "cfd2c97682b20d88caeae3d4f52708ace7d590284b51dda541f5ec6472c462a8"
+    }
+  },
+  "verification": {
+    "runs": {
+      "firefox_group_pointer_labels": {
+        "path": "/var/tmp/nxs-firefox-radio-label-02",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "results_sha256": "04f7ed9decbc3a8e8aaa8ef624a1ff9a0b709c80449126f111bad4d52b84c4c3"
+      },
+      "chromium_group_pointer_labels": {
+        "path": "/var/tmp/nxs-chromium-radio-label-02",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "results_sha256": "ab6b58ad65223ea9a37320d811435c8e3ad88337f66849d2f75adcbc6ffdc5af"
+      },
+      "firefox_button_text": {
+        "path": "/var/tmp/nxs-firefox-radio-label-02",
+        "results_file": "button-results.json",
+        "checks": 108,
+        "native_images": 48,
+        "results_sha256": "d318ea4b5dc51adbabeb57a12612750da62c06f916b1998b01d302905301cffc"
+      },
+      "chromium_button_text": {
+        "path": "/var/tmp/nxs-chromium-radio-label-02",
+        "results_file": "button-results.json",
+        "checks": 107,
+        "native_images": 48,
+        "results_sha256": "b3526494a730f59eb535ad5fb7aab19ef851162895a87eff0be37e12eb33eb7b"
+      },
+      "native_matrix_provider": {
+        "path": "/var/tmp/nxs-semantic-click-provider-04",
+        "results_file": "results.json",
+        "checks": 312,
+        "native_images": 34,
+        "results_sha256": "5b2bd619f5c612ec117f08bdd9ad3b292813b8bb5bc8fead2fcc127da492a771"
+      },
+      "native_matrix_wire": {
+        "path": "/var/tmp/nxs-semantic-click-wire-02",
+        "results_file": "results.json",
+        "checks": 163,
+        "native_images": 42,
+        "results_sha256": "be3c221acf50ecfd1045e9cfbe60cbe7d8cf718ea465787b2a49dbf111e4d61d"
+      }
+    },
+    "scoped_rows": 878,
+    "whole_native_image_comparisons": 230,
+    "ordinary_native_buttons": {
+      "native_button_comparisons": 27,
+      "native_actions": 27,
+      "disabled_rejected": true,
+      "focus_unchanged": true,
+      "reentry_and_destruction_guarded": true
+    },
+    "older_provider_compatibility": {
+      "new_loader_with_older_520_provider": true
+    },
+    "browser_scale": 1,
+    "native_reference_scales": [
+      1,
+      2
+    ]
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "live_owned": [],
+    "package_count": 1050,
+    "notices": [
+      {
+        "path": "/var/tmp/nxs-firefox-radio-label-02/browser.stderr",
+        "text": "Exiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\n"
+      },
+      {
+        "path": "/var/tmp/nxs-firefox-radio-label-02/helper.stderr",
+        "text": "2026-11-07 17:28:45.457 python3[168906:168906] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 108.000000\n2026-11-07 17:28:45.475 python3[168906:168906] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 17:28:45.505 python3[168906:168906] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 170.000000\n2026-11-07 17:28:45.505 python3[168906:168906] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 18.000000\n"
+      },
+      {
+        "path": "/var/tmp/nxs-chromium-radio-label-02/browser.stderr",
+        "text": "\n(process:169040): Gtk-WARNING **: 17:17:04.326: Unable to acquire the address of the accessibility bus: GDBus.Error:org.freedesktop.DBus.Error.ServiceUnknown: The name org.a11y.Bus was not provided by any .service files. If you are attempting to run GTK without a11y support, GTK_A11Y should be set to 'none'.\n\nDevTools listening on ws://127.0.0.1:9247/devtools/browser/a8115587-9ffb-401e-a9eb-2d2bebcb37a3\n[169040:169040:1107/171705.321425:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.GetAll: object_path= /org/freedesktop/UPower/devices/DisplayDevice: org.freedesktop.DBus.Error.ServiceUnknown: The name org.freedesktop.UPower was not provided by any .service files\n[169040:169040:1107/171705.494887:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.Properties.Get: object_path= /org/freedesktop/portal/desktop: org.freedesktop.DBus.Error.InvalidArgs: No such interface \u201corg.freedesktop.portal.FileChooser\u201d\nWarning: vkCreateInstance: Found no drivers!\nWarning: vkCreateInstance failed with VK_ERROR_INCOMPATIBLE_DRIVER\n    at CheckVkSuccessImpl (../../third_party/dawn/src/dawn/native/vulkan/VulkanError.cpp:106)\n\n[169040:169040:1107/172003.601973:ERROR:services/on_device_model/public/cpp/service_client.cc:37] Unexpected on_device_model service disconnect; reason: 1, description: Error loading backend.\n[169040:169136:1107/173222.380231:ERROR:content/browser/devtools/devtools_pipe_handler.cc:188] Connection terminated while reading from pipe\n"
+      },
+      {
+        "path": "/var/tmp/nxs-semantic-click-provider-04/compositor.stderr",
+        "text": "00:00:00.009 [INFO] [backend/backend.c:350] Loading user-specified backends due to WLR_BACKENDS: headless\n00:00:00.009 [INFO] [backend/headless/backend.c:67] Creating headless backend\n00:00:00.009 [INFO] [util/env.c:25] Loading WLR_RENDERER option: pixman\n00:00:00.009 [INFO] [render/pixman/renderer.c:328] Creating pixman renderer\n00:00:00.014 [INFO] [backend/headless/backend.c:17] Starting headless backend\n00:00:00.029 [INFO] [../../../../workspace/Applications/Compositor/src/main.c:1958] Running Wayland compositor on WAYLAND_DISPLAY=wayland-0\n"
+      },
+      {
+        "path": "/var/tmp/nxs-semantic-click-wire-02/compositor.stderr",
+        "text": "00:00:00.014 [INFO] [backend/backend.c:350] Loading user-specified backends due to WLR_BACKENDS: headless\n00:00:00.014 [INFO] [backend/headless/backend.c:67] Creating headless backend\n00:00:00.015 [INFO] [util/env.c:25] Loading WLR_RENDERER option: pixman\n00:00:00.015 [INFO] [render/pixman/renderer.c:328] Creating pixman renderer\n00:00:00.018 [INFO] [backend/headless/backend.c:17] Starting headless backend\n00:00:00.029 [INFO] [../../../../workspace/Applications/Compositor/src/main.c:1958] Running Wayland compositor on WAYLAND_DISPLAY=wayland-0\n"
+      },
+      {
+        "path": "/var/tmp/nxs-semantic-click-regression-02/legacy.stderr",
+        "text": "2026-11-07 17:32:24.339 native-scroller-probe[170258:170258] WARNING: -drawGState called with a NULL target context ((null)) or source context (0xaaaafd2c6c70)\n2026-11-07 17:32:24.366 native-scroller-probe[170258:170258] WARNING: -drawGState called with a NULL target context ((null)) or source context (0xaaaafd95b3e0)\n"
+      }
+    ],
+    "cleanup": {
+      "nxs-firefox-radio-label-01": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-radio-label-01": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-firefox-radio-label-02": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "nxs-chromium-radio-label-02": {
+        "exits": [
+          0,
+          -15,
+          0
+        ],
+        "capture_exit": -15
+      },
+      "nxs-semantic-click-provider-01": [
+        {
+          "pid": 168071,
+          "exit": 0
+        },
+        {
+          "pid": 168076,
+          "exit": -15
+        },
+        {
+          "pid": 168078,
+          "exit": 0
+        },
+        {
+          "pid": 168349,
+          "exit": 0
+        }
+      ],
+      "nxs-semantic-click-provider-02": [
+        {
+          "pid": 168857,
+          "exit": 0
+        },
+        {
+          "pid": 168860,
+          "exit": -15
+        },
+        {
+          "pid": 168861,
+          "exit": 0
+        }
+      ],
+      "nxs-semantic-click-provider-03": [
+        {
+          "pid": 169461,
+          "exit": 0
+        },
+        {
+          "pid": 169464,
+          "exit": -15
+        },
+        {
+          "pid": 169465,
+          "exit": 0
+        }
+      ],
+      "nxs-semantic-click-provider-04": [
+        {
+          "pid": 169617,
+          "exit": 0
+        },
+        {
+          "pid": 169620,
+          "exit": -15
+        },
+        {
+          "pid": 169621,
+          "exit": 0
+        },
+        {
+          "pid": 169623,
+          "exit": 0
+        }
+      ],
+      "nxs-semantic-click-wire-01": [
+        {
+          "pid": 169730,
+          "exit": 0
+        },
+        {
+          "pid": 169733,
+          "exit": -15
+        },
+        {
+          "pid": 169736,
+          "exit": 0
+        }
+      ],
+      "nxs-semantic-click-wire-02": [
+        {
+          "pid": 169864,
+          "exit": 0
+        },
+        {
+          "pid": 169867,
+          "exit": -15
+        },
+        {
+          "pid": 169868,
+          "exit": 0
+        },
+        {
+          "pid": 169869,
+          "exit": -15
+        },
+        {
+          "pid": 169876,
+          "exit": 0
+        }
+      ]
+    },
+    "source_reproduction": {
+      "chromium": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-radio-label-repro.so",
+        "bytes": 166320,
+        "sha256": "5d9e0eac44651b3e77877e66f11178df89447c40e6e79ca655cb6817d5de9e02"
+      },
+      "firefox": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-radio-label-repro.so",
+        "bytes": 160696,
+        "sha256": "cfd2c97682b20d88caeae3d4f52708ace7d590284b51dda541f5ec6472c462a8"
+      }
+    },
+    "native_ui_regression": {
+      "path": "/var/tmp/nxs-semantic-click-regression-02/results.json",
+      "sha256": "e2a036a1e7df1d846caca4a08364e852f97344b23c49543e7fbdfc7b0c0c776f",
+      "report": {
+        "controls": [
+          {
+            "kind": 1,
+            "preferred": [
+              101,
+              20
+            ],
+            "native_actions": 1,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 2,
+            "preferred": [
+              101,
+              15
+            ],
+            "native_actions": 1,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 3,
+            "preferred": [
+              102,
+              16
+            ],
+            "native_actions": 1,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 4,
+            "preferred": [
+              8,
+              4
+            ],
+            "native_actions": 2,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 5,
+            "preferred": [
+              128,
+              24
+            ],
+            "native_actions": 0,
+            "cancel_actions": 0,
+            "disabled_actions": 0
+          }
+        ],
+        "legacy_tracking": {
+          "tracked_value": 541.463,
+          "slow_value": 358.537,
+          "alternate_arrow_value": 480
+        },
+        "no_mapped_backing_window": true,
+        "native_input": {
+          "native_keyboard_actions": 6,
+          "controls": 4,
+          "focus_transfer": true,
+          "navigation_requests": 8,
+          "disabled_actions": 0,
+          "deferred_destruction": true
+        },
+        "native_backing": {
+          "native_cases": 6,
+          "identical_redraws": 30,
+          "selection_retained": true
+        },
+        "native_mouse": {
+          "native_click_metadata": true,
+          "legacy_single_click": true,
+          "focus_keyboard_capabilities_unchanged": true,
+          "invalid_input_rejected": true
+        },
+        "previous_input_client": {
+          "native_keyboard_actions": 6,
+          "controls": 4,
+          "focus_transfer": true,
+          "navigation_requests": 8,
+          "disabled_actions": 0,
+          "deferred_destruction": true
+        },
+        "native_text": {
+          "native_text_controls": 2,
+          "selection_replace": true,
+          "delete": true,
+          "unicode": true,
+          "read_only": true,
+          "disabled": true,
+          "native_navigation": true,
+          "deferred_destruction": true,
+          "emacs_control_a_e": true,
+          "alt_copy_paste": true,
+          "secure_copy_blocked": true,
+          "native_return_action": true,
+          "native_caret_invalidation_and_pixels": true
+        },
+        "native_wheel": {
+          "native_wheel_reference_cases": 11,
+          "unfocused_dispatch": true,
+          "native_modifiers_and_preferences": true,
+          "invalid_input_rejected": true,
+          "text_unchanged": true,
+          "keyboard_capabilities_unchanged": true
+        },
+        "multiline_reference": {
+          "native_reference_images": 3
+        },
+        "multiline_provider": {
+          "native_multiline": true,
+          "images": 3,
+          "native_viewport_and_clamping": true,
+          "native_scrollbar_pointer": true,
+          "native_double_triple_click": true,
+          "line_navigation": true,
+          "newline": true,
+          "native_tab": true,
+          "preedit_veto": true,
+          "utf16": true,
+          "read_only": true,
+          "disabled": true,
+          "busy_destruction_rejected": true
+        },
+        "multiline_short_native_pixels": true,
+        "multiline_scrolling_native_pixels": true,
+        "multiline_wrapped_native_pixels": true,
+        "native_command_filter": {
+          "native_controls": 2,
+          "empty_clipboard_command": true,
+          "application_validation": true,
+          "native_copy_fallback": true,
+          "secure_copy_protected": true,
+          "no_second_edit": true,
+          "reentrant_mutation_deferred": true,
+          "filter_removal": true
+        },
+        "native_menu": {
+          "native_menu_model": true,
+          "native_submenus": true,
+          "native_key_equivalents": true,
+          "native_modifier_preferences": true,
+          "application_validation": true,
+          "field_menu_routing": true,
+          "atomic_invalid_model_rejection": true,
+          "reentrant_mutation_rejected": true,
+          "show_hide_destroy": true
+        },
+        "native_command_thread": {
+          "passed": true,
+          "command_callbacks": 2,
+          "edit_callbacks": 1,
+          "wrong_thread_callbacks": 0,
+          "worker_edit_registration": 0,
+          "worker_command_registration": 0,
+          "worker_unregister": 0,
+          "owner_unregister": 1
+        },
+        "native_text_filter": {
+          "native_filter_controls": 2,
+          "pre_mutation_value": true,
+          "native_ranges_and_selectors": true,
+          "typing_veto": true,
+          "deletion_veto": true,
+          "cut_veto": true,
+          "paste_proposal": true,
+          "unicode": true,
+          "focus_transfer": true,
+          "model_rebind": true,
+          "reentrant_mutation_deferred": true,
+          "filter_removal": true
+        },
+        "native_range": {
+          "coarse_native_keys": 3,
+          "dense_native_keys": 1,
+          "range_update": true,
+          "invalid_rejected": true
+        },
+        "native_popup": {
+          "native_popup": true,
+          "duplicate_labels": true,
+          "disabled_item_no_action": true,
+          "separator": true,
+          "keyboard_actions": 1,
+          "mouse_actions": 1,
+          "deferred_destruction": 2,
+          "empty_model": true,
+          "invalid_model_atomic": true,
+          "destroy_open_menu": true,
+          "native_descriptor_wakeup": true,
+          "explicit_open_close": true,
+          "screen_origin": true,
+          "sync_retains_live_highlight": true,
+          "model_retains_disabled_state": true
+        },
+        "native_animation": {
+          "frames": 12,
+          "unique_native_images": 3,
+          "static_invalidations": 0,
+          "restart": true,
+          "actions": 0,
+          "times": [
+            0.039689,
+            0.132946,
+            0.208087,
+            0.299339,
+            0.383105,
+            0.464285,
+            0.546795,
+            0.623424,
+            0.716141,
+            0.798359,
+            0.882697,
+            0.96635
+          ],
+          "native_next_delays": [
+            0.083247,
+            0.073332,
+            0.081524,
+            0.073609,
+            0.073195,
+            0.075331,
+            0.076177,
+            0.08286,
+            0.073545,
+            0.074593,
+            0.073603,
+            0.073263
+          ]
+        },
+        "previous_client_unchanged_with_new_provider": true,
+        "previous_loader_and_client_unchanged_with_new_provider": true,
+        "alternate_provider_same_client_and_native_behavior": true,
+        "wrong_provider_abi_rejected": true,
+        "loader_has_no_ui_toolkit_dependency": true,
+        "provider_internals_not_exported": true,
+        "transport_transport": [
+          {
+            "kind": 1,
+            "actions": 1.0,
+            "cancelled_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 2,
+            "actions": 1.0,
+            "cancelled_actions": 0,
+            "disabled_actions": 0
+          },
+          {
+            "kind": 3,
+            "actions": 1.0,
+            "cancelled_actions": 0,
+            "disabled_actions": 0
+          }
+        ],
+        "transport_input": [
+          {
+            "kind": 1,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          },
+          {
+            "kind": 2,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          },
+          {
+            "kind": 3,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          },
+          {
+            "kind": 4,
+            "native_key_actions": 1,
+            "focus_and_blur": true,
+            "navigation_requests": 2,
+            "disabled_actions": 0,
+            "unfocused_actions": 0
+          }
+        ],
+        "transport_animation": {
+          "frames": 12,
+          "unique_native_images": 3,
+          "idle_native_wakeup": true,
+          "process_isolation": true,
+          "stopped_stable": true,
+          "restart": true,
+          "destroy_stops_invalidation": true,
+          "native_actions": 0,
+          "generations": [
+            1.0,
+            2.0,
+            3.0,
+            4.0,
+            5.0,
+            6.0,
+            7.0,
+            8.0,
+            9.0,
+            10.0,
+            11.0,
+            12.0
+          ],
+          "native_next_delays": [
+            0.07607948780059814,
+            0.06542491912841797,
+            0.07355725765228271,
+            0.06628060340881348,
+            0.07171595096588135,
+            0.07637143135070801,
+            0.07343876361846924,
+            0.07403206825256348,
+            0.0684584379196167,
+            0.07730591297149658,
+            0.0751962661743164,
+            0.0735616683959961
+          ]
+        },
+        "transport_notifications": {
+          "passed": 27,
+          "results": [
+            {
+              "case": "fresh-connection-first-packet-credentials",
+              "passed": true,
+              "connections": 128
+            },
+            {
+              "case": "register-separate-process-descriptors",
+              "passed": true
+            },
+            {
+              "case": "idle-descriptors-not-readable",
+              "passed": true
+            },
+            {
+              "case": "native-action-wakes-owner",
+              "passed": true
+            },
+            {
+              "case": "generation-follows-native-action",
+              "passed": true
+            },
+            {
+              "case": "invalidations-coalesce",
+              "passed": true
+            },
+            {
+              "case": "reject-file-descriptor",
+              "passed": true
+            },
+            {
+              "case": "reject-blocking-counter-without-changing-flags",
+              "passed": true
+            },
+            {
+              "case": "reject-semaphore-counter",
+              "passed": true
+            },
+            {
+              "case": "bad-registration-retains-original",
+              "passed": true
+            },
+            {
+              "case": "reject-cross-process-shared-counter",
+              "passed": true
+            },
+            {
+              "case": "process-isolation-after-rejection",
+              "passed": true
+            },
+            {
+              "case": "unregister-preserves-caller-descriptor",
+              "passed": true
+            },
+            {
+              "case": "unregistered-no-notification",
+              "passed": true
+            },
+            {
+              "case": "registration-catches-missed-generation",
+              "passed": true
+            },
+            {
+              "case": "saturated-counter-never-blocks",
+              "passed": true
+            },
+            {
+              "case": "counter-usable-after-drain",
+              "passed": true
+            },
+            {
+              "case": "replace-registration",
+              "passed": true
+            },
+            {
+              "case": "replacement-closes-old-helper-reference",
+              "passed": true
+            },
+            {
+              "case": "replacement-is-exclusive",
+              "passed": true
+            },
+            {
+              "case": "native-timer-wakes-without-polling",
+              "passed": true,
+              "seconds": 0.0836367130104918
+            },
+            {
+              "case": "unregister-idempotent",
+              "passed": true
+            },
+            {
+              "case": "other-process-still-registered",
+              "passed": true
+            },
+            {
+              "case": "unregister-closes-helper-references",
+              "passed": true
+            },
+            {
+              "case": "disconnect-closes-only-helper-reference",
+              "passed": true
+            },
+            {
+              "case": "owner-crash-releases-notifier-with-shared-connection-alive",
+              "passed": true
+            },
+            {
+              "case": "owner-crash-destroys-its-native-control",
+              "passed": true
+            }
+          ]
+        },
+        "transport_popup": {
+          "passed": 33,
+          "results": [
+            {
+              "case": "popup-capability",
+              "passed": true
+            },
+            {
+              "case": "native-screen-origin-request",
+              "passed": true
+            },
+            {
+              "case": "native-item-model",
+              "passed": true
+            },
+            {
+              "case": "native-control-pixels",
+              "passed": true
+            },
+            {
+              "case": "independent-popup-title-capability",
+              "passed": true
+            },
+            {
+              "case": "native-independent-title",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-mutation-rejected",
+              "passed": true
+            },
+            {
+              "case": "invalid-title-preserves-pixels",
+              "passed": true
+            },
+            {
+              "case": "other-connection-title-rejected",
+              "passed": true
+            },
+            {
+              "case": "other-connection-preserves-title",
+              "passed": true
+            },
+            {
+              "case": "empty-native-title",
+              "passed": true
+            },
+            {
+              "case": "native-selected-title-restored",
+              "passed": true
+            },
+            {
+              "case": "native-focus",
+              "passed": true
+            },
+            {
+              "case": "native-focus-pixels",
+              "passed": true
+            },
+            {
+              "case": "explicit-native-open-unfocused",
+              "passed": true
+            },
+            {
+              "case": "explicit-native-close-no-action",
+              "passed": true
+            },
+            {
+              "case": "native-open-key",
+              "passed": true
+            },
+            {
+              "case": "open-menu-rejects-title",
+              "passed": true
+            },
+            {
+              "case": "idle-menu-no-busy-poll",
+              "passed": true,
+              "cpu_seconds": 0.0,
+              "wall_seconds": 0.2
+            },
+            {
+              "case": "native-escape-cancels",
+              "passed": true
+            },
+            {
+              "case": "disabled-item-no-selection",
+              "passed": true
+            },
+            {
+              "case": "native-keyboard-selection",
+              "passed": true
+            },
+            {
+              "case": "duplicate-label-index-retained",
+              "passed": true
+            },
+            {
+              "case": "other-process-model-isolated",
+              "passed": true
+            },
+            {
+              "case": "invalid-model-atomic",
+              "passed": true
+            },
+            {
+              "case": "tracking-rejects-model-replacement",
+              "passed": true
+            },
+            {
+              "case": "tracking-rejects-title-replacement",
+              "passed": true
+            },
+            {
+              "case": "native-mouse-selection",
+              "passed": true
+            },
+            {
+              "case": "disabled-no-menu-or-action",
+              "passed": true
+            },
+            {
+              "case": "destroy-open-menu",
+              "passed": true
+            }
+          ]
+        },
+        "transport_text": {
+          "native_text_transport": [
+            {
+              "case": "text-created",
+              "passed": true
+            },
+            {
+              "case": "text-model",
+              "passed": true
+            },
+            {
+              "case": "text-native-pixels",
+              "passed": true
+            },
+            {
+              "case": "text-focus",
+              "passed": true
+            },
+            {
+              "case": "text-reject-click-count-0",
+              "passed": true
+            },
+            {
+              "case": "text-reject-click-count--1",
+              "passed": true
+            },
+            {
+              "case": "text-click-count-accepted-2",
+              "passed": true
+            },
+            {
+              "case": "text-busy-click-rejected-2",
+              "passed": true
+            },
+            {
+              "case": "text-native-click-selection-2",
+              "passed": true
+            },
+            {
+              "case": "text-click-count-accepted-3",
+              "passed": true
+            },
+            {
+              "case": "text-busy-click-rejected-3",
+              "passed": true
+            },
+            {
+              "case": "text-native-click-selection-3",
+              "passed": true
+            },
+            {
+              "case": "text-native-focused-pixels",
+              "passed": true
+            },
+            {
+              "case": "text-selection-replace",
+              "passed": true
+            },
+            {
+              "case": "text-native-command-selector",
+              "passed": true
+            },
+            {
+              "case": "text-tab",
+              "passed": true
+            },
+            {
+              "case": "text-backtab",
+              "passed": true
+            },
+            {
+              "case": "text-utf16-unicode",
+              "passed": true
+            },
+            {
+              "case": "emacs-control-a",
+              "passed": true
+            },
+            {
+              "case": "emacs-control-e",
+              "passed": true
+            },
+            {
+              "case": "native-copy-command-without-mutation",
+              "passed": true
+            },
+            {
+              "case": "native-alt-copy-paste",
+              "passed": true
+            },
+            {
+              "case": "native-alt-cut",
+              "passed": true
+            },
+            {
+              "case": "text-return-activation",
+              "passed": true
+            },
+            {
+              "case": "text-read-only",
+              "passed": true
+            },
+            {
+              "case": "text-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "text-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "text-reject-invalid-range",
+              "passed": true
+            },
+            {
+              "case": "text-disabled-click",
+              "passed": true
+            },
+            {
+              "case": "text-disabled-focus",
+              "passed": true
+            },
+            {
+              "case": "text-disabled-key",
+              "passed": true
+            },
+            {
+              "case": "text-destroyed",
+              "passed": true
+            },
+            {
+              "case": "password-created",
+              "passed": true
+            },
+            {
+              "case": "password-model",
+              "passed": true
+            },
+            {
+              "case": "password-native-pixels",
+              "passed": true
+            },
+            {
+              "case": "password-focus",
+              "passed": true
+            },
+            {
+              "case": "password-reject-click-count-0",
+              "passed": true
+            },
+            {
+              "case": "password-reject-click-count--1",
+              "passed": true
+            },
+            {
+              "case": "password-click-count-accepted-2",
+              "passed": true
+            },
+            {
+              "case": "password-busy-click-rejected-2",
+              "passed": true
+            },
+            {
+              "case": "password-native-click-selection-2",
+              "passed": true
+            },
+            {
+              "case": "password-click-count-accepted-3",
+              "passed": true
+            },
+            {
+              "case": "password-busy-click-rejected-3",
+              "passed": true
+            },
+            {
+              "case": "password-native-click-selection-3",
+              "passed": true
+            },
+            {
+              "case": "password-native-focused-pixels",
+              "passed": true
+            },
+            {
+              "case": "password-selection-replace",
+              "passed": true
+            },
+            {
+              "case": "password-native-command-selector",
+              "passed": true
+            },
+            {
+              "case": "password-tab",
+              "passed": true
+            },
+            {
+              "case": "password-backtab",
+              "passed": true
+            },
+            {
+              "case": "password-utf16-unicode",
+              "passed": true
+            },
+            {
+              "case": "secure-copy-keeps-previous-clipboard",
+              "passed": true
+            },
+            {
+              "case": "password-return-activation",
+              "passed": true
+            },
+            {
+              "case": "password-read-only",
+              "passed": true
+            },
+            {
+              "case": "password-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "password-reject-invalid-text",
+              "passed": true
+            },
+            {
+              "case": "password-reject-invalid-range",
+              "passed": true
+            },
+            {
+              "case": "password-disabled-click",
+              "passed": true
+            },
+            {
+              "case": "password-disabled-focus",
+              "passed": true
+            },
+            {
+              "case": "password-disabled-key",
+              "passed": true
+            },
+            {
+              "case": "password-destroyed",
+              "passed": true
+            }
+          ]
+        },
+        "transport_text_filter": {
+          "native_pre_edit_ipc": true,
+          "proposals": 8,
+          "nested_reads": 16,
+          "nested_mutations_rejected": 8,
+          "other_process_request_during_validation": true,
+          "cancelled_typing_and_deletion": true,
+          "accepted_typing_and_deletion": true,
+          "callback_peer_loss_veto": true,
+          "expired_decision_veto": true,
+          "destroy_during_validation": true,
+          "idle_after_expiry_and_destroy": true,
+          "explicit_unregister": true,
+          "native_application_command_ipc": true,
+          "application_command_validation": true,
+          "command_nested_reads_and_mutation_rejection": true,
+          "command_peer_loss_veto": true,
+          "command_expiry_veto": true,
+          "command_frame_destruction": true,
+          "command_idle_after_expiry_and_destroy": true,
+          "late_command_before_current_edit_decision": true,
+          "late_menu_before_current_edit_decision": true
+        },
+        "transport_multiline": {
+          "native_pre_edit_ipc": true,
+          "proposals": 8,
+          "nested_reads": 16,
+          "nested_mutations_rejected": 8,
+          "other_process_request_during_validation": true,
+          "cancelled_typing_and_deletion": true,
+          "accepted_typing_and_deletion": true,
+          "callback_peer_loss_veto": true,
+          "expired_decision_veto": true,
+          "destroy_during_validation": true,
+          "idle_after_expiry_and_destroy": true,
+          "explicit_unregister": true,
+          "native_application_command_ipc": true,
+          "application_command_validation": true,
+          "command_nested_reads_and_mutation_rejection": true,
+          "command_peer_loss_veto": true,
+          "command_expiry_veto": true,
+          "command_frame_destruction": true,
+          "command_idle_after_expiry_and_destroy": true,
+          "late_command_before_current_edit_decision": true,
+          "late_menu_before_current_edit_decision": true
+        }
+      }
+    },
+    "adapters_have_no_ui_toolkit_dependency": true
+  },
+  "observations": [
+    "Each pinned engine passes 94 group/pointer/label rows and 29 whole native member comparisons. Native actions cover implicit/explicit nested labels, selected members, retargeted labels and cancelled forwarded clicks. Original disabled/interactive/cancelled/removed-target/text-drag filtering remains. Programmatic model changes preserve native images.",
+    "Each native label action is recorded as semantic performClick without a fabricated native pointer press. The engine constructs the original trusted PointerEvent with mouse source; original input/change events and cancellation rollback remain intact.",
+    "Final ordinary AppKit matrix comparisons pass 312 rows/34 complete images at actual 1x/2x backing. Typed wire checks pass 163/42, including full-width identities, native callbacks, busy/disabled/unknown/malformed/foreign-connection rejection. A separate ordinary NSButton comparison passes 27 actions over button/check/radio kinds and off/on/mixed initial states, with callback destruction/reentry guards.",
+    "Current button/text regressions pass Firefox 108/48 and Chromium 107/48. The full shared NativeUI provider/transport suite and older client/loader regression pass. A new loader with the actual older 520-byte provider reports semantic activation unsupported and remains usable.",
+    "An early host rejected the existing nonzero sequence field as unused; raw traces show suppressed label activation and no native action. The owner-validated final operation preserves the sequence. The failed host source and traces remain diagnostic evidence.",
+    "Initial provider observations either ran the old test executable or stopped at stale fixed image totals. A later disabled-image mismatch came from a reference enabled flag left true. Final native references use the same intended enabled model; provider behavior was unchanged. Transport image totals were likewise updated for the added semantic cases.",
+    "The first Firefox broad run supplies original count 1 on the second physical click and fails the intended double-click assertion. Final test dispatches the three real seat clicks without intermediate state queries, still requires actual engine counts 1/2/3, and passes both engines. The earlier failure is retained separately.",
+    "A new C input test incorrectly assumed a momentary button state resets to zero after performClick. It was replaced by the independent ordinary NSButton comparison, which matches actual native behavior without corrective provider code. The failed test/run remain archived."
+  ],
+  "open": [
+    "Non-radio browser label bindings, label pressed-state/animation coverage, accessibility activation and broader author-style/complex-control cases.",
+    "Radio topology beyond one column, visibility/geometry variants, large-group efficiency, browser zoom/other scales/builds, native double-action timing and actual session-supervisor group recovery.",
+    "Remaining browser controls and complete detached-menu/native-shortcut integration, accessibility/IME, derivatives and installed deployment. GTK/Qt/KDE follow the browser work through the same shared layer.",
+    "Browser toolbar/address bar/tabs keep their current components; future requested UI changes use optional per-app patches above the shared library and bridge."
+  ],
+  "source_audit": "radio-label-source-audit.json"
+}

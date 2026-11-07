@@ -883,3 +883,17 @@ It links Wayland/GLib only, and resolves the public GTK3/GDK functions at use
 time. It requires neither a provider nor an AppKit/browser rebuild. The existing
 NativeUI public control ABI remains unchanged. See
 [geometry qualification](gtk3-geometry-qualification.json) for the tested scope.
+
+
+The optional semantic activation extension appends control_perform_click at
+byte 520 (ABI version 1, size 528). Existing native buttons accept item ID zero;
+NSMatrix accepts an existing enabled member ID. The provider delegates to original
+NSButton performClick: or original NSMatrix selectCell:/performClick:. Original
+native state/key-cell/action methods supply the result. The shared host guards
+the native call stack against destruction/reentry, and the operation does not
+move input focus or manufacture mouse/keyboard events. Earlier providers return
+unsupported through the size-checked loader. IPC operation 47 enforces the
+creating connection, current idle state and exact request shape. It carries the
+existing typed matrix state and preserves the existing sequence field. Browser
+label association/default-action rules stay in each original engine; GTK/Qt/KDE
+can reuse this operation for their own semantic activation boundaries.

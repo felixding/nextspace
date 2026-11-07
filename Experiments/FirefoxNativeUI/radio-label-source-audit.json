@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "ea727010",
+  "status": "pinned-radio-label-semantic-activation-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/README.md": "417cf88d005461401c1ac15843878f6c3c5b4ccf44756dc819477664b3b1857d",
+    "Experiments/ChromiumScrollers/check-radio-groups.py": "71c01d1f76cd9a454f53b67955db6a5ae832f6907059b7dbcb4dc395f51d3636",
+    "Experiments/ChromiumScrollers/forms.inc": "8f53e44986c5ee379eef547b38416d32ee295701b59e97ebfa085813b28fae26",
+    "Experiments/ChromiumScrollers/helper.py": "68dc59450a63e87cef8ad80e099fdab53a259f0c91cea83a70508111a71adda9",
+    "Experiments/ChromiumScrollers/hook.c": "af8657acf9a512b7a2b52cedd675c2b642c0f704266d37495072a3e5441678d6",
+    "Experiments/ChromiumScrollers/native_controls.py": "a2178acf96ba1ed15ab9522d597b19e1f2baf027c7f582fc6ced49ed0e67ef3c",
+    "Experiments/ChromiumScrollers/pinned-radio-labels.h": "1ca3bf68a9ad51ac13887a9803db4f37dbb8e4183935dde6bca58183710692fa",
+    "Experiments/ChromiumScrollers/radio-labels.inc": "f9db57f6275092befcaca757de2560ff2c070272a624c9e4b65e7aa2312976a7",
+    "Experiments/FirefoxNativeUI/README.md": "8f0f11a4bb18aee2703850e7eca95e045ee89028b0a5747bad665bf3cffe3ca5",
+    "Experiments/FirefoxNativeUI/check-radio-groups.py": "e184a8a325cba6d1aff76856ecb29cee6d6886fbc00fe904e8fd6bc34a048b5b",
+    "Experiments/FirefoxNativeUI/controls.inc": "8a14c84b82f81f69c5687cee15e1602f98b8c88651092aa2fa739c13c8f8ed02",
+    "Experiments/FirefoxNativeUI/hook.c": "f0adeecb1d9bd5c57e7433b3ed3d301808648640f964282cf7842f2549073ac2",
+    "Experiments/FirefoxNativeUI/pinned-radio-labels.h": "d53bcbc006182bdd4400ff4c2a5452b8ddbd7dc8fac1a0acaa4699921ffe7501",
+    "Experiments/FirefoxNativeUI/radio-labels.inc": "f26806875d043342bda12913ddbac8471192e287a7f908a633accad89aad513e",
+    "Libraries/NativeUI/Bridge/Protocol.h": "9fe52a4055ae343a248ccca88808996771be0c1b012e81476f65dffe31bb9b72",
+    "Libraries/NativeUI/Bridge/RadioBinding.inc": "adfffc7a2f86d83e176be3baa834bc3bac3ee9cd9087449e6899eb6b300889d7",
+    "Libraries/NativeUI/Bridge/Transport.inc": "eeaf3befc42c6dec7672fd28580f04968f41edd03871f43071c9f95da04754a4",
+    "Libraries/NativeUI/CMakeLists.txt": "12b5e91dbe71958c7fc8c1acdb8900a8e693bf522af7fc96b89591b82b48cb2c",
+    "Libraries/NativeUI/GNUstep/Controls.m": "e903f81aac6d2e9bf5c025d6e46abdfd0da55f7d57fc5468419fda01769a2364",
+    "Libraries/NativeUI/GNUstep/Provider.h": "8e02e8533ad0ec87405195c1f663480c54c68742f4e96849aa4d0f11cd5d0dbc",
+    "Libraries/NativeUI/GNUstep/Provider.m": "d53841f75c33982534c517285106436033cae24b209b4db7a8639fb6ec7b9e22",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "ad5bbf98508a7a5b73cc22b587d361b89aa760c855a2834d2c61e11e205790b4",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "5644cc2ff45e4a101012fe36aab5429d9de32f135f93601376cf1e5466df17dc",
+    "Libraries/NativeUI/Loader.c": "65b97a48f7e93a0683d550457fa20054e86f3d2cae8363fc29fb12bc31878c3a",
+    "Libraries/NativeUI/NativeUI.h": "c9220f8e5bfb15723fd43d063498920afcd675d27c8af830c95005793daf813e",
+    "Libraries/NativeUI/README.md": "0e11851a171febcd770c1cd8a60132943d4142d4dcc6d31597a77692a975db4d",
+    "Tests/NativeUI/check-tab-transport.py": "ab8ec124a695a315b31c518ca61e4ce8abfcb02756b6e60fd52cd31854f4e78f",
+    "Tests/NativeUI/check-tabs.py": "bf42bc54f34931b198b207c1376782d3ee53f28ec1b28449255f756f88dc1a3b",
+    "Tests/NativeUI/input-probe.c": "b801abbdcd1777fa828e8a2f0202683206636f3d6a4e537d96a81abfe22df506",
+    "Tests/NativeUI/radio-probe.m": "53d49507b158db95ce48153c118cf09e776da3c280886df367f4dc153adf235a",
+    "Tests/NativeUI/radio-transport-probe.c": "fd4339e34d380d346cf7e8d7271b211936d496ddf2e48a6785c0cb900376a112",
+    "Tests/NativeUI/semantic-click-probe.m": "b8e188ff828db9abdd033ed1ab6285032d9f23f202b273d7e902a381ea6eb8d3",
+    "Tests/Wayland/radio_labels.py": "c5621dbe43cc14d967d095ab57a8451b3e4541f2063665eb47950c36b1ed29bf",
+    "Tests/Wayland/radio_pointer.py": "90ceb5b36e059d06a9cc8cbf11abc8750a89eb02ca82554dbba6e9881f03989a",
+    "docs/Native-Control-Integration.md": "b0f55dd99d56a4c39345131f55f785b4d679289165ec63c870b9f9a23b93e04e"
+  },
+  "upstream_extracts": [
+    ".build/native-ui/keyboard-source/NSButton.m",
+    ".build/native-ui/keyboard-source/NSButtonCell.m",
+    ".build/native-ui/keyboard-source/NSCell.m",
+    ".build/native-ui/keyboard-source/NSControl.m",
+    ".build/native-ui/keyboard-source/sources.json",
+    ".build/native-ui/radio-label-source/blink-label.cc",
+    ".build/native-ui/radio-label-source/blink-label.h",
+    ".build/native-ui/radio-label-source/dispatch-symbols.json",
+    ".build/native-ui/radio-label-source/dispatch-symbols.py",
+    ".build/native-ui/radio-label-source/gecko-Element.cpp",
+    ".build/native-ui/radio-label-source/gecko-Element.h",
+    ".build/native-ui/radio-label-source/gecko-label-disassembly.txt",
+    ".build/native-ui/radio-label-source/gecko-label.cpp",
+    ".build/native-ui/radio-label-source/gecko-label.h",
+    ".build/native-ui/radio-label-source/pin-calls.py",
+    ".build/native-ui/radio-label-source/pins.json",
+    ".build/native-ui/radio-label-source/radio-pointer-test-pre-burst.py",
+    ".build/native-ui/radio-label-source/sources.json",
+    ".build/native-ui/radio-label-source/symbols.json",
+    ".build/native-ui/radio-label-source/symbols.py"
+  ],
+  "upstream_sources": [
+    {
+      "path": "blink-label.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_label_element.cc",
+      "sha256": "85fbf20738640b2adde847c7cec8c76f799a2a54c0d6efa78cad609e3b6509d0"
+    },
+    {
+      "path": "blink-label.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_label_element.h",
+      "sha256": "d8fe80cc43dbd3a3f3acfdf2b8ff91954a6eec36a747a2b6b031944efd912447"
+    },
+    {
+      "path": "gecko-label.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLLabelElement.cpp",
+      "sha256": "e529c20b4fcc11cd85edf4370b67a36d57cf9469bb57971abe73da6f01f62d57"
+    },
+    {
+      "path": "gecko-label.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLLabelElement.h",
+      "sha256": "32f7b33aafb3dd39055886c1fb70ce73c7a68d4c47e36ac89729c2a87ba49dad"
+    },
+    {
+      "path": "gecko-Element.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.h",
+      "sha256": "5cc0edcb4db581904c270b740d15b34346004b5b27aaa35a66ed136afbb0bd82"
+    },
+    {
+      "path": "gecko-Element.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.cpp",
+      "sha256": "9f23e869a6abae19240e780529cf5583efc2c54dd9b8aee7ce9d8d6e3d53518d"
+    }
+  ],
+  "guarded_calls": {
+    "chromium": {
+      "LABEL_DEFAULT": {
+        "offset": 235879796,
+        "bytes": "3f2303d5ff0302d1fd7b03a9482002b0fdc30091"
+      },
+      "LABEL_FORWARD": {
+        "offset": 231817260,
+        "bytes": "3f2303d5fd7bbda9081440b9f50b00f9f50301aa"
+      }
+    },
+    "firefox": {
+      "LABEL_DEFAULT": {
+        "offset": 92883152,
+        "bytes": "3f2303d5ff8301d1fe6702a9f85f03a9f65704a9"
+      },
+      "LABEL_FORWARD": {
+        "offset": 75139664,
+        "bytes": "3f2303d5ff4306d1fd7b14a9fa6715a9f85f16a9"
+      }
+    }
+  },
+  "invariants": [
+    "NativeUI ABI 1 retains its 520-byte prefix; optional control_perform_click appends at byte 520, new size 528. Size-checked loader forwarding returns unsupported with older providers. Existing matrix state/item wire layouts remain unchanged.",
+    "The single shared provider calls original NSMatrix selectCell:/performClick: or NSButton performClick:. The shared host action guard protects the native dispatch stack against destruction and reentry. It creates no mouse/key event, copies no control algorithm and does not move input focus.",
+    "IPC operation 47 reuses the exact 56-byte item request. Its reserved field retains the existing transport request sequence; unused dimensions/text must be zero. Only the creating connection can activate its idle control. Original native enabled/member state and typed action/key/selection snapshots supply the result.",
+    "Blink original HTMLLabelElement::DefaultEventHandler owns association, interactive-content/selection filtering and focus. Only its original Node::DispatchSimulatedClick call with the currently scoped trusted source event enters native activation. Scope and source-event arguments pass unchanged to the original function.",
+    "Gecko original HTMLLabelElement::PostHandleEvent owns association, disabled/drag/modifier/cancellation filtering and focus. Original static Element::DispatchClickEvent preserves pointer metadata and DOM activation. The wrapper recognizes the currently scoped trusted source event and passes original full-dispatch/flags/status arguments unchanged.",
+    "Shared RadioBinding consumes the typed native action state. Existing original engine membership/lifetime validators choose the target; original click preactivation, events and cancellation/rollback remain engine-owned. Programmatic untrusted label clicks retain the original application-model path and update native pixels through normal model synchronization.",
+    "No browser/AppKit/backend/installed runtime binary changed. The candidates are small adapters and one shared NativeUI provider/loader/shim build. GTK/Qt/KDE can reuse the semantic activation operation; toolbar/address bar/tabs remain original."
+  ]
+}

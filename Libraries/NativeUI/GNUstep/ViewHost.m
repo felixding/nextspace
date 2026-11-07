@@ -579,6 +579,15 @@ void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned
 }
 
 int nxs_host_tracking(NXSViewHost *host){return host&&(host->tracking||host->dispatch_depth);}
+int nxs_host_action(NXSViewHost *host,void (*action)(NSView *,void *),void *context)
+{
+  if(!host||!action||active||menu_loop||nxs_host_tracking(host))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  host->dispatch_depth++;active=host;
+  @try {action(host->view,context);}
+  @finally {host->dispatch_depth--;active=NULL;}
+  [pool drain];return 1;
+}
 
 int nxs_host_focused(NXSViewHost *host)
 {

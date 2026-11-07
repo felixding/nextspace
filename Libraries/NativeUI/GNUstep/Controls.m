@@ -349,6 +349,22 @@ int nxs_gnustep_control_track_clicks(NXSControl *control,double x,double y,unsig
 {return control&&control->enabled&&control->kind!=NXS_PROGRESS?nxs_host_track_clicks(control->host,x,y,modifiers,clicks):0;}
 void nxs_gnustep_control_send(NXSControl *control,int event,double x,double y,unsigned modifiers)
 {if(control)nxs_host_send(control->host,event,x,y,modifiers);}
+static void perform_native_click(NSView *view,void *member)
+{
+  if(member)[(NSMatrix *)view selectCell:(NSCell *)member];
+  [(NSControl *)view performClick:nil];
+}
+int nxs_gnustep_control_perform_click(NXSControl *control,uint64_t item)
+{
+  if(!control||control->destroying||!control->enabled||nxs_host_tracking(control->host))return 0;
+  NSCell *member=nil;
+  if(control->kind==NXS_RADIOGROUP) {
+    NXSRadioAction *target=control->target;
+    member=[[target->models objectForKey:@(item)] objectForKey:@"cell"];
+    if(!member||![member isEnabled])return 0;
+  } else if(item||(control->kind!=NXS_BUTTON&&control->kind!=NXS_CHECKBOX&&control->kind!=NXS_RADIO))return 0;
+  return nxs_host_action(control->host,perform_native_click,member);
+}
 int nxs_gnustep_control_focus(NXSControl *control,int focused)
 {
   if(!control||(focused&&(!control->enabled||control->kind==NXS_PROGRESS)))return 0;

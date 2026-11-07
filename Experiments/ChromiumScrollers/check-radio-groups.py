@@ -4,7 +4,7 @@ import argparse,json,socket,sys,time
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
 from radio_groups import RadioFixture,run
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--pointer',action='store_true');a=p.parse_args();root=a.fixture.resolve();rows=[]
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--pointer',action='store_true');p.add_argument('--labels',action='store_true');a=p.parse_args();root=a.fixture.resolve();rows=[]
 def command(text):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as s:
   s.settimeout(25);s.connect(str(root/'control.sock'));s.send(json.dumps(dict(command=text)).encode());return json.loads(s.recv(1048576))
@@ -36,6 +36,9 @@ try:
  if a.pointer:
   from radio_pointer import run as pointer_checks
   pointer_checks(fixture)
+ if a.labels:
+  from radio_labels import run as label_checks
+  label_checks(fixture)
  print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in row['case'] for row in rows))))
 finally:
  command('button 272 0');command('key 42 0');cdp('Target.detachFromTarget',dict(sessionId=session),False)

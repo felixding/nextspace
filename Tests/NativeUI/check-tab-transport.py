@@ -64,7 +64,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
      actual=Image.frombytes('RGBA',(event['width'],event['height']),(out/(event['name']+'.argb')).read_bytes(),'raw','BGRA',event['stride']);actual.save(out/(event['name']+'.png'))
      check(name+'-transport-'+event['name']+'-whole-native-desktop-pixels',actual.size==expected.size and actual.convert('RGB').tobytes()==expected.tobytes() and actual.getchannel('A').getextrema()==(255,255),reference=str(source))
    check(name+'-C-transport-probe-exit',code==0,exit=code,stderr=(out/'probe.stderr').read_text())
-   assert events[-1]['images']==(0 if provider else 17 if a.radio else 10)
+   assert events[-1]['images']==(0 if provider else 17+(4 if events[-1].get('semantic_activation') else 0) if a.radio else 10)
    check(name+'-helper-survives',helper.poll() is None);stop(helper)
  finally:
   for child in reversed(children[1:]):stop(child)
@@ -72,4 +72,4 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
    try:control.send(b'quit');control.recv(65536);server.wait(timeout=5)
    except (OSError,subprocess.TimeoutExpired):stop(server)
   control.close();(a.output/'cleanup.json').write_text(json.dumps([dict(pid=c.pid,exit=c.returncode) for c in children],indent=2)+'\n')
-print(json.dumps(dict(passed=len(rows),native_images=34 if a.radio else 10)))
+print(json.dumps(dict(passed=len(rows),native_images=sum("whole-native-desktop-pixels" in row["case"] for row in rows))))

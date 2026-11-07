@@ -52,7 +52,7 @@ static int form_click_allowed;
 static uint64_t form_click_time;
 static int forms_available;
 static int forms_input_enabled;
-static int forms_radio_groups_enabled;
+static int forms_radio_groups_enabled,forms_radio_labels_enabled;
 static int forms_progress_enabled;
 static int forms_animation_enabled;
 static int forms_sliders_enabled;
@@ -487,6 +487,7 @@ static void element_detach(void *node,int reattach) {
 }
 #include "forms-input.inc"
 #include "forms-radios.inc"
+#include "radio-labels.inc"
 #include "forms-sliders.inc"
 #include "forms-layout.inc"
 #include "forms-buttons.inc"
@@ -508,7 +509,7 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_radio_labels_enabled||prepare_detours(radio_label_detours,sizeof(radio_label_detours)/sizeof(*radio_label_detours)))&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||prepare_form_input())&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
@@ -516,7 +517,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
   (!forms_multiline_viewport_enabled||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&
   (!forms_wheel_enabled||(guard_wheel_calls()&&prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours))));}
-static void activate_forms(void){activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
+static void activate_forms(void){if(forms_radio_labels_enabled)activate_detours(radio_label_detours,sizeof(radio_label_detours)/sizeof(*radio_label_detours));activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled)activate_form_input();
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));

@@ -157,3 +157,9 @@ option(NXS_BUILD_GTK3_GEOMETRY "Build the optional GTK3 Wayland geometry bridge"
 if(NXS_BUILD_GTK3_GEOMETRY)
   add_subdirectory(Bridge)
 endif()
+
+add_executable(native-semantic-click-probe ../../Tests/NativeUI/semantic-click-probe.m)
+target_compile_options(native-semantic-click-probe PRIVATE ${OBJC_FLAGS} -UNDEBUG)
+target_link_libraries(native-semantic-click-probe PRIVATE nextspace-native-ui ${GUI_LIBS})
+add_dependencies(native-semantic-click-probe nextspace-native-ui-gnustep)
+set_target_properties(native-semantic-click-probe PROPERTIES AUTOMOC OFF)

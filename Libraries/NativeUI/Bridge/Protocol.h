@@ -246,6 +246,11 @@ struct NXSControlRadioItemRequest {
   uint64_t identifier;
   double width,height; /* Optional application cell bounds for operation 46. */
 };
+/* Optional operation 47 reuses this fixed item request for semantic native
+ * performClick, without invented input events. kind 1/2/3 use identifier=0;
+ * kind 12 names a matrix member. Width/height/text_size must be zero; reserved retains the request sequence.
+ * Bootstrap part 4.y bit 4 advertises support; part 3.x accepts the operation.
+ * Matrix replies contain the existing typed radio-state payload. */
 struct NXSRadioWireState {
   uint32_t count,rows,columns,reserved;
   uint64_t selected,key_cell,actions;

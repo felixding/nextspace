@@ -53,12 +53,24 @@ def run(f):
  owner=prepare(script="document.getElementById('r0').addEventListener('focus',e=>e.target.remove(),{once:true})")
  state,rows=gesture(owner,'r2',None)
  check('removed-native-pointer-focus-target-cancels-stale-action',len(native_actions(rows))==1 and not js("return !!document.getElementById('r0')") and 'r2' not in state['checked'] and not any(e['type'] in ['click','input','change'] for e in state['events']),state=state,native=rows)
- owner=prepare()
+ owner=prepare();before=len(records());at=point('r2')
+ assert command('pointer '+' '.join(map(str,at)))['ok']
+ # Queue real seat clicks without Marionette/state/log round trips between
+ # them. Each engine still owns click-count classification and its threshold.
+ for _ in range(3):
+  assert command('button 272 1')['ok'];time.sleep(.04)
+  assert command('button 272 0')['ok'];time.sleep(.06)
+ def counted():return [r for r in records()[before:] if r.get('kind')==12 and r.get('control')==owner['control'] and r.get('process')==owner['process']]
+ f.wait(lambda:sum(r['event']=='native-form-release' for r in counted())==3)
+ time.sleep(.1);state=f.state();state['pointer_clicks']=js('return pointerClicks');cycles=[]
+ for row in counted():
+  if row['event']=='native-form-press':cycles.append([])
+  if cycles:cycles[-1].append(row)
  observed=[]
- for index in range(1,4):
-  js('window.events=[];window.pointerClicks=[];return true');state,rows=gesture(owner,'r2','r2');presses=[r for r in rows if r['event']=='native-form-press'];actions=native_actions(rows)
-  count=presses[0]['click_count'] if len(presses)==1 else None;observed.append(count)
-  click=state['pointer_clicks'];okay=(len(actions)==1 and trusted_pointer(state,'r2') and click[0]['detail']==count) if actions else not click
+ for index,rows in enumerate(cycles,1):
+  count=rows[0]['click_count'];observed.append(count);actions=native_actions(rows)
+  clicks=[x for x in state['pointer_clicks'] if x['detail']==count]
+  okay=(len(actions)==1 and len(clicks)==1 and trusted_pointer(dict(pointer_clicks=clicks),'r2')) if actions else not clicks
   check('native-multiple-pointer-click-'+str(index),count==index and okay and state['focus']=='r2' and 'r2' in state['checked'],state=state,native=rows)
  check('native-matrix-receives-original-click-counts',observed==[1,2,3],click_counts=observed)
  for name,mutation in [('removed',"e.target.remove()"),('changed-type',"e.target.type='checkbox'")]:

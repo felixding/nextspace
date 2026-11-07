@@ -5,7 +5,7 @@ from pathlib import Path
 from marionette import Marionette
 sys.path.insert(0,str(Path(__file__).resolve().parents[2]/'Tests/Wayland'))
 from radio_groups import RadioFixture,run
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,default=2833);p.add_argument('--pointer',action='store_true');a=p.parse_args();root=a.fixture.resolve();rows=[];model_start=0
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--fixture',type=Path,required=True);p.add_argument('--port',type=int,default=2833);p.add_argument('--pointer',action='store_true');p.add_argument('--labels',action='store_true');a=p.parse_args();root=a.fixture.resolve();rows=[];model_start=0
 deadline=time.monotonic()+30
 while True:
  try:m=Marionette(a.port);break
@@ -45,6 +45,9 @@ try:
  if a.pointer:
   from radio_pointer import run as pointer_checks
   pointer_checks(fixture)
+ if a.labels:
+  from radio_labels import run as label_checks
+  label_checks(fixture)
  print(json.dumps(dict(passed=len(rows),native_images=sum('pixels' in x['case'] for x in rows))))
 finally:
  command('button 272 0');command('key 42 0');m.close()
