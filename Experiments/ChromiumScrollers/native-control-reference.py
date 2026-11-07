@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem
+from native_controls import NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -65,6 +65,11 @@ for item in json.loads(args.controls.read_text()):
             entries=(RadioItem*len(item['items']))(*[RadioItem(C.sizeof(RadioItem),entry['id'],b'',entry['enabled']) for entry in item['items']])
             assert native.nxs_control_radio_items(pointer,entries,len(entries),1,item['selected'],item['key_cell'])
             assert native.nxs_control_radio_cell_size(pointer,item['width'],item['height'])
+        if item['kind']==13:
+            model=item['items'];titles=[entry['title'].encode('utf-8') for entry in model]
+            entries=(ListItem*len(model))(*[ListItem(C.sizeof(ListItem),entry['id'],title,
+                entry.get('enabled',1),entry.get('selected',0)) for entry,title in zip(model,titles)])
+            assert native.nxs_control_list_items(pointer,entries,len(model),item.get('flags',0),item.get('key_cell',0))
         if item.get('preferred_size') and item['kind']!=6:
             preferred = native.nxs_control_size(pointer)
             config.width, config.height = math.ceil(preferred.width), math.ceil(preferred.height)
@@ -95,6 +100,17 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_text_sync(pointer,C.byref(model))
         if item['kind']==9 and 'scroll' in item:
             assert native.nxs_control_text_scroll(pointer,*item['scroll'])
+        if item['kind']==13 and 'scroll' in item:
+            assert native.nxs_control_list_scroll(pointer,*item['scroll'])
+        list_keys=[]
+        for entry in item.get('list_keys',[]):
+            assert item['kind']==13
+            event=KeyEvent(C.sizeof(KeyEvent),entry.get('type',0),entry.get('modifiers',0),entry.get('key',0),
+                entry.get('repeat',0),entry.get('text','').encode(),entry.get('unmodified',entry.get('text','')).encode())
+            handled=native.nxs_control_key(pointer,C.byref(event));state=native.nxs_control_list_state(pointer)
+            selection=(C.c_uint64*state.selected_count)()
+            assert native.nxs_control_list_selection(pointer,selection,len(selection))==len(selection)
+            list_keys.append(dict(handled=handled,selected=list(selection),primary=state.primary,key_cell=state.key_cell,actions=state.actions))
         if item.get('click'):
             native.nxs_control_track(pointer,*item['click'],0)
         if item.get('wheel'):
@@ -126,6 +142,17 @@ for item in json.loads(args.controls.read_text()):
         results.append(dict(id=item['id'], size=[image.width, image.height],
                             preferred=[preferred.width, preferred.height]))
         if text_keys:results[-1]['text_keys']=text_keys
+        if item['kind']==13:
+            state=native.nxs_control_list_state(pointer);selection=(C.c_uint64*state.selected_count)()
+            assert native.nxs_control_list_selection(pointer,selection,len(selection))==len(selection)
+            results[-1]['list_state']=dict(selected=list(selection),primary=state.primary,key_cell=state.key_cell,actions=state.actions,
+                visible={key:getattr(state.visible,key) for key in ('x','y','width','height')})
+            rectangles=[]
+            for entry in item['items']:
+                rect=native.nxs_control_list_item_rect(pointer,entry['id'])
+                rectangles.append({key:getattr(rect,key) for key in ('x','y','width','height')})
+            results[-1]['native_item_rects']=rectangles
+            if list_keys:results[-1]['list_keys']=list_keys
         if item['kind']==9:
             viewport=native.nxs_control_text_viewport(pointer)
             geometry=TextGeometry(size=C.sizeof(TextGeometry))
@@ -146,7 +173,7 @@ for item in json.loads(args.controls.read_text()):
             frame=native.nxs_control_popup_state(pointer).frame
             results[-1]['native_menu_frame']={key:getattr(frame,key) for key in ('x','y','width','height')}
             assert native.nxs_control_popup_open(pointer,0)
-        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12):
+        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12,13):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))

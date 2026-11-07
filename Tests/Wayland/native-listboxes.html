@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native listbox integration</title>
+<style>
+body { margin:40px; background:white; }
+select { box-sizing:border-box; width:180px; height:96px; }
+</style>
+<select id="list" size="4"><option selected>Alpha</option><option disabled>Bravo</option><option>Charlie</option><option>Delta</option></select>
+<input id="after" value="Next focus target">
+<script>
+window.events=[];
+for(const type of ['input','change','keydown','keyup','keypress','mousedown','mouseup','click'])
+  document.addEventListener(type,event=>events.push({type,id:event.target.id,trusted:event.isTrusted,
+    selected:[...(document.getElementById('list')?.options||[])].map(option=>option.selected)}));
+</script>

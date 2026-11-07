@@ -14,6 +14,24 @@ This is the Gecko side of the browser-first
 The current browser goal covers webpage controls, detached menus and native
 shortcuts, followed by other non-GNUstep apps under the scope above.
 
+With the existing input and popup flags, `NEXTSPACE_FIREFOX_LISTS=1` additionally
+binds listboxes/multiple selects to the shared ordinary GNUstep `NSBrowser`.
+The existing retained select snapshot supplies labels, identities, visibility
+and disabled data. The shared ListBinding caches application/native snapshots;
+original Gecko DOM setters and interaction completion preserve trusted events.
+Native key/pointer tracking, focus/selection, row pixels and scrollers remain in
+the UI library. Text and lists share the existing scroll-container display hook;
+no second patch at that address bypasses the text adapter. The post-event boundary forwards outside
+release, and original model observers schedule repaint for changed labels/text.
+
+This opt-in is qualified only for the exact build and scale-1 fixtures. Native
+option/intrinsic geometry, full wheel/scroll/DOM offsets, richer models,
+recovery, IME/accessibility and derivatives remain unfinished. An independent
+ordinary window confirms the same existing native cell-state artifact after
+outside release; the adapter adds no workaround or copied renderer. See
+[list qualification](list-qualification.json). Chromium list bindings are next;
+shared components remain available for the later GTK/Qt/KDE adapters.
+
 The optional progress binding renders determinate HTML progress indicators through
 actual GNUstep `NSProgressIndicator` objects in the existing NativeUI provider.
 Gecko supplies its validated `HTMLProgressElement::Position()` and device-pixel

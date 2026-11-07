@@ -925,8 +925,9 @@ image oracle. See [qualification](list-qualification.json).
 
 This is shared provider infrastructure. Browser listbox/multiple-select model/
 DOM transactions, intrinsic layout, broader lifecycle, accessibility
-and deployment remain work. The existing browser adapters, toolbar, address
-bar and tabs are unchanged. Later GTK/Qt/KDE adapters will consume the same API.
+and deployment remain work. At this provider checkpoint, browser adapters,
+toolbar, address bar and tabs were unchanged. Later GTK/Qt/KDE adapters will
+consume the same API.
 
 The shared list wire uses kind 13 and operations 48–51 for models, complete
 native snapshots, row rectangles and scroll position. Existing operation 35
@@ -941,5 +942,17 @@ with native viewport/document geometry. The C serializer lives in
 and key metadata. The host supplies no selection or scrolling algorithm.
 Creating-connection checks, strict UTF8/model validation and native tracking
 mutation guards apply before mutation. See [wire qualification](list-wire-qualification.json).
-Browser listbox/multiple-select model, DOM transaction and intrinsic-layout
-bindings remain unfinished.
+The first pinned Gecko model/DOM binding is described below. Chromium and
+complete browser list layout/scroll integration remain unfinished.
+
+
+`Bridge/ListBinding.inc` now shares list model, snapshot, bitmap and host-epoch
+lifetime across consumers. It stores application data and the original native
+results; it adds no selection, navigation, layout, scrolling or drawing policy.
+The first opt-in Gecko consumer reuses the existing retained select snapshot,
+feeds native selected IDs into original DOM setters and sends original trusted
+interaction completion. Exact ordinary native key and real-seat gesture
+references cover the measured scope; see [Firefox list qualification](../../Experiments/FirefoxNativeUI/list-qualification.json).
+Native row/intrinsic layout, full wheel/scroll/DOM geometry, host recovery,
+scaling and the Chromium list consumer remain work. Toolbar/address bar/tabs
+remain the browsers' own components.

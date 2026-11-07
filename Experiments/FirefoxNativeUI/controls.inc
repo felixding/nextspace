@@ -340,7 +340,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   uint64_t tab_target=tabs_pointer_target(frame,event);
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
-  if(trusted)native_popup_pointer_post(event);
+  if(trusted){native_popup_pointer_post(event);native_list_pointer_post(event);}
   if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
   if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
     void *text_frame=text_pointer_frame(frame);
@@ -537,7 +537,7 @@ static uint32_t input_post(void *node,void *visitor) {
   return widget_post(node,visitor,original_input_post);
 }
 static void release_idle_widget_notifier(void) {
-  if(!widgets&&!native_popups_exist()&&widget_notifier>=0) {
+  if(!widgets&&!native_popups_exist()&&!native_lists_exist()&&widget_notifier>=0) {
     remove_text_watch();
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
     exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
@@ -550,7 +550,7 @@ static void forget_widget(struct Widget **cursor) {
   release_idle_widget_notifier();
 }
 static void frame_destroy(void *frame,void *context) {
-  tabs_forget(frame);native_popup_forget(frame);
+  tabs_forget(frame);native_popup_forget(frame);native_list_forget(frame);
   reset_widget_process();
   struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
   if(*cursor)forget_widget(cursor);
@@ -559,7 +559,7 @@ static void frame_destroy(void *frame,void *context) {
 static void release_shell_widgets(void *shell) {
   reset_widget_process();void *context=*(void **)((char *)shell+120);
   gecko_radio_pointer_release_context(context);
-  native_popup_release_context(context);
+  native_popup_release_context(context);native_list_release_context(context);
   struct Widget **cursor=&widgets;
   while(*cursor) {
     if(*(void **)((char *)(*cursor)->frame+40)==context)forget_widget(cursor);
@@ -607,6 +607,7 @@ static void prepare_widget_metrics(void) {
   labels_enabled=widgets_enabled&&((unsigned)response->parts[4].y&4);
   prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
+  const char *lists=getenv("NEXTSPACE_FIREFOX_LISTS");lists_requested=popups_requested&&lists&&!strcmp(lists,"1")&&((unsigned)response->parts[3].x&1);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
   const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   const char *multiline=getenv("NEXTSPACE_FIREFOX_MULTILINE");

@@ -15,6 +15,7 @@ browsers.add_argument('--chromium',type=Path)
 parser.add_argument('--library',type=Path,required=True)
 parser.add_argument('--hook',type=Path,required=True)
 parser.add_argument('--backend',required=True)
+parser.add_argument('--theme',help='Use the same explicit GNUstep theme for the native host and references')
 parser.add_argument('--capture-probe',type=Path,required=True)
 parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--export-menus',action='store_true',help='Enable Firefox menu export on a private test bus; requires the app-menu Wayland protocol')
@@ -76,6 +77,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   endpoint=runtime/'native.sock'
   (out/'native-endpoint.json').write_text(json.dumps(dict(path=str(endpoint)))+'\n')
   helper_args=['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/helper.py'),'--library',str(a.library.resolve()),'--socket',str(endpoint),'-GSBackend',a.backend]
+  if a.theme:helper_args+=['-GSTheme',a.theme]
   if a.shared_menus:
    menu_parent,menu_child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);menu_parent.settimeout(8)
    helper_args+=['--dbus-menu-fd',str(menu_child.fileno()),'--dbus-menu-output',str(out/'shared-menus')]
@@ -162,7 +164,7 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
     if text.startswith('reference '):
      spec=json.loads(text.split(' ',1)[1]);path=out/'references-controls.json';path.write_text(json.dumps(spec['controls']))
      location=out/spec['name'];reference_env=dict(env);reference_env.pop('LD_PRELOAD',None)
-     subprocess.run(['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/native-control-reference.py'),'--library',str(a.library.resolve()),'--controls',str(path),'--output',str(location),'-GSBackend',a.backend]+(['--focus'] if spec.get('focus') else []),env=reference_env,check=True,stdout=(out/'references.log').open('a'),stderr=(out/'references.stderr').open('a'))
+     subprocess.run(['python3',str(Path(__file__).resolve().parent.parent/'ChromiumScrollers/native-control-reference.py'),'--library',str(a.library.resolve()),'--controls',str(path),'--output',str(location),'-GSBackend',a.backend]+(['-GSTheme',a.theme] if a.theme else [])+(['--focus'] if spec.get('focus') else []),env=reference_env,check=True,stdout=(out/'references.log').open('a'),stderr=(out/'references.stderr').open('a'))
      connection.send(json.dumps(dict(path=str(location))).encode())
     elif text.startswith('capture '):
      name=text.split(' ',1)[1];heads=command('outputs');head=next(x for x in heads if x['name']==name)

@@ -278,6 +278,7 @@ static int prepare_text_image(void *frame) {
   }
 }
 static void text_scroll_display(void *frame,void *builder,const void *lists) {
+  if(lists_requested&&native_list_display(frame,builder,lists))return;
   if(prepare_text_image(frame)) {
     /* Use the existing background display item for the complete native field.
      * Its native editor now owns contents, clipping, selection and caret. */

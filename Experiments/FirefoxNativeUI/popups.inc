@@ -244,21 +244,25 @@ static uint64_t popup_mutation(void *node,void *changed) {
 static void popup_attribute_changed(void *node,void *element,int ns,void *attribute,unsigned change,void *old) {
   uint64_t id=popup_mutation(node,element);
   original_popup_attribute_changed(node,element,ns,attribute,change,old);
+  native_list_model_changed(node);
   if(id)popup_reflow(popup_find_id(id));
 }
 static void popup_character_changed(void *node,void *content,const void *info) {
   uint64_t id=popup_mutation(node,content);
   original_popup_character_changed(node,content,info);
+  native_list_model_changed(node);
   if(id)popup_reflow(popup_find_id(id));
 }
 static void popup_content_removed(void *node,void *child,const void *info) {
   uint64_t id=popup_mutation(node,child);
   original_popup_content_removed(node,child,info);
+  native_list_model_changed(node);
   if(id)popup_reflow(popup_find_id(id));
 }
 static void popup_content_added(void *node,void *child,int append) {
   uint64_t id=popup_mutation(node,child);
   original_popup_content_added(node,child,append);
+  native_list_model_changed(node);
   if(id)popup_reflow(popup_find_id(id));
 }
 static int prepare_popup_image(void *frame) {
@@ -364,6 +368,7 @@ static uint32_t popup_chrome_event(void *document,void *target,const void *name,
   return original_popup_chrome_event(document,target,name,bubble,cancel,result);
 }
 static uint32_t popup_post(void *node,void *visitor) {
+  if(lists_requested&&native_list_post(node,visitor))return 0;
   struct GeckoPopup *p=popup_find(*(void **)((char *)node+96));
   void *event=*(void **)((char *)visitor+8);int *status=(int *)((char *)visitor+24);unsigned message=*(const uint16_t *)((char *)event+18);
   if(p&&p->owned&&*status!=1&&(*(const uint8_t *)((char *)event+48)&1)&&!(*((const uint8_t *)event+49)&2)&&

@@ -1,0 +1,88 @@
+{
+  "date": "2026-11-07",
+  "baseline_commit": "1ca2344c",
+  "status": "pinned-firefox-native-lists-partially-qualified",
+  "source_sha256": {
+    "Experiments/ChromiumScrollers/native-control-reference.py": "59f8a5769ff3a1036bb7a9be4f8f5b2176db391f3d4c7d211e23e1ce9497f386",
+    "Experiments/FirefoxNativeUI/README.md": "67c938f5d2714312f8ec1075472dec971af963164b68928de04af9efbadb0279",
+    "Experiments/FirefoxNativeUI/check-lists.py": "1ff68dab7650f63e5d5440ac13199d6d79f802b1ac973ac8477b626586291f49",
+    "Experiments/FirefoxNativeUI/controls.inc": "a77f0ddfb3398125f7a36b8ad3dc66204dd83bc180a507e13f96344016fa0b5c",
+    "Experiments/FirefoxNativeUI/frontend.inc": "9fa49cb8c22ff39c261e524845f5bc8a8b5e3a7cb633c10e9b327681c03b9cdf",
+    "Experiments/FirefoxNativeUI/hook.c": "8341313cb413e93c734900107b615e666d90f7535b12d12958f06b944490c4c4",
+    "Experiments/FirefoxNativeUI/lists.inc": "657739587ad57fa25887efe1671230024f99e915c600c58d2b5abddb230f0278",
+    "Experiments/FirefoxNativeUI/pinned-lists.h": "a02fc557d9818e62bf582b1ac82bd835aa8bbc1f9cc250747bf097e599899a85",
+    "Experiments/FirefoxNativeUI/popups.inc": "bd9a22e5f85878f1802026429c150d2398a61f5de57bb1e54607b929a4e3bb8d",
+    "Experiments/FirefoxNativeUI/run-frontend-fixture.py": "4b41a1e0dd01530c4c45082aa4a44c24d5e2dc1aa8955d9b80e48555bdc97c7f",
+    "Experiments/FirefoxNativeUI/text.inc": "daf1fc34ee37aa9dc14b7652bf580a2c9c09bc129558be6fa6ca175cd969c478",
+    "Libraries/NativeUI/Bridge/ListBinding.inc": "7eb7495c9f539e43583d80b44aa853d8445bc6571d67466feb8fa4d1576a1f19",
+    "Libraries/NativeUI/CMakeLists.txt": "f4e63d89eb6743519818e315c02b6507ed86096df7ba1dc6c20c4c1fdbe7ebb8",
+    "Libraries/NativeUI/README.md": "2c369280410d48d73712d418fa738fac1f7daba8ce9c789f97d03df0b1be30f2",
+    "Tests/NativeUI/list-gesture-reference.m": "2fceb2a809f28db869831c36116b5f93573fe0dc74ea06a66032eeb5d3266ae8",
+    "Tests/Wayland/native-listboxes.html": "2bca67d722e19730aa8404a67d0525a6675692ab2d5c1af76ba942a9829b309c",
+    "Tests/Wayland/native_lists.py": "dea11db7ba991dd709a5e8dc7087d6e4cfd44ae67f7c48b771e267863702e470",
+    "docs/Native-Control-Integration.md": "7b509ef56d65d00b0eae9219d1add68ddb43f03819fabb33b4960d96dc17c038"
+  },
+  "original_sources": [
+    {
+      "path": "dom/html/HTMLSelectElement.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLSelectElement.cpp",
+      "sha256": "1be794bdb10cc3b0ca98a43148a7b63d4f2b8c5bdd840c4b99f5be56215f2d4d",
+      "bytes": 81067
+    },
+    {
+      "path": "dom/html/HTMLSelectElement.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLSelectElement.h",
+      "sha256": "a0379ab9148e1db895ba0a557ecb8413c769f7765c085bd49acfee0ba83e50be",
+      "bytes": 19356
+    },
+    {
+      "path": "layout/forms/nsListControlFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsListControlFrame.cpp",
+      "sha256": "916003dec654b36ff33fe4203366c32b63790a782341d400490e83152008e438",
+      "bytes": 34088
+    },
+    {
+      "path": "layout/forms/nsListControlFrame.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsListControlFrame.h",
+      "sha256": "0baf84308d03013497bad8c42d074a03242a214688e00117ab47b2de5fe2f833",
+      "bytes": 8883
+    },
+    {
+      "local": ".build/native-ui/firefox-viewport-source/ScrollContainerFrame.cpp",
+      "bytes": 334491,
+      "sha256": "7dd6128c6f75b8be2e00ebd38041f89959fbabe7e56533f04bd3d35ffe9dab98"
+    },
+    {
+      "local": ".build/native-ui/list-control-source/NSMatrix.m",
+      "bytes": 107242,
+      "sha256": "763b2c8fdeacf84fae75cf141ba578945e1a773c935e5c852937653c37d6ab2b"
+    }
+  ],
+  "pinned_calls": {
+    "DISPLAY": {
+      "offset": 115298056,
+      "bytes": "3f2303d5e923b96dfd7b01a9fc6f02a9fa6703a9"
+    },
+    "SET_SELECTION": {
+      "offset": 92940432,
+      "bytes": "3f2303d5fd7bbaa9fc6f01a9fa6702a9f85f03a9"
+    },
+    "FINISH": {
+      "offset": 92952168,
+      "bytes": "3f2303d5ff0301d1fe1300f9f44f03a9e85102d0"
+    },
+    "DESTROY": {
+      "offset": 116344340,
+      "bytes": "5f2403d570c8fb175f2403d5000c40f9c5c7a617"
+    }
+  },
+  "invariants": [
+    "ListBinding.inc stores application rows and complete native state/selection/pixels and owns host-epoch cache lifetime. Lists.inc and Inputs.inc remain the existing shared transport. No list/control, selection, navigation, drawing, layout or tracking algorithm is copied.",
+    "Gecko reuses the retained popup model for exact option/group identities, original DOM traversal, label/visibility and disabled access. Per-option ElementState CHECKED and original multiple attribute supply the list-specific application data. Retained model nodes keep IDs alive during native tracking.",
+    "One shared guarded ScrollContainerFrame display entry serves existing text and new list callers; list code never overwrites the text detour. The entry calls the existing border/background/outline builder for owned native lists; the existing themed display-item fallback carries complete native pixels. Actual browser UI process role, frame vtable, primary frame, native appearance and scale eligibility apply.",
+    "Native key/pointer results become original SetOptionsSelectedByIndex calls using Notify/NoReselect, followed by original UserFinishedInteracting for changed selectedness. The adapter revalidates the original model, forwards trusted uncancelled input, retains the semantic node across completion callbacks and reacquires its live binding afterward.",
+    "Original select model observers request ordinary engine repaint after label/text changes. The existing EventStateManager post boundary forwards outside move/release once. Appearance loss, frame retirement, page freezing and inactive shell release the native binding through existing owner/lifetime paths.",
+    "Ordinary native responder calls supply key selection/focus expectations. A separate actual native NSBrowser window receives the same outside gesture and yields exact whole pixels and per-cell state, avoiding a reconstructed oracle that omits native visual state.",
+    "Only the small optional adapter and native test probe are built. Original browsers, AppKit/backend, shared provider/loader/shim and their ABI 1/568 remain unchanged. Browser toolbar/address bar/tabs remain original."
+  ]
+}

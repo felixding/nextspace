@@ -633,5 +633,24 @@ owned host paths. Both browser engines can consume the same C serializer;
 radio/list key packets also share one encoder. Provider/loader/shim and AppKit
 binaries are unchanged from the native-list provider checkpoint. See the
 [list wire qualification](../Libraries/NativeUI/list-wire-qualification.json).
-The transport is ready for original Chromium/Gecko model, DOM/default-action
-and layout bindings; those browser controls are still implementation work.
+That transport checkpoint prepares original engine model, DOM/default-action
+and layout bindings. The first Gecko consumer now uses it as described below.
+
+
+The optional pinned Firefox list binding (`NEXTSPACE_FIREFOX_LISTS=1`, with the
+existing popup/input flags) now hosts ordinary listboxes and multiple selects
+through that same native provider. It reuses retained Gecko option models and
+original DOM selectedness/trusted completion methods. The shared ListBinding
+owns only model and snapshot lifetime. Gecko display-item and post-event
+boundaries carry complete native pixels and input, including release outside
+the select. Lists and text share one scroll-container display hook. Existing model observers schedule normal engine repaint after
+label/text changes. Unsupported appearance releases native ownership.
+
+See [Firefox list qualification](../Experiments/FirefoxNativeUI/list-qualification.json).
+This is partial integration: browser option/intrinsic geometry, full scrolling
+and wheel/default ownership, richer grouped/hidden data, native-host recovery,
+scales/zoom/accessibility and Chromium list bindings remain open. An ordinary
+GNUstep matrix also retains a deselected cell's visual state after outside
+release; exact native gesture replay confirms the browser matches that native
+behavior. Any correction belongs in the underlying UI library, shared by all
+consumers. No app-specific selection or drawing workaround is added.

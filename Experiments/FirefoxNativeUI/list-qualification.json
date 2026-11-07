@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-07",
+  "status": "pinned-firefox-native-lists-partially-qualified",
+  "native_ui_abi_version": 1,
+  "native_ui_abi_bytes": 568,
+  "candidate_files": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 105520,
+      "sha256": "eb7badf1b9cabfa3dfe8db7398497a57f6ea008b7fca38209e0bc12299df094c"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 531360,
+      "sha256": "b6a729be736ada457110c6adfa66947139ab2d2dd326666fcfa143c21d3e68aa"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/list-provider-02/libnextspace-native-scroller.so.0.1",
+      "bytes": 81824,
+      "sha256": "1f7f5051cee8188d3492e1342807ff2e934ec6aea602f6c066bd76dfec2d50b1"
+    },
+    "firefox_list_01": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-01-hook.so",
+      "bytes": 162192,
+      "sha256": "8470c5ecd2b67cc4df0450316973f521317ffb41520f1dee1ec511540f6cdee0"
+    },
+    "firefox_list_02": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-02-hook.so",
+      "bytes": 162360,
+      "sha256": "2f7996b24c4350ba6dc9c75a612968e07ad6da095a72badba79bbdac4db42949"
+    },
+    "firefox_list_03": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-03-hook.so",
+      "bytes": 162360,
+      "sha256": "39dc13f69208347b90f36ce14055ffbc2c03fd846dcdf1c2c6349270302e6ecc"
+    },
+    "firefox_list_04": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-04-hook.so",
+      "bytes": 162424,
+      "sha256": "f361a47b375c7ff29e120ad73b38b7fc4614816ffed999451ff9853557b6b795"
+    },
+    "firefox_list_05": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-05-hook.so",
+      "bytes": 162424,
+      "sha256": "5de5d19b09c3515178145fe36a637449a61e0bdef6badd7f81128e9bd75c5fae"
+    },
+    "firefox_list_06": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-06-hook.so",
+      "bytes": 162472,
+      "sha256": "43fae784271004a8dc9a3998e1a14e22e73e33814a51f5061afb3dbb90fc2fb7"
+    },
+    "firefox_list_07": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-07-hook.so",
+      "bytes": 162400,
+      "sha256": "a5d9644744674216e9d68e4793a0fbaab436c7500fbbe75968a042bc124d7084"
+    },
+    "ordinary_gesture": {
+      "path": "/var/tmp/nextspace-native-ui/native-list-gesture-reference-02",
+      "bytes": 84720,
+      "sha256": "97d5a25f5a406c746066b85ddc766fff495bd78bdda5aa9119724aaf00865f93"
+    },
+    "ordinary_gesture_diagnostic": {
+      "path": "/var/tmp/nextspace-native-ui/list-gesture-reference",
+      "bytes": 83744,
+      "sha256": "67fdccc892725b36c6c195a38144221d0b69009807ddc65705fef685cc13ff79"
+    }
+  },
+  "verification": {
+    "runs": {
+      "native_list": {
+        "path": "/var/tmp/nxs-firefox-list-07",
+        "results_file": "list-results.json",
+        "checks": 32,
+        "native_images": 12,
+        "sha256": "dfa51acf6d8feb943f52c7420db8da4264048e6dfddda47401d920a13d087a86"
+      },
+      "form_regression": {
+        "path": "/var/tmp/nxs-firefox-list-07",
+        "results_file": "form-results.json",
+        "checks": 102,
+        "native_images": 28,
+        "sha256": "79ab197be501af477d6cdfb522f973fd37cfc7b324ce35b5ec0071963dcd3394"
+      },
+      "radio_regression": {
+        "path": "/var/tmp/nxs-firefox-list-07",
+        "results_file": "radio-results.json",
+        "checks": 94,
+        "native_images": 29,
+        "sha256": "7a7522260e217ad0d4409201287d59e9b84246fc177c327f91590022efa205d0"
+      },
+      "popup_regression": {
+        "path": "/var/tmp/nxs-firefox-list-07",
+        "results_file": "popup-results.json",
+        "checks": 74,
+        "native_images": 29,
+        "sha256": "310e990ccf769ea8c1c605f604bd84da55e93fbeef7179337d9c88558bc117f3"
+      },
+      "button_text_regression": {
+        "path": "/var/tmp/nxs-firefox-list-07",
+        "results_file": "button-results.json",
+        "checks": 108,
+        "native_images": 48,
+        "sha256": "d318ea4b5dc51adbabeb57a12612750da62c06f916b1998b01d302905301cffc"
+      }
+    },
+    "scoped_checks": 410,
+    "complete_native_images": 146,
+    "browser_scale": 1,
+    "source_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-list-07-repro.so",
+      "bytes": 162400,
+      "sha256": "a5d9644744674216e9d68e4793a0fbaab436c7500fbbe75968a042bc124d7084"
+    }
+  },
+  "runtime": {
+    "unchanged": [
+      "chromium",
+      "firefox",
+      "libxul",
+      "appkit",
+      "supervisor",
+      "compositor",
+      "workspace",
+      "chromium_adapter",
+      "firefox_adapter",
+      "backend",
+      "gtk3",
+      "native_shim",
+      "native_loader",
+      "native_provider",
+      "chromium_adapter_tabs_disabled_regression",
+      "firefox_chrome_archive",
+      "gtk_geometry",
+      "probe_native_shim",
+      "probe_native_loader",
+      "probe_native_provider"
+    ],
+    "changed": [],
+    "package_count": 1050,
+    "live_owned": [],
+    "cleanup": {
+      "01": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "02": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "03": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "04": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "05": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "06": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      },
+      "07": {
+        "exits": [
+          0,
+          -15,
+          -15
+        ],
+        "capture_exit": -15
+      }
+    },
+    "notices": [
+      {
+        "path": "/var/tmp/nxs-firefox-list-07/browser.stderr",
+        "text": "Exiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\nExiting due to channel error.\n"
+      },
+      {
+        "path": "/var/tmp/nxs-firefox-list-07/helper.stderr",
+        "text": "2026-11-07 20:39:22.067 python3[180295:180295] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 20:39:22.072 python3[180295:180295] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n2026-11-07 20:41:57.727 python3[180295:180295] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 233.000000\n2026-11-07 20:41:57.728 python3[180295:180295] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 15.000000\n2026-11-07 20:41:57.734 python3[180295:180295] File NSTextContainer.m: 249. In -[NSTextContainer setContainerSize:] given negative width: -4.000000 current: 10000000.000000\n2026-11-07 20:41:57.734 python3[180295:180295] File NSTextContainer.m: 254. In -[NSTextContainer setContainerSize:] given negative height: -4.000000 current: 10000000.000000\n"
+      }
+    ],
+    "api": {
+      "version": 1,
+      "size": 568
+    },
+    "unchanged_browser_adapters": {
+      "chromium": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-form-activation-03-hook.so",
+        "bytes": 232496,
+        "sha256": "e0006b4bb9d0cb28d6f82557fc26a45f16919a7281290bb610a729db0b9d9051"
+      },
+      "firefox": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-form-activation-03-hook.so",
+        "bytes": 161328,
+        "sha256": "9c04f609b1052c08700e82be5344cb172c8ee7f4bfe4d70b9f03b2fc614630fc"
+      }
+    },
+    "adapter_has_no_UI_toolkit_dependency": true,
+    "sandbox": [
+      {
+        "pid": 180374,
+        "name": "WebExtensions",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 180420,
+        "name": "file:// Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 180468,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 180471,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 180485,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 180513,
+        "name": "Privileged Cont",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "diagnostic_regression": [
+      {
+        "name": "form",
+        "exit": 0,
+        "stdout": "{\"passed\": 102, \"native_images\": 28}\n",
+        "stderr": ""
+      },
+      {
+        "name": "radio",
+        "exit": 0,
+        "stdout": "{\"passed\": 94, \"native_images\": 29}\n",
+        "stderr": ""
+      },
+      {
+        "name": "popup",
+        "exit": 0,
+        "stdout": "{\"passed\": 74}\n",
+        "stderr": ""
+      },
+      {
+        "name": "button-text",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"/workspace/Experiments/FirefoxNativeUI/check-button-sizing.py\", line 36, in <module>\n    out=root/'text-regression';out.mkdir();text_checks(TextFixture(out,command,js,check,pid,origin,lambda:None))\n                                           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/Tests/Wayland/form_text_regression.py\", line 13, in run\n    for identifier in ['normal','password','readonly','disabled','unicode']:fixture.pixels(identifier,label='text-'+identifier)\n                                                                            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/Tests/Wayland/native_popup_fixture.py\", line 46, in pixels\n    self.check(name+'-whole-native-pixels',self.wait(compared))\n                                           ~~~~~~~~~^^^^^^^^^^\n  File \"/workspace/Tests/Wayland/native_popup_fixture.py\", line 18, in wait\n    raise AssertionError(value)\nAssertionError: False\n"
+      }
+    ]
+  },
+  "observations": [
+    "Final native-list suite passes 32 checks/12 complete native images, covering single/multiple selection, disabled rows/control, native key focus separate from selection, trusted selectedness event pairs, key/press cancellation, title/text mutations, outside release and subsequent input, appearance release/rebind, change-callback retirement and unchanged browser UI.",
+    "An actual ordinary native NSBrowser reproduces the outside-release cell-state artifact: selectedRow becomes -1 while the old cell state stays 1; selecting a later cell leaves that prior visual state present. Browser and original native whole pixels match exactly. The adapter adds no drawing/selection workaround. Any correction belongs in the single underlying UI library.",
+    "Initial rendering-only candidate differs from the NextSpace reference only because the fixture used default native styling. Equal explicit native host/reference configuration produces exact pixels. This changes the fixture configuration, not an application theme or control implementation.",
+    "Diagnostic candidate 06 overwrote the existing text display detour with a second patch at the same address. Forms/radios/popups pass, while its text regression correctly fails. Final candidate 07 routes lists through the existing text/scroll-container wrapper; when text is disabled, only that same wrapper is installed for lists. Full final regressions are recorded separately from this failed diagnostic.",
+    "A candidate using paint-only invalidation at the external input boundary updates DOM selectedness but leaves stale pixels. The final external boundary requests ordinary display-item rebuild, like the existing popup input path. It does not request rebuild from inside a WebRender paint transaction.",
+    "Native disabled-row clicks can report an unchanged-selection action, and Shift can move only the key cell. Tests derive behavior from the original native responder and demand DOM input/change only when selectedness actually changes.",
+    "Full wheel/scroll/default ownership and original option/intrinsic/DOM layout remain incomplete. This is an opt-in private pinned candidate, not installed complete native-browser support."
+  ],
+  "open": [
+    "Chromium listbox/multiple-select model, DOM action and layout binding using the same shared ListBinding and provider.",
+    "Gecko native intrinsic/option/layout geometry, DOM viewport/scroll offsets and trusted scroll events, complete wheel/APZ/default ownership, held scroller updates and host recovery.",
+    "Richer grouped/separator/hidden/dynamic models, arbitrary CSS geometry/transforms/zoom, mixed-DPI/scales, key text/modifiers/IME/accessibility and complete native focus traversal.",
+    "Underlying native NSMatrix outside-release visual-state inconsistency, to be addressed once in the UI library if corrected, without a browser-specific workaround.",
+    "Remaining browser controls, complete detached menus/shortcuts, derivative pins and installed session deployment; subsequent GTK/Qt/KDE reuse. Toolbar/address bar/tabs stay original; future requested changes use optional app-specific patches."
+  ],
+  "source_audit": "list-source-audit.json"
+}
