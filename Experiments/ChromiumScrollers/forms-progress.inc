@@ -70,7 +70,7 @@ static void *watch_native_forms(void *unused) {
 }
 static int refresh_form_watch(void) {
   if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
-  int needed=active_form&&active_form->kind==NXS_SLIDER;double generation=needed?active_form->generation:0;
+  int needed=active_form&&(active_form->kind==NXS_SLIDER||active_form->kind==NXS_STEPPER);double generation=needed?active_form->generation:0;
   if(color_watch_needed())needed=1;
   if(views_watch_needed())needed=1;
   if(tabs_watch_needed())needed=1;
@@ -144,6 +144,7 @@ static void form_native_work(void *controller) {
      * engine paint path, including idle buttons and determinate indicators. */
     for(struct NativeForm *f=native_forms;f;f=f->next)if(f->painted)schedule_form_paint(f);
   }
+  if(active_form&&active_form->kind==NXS_STEPPER)apply_number_actions(active_form);
   if(active_form&&active_form->kind==NXS_SLIDER){
     struct NativeForm *slider=active_form;
     struct NXSResponse *response=form_request(slider,5,0,0,0);
@@ -155,7 +156,7 @@ static void form_native_work(void *controller) {
   if(popup)popup_after_input(popup,form_request(popup,5,0,0,0));
   for(struct NativeForm *f=native_forms;f;f=f->next){
     int list=f->kind==NXS_LISTBOX&&list_owned(f);
-    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&f->kind==NXS_SLIDER)||text_kind(f->kind)||list))continue;
+    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&(f->kind==NXS_SLIDER||f->kind==NXS_STEPPER))||text_kind(f->kind)||list))continue;
     if(forms_multiline_viewport_enabled&&f->kind==NXS_TEXTAREA&&read_text_viewport(f))echo_text_viewport(f);
     /* Native model changes can reveal a newly selected list row too. Mirror
      * that viewport through the same engine setter used for native input. */

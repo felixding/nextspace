@@ -25,6 +25,10 @@ class ControlConfig(C.Structure):
                 ('minimum', C.c_double), ('maximum', C.c_double), ('value', C.c_double),
                 ('enabled', C.c_int), ('state', C.c_int), ('indeterminate', C.c_int), ('title', C.c_char_p)]
 
+class ControlActionsRequest(C.Structure):
+    _fields_ = ControlRequest._fields_[:7]+[('after',C.c_uint64),('subscribe',C.c_uint32),
+        ('padding',C.c_uint32),('unused',C.c_ubyte*56)]
+
 class ControlInputRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7] + [
         ('type', C.c_uint32), ('modifiers', C.c_uint32), ('key', C.c_uint32),
@@ -691,6 +695,8 @@ class NativeControlServer:
         if state['destroy']:
             return
         state['actions'] += 1
+        if 'action_log' in state:
+            state['action_log'].append(state['actions'],event,native_state.contents.value,native_state.contents.state)
         state['edits']=state.get('edits',0)+int(event==3)
         state['activations']=state.get('activations',0)+int(event==1)
         process=state['key'][0]
@@ -702,6 +708,11 @@ class NativeControlServer:
 
     def _tracking(self, state):
         return bool(state.get('starting') or self.native.nxs_control_state(state['native']).tracking)
+
+    def owns_process(self, client, process, pid):
+        entry=self.notifiers.get(process)
+        return bool(entry and entry['client'] is client and entry['pid']==pid and
+                    not select.select([entry['lifetime']],[],[],0)[0])
 
     def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None, payload=b'',viewport=None,image=None):
         response = self.response_type()
@@ -760,6 +771,28 @@ class NativeControlServer:
         self.send(client, response, data)
 
     def message(self, client, data, descriptors=(),sender_pid=None):
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==63:
+            if len(data)!=C.sizeof(ControlActionsRequest):return
+            req=ControlActionsRequest.from_buffer_copy(data)
+            state=self.controls.get((req.process,req.control,req.kind))
+            if (req.magic!=MAGIC or descriptors or req.text_size or req.padding or any(req.unused) or
+                    req.subscribe not in (0,1) or not self.owns_process(client,req.process,sender_pid) or not state or
+                    state['destroy'] or state['client'] is not client):
+                self._respond(client,req);return
+            if not req.subscribe:
+                state.pop('action_log',None);self._respond(client,req,state,input_result=1);return
+            if req.after>state['actions']:
+                self._respond(client,req);return
+            baseline='action_log' not in state
+            if baseline:
+                try:from action_log import ActionLog
+                except ModuleNotFoundError as error:
+                    if error.name!='action_log':raise
+                    spec=importlib.util.spec_from_file_location('nextspace_action_log',Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge/action_log.py')
+                    module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);ActionLog=module.ActionLog
+                state['action_log']=ActionLog(state['actions'])
+            payload=state['action_log'].snapshot(req.after,baseline)
+            self._respond(client,req,state,input_result=1,payload=payload);return
         if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
         if len(data)>=8 and int.from_bytes(data[4:8],'little') in (55,56,57,58):
             self.specialized_message(client,data,sender_pid)
@@ -893,12 +926,23 @@ class NativeControlServer:
                 if math.floor(req.width*scale+.5)*math.floor(req.height*scale+.5)>8*1024*1024:
                     self._respond(client,req);return
             current = self.native.nxs_control_state(state['native'])
+            if req.kind==15 and self._tracking(state):
+                # A repaint observes the actual native stepper while its own
+                # mouseDown/repeat loop is active. Do not resynchronize its
+                # counter or recreate a control during that native gesture.
+                signature=(req.width,req.height,req.minimum,req.maximum,req.enabled,title)
+                if signature==state.get('stepper_configuration'):
+                    self._respond(client,req,state,pixels=True)
+                else:self._respond(client,req)
+                return
             config = ControlConfig(C.sizeof(ControlConfig), req.width, req.height, req.minimum, req.maximum,
                                    current.value if current.tracking or req.kind==6 else req.value, req.enabled,
                                    current.state if current.tracking else req.state, req.indeterminate, title)
             if not self.native.nxs_control_sync(state['native'], C.byref(config)):
                 self._respond(client, req)
                 return
+            if req.kind==15:
+                state['stepper_configuration']=(req.width,req.height,req.minimum,req.maximum,req.enabled,title)
             if req.kind in (10,12,13):state['dimensions']=(req.width,req.height)
             if req.kind==13:state['scale']=scale
             if req.kind == 5:

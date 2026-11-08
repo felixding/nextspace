@@ -260,6 +260,8 @@ __attribute__((constructor)) static void initialize(void) {
     ((unsigned)metrics->parts[1].x&NXS_SPECIAL_COLOR)&&((unsigned)metrics->parts[1].y&1);
   const char *text=getenv("NEXTSPACE_CHROMIUM_TEXT");
   forms_text_enabled=forms_input_enabled&&text&&!strcmp(text,"1")&&metrics->parts[6].x==1&&((unsigned)metrics->parts[6].y&3)==3;
+  const char *numbers=getenv("NEXTSPACE_CHROMIUM_NUMBERS");
+  forms_numbers_enabled=forms_text_enabled&&forms_commands_enabled&&numbers&&!strcmp(numbers,"1")&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_STEPPER);
   forms_placeholder_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_PLACEHOLDER);
   forms_search_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH);
   forms_search_actions_enabled=forms_search_enabled&&forms_commands_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH_ACTION);

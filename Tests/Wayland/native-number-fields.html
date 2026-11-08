@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native number fields</title>
+<style>body{margin:32px;background:white;font:16px sans-serif}label{display:block;margin:20px 0}input{width:180px;height:30px;font:16px sans-serif}</style>
+<label>Number <input id="normal" type="number" value="2" min="0" max="10"></label>
+<label>Decimal <input id="decimal" type="number" value="0.25" min="0.2" step="0.1"></label>
+<label>Empty <input id="empty" type="number" min="5" max="15"></label>
+<label>Read only <input id="readonly" type="number" value="2" readonly></label>
+<label>Disabled <input id="disabled" type="number" value="2" disabled></label>
+<label>Cancelled pointer <input id="cancelled" type="number" value="2"></label>
+<script>
+window.events=[];
+for(const element of document.querySelectorAll('input'))
+  for(const type of ['input','change'])
+    element.addEventListener(type,event=>events.push({id:element.id,type,value:element.value,trusted:event.isTrusted}));
+cancelled.addEventListener('mousedown',event=>event.preventDefault());
+</script>

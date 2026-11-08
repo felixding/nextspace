@@ -1,0 +1,101 @@
+{
+  "status": "Application model adapters and shared callback-data transport only; unchanged GNUstep UI provider",
+  "sources": {
+    "Experiments/ChromiumScrollers/forms-numbers.inc": "9159c9876904f5ea14de7985e9d26509a447fbdbd71f101271eb393562e09592",
+    "Experiments/ChromiumScrollers/pinned-numbers.h": "9139bca4a29195409bcfcbaaf6e8ecd36f5876e8838156171590d45105624d68",
+    "Experiments/ChromiumScrollers/forms-text.inc": "6e2799b3a788503fc83a638578ad656efcf35eea40cf1a8f06ec53486ef12732",
+    "Experiments/ChromiumScrollers/forms-input.inc": "9117405022f67deea0848e895f5568548eb45bbe2f0b4915643dbd1be978efd3",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "2ea784850600b885682bc2567eaebdf9362be2fc8bb5b7f5df1ae4ff09871b64",
+    "Experiments/ChromiumScrollers/forms.inc": "670973046a4011724e04d573bf8107f48975cd0003f6b0f72f99bb9dc93e8754",
+    "Experiments/ChromiumScrollers/hook.c": "2f6b5f77cdcf1220e0d9f1b02b8ec70eeb50c1cb8ce665f61d9e476a205fbac5",
+    "Experiments/ChromiumScrollers/native_controls.py": "b054644ba395718ccdc2f5097794f95eb6be1f48c46330719bed444f316f19e2",
+    "Libraries/NativeUI/Bridge/StepperBinding.inc": "299499d64ae4a5029e6290b32fe271a18ffddd054fe0edabcff572003ee36368",
+    "Libraries/NativeUI/Bridge/action_log.py": "47a934b599b2747f4c74df8ef3f6d7118c8b10c7aa6c5978c5e57d97e8251bcf",
+    "Libraries/NativeUI/Bridge/Protocol.h": "20319e5962304347e8b0ceaf2d33f10316a32cc014651add1879bbdc53690542",
+    "Libraries/NativeUI/Bridge/color_owners.py": "a938acb61f6eeb243473e0565b65038150b4b1754eae15d8dcc7ab978e0c49f5",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "7f2d92bf5a81cc32a5a334a31c1941454e8cd6e42d7ee64da2a6b99683b95687",
+    "Tests/NativeUI/action-log-transport.py": "4ac5b52289880c418106d157f6476a4cbbe8cdbd44a77234469c823f5d0db957",
+    "Tests/Wayland/native-number-fields.html": "bfb4270a576f46e21863a187ff6f5f788a8b5fe14142ba474998a0d13f3ba32f",
+    "Tests/Wayland/native_number_fields.py": "d0cc9aa761374b6a1671929941c418b173d342aa53c6d6a3c219fb1bc27de6f8",
+    "Tests/Wayland/check-native-number-fields.py": "db2067e05735abb28a09f949ed05dd97314b6bc418f1d04f6c9fa9d52fda2c00"
+  },
+  "pinned_constants": {
+    "PAINT": 243636692,
+    "DEFAULT": 242416756,
+    "INNER_VALUE": 251359080,
+    "STEP_UP": 242397900,
+    "STEP_DOWN": 242398076,
+    "FOCUS": 242412380,
+    "RESPONDS": 242413156,
+    "RELEASE": 242413508,
+    "SPIN_VTABLE": 299099232,
+    "INPUT_VTABLE": 299130568,
+    "CONTAINER": 242403188
+  },
+  "pinned_header": "9139bca4a29195409bcfcbaaf6e8ecd36f5876e8838156171590d45105624d68",
+  "references": {
+    "sources.json": {
+      "bytes": 1918,
+      "sha256": "f4eb3e2537cf63f71493c04663df09d26e864c2cc66a67f63784dedc81dbb3cb"
+    },
+    "spin_button_element.h": {
+      "bytes": 4504,
+      "sha256": "3770c7a0bbaa6f53dabe18d423497f68371c8be379208d2e5fff4a1368b94c01"
+    },
+    "HTMLInputElement.cpp": {
+      "bytes": 258800,
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    "web_theme_engine.h": {
+      "bytes": 9576,
+      "sha256": "945b554b00120faa6624d2dfb70a29d0260ec2487715b84e2b8bc93fd129afef"
+    },
+    "step-up-disassembly.txt": {
+      "bytes": 1356,
+      "sha256": "df79af6e21e9891e35f9c8d0171d5ad26942d1c1209aa135c09e4912872e999e"
+    },
+    "number_input_type.cc": {
+      "bytes": 17398,
+      "sha256": "8468e1f59803dc741f9c4104e03f36fa4a88aa6306f47178facb9f1374f5f711"
+    },
+    "native_theme.h": {
+      "bytes": 22916,
+      "sha256": "9f09fec2ac0acde00f229abb7c36d197c5e2fb2231b0c760aea7f5f8da04ed8b"
+    },
+    "layout_theme.cc": {
+      "bytes": 40406,
+      "sha256": "5ded089dc3ad18073e3487322d9faffcdc96fa5b547120d80c33f20d98d74cad"
+    },
+    "theme_painter_default.cc": {
+      "bytes": 40505,
+      "sha256": "1ef50eae3d648a0d488dbb1b8a7d62ea3f658a92ded8741eab6de909437c9ab7"
+    },
+    "spin_button_element.cc": {
+      "bytes": 9585,
+      "sha256": "f2016d2cdda686d9498ddc9c3275a1223fe3c30d769a386ef8d3eac27896332a"
+    },
+    "text_field_input_type.cc": {
+      "bytes": 38506,
+      "sha256": "e0bf97761d2685875dae4949332a3c5627ebb72e8c3f5cec1f7f2f06e4692b5a"
+    },
+    "web_theme_engine_default.cc": {
+      "bytes": 13120,
+      "sha256": "dcf28013c558f57519ffefd73cf8abc49e886b596a2732bc304775e5d7bf3651"
+    },
+    "layout_theme_default.cc": {
+      "bytes": 5134,
+      "sha256": "2fbdbccb31230e71aab3b2bef15a5995101c163fd55c235d86b5d34299308ede"
+    }
+  },
+  "primary_revision": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "primary_root": "https://chromium.googlesource.com/chromium/src/+/a21ce95c24ce3964416f09ae1862f53f319eb4d0/",
+  "original_methods": [
+    "TextControlElement::InnerEditorValue",
+    "TextFieldInputType::ContainerElement",
+    "TextFieldInputType::SpinButtonStepUp",
+    "TextFieldInputType::SpinButtonStepDown",
+    "TextFieldInputType::FocusAndSelectSpinButtonOwner",
+    "TextFieldInputType::ShouldSpinButtonRespondToMouseEvents",
+    "TextFieldInputType::SpinButtonDidReleaseMouseCapture"
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "status": "Partial optional native callback-data transport checkpoint; provider unchanged",
+  "operation": 63,
+  "request_bytes": 104,
+  "ownership": "Existing registered connection, application cookie, kernel PID and live pidfd relation",
+  "retention": 256,
+  "scope": "Exact native callbacks, cursor acknowledgment, explicit baseline/loss; no native UI implementation",
+  "consumer": "Chromium numeric fields; shared stepper binding intended for other engines and toolkit adapters",
+  "runs": {
+    "action-log-checks": [
+      {
+        "case": "action-request-envelope-retains-legacy-size",
+        "passed": true
+      },
+      {
+        "case": "original-native-stepper-created",
+        "passed": true
+      },
+      {
+        "case": "unregistered-action-subscription-rejected",
+        "passed": true
+      },
+      {
+        "case": "registered-cookie-is-distinct-from-kernel-pid",
+        "passed": true
+      },
+      {
+        "case": "subscription-returns-explicit-baseline",
+        "passed": true
+      },
+      {
+        "case": "opposite-original-native-actions-remain-ordered",
+        "passed": true
+      },
+      {
+        "case": "unacknowledged-receipts-can-be-read-again",
+        "passed": true
+      },
+      {
+        "case": "cursor-acknowledges-receipts-without-replay",
+        "passed": true
+      },
+      {
+        "case": "acknowledged-history-loss-is-explicit",
+        "passed": true
+      },
+      {
+        "case": "future-cursor-rejected",
+        "passed": true
+      },
+      {
+        "case": "malformed-model-rejected",
+        "passed": true
+      },
+      {
+        "case": "another-connection-cannot-read-receipts",
+        "passed": true
+      },
+      {
+        "case": "inherited-socket-cannot-impersonate-registered-process",
+        "passed": true
+      },
+      {
+        "case": "owner-remains-authorized-after-child-denial",
+        "passed": true
+      },
+      {
+        "case": "owner-can-end-action-subscription",
+        "passed": true
+      },
+      {
+        "case": "resubscription-does-not-replay-unobserved-actions",
+        "passed": true
+      },
+      {
+        "case": "retired-control-has-no-action-capability",
+        "passed": true
+      },
+      {
+        "case": "bounded-retention-reports-a-gap-and-current-serial",
+        "passed": true
+      }
+    ],
+    "color-owner-regression": [
+      {
+        "case": "borrower-needs-live-registration",
+        "passed": true
+      },
+      {
+        "case": "parent-registration",
+        "passed": true
+      },
+      {
+        "case": "missing-offer-cannot-be-borrowed",
+        "passed": true
+      },
+      {
+        "case": "malformed-source-offer-rejected",
+        "passed": true
+      },
+      {
+        "case": "source-publishes-owned-reference",
+        "passed": true
+      },
+      {
+        "case": "sibling-process-cannot-borrow",
+        "passed": true
+      },
+      {
+        "case": "ambiguous-live-sources-are-rejected",
+        "passed": true
+      },
+      {
+        "case": "ancestor-borrows-existing-native-well",
+        "passed": true
+      },
+      {
+        "case": "borrowed-native-color-model",
+        "passed": true
+      },
+      {
+        "case": "inherited-socket-cannot-impersonate-borrower",
+        "passed": true
+      },
+      {
+        "case": "borrower-cannot-write-source-model",
+        "passed": true
+      },
+      {
+        "case": "borrower-opens-original-panel",
+        "passed": true
+      },
+      {
+        "case": "real-native-wheel-action-through-borrowed-well",
+        "passed": true,
+        "color": [
+          1.0,
+          0.8247516498400955,
+          0.47931671142578125,
+          1.0
+        ]
+      },
+      {
+        "case": "stale-source-echo-cannot-overwrite-native-action",
+        "passed": true
+      },
+      {
+        "case": "source-script-model-stays-authoritative",
+        "passed": true
+      },
+      {
+        "case": "programmatic-update-is-not-native-action",
+        "passed": true
+      },
+      {
+        "case": "single-reference-has-one-borrower",
+        "passed": true
+      },
+      {
+        "case": "foreign-connection-cannot-read-reference",
+        "passed": true
+      },
+      {
+        "case": "return-reference-closes-panel",
+        "passed": true
+      },
+      {
+        "case": "return-keeps-original-field-alive",
+        "passed": true
+      },
+      {
+        "case": "source-can-republish-reference",
+        "passed": true
+      },
+      {
+        "case": "source-retirement-revokes-reference",
+        "passed": true
+      },
+      {
+        "case": "new-source-instance",
+        "passed": true
+      },
+      {
+        "case": "new-instance-borrows-own-color",
+        "passed": true
+      },
+      {
+        "case": "source-exit-revokes-reference",
+        "passed": true
+      }
+    ]
+  },
+  "bounded_retention_test": "Direct transport-data test; remaining cohort uses real host/native stepper",
+  "api": {
+    "version": 1,
+    "bytes": 720,
+    "preserved_prefix": 648
+  },
+  "provider_rebuilt": false,
+  "remaining": [
+    "Consumer recovery after retention loss or native host replacement",
+    "Subsequent engine/toolkit consumers and broad integration"
+  ],
+  "evidence": {
+    "path": ".build/evidence/components/native-chromium-number-20261108-v1-evidence.tar.gz",
+    "sha256": "81894c17aa6cf796ea5cd7f1519b1c886c5353fffca0a27ab8b4719eb5c2835a",
+    "bytes": 3285422,
+    "members": 1144
+  }
+}

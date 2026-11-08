@@ -10,9 +10,7 @@ class ColorOwners:
         self.aliases={}
 
     def owner(self,client,process,pid):
-        entry=self.server.notifiers.get(process)
-        return bool(entry and entry['client'] is client and entry['pid']==pid and
-                    not select.select([entry['lifetime']],[],[],0)[0])
+        return self.server.owns_process(client,process,pid)
 
     @staticmethod
     def ancestor(child,parent):

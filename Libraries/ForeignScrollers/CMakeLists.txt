@@ -20,7 +20,7 @@ install(TARGETS nextspace-native-scroller LIBRARY DESTINATION lib/nextspace-scro
 install(PROGRAMS ../NativeUI/Host/nextspace-native-ui-host DESTINATION bin)
 install(FILES ../NativeUI/Host/main.py ../NativeUI/Host/menu_service.py ../NativeUI/Host/connections.py DESTINATION libexec/nextspace-native-ui)
 install(FILES ../../Experiments/ChromiumScrollers/helper.py ../../Experiments/ChromiumScrollers/native_controls.py
-  ../../Experiments/ChromiumScrollers/native_menus.py ../NativeUI/Bridge/color_owners.py DESTINATION libexec/nextspace-native-ui/ChromiumScrollers)
+  ../../Experiments/ChromiumScrollers/native_menus.py ../NativeUI/Bridge/color_owners.py ../NativeUI/Bridge/action_log.py DESTINATION libexec/nextspace-native-ui/ChromiumScrollers)
 install(FILES ../../Experiments/DBusMenus/binding.py ../../Experiments/DBusMenus/broker.py
   ../../Experiments/DBusMenus/glib_loop.py ../../Experiments/DBusMenus/menu_model.py ../../Experiments/DBusMenus/menu_events.py
   DESTINATION libexec/nextspace-native-ui/DBusMenus)

@@ -1271,3 +1271,23 @@ well binding and passes the expanded 17-check/six-image color cohort against
 that same bridge. Original browser chrome stays unchanged. Shared action
 receipts prevent application model sync from becoming a synthetic user edit.
 See [shared ownership qualification](../../Libraries/NativeUI/color-owner-qualification.json).
+
+`NEXTSPACE_CHROMIUM_NUMBERS=1` enables the guarded number-input binding when
+native text commands and specialized controls are available. It composes the
+existing GNUstep NSTextField and NSStepper; browser chrome stays original.
+Blink's original numeric editor value preserves incomplete input, and its
+original step/commit methods retain decimal alignment, range policy, validation
+and trusted events. NSStepper owns arrow drawing, tracking and repeat. The
+shared action log carries exact native callback order; it contains no widget
+or numeric policy. GNUstep command selectors connect numeric Up/Down to the
+original browser model without introducing another key map.
+
+Run `Tests/Wayland/check-native-number-fields.py --baseline <original-fixture>
+--native <native-fixture> --output <results.json>` against owned fixtures.
+The focused run passes 21 checks, including 13 comparisons with the same
+browser's original number control. See [number qualification](number-qualification.json)
+and [source audit](number-source-audit.json). This is a partial Chromium
+binding: Firefox numbers, dates/times, queue-loss/host recovery, full native
+geometry and image equivalence, broad styles/scales/RTL/IME/accessibility,
+derivatives and deployment remain unfinished. Earlier integration gaps and
+the broader detached-menu/shortcut/GTK/Qt/KDE objective remain active.

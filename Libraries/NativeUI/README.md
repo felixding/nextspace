@@ -1142,3 +1142,20 @@ source-only writes, native wheel selection and source retirement/exit. See
 [shared qualification](color-owner-qualification.json). The Firefox native
 sRGB path is now measured; broad modes, recovery, derivatives and deployment,
 other input categories and the remaining application-wide objective stay open.
+
+Optional bridge operation 63 supplies bounded, ordered native target/action
+receipts to an owning registered process/connection. Its 104-byte request keeps
+older hosts responsive with an unsupported reply. Subscription starts at a
+baseline; serial cursors acknowledge receipts, and retention loss is explicit.
+`Bridge/action_log.py` stores callback data only. `Bridge/StepperBinding.inc`
+connects the existing NSStepper to application commands using its neutral
+integral counter, while the original application retains numeric policy.
+Neither component implements drawing, hit testing, repeat timing or text editing.
+The UI provider and API1/720 are unchanged.
+
+The first consumer is the opt-in Chromium number binding. Its 21 focused checks
+pass, together with 18 action-transport checks and 25 shared color-ownership
+regression checks. See [action transport qualification](action-log-qualification.json)
+and [Chromium qualification](../../Experiments/ChromiumScrollers/number-qualification.json)
+for exact scope. Browser recovery after receipt loss or host restart is still
+unqualified; reporting a transport gap does not establish consumer recovery.

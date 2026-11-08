@@ -17,6 +17,23 @@ struct NXSResponse {
   int32_t width,height,stride,reserved;
   struct NXSRectD parts[7];
 };
+/* Optional operation 63 records exact native target/actions. Its 104-byte
+ * envelope keeps older hosts responsive: unsupported replies have part 3.x=0.
+ * Only the owning connection and kernel process may subscribe/read/ack.
+ * A cursor acknowledges earlier receipts. An initial subscription returns a
+ * baseline and current serial; retention loss is explicit, never synthesized.
+ * Native UI rules remain in the provider, application actions in adapters. */
+struct NXSControlActionsRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  uint64_t after;
+  uint32_t subscribe,padding;
+  unsigned char unused[56];
+};
+enum { NXS_ACTION_LOST=1, NXS_ACTION_BASELINE=2 };
+struct NXSActionSnapshot {uint32_t size,count,flags,reserved;uint64_t floor,last;};
+struct NXSActionReceipt {uint64_t serial;uint32_t event;int32_t state;double value;};
 /* Generic native-control transport. UTF-8 title bytes follow this header.
  * The leading control/sequence fields share the scrollbar envelope.
  * Operations: 1 configure/draw, 2 press, 3 move, 4 release, 5 poll, 6 destroy,

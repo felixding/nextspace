@@ -23,6 +23,18 @@ static int blink_application_command(const struct NXSNativeCommand *request,cons
   if(!t||request->process!=identity()||request->control!=t->control)return 0;
   struct NativeForm *form=find_form(t->node);
   if(!form||form->kind!=(int)request->kind||form->control!=t->control||text_frame(t->node)!=t->frame)return 0;
+  int direction=native_stepper_command_direction(selector);
+  void *number=direction?number_type(t->node):NULL;
+  if(number) {
+    int enabled=((int (*)(void *))(base+NXS_NUMBER_RESPONDS))(number);
+    if(request->phase==NXS_COMMAND_VALIDATE)return !!enabled;
+    t->attempted=1;if(!enabled)return 0;
+    uint32_t anchor=radio_node_id(t->node);
+    ((void (*)(void *))(base+(direction>0?NXS_NUMBER_STEP_UP:NXS_NUMBER_STEP_DOWN)))(number);
+    void *node=radio_node_for_id(anchor);number=node?number_type(node):NULL;
+    if(number)((void (*)(void *,int))(base+NXS_NUMBER_RELEASE))(number,0);
+    return 1;
+  }
   if(forms_search_actions_enabled&&form->kind==NXS_SEARCHFIELD&&(!strcmp(selector,"performClick:")||
      (forms_search_clear_enabled&&!strcmp(selector,"clearSearch:")))) {
     if(t->event)return !strcmp(selector,"clearSearch:")?0:-1; /* Keyboard defaults do not commit a pending clear. */
@@ -87,6 +99,7 @@ static void *text_frame(void *node) {
 static int text_model(void *node,struct BlinkTextModel *model) {
   int kind=node?input_form_kind(node):0;if(!text_kind(kind))return 0;
   uintptr_t getter=kind==NXS_TEXTAREA?NXS_TEXTAREA_VALUE_OFFSET:NXS_CHROMIUM_TEXT_VALUE_OFFSET;
+  if(number_type(node))getter=NXS_NUMBER_INNER_VALUE;
   void *value=((void *(*)(const void *))(base+getter))(node);
   model->value=string_text(value);
   ((void (*)(void *))(base+0x7246038))(&value);
@@ -222,6 +235,7 @@ static int text_mouse_press(void *self,const void *event) {
    * holds a compressed InnerNode at 204 and scrollbar at 236 (audited code). */
   void *node=decode_member((const char *)event+204);
   struct NativeForm *form=form_ancestor(node);
+  if(form&&number_pointer_form(form->node,event))return original_text_mouse_press(self,event);
   unsigned clicks=*(const unsigned *)((const char *)event+160);
   if(native_text_input_owned(form)&&form_focused(form->node)&&form_enabled(form->node)&&
      *(const int *)((const char *)event+120)==0&&clicks>0&&
@@ -421,7 +435,12 @@ static int paint_text_field(void *self,const void *element,const void *style,con
   if(kind==NXS_TEXTAREA&&forms_multiline_viewport_enabled&&
      *((const unsigned char *)info+NXS_MULTILINE_CONTENTS_PAINT_BYTE))return 0;
   if(text_kind(kind)&&rect->width>=1&&rect->height>=1) {
-    if(!paint_form(kind,self,element,NULL,style,info,rect)&&refresh_form_watch())return 0;
+    struct Rect native=*rect;
+    if(number_type((void *)element)) {
+      double width=number_text_width((void *)element);
+      if(width>=1&&width<=rect->width)native.width=lround(width);
+    }
+    if(!paint_form(kind,self,element,NULL,style,info,&native)&&refresh_form_watch())return 0;
     struct NativeForm *form=find_form(element);if(form)form->painted=0;
   }
   return original_text_paint(self,element,style,info,rect);

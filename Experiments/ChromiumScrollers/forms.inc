@@ -6,9 +6,11 @@
 #include "pinned-multiline-scroll.h"
 #include "../../Libraries/NativeUI/NativeUI.h"
 #include "../../Libraries/NativeUI/Bridge/ControlActions.inc"
+#include "../../Libraries/NativeUI/Bridge/StepperBinding.inc"
 struct NativeForm {
   struct NativeForm *next;
   struct NXSListBinding list;
+  struct NXSStepperBinding stepper;
   void *node;
   uint64_t control;
   uint32_t radio_owner,radio_member;
@@ -62,7 +64,7 @@ static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
-static int forms_color_enabled;
+static int forms_color_enabled,forms_numbers_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
@@ -102,6 +104,15 @@ static int color_watch_needed(void);
 static void color_native_work(int);
 static void color_forget(void *);
 static struct NXSResponse *sync_color_image(struct NativeForm *,struct NXSResponse *);
+static void *number_owner(void *);
+static void *number_type(void *);
+static double number_text_width(void *);
+static int number_text_children(void *,void *);
+static struct NativeForm *number_pointer_form(void *,const void *);
+static struct SizeI number_native_size(void);
+static int number_enabled(void *);
+static void apply_number_actions(struct NativeForm *);
+static int number_mouse_dispatch(void *,void *,const void *,const void *,const void *,void *,int,const void *,const void *,void *,void *,struct MouseDispatchResult *);
 static int sync_slider_model(struct NativeForm *);
 static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
 static int slider_mouse_default(void *,void *);
@@ -212,6 +223,7 @@ static char *form_title(void *node) {
   return result;
 }
 static struct NXSResponse *form_request(struct NativeForm *form,int operation,double x,double y,unsigned modifiers) {
+  if(form->kind==NXS_STEPPER)return native_stepper_request(form->control,operation,form->rect.width,form->rect.height,form->enabled,x,y,modifiers);
   if(form->kind==NXS_LISTBOX)return list_form_request(form,operation,x,y,modifiers);
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return radio_form_request(form,operation,x,y,modifiers);
   if(operation==1&&form->kind==NXS_POPUP&&!popup_measuring)popup_sync_origin(form);
@@ -247,7 +259,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   if(!title)return 1;
   if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   free(form->title);form->title=title;form->kind=kind;form->rect=*rect;
-  form->enabled=kind==NXS_PROGRESS?1:form_enabled(form->node);form->state=form_state(form->node,kind);
+  form->enabled=kind==NXS_PROGRESS?1:kind==NXS_STEPPER?number_enabled(form->node):form_enabled(form->node);form->state=form_state(form->node,kind);
   if(kind==NXS_SLIDER&&!sync_slider_model(form))return 1;
   if(kind==NXS_PROGRESS){
     double position=((double (*)(const void *))(base+0xe7bb2e8))(element);
@@ -257,7 +269,16 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   if(text_kind(kind))response=sync_text_image(form);
   else {
     response=form_request(form,1,0,0,0);
-    if(kind!=NXS_PROGRESS)response=sync_form_focus(form,response);
+    if(kind==NXS_STEPPER) {
+      form->stepper.control=form->control;
+      if(!form->stepper.ready||form->stepper.epoch!=atomic_load(&native_host_epoch)) {
+        form->input_owned=1;
+        struct NXSStepperBatch baseline;
+        if(!response||!refresh_form_watch()||native_stepper_actions(&form->stepper,1,&baseline)<1)response=NULL;
+        else response=form_request(form,5,0,0,0);
+      }
+    }
+    if(kind!=NXS_PROGRESS&&kind!=NXS_STEPPER)response=sync_form_focus(form,response);
     if(kind==NXS_COLORWELL)response=sync_color_image(form,response);
   }
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
@@ -294,12 +315,18 @@ static int paint_button(void*s,const void*e,const void*d,const void*style,const 
 {int kind=forms_color_enabled&&input_form_kind((void *)e)==NXS_COLORWELL?NXS_COLORWELL:NXS_BUTTON;
  return paint_form(kind,s,e,d,style,i,r)?original_button(s,e,d,style,i,r):0;}
 static struct SizeI native_form_size(void *self,int part) {
+  if(forms_numbers_enabled&&part==16) {
+    struct SizeI size=number_native_size();if(size.width>0&&size.height>0)return size;
+  }
   if(part==9&&form_sizes[2].width>0)return form_sizes[2];
   if(part==10&&form_sizes[3].width>0)return form_sizes[3];
   return original_form_size(self,part);
 }
 static struct SizeI native_theme_size(void *self,int part,int state,const void *extra) {
   void *web=((void *(*)(void))(base+0xc5771c4))();
+  if(forms_numbers_enabled&&self==web&&part==2) {
+    struct SizeI size=number_native_size();if(size.width>0&&size.height>0)return size;
+  }
   if(self==web&&part==0&&form_sizes[2].width>0)return form_sizes[2];
   if(self==web&&part==9&&form_sizes[3].width>0)return form_sizes[3];
   return original_theme_size(self,part,state,extra);
@@ -312,7 +339,13 @@ static void box_paint(void *self,const void *info) {
   struct NativeForm *form=node?find_form(node):NULL;if(form&&form->kind==NXS_LISTBOX&&!list_style(form->node))list_forget(form);
   native_parent=previous;
 }
-static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_COLORWELL||text_kind(f->kind)||list_owned(f))&&f->painted);}
+static int native_button_parent(void) {
+  struct NativeForm *f=form_ancestor(native_parent);
+  if(f&&f->painted&&text_kind(f->kind)) {
+    int number=number_text_children(f->node,native_parent);if(number>=0)return number;
+  }
+  return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_COLORWELL||text_kind(f->kind)||list_owned(f))&&f->painted);
+}
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
 static void block_children(void*s,const void*i,uint64_t offset)
@@ -327,6 +360,7 @@ static struct FloatPoint form_point(struct NativeForm *form,const void *event) {
    * page scroll again; reuse the engine's frame-to-frame conversion instead. */
   struct FloatPoint local=((struct FloatPoint (*)(const void *,const struct FloatPoint *))(base+NXS_COORDINATE_FRAME_POINT_OFFSET))(view,&root);
   struct FloatRect box=((struct FloatRect (*)(const void *))(base+NXS_COORDINATE_CLIENT_BOX_OFFSET))(form->node);
+  if(text_kind(form->kind)&&number_type(form->node))box.width=number_text_width(form->node);
   if(box.width<=0||box.height<=0)return (struct FloatPoint){-1,-1};
   return (struct FloatPoint){(local.x-box.x)*form->rect.width/box.width,(local.y-box.y)*form->rect.height/box.height};
 }
@@ -347,6 +381,11 @@ static void finish_form(double x,double y,unsigned modifiers) {
   native_control_action_snapshot(response,form->actions_before,&form->checkbox_action);
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
   if(form->kind==NXS_POPUP){click_form=NULL;popup_after_input(form,response);refresh_form_watch();return;}
+  if(form->kind==NXS_STEPPER) {
+    click_form=NULL;uint32_t node=radio_node_id(form->node);uint64_t control=form->control;
+    apply_number_actions(form);form=find_form(radio_node_for_id(node));
+    if(form&&form->control==control)invalidate_form(form);refresh_form_watch();return;
+  }
   if(form->kind==NXS_SLIDER){
     void *node=form->node;uint64_t control=form->control;click_form=NULL;
     apply_slider_value(form,response,2);
@@ -358,6 +397,7 @@ static void finish_form(double x,double y,unsigned modifiers) {
 static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,const void *type,const void *event,
     const void *last,void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up) {
   struct MouseDispatchResult list_result;
+  if(number_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   if(forms_lists_enabled&&list_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   uintptr_t atom=*(const uintptr_t *)type;
   unsigned modifiers=event_modifiers(event);
@@ -465,7 +505,7 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     click_form=NULL;
     void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
     struct NativeForm *form=form_ancestor(node);
-    if(form&&form->kind!=NXS_COLORWELL&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
+    if(form&&form->kind!=NXS_COLORWELL&&form->kind!=NXS_STEPPER&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
       form->enabled=1;form->state=form_state(form->node,form->kind);
       struct NXSResponse *sync=form_request(form,1,0,0,0);
       if(sync) {
@@ -569,6 +609,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-buttons.inc"
 #include "forms-popups.inc"
 #include "forms-progress.inc"
+#include "forms-numbers.inc"
 #include "forms-text.inc"
 #include "forms-color.inc"
 #include "forms-lists.inc"
@@ -590,6 +631,7 @@ static struct Detour form_detours[]={
 static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_labels_enabled||prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours)))&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
+  (!forms_numbers_enabled||(guard_number_calls()&&prepare_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours))))&&
   (!forms_color_enabled||(guard_color_calls()&&prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours))))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
@@ -600,6 +642,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
 static void activate_forms(void){if(forms_labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled){activate_form_input();activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));}
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
+  if(forms_numbers_enabled)activate_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours));
   if(forms_color_enabled)activate_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours));
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));

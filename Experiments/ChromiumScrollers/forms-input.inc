@@ -21,6 +21,7 @@ static int form_focused(const void *node) {
 }
 static int input_form_kind(void *node) {
   uintptr_t table=*(const uintptr_t *)node;
+  if(forms_numbers_enabled&&number_owner(node))return NXS_STEPPER;
   if(table==base+0x11cf3500+16)return NXS_BUTTON;
   if(forms_lists_enabled&&list_element(node))return NXS_LISTBOX;
   if(forms_popups_enabled&&popup_element(node))return NXS_POPUP;
@@ -33,6 +34,7 @@ static int input_form_kind(void *node) {
     (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
     (forms_color_enabled&&!strcmp(type,"color"))?NXS_COLORWELL:
     (forms_search_enabled&&!strcmp(type,"search"))?NXS_SEARCHFIELD:
+    (forms_numbers_enabled&&!strcmp(type,"number"))?NXS_TEXTFIELD:
     (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")||!strcmp(type,"email")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
