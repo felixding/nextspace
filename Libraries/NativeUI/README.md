@@ -1175,11 +1175,22 @@ native consumer. Its calendar also needs the Foundation patch for day-in-month
 and month-in-year ranges; that patch delegates to the existing ICU calendar.
 Neither browser bridge implements a replacement date widget or calendar rules.
 
-The staged-library cohort passes 46 date-input checks, 96 specialized-control
+The initial staged-library cohort passed 46 date-input checks, 96 specialized-control
 regression checks and 20 Foundation checks, including 32 complete native image
 comparisons at 1x/2x. The month grid and real native target/actions have separate
 functional witnesses: matching images alone previously missed the empty grid.
 See [date library qualification](date-library-qualification.json) for source,
-runtime and reproduction details. These are staged libraries; browser date/time
-bindings, empty/incomplete date models, broad compatibility and deployment
-remain unfinished.
+runtime and reproduction details for that historical checkpoint.
+
+The original NSDatePickerCell now has an opt-in `allowsEmptyDate` policy:
+focus preserves nil, an actual edit initializes through Foundation, and native
+clearing returns nil. NativeUI advertises this separately and carries explicit
+EMPTY/ALLOW_EMPTY flags; action state distinguishes nil from the Unix epoch.
+The public function table remains API1/720. DateBinding and StepperBinding share
+one ordered action-receipt decoder, while native controls own all UI behavior.
+
+The nullable cohort passes 66 date checks and 96 specialized checks, including
+32 complete native images at 1x/2x. Chromium's first date consumer adds 31 browser
+checks/four native images. See [browser date qualification](../../Experiments/ChromiumScrollers/date-qualification.json).
+These libraries are staged; Firefox date/time consumers, broader compatibility,
+recovery and deployment remain unfinished.

@@ -434,7 +434,7 @@ static int paint_text_field(void *self,const void *element,const void *style,con
    * theme call paints the scrolling document background, not another widget. */
   if(kind==NXS_TEXTAREA&&forms_multiline_viewport_enabled&&
      *((const unsigned char *)info+NXS_MULTILINE_CONTENTS_PAINT_BYTE))return 0;
-  if(text_kind(kind)&&rect->width>=1&&rect->height>=1) {
+  if((text_kind(kind)||kind==NXS_DATEPICKER)&&rect->width>=1&&rect->height>=1) {
     struct Rect native=*rect;
     if(number_type((void *)element)) {
       double width=number_text_width((void *)element);

@@ -35,6 +35,7 @@ static int input_form_kind(void *node) {
     (forms_color_enabled&&!strcmp(type,"color"))?NXS_COLORWELL:
     (forms_search_enabled&&!strcmp(type,"search"))?NXS_SEARCHFIELD:
     (forms_numbers_enabled&&!strcmp(type,"number"))?NXS_TEXTFIELD:
+    (forms_dates_enabled&&!strcmp(type,"date"))?NXS_DATEPICKER:
     (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")||!strcmp(type,"email")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;
@@ -139,6 +140,7 @@ static int default_form_key(void *node,void *event) {
   if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_KEYBOARD))return 0;
   struct NativeForm *text_form=find_form(node);
   if(text_form&&text_form->kind==NXS_COLORWELL)return 0;
+  if(text_form&&text_form->kind==NXS_DATEPICKER)return date_default_key(node,event);
   if(text_form&&text_kind(text_form->kind))return default_text_key(node,event);
   unsigned short *flags=(unsigned short *)((char *)event+32);
   if(!(*flags&0x100)||(*flags&0x60))return 0;

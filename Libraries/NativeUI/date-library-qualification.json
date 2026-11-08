@@ -1,5 +1,5 @@
 {
-  "status": "Staged shared native date-library checkpoint; browser consumers and full native-app goal remain unfinished",
+  "status": "Historical staged date-library checkpoint at 36a69d91; nullable extension and Chromium consumer are recorded in superseded_by",
   "base_revision": "981056ef",
   "gui": {
     "revision": "8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899",
@@ -1099,5 +1099,7 @@
     "sha256": "fd7abc59a18c354e49b8eed3296a5b0f205203ab80f67caba000f3290086f33b",
     "members": 5630
   },
-  "tested_platform": "Linux ARM64, GNUstep nonfragile Objective-C runtime 2.2; broader ABI/platform compatibility unqualified"
+  "tested_platform": "Linux ARM64, GNUstep nonfragile Objective-C runtime 2.2; broader ABI/platform compatibility unqualified",
+  "checkpoint_commit": "36a69d91",
+  "superseded_by": "Experiments/ChromiumScrollers/date-qualification.json"
 }

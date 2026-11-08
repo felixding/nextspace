@@ -1,7 +1,6 @@
 /* Original Blink chooser/model callbacks only. The shared provider owns the
  * NSColorWell and NSColorPanel. Exact guarded build; GPL-2.0-or-later. */
 #include "pinned-colors.h"
-#include "../../Libraries/NativeUI/Bridge/Specialized.inc"
 #include "../../Libraries/NativeUI/Bridge/ColorBinding.inc"
 static struct {void *controller,*node;struct NXSColorBinding binding;} color_session;
 static void (*original_color_open)(void *);

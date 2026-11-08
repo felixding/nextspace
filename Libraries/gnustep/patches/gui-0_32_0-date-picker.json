@@ -5,26 +5,34 @@
     {
       "path": "Source/NSDatePicker.m",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Source/NSDatePicker.m",
-      "sha256": "edfc2ce8120e1da0062a9a60b452aec18cb7b5877ccf014f8fb43253293b5e1d"
+      "sha256": "edfc2ce8120e1da0062a9a60b452aec18cb7b5877ccf014f8fb43253293b5e1d",
+      "effective_sha256": "8b8242fc5022c0da2caca1648f4a3ffac8cc21e26b43588704a0150ac4a5192a"
     },
     {
       "path": "Source/NSDatePickerCell.m",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Source/NSDatePickerCell.m",
-      "sha256": "e4a7dd93f1886130c44b2ba7a4467de5f76f37a32e550d9200864177f0e93613"
+      "sha256": "e4a7dd93f1886130c44b2ba7a4467de5f76f37a32e550d9200864177f0e93613",
+      "effective_sha256": "dfcacb4e4fc988d4cc95bb272418641b66feb4b5eae7fda9f1e0e0fe2ead1a8c"
     },
     {
       "path": "Headers/AppKit/NSDatePicker.h",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Headers/AppKit/NSDatePicker.h",
-      "sha256": "529f3f3553b21ff2016be1b9d1f5de65d3645f0e5c3c4d4cf5bb5cdd59d88d3c"
+      "sha256": "529f3f3553b21ff2016be1b9d1f5de65d3645f0e5c3c4d4cf5bb5cdd59d88d3c",
+      "effective_sha256": "529f3f3553b21ff2016be1b9d1f5de65d3645f0e5c3c4d4cf5bb5cdd59d88d3c"
     },
     {
       "path": "Headers/AppKit/NSDatePickerCell.h",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Headers/AppKit/NSDatePickerCell.h",
-      "sha256": "b2b66cc2988b358699d798fb8a636c120298c81629e70636f251fc9d818568db"
+      "sha256": "b2b66cc2988b358699d798fb8a636c120298c81629e70636f251fc9d818568db",
+      "effective_sha256": "cc676d05e1f26c135e1ca32a960436f7fcf78b5ba71945bdc70f1052b5ab32da"
     }
   ],
   "purpose": "Backport original GNUstep NSDatePicker and NSDatePickerCell implementation into the pinned GUI library; browser bridges contain no replacement date widget",
   "baseline_commit": "4c1687d2b404f271ce7806dcb80a5b24b5284432",
   "license": "GNU Library General Public License version 2 or later; original notices retained",
-  "upstream_files_unmodified": true
+  "upstream_files_unmodified": false,
+  "nextspace_extensions": [
+    "Opt-in allowsEmptyDate on the original cell; clear, first real edit and focus without a value",
+    "Retain pre-action dates until comparison completes; avoid actions for nil-to-nil clear"
+  ]
 }

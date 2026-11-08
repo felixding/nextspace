@@ -431,7 +431,10 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
     state.value=radio_index(control,[(NSMatrix *)control->view selectedCell]);
     state.state=[[(NSMatrix *)control->view selectedCell] state];
   } else if(control->kind==NXS_COLORWELL)state.state=[(NSColorWell *)control->view isActive];
-  else if(control->kind==NXS_DATEPICKER)state.value=[[(NSDatePicker *)control->view dateValue] timeIntervalSince1970];
+  else if(control->kind==NXS_DATEPICKER) {
+    NSDate *date=[(NSDatePicker *)control->view dateValue];state.value=[date timeIntervalSince1970];
+    state.state=date?0:-1; /* Exact native nil is distinct from the Unix epoch. */
+  }
   else if(control->kind==NXS_TABVIEW)state.value=nxs_gnustep_control_tab_state(control).selected_index;
   else if(control->kind==NXS_PROGRESS)state.value=[(NSProgressIndicator *)control->view doubleValue];
   else if(!text_control(control)) {

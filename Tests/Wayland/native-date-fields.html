@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native date fields</title>
+<style>body{margin:32px;background:white;font:16px sans-serif}label{display:block;margin:20px 0}input{width:260px;height:30px;font:16px sans-serif}</style>
+<label>Date <input id="normal" type="date" value="2026-11-07"></label>
+<label>Empty <input id="empty" type="date"></label>
+<label>Read only <input id="readonly" type="date" value="2026-11-07" readonly></label>
+<label>Disabled <input id="disabled" type="date" value="2026-11-07" disabled></label>
+<label>Cancelled <input id="cancelled" type="date" value="2026-11-07"></label>
+<button id="after">After fields</button>
+<script>
+window.events=[];
+for(const element of document.querySelectorAll('input'))
+ for(const type of ['input','change'])
+  element.addEventListener(type,event=>events.push({id:element.id,type,value:element.value,trusted:event.isTrusted}));
+cancelled.addEventListener('mousedown',event=>event.preventDefault());
+</script>

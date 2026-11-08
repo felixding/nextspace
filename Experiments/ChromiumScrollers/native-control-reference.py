@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import ControlRect, NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem,ColorModel
+from native_controls import ControlRect, NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem,ColorModel,DateModel
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -64,6 +64,10 @@ for item in json.loads(args.controls.read_text()):
         if item['kind']==16:
             color=ColorModel(C.sizeof(ColorModel),*item['rgba'])
             assert native.nxs_control_color_sync(pointer,C.byref(color))
+        if item['kind']==17:
+            date=DateModel(C.sizeof(DateModel),item['date_flags'],item['date_elements'],
+                           item['date_style'],item['date_value'],0,0)
+            assert native.nxs_control_date_sync(pointer,C.byref(date))
         if item['kind']==12:
             entries=(RadioItem*len(item['items']))(*[RadioItem(C.sizeof(RadioItem),entry['id'],b'',entry['enabled']) for entry in item['items']])
             assert native.nxs_control_radio_items(pointer,entries,len(entries),1,item['selected'],item['key_cell'])

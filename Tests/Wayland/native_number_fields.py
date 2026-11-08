@@ -8,14 +8,14 @@ import time
 
 
 class ChromiumNumbers:
-    def __init__(self, root):
+    def __init__(self, root, page='native-number-fields.html', title='Native number fields'):
         self.root = Path(root)
         self.results = []
         target = next(item for item in self.cdp('Target.getTargets', target=False)['targetInfos']
                       if item['type'] == 'page')
         self.session = self.cdp('Target.attachToTarget', dict(targetId=target['targetId'], flatten=True), False)['sessionId']
-        self.cdp('Page.navigate', dict(url='file:///workspace/Tests/Wayland/native-number-fields.html'))
-        self.until(lambda: self.js('document.title') == 'Native number fields', 'page load')
+        self.cdp('Page.navigate', dict(url='file:///workspace/Tests/Wayland/'+page))
+        self.until(lambda: self.js('document.title') == title, 'page load')
         pid = json.loads((self.root/'launch.json').read_text())['pids'][-1]
         window = next(item for item in self.command('windows') if item['pid'] == pid and item['level'] == 0)
         assert self.command('focus '+str(window['id']))['ok']

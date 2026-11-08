@@ -70,7 +70,7 @@ static void *watch_native_forms(void *unused) {
 }
 static int refresh_form_watch(void) {
   if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
-  int needed=active_form&&(active_form->kind==NXS_SLIDER||active_form->kind==NXS_STEPPER);double generation=needed?active_form->generation:0;
+  int needed=active_form&&(active_form->kind==NXS_SLIDER||active_form->kind==NXS_STEPPER||active_form->kind==NXS_DATEPICKER);double generation=needed?active_form->generation:0;
   if(color_watch_needed())needed=1;
   if(views_watch_needed())needed=1;
   if(tabs_watch_needed())needed=1;
@@ -145,6 +145,7 @@ static void form_native_work(void *controller) {
     for(struct NativeForm *f=native_forms;f;f=f->next)if(f->painted)schedule_form_paint(f);
   }
   if(active_form&&active_form->kind==NXS_STEPPER)apply_number_actions(active_form);
+  if(active_form&&active_form->kind==NXS_DATEPICKER)date_apply(active_form);
   if(active_form&&active_form->kind==NXS_SLIDER){
     struct NativeForm *slider=active_form;
     struct NXSResponse *response=form_request(slider,5,0,0,0);

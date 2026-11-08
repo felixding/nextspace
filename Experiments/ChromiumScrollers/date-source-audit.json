@@ -1,0 +1,82 @@
+{
+  "status": "Pinned Blink model, event, lifetime and focus bindings to shared GNUstep date editor; no replacement calendar or editor",
+  "primary_revision": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "browser_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "references": {
+    ".build/native-ui/date-source/input_type.h": {
+      "bytes": 17717,
+      "sha256": "84fd8f1c1d555d79e1e5004a6a16052300504f6008e9dba10043551ad773942a",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/input_type.h"
+    },
+    ".build/native-ui/date-source/element.h": {
+      "bytes": 127463,
+      "sha256": "4e345d1eb9e4e813de1ca0568a25070c0e10921329aa93847a16fb3f609e6641",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/dom/element.h"
+    },
+    ".build/native-ui/date-source/base_temporal_input_type.cc": {
+      "bytes": 8923,
+      "sha256": "34b949825c169ea0967951c7335da9f4ba32f90a5929b718954e4a682d5abd9f",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/base_temporal_input_type.cc"
+    },
+    ".build/native-ui/date-source/date_time_edit_element.cc": {
+      "bytes": 37155,
+      "sha256": "e42e89e5ccd4709018183eefcc97ee470e31d8d934572a3efe373a065900fb3c",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/date_time_edit_element.cc"
+    },
+    ".build/native-ui/date-source/date_time_field_element.h": {
+      "bytes": 5105,
+      "sha256": "c45171c73df96db5d762af7be9f1ec73899e9f1183c949291b2ed636739b8b56",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/date_time_field_element.h"
+    },
+    ".build/native-ui/date-source/date_time_field_element.cc": {
+      "bytes": 10053,
+      "sha256": "e9efd7fd978b4aca665a9ce3886b11cfce3e7d1bd67b9372076d57d168d732d6",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/date_time_field_element.cc"
+    },
+    ".build/native-ui/date-source/multiple_fields_temporal_input_type_view.cc": {
+      "bytes": 23620,
+      "sha256": "98512803616ba81857201f22f615913ffb78ec285f06b765329a8b3912f91f71",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/multiple_fields_temporal_input_type_view.cc"
+    },
+    ".build/native-ui/date-source/focus_controller.cc": {
+      "bytes": 99613,
+      "sha256": "c477d0f389f5fbe4158c4aa75d584d8aebacca1b9f12e1e4db2cad9b3f631d59",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/page/focus_controller.cc"
+    },
+    ".build/native-ui/date-source/focus_controller.h": {
+      "bytes": 6812,
+      "sha256": "381379ced796f967951124ab6dbb7acb37d28fbd88bef5e8a8233ac298df799f",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/page/focus_controller.h"
+    },
+    ".build/native-ui/date-source/date_input_type.cc": {
+      "bytes": 6120,
+      "sha256": "4db9b6de195e3785ea248c3c67d9ba9608af9dfad9b137dc0f1c95d529f80464",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/date_input_type.cc"
+    }
+  },
+  "original_methods": [
+    "BaseTemporalInputType::ValueAsDouble",
+    "MultipleFieldsTemporalInputTypeView::PickerIndicatorChooseValue",
+    "MultipleFieldsTemporalInputTypeView::DidEndChooser",
+    "MultipleFieldsTemporalInputTypeView::DidSetValue",
+    "MultipleFieldsTemporalInputTypeView::HandleFocusInEvent",
+    "DateTimeFieldElement::SupportsFocus",
+    "PickerIndicatorElement::SupportsFocus",
+    "FocusController::AdvanceFocus",
+    "WeakDOMNodeIds::IdForNode / NodeForId"
+  ],
+  "boundaries": [
+    "Date values only scale original engine milliseconds to Unix seconds; NaN becomes explicit native nil",
+    "Native NSDatePicker owns segment layout, digit entry, field navigation, stepper hit testing and repeat",
+    "The provider and GUI classes alone own drawing, formatting and calendar arithmetic",
+    "Original Blink owns HTML parsing, validation, original input/change dispatch and DOM focus order",
+    "Anonymous browser segments and indicator leave focus traversal only while the complete native picker is painted"
+  ],
+  "remaining": [
+    "Firefox date consumer",
+    "time, datetime-local, month and week consumers",
+    "Host/receipt-loss recovery",
+    "Broader styles, zoom, density, IME, accessibility and browser derivatives",
+    "Deployment and full application-wide native integration"
+  ]
+}

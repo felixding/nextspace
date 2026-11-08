@@ -7,10 +7,14 @@
 #include "../../Libraries/NativeUI/NativeUI.h"
 #include "../../Libraries/NativeUI/Bridge/ControlActions.inc"
 #include "../../Libraries/NativeUI/Bridge/StepperBinding.inc"
+#include "../../Libraries/NativeUI/Bridge/Specialized.inc"
+#include "../../Libraries/NativeUI/Bridge/DateBinding.inc"
 struct NativeForm {
   struct NativeForm *next;
   struct NXSListBinding list;
   struct NXSStepperBinding stepper;
+  struct NXSDateBinding date;
+  int date_commit_pending;
   void *node;
   uint64_t control;
   uint32_t radio_owner,radio_member;
@@ -65,6 +69,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_color_enabled,forms_numbers_enabled;
+static int forms_dates_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
@@ -113,6 +118,12 @@ static struct SizeI number_native_size(void);
 static int number_enabled(void *);
 static void apply_number_actions(struct NativeForm *);
 static int number_mouse_dispatch(void *,void *,const void *,const void *,const void *,void *,int,const void *,const void *,void *,void *,struct MouseDispatchResult *);
+static int date_enabled(void *);
+static struct NXSResponse *sync_date_image(struct NativeForm *,struct NXSResponse *);
+static int date_default_key(void *,void *);
+static void date_apply(struct NativeForm *);
+static void date_commit(void *,uint64_t);
+static int date_mouse_dispatch(void *,void *,const void *,const void *,const void *,void *,int,const void *,const void *,void *,void *,struct MouseDispatchResult *);
 static int sync_slider_model(struct NativeForm *);
 static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
 static int slider_mouse_default(void *,void *);
@@ -259,7 +270,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   if(!title)return 1;
   if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   free(form->title);form->title=title;form->kind=kind;form->rect=*rect;
-  form->enabled=kind==NXS_PROGRESS?1:kind==NXS_STEPPER?number_enabled(form->node):form_enabled(form->node);form->state=form_state(form->node,kind);
+  form->enabled=kind==NXS_PROGRESS?1:kind==NXS_STEPPER?number_enabled(form->node):kind==NXS_DATEPICKER?date_enabled(form->node):form_enabled(form->node);form->state=form_state(form->node,kind);
   if(kind==NXS_SLIDER&&!sync_slider_model(form))return 1;
   if(kind==NXS_PROGRESS){
     double position=((double (*)(const void *))(base+0xe7bb2e8))(element);
@@ -280,6 +291,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
     }
     if(kind!=NXS_PROGRESS&&kind!=NXS_STEPPER)response=sync_form_focus(form,response);
     if(kind==NXS_COLORWELL)response=sync_color_image(form,response);
+    if(kind==NXS_DATEPICKER)response=sync_date_image(form,response);
   }
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
      sizeof(*response)+(size_t)response->stride*response->height!=response->size){
@@ -344,7 +356,7 @@ static int native_button_parent(void) {
   if(f&&f->painted&&text_kind(f->kind)) {
     int number=number_text_children(f->node,native_parent);if(number>=0)return number;
   }
-  return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_COLORWELL||text_kind(f->kind)||list_owned(f))&&f->painted);
+  return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_COLORWELL||f->kind==NXS_DATEPICKER||text_kind(f->kind)||list_owned(f))&&f->painted);
 }
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
@@ -386,6 +398,11 @@ static void finish_form(double x,double y,unsigned modifiers) {
     apply_number_actions(form);form=find_form(radio_node_for_id(node));
     if(form&&form->control==control)invalidate_form(form);refresh_form_watch();return;
   }
+  if(form->kind==NXS_DATEPICKER) {
+    click_form=NULL;uint32_t node=radio_node_id(form->node);uint64_t control=form->control;
+    date_apply(form);void *owner=radio_node_for_id(node);if(owner)date_commit(owner,control);
+    refresh_form_watch();return;
+  }
   if(form->kind==NXS_SLIDER){
     void *node=form->node;uint64_t control=form->control;click_form=NULL;
     apply_slider_value(form,response,2);
@@ -397,6 +414,7 @@ static void finish_form(double x,double y,unsigned modifiers) {
 static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,const void *type,const void *event,
     const void *last,void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up) {
   struct MouseDispatchResult list_result;
+  if(date_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   if(number_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   if(forms_lists_enabled&&list_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   uintptr_t atom=*(const uintptr_t *)type;
@@ -505,7 +523,7 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     click_form=NULL;
     void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
     struct NativeForm *form=form_ancestor(node);
-    if(form&&form->kind!=NXS_COLORWELL&&form->kind!=NXS_STEPPER&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
+    if(form&&form->kind!=NXS_COLORWELL&&form->kind!=NXS_STEPPER&&form->kind!=NXS_DATEPICKER&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
       form->enabled=1;form->state=form_state(form->node,form->kind);
       struct NXSResponse *sync=form_request(form,1,0,0,0);
       if(sync) {
@@ -610,6 +628,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-popups.inc"
 #include "forms-progress.inc"
 #include "forms-numbers.inc"
+#include "forms-dates.inc"
 #include "forms-text.inc"
 #include "forms-color.inc"
 #include "forms-lists.inc"
@@ -632,6 +651,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
   (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_numbers_enabled||(guard_number_calls()&&prepare_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours))))&&
+  (!forms_dates_enabled||(guard_date_calls()&&prepare_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours))))&&
   (!forms_color_enabled||(guard_color_calls()&&prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours))))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
@@ -643,6 +663,7 @@ static void activate_forms(void){if(forms_labels_enabled)activate_detours(form_l
   if(forms_input_enabled){activate_form_input();activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));}
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_numbers_enabled)activate_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours));
+  if(forms_dates_enabled)activate_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours));
   if(forms_color_enabled)activate_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours));
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));

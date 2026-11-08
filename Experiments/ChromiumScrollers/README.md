@@ -1287,7 +1287,21 @@ Run `Tests/Wayland/check-native-number-fields.py --baseline <original-fixture>
 The focused run passes 21 checks, including 13 comparisons with the same
 browser's original number control. See [number qualification](number-qualification.json)
 and [source audit](number-source-audit.json). This is a partial Chromium
-binding: Firefox numbers, dates/times, queue-loss/host recovery, full native
+binding: remaining date/time consumers, queue-loss/host recovery, full native
 geometry and image equivalence, broad styles/scales/RTL/IME/accessibility,
 derivatives and deployment remain unfinished. Earlier integration gaps and
 the broader detached-menu/shortcut/GTK/Qt/KDE objective remain active.
+
+`NEXTSPACE_CHROMIUM_DATES=1` enables `<input type=date>` with the shared
+NSDatePicker and its opt-in empty-value policy. It requires the staged GUI
+nullable-date extension and the NativeUI nullable capability. Focus preserves
+an empty value; real native editing and clearing pass through original Blink
+model/event methods. Original anonymous date segments leave focus traversal
+while the complete native picker is painted. Browser tabs and toolbars stay
+unchanged.
+
+Run `python3 Tests/Wayland/native_date_fields.py <owned-fixture-directory>`.
+The focused cohort passes 31 checks, including four full independent native
+images. See [date qualification](date-qualification.json) and
+[source audit](date-source-audit.json). Firefox dates, time/datetime-local/month/
+week consumers, broad compatibility and deployment remain unfinished.

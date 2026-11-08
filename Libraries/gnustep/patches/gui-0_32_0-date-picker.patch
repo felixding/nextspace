@@ -31,20 +31,20 @@
  
  static id usedCellClass = nil;
  
-@@ -57,6 +77,187 @@
+@@ -57,6 +77,197 @@
    usedCellClass = cellClass;
  }
  
 +- (void) keyDown: (NSEvent *)theEvent
 +{
-+  NSDate *before = [_cell dateValue];
++  NSDate *before = AUTORELEASE(RETAIN([_cell dateValue]));
 +
 +  if ([(NSDatePickerCell *)_cell _handleKeyEvent: theEvent])
 +    {
 +      NSDate *after = [_cell dateValue];
 +
 +      [self setNeedsDisplay: YES];
-+      if (before == nil || ![before isEqualToDate: after])
++      if (before != after && (before == nil || ![before isEqualToDate: after]))
 +        {
 +          [self sendAction: [self action] to: [self target]];
 +        }
@@ -68,7 +68,7 @@
 +    }
 +
 +  point = [self convertPoint: [theEvent locationInWindow] fromView: nil];
-+  before = [cell dateValue];
++  before = AUTORELEASE(RETAIN([cell dateValue]));
 +  if ([cell _showsCalendar])
 +    {
 +      if (![cell _selectDayAtPoint: point inRect: _bounds ofView: self])
@@ -82,7 +82,8 @@
 +        {
 +          [self _trackRangeFrom: [cell dateValue]];
 +        }
-+      if (before == nil || ![before isEqualToDate: [cell dateValue]])
++      if (before != [cell dateValue]
++        && (before == nil || ![before isEqualToDate: [cell dateValue]]))
 +        {
 +          [self sendAction: [self action] to: [self target]];
 +        }
@@ -94,6 +95,13 @@
 +                                      ofView: self];
 +  if (direction == 0 && ![cell _selectFieldAtPoint: point inRect: _bounds])
 +    {
++      if ([cell allowsEmptyDate] && [cell dateValue] == nil
++        && NSMouseInRect(point, _bounds, [self isFlipped]))
++        {
++          [[self window] makeFirstResponder: self];
++          [self setNeedsDisplay: YES];
++          return;
++        }
 +      [super mouseDown: theEvent];
 +      return;
 +    }
@@ -108,7 +116,8 @@
 +      return;
 +    }
 +  [self setNeedsDisplay: YES];
-+  if (before == nil || ![before isEqualToDate: [cell dateValue]])
++  if (before != [cell dateValue]
++        && (before == nil || ![before isEqualToDate: [cell dateValue]]))
 +    {
 +      [self sendAction: [self action] to: [self target]];
 +    }
@@ -181,7 +190,7 @@
 +- (void) _stepOnceInDirection: (NSInteger)direction
 +{
 +  NSDatePickerCell *cell = (NSDatePickerCell *)_cell;
-+  NSDate *before = [cell dateValue];
++  NSDate *before = AUTORELEASE(RETAIN([cell dateValue]));
 +
 +  [cell _setHighlightedStepper: direction];
 +  if (![cell _stepSelectedFieldBy: direction])
@@ -190,7 +199,8 @@
 +    }
 +  [self setNeedsDisplay: YES];
 +  [self displayIfNeeded];
-+  if (before == nil || ![before isEqualToDate: [cell dateValue]])
++  if (before != [cell dateValue]
++        && (before == nil || ![before isEqualToDate: [cell dateValue]]))
 +    {
 +      [self sendAction: [self action] to: [self target]];
 +    }
@@ -586,7 +596,41 @@
  }
  
  - (NSDatePickerMode) datePickerMode
-@@ -104,9 +435,1025 @@
+@@ -99,14 +430,1090 @@
+   _datePickerStyle = style;
+ }
+ 
++- (BOOL) allowsEmptyDate
++{
++  return _allowsEmptyDate;
++}
++
++- (void) setAllowsEmptyDate: (BOOL)flag
++{
++  _allowsEmptyDate = flag;
++}
++
++/* Seed only an actual edit. Calendar components and normalization remain
++   with Foundation; merely focusing a nullable picker never creates a value. */
++- (NSDate *) _defaultDateForEditing
++{
++  NSCalendar *calendar = [self _pickerCalendar];
++  NSDateComponents *parts = [calendar components:
++    NSCalendarUnitEra | NSCalendarUnitYear | NSCalendarUnitMonth
++    | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute
++    | NSCalendarUnitSecond fromDate: [NSDate date]];
++
++  if (!(_datePickerElements & NSHourMinuteDatePickerElementFlag))
++    {
++      [parts setHour: 0];
++      [parts setMinute: 0];
++      [parts setSecond: 0];
++    }
++  return [calendar dateFromComponents: parts];
++}
++
+ - (NSDate *) dateValue
+ {
    return (NSDate *)[self objectValue];
  }
  
@@ -639,9 +683,18 @@
 +  NSCalendarUnit unit;
 +  NSDate *stepped;
 +
-+  if (date == nil || index < 0)
++  if (index < 0 || (date == nil && !_allowsEmptyDate))
 +    {
 +      return NO;
++    }
++  if (date == nil)
++    {
++      [self setDateValue: [self _defaultDateForEditing]];
++      date = [self dateValue];
++      if (date == nil)
++        {
++          return NO;
++        }
 +    }
 +
 +  step = AUTORELEASE([[NSDateComponents alloc] init]);
@@ -1504,12 +1557,34 @@
 +    }
 +
 +  fields = [self _editableFields];
-+  if ([fields count] == 0 || [self dateValue] == nil || ![self isEnabled])
++  if ([fields count] == 0 || ![self isEnabled])
 +    {
 +      return NO;
 +    }
 +
 +  c = [characters characterAtIndex: 0];
++  if (_allowsEmptyDate
++    && (c == NSBackspaceCharacter || c == NSDeleteCharacter
++      || c == NSDeleteFunctionKey))
++    {
++      [self setDateValue: nil];
++      _typedValue = 0;
++      _typedDigits = 0;
++      return YES;
++    }
++  if ([self dateValue] == nil)
++    {
++      if (!_allowsEmptyDate || !((c >= '0' && c <= '9')
++        || c == NSUpArrowFunctionKey || c == NSDownArrowFunctionKey))
++        {
++          return NO;
++        }
++      [self setDateValue: [self _defaultDateForEditing]];
++      if ([self dateValue] == nil)
++        {
++          return NO;
++        }
++    }
 +  if ([self _showsCalendar])
 +    {
 +      switch (c)
@@ -1613,7 +1688,7 @@
  }
  
  - (id) delegate
-@@ -137,6 +1484,7 @@
+@@ -137,6 +1544,7 @@
  - (void) setLocale: (NSLocale *)locale
  {
    [[self formatter] setLocale: locale];
@@ -1621,7 +1696,7 @@
  }
  
  - (NSDate *) maxDate
-@@ -147,6 +1495,7 @@
+@@ -147,6 +1555,7 @@
  - (void) setMaxDate: (NSDate *)date
  {
    ASSIGN(_maxDate, date);
@@ -1629,7 +1704,7 @@
  }
  
  - (NSDate *) minDate
-@@ -157,6 +1506,7 @@
+@@ -157,6 +1566,7 @@
  - (void) setMinDate: (NSDate *)date
  {
    ASSIGN(_minDate, date);
@@ -1637,7 +1712,7 @@
  }
  
  - (NSColor *) textColor
-@@ -189,17 +1539,74 @@
+@@ -189,17 +1599,74 @@
    [[self formatter] setTimeZone: zone];
  }
  
@@ -1712,7 +1787,7 @@
      }
  }
  
-@@ -207,15 +1614,65 @@
+@@ -207,15 +1674,65 @@
  {
    if ((self = [super initWithCoder: aDecoder]))
      {
@@ -2096,10 +2171,11 @@
  @end
 --- a/Headers/AppKit/NSDatePickerCell.h
 +++ b/Headers/AppKit/NSDatePickerCell.h
-@@ -76,6 +76,10 @@
+@@ -76,6 +76,11 @@
    NSDatePickerMode _datePickerMode;
    NSDatePickerStyle _datePickerStyle;
    BOOL _drawsBackground;
++  BOOL _allowsEmptyDate;
 +  NSInteger _selectedField;
 +  NSInteger _typedValue;
 +  NSInteger _typedDigits;
@@ -2107,3 +2183,13 @@
  }
  
  - (NSColor *) backgroundColor;
+@@ -84,6 +89,9 @@
+ - (NSDatePickerMode) datePickerMode;
+ - (NSDatePickerStyle) datePickerStyle;
+ - (NSDate *) dateValue;
++/* GNUstep extension: nullable controls opt into native clear/initial editing. */
++- (BOOL) allowsEmptyDate;
++- (void) setAllowsEmptyDate: (BOOL)flag;
+ - (id) delegate;
+ - (BOOL) drawsBackground;
+ - (NSLocale *) locale;

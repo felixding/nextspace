@@ -72,7 +72,7 @@ int main(int argc,char **argv)
     assert(nxs_control_destroy(plain));puts("{\"older_provider_without_specialized_controls\":true}");[pool drain];return 0;
   }
   assert(argc>2);double scale=atof(argv[2]);
-  check("specialized-capabilities",nxs_control_specialized_capabilities()==7);
+  check("specialized-capabilities",(nxs_control_specialized_capabilities()&7)==7);
   struct Probe step=create(NXS_STEPPER,[NSStepper class],argv[1],scale);configure(&step,24,26,1);
   assert(nxs_control_set_step(step.control,.5));
   NSStepper *reference=[[NSStepper alloc] initWithFrame:NSMakeRect(0,0,24,26)];

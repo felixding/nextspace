@@ -1,8 +1,15 @@
 /* Typed application data for original native controls. No control drawing,
  * parsing, calendar arithmetic or stepping algorithm is implemented here.
  * GPL-2.0-or-later. */
+@interface NSDatePickerCell (NXSNullableDate)
+- (BOOL) allowsEmptyDate;
+- (void) setAllowsEmptyDate:(BOOL)flag;
+@end
+static int nullable_date_available(void)
+{return [NSDatePickerCell instancesRespondToSelector:@selector(setAllowsEmptyDate:)];}
 unsigned nxs_gnustep_control_specialized_capabilities(void)
-{return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE;}
+{return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE|
+  (nullable_date_available()?NXS_SPECIAL_DATE_NULLABLE:0);}
 static int specialized_idle(NXSControl *control,int kind)
 {return control&&control->kind==kind&&!control->destroying&&!control->specialized_callback&&!nxs_host_tracking(control->host);}
 static void color_open(NSView *view,void *context)
@@ -51,19 +58,22 @@ static NSDatePickerElementFlags date_elements(unsigned elements)
 int nxs_gnustep_control_date_sync(NXSControl *control,const NXSDateModel *model)
 {
   if(!specialized_idle(control,NXS_DATEPICKER)||!model||model->size<sizeof(*model)||
-     model->flags&~(NXS_DATE_MINIMUM|NXS_DATE_MAXIMUM|NXS_DATE_UTC)||!date_elements(model->elements)||
+     model->flags&~(NXS_DATE_MINIMUM|NXS_DATE_MAXIMUM|NXS_DATE_UTC|NXS_DATE_EMPTY|NXS_DATE_ALLOW_EMPTY)||!date_elements(model->elements)||
+     ((model->flags&NXS_DATE_EMPTY)&&!(model->flags&NXS_DATE_ALLOW_EMPTY))||
+     ((model->flags&NXS_DATE_ALLOW_EMPTY)&&!nullable_date_available())||
      model->style>NXS_DATE_TEXT||!isfinite(model->value)||
      ((model->flags&NXS_DATE_MINIMUM)&&!isfinite(model->minimum))||
      ((model->flags&NXS_DATE_MAXIMUM)&&!isfinite(model->maximum))||
      ((model->flags&3)==3&&model->minimum>model->maximum))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   NSDatePicker *view=(NSDatePicker *)control->view;
+  if(nullable_date_available())[(NSDatePickerCell *)[view cell] setAllowsEmptyDate:!!(model->flags&NXS_DATE_ALLOW_EMPTY)];
   [view setDatePickerElements:date_elements(model->elements)];
   [view setDatePickerStyle:(NSDatePickerStyle)model->style];
   [view setTimeZone:model->flags&NXS_DATE_UTC?[NSTimeZone timeZoneForSecondsFromGMT:0]:[NSTimeZone localTimeZone]];
   [view setMinDate:model->flags&NXS_DATE_MINIMUM?[NSDate dateWithTimeIntervalSince1970:model->minimum]:nil];
   [view setMaxDate:model->flags&NXS_DATE_MAXIMUM?[NSDate dateWithTimeIntervalSince1970:model->maximum]:nil];
-  [view setDateValue:[NSDate dateWithTimeIntervalSince1970:model->value]];
+  [view setDateValue:model->flags&NXS_DATE_EMPTY?nil:[NSDate dateWithTimeIntervalSince1970:model->value]];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
 int nxs_gnustep_control_date_get(NXSControl *control,NXSDateModel *model)
@@ -73,10 +83,12 @@ int nxs_gnustep_control_date_get(NXSControl *control,NXSDateModel *model)
   NSDate *value=[view dateValue],*minimum=[view minDate],*maximum=[view maxDate];
   unsigned elements=0;for(unsigned i=NXS_DATE_YEAR_MONTH;i<=NXS_DATE_DATE_AND_TIME;i++)
     if(date_elements(i)==[view datePickerElements]){elements=i;break;}
-  if(!value||!elements){[pool drain];return 0;}
+  BOOL nullable=nullable_date_available()&&[(NSDatePickerCell *)[view cell] allowsEmptyDate];
+  if((!value&&!nullable)||!elements){[pool drain];return 0;}
   *model=(NXSDateModel){.size=sizeof(*model),.elements=elements,.style=[view datePickerStyle],
     .flags=(minimum?NXS_DATE_MINIMUM:0)|(maximum?NXS_DATE_MAXIMUM:0)|
-      ([[view timeZone] secondsFromGMTForDate:value]==0?NXS_DATE_UTC:0),
+      ([[view timeZone] secondsFromGMTForDate:value?:[NSDate date]]==0?NXS_DATE_UTC:0)|
+      (nullable?NXS_DATE_ALLOW_EMPTY:0)|(!value?NXS_DATE_EMPTY:0),
     .value=[value timeIntervalSince1970],.minimum=minimum?[minimum timeIntervalSince1970]:0,
     .maximum=maximum?[maximum timeIntervalSince1970]:0};
   [pool drain];return 1;

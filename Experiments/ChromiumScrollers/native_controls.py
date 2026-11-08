@@ -926,12 +926,11 @@ class NativeControlServer:
                 if math.floor(req.width*scale+.5)*math.floor(req.height*scale+.5)>8*1024*1024:
                     self._respond(client,req);return
             current = self.native.nxs_control_state(state['native'])
-            if req.kind==15 and self._tracking(state):
-                # A repaint observes the actual native stepper while its own
-                # mouseDown/repeat loop is active. Do not resynchronize its
-                # counter or recreate a control during that native gesture.
+            if req.kind in (15,17) and self._tracking(state):
+                # Observe the native stepper/date picker during its own
+                # mouseDown/repeat loop without resetting the native gesture.
                 signature=(req.width,req.height,req.minimum,req.maximum,req.enabled,title)
-                if signature==state.get('stepper_configuration'):
+                if signature==state.get('tracking_configuration'):
                     self._respond(client,req,state,pixels=True)
                 else:self._respond(client,req)
                 return
@@ -941,8 +940,8 @@ class NativeControlServer:
             if not self.native.nxs_control_sync(state['native'], C.byref(config)):
                 self._respond(client, req)
                 return
-            if req.kind==15:
-                state['stepper_configuration']=(req.width,req.height,req.minimum,req.maximum,req.enabled,title)
+            if req.kind in (15,17):
+                state['tracking_configuration']=(req.width,req.height,req.minimum,req.maximum,req.enabled,title)
             if req.kind in (10,12,13):state['dimensions']=(req.width,req.height)
             if req.kind==13:state['scale']=scale
             if req.kind == 5:
