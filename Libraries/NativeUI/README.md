@@ -1087,3 +1087,23 @@ disabled-field repaint mismatch after 299 passing checks. Its focused
 placeholder run passes, and Firefox passes the combined run. The shared
 provider/transport qualify their measured contracts; complete Chromium
 placeholder integration is not claimed until that failure is resolved.
+
+
+The shared provider now also hosts the original `NSStepper`, `NSColorWell`
+and `NSDatePicker`. Optional ABI 1/640 preserves the 600-byte prefix and
+adds capability discovery plus typed color/date models. Steppers reuse
+configuration, state and increment operations. Owned operations 55–58 carry
+color/date data; all three controls share the existing image/input/lifetime
+transport. Color wells also use the existing semantic activation operation.
+
+These controls render through the existing native backing store. A generic
+opt-in event forwarding mode retains views whose native `mouseDown` returns
+before `mouseUp`, preserving the original color well's event sequence and
+color panel. Native callbacks reject reentrant mutation and destruction;
+readback remains available. No stepping, date parsing/calendar arithmetic,
+color-panel UI, gesture threshold or drawing code is copied.
+
+See [specialized component qualification](specialized-qualification.json).
+Browser-specific specialized-control bindings, numeric editor composition,
+nullable date models, file panels and the broader app scope remain unfinished.
+The prior Chromium combined-run repaint gap remains open.

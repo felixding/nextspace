@@ -20,6 +20,8 @@ struct NXSViewHost {
   NSPoint pointer;
   BOOL injected_pointer;
   BOOL release_queued;
+  BOOL pointer_events;
+  NSResponder *pointer_target;
   unsigned dispatch_depth;
   int key_result;
   NSResponder *fallback;
@@ -71,7 +73,7 @@ static void end_draw_density(struct NXSDrawDensity *scope)
   if(scope->window){object_setClass(scope->window,scope->original);draw_density=scope->previous;[scope->window release];}
 }
 static BOOL native_backing(NSView *view)
-{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:[NSMatrix class]]||[view isKindOfClass:[NSBrowser class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
+{return [view isKindOfClass:[NSTextField class]]||[view isKindOfClass:[NSScrollView class]]||[view isKindOfClass:[NSPopUpButton class]]||[view isKindOfClass:[NSMatrix class]]||[view isKindOfClass:[NSBrowser class]]||[view isKindOfClass:[NSStepper class]]||[view isKindOfClass:[NSColorWell class]]||[view isKindOfClass:[NSDatePicker class]]||[view isKindOfClass:NSClassFromString(@"GSToolbarView")];}
 static NSView *focus_view(NXSViewHost *host)
 {return [host->view isKindOfClass:[NSScrollView class]]?[(NSScrollView *)host->view documentView]:host->view;}
 static NXSMenuLoop *menu_loop;
@@ -203,6 +205,8 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
   @try {
     switch([event type]) {
       case NSLeftMouseDown:[responder mouseDown:event];break;
+      case NSLeftMouseDragged:[responder mouseDragged:event];break;
+      case NSLeftMouseUp:[responder mouseUp:event];break;
       case NSScrollWheel:[responder scrollWheel:event];break;
       case NSKeyDown:
         /* Reuse the editor's native command menu, including its key equivalents
@@ -548,6 +552,13 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 
 void nxs_host_track(NXSViewHost *control, double x, double y, unsigned modifiers)
 {nxs_host_track_clicks(control,x,y,modifiers,1);}
+void nxs_host_pointer_events(NXSViewHost *host,int enabled)
+{if(host&&!nxs_host_tracking(host))host->pointer_events=!!enabled;}
+static void finish_pointer(NXSViewHost *host)
+{
+  host->tracking=NO;if(active==host)active=NULL;
+  [host->pointer_target release];host->pointer_target=nil;
+}
 int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifiers,unsigned clicks)
 {
   if (!control || active || menu_loop || !clicks || clicks>INT_MAX || !isfinite(x) || !isfinite(y)) return 0;
@@ -561,8 +572,13 @@ int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifi
   NSView *target=control->view;
   if([target isKindOfClass:[NSScrollView class]]||[target isKindOfClass:[NSBrowser class]]||[target isKindOfClass:NSClassFromString(@"GSToolbarView")])
     target=[target hitTest:[[target superview] convertPoint:[event locationInWindow] fromView:nil]];
-  @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:target]; }
-  @finally { control->tracking = NO; active = NULL; }
+  BOOL completed=NO;
+  if(control->pointer_events){control->pointer_target=[target retain];control->dispatch_depth++;}
+  @try { [(NXSApplication *)NSApp dispatchNativeEvent:event to:target];completed=YES; }
+  @finally {
+    if(control->pointer_events)control->dispatch_depth--;
+    if(!control->pointer_events||!completed||control->release_queued)finish_pointer(control);
+  }
   [pool drain];
   return 1;
 }
@@ -581,7 +597,11 @@ void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned
   }
   NSEvent *mouseEvent=mouse(control,event == NXS_RELEASE ? NSLeftMouseUp : NSLeftMouseDragged,x,y,modifiers);
   control->pointer=[mouseEvent locationInWindow];
-  [NSApp postEvent:mouseEvent atStart:NO];
+  if(control->pointer_events&&!control->dispatch_depth) {
+    BOOL completed=NO;control->dispatch_depth++;
+    @try {[(NXSApplication *)NSApp dispatchNativeEvent:mouseEvent to:control->pointer_target];completed=YES;}
+    @finally {control->dispatch_depth--;if(!completed||control->release_queued)finish_pointer(control);}
+  } else [NSApp postEvent:mouseEvent atStart:NO];
   [pool drain];
 }
 

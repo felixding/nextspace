@@ -866,3 +866,21 @@ disabled-field repaint mismatch after 299 passing checks. Its focused
 placeholder run passes, and Firefox passes the combined run. The shared
 provider/transport qualify their measured contracts; complete Chromium
 placeholder integration is not claimed until that failure is resolved.
+
+
+Shared specialized-control work now supplies original NSStepper, NSColorWell
+and NSDatePicker objects and typed color/date transport. Native rendering,
+calendar/stepper behavior and color-panel actions stay in AppKit. The common
+host now supports views that receive separate down/drag/up events, as well
+as existing NSCell tracking loops. See the [component qualification](../Libraries/NativeUI/specialized-qualification.json).
+
+This is the common dependency for the next browser adapters, not proof that
+number/date/time/color webpage inputs have been integrated. File panels,
+remaining webpage contracts, complete detached menus/native shortcuts and
+installed browser/derivative deployment remain open, followed by GTK/Qt/KDE
+using this same provider. Browser toolbars, address bars and tabs stay original.
+
+The test guest already has xdg-desktop-portal 1.20.3; the installed NEXTSPACE
+backend advertises ScreenCast only. A shared FileChooser backend using the
+original NSOpenPanel is a candidate common integration boundary for browsers
+and later toolkit apps. It has not been implemented or qualified here.

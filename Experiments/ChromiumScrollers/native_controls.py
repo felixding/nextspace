@@ -30,6 +30,14 @@ class ControlInputRequest(C.Structure):
         ('repeat', C.c_uint32), ('unmodified_size', C.c_uint32), ('focused', C.c_int32)]
 class ControlStepRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7]+[('step',C.c_double)]
+class ColorModel(C.Structure):
+    _fields_=[('size',C.c_uint32)]+[(name,C.c_double) for name in ('red','green','blue','alpha')]
+class DateModel(C.Structure):
+    _fields_=[(name,C.c_uint32) for name in ('size','flags','elements','style')]+[(name,C.c_double) for name in ('value','minimum','maximum')]
+class ControlColorRequest(C.Structure):
+    _fields_=ControlRequest._fields_[:7]+[(name,C.c_double) for name in ('red','green','blue','alpha')]
+class ControlDateRequest(C.Structure):
+    _fields_=ControlRequest._fields_[:7]+[(name,C.c_uint32) for name in ('flags','elements','style','padding')]+[(name,C.c_double) for name in ('value','minimum','maximum')]
 class ControlPopupRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7]+[('count',C.c_uint32),('selected',C.c_int32)]
 class ControlTextRequest(C.Structure):
@@ -195,6 +203,13 @@ class NativeControlServer:
                 native.nxs_control_list_selection.restype=C.c_size_t
                 native.nxs_control_list_item_rect.argtypes=[C.c_void_p,C.c_uint64];native.nxs_control_list_item_rect.restype=ControlRect
                 native.nxs_control_list_scroll.argtypes=[C.c_void_p,C.c_double,C.c_double];native.nxs_control_list_scroll.restype=C.c_int
+        self.specialized_capabilities=0
+        if hasattr(native,'nxs_control_specialized_capabilities'):
+            native.nxs_control_specialized_capabilities.restype=C.c_uint
+            self.specialized_capabilities=native.nxs_control_specialized_capabilities()
+            for name,model in [('color_sync',ColorModel),('color_get',ColorModel),('date_sync',DateModel),('date_get',DateModel)]:
+                method=getattr(native,'nxs_control_'+name)
+                method.argtypes=[C.c_void_p,C.POINTER(model)];method.restype=C.c_int
         self.activation_capabilities=0
         if hasattr(native,'nxs_control_activation_capabilities'):
             native.nxs_control_activation_capabilities.restype=C.c_uint
@@ -637,6 +652,8 @@ class NativeControlServer:
         if self.text_capabilities:kinds.extend(self.text_kinds)
         if self.tab_capabilities:kinds.append(10)
         if self.list_capabilities:kinds.append(13)
+        for kind,flag in [(15,1),(16,2),(17,4)]:
+            if self.specialized_capabilities&flag:kinds.append(kind)
         for kind in kinds:self.preferred(kind)
 
     def preferred(self, kind):
@@ -730,6 +747,9 @@ class NativeControlServer:
 
     def message(self, client, data, descriptors=(),sender_pid=None):
         if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
+        if len(data)>=8 and int.from_bytes(data[4:8],'little') in (55,56,57,58):
+            self.specialized_message(client,data)
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==47:
             if len(data)!=C.sizeof(ControlRadioItemRequest):return
             req=ControlRadioItemRequest.from_buffer_copy(data)
@@ -771,7 +791,7 @@ class NativeControlServer:
             req=ControlStepRequest.from_buffer_copy(data)
             if req.magic!=MAGIC or req.text_size:return
             state=self.controls.get((req.process,req.control,req.kind))
-            if state and not state['destroy'] and self.range_capabilities and self.native.nxs_control_set_step(state['native'],req.step):
+            if state and not state['destroy'] and state['client'] is client and self.range_capabilities and self.native.nxs_control_set_step(state['native'],req.step):
                 state['step']=req.step
                 self.log('native-slider-step',process=req.process,control=req.control,step=req.step)
                 self._respond(client,req,state,pixels=True)
@@ -800,7 +820,7 @@ class NativeControlServer:
             return
         key = req.process, req.control, req.kind
         state = self.controls.get(key)
-        if req.kind in (10,12,13) and state and state['client'] is not client:
+        if req.kind in (10,12,13,15,16,17) and state and state['client'] is not client:
             self._respond(client,req);return
         if state and state['destroy'] and req.operation != 5:
             self._respond(client, req)
@@ -809,7 +829,7 @@ class NativeControlServer:
             if req.kind==13 and (not req.process or not req.control or req.text_size or req.enabled not in (0,1) or
                     any((req.minimum,req.maximum,req.value,req.x,req.y,req.state,req.indeterminate,req.modifiers))):
                 self._respond(client,req);return
-            if (req.kind not in (*range(1,11),12,13,14) or (req.kind==14 and not self.text_capabilities&64) or (req.kind==13 and not self.list_capabilities) or (req.kind==12 and not self.radio_capabilities) or (req.kind==10 and not self.tab_capabilities) or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
+            if (req.kind not in (*range(1,11),12,13,14,15,16,17) or (req.kind>=15 and not self.specialized_capabilities&(1<<(req.kind-15))) or (req.kind==14 and not self.text_capabilities&64) or (req.kind==13 and not self.list_capabilities) or (req.kind==12 and not self.radio_capabilities) or (req.kind==10 and not self.tab_capabilities) or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
                 (req.kind in self.text_kinds and not self.text_capabilities) or
                 not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value))):
                 self._respond(client, req)
@@ -975,6 +995,7 @@ class NativeControlServer:
             elif req.operation in (3, 4):
                 if self.active is state:
                     self.native.nxs_control_send(state['native'], 0 if req.operation == 3 else 1, req.x, req.y, req.modifiers)
+                    self.finish_tracking(state)
                 elif req.operation==4 and state.get('starting'):
                     # A view may retire before its queued native mouseDown.
                     # No new press is accepted until this pending job drains.
@@ -982,9 +1003,10 @@ class NativeControlServer:
             elif req.operation == 6:
                 state['destroy'] = True
                 if self.active is state:
-                    self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
+                    if req.kind!=16:self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
-        self._respond(client, req, state, pixels=req.operation==5 and req.kind in (*self.text_kinds,10,12,13))
+                    self.finish_tracking(state)
+        self._respond(client, req, state, pixels=req.operation==5 and req.kind in (*self.text_kinds,10,12,13,15,16,17))
 
     def list_snapshot(self,state):
         value=self.native.nxs_control_list_state(state['native'])
@@ -1118,6 +1140,28 @@ class NativeControlServer:
         if accepted:state['scale']=req.scale
         self._respond(client,req,state,input_result=accepted,pixels=bool(accepted))
 
+    def specialized_message(self,client,data):
+        operation=int.from_bytes(data[4:8],'little')
+        layout=ControlColorRequest if operation==55 else ControlDateRequest if operation==57 else ControlRequest
+        if len(data)!=C.sizeof(layout):return
+        req=layout.from_buffer_copy(data)
+        if req.magic!=MAGIC:return
+        state=self.controls.get((req.process,req.control,req.kind))
+        if state and (state['destroy'] or state['client'] is not client):state=None
+        color=operation in (55,56);flag=2 if color else 4;kind=16 if color else 17
+        accepted=bool(state and req.kind==kind and not req.text_size and self.specialized_capabilities&flag)
+        model=(ColorModel if color else DateModel)(size=C.sizeof(ColorModel if color else DateModel))
+        if accepted:
+            if operation==55:
+                model.red,model.green,model.blue,model.alpha=req.red,req.green,req.blue,req.alpha
+                accepted=bool(self.native.nxs_control_color_sync(state['native'],C.byref(model)))
+            elif operation==57:
+                model.flags,model.elements,model.style=req.flags,req.elements,req.style
+                model.value,model.minimum,model.maximum=req.value,req.minimum,req.maximum
+                accepted=not req.padding and bool(self.native.nxs_control_date_sync(state['native'],C.byref(model)))
+            else:accepted=bool(getattr(self.native,'nxs_control_color_get' if color else 'nxs_control_date_get')(state['native'],C.byref(model)))
+        self._respond(client,req,state,input_result=int(bool(accepted)),pixels=bool(accepted and operation in (55,57)),payload=bytes(model) if accepted and operation in (56,58) else b'')
+
     def text_message(self,client,data):
         if len(data)<C.sizeof(ControlTextRequest):return
         req=ControlTextRequest.from_buffer_copy(data)
@@ -1208,8 +1252,12 @@ class NativeControlServer:
             if click_count is None:self.native.nxs_control_track(state['native'], x, y, modifiers)
             else:assert self.native.nxs_control_track_clicks(state['native'],x,y,modifiers,click_count)
         finally:
-            self.active = None
-        self.log('native-form-release', process=state['key'][0], control=state['key'][1], kind=state['key'][2], actions=state['actions'])
+            self.finish_tracking(state)
+
+    def finish_tracking(self,state):
+        if self.active is state and not self.native.nxs_control_state(state['native']).tracking:
+            self.active=None
+            self.log('native-form-release',process=state['key'][0],control=state['key'][1],kind=state['key'][2],actions=state['actions'])
 
     def disconnect(self, client):
         self.drop_menu_replies(client=client)
@@ -1224,8 +1272,9 @@ class NativeControlServer:
     def destroy_later(self,state):
         state['destroy']=True
         if self.active is state:
-            self.native.nxs_control_send(state['native'],0,-1,-1,0)
+            if state['key'][2]!=16:self.native.nxs_control_send(state['native'],0,-1,-1,0)
             self.native.nxs_control_send(state['native'],1,-1,-1,0)
+            self.finish_tracking(state)
 
     def cleanup(self):
         self.menus.cleanup()

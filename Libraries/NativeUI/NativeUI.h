@@ -23,8 +23,17 @@ enum { NXS_MOVE, NXS_RELEASE };
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
   NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR, NXS_RADIOGROUP,
-  NXS_LISTBOX, NXS_SEARCHFIELD
+  NXS_LISTBOX, NXS_SEARCHFIELD, NXS_STEPPER, NXS_COLORWELL, NXS_DATEPICKER
 };
+enum NXSSpecializedCapability { NXS_SPECIAL_STEPPER=1, NXS_SPECIAL_COLOR=2, NXS_SPECIAL_DATE=4 };
+typedef struct { uint32_t size; double red,green,blue,alpha; } NXSColorModel;
+enum NXSDateElements { NXS_DATE_YEAR_MONTH=1, NXS_DATE_YEAR_MONTH_DAY,
+  NXS_DATE_HOUR_MINUTE, NXS_DATE_HOUR_MINUTE_SECOND, NXS_DATE_DATE_AND_TIME };
+enum NXSDateStyle { NXS_DATE_TEXT_AND_STEPPER, NXS_DATE_CALENDAR, NXS_DATE_TEXT };
+enum NXSDateFlag { NXS_DATE_MINIMUM=1, NXS_DATE_MAXIMUM=2, NXS_DATE_UTC=4 };
+/* Date values are Unix seconds. App-specific parsing/validation stays with
+ * the application; the original native date control owns its UI and input. */
+typedef struct { uint32_t size,flags,elements,style; double value,minimum,maximum; } NXSDateModel;
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 /* Original native cell rectangles in control top-left coordinates. */
 enum NXSSearchPart { NXS_SEARCH_BUTTON=1, NXS_SEARCH_CANCEL, NXS_SEARCH_TEXT };
@@ -305,6 +314,11 @@ typedef struct {
   int (*control_item_at_point)(NXSControl *,double,double,uint64_t *);
   NXSRect (*control_search_part)(NXSControl *,int);
   int (*control_text_placeholder)(NXSControl *,const char *);
+  unsigned (*control_specialized_capabilities)(void);
+  int (*control_color_sync)(NXSControl *,const NXSColorModel *);
+  int (*control_color_get)(NXSControl *,NXSColorModel *);
+  int (*control_date_sync)(NXSControl *,const NXSDateModel *);
+  int (*control_date_get)(NXSControl *,NXSDateModel *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -313,6 +327,16 @@ typedef struct {
  * NEXTSPACE_NATIVE_UI_PROVIDER before the first call. */
 const NXSNativeUIAPI *nxs_native_ui_api(void);
 const char *nxs_native_ui_error(void);
+unsigned nxs_control_specialized_capabilities(void);
+/* Optional typed models for the original native color and date controls.
+ * All strings/formatters, drawing, field layout and tracking remain native.
+ * Mutations reject tracking/reentry. Getters remain available in callbacks.
+ * NSStepper uses control_sync and control_set_step; native input preferences
+ * and default wrapping/repeat behavior remain in NSStepper itself. */
+int nxs_control_color_sync(NXSControl *,const NXSColorModel *);
+int nxs_control_color_get(NXSControl *,NXSColorModel *);
+int nxs_control_date_sync(NXSControl *,const NXSDateModel *);
+int nxs_control_date_get(NXSControl *,NXSDateModel *);
 unsigned nxs_control_list_capabilities(void);
 /* Supply flat application rows to the original native list control. Unique,
  * nonzero identifiers and selection are data; native controls own navigation,
@@ -426,7 +450,7 @@ NXSRect nxs_control_radio_item_rect(NXSControl *,uint64_t identifier);
  * Native preferred sizes remain available through control_size. */
 int nxs_control_radio_cell_size(NXSControl *,double width,double height);
 /* Optional semantic activation for associated labels/accessibility adapters.
- * Native buttons take item=0; native radio matrices take an existing member ID.
+ * Native buttons and color wells take item=0; native radio matrices take an existing member ID.
  * Selection, state changes and action dispatch use original native methods.
  * Disabled controls/members, unsupported kinds, tracking and reentry reject it.
  * No mouse or keyboard event is invented; this does not move input focus. */

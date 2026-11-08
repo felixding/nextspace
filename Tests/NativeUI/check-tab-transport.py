@@ -12,6 +12,7 @@ p.add_argument('--previous-provider',type=Path)
 p.add_argument('--previous-group-provider',type=Path)
 p.add_argument('--previous-scroll-provider',type=Path,help='List provider without the optional shared scroll geometry')
 p.add_argument('--previous-item-hit-provider',type=Path,help='Provider without optional native item hit queries')
+p.add_argument('--specialized',action='store_true',help='Qualify shared native stepper/color/date model transport')
 p.add_argument('--placeholder',action='store_true',help='Qualify shared native placeholder transport')
 p.add_argument('--list',action='store_true',help='Qualify shared native list model/input/state transport')
 p.add_argument('--probe',type=Path,help='Use a separately built C transport probe')
@@ -45,7 +46,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
    assert a.list
    variants.append(('previous-item-hit',a.previous_item_hit_provider,120))
   for name,provider,density in variants:
-   if a.radio or a.list or a.placeholder:
+   if a.radio or a.list or a.placeholder or a.specialized:
     control.send(b'outputs');output=json.loads(control.recv(65536))[0]['name']
     control.send(f'test-scale {output} {density} 10000'.encode());assert json.loads(control.recv(65536))['ok']
     control.send(b'confirm');assert json.loads(control.recv(65536))['ok']
@@ -57,7 +58,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
     assert helper.poll() is None,(helper.returncode,(out/'helper.stderr').read_text())
     assert time.monotonic()<deadline,'Native host readiness';time.sleep(.02)
    with (out/'probe.stdout').open('w') as stdout,(out/'probe.stderr').open('w') as stderr:
-    arguments=([str(a.build/'native-ui/native-placeholder-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-placeholder'] if provider else [])] if a.placeholder else [str(a.probe or a.build/'native-ui/native-list-transport-probe'),str(endpoint),str(out),str(density/120),str(a.reference/str(density)),*(['--expect-no-item-hit' if name=='previous-item-hit' else '--expect-no-scroll' if name=='previous-scroll' else '--expect-no-list'] if provider else [])] if a.list else [str(a.probe or a.build/'native-ui/native-radio-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-radio'] if provider else [])] if a.radio else [str(a.build/'native-ui/native-tab-transport-probe'),str(endpoint),str(out),*(['--expect-no-tabs'] if provider else [])])
+    arguments=([str(a.build/'native-ui/native-specialized-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-specialized'] if provider else [])] if a.specialized else [str(a.build/'native-ui/native-placeholder-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-placeholder'] if provider else [])] if a.placeholder else [str(a.probe or a.build/'native-ui/native-list-transport-probe'),str(endpoint),str(out),str(density/120),str(a.reference/str(density)),*(['--expect-no-item-hit' if name=='previous-item-hit' else '--expect-no-scroll' if name=='previous-scroll' else '--expect-no-list'] if provider else [])] if a.list else [str(a.probe or a.build/'native-ui/native-radio-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-radio'] if provider else [])] if a.radio else [str(a.build/'native-ui/native-tab-transport-probe'),str(endpoint),str(out),*(['--expect-no-tabs'] if provider else [])])
     actor=subprocess.Popen(arguments,env=local,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=45)
     except subprocess.TimeoutExpired:stop(actor);raise
@@ -65,7 +66,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
    for event in events:
     if 'case' in event:check(name+'-'+event['case'],event['passed'])
     if event.get('event')=='image':
-     if a.radio or a.list or a.placeholder:source=a.reference/str(density)/(event['reference']+'-reference.png')
+     if a.radio or a.list or a.placeholder or a.specialized:source=a.reference/str(density)/(event['reference']+'-reference.png')
      else:
       case,render_density=event['name'].rsplit('-',1);source=a.reference/str(int(render_density)*120)/(case+'-reference.png')
      expected=Image.open(source).convert('RGB')
@@ -75,7 +76,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
      actual=Image.frombytes('RGBA',(event['width'],event['height']),(out/(event['name']+'.argb')).read_bytes(),'raw','BGRA',event['stride']);actual.save(out/(event['name']+'.png'))
      check(name+'-transport-'+event['name']+'-whole-native-desktop-pixels',actual.size==expected.size and actual.convert('RGB').tobytes()==expected.tobytes() and actual.getchannel('A').getextrema()==(255,255),reference=str(source))
    check(name+'-C-transport-probe-exit',code==0,exit=code,stderr=(out/'probe.stderr').read_text())
-   assert events[-1]['images']==(0 if provider else 24 if a.placeholder else 13 if a.list else 17+(4 if events[-1].get('semantic_activation') else 0) if a.radio else 10)
+   assert events[-1]['images']==(0 if provider else 12 if a.specialized else 24 if a.placeholder else 13 if a.list else 17+(4 if events[-1].get('semantic_activation') else 0) if a.radio else 10)
    check(name+'-helper-survives',helper.poll() is None);stop(helper)
  finally:
   for child in reversed(children[1:]):stop(child)

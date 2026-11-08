@@ -1,5 +1,10 @@
 /* GNUstep binding declarations, private to this provider. GPL-2.0-or-later. */
 #include "../NativeUI.h"
+unsigned nxs_gnustep_control_specialized_capabilities(void);
+int nxs_gnustep_control_color_sync(NXSControl *,const NXSColorModel *);
+int nxs_gnustep_control_color_get(NXSControl *,NXSColorModel *);
+int nxs_gnustep_control_date_sync(NXSControl *,const NXSDateModel *);
+int nxs_gnustep_control_date_get(NXSControl *,NXSDateModel *);
 int nxs_gnustep_control_perform_click(NXSControl *,uint64_t);
 int nxs_gnustep_control_list_items(NXSControl *,const NXSListItem *,uint32_t,unsigned,uint64_t);
 NXSListState nxs_gnustep_control_list_state(NXSControl *);

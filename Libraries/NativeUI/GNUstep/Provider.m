@@ -63,7 +63,10 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_scroll_geometry=nxs_gnustep_control_scroll_geometry,
     .control_item_at_point=nxs_gnustep_control_item_at_point,
     .control_search_part=nxs_gnustep_control_search_part,
-    .control_text_placeholder=nxs_gnustep_control_text_placeholder
+    .control_text_placeholder=nxs_gnustep_control_text_placeholder,
+    .control_specialized_capabilities=nxs_gnustep_control_specialized_capabilities,
+    .control_color_sync=nxs_gnustep_control_color_sync,.control_color_get=nxs_gnustep_control_color_get,
+    .control_date_sync=nxs_gnustep_control_date_sync,.control_date_get=nxs_gnustep_control_date_get
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

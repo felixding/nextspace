@@ -1,0 +1,29 @@
+{
+  "implementation": "Original AppKit controls via public methods; no copied UI algorithms",
+  "models": {
+    "stepper": "Original minValue/maxValue/increment/doubleValue; native default wrapping/repeat retained",
+    "color": "Original NSColor calibrated RGBA values, NSColorWell setColor:/color and NSColorPanel notifications",
+    "date": "Original NSDatePicker element/style/time-zone/date/bounds methods; no parser or calendar arithmetic"
+  },
+  "input": "Existing native host plus generic opt-in separate-event lifetime forwarding; original view methods remain unchanged",
+  "rendering": "Existing native backing-store readback; complete ordinary native desktop references",
+  "upstream_references": [
+    {
+      "url": "https://raw.githubusercontent.com/gnustep/libs-gui/master/Source/NSColorWell.m",
+      "path": ".build/native-ui/specialized-source/NSColorWell.m",
+      "sha256": "6b8e57d8fb1bea8cdb5d081b1eed88d5ce7ccbd70a6321e73f0b690968e99944",
+      "role": "upstream reference only; installed AppKit behavior independently verified live, not asserted to match this revision"
+    }
+  ],
+  "browser_integration_preparation": {
+    "symbols": ".build/native-ui/specialized-browser-symbols.log",
+    "chromium": "Original ColorInputType and ColorChooserUIController methods located; consumer not implemented",
+    "firefox": "Original color-picker callback and numeric model methods located; consumer not implemented"
+  },
+  "file_dialogs": {
+    "guest_portal_version": "1.20.3+ds-1",
+    "current_backend": "ScreenCast only; FileChooser unimplemented",
+    "configuration": "OS/Linux/usr/share/xdg-desktop-portal/nextspace-portals.conf",
+    "candidate": "Original NSOpenPanel behind a shared FileChooser backend; not qualified"
+  }
+}

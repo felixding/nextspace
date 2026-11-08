@@ -21,6 +21,9 @@ void nxs_host_track(NXSViewHost *host,double x,double y,unsigned modifiers);
 int nxs_host_track_clicks(NXSViewHost *host,double x,double y,unsigned modifiers,unsigned click_count);
 void nxs_host_send(NXSViewHost *host,int event,double x,double y,unsigned modifiers);
 int nxs_host_tracking(NXSViewHost *host);
+/* Opt into native views that return from mouseDown and receive later
+ * mouseDragged/mouseUp events, rather than running an NSCell tracking loop. */
+void nxs_host_pointer_events(NXSViewHost *,int enabled);
 int nxs_host_action(NXSViewHost *,void (*)(NSView *,void *),void *);
 int nxs_host_focus(NXSViewHost *host,int focused);
 int nxs_host_focused(NXSViewHost *host);

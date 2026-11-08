@@ -17,14 +17,15 @@ p.add_argument('--previous-scroll-provider',type=Path,help='List provider predat
 p.add_argument('--previous-item-hit-provider',type=Path,help='Provider predating optional native item hit queries')
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
+p.add_argument('--specialized',action='store_true',help='Qualify original native stepper/color/date controls')
 p.add_argument('--placeholder',action='store_true',help='Qualify original native field placeholders')
 p.add_argument('--popup-title',action='store_true',help='Qualify popup display titles with the same desktop capture harness')
 p.add_argument('--radio',action='store_true',help='Qualify shared native radio groups against ordinary matrices')
 p.add_argument('--list',action='store_true',help='Qualify shared native lists against ordinary NSBrowser controls')
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
-binary='native-placeholder-probe' if a.placeholder else 'native-list-probe' if a.list else 'native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
-reference_title='Native placeholder reference ' if a.placeholder else 'Native list reference ' if a.list else 'Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
-images=24 if a.placeholder else 13 if a.list else 13 if a.radio else 8 if a.popup_title else 5
+binary='native-specialized-probe' if a.specialized else 'native-placeholder-probe' if a.placeholder else 'native-list-probe' if a.list else 'native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
+reference_title='Native specialized reference ' if a.specialized else 'Native placeholder reference ' if a.placeholder else 'Native list reference ' if a.list else 'Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
+images=12 if a.specialized else 24 if a.placeholder else 13 if a.list else 13 if a.radio else 8 if a.popup_title else 5
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)
@@ -110,10 +111,10 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
   if a.previous_provider:
    old=dict(env,NEXTSPACE_NATIVE_UI_PROVIDER=str(a.previous_provider))
    with (a.output/'previous-provider.stdout').open('w') as stdout,(a.output/'previous-provider.stderr').open('w') as stderr:
-    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-placeholder' if a.placeholder else '--expect-no-list' if a.list else '--expect-no-radio' if a.radio else '--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
+    actor=subprocess.Popen([str(a.build/'native-ui'/binary),'--expect-no-specialized' if a.specialized else '--expect-no-placeholder' if a.placeholder else '--expect-no-list' if a.list else '--expect-no-radio' if a.radio else '--expect-no-popup-title' if a.popup_title else '--expect-no-tabs','-GSBackend','wayland'],env=old,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=15)
     except subprocess.TimeoutExpired:actor.kill();actor.wait();raise
-   rows.append(dict(case='previous-provider-without-'+('placeholders' if a.placeholder else 'lists' if a.list else 'radio-groups' if a.radio else 'popup-title' if a.popup_title else 'tabs'),passed=code==0))
+   rows.append(dict(case='previous-provider-without-'+('specialized' if a.specialized else 'placeholders' if a.placeholder else 'lists' if a.list else 'radio-groups' if a.radio else 'popup-title' if a.popup_title else 'tabs'),passed=code==0))
    (a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert code==0
   if a.previous_group_provider:
    assert a.radio

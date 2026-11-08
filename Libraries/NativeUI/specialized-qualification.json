@@ -1,0 +1,350 @@
+{
+  "status": "shared specialized components and transport; browser-specific consumers remain unfinished",
+  "api": {
+    "version": 1,
+    "size": 640
+  },
+  "prior_prefix": 600,
+  "specialized_capabilities": 7,
+  "shared_ui": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/specialized-04/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74448,
+      "sha256": "aaf3e7b624332a17e49acf2c473ab26a5b78a29acd94a6e8d8f5360b3ec91f2b"
+    },
+    "loader_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/specialized-04/native-ui/libnextspace-native-ui.so.0.1.repro",
+      "bytes": 74448,
+      "sha256": "aaf3e7b624332a17e49acf2c473ab26a5b78a29acd94a6e8d8f5360b3ec91f2b"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/specialized-04/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 334968,
+      "sha256": "b688df37f2ec5ac268926e974dbb113f276cddbc4b2633fc0b7f8a1208604118"
+    },
+    "provider_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/specialized-04/native-ui/libnextspace-native-ui-gnustep.so.0.1.repro",
+      "bytes": 334968,
+      "sha256": "b688df37f2ec5ac268926e974dbb113f276cddbc4b2633fc0b7f8a1208604118"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/specialized-04/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "0d64b4018c8d50f8ff1c75a3b35127e24d7c734fa7d3eeaefe3e8ab9113089df"
+    },
+    "shim_reproduction": {
+      "path": "/var/tmp/nextspace-native-ui/specialized-04/libnextspace-native-scroller.so.0.1.repro",
+      "bytes": 69968,
+      "sha256": "0d64b4018c8d50f8ff1c75a3b35127e24d7c734fa7d3eeaefe3e8ab9113089df"
+    }
+  },
+  "source_files": {
+    "Libraries/NativeUI/NativeUI.h": "0f326d6964a1f38b7b1b05b99b31b8be3cdc0c1162ad761ca6cb4f1aa99b8873",
+    "Libraries/NativeUI/Loader.c": "3f769ad8e6c0bddc760a8374e11234a570f844eb7b785b0515501b55cda40cf2",
+    "Libraries/NativeUI/GNUstep/Provider.h": "926706bcc0704c317afd50b1a5ed79d4430b0ac58674830026532b9900d5e01c",
+    "Libraries/NativeUI/GNUstep/Provider.m": "400377bd509ea43527ce42ca5559070328465b97e314f5b50ff55ba20185db7a",
+    "Libraries/NativeUI/GNUstep/Controls.m": "ee3ca811c9beb36ddde026a7c84eda9129c6a12c74457a9f003ffd11f5a23f6e",
+    "Libraries/NativeUI/GNUstep/Specialized.inc": "9f7cc7fb0621f46216b69db89972d64988d3d30dece6009c8d9cc25426cc324b",
+    "Libraries/NativeUI/GNUstep/ViewHost.h": "ca676691a6b3489302f00b059f59053c7b7a7b02074d748df5321bdf82fb8328",
+    "Libraries/NativeUI/GNUstep/ViewHost.m": "22258799425f7651070901cdcac2baa46b58000881ed699bbca568c1b64e8772",
+    "Libraries/NativeUI/Bridge/Protocol.h": "01a0c19aa8bfed51b6f620351c7375840a95615008a406d1753f690af1728c73",
+    "Libraries/NativeUI/Bridge/Specialized.inc": "ddbb320d5f84b566bda68a8ff4d723f2ca258d48d879b5a5f02abddd016110ad",
+    "Libraries/NativeUI/CMakeLists.txt": "02eb921871ee26430e617877765e0ca46b0ccbfa4b716a4e0e1853e4a0a679c6",
+    "Experiments/ChromiumScrollers/helper.py": "441312b35e9995210ded21c82b5ba489e0cf9c7ea2e07d0310d1729a3c96a07b",
+    "Experiments/ChromiumScrollers/native_controls.py": "ec3ac4bbf2ef82702259e071d759bf5494fcbc3dcc27aab1fdd240211cea8065",
+    "Tests/NativeUI/specialized-probe.m": "d7e9800fc8e9c14f31623df5d863bf2cab0c05f12c7acbedcb016705c10d4915",
+    "Tests/NativeUI/specialized-transport-probe.c": "0801d09762ef4ce1f1e2fa63ccaec365a8e18fa7f314113fe2d5feb060e9864b",
+    "Tests/NativeUI/check-tabs.py": "b6dc56d561f629c1f5693ce2146aa96bd8a8eebfaeff1ffab9575af5d4092b52",
+    "Tests/NativeUI/check-tab-transport.py": "c718e8dfc17e85ff31c9d861415fa94c4ebedf4415b1beed69ee3e32cefd9a58"
+  },
+  "native_components": [
+    "original NSStepper and NSStepperCell",
+    "original NSColorWell and NSColorPanel",
+    "original NSDatePicker and NSDatePickerCell"
+  ],
+  "contracts": {
+    "provider_checks": 85,
+    "provider_full_native_images": 24,
+    "provider_density": [
+      1,
+      2
+    ],
+    "transport_checks": 59,
+    "transport_full_native_images": 12,
+    "transport_density": [
+      1
+    ],
+    "existing_browser_search_retirement_checks": 8,
+    "existing_browser_full_native_images": 2,
+    "fresh_existing_native_probes": 7,
+    "old_client_loader_combinations": 4
+  },
+  "runs": {
+    "chromium_existing_search_retirement": {
+      "path": "/var/tmp/nxs-chromium-specialized-02/key-retirement",
+      "results": {
+        "path": "/var/tmp/nxs-chromium-specialized-02/key-retirement/button-results.json",
+        "bytes": 698,
+        "sha256": "3352fb704c3c539a93fc0b715f9a97bf96328fc4dd265b4ea54ae1ecf74951bd"
+      },
+      "checks": 4,
+      "native_images": 1
+    },
+    "firefox_existing_search_retirement": {
+      "path": "/var/tmp/nxs-firefox-specialized-02/key-retirement",
+      "results": {
+        "path": "/var/tmp/nxs-firefox-specialized-02/key-retirement/button-results.json",
+        "bytes": 699,
+        "sha256": "bbcc9a214070f654fa969cf6e425fd71a565a8fef53dc19b17dab44604fb78f1"
+      },
+      "checks": 4,
+      "native_images": 1
+    },
+    "provider": {
+      "path": "/var/tmp/nxs-specialized-provider-06",
+      "results": {
+        "path": "/var/tmp/nxs-specialized-provider-06/results.json",
+        "bytes": 8114,
+        "sha256": "74719e84fed965bd76fadf6c5af8e8bd23d38d92509434976c5d00cd8dd5d803"
+      },
+      "checks": 85,
+      "native_images": 24
+    },
+    "transport": {
+      "path": "/var/tmp/nxs-specialized-transport-04",
+      "results": {
+        "path": "/var/tmp/nxs-specialized-transport-04/results.json",
+        "bytes": 5933,
+        "sha256": "ab4d9cda69954293402bfe8729b1d150821a956ce5614ecb38bfd50a9fc1f3c8"
+      },
+      "checks": 59,
+      "native_images": 12
+    }
+  },
+  "event_forwarding": "Original responder receives down/drag/up; native tracking ownership remains until release. Native AppKit owns gestures, panel activation and controls.",
+  "color_activation": "Existing owned semantic operation 47 also invokes original NSColorWell performClick:",
+  "transport": {
+    "bootstrap": "part 2.width",
+    "stepper_kind": 15,
+    "color_kind": 16,
+    "date_kind": 17,
+    "color_sync": 55,
+    "color_get": 56,
+    "date_sync": 57,
+    "date_get": 58,
+    "existing_prefixes_preserved": true
+  },
+  "native_probes": [
+    {
+      "original_search_field_class": true,
+      "original_search_cell_class": true,
+      "native_button_and_text_geometry": true,
+      "native_preferred_size": true,
+      "provider_prefix_preserved": true,
+      "original_button_action_forwarded_once": true,
+      "native_activation_command_once": true,
+      "native_clear_deferred_until_commit": true,
+      "native_clear_commit_once": true,
+      "native_clear_uses_original_button_rect": true,
+      "unknown_clear_command_keeps_original_action": true
+    },
+    {
+      "older_search_provider_without_activation": true
+    },
+    {
+      "older_search_provider_without_clear_command": true
+    },
+    {
+      "native_text_controls": 3,
+      "selection_replace": true,
+      "delete": true,
+      "unicode": true,
+      "read_only": true,
+      "disabled": true,
+      "native_navigation": true,
+      "deferred_destruction": true,
+      "emacs_control_a_e": true,
+      "alt_copy_paste": true,
+      "secure_copy_blocked": true,
+      "native_return_action": true,
+      "native_caret_invalidation_and_pixels": true
+    },
+    {
+      "native_filter_controls": 3,
+      "pre_mutation_value": true,
+      "native_ranges_and_selectors": true,
+      "typing_veto": true,
+      "deletion_veto": true,
+      "cut_veto": true,
+      "paste_proposal": true,
+      "unicode": true,
+      "focus_transfer": true,
+      "model_rebind": true,
+      "reentrant_mutation_deferred": true,
+      "filter_removal": true
+    },
+    {
+      "native_keyboard_actions": 6,
+      "controls": 4,
+      "focus_transfer": true,
+      "navigation_requests": 8,
+      "disabled_actions": 0,
+      "deferred_destruction": true
+    },
+    {
+      "older_provider_without_search": true
+    }
+  ],
+  "old_clients": [
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-text-probe",
+      "loader": "specialized-04",
+      "result": {
+        "native_text_controls": 3,
+        "selection_replace": true,
+        "delete": true,
+        "unicode": true,
+        "read_only": true,
+        "disabled": true,
+        "native_navigation": true,
+        "deferred_destruction": true,
+        "emacs_control_a_e": true,
+        "alt_copy_paste": true,
+        "secure_copy_blocked": true,
+        "native_return_action": true,
+        "native_caret_invalidation_and_pixels": true
+      }
+    },
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-search-probe",
+      "loader": "specialized-04",
+      "result": {
+        "original_search_field_class": true,
+        "original_search_cell_class": true,
+        "native_button_and_text_geometry": true,
+        "native_preferred_size": true,
+        "provider_prefix_preserved": true,
+        "original_button_action_forwarded_once": true,
+        "native_activation_command_once": true,
+        "native_clear_deferred_until_commit": true,
+        "native_clear_commit_once": true,
+        "native_clear_uses_original_button_rect": true,
+        "unknown_clear_command_keeps_original_action": true
+      }
+    },
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-text-probe",
+      "loader": "clear-default-02",
+      "result": {
+        "native_text_controls": 3,
+        "selection_replace": true,
+        "delete": true,
+        "unicode": true,
+        "read_only": true,
+        "disabled": true,
+        "native_navigation": true,
+        "deferred_destruction": true,
+        "emacs_control_a_e": true,
+        "alt_copy_paste": true,
+        "secure_copy_blocked": true,
+        "native_return_action": true,
+        "native_caret_invalidation_and_pixels": true
+      }
+    },
+    {
+      "client": "/var/tmp/nextspace-native-ui/clear-default-02/native-ui/native-search-probe",
+      "loader": "clear-default-02",
+      "result": {
+        "original_search_field_class": true,
+        "original_search_cell_class": true,
+        "native_button_and_text_geometry": true,
+        "native_preferred_size": true,
+        "provider_prefix_preserved": true,
+        "original_button_action_forwarded_once": true,
+        "native_activation_command_once": true,
+        "native_clear_deferred_until_commit": true,
+        "native_clear_commit_once": true,
+        "native_clear_uses_original_button_rect": true,
+        "unknown_clear_command_keeps_original_action": true
+      }
+    }
+  ],
+  "sandbox": {
+    "chromium": [
+      {
+        "pid": 242371,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242384,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242385,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox": [
+      {
+        "pid": 242442,
+        "name": "WebExtensions",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242476,
+        "name": "file:// Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242516,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242528,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242532,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 242547,
+        "name": "Privileged Cont",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ]
+  },
+  "production_files_unchanged": 20,
+  "prior_sdk_files_unchanged": 3,
+  "package_count": 1050,
+  "live_owned": [],
+  "runtime_audit_sha256": "9867b257699092a861b2127eb498df49052d4ca267283f2e1842d7b425ce8fcc",
+  "evidence_archive": ".build/evidence/components/native-specialized-controls-20261108-v1-evidence.tar.gz",
+  "remaining": [
+    "browser-specific number/date/time/color model/default-action bindings",
+    "numeric editor composition and browser validation",
+    "nullable date model and broader date editing",
+    "file panels and FileChooser backend",
+    "previous Chromium combined-run disabled-field repaint mismatch",
+    "remaining native webpage control contracts",
+    "complete detached menus/native shortcuts and deployment",
+    "Chromium/Firefox derivatives",
+    "subsequent GTK/Qt/KDE integration"
+  ],
+  "browser_ui_scope": "Original address bars, toolbars and tabs; no new specialized browser consumer qualified"
+}

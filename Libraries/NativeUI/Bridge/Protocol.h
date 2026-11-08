@@ -309,4 +309,22 @@ struct NXSListWireState {
  * bytes (including empty); state=0 and no payload removes it. Native cells
  * own presentation. Reply part 3.x accepts the mutation, with native pixels.
  * Older providers advertise no capability and reject the request. */
+/* Bootstrap part 2.width advertises NXSSpecializedCapability. Kinds 15/16/17
+ * are original native stepper/color/date controls. Steppers use configure,
+ * input, state and step operation 10. Owned operations 55/57 synchronize
+ * color/date data; 56/58 use NXSControlRequest and return the corresponding
+ * public model with no bitmap. Accepted mutations return native pixels.
+ * Calendar and numeric behavior remain in the native UI library. */
+struct NXSControlColorRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved;
+  double red,green,blue,alpha;
+};
+struct NXSControlDateRequest {
+  uint32_t magic,operation,process,kind;
+  uint64_t control;
+  uint32_t text_size,reserved,flags,elements,style,padding;
+  double value,minimum,maximum;
+};
 #endif

@@ -217,3 +217,13 @@ NXSRect nxs_control_search_part(NXSControl *c,int part)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_search_part)?p->control_search_part(c,part):(NXSRect){0};}
 int nxs_control_text_placeholder(NXSControl *c,const char *value)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_text_placeholder)?p->control_text_placeholder(c,value):0;}
+unsigned nxs_control_specialized_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_specialized_capabilities)?p->control_specialized_capabilities():0;}
+int nxs_control_color_sync(NXSControl *c,const NXSColorModel *model)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_sync)?p->control_color_sync(c,model):0;}
+int nxs_control_color_get(NXSControl *c,NXSColorModel *model)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_get)?p->control_color_get(c,model):0;}
+int nxs_control_date_sync(NXSControl *c,const NXSDateModel *model)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_date_sync)?p->control_date_sync(c,model):0;}
+int nxs_control_date_get(NXSControl *c,NXSDateModel *model)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_date_get)?p->control_date_get(c,model):0;}

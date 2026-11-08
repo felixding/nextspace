@@ -20,6 +20,7 @@ struct NXSControl {
   void *text_filter_context;
   SEL text_command;
   NSString *text_value;
+  unsigned specialized_callback;
   BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
 };
 double nxs_gnustep_control_backing_scale(NXSControl *control)
@@ -232,8 +233,13 @@ static void slider_model(NXSControl *control)
     }
   }
   if(!control->changed)return;
+  BOOL specialized=control->kind>=NXS_STEPPER;
+  if(specialized)control->specialized_callback++;
   NXSControlState state=nxs_gnustep_control_state(control);
-  control->changed(control->context,(control->kind==NXS_SLIDER||control->kind==NXS_POPUP)?NXS_VALUE_CHANGED:NXS_ACTIVATE,&state);
+  @try {
+    control->changed(control->context,(control->kind==NXS_SLIDER||control->kind==NXS_POPUP||specialized)?NXS_VALUE_CHANGED:NXS_ACTIVATE,&state);
+  }
+  @finally {if(specialized)control->specialized_callback--;}
 }
 - (void)willPopUp:(NSNotification *)notification
 {nxs_host_bind_input_window(control->host,[[(NSPopUpButton *)control->view menu] window]);}
@@ -255,16 +261,23 @@ static void slider_model(NXSControl *control)
 #include "Toolbar.inc"
 #include "Radio.inc"
 #include "List.inc"
+#include "Specialized.inc"
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_SEARCHFIELD)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_DATEPICKER)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_LISTBOX) {
+  if(kind==NXS_STEPPER) {
+    view=[[NSStepper alloc] initWithFrame:NSMakeRect(0,0,24,24)];
+  } else if(kind==NXS_COLORWELL) {
+    view=[[NSColorWell alloc] initWithFrame:NSMakeRect(0,0,120,24)];
+  } else if(kind==NXS_DATEPICKER) {
+    view=[[NSDatePicker alloc] initWithFrame:NSMakeRect(0,0,180,24)];
+  } else if(kind==NXS_LISTBOX) {
     view=list_create(control);
   } else if(kind==NXS_RADIOGROUP) {
     view=radio_create(control);
@@ -306,6 +319,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   control->host=nxs_host_create(view,pump,context);control->view=view;[view release];
   if(!control->host){[control->target release];free(control);[pool drain];return NULL;}
   control->kind=kind;control->enabled=1;control->text_editable=YES;control->changed=changed;control->context=context;
+  if(kind==NXS_COLORWELL)nxs_host_pointer_events(control->host,1);
   control->text_selection=NSMakeRange(NSNotFound,0);
   if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR&&kind!=NXS_RADIOGROUP&&kind!=NXS_LISTBOX) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
@@ -326,7 +340,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
 int nxs_gnustep_control_destroy(NXSControl *control)
 {
   if(!control)return 1;
-  if(control->destroying)return 0;
+  if(control->destroying||control->specialized_callback)return 0;
   control->destroying=YES;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(control->kind==NXS_POPUP) {
@@ -341,12 +355,13 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   else if(text_control(control))[(NSTextField *)view setDelegate:nil];
   if(control->kind==NXS_POPUP||text_control(control))[[NSNotificationCenter defaultCenter] removeObserver:control->target];
   if(control->kind==NXS_PROGRESS)[(NSProgressIndicator *)view stopAnimation:nil];
+  if(control->kind==NXS_COLORWELL)[(NSColorWell *)view deactivate];
   [view release];
   [control->target release];[control->text_value release];free(control);[pool drain];return 1;
 }
 int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
 {
-  if(control&&(control->kind==NXS_RADIOGROUP||control->kind==NXS_LISTBOX)&&nxs_host_tracking(control->host))return 0;
+  if(control&&(control->specialized_callback||((control->kind==NXS_RADIOGROUP||control->kind==NXS_LISTBOX||control->kind>=NXS_STEPPER)&&nxs_host_tracking(control->host))))return 0;
   if(!control||!config||config->size<sizeof(*config)||!isfinite(config->width)||!isfinite(config->height)||
      config->width<1||config->height<1||config->width>32768||config->height>32768||
      !isfinite(config->minimum)||!isfinite(config->maximum)||!isfinite(config->value)||config->minimum>config->maximum||
@@ -378,7 +393,11 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     [control->view setNeedsDisplay:YES];
   } else {
     [(NSControl *)control->view setEnabled:control->enabled];
-    if(control->kind==NXS_SLIDER) {
+    if(control->kind==NXS_STEPPER) {
+      NSStepper *view=(NSStepper *)control->view;
+      [view setMinValue:config->minimum];[view setMaxValue:config->maximum];
+      [view setDoubleValue:config->value];
+    } else if(control->kind==NXS_SLIDER) {
       NSSlider *view=(NSSlider *)control->view;
       [view setAllowsTickMarkValuesOnly:NO];
       [view setMinValue:config->minimum];[view setMaxValue:config->maximum];[view setDoubleValue:config->value];
@@ -390,7 +409,7 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
       if(![[[view menu] window] isVisible]&&config->value!=[view indexOfSelectedItem]&&
          config->value>=-1&&config->value<[view numberOfItems]&&floor(config->value)==config->value)
         [view selectItemAtIndex:(NSInteger)config->value];
-    } else if(!text_control(control)) {
+    } else if(!text_control(control)&&control->kind!=NXS_COLORWELL&&control->kind!=NXS_DATEPICKER) {
       NSButton *view=(NSButton *)control->view;
       [view setTitle:title];[view setAllowsMixedState:control->kind==NXS_CHECKBOX&&config->state==-1];
       [view setState:config->state];
@@ -402,7 +421,7 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
 {
   NXSControlState state={.size=sizeof(state)};
   if(!control)return state;
-  state.enabled=control->enabled;state.tracking=nxs_host_tracking(control->host);
+  state.enabled=control->enabled;state.tracking=nxs_host_tracking(control->host)||control->specialized_callback;
   if(control->kind==NXS_LISTBOX) {
     state.value=[list_matrix(control) selectedRow];state.state=[[list_matrix(control) selectedCells] count]>0;
   } else if(control->kind==NXS_TOOLBAR) {
@@ -411,11 +430,13 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
   } else if(control->kind==NXS_RADIOGROUP) {
     state.value=radio_index(control,[(NSMatrix *)control->view selectedCell]);
     state.state=[[(NSMatrix *)control->view selectedCell] state];
-  } else if(control->kind==NXS_TABVIEW)state.value=nxs_gnustep_control_tab_state(control).selected_index;
+  } else if(control->kind==NXS_COLORWELL)state.state=[(NSColorWell *)control->view isActive];
+  else if(control->kind==NXS_DATEPICKER)state.value=[[(NSDatePicker *)control->view dateValue] timeIntervalSince1970];
+  else if(control->kind==NXS_TABVIEW)state.value=nxs_gnustep_control_tab_state(control).selected_index;
   else if(control->kind==NXS_PROGRESS)state.value=[(NSProgressIndicator *)control->view doubleValue];
   else if(!text_control(control)) {
     state.value=control->kind==NXS_POPUP?[(NSPopUpButton *)control->view indexOfSelectedItem]:[(NSControl *)control->view doubleValue];
-    if(control->kind!=NXS_SLIDER&&control->kind!=NXS_POPUP)state.state=[(NSButton *)control->view state];
+    if(control->kind!=NXS_SLIDER&&control->kind!=NXS_POPUP&&control->kind!=NXS_STEPPER)state.state=[(NSButton *)control->view state];
   }
   return state;
 }
@@ -424,7 +445,7 @@ NXSSize nxs_gnustep_control_size(NXSControl *control)
   if(!control)return (NXSSize){0};
   NSSize size=control->kind==NXS_RADIOGROUP?((NXSRadioAction *)control->target)->preferred:
     control->kind==NXS_TOOLBAR?NSMakeSize([control->view frame].size.width,[control->view _heightFromLayout]):control->kind==NXS_TABVIEW?[(NSTabView *)control->view minimumSize]:
-    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
+    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX||control->kind==NXS_COLORWELL)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
   return (NXSSize){size.width,size.height};
 }
 NXSBitmap nxs_gnustep_control_draw(NXSControl *control,double scale)
@@ -444,9 +465,11 @@ static void perform_native_search_clear(NSView *view,void *target)
 {[(NXSControlAction *)target performSearchClear];}
 int nxs_gnustep_control_perform_click(NXSControl *control,uint64_t item)
 {
-  if(!control||control->destroying||!control->enabled||nxs_host_tracking(control->host))return 0;
+  if(!control||control->destroying||control->specialized_callback||!control->enabled||nxs_host_tracking(control->host))return 0;
   if(control->kind==NXS_SEARCHFIELD)
     return item==NXS_SEARCH_CANCEL?nxs_host_action(control->host,perform_native_search_clear,control->target):0;
+  if(control->kind==NXS_COLORWELL)
+    return !item?nxs_host_action(control->host,perform_native_click,NULL):0;
   NSCell *member=nil;
   if(control->kind==NXS_RADIOGROUP) {
     NXSRadioAction *target=control->target;
@@ -482,9 +505,12 @@ int nxs_gnustep_control_needs_display(NXSControl *control)
 {return control?nxs_host_needs_display(control->host):0;}
 int nxs_gnustep_control_set_step(NXSControl *control,double step)
 {
-  if(!control||control->kind!=NXS_SLIDER||!isfinite(step)||step<0)return 0;
+  if(!control||(control->kind!=NXS_SLIDER&&control->kind!=NXS_STEPPER)||!isfinite(step)||step<0||
+     (control->kind==NXS_STEPPER&&(!step||control->destroying||control->specialized_callback||nxs_host_tracking(control->host))))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  control->step=step;slider_model(control);[pool drain];return 1;
+  control->step=step;
+  if(control->kind==NXS_STEPPER)[(NSStepper *)control->view setIncrement:step];else slider_model(control);
+  [pool drain];return 1;
 }
 int nxs_gnustep_control_popup_items(NXSControl *control,const NXSPopupItem *items,uint32_t count,int selected)
 {
