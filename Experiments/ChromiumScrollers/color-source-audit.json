@@ -1,0 +1,162 @@
+{
+  "status": "model and lifecycle bindings only; actual native controls remain in shared provider",
+  "sources": {
+    "Experiments/ChromiumScrollers/forms-color.inc": "5fc07b18ea121038923a33797934cee092257c7e14e371538ac7f8c3f2f2774e",
+    "Experiments/ChromiumScrollers/pinned-colors.h": "0ddd20c25d1279fb065ec86e585c3a6cf28f0a882927e3ec39bea0e0f2595c0c",
+    "Experiments/ChromiumScrollers/forms.inc": "602b07ef91e0f1359c0e949e3f882566e239a002a4868dafc758b6de8c54eed6",
+    "Experiments/ChromiumScrollers/forms-input.inc": "caea61f66ee65ad2530c8fdf3f3b7e3fd1109dfadb7790476c62bd23b088ec9a",
+    "Experiments/ChromiumScrollers/forms-progress.inc": "2c3eede46721826b5ff74ac59206987c2490c570f8b5b7cfce1770ecadacf6de",
+    "Experiments/ChromiumScrollers/hook.c": "9c162cb1eee51cecdf967576460282eaaf7dddbe6488c9a473512f509b39f38b",
+    "Experiments/ChromiumScrollers/helper.py": "6092c41b702de40a3933c734a1a33f91c0378eeb1db9a4c5130672f7b01afd58",
+    "Experiments/ChromiumScrollers/native_controls.py": "cc2974065a74ae5f99c6dcdff05d6356b92374c9fd2b84bf8fa5e1dd235cfb5d",
+    "Experiments/ChromiumScrollers/native-control-reference.py": "fa450cb0bae25088121b1ad10eddc7c7d486178cb122a24034ee1924c3305bd6",
+    "Experiments/ChromiumScrollers/check-button-sizing.py": "52db6d0d54c1b69ab03cd9515aa1526349775267506a65bf38f1a461fccfef2c",
+    "Libraries/NativeUI/NativeUI.h": "094d720442916d4499991171c2dd7225fb52d65027584de0f1b16c0cc5ec6d31",
+    "Libraries/NativeUI/Loader.c": "9fc255b44d5a4510f6514cca209f93848b5aa245c7ae45e6faa7d8f66b14d686",
+    "Libraries/NativeUI/GNUstep/Provider.h": "e5336ea04b36d643f4c83765132ff959a0e6eb25de31c2ef6b13e1ab1a2778a7",
+    "Libraries/NativeUI/GNUstep/Provider.m": "ae913df02129941260fab4bd35103a07258c503a6afcf1bf18616e43721d6e87",
+    "Libraries/NativeUI/GNUstep/Specialized.inc": "d95972d4b5c64a6a7c8e6478810e75abc48170808501531b4824f524472cb9a3",
+    "Libraries/NativeUI/Bridge/Protocol.h": "aedec077e572c040f20bd395ff417cfa3ec98c1e2dcd7d0583fd6f88b2adf2b8",
+    "Libraries/NativeUI/Bridge/ColorBinding.inc": "ee77f025c0edaaa14f5c48fca180b91452de6d555241e30c033896a911ea794a",
+    "Libraries/NativeUI/Bridge/Specialized.inc": "ddbb320d5f84b566bda68a8ff4d723f2ca258d48d879b5a5f02abddd016110ad",
+    "Tests/NativeUI/specialized-probe.m": "937b7cb05edc9183343691017ac43c7a99efc3f5d93ac376660b64a759fbea92",
+    "Tests/NativeUI/specialized-transport-probe.c": "fdd632ff1aeb8f2d26ff4f558d6dc2f92e9a3dd907581102ed9f4d6abee63dfa",
+    "Tests/Wayland/native-color-fields.html": "7b6d952147d955a04cdbefbd254715a0f8ccedf55e5858065b51792db28f1b19",
+    "Tests/Wayland/native_color_fields.py": "7e157b8f3a83b58f47f1a96196d0b2dc095f727c43111dfb519ff1eebec1fed5"
+  },
+  "pinned_calls": [
+    {
+      "name": "OPEN",
+      "offset": 242222768,
+      "bytes": "3f2303d5fd7bbea9f30b00f948ef01d0f30300aa"
+    },
+    {
+      "name": "END",
+      "offset": 242222844,
+      "bytes": "3f2303d5fd7bbea9f30b00f9fd030091f30300aa"
+    },
+    {
+      "name": "VISIBLE",
+      "offset": 149791628,
+      "bytes": "5f2403d5081c40f91f0100f1e0079f1ac0035fd6"
+    },
+    {
+      "name": "OWNER",
+      "offset": 242229516,
+      "bytes": "5f2403d508f3019008012491091480b9080140f9"
+    },
+    {
+      "name": "SET_VALUE",
+      "offset": 242228696,
+      "bytes": "3f2303d5ff0301d1fd7b02a9c8ef01f0fd830091"
+    },
+    {
+      "name": "SET_SELECTED",
+      "offset": 242235632,
+      "bytes": "3f2303d5ffc302d1fd7b08a9c8ef01b029ef01f0"
+    },
+    {
+      "name": "CURRENT",
+      "offset": 242377576,
+      "bytes": "3f2303d5ffc300d1fd7b01a929ee0190fd430091"
+    },
+    {
+      "name": "RGBA",
+      "offset": 248136532,
+      "bytes": "3f2303d5fd7bbea9f30b00f908e101f008612191"
+    },
+    {
+      "name": "UPDATE",
+      "offset": 242376864,
+      "bytes": "3f2303d5ffc300d1fd7b01a9a9ee01d028ee0190"
+    },
+    {
+      "name": "END_INTERFACE",
+      "offset": 242222984,
+      "bytes": "3f2303d5fd7bbea9f30b00f9f30300aa002000d1"
+    },
+    {
+      "name": "VISIBLE_INTERFACE",
+      "offset": 145383772,
+      "bytes": "5f2403d5081840f91f0100f1e0079f1ac0035fd6"
+    },
+    {
+      "name": "SELECTED_INTERFACE",
+      "offset": 242235912,
+      "bytes": "3f2303d5ffc302d1fd7b08a9c8ef01b029ef01f0"
+    }
+  ],
+  "original_sources": [
+    {
+      "name": "color_chooser_ui_controller.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_ui_controller.cc",
+      "bytes": 4222,
+      "sha256": "51b150d5edc7317041cd5aaf942815840439a87d9f192bb6551b48282b286e59"
+    },
+    {
+      "name": "color_chooser_ui_controller.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_ui_controller.h",
+      "bytes": 3375,
+      "sha256": "d005dc038b9e06e59a319455fe481424926dd21fc9a6716190178545f826b921"
+    },
+    {
+      "name": "color_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_input_type.cc",
+      "bytes": 17305,
+      "sha256": "65ff5cdec53ac8291d9d0fac0a730710b299b41b7c3489ee0b1cfbeed7062526"
+    },
+    {
+      "name": "color.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/graphics/color.h",
+      "bytes": 21091,
+      "sha256": "39c767472f22df483f80d8348e7910be283fb9a3b041984cded2dde4d1ebdda4"
+    },
+    {
+      "name": "nsColorPicker.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsColorPicker.cpp",
+      "bytes": 8078,
+      "sha256": "ab234d7c847ea8292185709b12a0ec3d8211fa1a87115fbfe0f1aa7b97db8288"
+    },
+    {
+      "name": "nsColorPicker.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsColorPicker.h",
+      "bytes": 2084,
+      "sha256": "ca6826a4bf6fe24396230af06270bf35712ffb8e2051118fb11941d21c857a33"
+    },
+    {
+      "name": "color_chooser_popup_ui_controller.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_popup_ui_controller.cc",
+      "bytes": 13290,
+      "sha256": "1f53312ff8f44052a0065321ebed374f93446e3388a63e28e18aba716ed864ab"
+    },
+    {
+      "name": "color_chooser_popup_ui_controller.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_popup_ui_controller.h",
+      "bytes": 3779,
+      "sha256": "9b4956c129e191cb83495a58675d3269ad9d5da42eb15c35e0875c7998a69f06"
+    },
+    {
+      "name": "nsBaseColorPicker.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsBaseColorPicker.cpp",
+      "bytes": 1802,
+      "sha256": "fc6647834053647bc6beeb8b8952c6070a6993e1515e1552d8b73e96b101bae0"
+    },
+    {
+      "name": "nsBaseColorPicker.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsBaseColorPicker.h",
+      "bytes": 1246,
+      "sha256": "ca54cc6eb72d8757d2b7c745c483419ec896e69fe697e2410161f684a3bf717c"
+    }
+  ],
+  "opaque_color_result": {
+    "bytes": 20,
+    "return_register": "AArch64 x8",
+    "conversion": "original Color::toSkColor4f"
+  },
+  "interface_adjustment": {
+    "bytes": 8,
+    "evidence": "original optimized EndChooser/IsPickerVisible/SetSelectedColor interface thunk disassembly"
+  },
+  "no_browser_rebuild": true,
+  "no_control_implementation_copy": true
+}

@@ -309,7 +309,7 @@ struct NXSListWireState {
  * bytes (including empty); state=0 and no payload removes it. Native cells
  * own presentation. Reply part 3.x accepts the mutation, with native pixels.
  * Older providers advertise no capability and reject the request. */
-/* Bootstrap part 2.width advertises NXSSpecializedCapability. Kinds 15/16/17
+/* Bootstrap part 1.x advertises NXSSpecializedCapability. Kinds 15/16/17
  * are original native stepper/color/date controls. Steppers use configure,
  * input, state and step operation 10. Owned operations 55/57 synchronize
  * color/date data; 56/58 use NXSControlRequest and return the corresponding
@@ -327,4 +327,7 @@ struct NXSControlDateRequest {
   uint32_t text_size,reserved,flags,elements,style,padding;
   double value,minimum,maximum;
 };
+/* Bootstrap part 1.y advertises native color-panel lifecycle. Owned
+ * operation 59 uses NXSControlRequest state=0/1 to close/open a color well's
+ * original panel. An inactive well never hides another well's panel. */
 #endif

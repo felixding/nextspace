@@ -1,6 +1,7 @@
 /* GNUstep binding declarations, private to this provider. GPL-2.0-or-later. */
 #include "../NativeUI.h"
 unsigned nxs_gnustep_control_specialized_capabilities(void);
+int nxs_gnustep_control_color_open(NXSControl *,int);
 int nxs_gnustep_control_color_sync(NXSControl *,const NXSColorModel *);
 int nxs_gnustep_control_color_get(NXSControl *,NXSColorModel *);
 int nxs_gnustep_control_date_sync(NXSControl *,const NXSDateModel *);

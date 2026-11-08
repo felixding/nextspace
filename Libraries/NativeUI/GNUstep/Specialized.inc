@@ -5,6 +5,17 @@ unsigned nxs_gnustep_control_specialized_capabilities(void)
 {return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE;}
 static int specialized_idle(NXSControl *control,int kind)
 {return control&&control->kind==kind&&!control->destroying&&!control->specialized_callback&&!nxs_host_tracking(control->host);}
+static void color_open(NSView *view,void *context)
+{
+  NSColorWell *well=(NSColorWell *)view;
+  if(context)[well activate:YES];
+  else if([well isActive]){[well deactivate];[[NSColorPanel sharedColorPanel] orderOut:nil];}
+}
+int nxs_gnustep_control_color_open(NXSControl *control,int open)
+{
+  if(!specialized_idle(control,NXS_COLORWELL)||(open&&!control->enabled))return 0;
+  return nxs_host_action(control->host,color_open,open?(void *)1:NULL);
+}
 int nxs_gnustep_control_color_sync(NXSControl *control,const NXSColorModel *model)
 {
   if(!specialized_idle(control,NXS_COLORWELL)||!model||model->size<sizeof(*model)||

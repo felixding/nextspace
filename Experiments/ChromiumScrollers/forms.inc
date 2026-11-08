@@ -62,6 +62,7 @@ static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
+static int forms_color_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
@@ -97,6 +98,10 @@ static struct NativeForm *find_form(const void *node) {
 }
 static struct NativeForm *bind_input_form(void *node);
 static int refresh_form_watch(void);
+static int color_watch_needed(void);
+static void color_native_work(int);
+static void color_forget(void *);
+static struct NXSResponse *sync_color_image(struct NativeForm *,struct NXSResponse *);
 static int sync_slider_model(struct NativeForm *);
 static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
 static int slider_mouse_default(void *,void *);
@@ -253,6 +258,7 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
   else {
     response=form_request(form,1,0,0,0);
     if(kind!=NXS_PROGRESS)response=sync_form_focus(form,response);
+    if(kind==NXS_COLORWELL)response=sync_color_image(form,response);
   }
   if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
      sizeof(*response)+(size_t)response->stride*response->height!=response->size){
@@ -285,7 +291,8 @@ static int paint_checkbox(void*s,const void*e,const void*d,const void*style,cons
 static int paint_radio(void*s,const void*e,const void*d,const void*style,const void*i,const struct Rect*r)
 {return paint_form(3,s,e,d,style,i,r)?original_radio(s,e,d,style,i,r):0;}
 static int paint_button(void*s,const void*e,const void*d,const void*style,const void*i,const struct Rect*r)
-{return paint_form(1,s,e,d,style,i,r)?original_button(s,e,d,style,i,r):0;}
+{int kind=forms_color_enabled&&input_form_kind((void *)e)==NXS_COLORWELL?NXS_COLORWELL:NXS_BUTTON;
+ return paint_form(kind,s,e,d,style,i,r)?original_button(s,e,d,style,i,r):0;}
 static struct SizeI native_form_size(void *self,int part) {
   if(part==9&&form_sizes[2].width>0)return form_sizes[2];
   if(part==10&&form_sizes[3].width>0)return form_sizes[3];
@@ -305,7 +312,7 @@ static void box_paint(void *self,const void *info) {
   struct NativeForm *form=node?find_form(node):NULL;if(form&&form->kind==NXS_LISTBOX&&!list_style(form->node))list_forget(form);
   native_parent=previous;
 }
-static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||text_kind(f->kind)||list_owned(f))&&f->painted);}
+static int native_button_parent(void) {struct NativeForm *f=form_ancestor(native_parent);return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_COLORWELL||text_kind(f->kind)||list_owned(f))&&f->painted);}
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
 static void block_children(void*s,const void*i,uint64_t offset)
@@ -458,7 +465,7 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
     click_form=NULL;
     void *node=target?((void *(*)(void *))(*(uintptr_t **)target)[9])(target):NULL;
     struct NativeForm *form=form_ancestor(node);
-    if(form&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
+    if(form&&form->kind!=NXS_COLORWELL&&!text_kind(form->kind)&&(form_enabled(form->node)||(forms_radio_groups_enabled&&form->kind==NXS_RADIO))) {
       form->enabled=1;form->state=form_state(form->node,form->kind);
       struct NXSResponse *sync=form_request(form,1,0,0,0);
       if(sync) {
@@ -539,6 +546,7 @@ static int dom_dispatch(void *dispatcher) {
   return result;
 }
 static void element_detach(void *node,int reattach) {
+  color_forget(node);
   struct NativeForm **cursor=&native_forms;
   while(*cursor&&(*cursor)->node!=node)cursor=&(*cursor)->next;
   struct NativeForm *form=*cursor;
@@ -562,6 +570,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-popups.inc"
 #include "forms-progress.inc"
 #include "forms-text.inc"
+#include "forms-color.inc"
 #include "forms-lists.inc"
 #include "forms-text-scroll.inc"
 #include "forms-wheel.inc"
@@ -581,6 +590,7 @@ static struct Detour form_detours[]={
 static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_labels_enabled||prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours)))&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
+  (!forms_color_enabled||(guard_color_calls()&&prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours))))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
   (!forms_lists_enabled||(guard_list_calls()&&guard_list_hit_calls()&&prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))&&
@@ -590,6 +600,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
 static void activate_forms(void){if(forms_labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));activate_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours));activate_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours));activate_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours));
   if(forms_input_enabled){activate_form_input();activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));}
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
+  if(forms_color_enabled)activate_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours));
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));
   if(forms_lists_enabled)activate_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours));

@@ -1245,3 +1245,21 @@ disabled-field repaint mismatch after 299 passing checks. Its focused
 placeholder run passes, and Firefox passes the combined run. The shared
 provider/transport qualify their measured contracts; complete Chromium
 placeholder integration is not claimed until that failure is resolved.
+
+
+### Native color inputs
+
+`NEXTSPACE_CHROMIUM_COLORS=1` opts the exact guarded Chromium build into the
+shared NSColorWell/NSColorPanel binding. Browser toolbars, address bars and tabs
+remain original. The adapter calls Blink's existing chooser/parser/model/event
+boundaries; the shared bridge owns only typed color data and native picker
+lifetime. It adds no widget implementation or browser rebuild.
+
+The focused suite is `check-button-sizing.py --fixture <owned-fixture>
+--colors-only`. It passes 16 checks and six complete native images, including
+real native wheel selection, trusted input/change, cancelled clicks, disabled
+controls, script updates, owner retirement, one shared panel and original
+keyboard activation. See [qualification](color-qualification.json) for exact
+binaries and limits. Firefox color binding, wide-gamut/alpha coverage, pointer
+feedback/dragging, suggestions/eyedropper, native palette ownership behavior,
+host recovery, broader scales/styles/accessibility and deployment remain open.

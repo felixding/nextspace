@@ -13,6 +13,7 @@ parser.add_argument('--search-only',action='store_true',help='Run real GNUstep s
 parser.add_argument('--search-actions-only',action='store_true',help='Compare native search activation with original form actions')
 parser.add_argument('--search-clear-only',action='store_true',help='Check native clear actions after cancellable click dispatch')
 parser.add_argument('--placeholders-only',action='store_true',help='Check original native field placeholders')
+parser.add_argument('--colors-only',action='store_true',help='Check native color well/panel and original engine callbacks')
 parser.add_argument('--search-notifications-only',action='store_true',help='Compare native clear search events with the original engine')
 options=parser.parse_args();root=options.fixture.resolve();rows=[]
 def command(text):
@@ -42,11 +43,16 @@ def origin():
 fixture=PopupFixture(root,command,js,check,pid,origin,reset)
 try:
  fixture.wait(window);assert command('focus '+str(window()['id']))['ok']
- if not (options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only or options.search_notifications_only or options.placeholders_only):
+ if not (options.text_types_only or options.email_only or options.search_only or options.search_actions_only or options.search_clear_only or options.search_notifications_only or options.placeholders_only or options.colors_only):
   cdp('Page.navigate',dict(url=Path(__file__).with_name('test-button-sizing.html').resolve().as_uri()))
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"))
   from button_sizing import ButtonFixture,run as buttons
   fixture=ButtonFixture(root,command,js,check,pid,origin,reset);buttons(fixture)
+ if options.colors_only:
+  cdp('Page.navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-color-fields.html').as_uri()))
+  fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native color fields'"))
+  from native_color_fields import ColorFixture,run as color_checks
+  color_output=root/'colors';color_output.mkdir();color_checks(ColorFixture(color_output,command,js,check,pid,origin,reset))
  if options.text_regression:
   cdp('Page.navigate',dict(url=Path(__file__).with_name('test-text.html').resolve().as_uri()))
   fixture.wait(lambda:js("return document.readyState==='complete'&&document.title==='Blink native text transport'"))

@@ -9,6 +9,7 @@
 static void note(const char *message){fprintf(stderr,"%s\n",message);}
 #include "Bridge/Transport.inc"
 #include "Bridge/Specialized.inc"
+#include "Bridge/ColorBinding.inc"
 _Static_assert(sizeof(struct NXSControlColorRequest)==64,"Color wire layout");
 _Static_assert(sizeof(struct NXSControlDateRequest)==72,"Date wire layout");
 static unsigned checks,images;
@@ -61,6 +62,13 @@ int main(int argc,char **argv)
   r=native_control_perform_click(NXS_COLORWELL,1,0);check("native-color-semantic-action-uses-existing-transport",r&&r->parts[0].height==0);
   pointer.operation=2;r=exchange_bytes(&pointer,sizeof(pointer));assert(r);
   pointer.operation=4;pointer.x=pointer.y=-1;r=exchange_bytes(&pointer,sizeof(pointer));check("native-outside-release-cancels-panel-activation",r&&!r->parts[0].y&&!r->parts[0].height);
+  struct NXSColorBinding binding={0};
+  check("shared-native-color-session-open",native_color_binding_open(&binding,1,&colors[0]));
+  int open=0;NXSColorModel selected;
+  check("shared-native-color-session-original-state",native_color_binding_poll(&binding,&selected,&open)==0&&open);
+  foreign(argv[1],NXS_COLORWELL,59);
+  native_color_binding_end(&binding);
+  check("shared-native-color-session-close",!binding.open&&request(5,NXS_COLORWELL,1)->parts[0].height==0);
   foreign(argv[1],NXS_COLORWELL,56);request(6,NXS_COLORWELL,1);check("retired-color-owner-rejected",!native_color_sync(1,&colors[0]));
   request(1,NXS_DATEPICKER,1);
   for(unsigned i=1;i<=7;i++) {

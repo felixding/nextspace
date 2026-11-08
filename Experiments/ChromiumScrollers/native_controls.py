@@ -204,6 +204,11 @@ class NativeControlServer:
                 native.nxs_control_list_item_rect.argtypes=[C.c_void_p,C.c_uint64];native.nxs_control_list_item_rect.restype=ControlRect
                 native.nxs_control_list_scroll.argtypes=[C.c_void_p,C.c_double,C.c_double];native.nxs_control_list_scroll.restype=C.c_int
         self.specialized_capabilities=0
+        self.color_panel_capabilities=0
+        if hasattr(native,'nxs_control_color_panel_capabilities'):
+            native.nxs_control_color_panel_capabilities.restype=C.c_uint
+            self.color_panel_capabilities=native.nxs_control_color_panel_capabilities()
+            native.nxs_control_color_open.argtypes=[C.c_void_p,C.c_int];native.nxs_control_color_open.restype=C.c_int
         if hasattr(native,'nxs_control_specialized_capabilities'):
             native.nxs_control_specialized_capabilities.restype=C.c_uint
             self.specialized_capabilities=native.nxs_control_specialized_capabilities()
@@ -925,6 +930,10 @@ class NativeControlServer:
                 accepted=bool(self.item_hit_capabilities&1 and state['client'] is client and
                     self.native.nxs_control_item_at_point(state['native'],req.x,req.y,C.byref(identifier)))
                 self._respond(client,req,state,input_result=int(accepted),payload=bytes(identifier) if accepted else b'')
+                return
+            if req.operation==59:
+                accepted=bool(req.kind==16 and not req.text_size and req.state in (0,1) and self.color_panel_capabilities and state['client'] is client and self.native.nxs_control_color_open(state['native'],req.state))
+                self._respond(client,req,state,input_result=int(accepted),pixels=accepted)
                 return
             if req.operation==54:
                 text=data[C.sizeof(req):]

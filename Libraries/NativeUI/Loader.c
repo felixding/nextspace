@@ -227,3 +227,7 @@ int nxs_control_date_sync(NXSControl *c,const NXSDateModel *model)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_date_sync)?p->control_date_sync(c,model):0;}
 int nxs_control_date_get(NXSControl *c,NXSDateModel *model)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_date_get)?p->control_date_get(c,model):0;}
+unsigned nxs_control_color_panel_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?1:0;}
+int nxs_control_color_open(NXSControl *c,int open)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?p->control_color_open(c,open):0;}

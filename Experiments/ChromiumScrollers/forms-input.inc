@@ -31,6 +31,7 @@ static int input_form_kind(void *node) {
   if(!type)return 0;
   int kind=!strcmp(type,"checkbox")?NXS_CHECKBOX:!strcmp(type,"radio")?NXS_RADIO:
     (forms_sliders_enabled&&!strcmp(type,"range"))?NXS_SLIDER:
+    (forms_color_enabled&&!strcmp(type,"color"))?NXS_COLORWELL:
     (forms_search_enabled&&!strcmp(type,"search"))?NXS_SEARCHFIELD:
     (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")||!strcmp(type,"email")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
@@ -135,6 +136,7 @@ static char *keyboard_text(const void *web,int offset,const char *fallback) {
 static int default_form_key(void *node,void *event) {
   if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_KEYBOARD))return 0;
   struct NativeForm *text_form=find_form(node);
+  if(text_form&&text_form->kind==NXS_COLORWELL)return 0;
   if(text_form&&text_kind(text_form->kind))return default_text_key(node,event);
   unsigned short *flags=(unsigned short *)((char *)event+32);
   if(!(*flags&0x100)||(*flags&0x60))return 0;

@@ -319,6 +319,7 @@ typedef struct {
   int (*control_color_get)(NXSControl *,NXSColorModel *);
   int (*control_date_sync)(NXSControl *,const NXSDateModel *);
   int (*control_date_get)(NXSControl *,NXSDateModel *);
+  int (*control_color_open)(NXSControl *,int);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -328,6 +329,10 @@ typedef struct {
 const NXSNativeUIAPI *nxs_native_ui_api(void);
 const char *nxs_native_ui_error(void);
 unsigned nxs_control_specialized_capabilities(void);
+unsigned nxs_control_color_panel_capabilities(void);
+/* Explicit native color-panel lifecycle. Closing only hides the panel when
+ * this well owns it; another well's original native ownership is preserved. */
+int nxs_control_color_open(NXSControl *,int open);
 /* Optional typed models for the original native color and date controls.
  * All strings/formatters, drawing, field layout and tracking remain native.
  * Mutations reject tracking/reentry. Getters remain available in callbacks.

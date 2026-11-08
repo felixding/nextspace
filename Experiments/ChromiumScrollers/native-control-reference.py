@@ -7,7 +7,7 @@ import math
 from pathlib import Path
 from PIL import Image
 from helper import Bitmap, Pump, Response
-from native_controls import ControlRect, NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem
+from native_controls import ControlRect, NativeControlServer, ControlConfig, ControlChanged, KeyEvent, PopupItem,TextModel,TextState,TextGeometry,WheelEvent,TextShouldChange,RadioItem,ListItem,ColorModel
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--library', type=Path, required=True)
@@ -61,6 +61,9 @@ for item in json.loads(args.controls.read_text()):
                                item.get('minimum',0), item.get('maximum',1), item.get('value',item['state']),
                                item['enabled'], item['state'], item.get('indeterminate',0), title)
         assert native.nxs_control_sync(pointer, C.byref(config))
+        if item['kind']==16:
+            color=ColorModel(C.sizeof(ColorModel),*item['rgba'])
+            assert native.nxs_control_color_sync(pointer,C.byref(color))
         if item['kind']==12:
             entries=(RadioItem*len(item['items']))(*[RadioItem(C.sizeof(RadioItem),entry['id'],b'',entry['enabled']) for entry in item['items']])
             assert native.nxs_control_radio_items(pointer,entries,len(entries),1,item['selected'],item['key_cell'])
@@ -195,7 +198,7 @@ for item in json.loads(args.controls.read_text()):
             frame=native.nxs_control_popup_state(pointer).frame
             results[-1]['native_menu_frame']={key:getattr(frame,key) for key in ('x','y','width','height')}
             assert native.nxs_control_popup_open(pointer,0)
-        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12,13,14):
+        if item['enabled'] and item['kind'] not in (5,6,7,8,9,12,13,14,16):
             native.nxs_control_track(pointer, config.width / 2, config.height / 2, 0)
         if args.keys and item['enabled'] and item['kind']==4:
             assert native.nxs_control_sync(pointer,C.byref(config))

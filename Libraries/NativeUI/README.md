@@ -1107,3 +1107,18 @@ See [specialized component qualification](specialized-qualification.json).
 Browser-specific specialized-control bindings, numeric editor composition,
 nullable date models, file panels and the broader app scope remain unfinished.
 The prior Chromium combined-run repaint gap remains open.
+
+
+The shared color-panel lifetime extension appends `control_color_open` at
+offset 640 (API 1/648), preserving the previous specialized prefix. It invokes
+the original NSColorWell activate/deactivate methods and shared NSColorPanel;
+closing an inactive well does not hide another well's panel. Owned operation 59
+and `Bridge/ColorBinding.inc` let application adapters reuse that lifetime and
+canonical color model without copying any picker UI. Bootstrap part 1.x/1.y
+advertise specialized/color-panel support without overwriting radio dimensions.
+
+The first consumer is the opt-in exact Chromium sRGB color-input binding. See
+[its qualification](../../Experiments/ChromiumScrollers/color-qualification.json)
+for measured rendering, events, ownership and remaining limitations. Firefox,
+number/date/time/file bindings, remaining menus/shortcuts and subsequent
+GTK/Qt/KDE integration remain part of the active application-wide objective.

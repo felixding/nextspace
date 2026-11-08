@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>Native color fields</title>
+<style>body{background:white;margin:36px;font:16px sans-serif}input{width:140px;height:36px}</style>
+<p>Native color wells and shared GNUstep color panel</p>
+<input id="normal" type="color" value="#4080c0">
+<input id="second" type="color" value="#c08040">
+<input id="disabled" type="color" disabled value="#4080c0">
+<script>
+window.events=[];
+for(const element of document.querySelectorAll('input'))
+  for(const type of ['input','change'])element.addEventListener(type,event=>
+    events.push({id:element.id,type,value:element.value,trusted:event.isTrusted}));
+</script>

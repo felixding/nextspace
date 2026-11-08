@@ -884,3 +884,29 @@ The test guest already has xdg-desktop-portal 1.20.3; the installed NEXTSPACE
 backend advertises ScreenCast only. A shared FileChooser backend using the
 original NSOpenPanel is a candidate common integration boundary for browsers
 and later toolkit apps. It has not been implemented or qualified here.
+
+The pinned Chromium adapter now binds sRGB color inputs to that same native
+NSColorWell and the original shared NSColorPanel. Original Blink methods retain
+color parsing, canonical values, user activation, cancellable clicks and trusted
+input/change events. The shared bridge carries color data and picker lifetime;
+it implements no color picker, swatch drawing or selection algorithm.
+
+The optional provider method appends at offset 640 (API 1/648). Bootstrap
+capabilities use part 1.x/1.y; part 2.width/height already contain radio sizes
+and cannot advertise another capability. Guarded complete-object and optimized
+virtual-interface entry points both need bindings in this exact Chromium build.
+
+See [Chromium color qualification](../Experiments/ChromiumScrollers/color-qualification.json):
+16 focused browser checks with six complete native images, 97 provider checks
+with 24 images and 63 transport checks with 12 images. Existing Chromium and
+Firefox key-retirement smoke cohorts pass against the extended provider.
+
+This remains opt-in, exact-build, scale-1 browser integration. Firefox color
+bindings, alpha/wide-gamut coverage, native pointer/drag feedback, color
+suggestions/eyedropper, host recovery and broader styles/scales/accessibility
+are unfinished. The installed native panel's bottom palette wells can deactivate
+the owning well; wheel selection is qualified, while that palette behavior
+remains unresolved in the underlying native UI. Number/date/time/file inputs,
+the earlier combined Chromium disabled-field repaint mismatch, remaining
+detached menus/native shortcuts and deployment also remain open. The full
+browser-first, then GTK/Qt/KDE objective is active.

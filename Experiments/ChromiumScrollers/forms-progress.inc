@@ -71,6 +71,7 @@ static void *watch_native_forms(void *unused) {
 static int refresh_form_watch(void) {
   if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
   int needed=active_form&&active_form->kind==NXS_SLIDER;double generation=needed?active_form->generation:0;
+  if(color_watch_needed())needed=1;
   if(views_watch_needed())needed=1;
   if(tabs_watch_needed())needed=1;
   if(app_menus_watch_needed())needed=1;
@@ -123,6 +124,7 @@ static void form_native_work(void *controller) {
   views_native_work(failed);
   tabs_native_work(failed);
   app_menus_native_work(failed);
+  color_native_work(failed);
   if(failed){
     if(active_form)finish_form(-10000,-10000,0);
     for(;;){struct NativeForm *popup=native_forms;

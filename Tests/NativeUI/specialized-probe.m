@@ -11,6 +11,7 @@
 #include <poll.h>
 #include <unistd.h>
 _Static_assert(offsetof(NXSNativeUIAPI,control_specialized_capabilities)==600,"Preserve provider prefix");
+_Static_assert(offsetof(NXSNativeUIAPI,control_color_open)==640,"Preserve specialized provider prefix");
 struct Probe {NXSControl *control;NSControl *native;int kind,actions,released;double x,y,scale;const char *directory;};
 static unsigned checks,images;static IMP original_init;static NSControl *observed;
 static id witness_init(id self,SEL selector,NSRect rect)
@@ -24,7 +25,7 @@ static void changed(void *context,int event,const NXSControlState *state)
   NXSControlConfig config={.size=sizeof(config),.width=260,.height=24,.enabled=1};
   assert(!nxs_control_sync(p->control,&config));
   if(p->kind==NXS_STEPPER)assert(!nxs_control_set_step(p->control,2));
-  if(p->kind==NXS_COLORWELL){NXSColorModel m={.size=sizeof(m)};assert(nxs_control_color_get(p->control,&m));assert(!nxs_control_color_sync(p->control,&m));assert(!nxs_control_perform_click(p->control,0));}
+  if(p->kind==NXS_COLORWELL){NXSColorModel m={.size=sizeof(m)};assert(nxs_control_color_get(p->control,&m));assert(!nxs_control_color_sync(p->control,&m));assert(!nxs_control_perform_click(p->control,0));assert(!nxs_control_color_open(p->control,1));}
   if(p->kind==NXS_DATEPICKER){NXSDateModel m={.size=sizeof(m)};assert(nxs_control_date_get(p->control,&m));assert(!nxs_control_date_sync(p->control,&m));}
 }
 static void release_pointer(void *context)
@@ -94,6 +95,15 @@ int main(int argc,char **argv)
     NXSColorModel invalid=colors[i];invalid.red=NAN;check("invalid-color-rejected",!nxs_control_color_sync(color.control,&invalid));
     char name[32];snprintf(name,sizeof(name),"color-%u",i);compare(&color,well,name);
   }
+  check("native-color-panel-capability",nxs_control_color_panel_capabilities()==1);
+  check("disabled-native-color-panel-rejected",!nxs_control_color_open(color.control,1));
+  configure(&color,120,24,1);
+  check("explicit-open-uses-original-color-panel",nxs_control_color_open(color.control,1)&&[(NSColorWell *)color.native isActive]&&[[NSColorPanel sharedColorPanel] isVisible]);
+  struct Probe other=create(NXS_COLORWELL,[NSColorWell class],argv[1],scale);configure(&other,120,24,1);
+  assert(nxs_control_color_open(other.control,1));
+  check("closing-inactive-well-preserves-current-owner",nxs_control_color_open(color.control,0)&&![(NSColorWell *)color.native isActive]&&[(NSColorWell *)other.native isActive]&&[[NSColorPanel sharedColorPanel] isVisible]);
+  check("closing-current-owner-hides-original-panel",nxs_control_color_open(other.control,0)&&![(NSColorWell *)other.native isActive]&&![[NSColorPanel sharedColorPanel] isVisible]);
+  assert(nxs_control_destroy(other.control));
   assert(nxs_control_destroy(color.control));[well release];
 
   struct Probe date=create(NXS_DATEPICKER,[NSDatePicker class],argv[1],scale);configure(&date,260,24,1);
