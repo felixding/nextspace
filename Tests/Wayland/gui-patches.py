@@ -2,6 +2,7 @@
 """Check clean application, repeat application and false cache-marker rejection."""
 import argparse
 import hashlib
+import json
 from pathlib import Path
 import subprocess
 import tempfile
@@ -22,6 +23,9 @@ def run(repo, archive):
         assert (root / "Source/NSApplication.m").read_bytes() == original
         marker.unlink()
         subprocess.run(["sh", str(helper), str(root), "1"], check=True, capture_output=True)
+        date_source = json.loads((repo / "Libraries/gnustep/patches/gui-0_32_0-date-picker.json").read_text())
+        for entry in date_source['files']:
+            assert hashlib.sha256((root / entry['path']).read_bytes()).hexdigest() == entry['sha256'], entry['path']
         header = root / "Headers/Additions/GNUstepGUI/GSPasteboardServer.h"
         assert "GSPasteboardDidChangeNotification" in header.read_text()
         before = {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest()

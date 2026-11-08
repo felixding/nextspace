@@ -1,0 +1,44 @@
+--- a/Source/NSCalendar.m
++++ b/Source/NSCalendar.m
+@@ -871,6 +871,41 @@
+                  inUnit: (NSCalendarUnit) larger
+                 forDate: (NSDate *) date
+ {
++#if GS_USE_ICU == 1
++  UErrorCode err = U_ZERO_ERROR;
++  UCalendarDateFields field;
++  int32_t minimum, maximum;
++  NSTimeInterval seconds;
++
++  /* These ranges belong to the selected calendar and time zone.  Ask ICU
++   * for its actual limits at the supplied date; do not maintain a second
++   * month-length or leap-year implementation in GUI clients. */
++  if (date == nil
++    || !((smaller == NSCalendarUnitDay && larger == NSCalendarUnitMonth)
++      || (smaller == NSCalendarUnitMonth && larger == NSCalendarUnitYear)))
++    {
++      return NSMakeRange (0, 0);
++    }
++  seconds = [date timeIntervalSince1970];
++  if (!isfinite(seconds))
++    {
++      return NSMakeRange (0, 0);
++    }
++  [self _resetCalendar];
++  if (my->cal == NULL)
++    {
++      return NSMakeRange (0, 0);
++    }
++  ucal_setMillis(my->cal, (UDate)(seconds * SECOND_TO_MILLI), &err);
++  field = _NSCalendarUnitToDateField(smaller);
++  minimum = ucal_getLimit(my->cal, field, UCAL_ACTUAL_MINIMUM, &err);
++  maximum = ucal_getLimit(my->cal, field, UCAL_ACTUAL_MAXIMUM, &err);
++  if (U_SUCCESS(err) && maximum >= minimum)
++    {
++      return NSMakeRange(minimum + (field == UCAL_MONTH ? 1 : 0),
++        maximum - minimum + 1);
++    }
++#endif
+   return NSMakeRange (0, 0);
+ }
+ 

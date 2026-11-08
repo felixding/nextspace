@@ -14,7 +14,7 @@ assert hashlib.sha256(archive.read_bytes()).hexdigest() == package["sha256"]
 helper = repo.resolve() / "Libraries/gnustep/patches/apply-base-patches.sh"
 with tempfile.TemporaryDirectory(prefix="nextspace-base-patches-") as directory:
     root = Path(directory)
-    names=('NSDistributedNotificationCenter.m','NSMessagePortNameServer.m','NSRunLoop.m')
+    names=('NSDistributedNotificationCenter.m','NSMessagePortNameServer.m','NSRunLoop.m','NSCalendar.m')
     with tarfile.open(archive) as files:
         for name in names:
             source=root/'Source'/name;source.parent.mkdir(exist_ok=True)
@@ -31,7 +31,7 @@ with tempfile.TemporaryDirectory(prefix="nextspace-base-patches-") as directory:
     run(True)
     run(True, "check")
     assert {name:(root/"Source"/name).read_bytes() for name in names} == patched
-    for name in ('base-notification-connect','base-message-port-lock','base-run-loop-invalid-timers'):
+    for name in ('base-notification-connect','base-message-port-lock','base-run-loop-invalid-timers','base-calendar-ranges'):
         marker=root/'.nextspace-patches'/(name+'.sha256')
         correct=marker.read_bytes();marker.write_text('stale\n');run(False);marker.write_bytes(correct)
     source.write_text("invalid cached Base source\n")

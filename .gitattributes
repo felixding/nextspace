@@ -2,3 +2,5 @@
 Applications/Artwork/NeXTSpirit/** -text
 Applications/Artwork/Fonts/** -text
 Tests/Wayland/artwork-originals/** -text
+# Unified patch context uses a prefix space even on otherwise blank lines.
+Libraries/gnustep/patches/*.patch whitespace=-blank-at-eol,-blank-at-eof

@@ -1,0 +1,1103 @@
+{
+  "status": "Staged shared native date-library checkpoint; browser consumers and full native-app goal remain unfinished",
+  "base_revision": "981056ef",
+  "gui": {
+    "revision": "8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899",
+    "commit_url": "https://github.com/gnustep/libs-gui/commit/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899",
+    "files": [
+      {
+        "path": "Source/NSDatePicker.m",
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Source/NSDatePicker.m",
+        "sha256": "edfc2ce8120e1da0062a9a60b452aec18cb7b5877ccf014f8fb43253293b5e1d"
+      },
+      {
+        "path": "Source/NSDatePickerCell.m",
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Source/NSDatePickerCell.m",
+        "sha256": "e4a7dd93f1886130c44b2ba7a4467de5f76f37a32e550d9200864177f0e93613"
+      },
+      {
+        "path": "Headers/AppKit/NSDatePicker.h",
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Headers/AppKit/NSDatePicker.h",
+        "sha256": "529f3f3553b21ff2016be1b9d1f5de65d3645f0e5c3c4d4cf5bb5cdd59d88d3c"
+      },
+      {
+        "path": "Headers/AppKit/NSDatePickerCell.h",
+        "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Headers/AppKit/NSDatePickerCell.h",
+        "sha256": "b2b66cc2988b358699d798fb8a636c120298c81629e70636f251fc9d818568db"
+      }
+    ],
+    "purpose": "Backport original GNUstep NSDatePicker and NSDatePickerCell implementation into the pinned GUI library; browser bridges contain no replacement date widget",
+    "baseline_commit": "4c1687d2b404f271ce7806dcb80a5b24b5284432",
+    "license": "GNU Library General Public License version 2 or later; original notices retained",
+    "upstream_files_unmodified": true
+  },
+  "foundation": {
+    "pin": {
+      "repository": "gnustep/libs-base",
+      "version": "1.31.1",
+      "revision": "b1bfc5bbb404769e95db6944ec0ccfe59c24f3b5",
+      "commit": "6307e474dd39e36eb2c5f6ee15ade8b51e337970",
+      "sha256": "862f742d47c186777d6945cbb8088645e59f653aee2e73a8ebb836aa9da646e7"
+    },
+    "method": "NSCalendar rangeOfUnit:inUnit:forDate:",
+    "supported_pairs": [
+      "day in month",
+      "month in year"
+    ],
+    "implementation": "Existing ICU calendar actual min/max at the requested date and time zone; no duplicated calendar arithmetic",
+    "unsupported_pairs": "Prior unavailable range retained"
+  },
+  "source_files": {
+    "Libraries/gnustep/patches/gui-0_32_0-date-picker.patch": "f0a86a50e10c6242c17e85e8367d963dc773a3d4d9f0b52eca08a1aabe640994",
+    "Libraries/gnustep/patches/gui-0_32_0-date-picker.json": "859eede5e5b62f319acbb0c54fcc4a87b52e5fcb28c2c6391f700263db627085",
+    "Libraries/gnustep/patches/gui-0_32_0-common.series": "0282d5e7950f366c82b68e6c1d38ff6a8476e83b061586e536d81645f35145d3",
+    "Libraries/gnustep/patches/base-1_31_1-calendar-ranges.patch": "d7251883394d3b2923e54b658a84757122428e3372cff2767b9cd23c9b8606fe",
+    "Libraries/gnustep/patches/apply-base-patches.sh": "672c79a2a13d9c201afaad55ceec6175a2348705ab2abadac054f5d289d52cac",
+    "Libraries/NativeUI/CMakeLists.txt": "402f5c94489e1e38befcaced241bef56774d717a41b7206f27f333ad125fc4db",
+    "Tests/NativeUI/date-input-probe.m": "a07938f28345191c81343cbbe24a4017c7deeb8adeb765f1a360dbba61095eb2",
+    "Tests/NativeUI/calendar-range-probe.m": "b297272132d118890bc88086eb6ab59baf4a228960b1a3a13d6ddc2150320717",
+    "Tests/NativeUI/check-tabs.py": "6efad8e16dcc4ea0e81e994968dce7194e427595a640bc5a07c14486abfcf97b",
+    "Tests/Wayland/gui-patches.py": "01437da8301bbad0ad275b402fe4770c421ff9815cd20cfdc63c21966e14d0fe",
+    "Tests/Wayland/base-patches.py": "0b1edd2a34d7b53779be9776b8b2d64386d6294c68106d2fa7f1f58ec26bc4d4"
+  },
+  "source_overlays": {
+    "gui/Source/NSDatePicker.m": "edfc2ce8120e1da0062a9a60b452aec18cb7b5877ccf014f8fb43253293b5e1d",
+    "gui/Source/NSDatePickerCell.m": "e4a7dd93f1886130c44b2ba7a4467de5f76f37a32e550d9200864177f0e93613",
+    "gui/Headers/AppKit/NSDatePicker.h": "529f3f3553b21ff2016be1b9d1f5de65d3645f0e5c3c4d4cf5bb5cdd59d88d3c",
+    "gui/Headers/AppKit/NSDatePickerCell.h": "b2b66cc2988b358699d798fb8a636c120298c81629e70636f251fc9d818568db",
+    "base/Source/NSCalendar.m": "73d518f5866443bae7a4ae9188081278d4a2ec481951c4d043169fab7a984f0f"
+  },
+  "api": {
+    "version": 1,
+    "bytes": 720,
+    "preserved_prefix": 648
+  },
+  "native_provider_code_changed": false,
+  "installed_gui_changed": false,
+  "installed_runtime_deployment": false,
+  "browser_binaries_rebuilt": false,
+  "candidates": {
+    "gui": {
+      "path": "/var/tmp/nextspace-native-ui/date-gui-01/stage/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "sha256": "f1a70dc9ba35e0824815c65702e10435075083638498e43a6276a2fb7b6b43ec",
+      "bytes": 9876520
+    },
+    "base": {
+      "path": "/var/tmp/nextspace-native-ui/date-base-01/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+      "sha256": "786fe2fc8ba9e7a0c24ceb77253dffd863d3bd700c19ce0cf3877c66b46093ac",
+      "bytes": 8780616
+    }
+  },
+  "loaded_images": [
+    {
+      "scale": "120",
+      "event": "native-library-images",
+      "gui": "/var/tmp/nextspace-native-ui/date-gui-01/stage/Library/Libraries/libgnustep-gui.so.0",
+      "base": "/var/tmp/nextspace-native-ui/date-base-01/stage/Library/Libraries/libgnustep-base.so.1.31"
+    },
+    {
+      "scale": "240",
+      "event": "native-library-images",
+      "gui": "/var/tmp/nextspace-native-ui/date-gui-01/stage/Library/Libraries/libgnustep-gui.so.0",
+      "base": "/var/tmp/nextspace-native-ui/date-base-01/stage/Library/Libraries/libgnustep-base.so.1.31"
+    }
+  ],
+  "runs": {
+    "date": [
+      {
+        "case": "date-editor-is-original-native-class",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-model-sync-is-not-a-user-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-native-date-key-produces-real-target-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-hour-key-retains-original-calendar-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-field-navigation-then-minute-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-clamping-emits-no-false-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-calendar-left-key-changes-one-day",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-calendar-up-key-changes-one-week",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-November-calendar-exposes-all-thirty-days",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-calendar-provides-clickable-day-box",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-native-calendar-pointer-produces-target-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "disabled-native-date-rejects-keyboard-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-date-picker-can-display-no-value",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "current-bridge-cannot-yet-represent-native-empty-date",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-empty-picker-does-not-invent-a-user-date",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-editor-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "time-editor-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "calendar-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "calendar-and-clock-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-editor-is-original-native-class",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-model-sync-is-not-a-user-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-native-date-key-produces-real-target-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-hour-key-retains-original-calendar-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-field-navigation-then-minute-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-clamping-emits-no-false-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-calendar-left-key-changes-one-day",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-calendar-up-key-changes-one-week",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-November-calendar-exposes-all-thirty-days",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-calendar-provides-clickable-day-box",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-native-calendar-pointer-produces-target-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "disabled-native-date-rejects-keyboard-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-date-picker-can-display-no-value",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "current-bridge-cannot-yet-represent-native-empty-date",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-empty-picker-does-not-invent-a-user-date",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-editor-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "time-editor-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "calendar-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-date-preferred-cell-size",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "calendar-and-clock-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      }
+    ],
+    "specialized": [
+      {
+        "case": "specialized-capabilities",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-stepper-cell-metrics-and-defaults",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "stepper-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "stepper-disabled-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "stepper-invalid-increment-is-atomic",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-color-components-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-color-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "color-0-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-color-components-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-color-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "color-1-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-color-components-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-color-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "color-2-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-color-panel-capability",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "disabled-native-color-panel-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "explicit-open-uses-original-color-panel",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "closing-inactive-well-preserves-current-owner",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "closing-current-owner-hides-original-panel",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-1-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-2-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-3-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-4-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-5-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-6-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "date-7-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-stepper-pointer-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "native-color-well-keeps-event-pointer-lifetime",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-color-well-opens-original-color-panel",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "original-color-panel-delivers-native-action",
+        "passed": true,
+        "density": 120
+      },
+      {
+        "case": "specialized-capabilities",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-stepper-cell-metrics-and-defaults",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "stepper-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "stepper-disabled-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "stepper-invalid-increment-is-atomic",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-color-components-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-color-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "color-0-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-color-components-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-color-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "color-1-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-color-components-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-color-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "color-2-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-color-panel-capability",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "disabled-native-color-panel-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "explicit-open-uses-original-color-panel",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "closing-inactive-well-preserves-current-owner",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "closing-current-owner-hides-original-panel",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-native-control-class",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-1-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-2-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-3-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-4-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-5-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-6-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-date-model-round-trip",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "invalid-date-range-rejected",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "date-7-whole-desktop-native-pixels",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-stepper-pointer-action",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "native-color-well-keeps-event-pointer-lifetime",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-color-well-opens-original-color-panel",
+        "passed": true,
+        "density": 240
+      },
+      {
+        "case": "original-color-panel-delivers-native-action",
+        "passed": true,
+        "density": 240
+      }
+    ],
+    "calendar": [
+      {
+        "name": "installed",
+        "returncode": -6,
+        "checks": [
+          {
+            "case": "ICU-calendar-month-length-2026-11",
+            "passed": false
+          }
+        ]
+      },
+      {
+        "name": "candidate",
+        "returncode": 0,
+        "checks": [
+          {
+            "case": "ICU-calendar-month-length-2026-11",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-2026-04",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-2026-01",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-2024-02",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-2025-02",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-1900-02",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-2000-02",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "ICU-calendar-month-length-1969-12",
+            "passed": true
+          },
+          {
+            "case": "native-Gregorian-year-has-twelve-one-based-months",
+            "passed": true
+          },
+          {
+            "case": "UTC-calendar-boundary-is-July",
+            "passed": true
+          },
+          {
+            "case": "calendar-range-observes-local-month-at-same-instant",
+            "passed": true
+          },
+          {
+            "case": "missing-date-range-remains-unavailable",
+            "passed": true
+          },
+          {
+            "case": "unsupported-unit-pair-remains-unavailable",
+            "passed": true
+          },
+          {
+            "passed": 20
+          }
+        ]
+      }
+    ]
+  },
+  "checks": 162,
+  "native_images": 32,
+  "densities": [
+    1,
+    2
+  ],
+  "patch_checks": {
+    "gui": "GUI clean patches, idempotence and invalid-marker rejection: PASS",
+    "base": "Base patch application, idempotence and stale/invalid cache rejection: PASS"
+  },
+  "measured_production_files": {
+    "files/chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "bytes": 308415392,
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+    },
+    "files/firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "bytes": 549896,
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48"
+    },
+    "files/libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "bytes": 171640536,
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "files/appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 10063865,
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "files/supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "bytes": 78144,
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac"
+    },
+    "files/compositor": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor",
+      "bytes": 1381176,
+      "sha256": "57db0e3df9ce4237fc88ed31a11ea8a6c8f4c87dfe3c38c96693a3a632b65c99"
+    },
+    "files/workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "bytes": 1258024,
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6"
+    },
+    "files/chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-button-sizing-05-hook.so",
+      "bytes": 165008,
+      "sha256": "0d2fc22779b3e2559a3968dffbbb3e5d9064b2bcf0076b2e29405db1993c17df"
+    },
+    "files/firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-popup-sizing-04-hook.so",
+      "bytes": 158256,
+      "sha256": "99265fdd04f2d74bb3180ecbd280891838b294a0f3d9804c4afaf32ab4a49ab7"
+    },
+    "files/backend": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1042672,
+      "sha256": "175122726a355ba1f38165cd4c2640f51228a1d06d2bb015c7266d44421746f0"
+    },
+    "files/gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0.2417.32",
+      "bytes": 1186176,
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0"
+    },
+    "files/native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "e3a9ab59b8449be7820b6b6456450f70f7a62a46ef2a041a0f2369d598faf70a"
+    },
+    "files/native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.0.1",
+      "bytes": 73064,
+      "sha256": "6a50efce52ea2d4c6010f52b2ddb287c56db6758d163334e315396bfb3b6522d"
+    },
+    "files/native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310712,
+      "sha256": "a26428f47c1c407d567328f828856deb5f7e92a72a41d31c06ffca6792d9acb7"
+    },
+    "files/chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "bytes": 166448,
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558"
+    },
+    "files/firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "bytes": 54175769,
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac"
+    },
+    "files/gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-geometry-build-02/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 72728,
+      "sha256": "ce60ad0c60cc78bd1b0208947eff28eb61f9d340758f264588587bb4b77d9464"
+    },
+    "files/probe_native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "435436b8b937d9235d8ed88417d014f353877aff0cd571f2878b2a90cf6cecad"
+    },
+    "files/probe_native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73176,
+      "sha256": "5300cbb85452b5d02827382f306599cd8f430af3413b25140164cc2560f6c9a8"
+    },
+    "files/probe_native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310960,
+      "sha256": "7799fb35173f53246adfc7181de5ae13c0b8e4af46de824b0d341af6d53ea860"
+    }
+  },
+  "unchanged_sdk": {
+    "prior_sdk/loader": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74560,
+      "sha256": "d27d64892e8d03bd26dbd4cfdd07d3ad3c7627b3bac5b1b0a4cb5ceedf14b698"
+    },
+    "prior_sdk/provider": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 335632,
+      "sha256": "03cc41cde5771b05eaf89f5cc6ba5e7986360e5fc715222ef5220f3556115623"
+    },
+    "prior_sdk/shim": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "5e7861e89eb2bade7f3509d862102432acbed87e1b64ab6d48de2097667157de"
+    },
+    "sdk/loader": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui.so.0.1",
+      "sha256": "5ca595d69d7b52155809ed22e6e45b715379e823af34eb3f6d7a39a8870132c7",
+      "bytes": 75104
+    },
+    "sdk/provider": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "sha256": "f3ce8f27105a05d8437b57208fdabb13b232f3aeae7787d53191081c98c206b7",
+      "bytes": 411608
+    },
+    "sdk/shim": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/libnextspace-native-scroller.so.0.1",
+      "sha256": "7a400ad4b6aadd721e4f2ab0bd03e75bf9285201e1820b7f85e6b5ae1e072024",
+      "bytes": 69968
+    }
+  },
+  "installed_base_snapshot": {
+    "path": "/Library/Libraries/libgnustep-base.so.1.31.1",
+    "bytes": 8964641,
+    "sha256": "d5ac37fb0bed60e18539eebf2a1882d9c0f6b748a51e620021de77538ff75e0b",
+    "owner": 0,
+    "mode": "0o755",
+    "writable_by_task": false
+  },
+  "packages": 1050,
+  "icu_version": "76.1",
+  "negative_witnesses": [
+    "Installed original date picker: Up unhandled, no action, segmented editor absent",
+    "GUI-only backport: native image equality passes but month grid has zero days",
+    "Installed Foundation: November day-range assertion fails"
+  ],
+  "limits": [
+    "Browser date/time control bindings remain unimplemented",
+    "Finite-only NXSDateModel cannot yet carry native nil dates",
+    "Native nil picker retains nil on Up; empty editing/activation requires a lossless contract",
+    "Full range selection, clock dragging, locale/RTL/IME/accessibility and broad compatibility remain unqualified",
+    "Only two Foundation range pairs implemented; not full NSCalendar range/ordinality support",
+    "New libraries staged only; package replay and deployment unfinished",
+    "Remaining browser controls, menus/shortcuts and subsequent GTK/Qt/KDE integration remain required"
+  ],
+  "reproduction": [
+    "Build the pinned Base and GUI archives with their patch helpers into separate staging roots",
+    "Run native-calendar-range-probe against installed and staged Foundation",
+    "Run Tests/NativeUI/check-tabs.py --date-input --gui-library-path <staged-GUI-libraries> --base-library-path <staged-Base-libraries> with owned compositor/capture/backend paths",
+    "Run the same harness --specialized with both staged library paths"
+  ],
+  "evidence": {
+    "path": ".build/evidence/components/native-date-libraries-20261108-v1-evidence.tar.gz",
+    "bytes": 24924311,
+    "sha256": "fd7abc59a18c354e49b8eed3296a5b0f205203ab80f67caba000f3290086f33b",
+    "members": 5630
+  },
+  "tested_platform": "Linux ARM64, GNUstep nonfragile Objective-C runtime 2.2; broader ABI/platform compatibility unqualified"
+}

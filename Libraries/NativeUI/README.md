@@ -1167,3 +1167,19 @@ events/focus and six independent native component images; the provider and
 API1/720 are unchanged. See [Firefox number qualification](../../Experiments/FirefoxNativeUI/number-qualification.json).
 Dates/times, broader compatibility/recovery and the remaining application-wide
 objective remain open.
+
+The pinned GNUstep GUI date picker previously rendered without a segmented
+editor. The GUI patch series now backports the original upstream NSDatePicker
+and NSDatePickerCell implementation at a recorded revision, shared by every
+native consumer. Its calendar also needs the Foundation patch for day-in-month
+and month-in-year ranges; that patch delegates to the existing ICU calendar.
+Neither browser bridge implements a replacement date widget or calendar rules.
+
+The staged-library cohort passes 46 date-input checks, 96 specialized-control
+regression checks and 20 Foundation checks, including 32 complete native image
+comparisons at 1x/2x. The month grid and real native target/actions have separate
+functional witnesses: matching images alone previously missed the empty grid.
+See [date library qualification](date-library-qualification.json) for source,
+runtime and reproduction details. These are staged libraries; browser date/time
+bindings, empty/incomplete date models, broad compatibility and deployment
+remain unfinished.
