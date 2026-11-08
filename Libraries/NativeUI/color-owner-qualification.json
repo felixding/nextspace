@@ -1,0 +1,371 @@
+{
+  "status": "qualified focused paired native sRGB color inputs and shared ownership; full objective remains active",
+  "api": {
+    "version": 1,
+    "size": 648
+  },
+  "provider_changed": false,
+  "shared_ui": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74560,
+      "sha256": "d27d64892e8d03bd26dbd4cfdd07d3ad3c7627b3bac5b1b0a4cb5ceedf14b698"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 335632,
+      "sha256": "03cc41cde5771b05eaf89f5cc6ba5e7986360e5fc715222ef5220f3556115623"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "5e7861e89eb2bade7f3509d862102432acbed87e1b64ab6d48de2097667157de"
+    }
+  },
+  "adapters": {
+    "chromium": {
+      "original": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-color-04-hook.so",
+        "bytes": 238304,
+        "sha256": "81acdf03892bd1257a5fb0e4d28e2338120544c1131b6eb4034b6971aff8b2b1"
+      },
+      "reproduction": {
+        "path": "/var/tmp/nextspace-native-ui/chromium-color-04-repro.so",
+        "bytes": 238304,
+        "sha256": "81acdf03892bd1257a5fb0e4d28e2338120544c1131b6eb4034b6971aff8b2b1"
+      }
+    },
+    "firefox": {
+      "original": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-color-03-hook.so",
+        "bytes": 231520,
+        "sha256": "8425879c0815b9953a23f9300e6a516a55f65934efdca4e6ad265982e08fbb6f"
+      },
+      "reproduction": {
+        "path": "/var/tmp/nextspace-native-ui/firefox-color-03-repro.so",
+        "bytes": 231520,
+        "sha256": "8425879c0815b9953a23f9300e6a516a55f65934efdca4e6ad265982e08fbb6f"
+      }
+    }
+  },
+  "runs": {
+    "chromium_color": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-color-06/button-results.json",
+        "bytes": 1802,
+        "sha256": "e4b115f875947a5b966bae1294caf3be36b5552046983a8147403778f60efa11"
+      },
+      "checks": 17,
+      "native_images": 6
+    },
+    "firefox_color": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-color-04/button-results.json",
+        "bytes": 1905,
+        "sha256": "a9c7ec9d9cdf757b737747900723af8c7315a09e1e1f2a565fac3d03c9d0f146"
+      },
+      "checks": 18,
+      "native_images": 6
+    },
+    "chromium_smoke": {
+      "results": {
+        "path": "/var/tmp/nxs-chromium-color-06/key-retirement/button-results.json",
+        "bytes": 699,
+        "sha256": "b2e8b2e80013217c7eb24399a3dc5675c3ae23cb3e72de5382a9ce3d5772c1fd"
+      },
+      "checks": 4,
+      "native_images": 1
+    },
+    "firefox_smoke": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-color-04/key-retirement/button-results.json",
+        "bytes": 699,
+        "sha256": "6ace74b6ea93ae2891b56997deba705dfed821d11b8c2bf76bf6be3735565de5"
+      },
+      "checks": 4,
+      "native_images": 1
+    },
+    "ownership": {
+      "results": {
+        "path": "/var/tmp/nxs-firefox-color-04/color-owner-results.json",
+        "bytes": 2031,
+        "sha256": "a5610eb9ab2a8f47e8f6c75d00caaba086e0ffaefa435c68da7b52ea46af7787"
+      },
+      "checks": 25
+    }
+  },
+  "ownership": {
+    "bootstrap": "part 0.y",
+    "operations": [
+      60,
+      61,
+      62
+    ],
+    "source_authority": "original field model",
+    "borrower_authority": [
+      "native color read",
+      "native image/state poll",
+      "open/close original panel"
+    ],
+    "correlation": "original application IPC actor uint32",
+    "proof": [
+      "registered source and borrower connections",
+      "kernel sender PID, including inherited sockets",
+      "live pidfd owners",
+      "ancestor relationship",
+      "one unambiguous source"
+    ],
+    "retirement": "revoke reference and close original panel",
+    "second_native_well_created": false
+  },
+  "firefox_parent_reuses_existing_well": true,
+  "sandbox": {
+    "chromium": [
+      {
+        "pid": 246183,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246199,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246200,
+        "name": "chromium",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ],
+    "firefox": [
+      {
+        "pid": 246251,
+        "name": "WebExtensions",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246289,
+        "name": "file:// Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246350,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246356,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246357,
+        "name": "Web Content",
+        "seccomp": 2,
+        "no_new_privs": 1
+      },
+      {
+        "pid": 246397,
+        "name": "Privileged Cont",
+        "seccomp": 2,
+        "no_new_privs": 1
+      }
+    ]
+  },
+  "staging": {
+    "installed_color_owners": "/var/tmp/nextspace-native-ui/color-owner-stage-01/stage/usr/NextSpace/libexec/nextspace-native-ui/ChromiumScrollers/color_owners.py",
+    "native_color_pixels_match": true
+  },
+  "staged_modules": {
+    "color_owners.py": {
+      "path": "/var/tmp/nextspace-native-ui/color-owner-stage-01/stage/usr/NextSpace/libexec/nextspace-native-ui/ChromiumScrollers/color_owners.py",
+      "bytes": 5282,
+      "sha256": "b5cbae144667186a1c6368271958635836985eda69871cbb4c1db330102e43c7"
+    },
+    "native_controls.py": {
+      "path": "/var/tmp/nextspace-native-ui/color-owner-stage-01/stage/usr/NextSpace/libexec/nextspace-native-ui/ChromiumScrollers/native_controls.py",
+      "bytes": 87732,
+      "sha256": "f2386140aea2e5a9a261c1cf3dabdf14b1e79607ab7b873cf415da16fd1a5227"
+    },
+    "helper.py": {
+      "path": "/var/tmp/nextspace-native-ui/color-owner-stage-01/stage/usr/NextSpace/libexec/nextspace-native-ui/ChromiumScrollers/helper.py",
+      "bytes": 19002,
+      "sha256": "b4403c854404d7795cb9378e9f480ce53abee00bf21509fb55ff60a06dcda822"
+    }
+  },
+  "production_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "bytes": 308415392,
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "bytes": 549896,
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48"
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "bytes": 171640536,
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 10063865,
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "bytes": 78144,
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac"
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor",
+      "bytes": 1381176,
+      "sha256": "57db0e3df9ce4237fc88ed31a11ea8a6c8f4c87dfe3c38c96693a3a632b65c99"
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "bytes": 1258024,
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-button-sizing-05-hook.so",
+      "bytes": 165008,
+      "sha256": "0d2fc22779b3e2559a3968dffbbb3e5d9064b2bcf0076b2e29405db1993c17df"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-popup-sizing-04-hook.so",
+      "bytes": 158256,
+      "sha256": "99265fdd04f2d74bb3180ecbd280891838b294a0f3d9804c4afaf32ab4a49ab7"
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1042672,
+      "sha256": "175122726a355ba1f38165cd4c2640f51228a1d06d2bb015c7266d44421746f0"
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0.2417.32",
+      "bytes": 1186176,
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0"
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "e3a9ab59b8449be7820b6b6456450f70f7a62a46ef2a041a0f2369d598faf70a"
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.0.1",
+      "bytes": 73064,
+      "sha256": "6a50efce52ea2d4c6010f52b2ddb287c56db6758d163334e315396bfb3b6522d"
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310712,
+      "sha256": "a26428f47c1c407d567328f828856deb5f7e92a72a41d31c06ffca6792d9acb7"
+    },
+    "chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "bytes": 166448,
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558"
+    },
+    "firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "bytes": 54175769,
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac"
+    },
+    "gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-geometry-build-02/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 72728,
+      "sha256": "ce60ad0c60cc78bd1b0208947eff28eb61f9d340758f264588587bb4b77d9464"
+    },
+    "probe_native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "435436b8b937d9235d8ed88417d014f353877aff0cd571f2878b2a90cf6cecad"
+    },
+    "probe_native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73176,
+      "sha256": "5300cbb85452b5d02827382f306599cd8f430af3413b25140164cc2560f6c9a8"
+    },
+    "probe_native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310960,
+      "sha256": "7799fb35173f53246adfc7181de5ae13c0b8e4af46de824b0d341af6d53ea860"
+    }
+  },
+  "package_count": 1050,
+  "live_owned": [],
+  "native_images": {
+    "browser_color": 12,
+    "browser_smoke": 2,
+    "staged_helper_reference": 1
+  },
+  "scope": {
+    "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+    "firefox_libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+    "firefox_revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+    "opt_in": [
+      "NEXTSPACE_CHROMIUM_COLORS=1",
+      "NEXTSPACE_FIREFOX_COLORS=1"
+    ],
+    "scale": 1,
+    "firefox_picker": "existing native system picker mode; html color-picker preference reported false without override",
+    "browser_ui": "original toolbar, address bar and tabs",
+    "browser_rebuilt": false
+  },
+  "excluded_diagnostics": [
+    "Firefox color-01: separate parent well failed input-retirement cleanup after 12 passing checks",
+    "Firefox color-02: earlier ownership model before final inherited-socket guard and separate capability slot",
+    "staging-01: assumed usr/local prefix instead of actual usr/NextSpace prefix",
+    "earlier 21/22 ownership cohorts are superseded by final 25-check real-input cohort"
+  ],
+  "remaining": [
+    "HTML picker/alpha/wide-gamut modes",
+    "embedded native pointer/drag feedback",
+    "native palette ownership behavior",
+    "host recovery",
+    "styles/scales/IME/accessibility",
+    "ambiguous simultaneous picker correlation declines native borrowing and keeps original picker fallback",
+    "browser derivatives and installed-desktop deployment",
+    "number/date/time/file controls",
+    "earlier combined Chromium disabled-field repaint mismatch",
+    "remaining detached menus/native shortcuts",
+    "later GTK/Qt/KDE consumers"
+  ],
+  "evidence": {
+    "archive": ".build/evidence/components/native-browser-color-owners-20261108-v1-evidence.tar.gz",
+    "runtime_audit": ".build/native-ui/color-owner-runtime-audit.json",
+    "firefox_screenshot": ".build/native-ui/firefox-native-color-final.png",
+    "firefox_script_update_screenshot": ".build/native-ui/firefox-native-color-script-final.png",
+    "chromium_screenshot": ".build/native-ui/chromium-native-color-final.png"
+  },
+  "sources": {
+    "Libraries/NativeUI/Bridge/color_owners.py": "b5cbae144667186a1c6368271958635836985eda69871cbb4c1db330102e43c7",
+    "Libraries/NativeUI/Bridge/ColorOwners.inc": "8ec2c82dbcd54fd83dd9060678fbd1ab31a94722abf0e35353d86324ef58dad1",
+    "Libraries/NativeUI/Bridge/ColorBinding.inc": "4143b4fd17b5390bf54aef0c6bb781cd9505c79c72d3cb24442b8755c5b75cb1",
+    "Libraries/NativeUI/Bridge/Protocol.h": "3a2254d0538d8cee807f689bef817146e05453a479c46e90007c702c23ecd2ab",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "f31796eb3937466e93ab20bdaba11a23f2ade5d8c58c6a955cce77d7fcda40a1",
+    "Experiments/ChromiumScrollers/native_controls.py": "f2386140aea2e5a9a261c1cf3dabdf14b1e79607ab7b873cf415da16fd1a5227",
+    "Experiments/ChromiumScrollers/helper.py": "b4403c854404d7795cb9378e9f480ce53abee00bf21509fb55ff60a06dcda822",
+    "Experiments/ChromiumScrollers/hook.c": "2c88411b7ec87303f11d198eeaa072aa9bcf7eda46d516cca1fffdacdb508e53",
+    "Experiments/FirefoxNativeUI/colors.inc": "2485b36b8871377b0661d54fdd847eb9996142e8a96e9e9bfcfa7cb207c0d4e3",
+    "Experiments/FirefoxNativeUI/pinned-colors.h": "0e76e802bb5067cd8617fd6571671e87c5a3f0fad3e5d4099fd5707e7848bf47",
+    "Experiments/FirefoxNativeUI/controls.inc": "0bf62b4d15fbc02b84c92d3bbdb28f5a0aa3a71909e23a24273b8bc39b643612",
+    "Experiments/FirefoxNativeUI/buttons.inc": "747e173d13e194f4b10807135c5b6541c7b0e380e4985115597cfd7b1694852d",
+    "Experiments/FirefoxNativeUI/frontend.inc": "2e882a033c689edf440bf890b787d59d8d1211dc6993582700e7aec25467ec2d",
+    "Experiments/FirefoxNativeUI/text.inc": "2b769033e382956d60e466f7389666966f34d79dbeae9d2c7b3ef0501a752570",
+    "Experiments/FirefoxNativeUI/hook.c": "ae9ea4de8fb0f6a1b1eea036aae73de0d97e2b855d6c4f8ffa08205e009e78b3",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "b3c3171bb73c21539446fc6f64692894803c25d17d739dfd48320fc44a2ef5a3",
+    "Tests/NativeUI/color-owner-transport.py": "c69c7e0bae0f77ae64e4e0a88209f721cf63dc95f0ed9ad340cf33ee1ecc57f4",
+    "Tests/Wayland/native_color_fields.py": "bef0fcd0c4af6e54e870880998680254c30d31ce680d8a76dce9600802174ced"
+  }
+}

@@ -1263,3 +1263,11 @@ keyboard activation. See [qualification](color-qualification.json) for exact
 binaries and limits. Firefox color binding, wide-gamut/alpha coverage, pointer
 feedback/dragging, suggestions/eyedropper, native palette ownership behavior,
 host recovery, broader scales/styles/accessibility and deployment remain open.
+
+
+The shared color ownership extension also supports Firefox's process split
+without creating another native well. Chromium retains its existing direct
+well binding and passes the expanded 17-check/six-image color cohort against
+that same bridge. Original browser chrome stays unchanged. Shared action
+receipts prevent application model sync from becoming a synthetic user edit.
+See [shared ownership qualification](../../Libraries/NativeUI/color-owner-qualification.json).

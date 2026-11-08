@@ -977,3 +977,22 @@ disabled-field repaint mismatch after 299 passing checks. Its focused
 placeholder run passes, and Firefox passes the combined run. The shared
 provider/transport qualify their measured contracts; complete Chromium
 placeholder integration is not claimed until that failure is resolved.
+
+
+### Native color inputs
+
+`NEXTSPACE_FIREFOX_COLORS=1` enables the exact guarded native sRGB color path.
+Ordinary NSColorWell pixels replace the page swatch. The original Firefox
+parent-process picker borrows that same well through shared color ownership,
+using the original IPC actor ID. It creates no parent duplicate. Original
+parsing, picker permission checks, canonical serialization, trusted input/change
+and callback ownership remain in Firefox. No browser rebuild or toolbar/tab
+replacement is involved.
+
+The shared suite runs with `check-button-sizing.py --fixture <owned-fixture>
+--port <port> --colors-only`. The measured cohort passes 18 checks and six
+complete native images, including source model updates and picker closure on
+field retirement. See [shared qualification](../../Libraries/NativeUI/color-owner-qualification.json)
+and [source audit](color-source-audit.json). Native HTML-picker/alpha/wide-gamut
+modes, pointer/drag feedback, native palette behavior, recovery, broader
+styles/scales/accessibility, derivatives and deployment remain open.

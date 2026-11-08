@@ -910,3 +910,23 @@ remains unresolved in the underlying native UI. Number/date/time/file inputs,
 the earlier combined Chromium disabled-field repaint mismatch, remaining
 detached menus/native shortcuts and deployment also remain open. The full
 browser-first, then GTK/Qt/KDE objective is active.
+
+The pinned Firefox adapter now uses the same native color well and panel.
+Its original picker runs in a parent process, while the input lives in a
+renderer. Shared color ownership passes a scoped reference to the renderer's
+existing well; it creates no second control. The original IPC actor ID provides
+correlation, with registered kernel PID/connection/lifetime checks and rejection
+of ambiguous or unrelated sources. Removing the input or exiting its process
+revokes the reference and closes the panel. Source model changes reach that
+same panel, while native action receipts protect a selection from stale paints
+and prevent script updates from becoming synthetic user edits.
+
+This adds no provider API or widget implementation. Bootstrap part 0.y
+advertises ownership separately from the existing panel capability. Firefox
+keeps its original parser, picker permission checks and callback/event chain.
+The bridge's Python ownership module is included in the staged host install.
+See [shared color ownership qualification](../Libraries/NativeUI/color-owner-qualification.json)
+for paired browser results and real-process transport checks. This supersedes
+the earlier "Firefox color bindings unfinished" status for the measured native
+sRGB path only; broad color modes, recovery, derivatives and deployment remain
+open along with the other control types, menus and shortcuts listed above.

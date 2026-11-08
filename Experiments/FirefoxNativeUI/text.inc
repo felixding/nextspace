@@ -154,8 +154,9 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
  done:free(model.value);return response;
 }
 static int text_notification(int fd,unsigned condition,void *unused) {
-  if(condition&~1u){text_watch=0;return 0;}
+  if(condition&~1u){text_watch=0;color_native_work(1);return 0;}
   drain_widget_notifier();
+  color_native_work(0);
   tabs_native_notification();native_popup_notification();
   if(active_widget&&text_kind(active_widget->kind)) {
     void *node=active_widget->node;
@@ -163,7 +164,7 @@ static int text_notification(int fd,unsigned condition,void *unused) {
     if(widget_focused(active_widget))echo_native_selection(active_widget);
     ((unsigned (*)(void *))(base+0x47ba6b8))(node);
   }
-  for(struct Widget *w=widgets;w;w=w->next)if(text_kind(w->kind)&&w->text_owned)invalidate_widget(w);
+  for(struct Widget *w=widgets;w;w=w->next)if((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL)invalidate_widget(w);
   return 1;
 }
 static void *text_pointer_frame(void *frame) {

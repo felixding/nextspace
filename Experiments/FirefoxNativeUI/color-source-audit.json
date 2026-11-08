@@ -1,0 +1,205 @@
+{
+  "status": "Gecko model, original IPC correlation and callback ownership only; no widget implementation",
+  "sources": {
+    "Libraries/NativeUI/Bridge/color_owners.py": "b5cbae144667186a1c6368271958635836985eda69871cbb4c1db330102e43c7",
+    "Libraries/NativeUI/Bridge/ColorOwners.inc": "8ec2c82dbcd54fd83dd9060678fbd1ab31a94722abf0e35353d86324ef58dad1",
+    "Libraries/NativeUI/Bridge/ColorBinding.inc": "4143b4fd17b5390bf54aef0c6bb781cd9505c79c72d3cb24442b8755c5b75cb1",
+    "Libraries/NativeUI/Bridge/Protocol.h": "3a2254d0538d8cee807f689bef817146e05453a479c46e90007c702c23ecd2ab",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "f31796eb3937466e93ab20bdaba11a23f2ade5d8c58c6a955cce77d7fcda40a1",
+    "Experiments/ChromiumScrollers/native_controls.py": "f2386140aea2e5a9a261c1cf3dabdf14b1e79607ab7b873cf415da16fd1a5227",
+    "Experiments/ChromiumScrollers/helper.py": "b4403c854404d7795cb9378e9f480ce53abee00bf21509fb55ff60a06dcda822",
+    "Experiments/ChromiumScrollers/hook.c": "2c88411b7ec87303f11d198eeaa072aa9bcf7eda46d516cca1fffdacdb508e53",
+    "Experiments/FirefoxNativeUI/colors.inc": "2485b36b8871377b0661d54fdd847eb9996142e8a96e9e9bfcfa7cb207c0d4e3",
+    "Experiments/FirefoxNativeUI/pinned-colors.h": "0e76e802bb5067cd8617fd6571671e87c5a3f0fad3e5d4099fd5707e7848bf47",
+    "Experiments/FirefoxNativeUI/controls.inc": "0bf62b4d15fbc02b84c92d3bbdb28f5a0aa3a71909e23a24273b8bc39b643612",
+    "Experiments/FirefoxNativeUI/buttons.inc": "747e173d13e194f4b10807135c5b6541c7b0e380e4985115597cfd7b1694852d",
+    "Experiments/FirefoxNativeUI/frontend.inc": "2e882a033c689edf440bf890b787d59d8d1211dc6993582700e7aec25467ec2d",
+    "Experiments/FirefoxNativeUI/text.inc": "2b769033e382956d60e466f7389666966f34d79dbeae9d2c7b3ef0501a752570",
+    "Experiments/FirefoxNativeUI/hook.c": "ae9ea4de8fb0f6a1b1eea036aae73de0d97e2b855d6c4f8ffa08205e009e78b3",
+    "Experiments/FirefoxNativeUI/check-button-sizing.py": "b3c3171bb73c21539446fc6f64692894803c25d17d739dfd48320fc44a2ef5a3",
+    "Tests/NativeUI/color-owner-transport.py": "c69c7e0bae0f77ae64e4e0a88209f721cf63dc95f0ed9ad340cf33ee1ecc57f4",
+    "Tests/Wayland/native_color_fields.py": "bef0fcd0c4af6e54e870880998680254c30d31ce680d8a76dce9600802174ced"
+  },
+  "pinned_calls": [
+    {
+      "name": "OPEN_NATIVE",
+      "offset": 112330512,
+      "bytes": "3f2303d5ffc303d1e923096dfe5300f9fa670ba9"
+    },
+    {
+      "name": "BASE_OPEN",
+      "offset": 111605152,
+      "bytes": "3f2303d5fe0f1ef8f44f01a9f40301aaf30300aa"
+    },
+    {
+      "name": "SET_COLOR",
+      "offset": 112331448,
+      "bytes": "3f2303d5ff4301d1fe1300f9f65703a9f44f04a9"
+    },
+    {
+      "name": "ADDREF",
+      "offset": 55484516,
+      "bytes": "5f2403d5091c40f9e80300aa20050091001d00f9"
+    },
+    {
+      "name": "RELEASE",
+      "offset": 112330064,
+      "bytes": "3f2303d5fe4fbfa9091c40f9f30300aa200500f1"
+    },
+    {
+      "name": "CHANGED",
+      "offset": 112331336,
+      "bytes": "3f2303d5fe4fbfa9e00302aaf30302aa18000094"
+    },
+    {
+      "name": "PARSE",
+      "offset": 92865032,
+      "bytes": "3f2303d5ff4301d1fe1300f9f65703a9f44f04a9"
+    },
+    {
+      "name": "FRAME_UPDATE",
+      "offset": 116322288,
+      "bytes": "3f2303d5ff0304d1fe7300f9f44f0fa9a89f0190"
+    },
+    {
+      "name": "CHILDREN",
+      "offset": 115512940,
+      "bytes": "3f2303d5ffc301d1fe5f04a9f65705a9f44f06a9"
+    },
+    {
+      "name": "INPUT_OPEN",
+      "offset": 92799628,
+      "bytes": "3f2303d5ff4306d1fd7b14a9fa6715a9f85f16a9"
+    },
+    {
+      "name": "PROXY_OPEN",
+      "offset": 111650916,
+      "bytes": "5f2403d5082440f9480300b53f2303d5fe0f1ef8"
+    },
+    {
+      "name": "PARENT_OPEN",
+      "offset": 106433584,
+      "bytes": "3f2303d5ff4301d1fe1b00f9f44f04a908eb01f0"
+    }
+  ],
+  "original_sources": [
+    {
+      "name": "color_chooser_ui_controller.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_ui_controller.cc",
+      "bytes": 4222,
+      "sha256": "51b150d5edc7317041cd5aaf942815840439a87d9f192bb6551b48282b286e59"
+    },
+    {
+      "name": "color_chooser_ui_controller.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_ui_controller.h",
+      "bytes": 3375,
+      "sha256": "d005dc038b9e06e59a319455fe481424926dd21fc9a6716190178545f826b921"
+    },
+    {
+      "name": "color_input_type.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_input_type.cc",
+      "bytes": 17305,
+      "sha256": "65ff5cdec53ac8291d9d0fac0a730710b299b41b7c3489ee0b1cfbeed7062526"
+    },
+    {
+      "name": "color.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/graphics/color.h",
+      "bytes": 21091,
+      "sha256": "39c767472f22df483f80d8348e7910be283fb9a3b041984cded2dde4d1ebdda4"
+    },
+    {
+      "name": "nsColorPicker.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsColorPicker.cpp",
+      "bytes": 8078,
+      "sha256": "ab234d7c847ea8292185709b12a0ec3d8211fa1a87115fbfe0f1aa7b97db8288"
+    },
+    {
+      "name": "nsColorPicker.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsColorPicker.h",
+      "bytes": 2084,
+      "sha256": "ca6826a4bf6fe24396230af06270bf35712ffb8e2051118fb11941d21c857a33"
+    },
+    {
+      "name": "color_chooser_popup_ui_controller.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_popup_ui_controller.cc",
+      "bytes": 13290,
+      "sha256": "1f53312ff8f44052a0065321ebed374f93446e3388a63e28e18aba716ed864ab"
+    },
+    {
+      "name": "color_chooser_popup_ui_controller.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/color_chooser_popup_ui_controller.h",
+      "bytes": 3779,
+      "sha256": "9b4956c129e191cb83495a58675d3269ad9d5da42eb15c35e0875c7998a69f06"
+    },
+    {
+      "name": "nsBaseColorPicker.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsBaseColorPicker.cpp",
+      "bytes": 1802,
+      "sha256": "fc6647834053647bc6beeb8b8952c6070a6993e1515e1552d8b73e96b101bae0"
+    },
+    {
+      "name": "nsBaseColorPicker.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsBaseColorPicker.h",
+      "bytes": 1246,
+      "sha256": "ca54cc6eb72d8757d2b7c745c483419ec896e69fe697e2410161f684a3bf717c"
+    },
+    {
+      "name": "nsColorControlFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsColorControlFrame.cpp",
+      "sha256": "b3612df6dad650956ab7fdb42ea9294ab28c5a23047049e204b4368d563ddf66"
+    },
+    {
+      "name": "nsColorControlFrame.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsColorControlFrame.h",
+      "sha256": "4734a1ebad4189cbdd24d16d5d31b11add2184e1dd51491d872c0cca2ef83a0f"
+    },
+    {
+      "name": "nsIColorPicker.idl",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsIColorPicker.idl",
+      "sha256": "bd76fb3eab7eea83f0abb6fd6841647fe46426cdc4e06124f39ac29145b89a05"
+    },
+    {
+      "name": "ButtonControlFrame.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/ButtonControlFrame.cpp",
+      "sha256": "f183426911121396ac60adff3b5856e882f7cec9d5f6b70b00228a6ac0abcc53"
+    },
+    {
+      "name": "ButtonControlFrame.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/ButtonControlFrame.h",
+      "sha256": "e743a71a06e4e0678b7b2787a3ad63788438c1a2a82dd0cc7b979ff129ba234b"
+    },
+    {
+      "name": "ProtocolUtils.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/ipc/glue/ProtocolUtils.h",
+      "sha256": "9d245f4f58fc098992e6933e2c66d7d18fdd181b3ca52cea742a2760c5f6980c"
+    }
+  ],
+  "layout_evidence": {
+    "files": [
+      ".build/native-ui/firefox-color-abi.txt",
+      ".build/native-ui/firefox-color-owner-abi-correct.txt"
+    ],
+    "picker_callback_offset": 48,
+    "picker_color_offset": 72,
+    "parent_callback_vtable": "base+0xa0a6488",
+    "parent_callback_actor_offset": 16,
+    "proxy_actor_subobject_offset": 8,
+    "actor_id_offset": 8,
+    "callback_virtual_slots": {
+      "update": 3,
+      "done": 4,
+      "release": 2
+    }
+  },
+  "original_methods": [
+    "HTMLInputElement::InitColorPicker and nsBaseColorPicker original permission/initialization path",
+    "nsColorPickerProxy::Open original IPC send",
+    "nsColorPicker::SetColor and OnColorChanged",
+    "original callback Update/Done and XPCOM release methods",
+    "HTMLInputElement::ParseSimpleColor/GetValue",
+    "nsColorControlFrame::UpdateColor",
+    "original block/display-list/draw-target methods"
+  ],
+  "native_ui": "existing shared NSColorWell/NSColorPanel only",
+  "browser_rebuilt": false
+}

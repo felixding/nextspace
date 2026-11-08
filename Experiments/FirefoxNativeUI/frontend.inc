@@ -28,6 +28,7 @@ static int frontend_item_owned(void *frame) {
 static int frontend_webrender(void *item,void *builder,void *resources,void *stacking,void *manager,void *display_builder) {
   void *frame=frontend_item_frame(item);
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
+  if(frame_kind(frame)==NXS_COLORWELL)prepare_color_image(frame);
   if(native_popup_frame(frame))prepare_popup_image(frame);
   if(native_list_frame(frame))prepare_list_image(frame);
   /* The active nsITheme can be GTK even for web content. Select Gecko's
@@ -38,6 +39,7 @@ static int frontend_webrender(void *item,void *builder,void *resources,void *sta
 static void frontend_paint(void *item,void *builder,void *context) {
   void *frame=frontend_item_frame(item);
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
+  if(frame_kind(frame)==NXS_COLORWELL)prepare_color_image(frame);
   if(native_popup_frame(frame))prepare_popup_image(frame);
   if(native_list_frame(frame))prepare_list_image(frame);
   if(native_popup_owned(frame)||native_list_owned(frame)||tabs_frame_owned(frame)||frontend_item_owned(frame)) {

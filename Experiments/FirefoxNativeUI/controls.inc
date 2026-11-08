@@ -33,6 +33,7 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int placeholder_enabled;
+static int colors_enabled;
 static int search_enabled;
 static int search_actions_enabled,search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;
@@ -66,6 +67,12 @@ static uint32_t (*original_radio_pre_event)(void *,void *,void *,void *,void *,i
 static uint32_t gecko_radio_key(struct Widget *,void *,void *);
 static char *utf8_text(const uint16_t *,uint32_t);
 static int prepare_button_image(void *);
+static int native_color_frame(const void *);
+static int prepare_color_image(void *);
+static int color_display(void *,void *,const void *);
+static struct NXSResponse *sync_color_widget(struct Widget *,struct NXSResponse *);
+static int color_watch_needed(void);
+static void color_native_work(int);
 static struct Widget *bind_input_widget(void *);
 static int native_button_frame(const void *);
 static struct Widget *html_button_owner(const void *);
@@ -114,6 +121,7 @@ static int node_kind(const void *node) {
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
     buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
     sliders_enabled&&type==148?NXS_SLIDER:
+    colors_enabled&&type==131?NXS_COLORWELL:
     search_enabled&&type==142?NXS_SEARCHFIELD:
     texts_enabled&&(type==133||type==144||type==145||type==147)?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
 }
@@ -138,7 +146,7 @@ static void invalidate_widget(struct Widget *w) {
   ((void (*)(void *,unsigned,int))(base+0x6e85c5c))(w->frame,0,1);
 }
 static uint64_t widget_content_state(const struct Widget *w) {
-  return ((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,w->kind==NXS_BUTTON?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
+  return ((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,(w->kind==NXS_BUTTON||w->kind==NXS_COLORWELL)?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
 }
 static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
   if(w->kind==NXS_RADIO&&radio_groups_enabled)return gecko_radio_request(w,operation,x,y,modifiers);
@@ -181,6 +189,7 @@ static struct NXSResponse *widget_sync(struct Widget *w) {
     if(!response)return NULL;
     response=widget_request(w,1,0,0,0);
   }
+  if(response&&w->kind==NXS_COLORWELL)response=sync_color_widget(w,response);
   if(response&&w->kind==NXS_BUTTON&&!button_cache_update(w,response))return NULL;
   return response;
 }
@@ -223,6 +232,7 @@ static struct Widget *bind_widget(void *frame) {
   int native;
   if(kind==NXS_BUTTON)native=native_button_frame(frame);
   else if(kind==NXS_SLIDER)native=native_range_frame(frame);
+  else if(kind==NXS_COLORWELL)native=native_color_frame(frame);
   else if(text_kind(kind))native=native_text_frame(frame);
   else {metric_probe=1;native=original_intrinsic(frame,NULL,0);metric_probe=0;}
   if(!native||!ensure_widget_lifetime())return NULL;
@@ -266,7 +276,7 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   if(kind==NXS_SLIDER&&!prepare_range_image(frame))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
-  if(!widgets_enabled||!kind||(!is_text&&appearance!=(unsigned)(kind==NXS_BUTTON?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5))||fabsf(frame_scale(frame)-1)>0.000001f||
+  if(!widgets_enabled||!kind||(!is_text&&appearance!=(unsigned)((kind==NXS_BUTTON||kind==NXS_COLORWELL)?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5))||fabsf(frame_scale(frame)-1)>0.000001f||
      (kind==NXS_SLIDER&&!native_range_frame(frame)))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   const void *context=*(void *const *)((const char *)frame+40);
@@ -309,7 +319,7 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
  * preferred width or height. No square-control or artwork geometry is copied. */
 static int default_size(void *frame) {
   int original=original_default_size(frame),kind=frame_kind(frame);
-  if(metric_probe||!kind)return original;
+  if(metric_probe||!kind||kind==NXS_COLORWELL)return original;
   metric_probe=1;int native=original_intrinsic(frame,NULL,0);metric_probe=0;
   if(!native)return original;
   float engine_pref=((float (*)(void *))(base+0x6a60be0))(NULL);
@@ -318,7 +328,7 @@ static int default_size(void *frame) {
 static int intrinsic_size(void *frame,const void *input,int type) {
   if(metric_probe)return original_intrinsic(frame,input,type);
   metric_probe=1;int original=original_intrinsic(frame,input,type);metric_probe=0;
-  int kind=frame_kind(frame);if(!original||!kind)return original;
+  int kind=frame_kind(frame);if(!original||!kind||kind==NXS_COLORWELL)return original;
   float engine_pref=((float (*)(void *))(base+0x6a60be0))(NULL);
   return engine_pref>0?lround(original*preferred_width[kind]/engine_pref):original;
 }
@@ -370,7 +380,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   void *target_frame=frame;
   struct Widget *button_owner=frame?html_button_owner(*(void **)((char *)frame+24)):NULL;
   if(button_owner)target_frame=button_owner->frame;
-  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(target_frame)&&frame_kind(target_frame)!=NXS_SLIDER) {
+  if(trusted&&message==15&&*(const int16_t *)((const char *)event+152)==0&&frame_kind(target_frame)&&frame_kind(target_frame)!=NXS_SLIDER&&frame_kind(target_frame)!=NXS_COLORWELL) {
     down_node=*(void **)((char *)target_frame+24);
     ((unsigned (*)(void *))(base+0x3b9f0e4))(down_node);
   }
@@ -512,6 +522,7 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
   if((node_kind(node)==NXS_BUTTON||node_kind(node)==NXS_SLIDER)&&message>=2&&message<=4)
     w=bind_input_widget(*(void **)((char *)node+96));
   int *status=(int *)((char *)visitor+24);
+  if(w&&w->kind==NXS_COLORWELL)return original(node,visitor);
   if(!w||!w->painted||message<2||message>4||!(*(uint8_t *)((char *)event+48)&1)||*status==1||!widget_focused(w))
     return original(node,visitor);
   if(message==2)return w->kind==NXS_SLIDER&&w->range_keypress?original(node,visitor):0;
@@ -550,7 +561,7 @@ static uint32_t input_post(void *node,void *visitor) {
   return widget_post(node,visitor,original_input_post);
 }
 static void release_idle_widget_notifier(void) {
-  if(!widgets&&!native_popups_exist()&&!native_lists_exist()&&widget_notifier>=0) {
+  if(!color_watch_needed()&&!widgets&&!native_popups_exist()&&!native_lists_exist()&&widget_notifier>=0) {
     remove_text_watch();
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
     exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
@@ -593,6 +604,7 @@ static void active_shell(void *shell,int active) {
 #include "form-labels.inc"
 #include "ranges.inc"
 #include "text.inc"
+#include "colors.inc"
 #include "viewport.inc"
 #include "wheel.inc"
 static struct Detour widget_detours[]={
@@ -615,6 +627,8 @@ static void prepare_widget_metrics(void) {
     preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
   }
   widgets_enabled=1;
+  const char *colors=getenv("NEXTSPACE_FIREFOX_COLORS");
+  colors_enabled=colors&&!strcmp(colors,"1")&&((unsigned)response->parts[1].x&NXS_SPECIAL_COLOR)&&response->parts[1].y==1&&response->parts[0].y==1;
   const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);

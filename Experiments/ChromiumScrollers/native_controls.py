@@ -7,6 +7,7 @@ import fcntl
 import time
 import select
 import socket
+import importlib.util
 from pathlib import Path
 
 MAGIC = 0x4e585549
@@ -359,6 +360,12 @@ class NativeControlServer:
         self.notification_capabilities=int(bool(self.event_capabilities and self.source_capabilities and hasattr(os,'pidfd_open')))
         from native_menus import NativeMenuServer
         self.menus=NativeMenuServer(self,pump_type)
+        try:from color_owners import ColorOwners
+        except ModuleNotFoundError as error:
+            if error.name!='color_owners':raise
+            spec=importlib.util.spec_from_file_location('nextspace_color_owners',Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge/color_owners.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);ColorOwners=module.ColorOwners
+        self.color_owners=ColorOwners(self)
 
     def send(self,client,response,data=b''):
         barrier=self.reply_barriers.get((client,int(response.reserved)&0xffffffff))
@@ -581,6 +588,7 @@ class NativeControlServer:
     def invalidate(self,process):
         self.generations[process]=self.generations.get(process,0)+1
         self.signal(process)
+        self.color_owners.fanout(process)
 
     def notification_message(self,client,req,descriptors,sender_pid):
         accepted=0;reason="request-or-owner"
@@ -716,6 +724,7 @@ class NativeControlServer:
             response.parts[0].y = self._tracking(state)
             response.parts[0].width = state['actions']
             response.parts[0].height = current.state
+            if req.kind==16:response.parts[2].height=state.get('color_model_actions',0)
             preferred = self.native.nxs_control_size(state['native'])
             response.parts[1].width, response.parts[1].height = preferred.width, preferred.height
             response.parts[2].x = current.enabled
@@ -753,7 +762,7 @@ class NativeControlServer:
     def message(self, client, data, descriptors=(),sender_pid=None):
         if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
         if len(data)>=8 and int.from_bytes(data[4:8],'little') in (55,56,57,58):
-            self.specialized_message(client,data)
+            self.specialized_message(client,data,sender_pid)
             return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==47:
             if len(data)!=C.sizeof(ControlRadioItemRequest):return
@@ -813,6 +822,13 @@ class NativeControlServer:
         if not all(math.isfinite(x) for x in (req.x, req.y)):
             self._respond(client, req)
             return
+        if req.operation in (60,61,62):
+            self.color_owners.message(client,req,sender_pid);return
+        if req.operation in (5,59) and req.kind==16:
+            source=self.color_owners.resolve(client,req,sender_pid)
+            if source:
+                accepted=req.operation==5 or req.state in (0,1) and bool(self.native.nxs_control_color_open(source['native'],req.state))
+                self._respond(client,req,source,input_result=int(accepted),pixels=bool(accepted));return
         if req.operation in (15,16):
             self.notification_message(client,req,descriptors,sender_pid)
             return
@@ -1010,6 +1026,7 @@ class NativeControlServer:
                     # No new press is accepted until this pending job drains.
                     state['starting']=False;state['cancel_start']=True
             elif req.operation == 6:
+                self.color_owners.retire(state)
                 state['destroy'] = True
                 if self.active is state:
                     if req.kind!=16:self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
@@ -1149,7 +1166,7 @@ class NativeControlServer:
         if accepted:state['scale']=req.scale
         self._respond(client,req,state,input_result=accepted,pixels=bool(accepted))
 
-    def specialized_message(self,client,data):
+    def specialized_message(self,client,data,sender_pid=None):
         operation=int.from_bytes(data[4:8],'little')
         layout=ControlColorRequest if operation==55 else ControlDateRequest if operation==57 else ControlRequest
         if len(data)!=C.sizeof(layout):return
@@ -1157,18 +1174,30 @@ class NativeControlServer:
         if req.magic!=MAGIC:return
         state=self.controls.get((req.process,req.control,req.kind))
         if state and (state['destroy'] or state['client'] is not client):state=None
+        if not state and operation==56:state=self.color_owners.resolve(client,req,sender_pid)
         color=operation in (55,56);flag=2 if color else 4;kind=16 if color else 17
         accepted=bool(state and req.kind==kind and not req.text_size and self.specialized_capabilities&flag)
         model=(ColorModel if color else DateModel)(size=C.sizeof(ColorModel if color else DateModel))
         if accepted:
             if operation==55:
                 model.red,model.green,model.blue,model.alpha=req.red,req.green,req.blue,req.alpha
-                accepted=bool(self.native.nxs_control_color_sync(state['native'],C.byref(model)))
+                snapshot=(model.red,model.green,model.blue,model.alpha)
+                if self.color_owners.stale_echo(state,snapshot):accepted=True
+                else:
+                    accepted=bool(self.native.nxs_control_color_sync(state['native'],C.byref(model)))
+                    if accepted:
+                        changed=snapshot!=state.get('color_model')
+                        state['color_model']=snapshot;state['color_model_actions']=state['actions']
+                        if changed:
+                            self.color_owners.model_applied(state)
+                            self.invalidate(state['key'][0])
             elif operation==57:
                 model.flags,model.elements,model.style=req.flags,req.elements,req.style
                 model.value,model.minimum,model.maximum=req.value,req.minimum,req.maximum
                 accepted=not req.padding and bool(self.native.nxs_control_date_sync(state['native'],C.byref(model)))
-            else:accepted=bool(getattr(self.native,'nxs_control_color_get' if color else 'nxs_control_date_get')(state['native'],C.byref(model)))
+            else:
+                accepted=bool(getattr(self.native,'nxs_control_color_get' if color else 'nxs_control_date_get')(state['native'],C.byref(model)))
+                if accepted and color:self.color_owners.acknowledge(client,req,state)
         self._respond(client,req,state,input_result=int(bool(accepted)),pixels=bool(accepted and operation in (55,57)),payload=bytes(model) if accepted and operation in (56,58) else b'')
 
     def text_message(self,client,data):
@@ -1269,6 +1298,7 @@ class NativeControlServer:
             self.log('native-form-release',process=state['key'][0],control=state['key'][1],kind=state['key'][2],actions=state['actions'])
 
     def disconnect(self, client):
+        self.color_owners.disconnect(client)
         self.drop_menu_replies(client=client)
         for process,entry in list(self.notifiers.items()):
             if entry['client'] is client:
@@ -1279,6 +1309,7 @@ class NativeControlServer:
                 self.destroy_later(state)
 
     def destroy_later(self,state):
+        self.color_owners.retire(state)
         state['destroy']=True
         if self.active is state:
             if state['key'][2]!=16:self.native.nxs_control_send(state['native'],0,-1,-1,0)

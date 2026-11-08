@@ -225,6 +225,7 @@ static void install(void) {
   if(labels_enabled&&!prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours))){note("Gecko label guard failed; unchanged");return;}
   if((buttons_enabled||popups_requested)&&(!guard_html_button_calls()||!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours)))){note("Gecko button guard failed; unchanged");return;}
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
+  if(colors_enabled&&(!guard_color_calls()||!prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours)))){note("Gecko color guard failed; unchanged");return;}
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
   if(placeholder_enabled&&(memcmp((void *)(base+NXS_GECKO_POPUP_GET_ATTR),gecko_popup_get_attr_bytes,20)||
@@ -249,6 +250,7 @@ static void install(void) {
   if(labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));
   if(buttons_enabled||popups_requested){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note(buttons_enabled?"native Gecko input buttons installed":"native Gecko block display binding installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
+  if(colors_enabled){activate_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours));note("native Gecko color binding installed");}
   if(texts_enabled){activate_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours));note("native Gecko text bindings installed");}
   if(multiline_viewport_enabled||lists_requested){activate_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours));note("native Gecko shared scroll viewport installed");}
   if(wheel_enabled){activate_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours));note("native Gecko wheel binding installed");}

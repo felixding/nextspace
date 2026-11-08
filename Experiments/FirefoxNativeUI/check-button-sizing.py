@@ -13,6 +13,7 @@ p.add_argument('--email-only',action='store_true',help='Run native email editing
 p.add_argument('--search-only',action='store_true',help='Run real GNUstep search-field checks')
 p.add_argument('--search-actions-only',action='store_true',help='Compare native search activation with original form actions')
 p.add_argument('--search-clear-only',action='store_true',help='Check native clear actions after cancellable click dispatch')
+p.add_argument('--colors-only',action='store_true',help='Check native color fields and picker callback ownership')
 p.add_argument('--placeholders-only',action='store_true',help='Check original native field placeholders')
 p.add_argument('--search-notifications-only',action='store_true',help='Compare native clear search events with the original engine')
 a=p.parse_args();root=a.fixture.resolve();rows=[]
@@ -34,9 +35,14 @@ f=ButtonFixture(root,command,js,check,pid,origin,lambda:None)
 try:
  session=m.command('WebDriver:NewSession',{});assert session['capabilities']['moz:processID']==pid
  window=f.wait(lambda:next((w for w in command('windows') if w['pid']==pid and w['level']==0),None));assert command('focus '+str(window['id']))['ok']
- if not (a.text_types_only or a.email_only or a.search_only or a.search_actions_only or a.search_clear_only or a.search_notifications_only or a.placeholders_only):
+ if not (a.text_types_only or a.email_only or a.search_only or a.search_actions_only or a.search_clear_only or a.search_notifications_only or a.placeholders_only or a.colors_only):
   m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-button-sizing.html').as_uri()))
   f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native button sizing'"));buttons(f)
+ if a.colors_only:
+  m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parents[2].joinpath('Tests/Wayland/native-color-fields.html').as_uri()))
+  f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Native color fields'"))
+  from native_color_fields import ColorFixture,run as color_checks
+  out=root/'colors';out.mkdir();color_checks(ColorFixture(out,command,js,check,pid,origin,lambda:None))
  if a.text_regression:
   m.command('WebDriver:Navigate',dict(url=Path(__file__).resolve().parent.parent.joinpath('ChromiumScrollers/test-text.html').as_uri()))
   f.wait(lambda:js("return document.readyState==='complete'&&document.title==='Blink native text transport'"))

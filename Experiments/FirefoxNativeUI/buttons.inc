@@ -164,6 +164,7 @@ static struct Widget *bind_input_widget(void *frame) {
   return bind_widget(frame);
 }
 static void block_display(void *frame,void *builder,const void *lists) {
+  if(color_display(frame,builder,lists))return;
   if(native_popup_display(frame,builder,lists))return;
   void *previous=label_owner;
   if(frame_kind(frame)==NXS_BUTTON)label_owner=prepare_button_image(frame)?frame:NULL;

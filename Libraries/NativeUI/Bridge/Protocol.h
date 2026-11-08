@@ -330,4 +330,14 @@ struct NXSControlDateRequest {
 /* Bootstrap part 1.y advertises native color-panel lifecycle. Owned
  * operation 59 uses NXSControlRequest state=0/1 to close/open a color well's
  * original panel. An inactive well never hides another well's panel. */
+/* Bootstrap part 0.y advertises shared color-well ownership. Operations
+ * 60/61/62 use NXSControlRequest, kind 16. Operation 60 publishes (state=1) or
+ * revokes (0) an owned field's app IPC token in x (exact uint32). Operation 61
+ * borrows that field under the caller's local control ID; the service requires
+ * one unambiguous live source in the caller's OS process family. Operation 62
+ * releases the reference. No second native control is created. Borrowers can
+ * poll, read color and open/close the same original well. Source retirement
+ * revokes the reference and closes its panel. Color replies part 2.height
+ * records the native-action count superseded by application model sync, so
+ * model echoes never masquerade as native user edits. */
 #endif

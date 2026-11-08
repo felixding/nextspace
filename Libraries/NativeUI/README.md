@@ -1122,3 +1122,18 @@ The first consumer is the opt-in exact Chromium sRGB color-input binding. See
 for measured rendering, events, ownership and remaining limitations. Firefox,
 number/date/time/file bindings, remaining menus/shortcuts and subsequent
 GTK/Qt/KDE integration remain part of the active application-wide objective.
+
+Shared color ownership now connects a browser picker in another process to
+the input's existing NSColorWell. `Bridge/ColorOwners.inc` and
+`Bridge/color_owners.py` carry the original application IPC token, registered
+process lifetime and a scoped read/open/close reference. Source data authority
+stays with the original field. There is no second well, copied picker or new
+provider ABI. Native action receipts distinguish pending selections from
+application model echoes; source retirement closes the original panel.
+
+Both pinned browser consumers pass the expanded color cohort, and real-process
+transport checks cover ambiguous sources, sibling/connection/PID impersonation,
+source-only writes, native wheel selection and source retirement/exit. See
+[shared qualification](color-owner-qualification.json). The Firefox native
+sRGB path is now measured; broad modes, recovery, derivatives and deployment,
+other input categories and the remaining application-wide objective stay open.
