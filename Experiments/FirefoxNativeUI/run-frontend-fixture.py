@@ -20,6 +20,7 @@ parser.add_argument('--control-helper',type=Path,help='Use an alternative contro
 parser.add_argument('--capture-probe',type=Path,required=True)
 parser.add_argument('--compositor',default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--export-menus',action='store_true',help='Enable Firefox menu export on a private test bus; requires the app-menu Wayland protocol')
+parser.add_argument('--file-portal',action='store_true',help='Run the shared native FileChooser backend through a real private portal frontend')
 parser.add_argument('--shared-menus',action='store_true',help='Bind the exported menu in the existing native text/control helper')
 parser.add_argument('--menu-shell-probe',type=Path,help='Use the actual Workspace shell/menu connections for automatic active-window association')
 parser.add_argument('--port',type=int,default=2833)
@@ -65,13 +66,30 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
   assert select.select([compositor.stdout],[],[],10)[0]
   env['WAYLAND_DISPLAY']=compositor.stdout.readline().strip().split('=',1)[1]
   env['NEXTSPACE_SESSION_ID']='firefox-native-frontend-'+uuid.uuid4().hex
-  if a.export_menus:
+  if a.export_menus or a.file_portal:
    bus=subprocess.Popen(['dbus-daemon','--session','--nofork','--print-address=1'],stdout=subprocess.PIPE,stderr=(out/'bus.stderr').open('w'),text=True);children.append(bus)
    assert select.select([bus.stdout],[],[],10)[0]
    env['DBUS_SESSION_BUS_ADDRESS']=bus.stdout.readline().strip()
+  if a.export_menus:
    registrar=subprocess.Popen(['python3',str(Path(__file__).resolve().parents[2]/'Tests/NativeUI/dbus-menu-registrar.py')],env=env,stdout=subprocess.PIPE,stderr=(out/'registrar.stderr').open('w'),text=True);children.append(registrar)
    assert select.select([registrar.stdout],[],[],10)[0]
    ready=registrar.stdout.readline();assert json.loads(ready)['event']=='ready';(out/'registrar-ready.json').write_text(ready)
+  if a.file_portal:
+   portal_source=Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Portal'
+   portal_dir=runtime/'portals';portal_dir.mkdir()
+   (portal_dir/'nextspace-native.portal').write_text((portal_source/'nextspace-native.portal').read_text())
+   config_dir=runtime/'config';config_dir.mkdir()
+   preferences=config_dir/'xdg-desktop-portal';preferences.mkdir()
+   (preferences/'nextspace-portals.conf').write_text('[preferred]\ndefault=none\norg.freedesktop.impl.portal.FileChooser=nextspace-native\n')
+   (portal_dir/'nextspace-portals.conf').write_text((preferences/'nextspace-portals.conf').read_text())
+   env.update(XDG_SESSION_TYPE='wayland',XDG_SESSION_CLASS='user',XDG_CURRENT_DESKTOP='NEXTSPACE',XDG_CONFIG_HOME=str(config_dir),XDG_DESKTOP_PORTAL_DIR=str(portal_dir),GTK_USE_PORTAL='1')
+   portal_args=['python3',str(portal_source/'main.py'),'--library',str(a.library.resolve().parent/'native-ui/libnextspace-native-ui.so.1'),'-GSBackend',a.backend]
+   if a.theme:portal_args+=['-GSTheme',a.theme]
+   portal=subprocess.Popen(portal_args,env=env,stdout=(out/'file-portal.jsonl').open('w'),stderr=(out/'file-portal.stderr').open('w'));children.append(portal)
+   deadline=time.monotonic()+15
+   while '"event": "ready"' not in (out/'file-portal.jsonl').read_text():
+    assert portal.poll() is None and time.monotonic()<deadline;time.sleep(.02)
+   frontend=subprocess.Popen(['/usr/libexec/xdg-desktop-portal','--replace','--verbose'],env=env,stdout=(out/'portal-frontend.log').open('w'),stderr=(out/'portal-frontend.stderr').open('w'));children.append(frontend)
   capture=Client(str(a.capture_probe),None,env,out,'capture',broker,b'V')
   assert capture.events[0]['manager_visible']
   services.enter_context(pasteboard_storage(Path('/Library/bin/gpbs-wayland'),a.library.resolve().parent/'native-ui/native-pasteboard-probe',env,out))
@@ -95,10 +113,11 @@ with tempfile.TemporaryDirectory(prefix='native-gecko-frontend-') as d:
    menu_shell=subprocess.Popen(shell_args,env=env,pass_fds=[shell_client.fileno(),menu_parent.fileno()],stdin=subprocess.PIPE,stdout=(out/'menu-shell.jsonl').open('w'),stderr=(out/'menu-shell.stderr').open('w'))
    children.append(menu_shell);shell_client.close();menu_parent.close()
    (out/'menu-shell-launch.json').write_text(json.dumps(dict(pid=menu_shell.pid,arguments=shell_args))+'\n')
-  runtime_keys=['XDG_RUNTIME_DIR','WAYLAND_DISPLAY','NEXTSPACE_SESSION_ID','LD_LIBRARY_PATH']+(['DBUS_SESSION_BUS_ADDRESS'] if a.export_menus else [])
+  runtime_keys=['XDG_RUNTIME_DIR','WAYLAND_DISPLAY','NEXTSPACE_SESSION_ID','LD_LIBRARY_PATH']+(['DBUS_SESSION_BUS_ADDRESS'] if a.export_menus or a.file_portal else [])
   (out/'runtime.json').write_text(json.dumps({key:env[key] for key in runtime_keys})+'\n')
   profile=runtime/'profile';profile.mkdir()
   prefs={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','datareporting.policy.dataSubmissionEnabled':False,'gfx.webrender.software':True}
+  if a.file_portal:prefs['widget.use-xdg-desktop-portal.file-picker']=1
   if a.export_menus:prefs.update({'widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True})
   if a.firefox:(profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in prefs.items()))
   if a.native_frame:

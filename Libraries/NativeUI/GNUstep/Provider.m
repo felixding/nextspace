@@ -67,7 +67,16 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_specialized_capabilities=nxs_gnustep_control_specialized_capabilities,
     .control_color_sync=nxs_gnustep_control_color_sync,.control_color_get=nxs_gnustep_control_color_get,
     .control_date_sync=nxs_gnustep_control_date_sync,.control_date_get=nxs_gnustep_control_date_get,
-    .control_color_open=nxs_gnustep_control_color_open
+    .control_color_open=nxs_gnustep_control_color_open,
+    .event_source_callback=nxs_gnustep_source_callback,
+    .file_panel_create=nxs_gnustep_file_panel_create,
+    .file_panel_configure=nxs_gnustep_file_panel_configure,
+    .file_panel_run=nxs_gnustep_file_panel_run,
+    .file_panel_cancel=nxs_gnustep_file_panel_cancel,
+    .file_panel_state=nxs_gnustep_file_panel_state,
+    .file_panel_result=nxs_gnustep_file_panel_result,
+    .file_panel_choice=nxs_gnustep_file_panel_choice,
+    .file_panel_destroy=nxs_gnustep_file_panel_destroy
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

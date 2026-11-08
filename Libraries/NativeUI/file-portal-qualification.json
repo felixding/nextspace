@@ -1,0 +1,373 @@
+{
+  "status": "partial shared native FileChooser checkpoint; full browser objective remains active",
+  "api": {
+    "version": 1,
+    "bytes": 720,
+    "preserved_prefix": 648
+  },
+  "provider_candidate": "file-panel-04",
+  "base_revision": "b591a670bf7d50ad0d9c23f421c1d8165c77508a",
+  "shared_components": [
+    "original NSOpenPanel and NSSavePanel factories/modal methods",
+    "original native filter popup, choice popups and checkboxes",
+    "original native overwrite alerts",
+    "one backend shared by browsers and subsequent toolkit consumers"
+  ],
+  "transport": {
+    "backend": "org.freedesktop.impl.portal.desktop.nextspace",
+    "interfaces": [
+      "org.freedesktop.impl.portal.FileChooser",
+      "org.freedesktop.impl.portal.Request"
+    ],
+    "methods": [
+      "OpenFile",
+      "SaveFile",
+      "SaveFiles"
+    ],
+    "frontend_authentication": "unique owner of org.freedesktop.portal.Desktop",
+    "ui_dispatch": "callback descriptor source in original native default/tracking/modal loops"
+  },
+  "runs": {
+    "firefox": {
+      "engine": "firefox",
+      "results": [
+        {
+          "case": "native-panel-returned-original-browser-file-object",
+          "passed": true
+        },
+        {
+          "case": "original-browser-trusted-input-and-change-events",
+          "passed": true
+        },
+        {
+          "case": "browser-read-the-selected-file-payload",
+          "passed": true
+        },
+        {
+          "case": "native-cancel-preserved-selection-and-original-trusted-event",
+          "passed": true
+        }
+      ],
+      "focus_assistance": [
+        "first-open",
+        "reopen"
+      ],
+      "cancel_clicks": 1,
+      "parent_import_qualified": false
+    },
+    "portal": [
+      {
+        "case": "untrusted-backend-call-rejected",
+        "passed": true
+      },
+      {
+        "case": "public-request-close-replied-during-native-modal-loop",
+        "passed": true
+      },
+      {
+        "case": "request-close-removed-native-panel",
+        "passed": true
+      },
+      {
+        "case": "native-cancel-button-cancellation",
+        "passed": true
+      },
+      {
+        "case": "native-selection-filter-and-choice-identities-returned",
+        "passed": true
+      },
+      {
+        "case": "native-save-panel-returned-uri-without-writing-file",
+        "passed": true
+      },
+      {
+        "case": "request-close-cancelled-original-nested-overwrite-alert",
+        "passed": true
+      },
+      {
+        "case": "batch-save-used-native-folder-panel-and-preserved-order",
+        "passed": true
+      },
+      {
+        "case": "caller-exit-withdrew-native-panel",
+        "passed": true
+      }
+    ],
+    "chromium": {
+      "engine": "chromium",
+      "results": [
+        {
+          "case": "native-panel-returned-original-browser-file-object",
+          "passed": true
+        },
+        {
+          "case": "original-browser-trusted-input-and-change-events",
+          "passed": true
+        },
+        {
+          "case": "browser-read-the-selected-file-payload",
+          "passed": true
+        },
+        {
+          "case": "native-cancel-preserved-selection-and-original-trusted-event",
+          "passed": true
+        }
+      ],
+      "focus_assistance": [
+        "reopen"
+      ],
+      "parent_import_qualified": false
+    }
+  },
+  "compatibility": [
+    {
+      "older_provider": false,
+      "api_size": 720,
+      "passed": true
+    },
+    {
+      "older_provider": true,
+      "api_size": 648,
+      "passed": true
+    }
+  ],
+  "sdk": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui.so.0.1",
+      "sha256": "5ca595d69d7b52155809ed22e6e45b715379e823af34eb3f6d7a39a8870132c7",
+      "bytes": 75104
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "sha256": "f3ce8f27105a05d8437b57208fdabb13b232f3aeae7787d53191081c98c206b7",
+      "bytes": 411608
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/libnextspace-native-scroller.so.0.1",
+      "sha256": "7a400ad4b6aadd721e4f2ab0bd03e75bf9285201e1820b7f85e6b5ae1e072024",
+      "bytes": 69968
+    }
+  },
+  "unchanged_production_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "bytes": 308415392,
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "bytes": 549896,
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48"
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "bytes": 171640536,
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 10063865,
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "bytes": 78144,
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac"
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor",
+      "bytes": 1381176,
+      "sha256": "57db0e3df9ce4237fc88ed31a11ea8a6c8f4c87dfe3c38c96693a3a632b65c99"
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "bytes": 1258024,
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-button-sizing-05-hook.so",
+      "bytes": 165008,
+      "sha256": "0d2fc22779b3e2559a3968dffbbb3e5d9064b2bcf0076b2e29405db1993c17df"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-popup-sizing-04-hook.so",
+      "bytes": 158256,
+      "sha256": "99265fdd04f2d74bb3180ecbd280891838b294a0f3d9804c4afaf32ab4a49ab7"
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1042672,
+      "sha256": "175122726a355ba1f38165cd4c2640f51228a1d06d2bb015c7266d44421746f0"
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0.2417.32",
+      "bytes": 1186176,
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0"
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "e3a9ab59b8449be7820b6b6456450f70f7a62a46ef2a041a0f2369d598faf70a"
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.0.1",
+      "bytes": 73064,
+      "sha256": "6a50efce52ea2d4c6010f52b2ddb287c56db6758d163334e315396bfb3b6522d"
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310712,
+      "sha256": "a26428f47c1c407d567328f828856deb5f7e92a72a41d31c06ffca6792d9acb7"
+    },
+    "chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "bytes": 166448,
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558"
+    },
+    "firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "bytes": 54175769,
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac"
+    },
+    "gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-geometry-build-02/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 72728,
+      "sha256": "ce60ad0c60cc78bd1b0208947eff28eb61f9d340758f264588587bb4b77d9464"
+    },
+    "probe_native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "435436b8b937d9235d8ed88417d014f353877aff0cd571f2878b2a90cf6cecad"
+    },
+    "probe_native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73176,
+      "sha256": "5300cbb85452b5d02827382f306599cd8f430af3413b25140164cc2560f6c9a8"
+    },
+    "probe_native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310960,
+      "sha256": "7799fb35173f53246adfc7181de5ae13c0b8e4af46de824b0d341af6d53ea860"
+    }
+  },
+  "unchanged_prior_sdk": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74560,
+      "sha256": "d27d64892e8d03bd26dbd4cfdd07d3ad3c7627b3bac5b1b0a4cb5ceedf14b698"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 335632,
+      "sha256": "03cc41cde5771b05eaf89f5cc6ba5e7986360e5fc715222ef5220f3556115623"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "5e7861e89eb2bade7f3509d862102432acbed87e1b64ab6d48de2097667157de"
+    }
+  },
+  "staged_modules": {
+    "main.py": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/stage/usr/NextSpace/libexec/nextspace-native-file-portal/main.py",
+      "sha256": "33bb47a9b2d2c0ef658b668c2c2f662211ac9f1926a260050481b2b53e5a76bc"
+    },
+    "native_files.py": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/stage/usr/NextSpace/libexec/nextspace-native-file-portal/native_files.py",
+      "sha256": "50c6396a3d0cf38de2389b9e97f29f8ee10412bd71385f369d6bdbbe22393e87"
+    },
+    "file_chooser.py": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/stage/usr/NextSpace/libexec/nextspace-native-file-portal/file_chooser.py",
+      "sha256": "da652d7ee34f05c91e2118f5eff48c09b632089539a24e8becd4ee17b36720da"
+    }
+  },
+  "sandbox": [
+    {
+      "pid": 250225,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250243,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250244,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250325,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250364,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250425,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250429,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250443,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 250488,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    }
+  ],
+  "package_count": 1050,
+  "live_owned": [],
+  "scope": {
+    "browser_rebuilt": false,
+    "appkit_rebuilt": false,
+    "backend_rebuilt": false,
+    "original_browser_toolbar_addressbar_tabs": true,
+    "fixture_preferences": [
+      "GTK_USE_PORTAL=1",
+      "Firefox widget.use-xdg-desktop-portal.file-picker=1"
+    ],
+    "focus_assistance": "owned compositor focus explicitly recorded; automatic parent/focus is not qualified",
+    "tested_browser_picker": "OpenFile; generic SaveFile/SaveFiles exercised through real frontend"
+  },
+  "remaining": [
+    "xdg_foreign parent import and reliable cross-client activation/focus restoration",
+    "inline file-input buttons and labels",
+    "number/date/time browser bindings",
+    "sandboxed document export and installed service activation",
+    "multi-file gestures, changed filters/choices and overwrite acceptance",
+    "styles/scales/IME/accessibility, browser derivatives and deployment",
+    "existing combined Chromium disabled-field repaint mismatch",
+    "remaining detached menus and native shortcuts",
+    "subsequent GTK/Qt/KDE integration"
+  ],
+  "excluded_diagnostics": [
+    "file-panel-01: external cancellation did not wake native pending event peek",
+    "file-panel-02/03: parent focus and nested modal restoration gaps; automatic focus remains open",
+    "earlier harness used Escape without a native binding and clicked Chromium filename text or stale native panel geometry",
+    "first audit included the unsandboxed Firefox forkserver; final scan uses actual -isForBrowser/renderer processes"
+  ],
+  "evidence": {
+    "archive": ".build/evidence/components/native-file-portal-20261108-v1-evidence.tar.gz",
+    "sha256": "5635f1b8bcfa6cde93727eb1387b967431bb16f2cbbecf9d42b399b0b8e59252",
+    "bytes": 1630447,
+    "files": 435,
+    "runtime_audit": ".build/native-ui/file-portal-runtime-audit.json",
+    "screenshots": [
+      ".build/native-ui/firefox-native-file-final.png",
+      ".build/native-ui/chromium-native-file-final.png"
+    ]
+  }
+}

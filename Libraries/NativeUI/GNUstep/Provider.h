@@ -81,3 +81,13 @@ int nxs_gnustep_menu_branch_items(NXSMenu *,uint64_t,const NXSMenuItem *,uint32_
 int nxs_gnustep_control_toolbar_items(NXSControl *,const NXSToolbarItem *,uint32_t,uint32_t,uint32_t);
 NXSToolbarState nxs_gnustep_control_toolbar_state(NXSControl *);
 NXSRect nxs_gnustep_control_toolbar_item_rect(NXSControl *,uint64_t);
+
+NXSEventSource *nxs_gnustep_source_callback(int,NXSPump,void *);
+NXSFilePanel *nxs_gnustep_file_panel_create(int,NXSFileAllows,void *);
+int nxs_gnustep_file_panel_configure(NXSFilePanel *,const NXSFilePanelConfig *);
+int nxs_gnustep_file_panel_run(NXSFilePanel *);
+int nxs_gnustep_file_panel_cancel(NXSFilePanel *);
+NXSFilePanelState nxs_gnustep_file_panel_state(NXSFilePanel *);
+size_t nxs_gnustep_file_panel_result(NXSFilePanel *,uint32_t,char *,size_t);
+int nxs_gnustep_file_panel_choice(NXSFilePanel *,uint32_t);
+int nxs_gnustep_file_panel_destroy(NXSFilePanel *);

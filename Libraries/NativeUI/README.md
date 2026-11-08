@@ -12,6 +12,11 @@ browser-specific patches above the shared bridge. Those patches must consume
 the same native provider used by webpage controls and subsequent GTK/Qt/KDE
 adapters, so changes to native controls stay in one UI library.
 
+The optional [native FileChooser portal](Portal/README.md) shares original
+GNUstep open/save panels across browsers and later GTK/Qt consumers. Its
+transport forwards models and results; the provider owns every visible control.
+Parent-window import and repeated-dialog activation remain unqualified.
+
 The optional [session host](Host/README.md) now starts through the user launcher
 and supervisor when installed. It reuses the shared bridge and this provider,
 with no copied control implementation. Its staged session checks and remaining

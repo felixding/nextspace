@@ -184,7 +184,7 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 @implementation NXSApplication
 /* AppKit resolves nil-target menu actions through the embedding application's
  * logical key window, without ordering a private backing window on screen. */
-- (NSWindow *)keyWindow {return focused?focused->window:[super keyWindow];}
+- (NSWindow *)keyWindow {return focused&&!nxs_gnustep_file_panel_active()?focused->window:[super keyWindow];}
 - (id)targetForAction:(SEL)action to:(id)recipient from:(id)sender
 {
   id native=[super targetForAction:action to:recipient from:sender];

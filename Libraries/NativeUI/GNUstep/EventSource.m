@@ -3,11 +3,14 @@
 #include "Provider.h"
 #include <fcntl.h>
 #include <stdlib.h>
-@interface NXSDescriptorWatcher : NSObject <RunLoopEvents>
+@interface NXSDescriptorWatcher : NSObject <RunLoopEvents> { @public NXSPump callback;void *context; }
 @end
 @implementation NXSDescriptorWatcher
 - (void)receivedEvent:(void *)data type:(RunLoopEventType)type extra:(void *)extra forMode:(NSString *)mode
 {
+  [self retain];
+  @try {if(callback)callback(context);}
+  @finally {[self release];}
   /* Readiness wakes NSRunLoop.runMode. The embedding application consumes
    * its own messages after dispatch_events returns. Do not read its data. */
 }
@@ -19,7 +22,7 @@ struct NXSEventSource {
   struct NXSEventSource *next;
 };
 static NXSEventSource *sources;
-NXSEventSource *nxs_gnustep_source_create(int descriptor)
+NXSEventSource *nxs_gnustep_source_callback(int descriptor,NXSPump callback,void *context)
 {
   if(descriptor<0||fcntl(descriptor,F_GETFD)<0)return NULL;
   for(NXSEventSource *source=sources;source;source=source->next)
@@ -28,7 +31,8 @@ NXSEventSource *nxs_gnustep_source_create(int descriptor)
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSEventSource *source=calloc(1,sizeof(*source));if(!source){[pool drain];return NULL;}
   source->descriptor=descriptor;source->loop=[[NSRunLoop currentRunLoop] retain];source->watcher=[NXSDescriptorWatcher new];
-  for(NSString *mode in @[NSDefaultRunLoopMode,NSEventTrackingRunLoopMode])
+  source->watcher->callback=callback;source->watcher->context=context;
+  for(NSString *mode in @[NSDefaultRunLoopMode,NSEventTrackingRunLoopMode,NSModalPanelRunLoopMode])
     [source->loop addEvent:(void *)(intptr_t)descriptor type:ET_RDESC watcher:source->watcher forMode:mode];
   source->next=sources;sources=source;[pool drain];return source;
 }
@@ -39,7 +43,10 @@ int nxs_gnustep_source_destroy(NXSEventSource *source)
   while(*cursor&&*cursor!=source)cursor=&(*cursor)->next;
   if(!*cursor||source->loop!=[NSRunLoop currentRunLoop])return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  for(NSString *mode in @[NSDefaultRunLoopMode,NSEventTrackingRunLoopMode])
+  for(NSString *mode in @[NSDefaultRunLoopMode,NSEventTrackingRunLoopMode,NSModalPanelRunLoopMode])
     [source->loop removeEvent:(void *)(intptr_t)source->descriptor type:ET_RDESC forMode:mode all:NO];
   *cursor=source->next;[source->watcher release];[source->loop release];free(source);[pool drain];return 1;
 }
+
+NXSEventSource *nxs_gnustep_source_create(int descriptor)
+{return nxs_gnustep_source_callback(descriptor,NULL,NULL);}

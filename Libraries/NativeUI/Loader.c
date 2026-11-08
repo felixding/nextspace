@@ -231,3 +231,26 @@ unsigned nxs_control_color_panel_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?1:0;}
 int nxs_control_color_open(NXSControl *c,int open)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?p->control_color_open(c,open):0;}
+
+unsigned nxs_native_ui_callback_source_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_callback)?1:0;}
+NXSEventSource *nxs_native_ui_source_callback(int descriptor,NXSPump callback,void *context)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_callback)?p->event_source_callback(descriptor,callback,context):NULL;}
+unsigned nxs_file_panel_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_create)&&HAS_INPUT(p,file_panel_configure)&&HAS_INPUT(p,file_panel_run)&&HAS_INPUT(p,file_panel_cancel)&&HAS_INPUT(p,file_panel_state)&&HAS_INPUT(p,file_panel_result)&&HAS_INPUT(p,file_panel_choice)&&HAS_INPUT(p,file_panel_destroy)?1:0;}
+NXSFilePanel * nxs_file_panel_create(int mode,NXSFileAllows filter,void *context)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_create)?p->file_panel_create(mode,filter,context):NULL;}
+int nxs_file_panel_configure(NXSFilePanel *panel,const NXSFilePanelConfig *config)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_configure)?p->file_panel_configure(panel,config):0;}
+int nxs_file_panel_run(NXSFilePanel *panel)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_run)?p->file_panel_run(panel):2;}
+int nxs_file_panel_cancel(NXSFilePanel *panel)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_cancel)?p->file_panel_cancel(panel):0;}
+NXSFilePanelState nxs_file_panel_state(NXSFilePanel *panel)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_state)?p->file_panel_state(panel):((NXSFilePanelState){.size=sizeof(NXSFilePanelState),.result=2});}
+size_t nxs_file_panel_result(NXSFilePanel *panel,uint32_t index,char *buffer,size_t capacity)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_result)?p->file_panel_result(panel,index,buffer,capacity):0;}
+int nxs_file_panel_choice(NXSFilePanel *panel,uint32_t index)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_choice)?p->file_panel_choice(panel,index):-1;}
+int nxs_file_panel_destroy(NXSFilePanel *panel)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_destroy)?p->file_panel_destroy(panel):0;}

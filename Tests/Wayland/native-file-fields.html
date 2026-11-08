@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native file fields</title>
+<style>body {margin:36px;background:white;font:16px sans-serif} p {margin:28px 0}</style>
+<h1>Shared GNUstep file panels</h1>
+<p><label>Open a file <input id="single" type="file"></label></p>
+<p><label>Open text files <input id="multiple" type="file" multiple accept=".txt,text/plain"></label></p>
+<p><label>Disabled <input id="disabled" type="file" disabled></label></p>
+<script>
+window.events=[];
+for (const element of document.querySelectorAll('input'))
+  for (const type of ['input','change','cancel'])
+    element.addEventListener(type,event=>events.push({id:element.id,type,
+      trusted:event.isTrusted,files:Array.from(element.files,file=>file.name)}));
+</script>

@@ -11,6 +11,7 @@ typedef struct NXSScroller NXSScroller;
 typedef struct NXSControl NXSControl;
 typedef struct NXSEventSource NXSEventSource;
 typedef struct NXSMenu NXSMenu;
+typedef struct NXSFilePanel NXSFilePanel;
 typedef struct { double x, y, width, height; } NXSRect;
 typedef struct { double width, height; } NXSSize;
 typedef struct { double x, y; } NXSPoint;
@@ -19,6 +20,24 @@ typedef void (*NXSChanged)(void *context, double value);
 typedef void (*NXSPump)(void *context);
 enum { NXS_SHIFT = 1, NXS_ALT = 2, NXS_CONTROL = 4, NXS_SUPER = 8 };
 enum { NXS_MOVE, NXS_RELEASE };
+
+/* Native file-panel data only; the provider owns every visible control. */
+enum NXSFilePanelMode { NXS_FILE_OPEN, NXS_FILE_SAVE };
+enum NXSFilePanelFlag { NXS_FILE_MULTIPLE=1, NXS_FILE_DIRECTORY=2, NXS_FILE_HIDDEN=4 };
+typedef int (*NXSFileAllows)(void *,const char *,uint32_t);
+typedef struct {
+  uint32_t size,count,selected,reserved;
+  const char *label;
+  const char *const *options; /* No options means an original checkbox. */
+} NXSFileChoice;
+typedef struct {
+  uint32_t size,flags,filter_count,selected_filter,choice_count,batch_count;
+  const char *title,*directory,*name,*accept_label;
+  const char *const *filter_titles;
+  const NXSFileChoice *choices;
+  const char *const *batch_names; /* SaveFiles: names within one chosen folder. */
+} NXSFilePanelConfig;
+typedef struct { uint32_t size;int32_t result;uint32_t count,selected_filter; } NXSFilePanelState;
 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
@@ -320,6 +339,15 @@ typedef struct {
   int (*control_date_sync)(NXSControl *,const NXSDateModel *);
   int (*control_date_get)(NXSControl *,NXSDateModel *);
   int (*control_color_open)(NXSControl *,int);
+  NXSEventSource *(*event_source_callback)(int,NXSPump,void *);
+  NXSFilePanel *(*file_panel_create)(int,NXSFileAllows,void *);
+  int (*file_panel_configure)(NXSFilePanel *,const NXSFilePanelConfig *);
+  int (*file_panel_run)(NXSFilePanel *);
+  int (*file_panel_cancel)(NXSFilePanel *);
+  NXSFilePanelState (*file_panel_state)(NXSFilePanel *);
+  size_t (*file_panel_result)(NXSFilePanel *,uint32_t,char *,size_t);
+  int (*file_panel_choice)(NXSFilePanel *,uint32_t);
+  int (*file_panel_destroy)(NXSFilePanel *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 
@@ -333,6 +361,26 @@ unsigned nxs_control_color_panel_capabilities(void);
 /* Explicit native color-panel lifecycle. Closing only hides the panel when
  * this well owns it; another well's original native ownership is preserved. */
 int nxs_control_color_open(NXSControl *,int open);
+/* File panels are UI-thread objects. Only one may exist at a time. Configure
+ * before run; run calls the original native modal method and returns 0/1/2
+ * for accepted/cancelled/failed. Cancellation is allowed from a callback source
+ * serviced by that modal loop. Configure/destroy reject during run or filter
+ * callbacks. The caller retains callback/context ownership until destroy.
+ * Results are file URIs; result() returns required bytes including the NUL and
+ * copies only if capacity is sufficient. state.result is -1 while running. */
+unsigned nxs_file_panel_capabilities(void);
+/* Read the descriptor in this UI-thread callback. It is also serviced during
+ * native modal/tracking loops; descriptor and callback remain caller-owned. */
+unsigned nxs_native_ui_callback_source_capabilities(void);
+NXSEventSource *nxs_native_ui_source_callback(int,NXSPump,void *);
+NXSFilePanel *nxs_file_panel_create(int,NXSFileAllows,void *);
+int nxs_file_panel_configure(NXSFilePanel *,const NXSFilePanelConfig *);
+int nxs_file_panel_run(NXSFilePanel *);
+int nxs_file_panel_cancel(NXSFilePanel *);
+NXSFilePanelState nxs_file_panel_state(NXSFilePanel *);
+size_t nxs_file_panel_result(NXSFilePanel *,uint32_t,char *,size_t);
+int nxs_file_panel_choice(NXSFilePanel *,uint32_t);
+int nxs_file_panel_destroy(NXSFilePanel *);
 /* Optional typed models for the original native color and date controls.
  * All strings/formatters, drawing, field layout and tracking remain native.
  * Mutations reject tracking/reentry. Getters remain available in callbacks.

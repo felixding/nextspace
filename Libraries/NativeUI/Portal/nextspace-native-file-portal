@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+bindir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec /usr/bin/python3 "$bindir/../libexec/nextspace-native-file-portal/main.py" \
+  --library "$bindir/../lib/nextspace-scrollbars/libnextspace-native-ui.so.1" \
+  -GSBackend "${NEXTSPACE_GS_BACKEND:-wayland}" "$@"

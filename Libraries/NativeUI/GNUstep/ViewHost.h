@@ -40,3 +40,5 @@ NSView *nxs_host_hit_view(NXSViewHost *,double,double);
 NSPoint nxs_host_point_to_view(NXSViewHost *,NSView *,double,double);
 void nxs_host_bind_input_window(NXSViewHost *,NSWindow *);
 void nxs_host_unbind_input_windows(NXSViewHost *);
+
+int nxs_gnustep_file_panel_active(void);
