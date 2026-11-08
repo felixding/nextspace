@@ -1159,3 +1159,11 @@ regression checks. See [action transport qualification](action-log-qualification
 and [Chromium qualification](../../Experiments/ChromiumScrollers/number-qualification.json)
 for exact scope. Browser recovery after receipt loss or host restart is still
 unqualified; reporting a transport gap does not establish consumer recovery.
+
+Firefox now uses the same stepper binding and callback receipts for numeric
+fields, composing the provider's existing NSTextField and NSStepper with its
+original Gecko numeric model. Its focused qualification covers original-engine
+events/focus and six independent native component images; the provider and
+API1/720 are unchanged. See [Firefox number qualification](../../Experiments/FirefoxNativeUI/number-qualification.json).
+Dates/times, broader compatibility/recovery and the remaining application-wide
+objective remain open.

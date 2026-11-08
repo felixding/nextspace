@@ -228,6 +228,7 @@ static void install(void) {
   if(colors_enabled&&(!guard_color_calls()||!prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours)))){note("Gecko color guard failed; unchanged");return;}
   if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
+  if(numbers_enabled&&!guard_number_calls()){note("Gecko number guard failed; unchanged");return;}
   if(placeholder_enabled&&(memcmp((void *)(base+NXS_GECKO_POPUP_GET_ATTR),gecko_popup_get_attr_bytes,20)||
      memcmp((void *)(base+NXS_GECKO_POPUP_ATOMIZE),gecko_popup_atomize_bytes,20)||
      memcmp((void *)(base+NXS_GECKO_PLACEHOLDER_NEWLINES),gecko_placeholder_newlines_bytes,20))){note("Gecko placeholder model guard failed; unchanged");return;}

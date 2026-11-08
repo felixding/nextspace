@@ -1,7 +1,9 @@
 """Real browser number semantics and native-editor trials on an owned fixture."""
 import json
 from pathlib import Path
+import re
 import socket
+import sys
 import time
 
 
@@ -200,3 +202,68 @@ class ChromiumNumbers:
             assert self.command(f'key 103 {state}')['ok']
         time.sleep(.15)
         self.check('number-arrow-key-retains-original-application-action', self.js('normal.value') == '3')
+
+
+class FirefoxNumbers(ChromiumNumbers):
+    """Reuse the same model/edit/lifecycle cohort through Firefox's own driver.
+
+    The fixed fixture uses identical input sizes. Pointer coordinates come
+    from Gecko's actual anonymous button frame reported by the native adapter;
+    original/native fixtures retain the same unmodified engine layout.
+    """
+    def __init__(self, root, port, geometry_from=None):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2]/'Experiments/FirefoxNativeUI'))
+        from marionette import Marionette
+        self.root = Path(root)
+        self.results = []
+        self.driver = Marionette(port)
+        self.driver.command('WebDriver:NewSession', {})
+        self.driver.command('WebDriver:Navigate', dict(url='file:///workspace/Tests/Wayland/native-number-fields.html'))
+        self.until(lambda: self.js('document.title') == 'Native number fields', 'Firefox page load')
+        pid = json.loads((self.root/'launch.json').read_text())['pids'][-1]
+        window = next(item for item in self.command('windows') if item['pid'] == pid and item['level'] == 0)
+        assert self.command('focus '+str(window['id']))['ok']
+        assert self.js('devicePixelRatio') == 1
+        self.origin = self.js('[mozInnerScreenX,mozInnerScreenY]')
+        log = Path(geometry_from or root)/'hook.log'
+        pattern = r'native-number id=\d+ stepper=\d+ rect=([\d.]+),([\d.]+) ([\d.]+)x([\d.]+)'
+        geometry = self.until(lambda: re.findall(pattern, log.read_text()), 'original Gecko spin-box geometry')
+        self.spin_geometry = tuple(map(float, geometry[-1]))
+
+    def js(self, script):
+        return self.driver.command('WebDriver:ExecuteScript', dict(script='return eval(arguments[0]);', args=[script]))['value']
+
+    def snapshot(self, identifier):
+        model = super().snapshot(identifier)
+        model['focused'] = self.js('document.getElementById('+json.dumps(identifier)+')===document.activeElement')
+        return model
+
+    def spin_box(self, identifier):
+        box = self.js('document.getElementById('+json.dumps(identifier)+').getBoundingClientRect().toJSON()')
+        x, y, width, height = self.spin_geometry
+        return box['x']+x, box['y']+y, box['x']+x+width, box['y']+y+height
+
+    def close(self):
+        self.driver.close()
+
+    def native_pixel_trials(self):
+        import math
+        from PIL import Image, ImageChops
+        assert self.command('pointer 1500 1100')['ok']
+        for identifier in ['normal','readonly','disabled']:
+            self.js('document.activeElement.blur()');time.sleep(.15)
+            model=self.js('(()=>{let e=document.getElementById('+json.dumps(identifier)+');return {box:e.getBoundingClientRect().toJSON(),text:e.value,enabled:!e.disabled,editable:!e.readOnly&&!e.disabled}})()')
+            x,y,width,height=self.spin_geometry
+            fields=[dict(id=identifier+'-editor',kind=7,title='',state=0,width=x,height=model['box']['height'],enabled=model['enabled'],editable=model['editable'],text=model['text']),dict(id=identifier+'-stepper',kind=15,title='',state=0,width=width,height=height,enabled=model['editable'],minimum=-sys.float_info.max,maximum=sys.float_info.max,value=0)]
+            reply=self.command('reference '+json.dumps(dict(name=identifier+'-number-reference',controls=fields,focus=False)))
+            capture=self.command('capture '+self.command('outputs')[0]['name']);event=capture['event']
+            actual=Image.frombytes('RGB',(event['width'],event['height']),Path(capture['path']).read_bytes(),'raw','BGRX',event['stride'])
+            actual.save(self.root/(identifier+'-number-desktop.png'))
+            for control,offset in zip(fields,[(0,0),(x,y)]):
+                expected=Image.open(Path(reply['path'])/(control['id']+'.png')).convert('RGBA')
+                canvas=Image.new('RGBA',expected.size,'white');canvas.alpha_composite(expected);expected=canvas.convert('RGB')
+                left=math.floor(self.origin[0]+model['box']['x']+offset[0]+.5);top=math.floor(self.origin[1]+model['box']['y']+offset[1]+.5)
+                cropped=actual.crop((left,top,left+expected.width,top+expected.height))
+                cropped.save(self.root/(control['id']+'-actual.png'));expected.save(self.root/(control['id']+'-expected.png'))
+                difference=ImageChops.difference(cropped,expected);difference.save(self.root/(control['id']+'-diff.png'))
+                self.check(control['id']+'-complete-independent-native-pixels',difference.getbbox() is None)

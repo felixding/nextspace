@@ -996,3 +996,25 @@ field retirement. See [shared qualification](../../Libraries/NativeUI/color-owne
 and [source audit](color-source-audit.json). Native HTML-picker/alpha/wide-gamut
 modes, pointer/drag feedback, native palette behavior, recovery, broader
 styles/scales/accessibility, derivatives and deployment remain open.
+
+`NEXTSPACE_FIREFOX_NUMBERS=1` opts the guarded Firefox build into the shared
+native number binding. It composes the existing NSTextField and NSStepper,
+using Gecko's original anonymous button frame for component geometry.
+TextControlState supplies the displayed value and selection; original Gecko
+stepping and commit methods preserve decimal/range policy, validation, trusted
+events and focus. Native command selectors connect Up/Down to that model.
+The same shared action receipts and stepper binding serve Chromium and Firefox;
+the GNUstep provider and browser binaries are unchanged.
+
+Run `Tests/Wayland/check-native-number-fields.py --engine firefox
+--baseline <original-fixture> --native <native-fixture> --native-pixels
+--output <results.json>` with owned fixtures on the specified Marionette ports.
+The focused number cohort passes 21 behavior checks and six complete component
+image comparisons. An ordinary URL/telephone regression adds 43 checks and 17
+native image comparisons. See [qualification](number-qualification.json) and
+[source audit](number-source-audit.json) for exact binaries, scope and evidence.
+The fixed fixture compares source/native pointer actions through unchanged
+anonymous-frame geometry. Broad styles/scales/RTL/IME/accessibility, intrinsic
+native height, host/receipt-loss recovery, derivatives and deployment remain
+unqualified. Dates/times and other unfinished controls, remaining detached
+menus/shortcuts and subsequent GTK/Qt/KDE integration are still required.

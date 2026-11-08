@@ -37,14 +37,17 @@ static int native_text_frame(const void *frame) {
 static int text_model(void *node,struct TextModel *model) {
   static const uint16_t empty;
   struct GeckoString value={.data=&empty,.flags=1};
-  if(node_kind(node)==NXS_TEXTAREA)
+  if(number_node(node)) {
+    void *state=text_control_state(node);if(!state)return 0;
+    ((void (*)(const void *,void *,int))(base+NXS_GECKO_NUMBER_VALUE))(state,&value,1);
+  } else if(node_kind(node)==NXS_TEXTAREA)
     ((void (*)(void *,void *))(base+NXS_GECKO_MULTILINE_VALUE_OFFSET))(node,&value);
   else ((void (*)(void *,void *,unsigned))(base+NXS_GECKO_TEXT_VALUE_OFFSET))(node,&value,0);
   model->value=utf8_text(value.data,value.length);
   ((void (*)(void *))(base+0x3826f2c))(&value);
   if(!model->value)return 0;
   struct GeckoError error={0};
-  if(node_kind(node)==NXS_TEXTAREA) {
+  if(node_kind(node)==NXS_TEXTAREA||number_node(node)) {
     ((void (*)(void *,uint32_t *,uint32_t *,void *))(base+NXS_GECKO_MULTILINE_SELECTION_OFFSET))
       (text_control_state(node),&model->start,&model->end,&error);
   } else {
@@ -157,6 +160,7 @@ static int text_notification(int fd,unsigned condition,void *unused) {
   if(condition&~1u){text_watch=0;color_native_work(1);return 0;}
   drain_widget_notifier();
   color_native_work(0);
+  number_native_work();
   tabs_native_notification();native_popup_notification();
   if(active_widget&&text_kind(active_widget->kind)) {
     void *node=active_widget->node;
@@ -291,6 +295,8 @@ static int native_application_command(const struct NXSNativeCommand *command,con
   if(!transaction||command->process!=identity())return 0;
   struct Widget *w=widget_for_node(transaction->node);
   if(!w||w->id!=command->control||w->kind!=(int)command->kind)return 0;
+  int numeric=number_application_command(transaction->node,selector,command->phase);
+  if(numeric>=0){if(command->phase!=NXS_COMMAND_VALIDATE)transaction->attempted=1;return numeric;}
   if(search_actions_enabled&&w->kind==NXS_SEARCHFIELD&&(!strcmp(selector,"performClick:")||
      (search_clear_enabled&&!strcmp(selector,"clearSearch:")))) {
     if(!transaction->pres_context||!transaction->pointer_event)return !strcmp(selector,"clearSearch:")?0:-1;
@@ -362,6 +368,8 @@ static int prepare_text_image(void *frame) {
   if(width<1||height<1||width>8192||height>8192||
      (!frontend_text_frame(frame)&&(width!=floor(width)||height!=floor(height))))goto release;
   w->width=width;w->height=height;
+  if(w->number_stepper.control&&!number_node(w->node))number_forget(w);
+  if(number_node(w->node)&&!number_prepare(w,width,height))goto release;
   if(frontend_text_frame(frame)&&log_fd>=0)dprintf(log_fd,"%d native-frontend-geometry id=%llu size=%.17g,%.17g\n",getpid(),(unsigned long long)w->id,width,height);
   if(!ensure_text_watch()||!native_text_filter_register(native_text_proposal)||
      (application_commands&&!native_command_filter_register(native_application_command))||!sync_text_widget(w))goto release;

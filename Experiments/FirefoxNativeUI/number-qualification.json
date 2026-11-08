@@ -1,0 +1,887 @@
+{
+  "status": "Partial pinned Firefox number-control checkpoint; full browser/application goal remains active",
+  "base_revision": "aa898964",
+  "candidate": "firefox-number-05-hook.so",
+  "binary": {
+    "package": "firefox-esr",
+    "version": "153.6.0esr-1~deb13u1",
+    "architecture": "arm64",
+    "archive_sha256": "5ad1884bff1cf3a5a9e50c0a111101fa9a2cd9a4232437a7a790ed2333e1ccdb",
+    "files_sha256": {
+      "usr/lib/firefox-esr/firefox-esr": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48",
+      "usr/lib/firefox-esr/libxul.so": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "elf_build_ids": {
+      "firefox-esr": "50992ec7f4057079ed632c38e8fd42533fa58578",
+      "libxul.so": "ace600697490ec169e3e371fb456dcb542e3abef"
+    },
+    "installed": false,
+    "package_inventory_unchanged": true,
+    "date": "2026-11-05",
+    "status": "experimental native determinate progress, checkbox/radio, input buttons, ranges and plain/password fields with single-click/Shift-click/selection dragging on the exact pinned binary; broader Firefox integration incomplete",
+    "rebuilt": false,
+    "launched": true,
+    "native_ui_adapter_implemented": true,
+    "declared_upstream": {
+      "repository": "https://hg.mozilla.org/releases/mozilla-esr153",
+      "revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+      "build_id": "20261022211647",
+      "milestone": "153.6.0"
+    },
+    "raw_manifest_sha256": "248ad70cd7b9d1f8fa26e75d71b704140b1df234e0a4f1a234af0d5f6d99416b"
+  },
+  "api": {
+    "version": 1,
+    "bytes": 720,
+    "preserved_prefix": 648
+  },
+  "provider_candidate": "file-panel-04",
+  "provider_rebuilt": false,
+  "runs": {
+    "number-combined-checks": {
+      "reference": {
+        "up": {
+          "value": "3",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "normal",
+              "type": "input",
+              "value": "3",
+              "trusted": true
+            },
+            {
+              "id": "normal",
+              "type": "change",
+              "value": "3",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "down": {
+          "value": "1",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "normal",
+              "type": "input",
+              "value": "1",
+              "trusted": true
+            },
+            {
+              "id": "normal",
+              "type": "change",
+              "value": "1",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "maximum": {
+          "value": "10",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [],
+          "focused": false
+        },
+        "minimum": {
+          "value": "0",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [],
+          "focused": false
+        },
+        "decimal-up": {
+          "value": "0.3",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "decimal",
+              "type": "input",
+              "value": "0.3",
+              "trusted": true
+            },
+            {
+              "id": "decimal",
+              "type": "change",
+              "value": "0.3",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "decimal-down": {
+          "value": "0.2",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "decimal",
+              "type": "input",
+              "value": "0.2",
+              "trusted": true
+            },
+            {
+              "id": "decimal",
+              "type": "change",
+              "value": "0.2",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "empty-up": {
+          "value": "5",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "empty",
+              "type": "input",
+              "value": "5",
+              "trusted": true
+            },
+            {
+              "id": "empty",
+              "type": "change",
+              "value": "5",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "empty-down": {
+          "value": "5",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "empty",
+              "type": "input",
+              "value": "5",
+              "trusted": true
+            },
+            {
+              "id": "empty",
+              "type": "change",
+              "value": "5",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "any-up": {
+          "value": "3",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "normal",
+              "type": "input",
+              "value": "3",
+              "trusted": true
+            },
+            {
+              "id": "normal",
+              "type": "change",
+              "value": "3",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "any-down": {
+          "value": "1",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [
+            {
+              "id": "normal",
+              "type": "input",
+              "value": "1",
+              "trusted": true
+            },
+            {
+              "id": "normal",
+              "type": "change",
+              "value": "1",
+              "trusted": true
+            }
+          ],
+          "focused": false
+        },
+        "readonly": {
+          "value": "2",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [],
+          "focused": true
+        },
+        "disabled": {
+          "value": "2",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [],
+          "focused": false
+        },
+        "cancelled": {
+          "value": "2",
+          "bad": false,
+          "step": false,
+          "under": false,
+          "over": false,
+          "events": [],
+          "focused": false
+        }
+      },
+      "results": [
+        {
+          "case": "original-number-semantics-up",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-down",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-maximum",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-minimum",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-decimal-up",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-decimal-down",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-empty-up",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-empty-down",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-any-up",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-any-down",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-readonly",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-disabled",
+          "passed": true
+        },
+        {
+          "case": "original-number-semantics-cancelled",
+          "passed": true
+        },
+        {
+          "case": "normal-editor-complete-independent-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "normal-stepper-complete-independent-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "readonly-editor-complete-independent-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "readonly-stepper-complete-independent-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "disabled-editor-complete-independent-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "disabled-stepper-complete-independent-native-pixels",
+          "passed": true
+        },
+        {
+          "case": "native-number-editor-preserves-bad-input-state",
+          "passed": true
+        },
+        {
+          "case": "native-number-editor-retains-original-sanitization-and-trusted-input",
+          "passed": true
+        },
+        {
+          "case": "native-number-editor-emacs-beginning-and-kill-line",
+          "passed": true
+        },
+        {
+          "case": "native-stepper-repeat-returns-original-ordered-browser-events",
+          "passed": true
+        },
+        {
+          "case": "script-readonly-stops-steps-and-preserves-original-commit",
+          "passed": true
+        },
+        {
+          "case": "script-retyping-retires-native-stepper-during-action",
+          "passed": true
+        },
+        {
+          "case": "script-removal-retires-native-stepper-during-action",
+          "passed": true
+        },
+        {
+          "case": "number-arrow-key-retains-original-application-action",
+          "passed": true
+        }
+      ]
+    },
+    "button-results": [
+      {
+        "case": "native-text-types-document",
+        "passed": true
+      },
+      {
+        "case": "urlfield-initial-normal-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "telfield-initial-normal-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "readonly-initial-normal-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "disabled-initial-normal-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "urlfield-native-emacs-beginning",
+        "passed": true
+      },
+      {
+        "case": "urlfield-native-insertion",
+        "passed": true,
+        "value": "xhttps://example.org"
+      },
+      {
+        "case": "urlfield-one-original-trusted-edit",
+        "passed": true,
+        "events": [
+          {
+            "type": "beforeinput",
+            "id": "urlfield",
+            "data": "x",
+            "inputType": "insertText",
+            "trusted": true,
+            "value": "https://example.org",
+            "start": 0,
+            "end": 0
+          },
+          {
+            "type": "input",
+            "id": "urlfield",
+            "data": "x",
+            "inputType": "insertText",
+            "trusted": true,
+            "value": "xhttps://example.org",
+            "start": 1,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "case": "urlfield-edited-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "urlfield-page-cancellation-keeps-canonical-model",
+        "passed": true
+      },
+      {
+        "case": "urlfield-cancelled-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "telfield-native-emacs-beginning",
+        "passed": true
+      },
+      {
+        "case": "telfield-native-insertion",
+        "passed": true,
+        "value": "x+123456"
+      },
+      {
+        "case": "telfield-one-original-trusted-edit",
+        "passed": true,
+        "events": [
+          {
+            "type": "beforeinput",
+            "id": "telfield",
+            "data": "x",
+            "inputType": "insertText",
+            "trusted": true,
+            "value": "+123456",
+            "start": 0,
+            "end": 0
+          },
+          {
+            "type": "input",
+            "id": "telfield",
+            "data": "x",
+            "inputType": "insertText",
+            "trusted": true,
+            "value": "x+123456",
+            "start": 1,
+            "end": 1
+          }
+        ]
+      },
+      {
+        "case": "telfield-edited-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "telfield-page-cancellation-keeps-canonical-model",
+        "passed": true
+      },
+      {
+        "case": "telfield-cancelled-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "url-readonly-retains-original-model",
+        "passed": true
+      },
+      {
+        "case": "url-readonly-after-input-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "url-original-validity-after-native-edit",
+        "passed": true
+      },
+      {
+        "case": "url-invalid-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "telephone-original-pattern-after-native-edit",
+        "passed": true
+      },
+      {
+        "case": "url-native-alt-copy-uses-original-trusted-command",
+        "passed": true,
+        "events": [
+          {
+            "type": "copy",
+            "id": "urlfield",
+            "data": null,
+            "inputType": null,
+            "trusted": true,
+            "value": "Copy 123",
+            "start": 0,
+            "end": 8
+          }
+        ]
+      },
+      {
+        "case": "url-after-copy-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "telephone-native-alt-paste-uses-original-trusted-command",
+        "passed": true,
+        "events": [
+          {
+            "type": "paste",
+            "id": "telfield",
+            "data": null,
+            "inputType": null,
+            "trusted": true,
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          {
+            "type": "beforeinput",
+            "id": "telfield",
+            "data": "Copy 123",
+            "inputType": "insertFromPaste",
+            "trusted": true,
+            "value": "",
+            "start": 0,
+            "end": 0
+          },
+          {
+            "type": "input",
+            "id": "telfield",
+            "data": "Copy 123",
+            "inputType": "insertFromPaste",
+            "trusted": true,
+            "value": "Copy 123",
+            "start": 8,
+            "end": 8
+          }
+        ]
+      },
+      {
+        "case": "telephone-after-paste-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "url-script-sanitization-remains-original-engine",
+        "passed": true,
+        "state": {
+          "actual": "https://example.org/path",
+          "expected": "https://example.org/path"
+        }
+      },
+      {
+        "case": "url-canonical-script-value-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "dynamic-tel-native-emacs-beginning",
+        "passed": true,
+        "state": {
+          "start": 0,
+          "end": 0,
+          "value": "Hello",
+          "type": "tel"
+        }
+      },
+      {
+        "case": "dynamic-tel-native-model",
+        "passed": true
+      },
+      {
+        "case": "dynamic-0-tel-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "dynamic-url-native-emacs-beginning",
+        "passed": true,
+        "state": {
+          "start": 0,
+          "end": 0,
+          "value": "Hello",
+          "type": "url"
+        }
+      },
+      {
+        "case": "dynamic-url-native-model",
+        "passed": true
+      },
+      {
+        "case": "dynamic-1-url-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "dynamic-text-native-emacs-beginning",
+        "passed": true,
+        "state": {
+          "start": 0,
+          "end": 0,
+          "value": "Hello",
+          "type": "text"
+        }
+      },
+      {
+        "case": "dynamic-text-native-model",
+        "passed": true
+      },
+      {
+        "case": "dynamic-2-text-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "dynamic-tel-native-emacs-beginning",
+        "passed": true,
+        "state": {
+          "start": 0,
+          "end": 0,
+          "value": "Hello",
+          "type": "tel"
+        }
+      },
+      {
+        "case": "dynamic-tel-native-model",
+        "passed": true
+      },
+      {
+        "case": "dynamic-3-tel-focused-whole-native-pixels",
+        "passed": true
+      },
+      {
+        "case": "type-field-page-callback-can-retire-native-control",
+        "passed": true
+      },
+      {
+        "case": "type-field-retirement-releases-native-lifetime",
+        "passed": true
+      },
+      {
+        "case": "browser-owned-ui-preserved",
+        "passed": true,
+        "parent_native_widgets": []
+      }
+    ]
+  },
+  "checks": 70,
+  "native_image_comparisons": 23,
+  "number_behavior_checks": 21,
+  "number_component_images": 6,
+  "ordinary_text_regression_checks": 43,
+  "ordinary_text_images": 17,
+  "geometry": {
+    "scale": 1,
+    "source_engine_spin_box": [
+      166,
+      9,
+      18,
+      18
+    ],
+    "editor_width": 166,
+    "editor_height": 36,
+    "fixed_fixture": true,
+    "original_and_native_engine_layout_unchanged": true
+  },
+  "unchanged_production_files": {
+    "chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "bytes": 308415392,
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "bytes": 549896,
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48"
+    },
+    "libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "bytes": 171640536,
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 10063865,
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "bytes": 78144,
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac"
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor",
+      "bytes": 1381176,
+      "sha256": "57db0e3df9ce4237fc88ed31a11ea8a6c8f4c87dfe3c38c96693a3a632b65c99"
+    },
+    "workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "bytes": 1258024,
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6"
+    },
+    "chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-button-sizing-05-hook.so",
+      "bytes": 165008,
+      "sha256": "0d2fc22779b3e2559a3968dffbbb3e5d9064b2bcf0076b2e29405db1993c17df"
+    },
+    "firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-popup-sizing-04-hook.so",
+      "bytes": 158256,
+      "sha256": "99265fdd04f2d74bb3180ecbd280891838b294a0f3d9804c4afaf32ab4a49ab7"
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1042672,
+      "sha256": "175122726a355ba1f38165cd4c2640f51228a1d06d2bb015c7266d44421746f0"
+    },
+    "gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0.2417.32",
+      "bytes": 1186176,
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0"
+    },
+    "native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "e3a9ab59b8449be7820b6b6456450f70f7a62a46ef2a041a0f2369d598faf70a"
+    },
+    "native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.0.1",
+      "bytes": 73064,
+      "sha256": "6a50efce52ea2d4c6010f52b2ddb287c56db6758d163334e315396bfb3b6522d"
+    },
+    "native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310712,
+      "sha256": "a26428f47c1c407d567328f828856deb5f7e92a72a41d31c06ffca6792d9acb7"
+    },
+    "chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "bytes": 166448,
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558"
+    },
+    "firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "bytes": 54175769,
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac"
+    },
+    "gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-geometry-build-02/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 72728,
+      "sha256": "ce60ad0c60cc78bd1b0208947eff28eb61f9d340758f264588587bb4b77d9464"
+    },
+    "probe_native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "435436b8b937d9235d8ed88417d014f353877aff0cd571f2878b2a90cf6cecad"
+    },
+    "probe_native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73176,
+      "sha256": "5300cbb85452b5d02827382f306599cd8f430af3413b25140164cc2560f6c9a8"
+    },
+    "probe_native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310960,
+      "sha256": "7799fb35173f53246adfc7181de5ae13c0b8e4af46de824b0d341af6d53ea860"
+    }
+  },
+  "unchanged_sdk": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui.so.0.1",
+      "sha256": "5ca595d69d7b52155809ed22e6e45b715379e823af34eb3f6d7a39a8870132c7",
+      "bytes": 75104
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "sha256": "f3ce8f27105a05d8437b57208fdabb13b232f3aeae7787d53191081c98c206b7",
+      "bytes": 411608
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/libnextspace-native-scroller.so.0.1",
+      "sha256": "7a400ad4b6aadd721e4f2ab0bd03e75bf9285201e1820b7f85e6b5ae1e072024",
+      "bytes": 69968
+    }
+  },
+  "unchanged_prior_sdk": {
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74560,
+      "sha256": "d27d64892e8d03bd26dbd4cfdd07d3ad3c7627b3bac5b1b0a4cb5ceedf14b698"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 335632,
+      "sha256": "03cc41cde5771b05eaf89f5cc6ba5e7986360e5fc715222ef5220f3556115623"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "5e7861e89eb2bade7f3509d862102432acbed87e1b64ab6d48de2097667157de"
+    }
+  },
+  "packages": 1050,
+  "sandbox": [
+    {
+      "pid": 254189,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 254234,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 254277,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 254282,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 254286,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    },
+    {
+      "pid": 254332,
+      "Seccomp": 2,
+      "NoNewPrivs": 1
+    }
+  ],
+  "adapters": {
+    "firefox-number-01-hook.so": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-number-01-hook.so",
+      "bytes": 232480,
+      "sha256": "7e8ac43da43c2b4b5f33a56f75d5fe1e9d26c1d8d84594ebb5bf3f8c7e38e213"
+    },
+    "firefox-number-05-hook.so": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-number-05-hook.so",
+      "bytes": 232528,
+      "sha256": "2d94c0dc37801cc677994b68143ecab7092b935442dd123d501c46d42bff8b30"
+    }
+  },
+  "reproduction": "python3 Tests/Wayland/check-native-number-fields.py --engine firefox --baseline <owned-original-fixture> --native <owned-native-fixture> --native-pixels --output <results.json>",
+  "limits": [
+    "Exact Firefox build only; not all derivatives",
+    "Fixed scale-1 fixture; full style/zoom/RTL/IME/accessibility and native intrinsic height unqualified",
+    "Receipt-loss and native-host-restart consumer recovery unqualified",
+    "Component pixels compared independently; complete generic numeric composite/layout coverage not claimed",
+    "Date/time and other remaining browser controls unfinished",
+    "Browser toolbars/address bars/tabs preserved; later optional application patches",
+    "Remaining detached menus/native shortcuts and deployment required",
+    "GTK/Qt/KDE and other non-GNUstep consumers still required"
+  ],
+  "evidence": {
+    "path": ".build/evidence/components/native-firefox-number-20261108-v1-evidence.tar.gz",
+    "sha256": "8754f3291637cc6f64800f5122b600b666cb83bcefe4d0a3e7116fab674bdedf",
+    "bytes": 3871251,
+    "members": 1305
+  }
+}

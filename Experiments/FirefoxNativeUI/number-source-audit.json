@@ -1,0 +1,57 @@
+{
+  "status": "Original application data/model/lifetime adapter; shared unchanged GNUstep UI components",
+  "sources": {
+    "Experiments/FirefoxNativeUI/controls.inc": "53d4f80badb8073019184e0ed56cf3398d0ac737cf384028868c5db08ea7ff4e",
+    "Experiments/FirefoxNativeUI/hook.c": "26bfa1293a1c20cf0284574fd11fec161dc851642e576995df47f7b25fc315ef",
+    "Experiments/FirefoxNativeUI/text.inc": "f53641015229ff8d5dc78ab56bd15b1b48e9c63357ecc958922146cd2f191a0e",
+    "Experiments/FirefoxNativeUI/numbers.inc": "f5f6dda184924b8951953cacc101690feafd72a07ead3effb40bab0dde68d789",
+    "Experiments/FirefoxNativeUI/pinned-numbers.h": "24934928e3f83bf11c208b744a2af3b4810a92b8e7e64ecce7a66b6823d51498",
+    "Libraries/NativeUI/Bridge/StepperBinding.inc": "299499d64ae4a5029e6290b32fe271a18ffddd054fe0edabcff572003ee36368",
+    "Libraries/NativeUI/Bridge/action_log.py": "47a934b599b2747f4c74df8ef3f6d7118c8b10c7aa6c5978c5e57d97e8251bcf",
+    "Libraries/NativeUI/Bridge/Protocol.h": "20319e5962304347e8b0ceaf2d33f10316a32cc014651add1879bbdc53690542",
+    "Tests/Wayland/native-number-fields.html": "bfb4270a576f46e21863a187ff6f5f788a8b5fe14142ba474998a0d13f3ba32f",
+    "Tests/Wayland/native_number_fields.py": "80937d6a61f4bcb220c35ade307d2780cf55ede7b7c7c9aee7dad34b2caabfeb",
+    "Tests/Wayland/check-native-number-fields.py": "55874c016be12a78d6cc48851a36bf1ff10ddaeabd940c9da8d33491c9c3d97e"
+  },
+  "primary_repository": "https://hg.mozilla.org/releases/mozilla-esr153",
+  "primary_revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+  "references": {
+    ".build/native-ui/number-source/HTMLInputElement.cpp": {
+      "bytes": 258800,
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    ".build/native-ui/firefox-viewport-source/nsTextControlFrame.cpp": {
+      "bytes": 12471,
+      "sha256": "b6a62c36824e5dc1a2c877d0157cd1285bf55e349acbebdd9ba3d0793f87cdfe"
+    },
+    ".build/native-ui/firefox-viewport-source/TextControlState.cpp": {
+      "bytes": 100572,
+      "sha256": "c2609d0b8f2f559611408a6c048679c405e97677e0764e10948e72c12ac5c653"
+    },
+    ".build/native-ui/firefox-viewport-source/TextControlState.h": {
+      "bytes": 21600,
+      "sha256": "a11e3cacf78679033081004f4454395d28f239c58790dc961aec19308bdd0762"
+    }
+  },
+  "pinned_constants": {
+    "VALUE": 93015528,
+    "SELECTION": 93020288,
+    "BUTTON": 116364224,
+    "OFFSET": 115659224,
+    "CHANGE": 92842436,
+    "STEP": 92846852
+  },
+  "original_methods": [
+    "TextControlState::GetValue(display=true)",
+    "TextControlState::GetSelectionRange",
+    "nsTextControlFrame::GetButtonBoxFrame",
+    "nsIFrame::GetOffsetTo",
+    "HTMLInputElement::StepNumberControlForUserEvent",
+    "HTMLInputElement::FireChangeEventIfNeeded"
+  ],
+  "native_ui": [
+    "existing NSTextField and field editor",
+    "existing NSStepper drawing/hit testing/tracking/repeat"
+  ],
+  "policy": "Adapter consumes accepted native pointer default after original DOM dispatch and maps native command selectors; no alternate number arithmetic, validator, editor, key map or repeat timer"
+}

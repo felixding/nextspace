@@ -7,6 +7,8 @@ struct GeckoError {uint32_t result,padding;uint64_t extra;};
 _Static_assert(sizeof(struct GeckoError)==16,"Pinned release ErrorResult ABI");
 static void clear_text_error(struct GeckoError *);
 #include "../../Libraries/NativeUI/Bridge/ControlActions.inc"
+#include "../../Libraries/NativeUI/Bridge/StepperBinding.inc"
+#include "pinned-numbers.h"
 struct Widget {
   struct Widget *next;
   void *frame,*node;
@@ -28,12 +30,17 @@ struct Widget {
   NXSTextViewport text_viewport;
   uint32_t text_epoch;
   int viewport_ready;
+  struct NXSStepperBinding number_stepper;
+  struct NXSRectD number_rect;
+  double number_width,number_height;
+  uint32_t *number_pixels;
+  int number_pixel_width,number_pixel_height;
 };
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int placeholder_enabled;
-static int colors_enabled;
+static int colors_enabled,numbers_enabled;
 static int search_enabled;
 static int search_actions_enabled,search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;
@@ -99,6 +106,16 @@ static int text_kind(int);
 static int native_wheel_post(void *,void *,int *);
 static void *text_pointer_frame(void *);
 static uint32_t text_pointer_post(void *,void *,void *,void *,int *,void *,void *);
+static int number_node(const void *);
+static int number_prepare(struct Widget *,double,double);
+static int number_draw(void *,struct Widget *,const struct RectF *);
+static int number_hit(struct Widget *,const void *);
+static int number_default_pointer(void *,void *);
+static int number_pointer_post(void *,void *,void *,void *,int *,void *,uint32_t *);
+static void number_native_work(void);
+static void number_forget(struct Widget *);
+static void number_reset(void);
+static int number_application_command(void *,const char *,unsigned);
 static int (*original_draw_target)(void *,void *,void *,unsigned,const void *,int);
 static int (*original_default_size)(void *);
 static int (*original_intrinsic)(void *,const void *,int);
@@ -123,6 +140,7 @@ static int node_kind(const void *node) {
     sliders_enabled&&type==148?NXS_SLIDER:
     colors_enabled&&type==131?NXS_COLORWELL:
     search_enabled&&type==142?NXS_SEARCHFIELD:
+    numbers_enabled&&type==139?NXS_TEXTFIELD:
     texts_enabled&&(type==133||type==144||type==145||type==147)?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
 }
 static int frame_kind(const void *frame) {
@@ -198,9 +216,10 @@ static void drain_widget_notifier(void) {
 }
 static void reset_widget_process(void) {
   if(widget_pid!=getpid()) {
+    number_reset();
     gecko_radio_reset_process();
     remove_text_watch();
-    while(widgets){struct Widget *next=widgets->next;free(widgets->button_pixels);free(widgets->button_model_title);free(widgets);widgets=next;}
+    while(widgets){struct Widget *next=widgets->next;free(widgets->number_pixels);free(widgets->button_pixels);free(widgets->button_model_title);free(widgets);widgets=next;}
     active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
     if(widget_notifier>=0)close(widget_notifier);
     widget_notifier=-1;widget_pid=getpid();
@@ -264,8 +283,9 @@ static int draw_text_image(void *target,void *frame,const struct RectF *area) {
   /* Parent frames may have fractional bounds. Native readback owns pixel
    * rounding; transport its actual bitmap without scaling or rounding it again. */
   if(!frontend_text_frame(frame)&&
-     (w->button_width!=lround(area->width)||w->button_height!=lround(area->height)))return 0;
+     (w->button_width!=lround(number_node(w->node)?w->width:area->width)||w->button_height!=lround(area->height)))return 0;
   draw_bitmap(target,area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
+  if(number_node(w->node)&&!number_draw(target,w,area))return 0;
   if(log_fd>=0)dprintf(log_fd,"%d native-text id=%llu kind=%d size=%dx%d\n",getpid(),(unsigned long long)w->id,w->kind,w->button_width,w->button_height);
   return 1;
 }
@@ -291,7 +311,7 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
     w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
     w->next=widgets;widgets=w;
   }
-  w->width=area.width;w->height=area.height;
+  if(!is_text){w->width=area.width;w->height=area.height;}
   if(is_text) {
     if(draw_text_image(target,frame,&area))return 1;
     return original_draw_target(self,target,frame,appearance,rect,overflow);
@@ -364,6 +384,8 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   if(trusted&&message==15)native_activation_clear(&native_search_activation);
   if(trusted){native_popup_pointer_post(event);native_list_pointer_post(event);}
   if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
+  uint32_t number_result;
+  if(number_pointer_post(self,context,event,frame,status,override,&number_result))return number_result;
   if(texts_enabled&&trusted&&(message==13||message==14||message==15)) {
     void *text_frame=text_pointer_frame(frame);
     if(text_frame||(active_widget&&(text_kind(active_widget->kind))))
@@ -510,6 +532,7 @@ static void text_post_keyboard(void *node,void *visitor) {
 }
 static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *,void *)) {
   if(text_kind(node_kind(node))) {
+    if(number_default_pointer(node,visitor))return 0;
     text_post_keyboard(node,visitor);return original(node,visitor);
   }
   void *event=*(void **)((char *)visitor+8);
@@ -569,6 +592,7 @@ static void release_idle_widget_notifier(void) {
 }
 static void forget_widget(struct Widget **cursor) {
   struct Widget *w=*cursor;
+  number_forget(w);
   if(native_search_activation.control==w->id)native_activation_clear(&native_search_activation);
   if(active_widget==w)active_widget=NULL;
   widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w->button_model_title);free(w);
@@ -604,6 +628,7 @@ static void active_shell(void *shell,int active) {
 #include "form-labels.inc"
 #include "ranges.inc"
 #include "text.inc"
+#include "numbers.inc"
 #include "colors.inc"
 #include "viewport.inc"
 #include "wheel.inc"
@@ -651,6 +676,9 @@ static void prepare_widget_metrics(void) {
   wheel_enabled=(multiline_viewport_enabled||lists_requested)&&wheel&&!strcmp(wheel,"1")&&response->parts[0].x==NXS_WHEEL_EVENTS;
   text_command_reporting=!!((unsigned)response->parts[6].y&NXS_TEXT_COMMAND);
   application_commands=response->parts[5].y==1;
+  const char *numbers=getenv("NEXTSPACE_FIREFOX_NUMBERS");
+  numbers_enabled=numbers&&!strcmp(numbers,"1")&&texts_enabled&&application_commands&&
+    ((unsigned)response->parts[1].x&NXS_SPECIAL_STEPPER);
   application_menu_keys=!!((unsigned)response->parts[5].height&2);
   const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=NXS_BROWSER_UI_PATCH&&texts_enabled&&frontend&&!strcmp(frontend,"1");
 }
