@@ -41,23 +41,28 @@ static void *popup_ua_sheet(const void *sheet) {
   void *result=original_popup_ua_sheet(&value);((void (*)(void *))(base+0x7246038))(&value);
   free(changed);free(text);note("native popup disabled appearance delegated to native cell");return result;
 }
-static void popup_sync_origin(struct NativeForm *form)
+static int form_sync_screen_origin(struct NativeForm *form)
 {
   void *document=node_document(form->node);
   void *window=document?decode_member((char *)document+264):NULL;
   void *frame=window?decode_member((char *)window+32):NULL;
   void *page=frame?decode_member((char *)frame+32):NULL;
   void *chrome=page?decode_member((char *)page+76):NULL;
-  void *view=document?((void *(*)(const void *))(base+0xeec73e8))(document):NULL;
-  if(!chrome||!view)return;
+  void *view=document?((void *(*)(const void *))(base+NXS_DATE_PANEL_DOCUMENT_VIEW))(document):NULL;
+  if(!chrome||!view)return 0;
   /* Use the engine's clipped local-root bounds and its actual viewport/window
    * conversion. NativeUI supplies menu placement relative to that anchor. */
-  struct Rect local=((struct Rect (*)(const void *))(base+0xef57da8))(form->node);
+  struct Rect local=((struct Rect (*)(const void *))(base+NXS_DATE_PANEL_LOCAL_BOUNDS))(form->node);
   struct Rect screen=((struct Rect (*)(void *,const struct Rect *,const void *))
     (*(uintptr_t **)chrome)[15])(chrome,&local,view);
+  uint32_t epoch=atomic_load(&native_host_epoch);
+  if(form->screen_anchor_valid&&form->screen_anchor_epoch==epoch&&
+     !memcmp(&form->screen_anchor,&screen,sizeof(screen)))return 1;
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=13,
-    .process=identity(),.kind=NXS_POPUP,.control=form->control,.x=screen.x,.y=screen.y};
-  exchange_bytes(&request,sizeof(request));
+    .process=identity(),.kind=form->kind,.control=form->control,.x=screen.x,.y=screen.y};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  if(!response||response->parts[3].x!=1)return 0;
+  form->screen_anchor=screen;form->screen_anchor_epoch=epoch;form->screen_anchor_valid=1;return 1;
 }
 static void popup_engine_closed(void *engine)
 {
@@ -68,9 +73,7 @@ static void popup_engine_closed(void *engine)
 }
 static struct NXSResponse *popup_visibility_request(struct NativeForm *form,int open)
 {
-  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=14,
-    .process=identity(),.kind=NXS_POPUP,.control=form->control,.state=open};
-  return exchange_bytes(&request,sizeof(request));
+  return native_popup_visibility(NXS_POPUP,form->control,open);
 }
 static int popup_element(void *node)
 {

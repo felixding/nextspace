@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8"><title>Native calendar panels</title>
+<style>body{margin:32px;background:white;font:16px sans-serif}label{display:block;margin:16px 0}input{width:360px;height:30px;font:16px sans-serif}button{margin-left:16px}</style>
+<label>Date <input id="normal" type="date" value="2026-11-07"><button id="open-normal" onclick="openNative('normal')">Choose</button></label>
+<label>Empty <input id="empty" type="date"><button id="open-empty" onclick="openNative('empty')">Choose</button></label>
+<label>Month <input id="month" type="month" value="2026-11"><button id="open-month" onclick="openNative('month')">Choose</button></label>
+<label>Week <input id="week" type="week" value="2026-W45"><button id="open-week" onclick="openNative('week')">Choose</button></label>
+<label>Time <input id="clock" type="time" value="12:30:45"><button id="open-clock" onclick="openNative('clock')">Choose</button></label>
+<label>Local <input id="stamp" type="datetime-local" value="2026-11-07T12:30:45"><button id="open-stamp" onclick="openNative('stamp')">Choose</button></label>
+<label>Read only <input id="readonly" type="date" value="2026-11-07" readonly><button id="open-readonly" onclick="openNative('readonly')">Choose</button></label>
+<label>Disabled <input id="disabled" type="date" value="2026-11-07" disabled><button id="open-disabled" onclick="openNative('disabled')">Choose</button></label>
+<script>
+window.events=[];window.openResults=[];
+for(const e of document.querySelectorAll('input'))for(const type of ['input','change'])
+ e.addEventListener(type,event=>events.push({id:e.id,type,value:e.value,trusted:event.isTrusted}));
+function openNative(id){try{document.getElementById(id).showPicker();openResults.push({id,result:'opened'})}catch(error){openResults.push({id,result:error.name})}}
+</script>

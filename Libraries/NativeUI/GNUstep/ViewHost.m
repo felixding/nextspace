@@ -184,7 +184,13 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 @implementation NXSApplication
 /* AppKit resolves nil-target menu actions through the embedding application's
  * logical key window, without ordering a private backing window on screen. */
-- (NSWindow *)keyWindow {return focused&&!nxs_gnustep_file_panel_active()?focused->window:[super keyWindow];}
+- (NSWindow *)keyWindow
+{
+  NSWindow *native=[super keyWindow];
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if([entry->window isVisible]&&[entry->window isKeyWindow])return entry->window;
+  return focused&&!nxs_gnustep_file_panel_active()?focused->window:native;
+}
 - (id)targetForAction:(SEL)action to:(id)recipient from:(id)sender
 {
   id native=[super targetForAction:action to:recipient from:sender];
@@ -701,11 +707,14 @@ int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *input)
 {
   if(!host||active||menu_loop||!nxs_host_focused(host))return NXS_INPUT_UNHANDLED;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  NSEvent *event=key_event(input,host->window);
+  NSWindow *destination=host->window,*native=[NSApp keyWindow];
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if(entry->host==host&&entry->window==native&&[native isVisible]){destination=native;break;}
+  NSEvent *event=key_event(input,destination);
   if(!event){[pool drain];return NXS_INPUT_UNHANDLED;}
   if([host->view needsDisplay])nxs_host_draw(host,1);
   host->key_result=NXS_INPUT_HANDLED;host->dispatch_depth++;active=host;
-  @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:[host->window firstResponder]];}
+  @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:[destination firstResponder]];}
   @finally {host->dispatch_depth--;active=NULL;}
   int result=host->key_result;[pool drain];return result;
 }

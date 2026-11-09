@@ -1,0 +1,348 @@
+{
+  "status": "Partial staged implementation. Repeated-open browser keyboard focus fails; calendar integration is not complete.",
+  "baseline": "851edbb2",
+  "date": "2026-11-09",
+  "api": {
+    "version": 1,
+    "bytes": 720,
+    "preserved_prefix": 648
+  },
+  "passing_checks": 382,
+  "whole_native_images": 40,
+  "cohorts": {
+    "native/panel": {
+      "checks": 56,
+      "all_passed": true
+    },
+    "geometry/gtk": {
+      "checks": 15,
+      "all_passed": true
+    },
+    "chromium/week": {
+      "checks": 33,
+      "all_passed": true
+    },
+    "chromium/month": {
+      "checks": 44,
+      "all_passed": true
+    },
+    "chromium/temporal": {
+      "checks": 41,
+      "all_passed": true
+    },
+    "chromium/date": {
+      "checks": 37,
+      "all_passed": true
+    },
+    "chromium/calendar-era": {
+      "checks": 7,
+      "all_passed": true
+    },
+    "chromium/number": {
+      "checks": 21,
+      "all_passed": true
+    },
+    "firefox/fallback": {
+      "checks": 16,
+      "all_passed": true
+    },
+    "firefox/temporal": {
+      "checks": 41,
+      "all_passed": true
+    },
+    "firefox/date": {
+      "checks": 37,
+      "all_passed": true
+    },
+    "firefox/calendar-era": {
+      "checks": 7,
+      "all_passed": true
+    },
+    "firefox/number": {
+      "checks": 27,
+      "all_passed": true
+    }
+  },
+  "incomplete_browser_suite": {
+    "root": "/var/tmp/nxs-chromium-date-panel-10",
+    "status": {
+      "complete": false,
+      "error": "reopened calendar keyboard focus"
+    },
+    "passing_prefix_count": 9,
+    "counted_as_pass": false,
+    "failure": {
+      "error": "reopened calendar keyboard focus",
+      "windows": [
+        {
+          "id": 1,
+          "title": "Native calendar panels - Chromium",
+          "app_id": "chromium-browser",
+          "pid": 314034,
+          "legacy": false,
+          "level": 0,
+          "minimized": false,
+          "maximized": false,
+          "fullscreen": false,
+          "maximized_axes": 0,
+          "selected": false,
+          "presented": true,
+          "desktop": 0,
+          "sticky": false,
+          "visible": true,
+          "shaded": false,
+          "client_id": 0,
+          "style": 0,
+          "title_height": 22,
+          "document_edited": false,
+          "title_state": 0,
+          "client_title_state": 1,
+          "accepts_focus": true,
+          "focused": true,
+          "activation_fallback": false,
+          "appmenu_service": "",
+          "appmenu_path": "",
+          "frame_width": 1122,
+          "frame_height": 831,
+          "server_decorated": true,
+          "frame_left": 1,
+          "frame_top": 22,
+          "frame_right": 1,
+          "frame_bottom": 9,
+          "surface_width": 1120,
+          "surface_height": 800,
+          "decoration_scale": 120,
+          "decoration_buffer_width": 1122,
+          "decoration_buffer_height": 22,
+          "x": 100,
+          "y": 70,
+          "width": 1122,
+          "height": 831,
+          "buffer_width": 1120,
+          "buffer_height": 800,
+          "preferred_scale": 120
+        },
+        {
+          "id": 3,
+          "title": "Date and Time",
+          "app_id": "org.nextspace.python3",
+          "pid": 314033,
+          "legacy": false,
+          "level": 2,
+          "minimized": false,
+          "maximized": false,
+          "fullscreen": false,
+          "maximized_axes": 0,
+          "selected": false,
+          "presented": true,
+          "desktop": 0,
+          "sticky": false,
+          "visible": true,
+          "shaded": false,
+          "client_id": 192,
+          "style": 19,
+          "title_height": 23,
+          "document_edited": false,
+          "title_state": 1,
+          "client_title_state": 0,
+          "accepts_focus": true,
+          "focused": false,
+          "activation_fallback": false,
+          "appmenu_service": "",
+          "appmenu_path": "",
+          "frame_width": 170,
+          "frame_height": 160,
+          "server_decorated": true,
+          "frame_left": 1,
+          "frame_top": 23,
+          "frame_right": 1,
+          "frame_bottom": 1,
+          "surface_width": 168,
+          "surface_height": 136,
+          "viewport_source": [
+            1.0,
+            23.0,
+            168.0,
+            136.0
+          ],
+          "decoration_scale": 120,
+          "decoration_buffer_width": 170,
+          "decoration_buffer_height": 23,
+          "x": 171,
+          "y": 245,
+          "width": 170,
+          "height": 160,
+          "buffer_width": 170,
+          "buffer_height": 160,
+          "preferred_scale": 120
+        }
+      ],
+      "dom": {
+        "screenX": 101,
+        "screenY": 92,
+        "value": "2026-11-07",
+        "active": "open-normal",
+        "events": []
+      }
+    }
+  },
+  "candidates": {
+    "gui": {
+      "path": "/var/tmp/nextspace-native-ui/week-gui-04/stage/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 9878280,
+      "sha256": "99c4f04362adc94d9521eeed3583d55c05d6fa326ac12ac86661b897a881df56"
+    },
+    "base": {
+      "path": "/var/tmp/nextspace-native-ui/week-base-05/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+      "bytes": 8782816,
+      "sha256": "bf9daa7d9e2c6d2ca7b5247ec48892431b1bd8cd8a3826e348a3c3d3b71f66a7"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/calendar-panel-05/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 435424,
+      "sha256": "7ea2123ce3f31d195c74f074dce170e332a9ed5bb9e369bcf94acde670210732"
+    },
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/calendar-panel-05/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 75104,
+      "sha256": "5ca595d69d7b52155809ed22e6e45b715379e823af34eb3f6d7a39a8870132c7"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/calendar-panel-05/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "2e81d707083e2e8fdadeb1e95cacf7c96edcaf9d5ec1f1fd73b98ebb1a216982"
+    },
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-date-panel-09-hook.so",
+      "bytes": 244560,
+      "sha256": "9ab8b77d4d401d6c75a319129ed69ccc103a139f94af0537b10625ea507a3ef8"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-month-01-hook.so",
+      "bytes": 234176,
+      "sha256": "e0a9ba4bcc85c67d408fe5fd533e71ad628215474a0d1e11a8e987d12352154f"
+    },
+    "geometry": {
+      "path": "/var/tmp/nextspace-native-ui/wayland-geometry-build-04/libnextspace-wayland-geometry.so.0.1",
+      "bytes": 71984,
+      "sha256": "75f5429dcca39fab941f16ec558ea2131d7d0a2a90cfd485d8a7523156420c00"
+    },
+    "gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/wayland-geometry-build-04/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 71048,
+      "sha256": "addc2bc6f1c2384d9ef9eff6759abf3019714943e6193d0ed27a84e104243938"
+    }
+  },
+  "runtime": {
+    "sandbox": {
+      "chromium": [
+        {
+          "pid": 314116,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314127,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314128,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 314293,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314328,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314376,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314388,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314397,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        },
+        {
+          "pid": 314413,
+          "Seccomp": 2,
+          "NoNewPrivs": 1
+        }
+      ]
+    },
+    "loaded_images": {
+      "chromium": [
+        {
+          "pid": 314033,
+          "libraries": [
+            "/var/tmp/nextspace-native-ui/calendar-panel-05/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+            "/var/tmp/nextspace-native-ui/calendar-panel-05/native-ui/libnextspace-native-ui.so.0.1",
+            "/var/tmp/nextspace-native-ui/week-base-05/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+            "/var/tmp/nextspace-native-ui/week-gui-04/stage/Library/Libraries/libgnustep-gui.so.0.32.0"
+          ]
+        },
+        {
+          "pid": 314034,
+          "libraries": [
+            "/var/tmp/nextspace-native-ui/wayland-geometry-build-04/libnextspace-wayland-geometry.so.0.1"
+          ]
+        }
+      ],
+      "firefox": [
+        {
+          "pid": 314206,
+          "libraries": [
+            "/var/tmp/nextspace-native-ui/calendar-panel-05/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+            "/var/tmp/nextspace-native-ui/calendar-panel-05/native-ui/libnextspace-native-ui.so.0.1",
+            "/var/tmp/nextspace-native-ui/week-base-05/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+            "/var/tmp/nextspace-native-ui/week-gui-04/stage/Library/Libraries/libgnustep-gui.so.0.32.0"
+          ]
+        },
+        {
+          "pid": 314207,
+          "libraries": [
+            "/var/tmp/nextspace-native-ui/wayland-geometry-build-04/libnextspace-gtk3-geometry.so.0.1",
+            "/var/tmp/nextspace-native-ui/wayland-geometry-build-04/libnextspace-wayland-geometry.so.0.1"
+          ]
+        }
+      ]
+    },
+    "production_files_preserved": 20,
+    "unchanged_artifacts": 45,
+    "packages": 1050
+  },
+  "native_implementation": [
+    "Original NSPanel, NSDatePicker and NSDatePickerCell",
+    "Original native input-manager selectors",
+    "Shared date model and popup open/state APIs",
+    "Toolkit-independent Wayland surface observer with owning-client C functions",
+    "Thin GTK3 GObject/GLib and Chromium Ozone lifetime adapters"
+  ],
+  "remaining": [
+    "Shared auxiliary-window ownership and activation handoff; repeated-open physical keyboard focus",
+    "Firefox showPicker consumer",
+    "Calendar presentation for all temporal kinds and week selection",
+    "Firefox preference-enabled month/week consumers",
+    "Fractional-second fields",
+    "Broader style, zoom, DPI, RTL, IME, accessibility and intrinsic sizing",
+    "Unsupported-root lifecycle and host/receipt-loss recovery",
+    "Derivative builds and distribution/deployment",
+    "Remaining detached menus and native shortcuts",
+    "GTK/Qt/KDE and other non-GNUstep applications"
+  ]
+}

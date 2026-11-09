@@ -18,6 +18,7 @@ p.add_argument('--previous-item-hit-provider',type=Path,help='Provider predating
 p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
 p.add_argument('--specialized',action='store_true',help='Qualify original native stepper/color/date controls')
+p.add_argument('--date-panel',action='store_true',help='Qualify original native calendar-panel composition')
 p.add_argument('--date-input',action='store_true',help='Measure original native date input and empty-state behavior')
 p.add_argument('--gui-library-path',type=Path,help='Use a staged GNUstep GUI library for native component qualification')
 p.add_argument('--base-library-path',type=Path,help='Use a staged Foundation library for native component qualification')
@@ -28,10 +29,13 @@ p.add_argument('--list',action='store_true',help='Qualify shared native lists ag
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
 binary='native-specialized-probe' if a.specialized else 'native-placeholder-probe' if a.placeholder else 'native-list-probe' if a.list else 'native-radio-probe' if a.radio else 'native-popup-title-probe' if a.popup_title else 'native-tab-probe'
 if a.date_input:binary='native-date-input-probe'
+if a.date_panel:binary='native-date-panel-probe'
 reference_title='Native specialized reference ' if a.specialized else 'Native placeholder reference ' if a.placeholder else 'Native list reference ' if a.list else 'Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
 if a.date_input:reference_title='Native date input reference '
+if a.date_panel:reference_title='Native date panel reference '
 images=12 if a.specialized else 24 if a.placeholder else 13 if a.list else 13 if a.radio else 8 if a.popup_title else 5
 if a.date_input:images=6
+if a.date_panel:images=1
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)

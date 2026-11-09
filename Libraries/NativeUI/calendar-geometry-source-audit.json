@@ -1,0 +1,261 @@
+{
+  "status": "Pinned source and binary boundary audit; not browser integration completion.",
+  "chromium_revision": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "sources": [
+    {
+      "path": "wayland_connection.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_connection.h",
+      "sha256": "0a32cbc293a9eaabf038348f27042a2ccb57bfa47cde94cef0139e52d2aca6ac"
+    },
+    {
+      "path": "wayland_connection.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_connection.cc",
+      "sha256": "4c46e40f55d9d77a096e6cf21adc90c73cd9a2feac032f2b05c7070e05740380"
+    },
+    {
+      "path": "wayland_window.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_window.h",
+      "sha256": "32a831a8b25e1cb1c5435ae8c4ad414bb4995d0d185562eaf408facdd896bc56"
+    },
+    {
+      "path": "wayland_window.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_window.cc",
+      "sha256": "49650fb0172d45ffd2e93ce405158332ec44830e742b15b85280433770d092a1"
+    },
+    {
+      "path": "wayland_surface.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_surface.h",
+      "sha256": "bd1a774084d1b26901e4976a8e048f1a6b7f463138cb7171beae634286c5b69d"
+    },
+    {
+      "path": "wayland_surface.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_surface.cc",
+      "sha256": "904c4e4eee3ad08f64ef07f636825b0c3c0cb9b92e74c34979dab904b1c44303"
+    },
+    {
+      "path": "wayland_screen.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_screen.cc",
+      "sha256": "ef260f33eaa7fee33844d8c78adfe87019b390f504574fb0ea02b1f6fdc6f044"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/ozone/platform/wayland/host/wayland_toplevel_window.cc",
+      "sha256": "4facb531247f8d2f6c3bcb007a613533a09e7c8ae06e6deedb655a07e2e21354",
+      "path": "wayland_toplevel_window.cc"
+    }
+  ],
+  "headers": {
+    "Experiments/ChromiumScrollers/pinned-wayland-geometry.h": {
+      "sha256": "442a9b272a82d5944197c50fa719cd2e401cec086dd4327b9803dc4370a2e098",
+      "guards": [
+        [
+          "NXS_WAYLAND_SHOW",
+          "0x3a32598"
+        ],
+        [
+          "NXS_WAYLAND_DESTROY",
+          "0x3a319b8"
+        ],
+        [
+          "NXS_WAYLAND_CONNECTION_DESTROY",
+          "0x39f2178"
+        ],
+        [
+          "NXS_WAYLAND_GET_BOUNDS",
+          "0x3a38a78"
+        ],
+        [
+          "NXS_WAYLAND_SET_BOUNDS",
+          "0x3a38990"
+        ],
+        [
+          "NXS_WAYLAND_WINDOW_FIELDS",
+          "0x3a363d0"
+        ],
+        [
+          "NXS_WAYLAND_SURFACE_FIELDS",
+          "0x3a2a4a4"
+        ],
+        [
+          "NXS_WAYLAND_DISPLAY_FIELDS",
+          "0x39f28ac"
+        ],
+        [
+          "NXS_WAYLAND_MARSHAL",
+          "0x3668a94"
+        ],
+        [
+          "NXS_WAYLAND_ADD_LISTENER",
+          "0x36686c4"
+        ],
+        [
+          "NXS_WAYLAND_PROXY_DESTROY",
+          "0x39d23a8"
+        ],
+        [
+          "NXS_WAYLAND_FLUSH",
+          "0x366a018"
+        ],
+        [
+          "NXS_WAYLAND_TOPLEVEL_VTABLE",
+          "0x11e81aa0"
+        ]
+      ]
+    },
+    "Experiments/ChromiumScrollers/pinned-date-panels.h": {
+      "sha256": "6287193f7510a93520d165f87cbbf2ad11efd43f82321add5266b55730f0879c",
+      "guards": [
+        [
+          "NXS_DATE_PANEL_OPEN",
+          "0xe712fc8"
+        ],
+        [
+          "NXS_DATE_PANEL_CLOSE",
+          "0xe711e74"
+        ],
+        [
+          "NXS_DATE_PANEL_OPENED",
+          "0xe714be4"
+        ],
+        [
+          "NXS_DATE_PANEL_VISIBLE",
+          "0xe714d00"
+        ],
+        [
+          "NXS_DATE_PANEL_DOCUMENT_VIEW",
+          "0xeec73e8"
+        ],
+        [
+          "NXS_DATE_PANEL_LOCAL_BOUNDS",
+          "0xef57da8"
+        ]
+      ]
+    }
+  },
+  "field_witnesses": {
+    "WaylandWindow.connection": 176,
+    "WaylandWindow.root_surface": 240,
+    "WaylandSurface.surface": 840,
+    "WaylandConnection.display": 32,
+    "WaylandConnection.event_queue": 40,
+    "WaylandConnection.display_wrapper": 48,
+    "WaylandConnection.registry": 56
+  },
+  "ownership": "Only original Ozone toplevel surfaces; original display wrapper/private event queue and original static Wayland C functions.",
+  "bounds": "Original GetBoundsInDIP and SetBoundsInDIP, replacing only the origin from shared authoritative surface observations.",
+  "unresolved": [
+    "Auxiliary native window application ownership and activation handoff",
+    "Repeated-open compositor keyboard focus",
+    "Firefox showPicker consumer"
+  ],
+  "binary_guards": [
+    {
+      "symbol": "NXS_WAYLAND_SHOW",
+      "address": "0x3a32598",
+      "bytes": "3f2303d5ff0306d1e8a300fdfdfb14a9fcaf00f9",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_DESTROY",
+      "address": "0x3a319b8",
+      "bytes": "3f2303d5fd7bbda9f50b00f9f44f02a9fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_CONNECTION_DESTROY",
+      "address": "0x39f2178",
+      "bytes": "3f2303d5fd7bbda9f65701a9f44f02a9fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_GET_BOUNDS",
+      "address": "0x3a38a78",
+      "bytes": "5f2403d508845aa9e00308aac0035fd6",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_SET_BOUNDS",
+      "address": "0x3a38990",
+      "bytes": "3f2303d5ff0302d1fd7b07a9fdc3019128560790",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_WINDOW_FIELDS",
+      "address": "0x3a363d0",
+      "bytes": "765600f93f0108eb61000054a0de4092ba27a595",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_SURFACE_FIELDS",
+      "address": "0x3a2a4a4",
+      "bytes": "749a01f93f0108eb61000054a0de40928557a595",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_DISPLAY_FIELDS",
+      "address": "0x39f28ac",
+      "bytes": "601a40f97f1a00f9400000b48edbf197601640f9",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_MARSHAL",
+      "address": "0x3668a94",
+      "bytes": "3f2303d5ff4307d1fd7b19a9fc5f1aa9f6571ba9",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_ADD_LISTENER",
+      "address": "0x36686c4",
+      "bytes": "3f2303d5fd7bbfa9fd03009109a04039e80300aa",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_PROXY_DESTROY",
+      "address": "0x39d23a8",
+      "bytes": "3f2303d5fd7bbea9f44f01a9fd030091140c40f9",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_WAYLAND_FLUSH",
+      "address": "0x366a018",
+      "bytes": "3f2303d5fd7bbda9f50b00f9f44f02a9fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_DATE_PANEL_OPEN",
+      "address": "0xe712fc8",
+      "bytes": "3f2303d5fd7bbea9f44f01a9d4ee0190fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_DATE_PANEL_CLOSE",
+      "address": "0xe711e74",
+      "bytes": "3f2303d5fd7bbea908244039f44f01a9fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_DATE_PANEL_OPENED",
+      "address": "0xe714be4",
+      "bytes": "3f2303d5fd7bbea9f44f01a9b4ee01d0fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_DATE_PANEL_VISIBLE",
+      "address": "0xe714d00",
+      "bytes": "3f2303d5fd7bbea9f44f01a9b4ee01d0fd030091",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_DATE_PANEL_DOCUMENT_VIEW",
+      "address": "0xeec73e8",
+      "bytes": "5f2403d5090881b969010034c8b401f008012491",
+      "passed": true
+    },
+    {
+      "symbol": "NXS_DATE_PANEL_LOCAL_BOUNDS",
+      "address": "0xef57da8",
+      "bytes": "3f2303d5ff4301d1fd7b03a928ad01b0fdc30091",
+      "passed": true
+    }
+  ]
+}

@@ -11,7 +11,7 @@ struct NXSControl {
   int kind,enabled;
   NSView *view;
   NXSViewHost *host;
-  id target;
+  id target,date_panel;
   NXSControlChanged changed;
   void *context;
   double step;
@@ -24,6 +24,7 @@ struct NXSControl {
   unsigned date_flags;
   BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
 };
+static void date_panel_model_changed(NXSControl *);
 double nxs_gnustep_control_backing_scale(NXSControl *control)
 {return control&&!control->destroying?[[control->view window] backingScaleFactor]:0;}
 static int text_control(NXSControl *control)
@@ -263,6 +264,7 @@ static void slider_model(NXSControl *control)
 #include "Radio.inc"
 #include "List.inc"
 #include "Specialized.inc"
+#include "DatePanel.inc"
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
@@ -349,6 +351,7 @@ int nxs_gnustep_control_destroy(NXSControl *control)
     [(NSPopUpButtonCell *)[(NSPopUpButton *)control->view cell] dismissPopUp];
   }
   NSView *view=[control->view retain];
+  date_panel_destroy(control);
   if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
   if(control->kind==NXS_LISTBOX)[(NSBrowser *)view setDelegate:nil];
   else if(control->kind==NXS_TEXTAREA)[(NSTextView *)[(NSScrollView *)view documentView] setDelegate:nil];
@@ -416,6 +419,7 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
       [view setState:config->state];
     }
   }
+  if(control->kind==NXS_DATEPICKER&&!control->enabled)date_panel_model_changed(control);
   [pool drain];return 1;
 }
 NXSControlState nxs_gnustep_control_state(NXSControl *control)
@@ -486,6 +490,7 @@ int nxs_gnustep_control_focus(NXSControl *control,int focused)
 {
   if(!control||(focused&&(!control->enabled||control->kind==NXS_PROGRESS)))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  date_panel_focus(control,focused);
   int accepted=nxs_host_focus(control->host,focused);
   if(accepted&&focused&&text_control(control)&&control->text_selection_pending) {
     [text_editor(control) setSelectedRange:control->text_selection];
@@ -565,6 +570,7 @@ int nxs_gnustep_control_popup_title(NXSControl *control,const char *title)
 NXSPopupState nxs_gnustep_control_popup_state(NXSControl *control)
 {
   NXSPopupState result={.size=sizeof(result),.highlighted=-1};
+  if(control&&control->kind==NXS_DATEPICKER&&!control->destroying)return date_panel_state(control);
   if(!control||control->kind!=NXS_POPUP)return result;
   NSMenuView *view=[[(NSPopUpButton *)control->view menu] menuRepresentation];
   result.visible=[[view window] isVisible];
@@ -581,10 +587,13 @@ int nxs_gnustep_control_set_screen_origin(NXSControl *control,double x,double y)
 {
   if(!control)return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  int result=nxs_host_set_screen_origin(control->host,x,y);[pool drain];return result;
+  int result=nxs_host_set_screen_origin(control->host,x,y);
+  if(result&&control->kind==NXS_DATEPICKER)date_panel_position(control);
+  [pool drain];return result;
 }
 int nxs_gnustep_control_popup_open(NXSControl *control,int open)
 {
+  if(control&&control->kind==NXS_DATEPICKER)return date_panel_open(control,open);
   if(!control||control->kind!=NXS_POPUP||nxs_host_tracking(control->host)||(open&&!control->enabled))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   NSPopUpButton *view=(NSPopUpButton *)control->view;

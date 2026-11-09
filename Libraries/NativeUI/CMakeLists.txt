@@ -208,7 +208,8 @@ set_target_properties(native-menu-transport-probe PROPERTIES AUTOMOC OFF)
 # Transport remains independent of the GNUstep control provider. It can also be
 # built directly from Bridge/ without linking or rebuilding AppKit/NativeUI.
 option(NXS_BUILD_GTK3_GEOMETRY "Build the optional GTK3 Wayland geometry bridge" OFF)
-if(NXS_BUILD_GTK3_GEOMETRY)
+option(NXS_BUILD_WAYLAND_GEOMETRY "Build the shared Wayland geometry transport" OFF)
+if(NXS_BUILD_GTK3_GEOMETRY OR NXS_BUILD_WAYLAND_GEOMETRY)
   add_subdirectory(Bridge)
 endif()
 
@@ -233,3 +234,9 @@ add_executable(native-gregorian-calendar-probe ../../Tests/NativeUI/gregorian-ca
 target_compile_options(native-gregorian-calendar-probe PRIVATE ${OBJC_FLAGS} -UNDEBUG)
 target_link_libraries(native-gregorian-calendar-probe PRIVATE ${BASE_LIBS} dl)
 set_target_properties(native-gregorian-calendar-probe PROPERTIES AUTOMOC OFF)
+
+add_executable(native-date-panel-probe ../../Tests/NativeUI/date-panel-probe.m)
+target_compile_options(native-date-panel-probe PRIVATE ${OBJC_FLAGS} -UNDEBUG)
+target_link_libraries(native-date-panel-probe PRIVATE nextspace-native-ui ${GUI_LIBS})
+add_dependencies(native-date-panel-probe nextspace-native-ui-gnustep)
+set_target_properties(native-date-panel-probe PROPERTIES AUTOMOC OFF)

@@ -874,19 +874,24 @@ not make either complete browser interface native; GTK/Qt/KDE integration and th
 remaining browser/derivative/deployment requirements remain open.
 
 
-The optional [GTK3 geometry bridge](Bridge/Gtk3Geometry.h) transports authoritative
-Wayland surface origins for toolkit adapters. It uses the compositor's read-only
-version-10 surface observer on the actual GDK connection and the existing GLib
-idle queue. GDK owns window/display lifetime. Popup and non-Wayland windows keep
-their original path; an unavailable compositor reports unavailable rather than
-inventing coordinates. This component draws no controls and changes no focus,
-window metadata or toolkit layout.
+The optional [shared Wayland geometry transport](Bridge/WaylandGeometry.h)
+observes the compositor's authoritative surface origins through its read-only
+version-10 extension. It uses the owning client's connection and creation display
+wrapper, preserving the client's event queue without adding an event reader or
+roundtrip. A statically linked client supplies its original public Wayland C
+functions. The [GTK3 adapter](Bridge/Gtk3Geometry.h) supplies GObject lifetimes and
+GLib idle notifications; Chromium's pinned Ozone adapter supplies its original
+toplevel lifetimes and bounds setter. No control, coordinate formula, focus or
+placement policy is implemented in the transport. An unavailable extension
+preserves the toolkit's ordinary path.
 
 Build it independently with `cmake -S Libraries/NativeUI/Bridge -B BUILD` and
 `cmake --build BUILD`, or enable `NXS_BUILD_GTK3_GEOMETRY` in the NativeUI build.
-It links Wayland/GLib only, and resolves the public GTK3/GDK functions at use
-time. It requires neither a provider nor an AppKit/browser rebuild. The existing
-NativeUI public control ABI remains unchanged. See
+The core links Wayland only; disable `NXS_BUILD_GTK3_GEOMETRY` in the standalone
+build, or enable `NXS_BUILD_WAYLAND_GEOMETRY` in the parent build, for that core
+alone. GTK's thin lifetime adapter links GLib and resolves public GDK functions
+at use time. The transport requires neither a provider nor an AppKit/browser
+rebuild. NativeUI's public control ABI is unchanged. See the earlier
 [geometry qualification](gtk3-geometry-qualification.json) for the tested scope.
 
 
@@ -1254,3 +1259,32 @@ cohort passes 685 checks and 74 full native images, including both engines'
 existing temporal/number regressions. See [week qualification](week-qualification.json)
 and [source audit](week-source-audit.json). Calendar presentation and the broader
 compatibility, lifecycle, deployment and other-toolkit work remain required.
+
+### Native calendar panels
+
+The optional `NXS_SPECIAL_DATE_PANEL` capability reuses the existing popup
+open/state API for native date controls. The provider composes original
+`NSPanel`, `NSDatePicker` and `NSDatePickerCell` objects. Native calendar drawing,
+selection and input interpretation stay in AppKit; values use the existing
+DateBinding. Opening an empty field only seeds the panel's display and creates
+no application value. Native input-manager selectors handle chooser actions.
+The API table remains version 1, 720 bytes.
+
+Chromium's adapter connects its original temporal popup boundaries after the
+original permission/user-activation checks. The same original local-root to
+screen conversion supplies the anchor. Ozone receives authoritative surface
+origins through the shared geometry transport and its original bounds setter.
+The renderer's existing work loop observes anchor changes; the provider moves
+its same native panel without changing the model or adding a timer. Browser
+toolbar, address bar and tabs are unchanged.
+
+This is a partial staged implementation. Firefox showPicker, native panel
+application ownership, all temporal popup variants and broader compatibility
+remain unfinished. The calendar movement and field regression cases do not
+qualify those requirements or complete browser integration.
+The repeated-open browser test currently fails: the calendar is visible while
+Chromium retains compositor keyboard focus. The shared provider correctly
+resigns its native key window on close, but cross-client auxiliary ownership and
+activation still need integration. Native key-state/API injection checks alone
+do not prove physical keyboard delivery. See
+[calendar/geometry qualification](calendar-geometry-qualification.json).

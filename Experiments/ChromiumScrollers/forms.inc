@@ -2,6 +2,7 @@
  * separately loaded UI provider. Exact Chromium build; GPL-2.0-or-later. */
 #include "pinned-forms.h"
 #include "pinned-coordinates.h"
+#include "pinned-date-panels.h"
 #include "pinned-multiline.h"
 #include "pinned-multiline-scroll.h"
 #include "../../Libraries/NativeUI/NativeUI.h"
@@ -24,6 +25,9 @@ struct NativeForm {
   struct NXSRectD radio_rect;
   int kind,enabled,state,painted,input_owned,indeterminate;
   struct Rect rect;
+  struct Rect screen_anchor;
+  uint32_t screen_anchor_epoch;
+  int screen_anchor_valid;
   char *title;
   double actions_before,actions_seen,value,generation,minimum,maximum,step;
   char *popup_model,*popup_title;
@@ -70,7 +74,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_color_enabled,forms_numbers_enabled;
-static int forms_dates_enabled,forms_times_enabled,forms_months_enabled,forms_proleptic_enabled,forms_weeks_enabled;
+static int forms_dates_enabled,forms_times_enabled,forms_months_enabled,forms_proleptic_enabled,forms_weeks_enabled,forms_date_panel_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
@@ -109,6 +113,10 @@ static int refresh_form_watch(void);
 static int color_watch_needed(void);
 static void color_native_work(int);
 static void color_forget(void *);
+static int date_panel_watch_needed(void);
+static void date_panel_native_work(int);
+static void date_panel_geometry_work(void);
+static void date_panel_forget(void *);
 static struct NXSResponse *sync_color_image(struct NativeForm *,struct NXSResponse *);
 static void *number_owner(void *);
 static void *number_type(void *);
@@ -144,7 +152,7 @@ static int list_mouse_dispatch(void *,void *,const void *,const void *,const voi
 static struct NXSResponse *sync_popup_model(struct NativeForm *,struct NXSResponse *);
 static void popup_after_input(struct NativeForm *,struct NXSResponse *);
 static void popup_free_model(struct NativeForm *);
-static void popup_sync_origin(struct NativeForm *);
+static int form_sync_screen_origin(struct NativeForm *);
 static void native_button_size_changed(struct NativeForm *,const struct NXSResponse *);
 static int native_button_owned(const struct NativeForm *);
 static int text_kind(int);
@@ -238,7 +246,7 @@ static struct NXSResponse *form_request(struct NativeForm *form,int operation,do
   if(form->kind==NXS_STEPPER)return native_stepper_request(form->control,operation,form->rect.width,form->rect.height,form->enabled,x,y,modifiers);
   if(form->kind==NXS_LISTBOX)return list_form_request(form,operation,x,y,modifiers);
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return radio_form_request(form,operation,x,y,modifiers);
-  if(operation==1&&form->kind==NXS_POPUP&&!popup_measuring)popup_sync_origin(form);
+  if(operation==1&&form->kind==NXS_POPUP&&!popup_measuring)form_sync_screen_origin(form);
   size_t title_size=operation==1&&form->title?strlen(form->title):0;
   size_t size=sizeof(struct NXSControlRequest)+title_size;
   struct NXSControlRequest *req=calloc(1,size);if(!req)return NULL;
@@ -607,7 +615,7 @@ static int dom_dispatch(void *dispatcher) {
   return result;
 }
 static void element_detach(void *node,int reattach) {
-  color_forget(node);
+  color_forget(node);date_panel_forget(node);
   struct NativeForm **cursor=&native_forms;
   while(*cursor&&(*cursor)->node!=node)cursor=&(*cursor)->next;
   struct NativeForm *form=*cursor;
@@ -632,6 +640,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-progress.inc"
 #include "forms-numbers.inc"
 #include "forms-dates.inc"
+#include "forms-date-panels.inc"
 #include "forms-text.inc"
 #include "forms-color.inc"
 #include "forms-lists.inc"
@@ -650,11 +659,12 @@ static struct Detour form_detours[]={
  {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
-static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_labels_enabled||prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours)))&&guard_form_coordinates()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
+static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_labels_enabled||prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours)))&&guard_form_coordinates()&&guard_form_origin_calls()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_numbers_enabled||(guard_number_calls()&&prepare_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours))))&&
   (!forms_dates_enabled||(guard_date_calls()&&(!forms_months_enabled||guard_month_calls())&&prepare_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours))))&&
+  (!forms_date_panel_enabled||(guard_date_panel_calls()&&prepare_detours(date_panel_detours,sizeof(date_panel_detours)/sizeof(*date_panel_detours))))&&
   (!forms_color_enabled||(guard_color_calls()&&prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours))))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
@@ -667,6 +677,7 @@ static void activate_forms(void){if(forms_labels_enabled)activate_detours(form_l
   if(forms_progress_enabled)activate_detours(&progress_detour,1);
   if(forms_numbers_enabled)activate_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours));
   if(forms_dates_enabled)activate_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours));
+  if(forms_date_panel_enabled)activate_detours(date_panel_detours,sizeof(date_panel_detours)/sizeof(*date_panel_detours));
   if(forms_color_enabled)activate_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours));
   if(forms_sliders_enabled)activate_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours));
   if(forms_popups_enabled)activate_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours));

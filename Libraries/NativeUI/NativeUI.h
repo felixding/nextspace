@@ -46,7 +46,7 @@ enum NXSControlKind {
 };
 enum NXSSpecializedCapability { NXS_SPECIAL_STEPPER=1, NXS_SPECIAL_COLOR=2, NXS_SPECIAL_DATE=4,
   NXS_SPECIAL_DATE_NULLABLE=8, NXS_SPECIAL_TIME_OF_DAY=16, NXS_SPECIAL_MONTH_START=32,
-  NXS_SPECIAL_DATE_PROLEPTIC=64, NXS_SPECIAL_WEEK_START=128 };
+  NXS_SPECIAL_DATE_PROLEPTIC=64, NXS_SPECIAL_WEEK_START=128, NXS_SPECIAL_DATE_PANEL=256 };
 typedef struct { uint32_t size; double red,green,blue,alpha; } NXSColorModel;
 enum NXSDateElements { NXS_DATE_YEAR_MONTH=1, NXS_DATE_YEAR_MONTH_DAY,
   NXS_DATE_HOUR_MINUTE, NXS_DATE_HOUR_MINUTE_SECOND, NXS_DATE_DATE_AND_TIME, NXS_DATE_YEAR_WEEK };
@@ -532,7 +532,9 @@ unsigned nxs_native_ui_source_capabilities(void);
 NXSEventSource *nxs_native_ui_source_create(int descriptor);
 int nxs_native_ui_source_destroy(NXSEventSource *);
 unsigned nxs_control_popup_open_capabilities(void);
-/* Change popup visibility through the native control's methods, without
+/* Date controls advertise NXS_SPECIAL_DATE_PANEL for a native calendar/clock
+ * panel through this same popup API. No indexed menu items are exposed.
+ * Change popup visibility through the native control's methods, without
  * assuming a keyboard binding. Busy native tracking rejects this request. */
 int nxs_control_popup_open(NXSControl *, int open);
 unsigned nxs_control_text_capabilities(void);

@@ -43,6 +43,9 @@ struct NXSActionReceipt {uint64_t serial;uint32_t event;int32_t state;double val
  * event capabilities. Bootstrap part 4.height advertises event capabilities.
  * Payloads above 64 KiB arrive in a sealed memfd via SCM_RIGHTS; size still
  * describes the header plus pixels. Small payloads remain inline. */
+/* Owned operation 0 reads generic native state without a bitmap. Operation 14
+ * changes popup visibility; date controls additionally require DATE_PANEL.
+ * Response part 6 is the visible native popup's owner-relative logical frame. */
 struct NXSControlRequest {
   uint32_t magic, operation, process, kind;
   uint64_t control;

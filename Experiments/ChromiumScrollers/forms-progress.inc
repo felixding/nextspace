@@ -71,7 +71,7 @@ static void *watch_native_forms(void *unused) {
 static int refresh_form_watch(void) {
   if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
   int needed=active_form&&(active_form->kind==NXS_SLIDER||active_form->kind==NXS_STEPPER||active_form->kind==NXS_DATEPICKER);double generation=needed?active_form->generation:0;
-  if(color_watch_needed())needed=1;
+  if(color_watch_needed()||date_panel_watch_needed())needed=1;
   if(views_watch_needed())needed=1;
   if(tabs_watch_needed())needed=1;
   if(app_menus_watch_needed())needed=1;
@@ -116,15 +116,19 @@ static void form_native_work(void *controller) {
   native_layout_work();
   if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return;
   pthread_mutex_lock(&form_watch.mutex);
-  int ready=form_watch.running&&form_watch.pending&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
+  int owner=form_watch.running&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
+  int ready=owner&&form_watch.pending;
   int failed=form_watch.failed;
   if(ready)form_watch.pending=0;
   pthread_mutex_unlock(&form_watch.mutex);
+  /* Browser/layout work can change the anchor without a native UI action.
+   * Observe that on the existing owner loop, without adding a polling timer. */
+  if(owner)date_panel_geometry_work();
   if(!ready)return;
   views_native_work(failed);
   tabs_native_work(failed);
   app_menus_native_work(failed);
-  color_native_work(failed);
+  color_native_work(failed);date_panel_native_work(failed);
   if(failed){
     if(active_form)finish_form(-10000,-10000,0);
     for(;;){struct NativeForm *popup=native_forms;

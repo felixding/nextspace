@@ -644,7 +644,7 @@ class NativeControlServer:
             return -1
         self.event_deadline = self.native.nxs_native_ui_dispatch_events(maximum_wait)
         for state in self.controls.values():
-            if state['key'][2]==6 and not state['destroy']:
+            if state['key'][2] in (6,17) and not state['destroy'] and (state['key'][2]==6 or self.specialized_capabilities&256):
                 visible=bool(self.native.nxs_control_popup_state(state['native']).visible)
                 if visible!=state.get('popup_visible',False):
                     state['popup_visible']=visible
@@ -744,7 +744,7 @@ class NativeControlServer:
                 response.parts[2].height=state.get('activations',0)
             if self.input_capabilities & 1:
                 response.parts[3].y = self.native.nxs_control_focused(state['native'])
-            if req.kind==6 and self.popup_capabilities:
+            if req.kind in (6,17) and self.popup_capabilities and (req.kind==6 or self.specialized_capabilities&256):
                 popup=self.native.nxs_control_popup_state(state['native'])
                 response.parts[5].y=popup.highlighted
                 frame=rectangle if rectangle is not None else popup.frame
@@ -1039,8 +1039,12 @@ class NativeControlServer:
                     current.selection_start,current.selection_length,current.marked_start,current.marked_length)
                 self._respond(client,req,state,input_result=1,payload=bytes(info)+buffer.raw[:-1])
                 return
-            if req.operation==14 and req.kind==6 and self.popup_open_capabilities:
-                accepted=self.native.nxs_control_popup_open(state['native'],req.state)
+            if req.operation==0 and not req.text_size:
+                self._respond(client,req,state if state['client'] is client else None,input_result=int(state['client'] is client))
+                return
+            if req.operation==14 and req.kind in (6,17) and self.popup_open_capabilities:
+                accepted=int(bool(state['client'] is client and not req.text_size and req.state in (0,1) and
+                    (req.kind==6 or self.specialized_capabilities&256) and self.native.nxs_control_popup_open(state['native'],req.state)))
                 self._respond(client,req,state,input_result=accepted)
                 return
             if req.operation==12 and req.kind==6 and self.popup_capabilities:

@@ -25,7 +25,7 @@ static int week_date_available(void)
 unsigned nxs_gnustep_control_specialized_capabilities(void)
 {return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE|NXS_SPECIAL_TIME_OF_DAY|
   (proleptic_date_available()?NXS_SPECIAL_MONTH_START|NXS_SPECIAL_DATE_PROLEPTIC:0)|
-  (nullable_date_available()?NXS_SPECIAL_DATE_NULLABLE:0)|(week_date_available()?NXS_SPECIAL_WEEK_START:0);}
+  (nullable_date_available()?NXS_SPECIAL_DATE_NULLABLE|NXS_SPECIAL_DATE_PANEL:0)|(week_date_available()?NXS_SPECIAL_WEEK_START:0);}
 static int specialized_idle(NXSControl *control,int kind)
 {return control&&control->kind==kind&&!control->destroying&&!control->specialized_callback&&!nxs_host_tracking(control->host);}
 static void color_open(NSView *view,void *context)
@@ -155,7 +155,7 @@ int nxs_gnustep_control_date_sync(NXSControl *control,const NXSDateModel *model)
   [view setMaxDate:model->flags&NXS_DATE_MAXIMUM?[NSDate dateWithTimeIntervalSince1970:model->maximum]:nil];
   control->date_flags=model->flags&(NXS_DATE_TIME_OF_DAY|NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN|NXS_DATE_WEEK_START);
   [view setDateValue:model->flags&NXS_DATE_EMPTY?nil:[NSDate dateWithTimeIntervalSince1970:model->value]];
-  [control->view setNeedsDisplay:YES];[pool drain];return 1;
+  [control->view setNeedsDisplay:YES];date_panel_model_changed(control);[pool drain];return 1;
 }
 int nxs_gnustep_control_date_get(NXSControl *control,NXSDateModel *model)
 {
