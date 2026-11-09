@@ -39,7 +39,7 @@
  
    cLocaleId = [my->localeID UTF8String];
    tzName = [timeZone name];
-@@ -137,7 +140,15 @@
+@@ -137,7 +140,26 @@
        // as the calendar is already encoded in the locale id by _localeIDWithLocale:.
      }
  
@@ -52,11 +52,22 @@
 +        [my->gregorianStartDate timeIntervalSince1970] * SECOND_TO_MILLI,
 +        &changeError);
 +    }
++  /* Component construction opens a separate ICU calendar too. Preserve the
++   * configured week policy there, not only on the reusable calendar. */
++  if (calendar != NULL)
++    {
++      if (my->firstWeekday != NSNotFound)
++        ucal_setAttribute(calendar, UCAL_FIRST_DAY_OF_WEEK,
++          (int32_t)my->firstWeekday);
++      if (my->minimumDaysInFirstWeek != NSNotFound)
++        ucal_setAttribute(calendar, UCAL_MINIMAL_DAYS_IN_FIRST_WEEK,
++          (int32_t)my->minimumDaysInFirstWeek);
++    }
 +  return calendar;
  }
  #endif
  
-@@ -258,6 +269,7 @@
+@@ -258,6 +280,7 @@
  {
    if (self == [NSCalendar class])
      {
@@ -64,7 +75,7 @@
        classLock = [NSRecursiveLock new];
      }
  }
-@@ -326,6 +338,7 @@
+@@ -326,6 +349,7 @@
        RELEASE(my->identifier);
        RELEASE(my->localeID);
        RELEASE(my->tz);
@@ -72,7 +83,7 @@
        NSZoneFree([self zone], _NSCalendarInternal);
      }
    [super dealloc];
-@@ -789,6 +802,29 @@
+@@ -789,6 +813,29 @@
  #endif
  }
  
@@ -102,7 +113,7 @@
  - (NSTimeZone *) timeZone
  {
    return my->tz;
-@@ -993,39 +1029,73 @@
+@@ -993,39 +1040,73 @@
  
  - (void) encodeWithCoder: (NSCoder*)encoder
  {

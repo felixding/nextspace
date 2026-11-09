@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native week fields</title>
+<style>body{margin:32px;background:white;font:16px sans-serif}label{display:block;margin:20px 0}input{width:420px;height:34px;font:16px sans-serif}</style>
+<label>Week <input id="normal" type="week" value="2026-W53"></label>
+<label>Empty week <input id="empty" type="week"></label>
+<label>Read only <input id="readonly" type="week" value="2026-W53" readonly></label>
+<label>Disabled <input id="disabled" type="week" value="2026-W53" disabled></label>
+<label>Cancelled <input id="cancelled" type="week" value="2026-W53"></label>
+<button id="after">After fields</button>
+<script>
+window.events=[];
+for(const element of document.querySelectorAll('input'))
+ for(const type of ['input','change'])
+  element.addEventListener(type,event=>window.events.push({id:element.id,type,value:element.value,trusted:event.isTrusted}));
+cancelled.addEventListener('mousedown',event=>event.preventDefault());
+</script>

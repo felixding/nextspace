@@ -1,6 +1,6 @@
 --- a/Source/NSCalendar.m
 +++ b/Source/NSCalendar.m
-@@ -871,6 +871,41 @@
+@@ -871,6 +871,43 @@
                   inUnit: (NSCalendarUnit) larger
                  forDate: (NSDate *) date
  {
@@ -15,7 +15,9 @@
 +   * month-length or leap-year implementation in GUI clients. */
 +  if (date == nil
 +    || !((smaller == NSCalendarUnitDay && larger == NSCalendarUnitMonth)
-+      || (smaller == NSCalendarUnitMonth && larger == NSCalendarUnitYear)))
++      || (smaller == NSCalendarUnitMonth && larger == NSCalendarUnitYear)
++      || (smaller == NSCalendarUnitWeekOfYear
++        && larger == NSCalendarUnitYearForWeekOfYear)))
 +    {
 +      return NSMakeRange (0, 0);
 +    }

@@ -18,9 +18,23 @@ static int last_action_state;
 static IMP original_init;
 static NSDatePicker *observed;
 @interface NSDatePickerCell (NXSDateInputWitness)
+- (NSArray *)_editableFields;
+- (void)_setSelectedFieldIndex:(NSInteger)index;
+- (BOOL)displaysWeekOfYear;
 - (NSInteger)_dayAtRow:(NSInteger)row column:(NSInteger)column;
 - (NSRect)_dayCellRectAtRow:(NSInteger)row column:(NSInteger)column inFrame:(NSRect)frame ofView:(NSView *)view;
 @end
+@interface NSCalendar (NXSDateCutoverWitness)
+- (void)setGregorianStartDate:(NSDate *)date;
+@end
+static void select_week_field(NSDatePicker *picker,unichar token)
+{
+  NSArray *fields=[(NSDatePickerCell *)[picker cell] _editableFields];BOOL found=NO;
+  for(NSUInteger i=0;i<[fields count];i++)if([[fields objectAtIndex:i] characterAtIndex:0]==token) {
+    [(NSDatePickerCell *)[picker cell] _setSelectedFieldIndex:i];found=YES;break;
+  }
+  assert(found);
+}
 static id witness_init(id self,SEL selector,NSRect frame)
 {id result=((id (*)(id,SEL,NSRect))original_init)(self,selector,frame);observed=result;return result;}
 static void check(const char *name,BOOL passed)
@@ -35,10 +49,16 @@ static void compare(NXSControl *control,NXSDateModel *model,const char *director
 {
   assert(nxs_control_focus(control,0)&&nxs_control_date_sync(control,model));
   NSDatePicker *reference=[[NSDatePicker alloc] initWithFrame:NSMakeRect(0,0,260,30)];
-  NSDatePickerElementFlags flags=model->elements==NXS_DATE_YEAR_MONTH?NSYearMonthDatePickerElementFlag:
+  NSDatePickerElementFlags flags=model->elements==NXS_DATE_YEAR_WEEK?0x0200:model->elements==NXS_DATE_YEAR_MONTH?NSYearMonthDatePickerElementFlag:
     model->elements==NXS_DATE_HOUR_MINUTE_SECOND?NSHourMinuteSecondDatePickerElementFlag:
     model->elements==NXS_DATE_DATE_AND_TIME?(NSYearMonthDayDatePickerElementFlag|NSHourMinuteSecondDatePickerElementFlag):NSYearMonthDayDatePickerElementFlag;
   [reference setDatePickerElements:flags];[reference setDatePickerStyle:model->style];
+  if(model->flags&(NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN|NXS_DATE_WEEK_START)) {
+    NSCalendar *calendar=[[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+    [calendar setGregorianStartDate:[NSDate dateWithTimeIntervalSince1970:-8640000000000.]];
+    if(model->flags&NXS_DATE_WEEK_START){[calendar setFirstWeekday:2];[calendar setMinimumDaysInFirstWeek:4];}
+    [reference setCalendar:calendar];
+  }
   [reference setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
   [reference setDateValue:[NSDate dateWithTimeIntervalSince1970:model->value]];
   NXSSize preferred=nxs_control_size(control);NSSize expected=[[reference cell] cellSize];
@@ -228,7 +248,55 @@ int main(int argc,char **argv)
   check("month-model-rejects-noncanonical-maximum",!nxs_control_date_sync(control,&invalidMonth));
   model.flags=NXS_DATE_UTC;model.value=1794095999.875;assert(nxs_control_date_sync(control,&model));
   check("legacy-year-month-retains-complete-date-value",value(control)==model.value);
+  check("week-start-capability-is-explicit",nxs_control_specialized_capabilities()&NXS_SPECIAL_WEEK_START);
+  model=(NXSDateModel){.size=sizeof(model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY|NXS_DATE_WEEK_START,
+    .elements=NXS_DATE_YEAR_WEEK,.style=NXS_DATE_TEXT_AND_STEPPER,.value=1798416000};
+  prior=actions;assert(nxs_control_date_sync(control,&model));
+  NXSDateModel week={.size=sizeof(week)};assert(nxs_control_date_get(control,&week));
+  check("week-model-round-trip-is-silent",week.value==model.value&&week.flags==model.flags&&actions==prior);
+  check("week-editor-is-the-original-picker-extension",[(NSDatePickerCell *)[observed cell] displaysWeekOfYear]&&[[(NSDatePickerCell *)[observed cell] _editableFields] count]==2);
+  [observed setDateValue:[NSDate dateWithTimeIntervalSince1970:1798761600]];
+  check("week-projection-keeps-week-year-across-civil-year",value(control)==1798416000);
+  assert(nxs_control_focus(control,1));select_week_field(observed,'w');key(control,NXS_KEY_UP_ARROW,"");
+  check("native-week-step-carries-week-53-to-next-week-year",value(control)==1799020800&&last_action_value==1799020800&&actions==prior+1);
+  model.value=1766966400;assert(nxs_control_date_sync(control,&model));select_week_field(observed,'Y');key(control,NXS_KEY_UP_ARROW,"");
+  check("native-week-year-step-is-not-a-civil-year-step",value(control)==1799020800&&last_action_value==1799020800);
+  model.value=-259200;assert(nxs_control_date_sync(control,&model));select_week_field(observed,'w');key(control,NXS_KEY_DOWN_ARROW,"");
+  check("native-week-step-retains-pre-epoch-domain",value(control)==-864000&&last_action_value==-864000);
+  model.value=-62135596800.;assert(nxs_control_date_sync(control,&model));select_week_field(observed,'w');key(control,NXS_KEY_UP_ARROW,"");
+  check("native-week-step-retains-first-year-domain",value(control)==-62134992000.&&last_action_value==-62134992000.);
+  model.value=1798416000;assert(nxs_control_date_sync(control,&model));select_week_field(observed,'w');key(control,0,"5");key(control,0,"2");
+  check("native-week-digit-entry-uses-existing-field-editor",value(control)==1797811200&&last_action_value==1797811200);
+  model.flags|=NXS_DATE_EMPTY;model.value=0;prior=actions;assert(nxs_control_date_sync(control,&model));
+  check("native-empty-week-focus-is-silent",nxs_control_focus(control,1)&&nxs_control_state(control).state==-1&&actions==prior);
+  select_week_field(observed,'w');key(control,NXS_KEY_UP_ARROW,"");assert(nxs_control_date_get(control,&week));
+  NSCalendar *weekCalendar=[[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+  [weekCalendar setGregorianStartDate:[NSDate dateWithTimeIntervalSince1970:-8640000000000.]];
+  [weekCalendar setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];[weekCalendar setFirstWeekday:2];[weekCalendar setMinimumDaysInFirstWeek:4];
+  NSDateComponents *weekParts=[weekCalendar components:NSCalendarUnitWeekday|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond
+    fromDate:[NSDate dateWithTimeIntervalSince1970:week.value]];
+  check("first-empty-week-edit-exports-monday-midnight",!(week.flags&NXS_DATE_EMPTY)&&[weekParts weekday]==2&&[weekParts hour]==0&&[weekParts minute]==0&&[weekParts second]==0&&actions==prior+1);
+  key(control,NXS_KEY_BACKSPACE,"");
+  check("native-week-clear-preserves-empty-action",nxs_control_state(control).state==-1&&last_action_state==-1&&last_action_value==0);
+  NXSDateModel invalidWeek=model;invalidWeek.flags&=~NXS_DATE_UTC;
+  check("week-policy-requires-utc",!nxs_control_date_sync(control,&invalidWeek));
+  invalidWeek=model;invalidWeek.flags|=NXS_DATE_TIME_OF_DAY;
+  check("week-policy-rejects-clock-domain",!nxs_control_date_sync(control,&invalidWeek));
+  invalidWeek=model;invalidWeek.flags|=NXS_DATE_MONTH_START;
+  check("week-policy-rejects-month-domain",!nxs_control_date_sync(control,&invalidWeek));
+  invalidWeek=model;invalidWeek.elements=NXS_DATE_YEAR_MONTH_DAY;
+  check("week-policy-requires-week-elements",!nxs_control_date_sync(control,&invalidWeek));
+  invalidWeek=model;invalidWeek.flags&=~NXS_DATE_EMPTY;invalidWeek.value=0;
+  check("week-model-rejects-non-monday-value",!nxs_control_date_sync(control,&invalidWeek));
+  invalidWeek=model;invalidWeek.flags|=NXS_DATE_MINIMUM;invalidWeek.minimum=1798416001;
+  check("week-model-rejects-noncanonical-minimum",!nxs_control_date_sync(control,&invalidWeek));
+  invalidWeek=model;invalidWeek.flags|=NXS_DATE_MAXIMUM;invalidWeek.maximum=1798416001;
+  check("week-model-rejects-noncanonical-maximum",!nxs_control_date_sync(control,&invalidWeek));
+  model.flags=NXS_DATE_UTC|NXS_DATE_WEEK_START;model.value=1798416000;
   assert(argc>2);double scale=atof(argv[2]);
+  compare(control,&model,argv[1],"week-editor",scale);
+  model.elements=NXS_DATE_YEAR_MONTH;
+
   model.flags=NXS_DATE_UTC|NXS_DATE_MONTH_START;model.value=1793491200;
   compare(control,&model,argv[1],"month-editor",scale);
   model.flags=NXS_DATE_UTC;model.elements=NXS_DATE_YEAR_MONTH_DAY;model.style=NXS_DATE_TEXT_AND_STEPPER;

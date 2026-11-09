@@ -282,7 +282,7 @@
  
  - (id) initTextCell: (NSString*)aString
  {
-@@ -44,11 +82,302 @@
+@@ -44,11 +82,312 @@
  
        [self setFormatter: formatter];
        RELEASE(formatter);
@@ -308,6 +308,10 @@
 +  NSMutableString *template = [NSMutableString stringWithCapacity: 8];
 +  NSDatePickerElementFlags elements = _datePickerElements;
 +
++  if (elements & GSYearWeekDatePickerElementFlag)
++    {
++      [template appendString: @"Yw"];
++    }
 +  if (elements & NSYearMonthDatePickerElementFlag)
 +    {
 +      [template appendString: @"yM"];
@@ -342,6 +346,10 @@
 +  NSMutableString *format = [NSMutableString stringWithCapacity: 24];
 +  NSDatePickerElementFlags elements = _datePickerElements;
 +
++  if (elements & GSYearWeekDatePickerElementFlag)
++    {
++      [format appendString: @"YYYY-'W'ww"];
++    }
 +  if (elements & NSYearMonthDatePickerElementFlag)
 +    {
 +      [format appendString: @"y-MM"];
@@ -389,7 +397,7 @@
 +      format = [NSDateFormatter dateFormatFromTemplate: template
 +                                               options: 0
 +                                                locale: [formatter locale]];
-+      if (format == nil)
++      if ([format length] == 0)
 +        {
 +          format = [self _fallbackDateFormat];
 +        }
@@ -447,7 +455,7 @@
 +        {
 +          case 'y': case 'Y': case 'u':
 +          case 'M': case 'L':
-+          case 'd':
++          case 'd': case 'w':
 +          case 'h': case 'H': case 'k': case 'K':
 +          case 'm':
 +          case 's':
@@ -492,7 +500,9 @@
 +{
 +  switch ([field characterAtIndex: 0])
 +    {
-+      case 'y': case 'Y': case 'u': return NSCalendarUnitYear;
++      case 'y': case 'u':           return NSCalendarUnitYear;
++      case 'Y':                     return NSCalendarUnitYearForWeekOfYear;
++      case 'w':                     return NSCalendarUnitWeekOfYear;
 +      case 'M': case 'L':           return NSCalendarUnitMonth;
 +      case 'd':                     return NSCalendarUnitDay;
 +      case 'h': case 'H':
@@ -585,21 +595,26 @@
  - (NSColor *) backgroundColor
  {
    return _backgroundColor;
-@@ -76,7 +405,9 @@
+@@ -76,7 +415,9 @@
  
  - (void) setDatePickerElements: (NSDatePickerElementFlags)flags
  {
 -  _datePickerElements = flags;
-+  /* AppKit keeps the low eight bits, which leaves the era out. */
-+  _datePickerElements = flags & 0xff;
++  /* Preserve the GNUstep week extension alongside the original elements. */
++  _datePickerElements = flags & (0xff | GSYearWeekDatePickerElementFlag);
 +  [self _updateDateFormat];
  }
  
  - (NSDatePickerMode) datePickerMode
-@@ -99,14 +430,1090 @@
+@@ -99,14 +440,1114 @@
    _datePickerStyle = style;
  }
  
++- (BOOL) displaysWeekOfYear
++{
++  return (_datePickerElements & GSYearWeekDatePickerElementFlag) != 0;
++}
++
 +- (BOOL) allowsEmptyDate
 +{
 +  return _allowsEmptyDate;
@@ -702,6 +717,9 @@
 +  switch (unit)
 +    {
 +      case NSCalendarUnitYear:   [step setYear: delta];   break;
++      case NSCalendarUnitYearForWeekOfYear:
++        [step setYearForWeekOfYear: delta]; break;
++      case NSCalendarUnitWeekOfYear: [step setWeekOfYear: delta]; break;
 +      case NSCalendarUnitMonth:  [step setMonth: delta];  break;
 +      case NSCalendarUnitDay:    [step setDay: delta];    break;
 +      case NSCalendarUnitHour:   [step setHour: delta];   break;
@@ -741,7 +759,11 @@
 +  switch ([self _unitOfField: field])
 +    {
 +      case NSCalendarUnitYear:
++      case NSCalendarUnitYearForWeekOfYear:
 +        return 9999;
++      case NSCalendarUnitWeekOfYear:
++        return NSMaxRange([calendar rangeOfUnit: NSCalendarUnitWeekOfYear
++          inUnit: NSCalendarUnitYearForWeekOfYear forDate: date]) - 1;
 +      case NSCalendarUnitMonth:
 +        return [calendar rangeOfUnit: NSCalendarUnitMonth
 +                              inUnit: NSCalendarUnitYear
@@ -780,9 +802,21 @@
 +    }
 +
 +  field = [fields objectAtIndex: index];
++  if ([self displaysWeekOfYear])
++    {
++      units = NSCalendarUnitEra | NSCalendarUnitYearForWeekOfYear
++        | NSCalendarUnitWeekOfYear | NSCalendarUnitWeekday
++        | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
++    }
 +  parts = [calendar components: units fromDate: date];
 +  switch ([self _unitOfField: field])
 +    {
++      case NSCalendarUnitYearForWeekOfYear:
++        [parts setYearForWeekOfYear: value];
++        break;
++      case NSCalendarUnitWeekOfYear:
++        [parts setWeekOfYear: value];
++        break;
 +      case NSCalendarUnitYear:
 +        [parts setYear: value];
 +        break;
@@ -1688,7 +1722,7 @@
  }
  
  - (id) delegate
-@@ -137,6 +1544,7 @@
+@@ -137,6 +1578,7 @@
  - (void) setLocale: (NSLocale *)locale
  {
    [[self formatter] setLocale: locale];
@@ -1696,7 +1730,7 @@
  }
  
  - (NSDate *) maxDate
-@@ -147,6 +1555,7 @@
+@@ -147,6 +1589,7 @@
  - (void) setMaxDate: (NSDate *)date
  {
    ASSIGN(_maxDate, date);
@@ -1704,7 +1738,7 @@
  }
  
  - (NSDate *) minDate
-@@ -157,6 +1566,7 @@
+@@ -157,6 +1600,7 @@
  - (void) setMinDate: (NSDate *)date
  {
    ASSIGN(_minDate, date);
@@ -1712,7 +1746,7 @@
  }
  
  - (NSColor *) textColor
-@@ -189,17 +1599,74 @@
+@@ -189,17 +1633,74 @@
    [[self formatter] setTimeZone: zone];
  }
  
@@ -1787,7 +1821,7 @@
      }
  }
  
-@@ -207,15 +1674,65 @@
+@@ -207,15 +1708,65 @@
  {
    if ((self = [super initWithCoder: aDecoder]))
      {
@@ -2171,7 +2205,16 @@
  @end
 --- a/Headers/AppKit/NSDatePickerCell.h
 +++ b/Headers/AppKit/NSDatePickerCell.h
-@@ -76,6 +76,11 @@
+@@ -57,6 +57,8 @@
+       NSYearMonthDatePickerElementFlag        = 0x00c0,
+       NSYearMonthDayDatePickerElementFlag     = 0x00e0,
+       NSEraDatePickerElementFlag              = 0x0100,
++      /* GNUstep extension: the original editor's week and week-year fields. */
++      GSYearWeekDatePickerElementFlag          = 0x0200,
+ };
+ typedef NSUInteger NSDatePickerElementFlags;
+ 
+@@ -76,6 +78,11 @@
    NSDatePickerMode _datePickerMode;
    NSDatePickerStyle _datePickerStyle;
    BOOL _drawsBackground;
@@ -2183,12 +2226,13 @@
  }
  
  - (NSColor *) backgroundColor;
-@@ -84,6 +89,9 @@
+@@ -84,6 +91,10 @@
  - (NSDatePickerMode) datePickerMode;
  - (NSDatePickerStyle) datePickerStyle;
  - (NSDate *) dateValue;
 +/* GNUstep extension: nullable controls opt into native clear/initial editing. */
 +- (BOOL) allowsEmptyDate;
++- (BOOL) displaysWeekOfYear;
 +- (void) setAllowsEmptyDate: (BOOL)flag;
  - (id) delegate;
  - (BOOL) drawsBackground;

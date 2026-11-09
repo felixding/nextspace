@@ -1056,3 +1056,11 @@ Run `python3 Tests/Wayland/native_temporal_fallback_fields.py <owned-fixture> <p
 and `python3 Tests/Wayland/native_calendar_eras.py <owned-fixture> <port>`.
 This does not qualify preference-enabled month/week pickers. See the shared
 [month qualification](../../Libraries/NativeUI/month-qualification.json).
+
+
+The staged week-capable GUI04/Base05 provider also passes the existing Firefox
+128-check cohort with 20 full native images: temporal text fallbacks, date/time,
+early eras and number controls. Firefox's adapter is reused unchanged for this
+native-library update. Preference-enabled month/week pickers and native calendar
+presentation remain unfinished. See the shared
+[week qualification](../../Libraries/NativeUI/week-qualification.json).

@@ -1,0 +1,80 @@
+{
+  "status": "Original GNUstep week/week-year fields and shared week model; partial pinned browser prototype",
+  "base_revision": "7cf03cec",
+  "references": {
+    ".build/native-ui/temporal-source/week_input_type.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/week_input_type.cc",
+      "bytes": 5547,
+      "sha256": "ebe661d258cb1b5ee53096ac3dfd11c6168c3d385a076a5bd7e793b578893235"
+    },
+    ".build/native-ui/temporal-source/date_components.h": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/text/date_components.h",
+      "bytes": 8810,
+      "sha256": "7e29074cd5693f5e17663cd9025884928faf3c22242e23122483f69c56a600fb"
+    },
+    ".build/native-ui/temporal-source/date_components.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/text/date_components.cc",
+      "bytes": 18004,
+      "sha256": "3824d1164c0b29ed3591cc9a2e6ae0a101939c828a71b8109ccaf9887256f34c"
+    }
+  },
+  "symbols": [
+    "000000000e70ec90 t blink::BaseTemporalInputType::ValueAsDouble() const",
+    "000000000e74c6cc t blink::WeekInputType::SetMillisecondToDateComponents(double, blink::DateComponents*) const",
+    "000000000ed3e0c8 t blink::DateComponents::SetMillisecondsSinceEpochForWeek(double)",
+    "0000000011d487c8 b vtable for blink::WeekInputType"
+  ],
+  "native_library_source": {
+    "gui/Source/NSDatePicker.m": {
+      "bytes": 9962,
+      "sha256": "8b8242fc5022c0da2caca1648f4a3ffac8cc21e26b43588704a0150ac4a5192a"
+    },
+    "gui/Source/NSDatePickerCell.m": {
+      "bytes": 48238,
+      "sha256": "210eb892a197e74fac21e95432de661bf8a231546311266ce0c8a77f363f6f3a"
+    },
+    "gui/Headers/AppKit/NSDatePicker.h": {
+      "bytes": 14484,
+      "sha256": "529f3f3553b21ff2016be1b9d1f5de65d3645f0e5c3c4d4cf5bb5cdd59d88d3c"
+    },
+    "gui/Headers/AppKit/NSDatePickerCell.h": {
+      "bytes": 4160,
+      "sha256": "1ac240377aaf7da9e5ca0a4155e96527994aeafc0566cd72e68c2b0e4d055571"
+    },
+    "base/Source/NSCalendar.m": {
+      "bytes": 38605,
+      "sha256": "6e2fdc324da35df06d571e8bc77af7c63f768a07f86c068a925e293635d39769"
+    },
+    "base/Source/NSDateFormatter.m": {
+      "bytes": 26378,
+      "sha256": "b3064f05e734ab4b2793582509808aef9b4d876069038bbf716e81e2597e533f"
+    },
+    "base/Headers/Foundation/NSCalendar.h": {
+      "bytes": 13287,
+      "sha256": "7ea525485024a5ad8416c9f6329abb620d064668d519ca27bdd02c7a7d354acd"
+    }
+  },
+  "boundaries": [
+    "Week/year fields extend the original NSDatePickerCell formatter, field selection, digits and stepping; no replacement editor or drawing is added",
+    "Original Foundation/ICU owns calendar construction, week-year arithmetic and actual 52/53-week ranges",
+    "Original picker fallback handles empty ICU generated patterns; no new pattern parser is added",
+    "Shared WEEK_START uses Foundation components for canonical Monday midnight, with firstWeekday 2 and minimumDaysInFirstWeek 4",
+    "One optional capability gates the original native field feature and Foundation range support; API remains 1/720 with its 648-byte prefix",
+    "Blink week adapter only identifies the exact WeekInputType and supplies the shared model; existing guarded numeric value/chooser methods remain authoritative",
+    "Firefox defaults continue to expose month/week as native text fields; its preference-enabled temporal types remain a separate pending consumer",
+    "Browser binaries, toolbar, address bar and tabs remain unchanged; new GUI04/Base05 libraries are staged separately"
+  ],
+  "negative_witnesses": [
+    "Foundation04 reconstructs 2021-W01/Monday as 2020-12-28 and 2027-W01/Monday as 2026-12-28 because its separate construction calendar lost configured week rules",
+    "GUI03 week model round-trips pass while its editor is blank; ICU returns empty Yw formats and the original fallback checked nil only",
+    "Weekly audit initially read the time-only rather than month baseline; missing prior_time_sdk fails before results are written"
+  ],
+  "remaining": [
+    "Native calendar showPicker presentation and week-calendar selection/highlight qualification",
+    "Preference-enabled Firefox month/week picker consumers",
+    "Separate fractional-second editing field",
+    "Broad style/zoom/DPI/RTL/IME/accessibility and intrinsic sizing",
+    "Unsupported Firefox native/fallback lifecycle, host/receipt-loss recovery, derivatives, distribution and deployment",
+    "Remaining detached menus/native shortcuts and subsequent GTK/Qt/KDE integration"
+  ]
+}

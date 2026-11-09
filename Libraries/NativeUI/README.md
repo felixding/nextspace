@@ -1237,3 +1237,20 @@ Foundation checks, 150 Chromium checks and 128 Firefox checks. See
 This is a partial staged checkpoint. Week pickers, native calendar presentation,
 fractional-second editing, broad compatibility/recovery and deployment remain
 required, followed by remaining menus/shortcuts and other toolkits.
+
+
+Week fields now extend the original NSDatePickerCell field/unit switches. Its
+formatter, selection, digits, stepping and drawing remain shared native code.
+Foundation preserves configured week rules on its separate construction calendar
+and asks ICU for actual week counts. Empty ICU generated formats use the picker's
+existing fallback. NativeUI's optional WEEK_START model exports Monday midnight
+through Foundation; no browser contains week arithmetic or another editor.
+
+Chromium supplies its original WeekInputType identity and existing numeric model
+and chooser. Its 33 week checks include real native callbacks, trusted events,
+original validation and week-to-month script retyping. Firefox retains native
+text fields for its original default month/week fallback. The current staged
+cohort passes 685 checks and 74 full native images, including both engines'
+existing temporal/number regressions. See [week qualification](week-qualification.json)
+and [source audit](week-source-audit.json). Calendar presentation and the broader
+compatibility, lifecycle, deployment and other-toolkit work remain required.

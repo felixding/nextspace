@@ -1334,3 +1334,14 @@ Foundation04 candidate and shared NativeUI02 provider. See the shared
 [month qualification](../../Libraries/NativeUI/month-qualification.json).
 The full browser integration remains unfinished; toolbar/address bar/tabs remain
 under the browser's original implementation.
+
+
+The same date flag enables `week` when the shared native week capability exists.
+The original NSDatePickerCell now supports week/week-year elements in its own
+formatter, fields and stepping. NativeUI projects its value to Monday midnight
+through Foundation. Blink's existing numeric temporal value/chooser handles the
+application model, validation and trusted events; the adapter adds no parser.
+Run `python3 Tests/Wayland/native_week_fields.py <owned-fixture>`.
+All 33 week checks/four full native images pass, including week-year rollover,
+script model/domain replacement and original constraint validation. See the
+shared [week qualification](../../Libraries/NativeUI/week-qualification.json).

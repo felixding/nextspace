@@ -70,7 +70,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_color_enabled,forms_numbers_enabled;
-static int forms_dates_enabled,forms_times_enabled,forms_months_enabled,forms_proleptic_enabled;
+static int forms_dates_enabled,forms_times_enabled,forms_months_enabled,forms_proleptic_enabled,forms_weeks_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;

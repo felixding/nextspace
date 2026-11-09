@@ -12,7 +12,7 @@
       "path": "Source/NSDatePickerCell.m",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Source/NSDatePickerCell.m",
       "sha256": "e4a7dd93f1886130c44b2ba7a4467de5f76f37a32e550d9200864177f0e93613",
-      "effective_sha256": "dfcacb4e4fc988d4cc95bb272418641b66feb4b5eae7fda9f1e0e0fe2ead1a8c"
+      "effective_sha256": "210eb892a197e74fac21e95432de661bf8a231546311266ce0c8a77f363f6f3a"
     },
     {
       "path": "Headers/AppKit/NSDatePicker.h",
@@ -24,7 +24,7 @@
       "path": "Headers/AppKit/NSDatePickerCell.h",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Headers/AppKit/NSDatePickerCell.h",
       "sha256": "b2b66cc2988b358699d798fb8a636c120298c81629e70636f251fc9d818568db",
-      "effective_sha256": "cc676d05e1f26c135e1ca32a960436f7fcf78b5ba71945bdc70f1052b5ab32da"
+      "effective_sha256": "1ac240377aaf7da9e5ca0a4155e96527994aeafc0566cd72e68c2b0e4d055571"
     }
   ],
   "purpose": "Backport original GNUstep NSDatePicker and NSDatePickerCell implementation into the pinned GUI library; browser bridges contain no replacement date widget",
@@ -33,6 +33,8 @@
   "upstream_files_unmodified": false,
   "nextspace_extensions": [
     "Opt-in allowsEmptyDate on the original cell; clear, first real edit and focus without a value",
-    "Retain pre-action dates until comparison completes; avoid actions for nil-to-nil clear"
+    "Retain pre-action dates until comparison completes; avoid actions for nil-to-nil clear",
+    "Week/week-year elements reuse the original formatter, field selection, digits and stepping through Foundation/ICU",
+    "Use the existing fallback when ICU returns an empty format, including week templates"
   ]
 }

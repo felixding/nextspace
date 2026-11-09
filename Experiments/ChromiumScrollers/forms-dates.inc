@@ -17,7 +17,7 @@ static void *date_type(void *node)
   void *type=decode_member((char *)node+272);
   if(!type)return NULL;
   uintptr_t table=*(uintptr_t *)type;
-  return table==base+NXS_DATE_TYPE_VTABLE+16||month_type(type)||(forms_times_enabled&&
+  return table==base+NXS_DATE_TYPE_VTABLE+16||month_type(type)||(forms_weeks_enabled&&table==base+NXS_WEEK_TYPE_VTABLE+16)||(forms_times_enabled&&
     (table==base+NXS_TIME_TYPE_VTABLE+16||table==base+NXS_DATETIME_TYPE_VTABLE+16))?type:NULL;
 }
 static void *date_view(void *node)
@@ -39,7 +39,9 @@ static int date_model(void *node,NXSDateModel *model)
   *model=(NXSDateModel){.size=sizeof(*model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY,
     .elements=NXS_DATE_YEAR_MONTH_DAY,.style=NXS_DATE_TEXT_AND_STEPPER};
   if(forms_proleptic_enabled)model->flags|=NXS_DATE_PROLEPTIC_GREGORIAN;
-  if(month_type(type)) {
+  if(forms_weeks_enabled&&*(uintptr_t *)type==base+NXS_WEEK_TYPE_VTABLE+16) {
+    model->elements=NXS_DATE_YEAR_WEEK;model->flags|=NXS_DATE_WEEK_START;
+  } else if(month_type(type)) {
     model->elements=NXS_DATE_YEAR_MONTH;model->flags|=NXS_DATE_MONTH_START;
   } else if(*(uintptr_t *)type==base+NXS_TIME_TYPE_VTABLE+16) {
     model->elements=NXS_DATE_HOUR_MINUTE_SECOND;model->flags|=NXS_DATE_TIME_OF_DAY;
