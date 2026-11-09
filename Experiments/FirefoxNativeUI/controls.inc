@@ -44,7 +44,7 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int placeholder_enabled;
-static int colors_enabled,numbers_enabled,dates_enabled,times_enabled;
+static int colors_enabled,numbers_enabled,dates_enabled,times_enabled,proleptic_enabled;
 static int search_enabled;
 static int search_actions_enabled,search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;
@@ -723,6 +723,7 @@ static void prepare_widget_metrics(void) {
     dates_enabled=decimal_from_double&&decimal_to_double;
   }
   times_enabled=dates_enabled&&((unsigned)response->parts[1].x&NXS_SPECIAL_TIME_OF_DAY);
+  proleptic_enabled=dates_enabled&&((unsigned)response->parts[1].x&NXS_SPECIAL_DATE_PROLEPTIC);
   application_menu_keys=!!((unsigned)response->parts[5].height&2);
   const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=NXS_BROWSER_UI_PATCH&&texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

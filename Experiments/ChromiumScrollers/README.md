@@ -1318,3 +1318,19 @@ date and number regressions pass 37 and 21 checks. See the shared
 [temporal qualification](../../Libraries/NativeUI/temporal-qualification.json).
 Month/week consumers, calendar presentation, broad compatibility and deployment
 remain unfinished.
+
+
+With the shared MONTH_START and proleptic-calendar capabilities, the date flag
+also enables `month`. The original NSDatePicker supplies its complete editor.
+The adapter calls Blink's existing DateComponents/MonthInputType/Decimal methods
+and numeric chooser; it contains no month parser or calendar arithmetic. This
+preserves the original validity state for edits outside min/max or step constraints.
+
+The month cohort passes 44 checks/four native images. Existing temporal/date/
+number regressions pass 41/37/21 checks, with seven additional native early-era
+checks/two images. Run `python3 Tests/Wayland/native_month_fields.py <owned-fixture>`
+and `python3 Tests/Wayland/native_calendar_eras.py <owned-fixture>` with the staged
+Foundation04 candidate and shared NativeUI02 provider. See the shared
+[month qualification](../../Libraries/NativeUI/month-qualification.json).
+The full browser integration remains unfinished; toolbar/address bar/tabs remain
+under the browser's original implementation.

@@ -228,3 +228,8 @@ add_executable(native-calendar-range-probe ../../Tests/NativeUI/calendar-range-p
 target_compile_options(native-calendar-range-probe PRIVATE ${OBJC_FLAGS} -UNDEBUG)
 target_link_libraries(native-calendar-range-probe PRIVATE ${BASE_LIBS})
 set_target_properties(native-calendar-range-probe PROPERTIES AUTOMOC OFF)
+
+add_executable(native-gregorian-calendar-probe ../../Tests/NativeUI/gregorian-calendar-probe.m)
+target_compile_options(native-gregorian-calendar-probe PRIVATE ${OBJC_FLAGS} -UNDEBUG)
+target_link_libraries(native-gregorian-calendar-probe PRIVATE ${BASE_LIBS} dl)
+set_target_properties(native-gregorian-calendar-probe PROPERTIES AUTOMOC OFF)

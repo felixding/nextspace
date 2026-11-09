@@ -1212,3 +1212,28 @@ cohorts in both engines. See [temporal qualification](temporal-qualification.jso
 for exact staged libraries, source guards, evidence and reproduction commands.
 Month/week consumers, native calendar presentation, broader compatibility,
 recovery and deployment remain unfinished; the libraries are still staged.
+
+
+The shared picker also supplies Chromium `month` inputs. An optional MONTH_START
+model projects the original picker onto the first day through Foundation;
+Blink's original DateComponents, month parser and Decimal conversion supply its
+numeric month model. Underflow, overflow and step validation remain in Blink.
+The same DateBinding handles empty values, script replacements and owner lifetime.
+
+HTML dates use proleptic Gregorian rules. The staged Foundation04 fix exposes
+ICU's existing cutover policy through NSCalendar and preserves the actual calendar
+in NSDateFormatter, including copy/coding and time-zone behavior. The shared
+provider advertises this capability explicitly; both browsers request it. GUI02
+and the browser binaries are reused. No calendar arithmetic or control is copied.
+
+Pinned Firefox defaults treat month/week as text. Their existing native
+NSTextField supplies editing and native commands while preserving that original
+fallback model. Preference-enabled Firefox month/week pickers remain unfinished.
+
+The month/calendar checkpoint passes 570 checks and 68 complete native image
+comparisons: 136 shared native date/month checks, 96 specialized checks, 60
+Foundation checks, 150 Chromium checks and 128 Firefox checks. See
+[month qualification](month-qualification.json) and [source audit](month-source-audit.json).
+This is a partial staged checkpoint. Week pickers, native calendar presentation,
+fractional-second editing, broad compatibility/recovery and deployment remain
+required, followed by remaining menus/shortcuts and other toolkits.

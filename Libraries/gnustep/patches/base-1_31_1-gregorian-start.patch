@@ -1,0 +1,419 @@
+--- a/Headers/Foundation/NSCalendar.h
++++ b/Headers/Foundation/NSCalendar.h
+@@ -368,6 +368,12 @@
+  */
+ - (void) setTimeZone: (NSTimeZone *) tz;
+ 
++/** GNUstep extension: an optional Gregorian cutover. Nil restores ICU's
++ * historical default. A sufficiently early date selects proleptic Gregorian
++ * arithmetic through the existing ICU calendar. */
++- (NSDate *) gregorianStartDate;
++- (void) setGregorianStartDate: (NSDate *) date;
++
+ /**
+  * Returns the maximum range of unit.
+  */
+--- a/Source/NSCalendar.m
++++ b/Source/NSCalendar.m
+@@ -33,6 +33,7 @@
+ #import "Foundation/NSString.h"
+ #import "Foundation/NSTimeZone.h"
+ #import "Foundation/NSUserDefaults.h"
++#include <math.h>
+ 
+ #if defined(HAVE_UNICODE_UCAL_H)
+ #define id ucal_id
+@@ -78,6 +79,7 @@
+   void          *cal;
+   NSInteger     firstWeekday;
+   NSInteger     minimumDaysInFirstWeek;
++  NSDate        *gregorianStartDate;
+ } Calendar;
+ #define my ((Calendar*)_NSCalendarInternal)
+ 
+@@ -108,6 +110,7 @@
+   const char *cLocaleId;
+   UErrorCode err = U_ZERO_ERROR;
+   UCalendarType type;
++  UCalendar *calendar;
+ 
+   cLocaleId = [my->localeID UTF8String];
+   tzName = [timeZone name];
+@@ -137,7 +140,15 @@
+       // as the calendar is already encoded in the locale id by _localeIDWithLocale:.
+     }
+ 
+-  return ucal_open((const UChar *)cTzId, tzLen, cLocaleId, type, &err);
++  calendar = ucal_open((const UChar *)cTzId, tzLen, cLocaleId, type, &err);
++  if (calendar != NULL && my->gregorianStartDate != nil)
++    {
++      UErrorCode changeError = U_ZERO_ERROR;
++      ucal_setGregorianChange(calendar,
++        [my->gregorianStartDate timeIntervalSince1970] * SECOND_TO_MILLI,
++        &changeError);
++    }
++  return calendar;
+ }
+ #endif
+ 
+@@ -258,6 +269,7 @@
+ {
+   if (self == [NSCalendar class])
+     {
++      [self setVersion: 1];
+       classLock = [NSRecursiveLock new];
+     }
+ }
+@@ -326,6 +338,7 @@
+       RELEASE(my->identifier);
+       RELEASE(my->localeID);
+       RELEASE(my->tz);
++      RELEASE(my->gregorianStartDate);
+       NSZoneFree([self zone], _NSCalendarInternal);
+     }
+   [super dealloc];
+@@ -789,6 +802,29 @@
+ #endif
+ }
+ 
++- (NSDate *) gregorianStartDate
++{
++#if GS_USE_ICU == 1
++  UErrorCode error = U_ZERO_ERROR;
++  UDate change = ucal_getGregorianChange(my->cal, &error);
++  if (U_SUCCESS(error))
++    return [NSDate dateWithTimeIntervalSince1970: change / SECOND_TO_MILLI];
++  return nil;
++#else
++  return my->gregorianStartDate;
++#endif
++}
++
++- (void) setGregorianStartDate: (NSDate *)date
++{
++  if (date != nil && (![date isKindOfClass: [NSDate class]]
++      || !isfinite([date timeIntervalSince1970])))
++    [NSException raise: NSInvalidArgumentException
++                format: @"Gregorian cutover must be a finite date"];
++  ASSIGNCOPY(my->gregorianStartDate, date);
++  [self _resetCalendar];
++}
++
+ - (NSTimeZone *) timeZone
+ {
+   return my->tz;
+@@ -993,39 +1029,73 @@
+ 
+ - (void) encodeWithCoder: (NSCoder*)encoder
+ {
++  NSUInteger first = [self firstWeekday], minimum = [self minimumDaysInFirstWeek];
+   [encoder encodeObject: my->identifier];
+   [encoder encodeObject: my->localeID];
+   [encoder encodeObject: my->tz];
++  if ([encoder allowsKeyedCoding])
++    {
++      [encoder encodeInteger: 1 forKey: @"GSGregorianPolicyVersion"];
++      [encoder encodeObject: my->gregorianStartDate forKey: @"GSGregorianStartDate"];
++      [encoder encodeInteger: first forKey: @"GSFirstWeekday"];
++      [encoder encodeInteger: minimum forKey: @"GSMinimumDaysInFirstWeek"];
++    }
++  else
++    {
++      [encoder encodeObject: my->gregorianStartDate];
++      [encoder encodeValueOfObjCType: @encode(NSUInteger) at: &first];
++      [encoder encodeValueOfObjCType: @encode(NSUInteger) at: &minimum];
++    }
+ }
+ 
+ - (id) initWithCoder: (NSCoder*)decoder
+ {
+-  NSString	*s = [decoder decodeObject];
+-
++  NSString *s = [decoder decodeObject];
+   [self initWithCalendarIdentifier: s];
+   [self _setLocaleIdentifier: [decoder decodeObject]];
+   [self setTimeZone: [decoder decodeObject]];
+-
++  if ([decoder allowsKeyedCoding])
++    {
++      if ([decoder containsValueForKey: @"GSGregorianPolicyVersion"])
++        {
++          [self setGregorianStartDate: [decoder decodeObjectForKey: @"GSGregorianStartDate"]];
++          [self setFirstWeekday: [decoder decodeIntegerForKey: @"GSFirstWeekday"]];
++          [self setMinimumDaysInFirstWeek: [decoder decodeIntegerForKey: @"GSMinimumDaysInFirstWeek"]];
++        }
++    }
++  else if ([decoder versionForClassName: @"NSCalendar"] >= 1)
++    {
++      NSUInteger first, minimum;
++      [self setGregorianStartDate: [decoder decodeObject]];
++      [decoder decodeValueOfObjCType: @encode(NSUInteger) at: &first];
++      [decoder decodeValueOfObjCType: @encode(NSUInteger) at: &minimum];
++      [self setFirstWeekday: first];
++      [self setMinimumDaysInFirstWeek: minimum];
++    }
+   return self;
+ }
+ 
+ - (id) copyWithZone: (NSZone*)zone
+ {
+-  NSCalendar *result;
+-
+-  if (NSShouldRetainWithZone(self, zone))
+-    {
+-      return RETAIN(self);
+-    }
+-  else
+-    {
+-      result = [[[self class] allocWithZone: zone]
+-        initWithCalendarIdentifier: my->identifier];
+-      [result _setLocaleIdentifier: my->localeID];
+-      [result setTimeZone: my->tz];
+-    }
+-
++  NSCalendar *result = [[[self class] allocWithZone: zone]
++    initWithCalendarIdentifier: my->identifier];
++  [result _setLocaleIdentifier: my->localeID];
++  [result setTimeZone: my->tz];
++  [result setFirstWeekday: [self firstWeekday]];
++  [result setMinimumDaysInFirstWeek: [self minimumDaysInFirstWeek]];
++  [result setGregorianStartDate: my->gregorianStartDate];
+   return result;
++}
++
++- (NSUInteger) hash
++{
++#if GS_USE_ICU == 1
++  UErrorCode error = U_ZERO_ERROR;
++  const char *type = ucal_getType(my->cal, &error);
++  if (U_SUCCESS(error) && type != NULL)
++    return [[NSString stringWithUTF8String: type] hash];
++#endif
++  return 0;
+ }
+ 
+ @end
+--- a/Source/NSDateFormatter.m
++++ b/Source/NSDateFormatter.m
+@@ -30,7 +30,9 @@
+   NSTimeZone *_tz; \
+   NSDateFormatterStyle _timeStyle; \
+   NSDateFormatterStyle _dateStyle; \
+-  void      *_formatter
++  void      *_formatter; \
++  NSCalendar *_calendar; \
++  NSDate     *_gregorianStartDate
+ 
+ #define	EXPOSE_NSDateFormatter_IVARS	1
+ #import "common.h"
+@@ -44,6 +46,8 @@
+ #import "Foundation/NSFormatter.h"
+ #import "Foundation/NSDateFormatter.h"
+ #import "Foundation/NSCoder.h"
++#import "Foundation/NSException.h"
++#include <math.h>
+ 
+ #if defined(HAVE_UNICODE_UDAT_H) && defined(HAVE_UNICODE_UDATPG_H)
+ #define id id_ucal
+@@ -59,6 +63,10 @@
+ // This is defined to be the same as UDAT_RELATIVE
+ #define FormatterDoesRelativeDateFormatting (1<<16)
+ #define BUFFER_SIZE 1024
++
++@interface NSCalendar (GSDateFormatterCalendar)
++- (void *) _UCalendar;
++@end
+ 
+ @interface NSDateFormatter (PrivateMethods)
+ - (void) _resetUDateFormat;
+@@ -99,6 +107,11 @@
+ 
+ static NSDateFormatterBehavior _defaultBehavior = 0;
+ 
+++ (void) initialize
++{
++  if (self == [NSDateFormatter class]) [self setVersion: 1];
++}
++
+ - (id) init
+ {
+   self = [super init];
+@@ -136,6 +149,9 @@
+     {
+       GS_COPY_INTERNAL(o, zone)
+       IF_NO_ARC(RETAIN(GSIVar(o,_locale));)
++      IF_NO_ARC(RETAIN(GSIVar(o,_tz));)
++      IF_NO_ARC(RETAIN(GSIVar(o,_calendar));)
++      IF_NO_ARC(RETAIN(GSIVar(o,_gregorianStartDate));)
+ #if GS_USE_ICU == 1
+       {
+         UErrorCode err = U_ZERO_ERROR;
+@@ -159,6 +175,8 @@
+     {
+       RELEASE(internal->_locale);
+       RELEASE(internal->_tz);
++      RELEASE(internal->_calendar);
++      RELEASE(internal->_gregorianStartDate);
+ #if GS_USE_ICU == 1
+       udat_close (internal->_formatter);
+ #endif
+@@ -175,6 +193,27 @@
+ - (void) encodeWithCoder: (NSCoder*)aCoder
+ {
+   [aCoder encodeValuesOfObjCTypes: "@C", &_dateFormat, &_allowsNaturalLanguage];
++  if ([aCoder allowsKeyedCoding])
++    {
++      [aCoder encodeInteger: 1 forKey: @"GSGregorianPolicyVersion"];
++      [aCoder encodeObject: internal->_calendar forKey: @"GSCalendar"];
++      [aCoder encodeObject: internal->_gregorianStartDate forKey: @"GSGregorianStartDate"];
++      [aCoder encodeObject: internal->_locale forKey: @"GSLocale"];
++      [aCoder encodeObject: internal->_tz forKey: @"GSTimeZone"];
++      [aCoder encodeInteger: internal->_behavior forKey: @"GSFormatterBehavior"];
++      [aCoder encodeInteger: internal->_dateStyle forKey: @"GSDateStyle"];
++      [aCoder encodeInteger: internal->_timeStyle forKey: @"GSTimeStyle"];
++    }
++  else
++    {
++      [aCoder encodeObject: internal->_calendar];
++      [aCoder encodeObject: internal->_gregorianStartDate];
++      [aCoder encodeObject: internal->_locale];
++      [aCoder encodeObject: internal->_tz];
++      [aCoder encodeValueOfObjCType: @encode(NSUInteger) at: &internal->_behavior];
++      [aCoder encodeValueOfObjCType: @encode(NSUInteger) at: &internal->_dateStyle];
++      [aCoder encodeValueOfObjCType: @encode(NSUInteger) at: &internal->_timeStyle];
++    }
+ }
+ 
+ - (BOOL) getObjectValue: (id*)anObject
+@@ -215,9 +254,35 @@
+ 
+ - (id) initWithCoder: (NSCoder*)aCoder
+ {
+-  GS_CREATE_INTERNAL(NSDateFormatter)
+-
+-  [aCoder decodeValuesOfObjCTypes: "@C", &_dateFormat, &_allowsNaturalLanguage];
++  NSString *format = nil;
++  self = [self init];
++  if (self == nil) return nil;
++  [aCoder decodeValuesOfObjCTypes: "@C", &format, &_allowsNaturalLanguage];
++  [self setDateFormat: format];
++  if ([aCoder allowsKeyedCoding])
++    {
++      if ([aCoder containsValueForKey: @"GSGregorianPolicyVersion"])
++        {
++          [self setCalendar: [aCoder decodeObjectForKey: @"GSCalendar"]];
++          [self setGregorianStartDate: [aCoder decodeObjectForKey: @"GSGregorianStartDate"]];
++          [self setLocale: [aCoder decodeObjectForKey: @"GSLocale"]];
++          [self setTimeZone: [aCoder decodeObjectForKey: @"GSTimeZone"]];
++          internal->_behavior = [aCoder decodeIntegerForKey: @"GSFormatterBehavior"];
++          internal->_dateStyle = [aCoder decodeIntegerForKey: @"GSDateStyle"];
++          internal->_timeStyle = [aCoder decodeIntegerForKey: @"GSTimeStyle"];
++        }
++    }
++  else if ([aCoder versionForClassName: @"NSDateFormatter"] >= 1)
++    {
++      [self setCalendar: [aCoder decodeObject]];
++      [self setGregorianStartDate: [aCoder decodeObject]];
++      [self setLocale: [aCoder decodeObject]];
++      [self setTimeZone: [aCoder decodeObject]];
++      [aCoder decodeValueOfObjCType: @encode(NSUInteger) at: &internal->_behavior];
++      [aCoder decodeValueOfObjCType: @encode(NSUInteger) at: &internal->_dateStyle];
++      [aCoder decodeValueOfObjCType: @encode(NSUInteger) at: &internal->_timeStyle];
++    }
++  [self _resetUDateFormat];
+   return self;
+ }
+ 
+@@ -408,24 +473,20 @@
+ 
+ - (NSCalendar *) calendar
+ {
+-  return [internal->_locale objectForKey: NSLocaleCalendar];
++  NSCalendar *calendar = internal->_calendar;
++  if (calendar == nil) calendar = [internal->_locale objectForKey: NSLocaleCalendar];
++  if (internal->_gregorianStartDate != nil)
++    {
++      calendar = AUTORELEASE([calendar copy]);
++      [calendar setGregorianStartDate: internal->_gregorianStartDate];
++    }
++  return calendar;
+ }
+ 
+ - (void) setCalendar: (NSCalendar *)calendar
+ {
+-  NSMutableDictionary *dict;
+-  NSLocale *locale;
+-  
+-  dict = [[NSLocale componentsFromLocaleIdentifier:
+-    [internal->_locale localeIdentifier]] mutableCopy];
+-  [dict setValue: calendar forKey: NSLocaleCalendar];
+-  locale = [[NSLocale alloc] initWithLocaleIdentifier:
+-    [NSLocale localeIdentifierFromComponents: dict]];
+-  [self setLocale: locale];
+-  /* Don't have to use udat_setCalendar here because -setLocale: will take care
+-     of setting the calendar when it resets the formatter. */
+-  RELEASE(locale);
+-  RELEASE(dict);
++  ASSIGNCOPY(internal->_calendar, calendar);
++  [self _resetUDateFormat];
+ }
+ 
+ - (NSDate *) defaultDate
+@@ -616,12 +677,25 @@
+ 
+ - (NSDate *) gregorianStartDate
+ {
+-  return nil;
++#if GS_USE_ICU == 1
++  UErrorCode error = U_ZERO_ERROR;
++  if (internal->_formatter != NULL)
++    {
++      UDate change = ucal_getGregorianChange(udat_getCalendar(internal->_formatter), &error);
++      if (U_SUCCESS(error)) return [NSDate dateWithTimeIntervalSince1970: change / 1000.0];
++    }
++#endif
++  return internal->_gregorianStartDate;
+ }
+ 
+ - (void) setGregorianStartDate: (NSDate *)date
+ {
+-  return;
++  if (date != nil && (![date isKindOfClass: [NSDate class]]
++      || !isfinite([date timeIntervalSince1970])))
++    [NSException raise: NSInvalidArgumentException
++                format: @"Gregorian cutover must be a finite date"];
++  ASSIGNCOPY(internal->_gregorianStartDate, date);
++  [self _resetUDateFormat];
+ }
+ 
+ - (NSArray *) longEraSymbols
+@@ -957,6 +1031,29 @@
+                           tzID, tzIDLength, pat, patLength, &err);
+   if (U_FAILURE(err))
+     internal->_formatter = NULL;
++  if (internal->_formatter != NULL && internal->_calendar != nil)
++    {
++      UErrorCode calendarError = U_ZERO_ERROR;
++      UCalendar *calendar = ucal_clone([internal->_calendar _UCalendar], &calendarError);
++      if (calendar != NULL)
++        {
++          ucal_setTimeZone(calendar, tzID, tzIDLength, &calendarError);
++          if (U_SUCCESS(calendarError)) udat_setCalendar(internal->_formatter, calendar);
++          ucal_close(calendar);
++        }
++    }
++  if (internal->_formatter != NULL && internal->_gregorianStartDate != nil)
++    {
++      UErrorCode calendarError = U_ZERO_ERROR;
++      UCalendar *calendar = ucal_clone(udat_getCalendar(internal->_formatter), &calendarError);
++      if (calendar != NULL)
++        {
++          ucal_setGregorianChange(calendar,
++            [internal->_gregorianStartDate timeIntervalSince1970] * 1000.0, &calendarError);
++          if (U_SUCCESS(calendarError)) udat_setCalendar(internal->_formatter, calendar);
++          ucal_close(calendar);
++        }
++    }
+   if (pat)
+     free(pat);
+   free(tzID);

@@ -2,6 +2,7 @@
  * NSDatePicker supplies the entire editor; no calendar/editor is copied here.
  * GPL-2.0-or-later. */
 #include "pinned-dates.h"
+#include "forms-months.inc"
 static void (*original_date_field_default)(void *,void *);
 static void (*original_date_edit_default)(void *,void *);
 static void (*original_date_indicator_default)(void *,void *);
@@ -16,7 +17,7 @@ static void *date_type(void *node)
   void *type=decode_member((char *)node+272);
   if(!type)return NULL;
   uintptr_t table=*(uintptr_t *)type;
-  return table==base+NXS_DATE_TYPE_VTABLE+16||(forms_times_enabled&&
+  return table==base+NXS_DATE_TYPE_VTABLE+16||month_type(type)||(forms_times_enabled&&
     (table==base+NXS_TIME_TYPE_VTABLE+16||table==base+NXS_DATETIME_TYPE_VTABLE+16))?type:NULL;
 }
 static void *date_view(void *node)
@@ -34,10 +35,13 @@ static int date_enabled(void *node)
 static int date_model(void *node,NXSDateModel *model)
 {
   void *type=date_type(node);if(!type||!date_view(node))return 0;
-  double milliseconds=((double (*)(const void *))(base+NXS_DATE_VALUE))(type);
+  double milliseconds=((double (*)(const void *))(base+(month_type(type)?NXS_MONTH_VALUE:NXS_DATE_VALUE)))(type);
   *model=(NXSDateModel){.size=sizeof(*model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY,
     .elements=NXS_DATE_YEAR_MONTH_DAY,.style=NXS_DATE_TEXT_AND_STEPPER};
-  if(*(uintptr_t *)type==base+NXS_TIME_TYPE_VTABLE+16) {
+  if(forms_proleptic_enabled)model->flags|=NXS_DATE_PROLEPTIC_GREGORIAN;
+  if(month_type(type)) {
+    model->elements=NXS_DATE_YEAR_MONTH;model->flags|=NXS_DATE_MONTH_START;
+  } else if(*(uintptr_t *)type==base+NXS_TIME_TYPE_VTABLE+16) {
     model->elements=NXS_DATE_HOUR_MINUTE_SECOND;model->flags|=NXS_DATE_TIME_OF_DAY;
   } else if(*(uintptr_t *)type==base+NXS_DATETIME_TYPE_VTABLE+16)model->elements=NXS_DATE_DATE_AND_TIME;
   if(isnan(milliseconds))model->flags|=NXS_DATE_EMPTY;
@@ -67,10 +71,12 @@ static void date_apply(struct NativeForm *form)
     if(!date_model(node,&current)||!native_date_model_domain_same(&domain,&current)){rebound=1;break;}
     void *view=date_view(node);if(!view)break;
     const struct NXSActionReceipt *action=&batch.actions[i];
+    double chosen=action->state==-1?NAN:action->value*1000.;void *type=date_type(node);
+    if(month_type(type)&&action->state==0&&!month_number(type,action->value,&chosen)){rebound=1;break;}
     native_date_binding_echo(&form->date,action);form->date_commit_pending=1;
     form->date_commit_domain=domain;
     NXSDateModel expected=form->date.model;
-    ((void (*)(void *,double))(base+NXS_DATE_CHOOSE))(view,action->state==-1?NAN:action->value*1000.);
+    ((void (*)(void *,double))(base+NXS_DATE_CHOOSE))(view,chosen);
     node=radio_node_for_id(id);form=node?find_form(node):NULL;
     if(!form||form->control!=control)break;
     if(!date_model(node,&current)||!native_date_model_same(&expected,&current)){rebound=1;break;}

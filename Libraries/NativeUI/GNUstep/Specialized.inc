@@ -5,10 +5,16 @@
 - (BOOL) allowsEmptyDate;
 - (void) setAllowsEmptyDate:(BOOL)flag;
 @end
+@interface NSCalendar (NXSDateCutover)
+- (void) setGregorianStartDate:(NSDate *)date;
+@end
 static int nullable_date_available(void)
 {return [NSDatePickerCell instancesRespondToSelector:@selector(setAllowsEmptyDate:)];}
+static int proleptic_date_available(void)
+{return [NSCalendar instancesRespondToSelector:@selector(setGregorianStartDate:)];}
 unsigned nxs_gnustep_control_specialized_capabilities(void)
 {return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE|NXS_SPECIAL_TIME_OF_DAY|
+  (proleptic_date_available()?NXS_SPECIAL_MONTH_START|NXS_SPECIAL_DATE_PROLEPTIC:0)|
   (nullable_date_available()?NXS_SPECIAL_DATE_NULLABLE:0);}
 static int specialized_idle(NXSControl *control,int kind)
 {return control&&control->kind==kind&&!control->destroying&&!control->specialized_callback&&!nxs_host_tracking(control->host);}
@@ -55,15 +61,23 @@ static NSDatePickerElementFlags date_elements(unsigned elements)
     default:return 0;
   }
 }
-static double date_model_value(NXSControl *control,NSDate *date)
+static double date_value_for_flags(unsigned flags,NSDate *date)
 {
   if(!date)return 0;
-  if(!(control->date_flags&NXS_DATE_TIME_OF_DAY))return [date timeIntervalSince1970];
+  if(!(flags&(NXS_DATE_TIME_OF_DAY|NXS_DATE_MONTH_START)))return [date timeIntervalSince1970];
   /* Data projection only. The original picker retains its complete date and
    * calendar behavior; Foundation supplies its UTC clock components. Preserve
    * milliseconds without another clock/day arithmetic implementation. */
   NSCalendar *calendar=[[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
   [calendar setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+  if(flags&(NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN))
+    [calendar setGregorianStartDate:[NSDate dateWithTimeIntervalSince1970:-8640000000000.]];
+  if(flags&NXS_DATE_MONTH_START) {
+    NSDateComponents *parts=[calendar components:NSCalendarUnitEra|NSCalendarUnitYear|NSCalendarUnitMonth fromDate:date];
+    [parts setDay:1];[parts setHour:0];[parts setMinute:0];[parts setSecond:0];[parts setNanosecond:0];
+    NSDate *projected=[calendar dateFromComponents:parts];
+    return projected?[projected timeIntervalSince1970]:NAN;
+  }
   NSDateComponents *parts=[calendar components:NSCalendarUnitHour|NSCalendarUnitMinute|
     NSCalendarUnitSecond|NSCalendarUnitNanosecond fromDate:date];
   NSInteger milliseconds=[parts nanosecond]/1000000;
@@ -75,12 +89,17 @@ static double date_model_value(NXSControl *control,NSDate *date)
    * data units, so a model echo never resets the native selected segment. */
   return projected?([projected timeIntervalSince1970]*1000.+milliseconds)/1000.:NAN;
 }
+static double date_model_value(NXSControl *control,NSDate *date)
+{return date_value_for_flags(control->date_flags,date);}
 int nxs_gnustep_control_date_sync(NXSControl *control,const NXSDateModel *model)
 {
   if(!specialized_idle(control,NXS_DATEPICKER)||!model||model->size<sizeof(*model)||
-     model->flags&~(NXS_DATE_MINIMUM|NXS_DATE_MAXIMUM|NXS_DATE_UTC|NXS_DATE_EMPTY|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY)||!date_elements(model->elements)||
+     model->flags&~(NXS_DATE_MINIMUM|NXS_DATE_MAXIMUM|NXS_DATE_UTC|NXS_DATE_EMPTY|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY|NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN)||!date_elements(model->elements)||
      ((model->flags&NXS_DATE_EMPTY)&&!(model->flags&NXS_DATE_ALLOW_EMPTY))||
      ((model->flags&NXS_DATE_ALLOW_EMPTY)&&!nullable_date_available())||
+     ((model->flags&(NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN))&&!proleptic_date_available())||
+     ((model->flags&NXS_DATE_MONTH_START)&&(!(model->flags&NXS_DATE_UTC)||
+       model->elements!=NXS_DATE_YEAR_MONTH||(model->flags&NXS_DATE_TIME_OF_DAY)))||
      ((model->flags&NXS_DATE_TIME_OF_DAY)&&(!(model->flags&NXS_DATE_UTC)||
        (model->elements!=NXS_DATE_HOUR_MINUTE&&model->elements!=NXS_DATE_HOUR_MINUTE_SECOND)||
        (!(model->flags&NXS_DATE_EMPTY)&&(model->value<0||model->value>=86400))||
@@ -91,14 +110,28 @@ int nxs_gnustep_control_date_sync(NXSControl *control,const NXSDateModel *model)
      ((model->flags&NXS_DATE_MAXIMUM)&&!isfinite(model->maximum))||
      ((model->flags&3)==3&&model->minimum>model->maximum))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  if((model->flags&NXS_DATE_MONTH_START)&&
+      ((!(model->flags&NXS_DATE_EMPTY)&&date_value_for_flags(model->flags,[NSDate dateWithTimeIntervalSince1970:model->value])!=model->value)||
+       ((model->flags&NXS_DATE_MINIMUM)&&date_value_for_flags(model->flags,[NSDate dateWithTimeIntervalSince1970:model->minimum])!=model->minimum)||
+       ((model->flags&NXS_DATE_MAXIMUM)&&date_value_for_flags(model->flags,[NSDate dateWithTimeIntervalSince1970:model->maximum])!=model->maximum))) {
+    [pool drain];return 0;
+  }
   NSDatePicker *view=(NSDatePicker *)control->view;
+  if((model->flags|control->date_flags)&(NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN)) {
+    NSCalendar *calendar=nil;
+    if(model->flags&(NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN)) {
+      calendar=[[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+      [calendar setGregorianStartDate:[NSDate dateWithTimeIntervalSince1970:-8640000000000.]];
+    }
+    [view setCalendar:calendar];
+  }
   if(nullable_date_available())[(NSDatePickerCell *)[view cell] setAllowsEmptyDate:!!(model->flags&NXS_DATE_ALLOW_EMPTY)];
   [view setDatePickerElements:date_elements(model->elements)];
   [view setDatePickerStyle:(NSDatePickerStyle)model->style];
   [view setTimeZone:model->flags&NXS_DATE_UTC?[NSTimeZone timeZoneForSecondsFromGMT:0]:[NSTimeZone localTimeZone]];
   [view setMinDate:model->flags&NXS_DATE_MINIMUM?[NSDate dateWithTimeIntervalSince1970:model->minimum]:nil];
   [view setMaxDate:model->flags&NXS_DATE_MAXIMUM?[NSDate dateWithTimeIntervalSince1970:model->maximum]:nil];
-  control->date_flags=model->flags&NXS_DATE_TIME_OF_DAY;
+  control->date_flags=model->flags&(NXS_DATE_TIME_OF_DAY|NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN);
   [view setDateValue:model->flags&NXS_DATE_EMPTY?nil:[NSDate dateWithTimeIntervalSince1970:model->value]];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }

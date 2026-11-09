@@ -35,7 +35,8 @@ static void compare(NXSControl *control,NXSDateModel *model,const char *director
 {
   assert(nxs_control_focus(control,0)&&nxs_control_date_sync(control,model));
   NSDatePicker *reference=[[NSDatePicker alloc] initWithFrame:NSMakeRect(0,0,260,30)];
-  NSDatePickerElementFlags flags=model->elements==NXS_DATE_HOUR_MINUTE_SECOND?NSHourMinuteSecondDatePickerElementFlag:
+  NSDatePickerElementFlags flags=model->elements==NXS_DATE_YEAR_MONTH?NSYearMonthDatePickerElementFlag:
+    model->elements==NXS_DATE_HOUR_MINUTE_SECOND?NSHourMinuteSecondDatePickerElementFlag:
     model->elements==NXS_DATE_DATE_AND_TIME?(NSYearMonthDayDatePickerElementFlag|NSHourMinuteSecondDatePickerElementFlag):NSYearMonthDayDatePickerElementFlag;
   [reference setDatePickerElements:flags];[reference setDatePickerStyle:model->style];
   [reference setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
@@ -189,7 +190,47 @@ int main(int argc,char **argv)
   check("clock-domain-rejects-noncanonical-maximum",!nxs_control_date_sync(control,&invalidClock));
   model.flags=NXS_DATE_UTC;model.value=1794054600;assert(nxs_control_date_sync(control,&model));
   check("legacy-time-model-retains-complete-date-value",value(control)==model.value);
+  check("month-start-projection-capability-is-explicit",nxs_control_specialized_capabilities()&NXS_SPECIAL_MONTH_START);
+  model=(NXSDateModel){.size=sizeof(model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY|NXS_DATE_MONTH_START,
+    .elements=NXS_DATE_YEAR_MONTH,.style=NXS_DATE_TEXT_AND_STEPPER,.value=1793491200};
+  prior=actions;assert(nxs_control_date_sync(control,&model));
+  NXSDateModel month={.size=sizeof(month)};assert(nxs_control_date_get(control,&month));
+  check("month-model-round-trip-is-silent",month.flags==model.flags&&month.value==model.value&&actions==prior);
+  [observed setDateValue:[NSDate dateWithTimeIntervalSince1970:1794095999.875]];
+  check("month-model-projects-hidden-day-and-time-through-foundation",value(control)==1793491200);
+  key(control,NXS_KEY_UP_ARROW,"");
+  check("native-month-action-exports-canonical-first-day",value(control)==1796083200&&last_action_value==1796083200&&actions==prior+1);
+  check("month-projection-does-not-replace-original-picker-date",[[observed dateValue] timeIntervalSince1970]!=value(control));
+  model.value=-2678400;assert(nxs_control_date_sync(control,&model));key(control,NXS_KEY_DOWN_ARROW,"");
+  check("native-month-action-retains-pre-epoch-domain",value(control)==-5270400&&last_action_value==-5270400);
+  model.flags|=NXS_DATE_EMPTY;model.value=0;prior=actions;assert(nxs_control_date_sync(control,&model));
+  check("native-month-empty-focus-is-silent",nxs_control_focus(control,1)&&nxs_control_state(control).state==-1&&actions==prior);
+  key(control,NXS_KEY_UP_ARROW,"");assert(nxs_control_date_get(control,&month));
+  NSCalendar *monthCalendar=[[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+  [monthCalendar setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+  NSDateComponents *monthParts=[monthCalendar components:NSCalendarUnitDay|NSCalendarUnitHour|NSCalendarUnitMinute|NSCalendarUnitSecond
+    fromDate:[NSDate dateWithTimeIntervalSince1970:month.value]];
+  check("first-empty-month-edit-exports-no-hidden-day-or-time",!(month.flags&NXS_DATE_EMPTY)&&[monthParts day]==1&&
+    [monthParts hour]==0&&[monthParts minute]==0&&[monthParts second]==0&&actions==prior+1);
+  key(control,NXS_KEY_BACKSPACE,"");
+  check("native-month-clear-preserves-empty-action",nxs_control_state(control).state==-1&&last_action_state==-1&&last_action_value==0);
+  NXSDateModel invalidMonth=model;invalidMonth.flags&=~NXS_DATE_UTC;
+  check("month-start-policy-requires-utc",!nxs_control_date_sync(control,&invalidMonth));
+  invalidMonth=model;invalidMonth.flags|=NXS_DATE_TIME_OF_DAY;
+  check("month-start-policy-rejects-clock-domain",!nxs_control_date_sync(control,&invalidMonth));
+  invalidMonth=model;invalidMonth.elements=NXS_DATE_YEAR_MONTH_DAY;
+  check("month-start-policy-requires-year-month-elements",!nxs_control_date_sync(control,&invalidMonth));
+  invalidMonth=model;invalidMonth.flags&=~NXS_DATE_EMPTY;invalidMonth.value=1794095999.875;
+  check("month-model-rejects-noncanonical-filled-value",!nxs_control_date_sync(control,&invalidMonth));
+  invalidMonth=model;invalidMonth.flags|=NXS_DATE_MINIMUM;invalidMonth.minimum=1794095999.875;
+  check("month-model-rejects-noncanonical-minimum",!nxs_control_date_sync(control,&invalidMonth));
+  invalidMonth=model;invalidMonth.flags|=NXS_DATE_MAXIMUM;invalidMonth.maximum=1794095999.875;
+  check("month-model-rejects-noncanonical-maximum",!nxs_control_date_sync(control,&invalidMonth));
+  model.flags=NXS_DATE_UTC;model.value=1794095999.875;assert(nxs_control_date_sync(control,&model));
+  check("legacy-year-month-retains-complete-date-value",value(control)==model.value);
   assert(argc>2);double scale=atof(argv[2]);
+  model.flags=NXS_DATE_UTC|NXS_DATE_MONTH_START;model.value=1793491200;
+  compare(control,&model,argv[1],"month-editor",scale);
   model.flags=NXS_DATE_UTC;model.elements=NXS_DATE_YEAR_MONTH_DAY;model.style=NXS_DATE_TEXT_AND_STEPPER;
   compare(control,&model,argv[1],"date-editor",scale);
   model.elements=NXS_DATE_HOUR_MINUTE_SECOND;model.style=NXS_DATE_TEXT;

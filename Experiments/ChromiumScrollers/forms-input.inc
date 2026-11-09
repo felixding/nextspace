@@ -36,6 +36,7 @@ static int input_form_kind(void *node) {
     (forms_search_enabled&&!strcmp(type,"search"))?NXS_SEARCHFIELD:
     (forms_numbers_enabled&&!strcmp(type,"number"))?NXS_TEXTFIELD:
     ((forms_dates_enabled&&!strcmp(type,"date"))||(forms_times_enabled&&(!strcmp(type,"time")||!strcmp(type,"datetime-local"))))?NXS_DATEPICKER:
+    (forms_months_enabled&&!strcmp(type,"month"))?NXS_DATEPICKER:
     (forms_text_enabled&&(!strcmp(type,"text")||!strcmp(type,"url")||!strcmp(type,"tel")||!strcmp(type,"email")))?NXS_TEXTFIELD:
     (forms_text_enabled&&!strcmp(type,"password"))?NXS_PASSWORD:
     (!strcmp(type,"button")||!strcmp(type,"submit")||!strcmp(type,"reset"))?NXS_BUTTON:0;

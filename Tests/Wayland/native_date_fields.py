@@ -34,6 +34,20 @@ class ChromiumDates(ChromiumNumbers):
         y = rect['y']+rect['height']/2-(5 if stepper else 0)
         assert self.command(f'pointer {round(self.origin[0]+x)} {round(self.origin[1]+y)}')['ok']
 
+    def component_pixels(self, identifier, field, box, stem):
+        """Compare a complete embedded component to its independent ABI image."""
+        from PIL import Image, ImageChops
+        reference = self.command('reference '+json.dumps(dict(name=identifier+'-'+stem+'-reference', controls=[field], focus=False)))
+        expected = Image.open(Path(reference['path'])/(identifier+'.png')).convert('RGBA')
+        canvas = Image.new('RGBA', expected.size, 'white');canvas.alpha_composite(expected)
+        capture = self.command('capture '+self.command('outputs')[0]['name']);event = capture['event']
+        actual = Image.frombytes('RGB',(event['width'],event['height']),Path(capture['path']).read_bytes(),'raw','BGRX',event['stride'])
+        x = math.floor(self.origin[0]+box['x']+.5);y = math.floor(self.origin[1]+box['y']+.5)
+        cropped = actual.crop((x,y,x+expected.width,y+expected.height))
+        cropped.save(self.root/(identifier+'-'+stem+'-actual.png'));canvas.convert('RGB').save(self.root/(identifier+'-'+stem+'-expected.png'))
+        diff = ImageChops.difference(cropped, canvas.convert('RGB'));diff.save(self.root/(identifier+'-'+stem+'-diff.png'))
+        self.check(identifier+'-complete-independent-native-'+stem+'-pixels', diff.getbbox() is None)
+
     def trials(self):
         self.focus('normal', '2026-11-07')
         self.key(103)

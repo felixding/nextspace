@@ -1,0 +1,120 @@
+{
+  "status": "Shared original NSDatePicker month/proleptic model adaptation; pinned browser prototype remains partial",
+  "base_revision": "e1aeba99",
+  "references": {
+    ".build/native-ui/temporal-source/DateTimeInputTypes.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/input/DateTimeInputTypes.cpp",
+      "bytes": 19610,
+      "sha256": "b92b3dd051b564e4e0c2e335d4f983169f2800100a02fff7e9b7827455a46220"
+    },
+    ".build/native-ui/temporal-source/DateTimeInputTypes.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/input/DateTimeInputTypes.h",
+      "bytes": 5990,
+      "sha256": "7a5a720acdb780855c1d0591cee7b738398ba2f60e5300a7ba32cd25737ab36e"
+    },
+    ".build/native-ui/temporal-source/month_input_type.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/month_input_type.cc",
+      "bytes": 6960,
+      "sha256": "305f5cf471f757146759268a016c15da89dd6d1cc468161def07f2fb68c50085"
+    },
+    ".build/native-ui/temporal-source/date_components.h": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/text/date_components.h",
+      "bytes": 8810,
+      "sha256": "7e29074cd5693f5e17663cd9025884928faf3c22242e23122483f69c56a600fb"
+    },
+    ".build/native-ui/temporal-source/date_components.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/text/date_components.cc",
+      "bytes": 18004,
+      "sha256": "3824d1164c0b29ed3591cc9a2e6ae0a101939c828a71b8109ccaf9887256f34c"
+    },
+    ".build/native-ui/temporal-source/decimal.h": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/platform/wtf/decimal.h",
+      "bytes": 6253,
+      "sha256": "287b882cea48a703f5096ea612075e8c4977b4be1bdeba980b27a5e8623a17b2"
+    }
+  },
+  "blink_calls": [
+    {
+      "name": "VALUE",
+      "address": "0xe74a76c",
+      "bytes": "3f2303d5ffc301d1fd7b04a988ed01d009ed0190"
+    },
+    {
+      "name": "DATE_COMPONENTS",
+      "address": "0xed3dda0",
+      "bytes": "5f2403d50900669e0802f0921f2000b929f94092"
+    },
+    {
+      "name": "COMPONENTS_STRING",
+      "address": "0xed3e888",
+      "bytes": "3f2303d5ff4303d1fd7b0aa9e8bd01d0fd830291"
+    },
+    {
+      "name": "PARSE_NUMBER",
+      "address": "0xe74ad48",
+      "bytes": "3f2303d5ff4301d1fd7b03a9fdc3009100e4006f"
+    },
+    {
+      "name": "DECIMAL_FROM_DOUBLE",
+      "address": "0xe0f05c4",
+      "bytes": "3f2303d5ff4302d1fd7b07a90900669e0a02f092"
+    },
+    {
+      "name": "DECIMAL_TO_DOUBLE",
+      "address": "0xe0f0e64",
+      "bytes": "3f2303d5ff4301d1e81300fd68200290fd7b03a9"
+    }
+  ],
+  "foundation": {
+    "upstream": {
+      "repository": "gnustep/libs-base",
+      "version": "1.31.1",
+      "revision": "b1bfc5bbb404769e95db6944ec0ccfe59c24f3b5",
+      "commit": "6307e474dd39e36eb2c5f6ee15ade8b51e337970",
+      "sha256": "862f742d47c186777d6945cbb8088645e59f653aee2e73a8ebb836aa9da646e7"
+    },
+    "patch": "Libraries/gnustep/patches/base-1_31_1-gregorian-start.patch",
+    "patch_sha256": "93bd3dc074fbfc54d4c4e8fb51ea1ad1bc2ae30ef860e346435b49f5a787ac93",
+    "patched_source": {
+      "Source/NSCalendar.m": {
+        "bytes": 38011,
+        "sha256": "1fa0c3602c6f2fc962c5af560e8441e46117cafe696922385b77366a5255148a"
+      },
+      "Source/NSDateFormatter.m": {
+        "bytes": 26378,
+        "sha256": "b3064f05e734ab4b2793582509808aef9b4d876069038bbf716e81e2597e533f"
+      },
+      "Headers/Foundation/NSCalendar.h": {
+        "bytes": 13287,
+        "sha256": "7ea525485024a5ad8416c9f6329abb620d064668d519ca27bdd02c7a7d354acd"
+      }
+    },
+    "runtime": "/var/tmp/nextspace-native-ui/month-base-04/stage/Library/Libraries/libgnustep-base.so.1.31.1"
+  },
+  "boundaries": [
+    "Original NSDatePicker/NSDatePickerCell owns all fields, formatting, editing, carry, hit testing and repeat",
+    "Foundation/ICU owns month projection and proleptic Gregorian calendar policy; no browser parser or calendar arithmetic is copied",
+    "Original NSDateFormatter now retains the actual calendar and uses existing ICU cutover support; mutable calendar copies and archives preserve the policy",
+    "Optional MONTH_START and DATE_PROLEPTIC capabilities gate shared provider flags; API remains 1/720 with preserved 648-byte prefix",
+    "Blink original DateComponents and Decimal/MonthInputType conversion feed the original numeric chooser; validation and trusted events remain original",
+    "Pinned Firefox defaults expose month/week as text; the existing native NSTextField preserves that original fallback model",
+    "Both browser binaries and original GNUstep GUI02 are unchanged; only a separate staged Foundation candidate was built",
+    "Browser toolbar, address bar and tabs retain original implementations"
+  ],
+  "negative_witnesses": [
+    "Chromium String chooser suppressed otherwise well-formed out-of-range native month edits; numeric chooser preserves original validity state",
+    "Historical Gregorian and ISO8601 Foundation calendars both rejected early proleptic month callbacks; selecting ISO identifier alone did not fix them",
+    "Foundation build02 missing NSException import failed compilation; fresh source build04 succeeds",
+    "Foundation build03 keyed calendar policy failed because original NSKeyedUnarchiver reports class version zero; explicit optional keys fix this",
+    "Generic native-form-action is not the original NSTextField editing path; fallback native key/command witnesses are required",
+    "Number test module has no executable entry point; invoke its actual regression harness rather than treating module import exit zero as a passing run"
+  ],
+  "remaining": [
+    "Chromium week consumer and native calendar showPicker presentation",
+    "Firefox preference-enabled month/week consumers",
+    "Separate fractional-second editing field",
+    "Broad style/zoom/DPI/RTL/IME/accessibility and intrinsic geometry qualification",
+    "Unsupported Firefox native/fallback lifecycle, host/receipt-loss recovery, derivatives and deployment",
+    "Remaining detached menus/native shortcuts and subsequent GTK/Qt/KDE integration"
+  ]
+}

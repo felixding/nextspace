@@ -31,7 +31,7 @@ if a.date_input:binary='native-date-input-probe'
 reference_title='Native specialized reference ' if a.specialized else 'Native placeholder reference ' if a.placeholder else 'Native list reference ' if a.list else 'Native radio group reference ' if a.radio else 'Native popup title reference ' if a.popup_title else 'Native tab reference '
 if a.date_input:reference_title='Native date input reference '
 images=12 if a.specialized else 24 if a.placeholder else 13 if a.list else 13 if a.radio else 8 if a.popup_title else 5
-if a.date_input:images=4
+if a.date_input:images=5
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  runtime=Path(temporary)

@@ -265,6 +265,8 @@ __attribute__((constructor)) static void initialize(void) {
   const char *dates=getenv("NEXTSPACE_CHROMIUM_DATES");
   forms_dates_enabled=forms_text_enabled&&dates&&!strcmp(dates,"1")&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_DATE_NULLABLE);
   forms_times_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_TIME_OF_DAY);
+  forms_months_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_MONTH_START);
+  forms_proleptic_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_DATE_PROLEPTIC);
   forms_placeholder_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_PLACEHOLDER);
   forms_search_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH);
   forms_search_actions_enabled=forms_search_enabled&&forms_commands_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH_ACTION);

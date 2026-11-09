@@ -45,17 +45,21 @@ enum NXSControlKind {
   NXS_LISTBOX, NXS_SEARCHFIELD, NXS_STEPPER, NXS_COLORWELL, NXS_DATEPICKER
 };
 enum NXSSpecializedCapability { NXS_SPECIAL_STEPPER=1, NXS_SPECIAL_COLOR=2, NXS_SPECIAL_DATE=4,
-  NXS_SPECIAL_DATE_NULLABLE=8, NXS_SPECIAL_TIME_OF_DAY=16 };
+  NXS_SPECIAL_DATE_NULLABLE=8, NXS_SPECIAL_TIME_OF_DAY=16, NXS_SPECIAL_MONTH_START=32,
+  NXS_SPECIAL_DATE_PROLEPTIC=64 };
 typedef struct { uint32_t size; double red,green,blue,alpha; } NXSColorModel;
 enum NXSDateElements { NXS_DATE_YEAR_MONTH=1, NXS_DATE_YEAR_MONTH_DAY,
   NXS_DATE_HOUR_MINUTE, NXS_DATE_HOUR_MINUTE_SECOND, NXS_DATE_DATE_AND_TIME };
 enum NXSDateStyle { NXS_DATE_TEXT_AND_STEPPER, NXS_DATE_CALENDAR, NXS_DATE_TEXT };
 enum NXSDateFlag { NXS_DATE_MINIMUM=1, NXS_DATE_MAXIMUM=2, NXS_DATE_UTC=4,
-  NXS_DATE_EMPTY=8, NXS_DATE_ALLOW_EMPTY=16, NXS_DATE_TIME_OF_DAY=32 };
+  NXS_DATE_EMPTY=8, NXS_DATE_ALLOW_EMPTY=16, NXS_DATE_TIME_OF_DAY=32, NXS_DATE_MONTH_START=64,
+  NXS_DATE_PROLEPTIC_GREGORIAN=128 };
 /* Date values are Unix seconds. App-specific parsing/validation stays with
  * the application; the original native date control owns its UI and input.
  * Opt-in TIME_OF_DAY uses millisecond-precise UTC seconds since midnight;
- * Foundation projects native dates into that domain, including day rollover. */
+ * Foundation projects native dates into that domain, including day rollover.
+ * Opt-in MONTH_START uses UTC Unix seconds at the first day of a proleptic
+ * Gregorian month. PROLEPTIC_GREGORIAN selects that calendar for other dates. */
 typedef struct { uint32_t size,flags,elements,style; double value,minimum,maximum; } NXSDateModel;
 enum NXSControlEvent { NXS_ACTIVATE = 1, NXS_VALUE_CHANGED, NXS_TEXT_CHANGED };
 /* Original native cell rectangles in control top-left coordinates. */

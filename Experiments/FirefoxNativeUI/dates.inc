@@ -57,6 +57,7 @@ static int date_model(void *node,NXSDateModel *model)
   double milliseconds=range_number(node,NXS_GECKO_DATE_VALUE);
   *model=(NXSDateModel){.size=sizeof(*model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY,
     .elements=NXS_DATE_YEAR_MONTH_DAY,.style=NXS_DATE_TEXT_AND_STEPPER};
+  if(proleptic_enabled)model->flags|=NXS_DATE_PROLEPTIC_GREGORIAN;
   unsigned type=*((const unsigned char *)node+144);
   if(type==146){model->elements=NXS_DATE_HOUR_MINUTE_SECOND;model->flags|=NXS_DATE_TIME_OF_DAY;}
   else if(type==150)model->elements=NXS_DATE_DATE_AND_TIME;

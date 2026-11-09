@@ -1,0 +1,17 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native month fields</title>
+<style>body{margin:32px;background:white;font:16px sans-serif}label{display:block;margin:20px 0}input{width:420px;height:34px;font:16px sans-serif}</style>
+<label>Month <input id="normal" type="month" value="2026-12"></label>
+<label>Empty month <input id="empty" type="month"></label>
+<label>Read only <input id="readonly" type="month" value="2026-11" readonly></label>
+<label>Disabled <input id="disabled" type="month" value="2026-11" disabled></label>
+<label>Cancelled <input id="cancelled" type="month" value="2026-11"></label>
+<button id="after">After fields</button>
+<script>
+window.events=[];
+for(const element of document.querySelectorAll('input'))
+ for(const type of ['input','change'])
+  element.addEventListener(type,event=>window.events.push({id:element.id,type,value:element.value,trusted:event.isTrusted}));
+cancelled.addEventListener('mousedown',event=>event.preventDefault());
+</script>

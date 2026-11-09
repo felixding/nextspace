@@ -70,7 +70,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_color_enabled,forms_numbers_enabled;
-static int forms_dates_enabled,forms_times_enabled;
+static int forms_dates_enabled,forms_times_enabled,forms_months_enabled,forms_proleptic_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
@@ -654,7 +654,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
   (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
   (!forms_numbers_enabled||(guard_number_calls()&&prepare_detours(number_detours,sizeof(number_detours)/sizeof(*number_detours))))&&
-  (!forms_dates_enabled||(guard_date_calls()&&prepare_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours))))&&
+  (!forms_dates_enabled||(guard_date_calls()&&(!forms_months_enabled||guard_month_calls())&&prepare_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours))))&&
   (!forms_color_enabled||(guard_color_calls()&&prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours))))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
   (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&

@@ -1042,3 +1042,17 @@ images; date and number regressions pass 37 and 27 checks. See the shared
 [temporal qualification](../../Libraries/NativeUI/temporal-qualification.json).
 Month/week consumers, native calendar showPicker presentation, broad geometry/
 style/accessibility qualification, recovery and deployment remain unfinished.
+
+
+The shared proleptic-calendar capability now applies to the existing date/time
+consumers, using staged Foundation04 and the unchanged original GUI02 picker.
+Seven additional early-era checks include actual native callbacks and two full
+native images; temporal/date/number regressions remain 41/37/27 passing checks.
+
+Pinned Firefox defaults resolve month/week to text. The existing shared native
+NSTextField preserves that behavior and passes 16 checks/four full images,
+including native Emacs commands, trusted edits and readonly/disabled models.
+Run `python3 Tests/Wayland/native_temporal_fallback_fields.py <owned-fixture> <port>`
+and `python3 Tests/Wayland/native_calendar_eras.py <owned-fixture> <port>`.
+This does not qualify preference-enabled month/week pickers. See the shared
+[month qualification](../../Libraries/NativeUI/month-qualification.json).

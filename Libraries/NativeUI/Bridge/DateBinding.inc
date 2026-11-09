@@ -14,7 +14,7 @@ static int native_date_model_same(const NXSDateModel *a,const NXSDateModel *b)
 }
 static int native_date_model_domain_same(const NXSDateModel *a,const NXSDateModel *b)
 {
-  const unsigned policy=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY;
+  const unsigned policy=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY|NXS_DATE_MONTH_START|NXS_DATE_PROLEPTIC_GREGORIAN;
   return a->elements==b->elements&&a->style==b->style&&(a->flags&policy)==(b->flags&policy);
 }
 static int native_date_binding_sync(struct NXSDateBinding *binding,const NXSDateModel *model,int tracking)
