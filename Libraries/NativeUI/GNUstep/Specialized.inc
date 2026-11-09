@@ -8,7 +8,7 @@
 static int nullable_date_available(void)
 {return [NSDatePickerCell instancesRespondToSelector:@selector(setAllowsEmptyDate:)];}
 unsigned nxs_gnustep_control_specialized_capabilities(void)
-{return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE|
+{return NXS_SPECIAL_STEPPER|NXS_SPECIAL_COLOR|NXS_SPECIAL_DATE|NXS_SPECIAL_TIME_OF_DAY|
   (nullable_date_available()?NXS_SPECIAL_DATE_NULLABLE:0);}
 static int specialized_idle(NXSControl *control,int kind)
 {return control&&control->kind==kind&&!control->destroying&&!control->specialized_callback&&!nxs_host_tracking(control->host);}
@@ -55,12 +55,37 @@ static NSDatePickerElementFlags date_elements(unsigned elements)
     default:return 0;
   }
 }
+static double date_model_value(NXSControl *control,NSDate *date)
+{
+  if(!date)return 0;
+  if(!(control->date_flags&NXS_DATE_TIME_OF_DAY))return [date timeIntervalSince1970];
+  /* Data projection only. The original picker retains its complete date and
+   * calendar behavior; Foundation supplies its UTC clock components. Preserve
+   * milliseconds without another clock/day arithmetic implementation. */
+  NSCalendar *calendar=[[[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar] autorelease];
+  [calendar setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+  NSDateComponents *parts=[calendar components:NSCalendarUnitHour|NSCalendarUnitMinute|
+    NSCalendarUnitSecond|NSCalendarUnitNanosecond fromDate:date];
+  NSInteger milliseconds=[parts nanosecond]/1000000;
+  [parts setNanosecond:0];
+  [parts setEra:1];[parts setYear:1970];[parts setMonth:1];[parts setDay:1];
+  NSDate *projected=[calendar dateFromComponents:parts];
+  /* NSDate's reference-epoch subtraction can perturb small fractional times.
+   * Keep Foundation's whole seconds and recompose canonical milliseconds as
+   * data units, so a model echo never resets the native selected segment. */
+  return projected?([projected timeIntervalSince1970]*1000.+milliseconds)/1000.:NAN;
+}
 int nxs_gnustep_control_date_sync(NXSControl *control,const NXSDateModel *model)
 {
   if(!specialized_idle(control,NXS_DATEPICKER)||!model||model->size<sizeof(*model)||
-     model->flags&~(NXS_DATE_MINIMUM|NXS_DATE_MAXIMUM|NXS_DATE_UTC|NXS_DATE_EMPTY|NXS_DATE_ALLOW_EMPTY)||!date_elements(model->elements)||
+     model->flags&~(NXS_DATE_MINIMUM|NXS_DATE_MAXIMUM|NXS_DATE_UTC|NXS_DATE_EMPTY|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY)||!date_elements(model->elements)||
      ((model->flags&NXS_DATE_EMPTY)&&!(model->flags&NXS_DATE_ALLOW_EMPTY))||
      ((model->flags&NXS_DATE_ALLOW_EMPTY)&&!nullable_date_available())||
+     ((model->flags&NXS_DATE_TIME_OF_DAY)&&(!(model->flags&NXS_DATE_UTC)||
+       (model->elements!=NXS_DATE_HOUR_MINUTE&&model->elements!=NXS_DATE_HOUR_MINUTE_SECOND)||
+       (!(model->flags&NXS_DATE_EMPTY)&&(model->value<0||model->value>=86400))||
+       ((model->flags&NXS_DATE_MINIMUM)&&(model->minimum<0||model->minimum>=86400))||
+       ((model->flags&NXS_DATE_MAXIMUM)&&(model->maximum<0||model->maximum>=86400))))||
      model->style>NXS_DATE_TEXT||!isfinite(model->value)||
      ((model->flags&NXS_DATE_MINIMUM)&&!isfinite(model->minimum))||
      ((model->flags&NXS_DATE_MAXIMUM)&&!isfinite(model->maximum))||
@@ -73,6 +98,7 @@ int nxs_gnustep_control_date_sync(NXSControl *control,const NXSDateModel *model)
   [view setTimeZone:model->flags&NXS_DATE_UTC?[NSTimeZone timeZoneForSecondsFromGMT:0]:[NSTimeZone localTimeZone]];
   [view setMinDate:model->flags&NXS_DATE_MINIMUM?[NSDate dateWithTimeIntervalSince1970:model->minimum]:nil];
   [view setMaxDate:model->flags&NXS_DATE_MAXIMUM?[NSDate dateWithTimeIntervalSince1970:model->maximum]:nil];
+  control->date_flags=model->flags&NXS_DATE_TIME_OF_DAY;
   [view setDateValue:model->flags&NXS_DATE_EMPTY?nil:[NSDate dateWithTimeIntervalSince1970:model->value]];
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
@@ -88,8 +114,8 @@ int nxs_gnustep_control_date_get(NXSControl *control,NXSDateModel *model)
   *model=(NXSDateModel){.size=sizeof(*model),.elements=elements,.style=[view datePickerStyle],
     .flags=(minimum?NXS_DATE_MINIMUM:0)|(maximum?NXS_DATE_MAXIMUM:0)|
       ([[view timeZone] secondsFromGMTForDate:value?:[NSDate date]]==0?NXS_DATE_UTC:0)|
-      (nullable?NXS_DATE_ALLOW_EMPTY:0)|(!value?NXS_DATE_EMPTY:0),
-    .value=[value timeIntervalSince1970],.minimum=minimum?[minimum timeIntervalSince1970]:0,
-    .maximum=maximum?[maximum timeIntervalSince1970]:0};
+      (nullable?NXS_DATE_ALLOW_EMPTY:0)|(!value?NXS_DATE_EMPTY:0)|control->date_flags,
+    .value=date_model_value(control,value),.minimum=minimum?date_model_value(control,minimum):0,
+    .maximum=maximum?date_model_value(control,maximum):0};
   [pool drain];return 1;
 }

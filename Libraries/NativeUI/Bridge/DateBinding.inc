@@ -12,6 +12,11 @@ static int native_date_model_same(const NXSDateModel *a,const NXSDateModel *b)
   return a->flags==b->flags&&a->elements==b->elements&&a->style==b->style&&a->value==b->value&&
     a->minimum==b->minimum&&a->maximum==b->maximum;
 }
+static int native_date_model_domain_same(const NXSDateModel *a,const NXSDateModel *b)
+{
+  const unsigned policy=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY;
+  return a->elements==b->elements&&a->style==b->style&&(a->flags&policy)==(b->flags&policy);
+}
 static int native_date_binding_sync(struct NXSDateBinding *binding,const NXSDateModel *model,int tracking)
 {
   if(binding->epoch!=atomic_load(&native_host_epoch)){binding->ready=0;binding->model_ready=0;}
@@ -45,4 +50,14 @@ static void native_date_binding_echo(struct NXSDateBinding *binding,const struct
   binding->model.value=action->value;
   if(action->state==-1)binding->model.flags|=NXS_DATE_EMPTY;
   else binding->model.flags&=~NXS_DATE_EMPTY;
+}
+static void native_date_binding_discard(struct NXSDateBinding *binding)
+{
+  /* A script replaced the model during a native callback. End native tracking
+   * first, then retire queued actions from that model. The next sync writes the
+   * application's replacement and subscribes with a fresh receipt baseline. */
+  struct NXSControlActionsRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=63,
+    .process=identity(),.kind=NXS_DATEPICKER,.control=binding->control,.subscribe=0};
+  exchange_bytes(&request,sizeof(request));
+  binding->ready=0;binding->cursor=0;binding->model_ready=0;
 }

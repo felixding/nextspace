@@ -1,0 +1,60 @@
+{
+  "status": "Pinned temporal model, focus and lifetime bindings to the same original GNUstep picker",
+  "references": {
+    ".build/native-ui/temporal-source/time_input_type.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/time_input_type.cc",
+      "bytes": 8318,
+      "sha256": "5fc5083c3a1f731d4f2504f9a823761aea4fbde70469d9c7b02fe070e4f2df54"
+    },
+    ".build/native-ui/temporal-source/date_time_local_input_type.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/date_time_local_input_type.cc",
+      "bytes": 10579,
+      "sha256": "bb26c2c29ca8d5ad91a4b9085588996259f8b7fe21084b78757fbc9c70628082"
+    },
+    ".build/native-ui/temporal-source/DateTimeInputTypes.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/input/DateTimeInputTypes.cpp",
+      "bytes": 19610,
+      "sha256": "b92b3dd051b564e4e0c2e335d4f983169f2800100a02fff7e9b7827455a46220"
+    },
+    ".build/native-ui/temporal-source/DateTimeInputTypes.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/input/DateTimeInputTypes.h",
+      "bytes": 5990,
+      "sha256": "7a5a720acdb780855c1d0591cee7b738398ba2f60e5300a7ba32cd25737ab36e"
+    },
+    ".build/native-ui/firefox-viewport-source/Element.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.cpp",
+      "bytes": 239843,
+      "sha256": "9f23e869a6abae19240e780529cf5583efc2c54dd9b8aee7ce9d8d6e3d53518d"
+    },
+    ".build/native-ui/firefox-date-source/HTMLInputElement.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.cpp",
+      "bytes": 258800,
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d"
+    },
+    ".build/native-ui/search-action-source/html_input_element.cc": {
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/html/forms/html_input_element.cc",
+      "bytes": 99989,
+      "sha256": "e24b3b06861f2602fe38806310ffc719305dd577f0972cdd8330547db66039dc"
+    }
+  },
+  "existing_source_audits": [
+    "../../Experiments/ChromiumScrollers/date-source-audit.json",
+    "../../Experiments/FirefoxNativeUI/date-source-audit.json"
+  ],
+  "boundaries": [
+    "NSDatePicker/NSDatePickerCell supplies fields, formatting, editing, carry, digit entry, hit testing and repeat",
+    "Foundation projects an optional canonical UTC clock domain; neither browser implements day arithmetic or a clock parser",
+    "Both original engine serializers, model validation and event paths remain authoritative",
+    "DateBinding carries data and ordered receipts; it retires the old subscription after a callback replaces a model",
+    "Gecko original shadow attachment and change notifications keep replaced hidden editors retired",
+    "Blink original InputTypeView::Blur releases owner focus after original popup cleanup",
+    "No browser binaries or underlying GUI/Base images rebuilt for these consumers; no new function-table entry"
+  ],
+  "remaining": [
+    "Month/week consumers and native calendar presentation",
+    "Separate fractional-second editing field",
+    "Broad style/zoom/DPI/RTL/IME/accessibility and intrinsic geometry qualification",
+    "Unsupported Firefox native/fallback lifecycle, host/receipt-loss recovery, derivatives and deployment",
+    "Remaining detached menus/native shortcuts and subsequent GTK/Qt/KDE integration"
+  ]
+}

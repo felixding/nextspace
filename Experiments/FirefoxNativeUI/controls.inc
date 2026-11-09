@@ -44,7 +44,7 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int placeholder_enabled;
-static int colors_enabled,numbers_enabled,dates_enabled;
+static int colors_enabled,numbers_enabled,dates_enabled,times_enabled;
 static int search_enabled;
 static int search_actions_enabled,search_clear_enabled;
 static __thread struct NXSControlActivation native_search_activation;
@@ -155,7 +155,7 @@ static int node_kind(const void *node) {
     buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
     sliders_enabled&&type==148?NXS_SLIDER:
     colors_enabled&&type==131?NXS_COLORWELL:
-    dates_enabled&&type==132?NXS_DATEPICKER:
+    ((dates_enabled&&type==132)||(times_enabled&&(type==146||type==150)))?NXS_DATEPICKER:
     search_enabled&&type==142?NXS_SEARCHFIELD:
     numbers_enabled&&type==139?NXS_TEXTFIELD:
     texts_enabled&&(type==133||type==144||type==145||type==147)?NXS_TEXTFIELD:texts_enabled&&type==140?NXS_PASSWORD:0;
@@ -722,6 +722,7 @@ static void prepare_widget_metrics(void) {
     decimal_to_double=dlsym(RTLD_DEFAULT,"_ZNK5blink7Decimal8toDoubleEv");
     dates_enabled=decimal_from_double&&decimal_to_double;
   }
+  times_enabled=dates_enabled&&((unsigned)response->parts[1].x&NXS_SPECIAL_TIME_OF_DAY);
   application_menu_keys=!!((unsigned)response->parts[5].height&2);
   const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=NXS_BROWSER_UI_PATCH&&texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

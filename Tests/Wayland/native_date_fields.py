@@ -8,8 +8,8 @@ from native_number_fields import ChromiumNumbers, FirefoxNumbers
 
 
 class ChromiumDates(ChromiumNumbers):
-    def __init__(self, root):
-        super().__init__(root, 'native-date-fields.html', 'Native date fields')
+    def __init__(self, root, page='native-date-fields.html', title='Native date fields'):
+        super().__init__(root, page, title)
         self.native_action_offset = len((self.root/'helper.jsonl').read_text().splitlines())
 
     def key(self, code):
@@ -196,15 +196,15 @@ class ChromiumDates(ChromiumNumbers):
 
 class FirefoxDates(ChromiumDates):
     """Run the same native date cohort through Gecko's original driver."""
-    def __init__(self, root, port):
+    def __init__(self, root, port, page='native-date-fields.html', title='Native date fields'):
         sys.path.insert(0, str(Path(__file__).resolve().parents[2]/'Experiments/FirefoxNativeUI'))
         from marionette import Marionette
         self.root = Path(root)
         self.results = []
         self.driver = Marionette(port)
         self.driver.command('WebDriver:NewSession', {})
-        self.driver.command('WebDriver:Navigate', dict(url='file:///workspace/Tests/Wayland/native-date-fields.html'))
-        self.until(lambda: self.js('document.title') == 'Native date fields', 'Firefox date page load')
+        self.driver.command('WebDriver:Navigate', dict(url='file:///workspace/Tests/Wayland/'+page))
+        self.until(lambda: self.js('document.title') == title, 'Firefox date page load')
         pid = json.loads((self.root/'launch.json').read_text())['pids'][-1]
         window = next(item for item in self.command('windows') if item['pid'] == pid and item['level'] == 0)
         assert self.command('focus '+str(window['id']))['ok']

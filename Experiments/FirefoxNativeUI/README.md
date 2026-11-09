@@ -1030,5 +1030,15 @@ Run `python3 Tests/Wayland/native_date_fields.py <owned-fixture> <Marionette-por
 The focused cohort passes 37 checks, including explicit original native action
 witnesses and four complete independent native images. See
 [date qualification](date-qualification.json) and [source audit](date-source-audit.json).
-Other temporal types, native calendar showPicker presentation, broad geometry/
+With the shared TIME_OF_DAY capability, the same flag enables `time` and
+`datetime-local` using that original picker. The original Gecko serializer
+retains millisecond values. Temporal type changes keep the replaced UA editor
+retired through its separate setup/change notification boundary. Shared date
+receipts are rebased when page script replaces a model during native repeat.
+
+Run `python3 Tests/Wayland/native_temporal_fields.py <owned-fixture> <Marionette-port>`.
+The current temporal cohort passes 41 checks/four complete independent native
+images; date and number regressions pass 37 and 27 checks. See the shared
+[temporal qualification](../../Libraries/NativeUI/temporal-qualification.json).
+Month/week consumers, native calendar showPicker presentation, broad geometry/
 style/accessibility qualification, recovery and deployment remain unfinished.

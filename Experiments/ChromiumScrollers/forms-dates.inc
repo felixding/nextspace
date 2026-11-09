@@ -9,11 +9,15 @@ static void (*original_date_set_value)(void *,const void *,int);
 static int (*original_date_field_focus)(const void *,int);
 static int (*original_date_indicator_focus)(const void *,int);
 static void (*original_date_focus_in)(void *,void *,int);
+static void (*original_date_blur)(void *);
 static void *date_type(void *node)
 {
   if(!forms_dates_enabled||!node||*(uintptr_t *)node!=base+0x11dc01d8+16)return NULL;
   void *type=decode_member((char *)node+272);
-  return type&&*(uintptr_t *)type==base+NXS_DATE_TYPE_VTABLE+16?type:NULL;
+  if(!type)return NULL;
+  uintptr_t table=*(uintptr_t *)type;
+  return table==base+NXS_DATE_TYPE_VTABLE+16||(forms_times_enabled&&
+    (table==base+NXS_TIME_TYPE_VTABLE+16||table==base+NXS_DATETIME_TYPE_VTABLE+16))?type:NULL;
 }
 static void *date_view(void *node)
 {
@@ -33,6 +37,9 @@ static int date_model(void *node,NXSDateModel *model)
   double milliseconds=((double (*)(const void *))(base+NXS_DATE_VALUE))(type);
   *model=(NXSDateModel){.size=sizeof(*model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY,
     .elements=NXS_DATE_YEAR_MONTH_DAY,.style=NXS_DATE_TEXT_AND_STEPPER};
+  if(*(uintptr_t *)type==base+NXS_TIME_TYPE_VTABLE+16) {
+    model->elements=NXS_DATE_HOUR_MINUTE_SECOND;model->flags|=NXS_DATE_TIME_OF_DAY;
+  } else if(*(uintptr_t *)type==base+NXS_DATETIME_TYPE_VTABLE+16)model->elements=NXS_DATE_DATE_AND_TIME;
   if(isnan(milliseconds))model->flags|=NXS_DATE_EMPTY;
   else if(isfinite(milliseconds))model->value=milliseconds/1000.;
   else return 0;
@@ -49,21 +56,31 @@ static struct NXSResponse *sync_date_image(struct NativeForm *form,struct NXSRes
 static void date_apply(struct NativeForm *form)
 {
   uint32_t id=radio_node_id(form->node);uint64_t control=form->control;
+  NXSDateModel domain=form->date.model;int rebound=0;
   struct NXSNativeActionBatch batch;
   int accepted=native_date_binding_actions(&form->date,&batch);
   if(accepted<0){note("native date action receipts unavailable");return;}
   for(unsigned i=0;accepted&&i<batch.count;i++) {
     void *node=radio_node_for_id(id);form=node?find_form(node):NULL;
     if(!form||form->control!=control||form->kind!=NXS_DATEPICKER||!date_enabled(node))break;
+    NXSDateModel current;
+    if(!date_model(node,&current)||!native_date_model_domain_same(&domain,&current)){rebound=1;break;}
     void *view=date_view(node);if(!view)break;
     const struct NXSActionReceipt *action=&batch.actions[i];
     native_date_binding_echo(&form->date,action);form->date_commit_pending=1;
+    form->date_commit_domain=domain;
+    NXSDateModel expected=form->date.model;
     ((void (*)(void *,double))(base+NXS_DATE_CHOOSE))(view,action->state==-1?NAN:action->value*1000.);
+    node=radio_node_for_id(id);form=node?find_form(node):NULL;
+    if(!form||form->control!=control)break;
+    if(!date_model(node,&current)||!native_date_model_same(&expected,&current)){rebound=1;break;}
   }
   void *node=radio_node_for_id(id);form=node?find_form(node):NULL;
   if(form&&form->control==control) {
     invalidate_form(form);
-    if(active_form==form&&!date_enabled(node))finish_form(-10000,-10000,0);
+    if(active_form==form&&(!date_enabled(node)||rebound)) {
+      form->date_discard_pending=1;finish_form(-10000,-10000,0);
+    } else if(rebound)native_date_binding_discard(&form->date);
   }
 }
 static void date_commit(void *node,uint64_t control)
@@ -71,6 +88,8 @@ static void date_commit(void *node,uint64_t control)
   struct NativeForm *form=find_form(node);void *view=date_view(node);
   if(!form||form->control!=control||!form->date_commit_pending||!view)return;
   form->date_commit_pending=0;
+  NXSDateModel current;
+  if(!date_model(node,&current)||!native_date_model_domain_same(&form->date_commit_domain,&current))return;
   ((void (*)(void *))(base+NXS_DATE_COMMIT))(view);
 }
 static int date_default_key(void *node,void *event)
@@ -145,6 +164,20 @@ static void date_focus_in(void *view,void *previous,int type)
     if(form->kind==NXS_DATEPICKER&&form->painted&&date_view(form->node)==view)return;
   original_date_focus_in(view,previous,type);
 }
+static void date_blur(void *view)
+{
+  uint32_t id=0;uint64_t control=0;
+  for(struct NativeForm *form=native_forms;form;form=form->next)
+    if(form->kind==NXS_DATEPICKER&&form->painted&&date_view(form->node)==view) {
+      id=radio_node_id(form->node);control=form->control;break;
+    }
+  /* Retain original popup cleanup. Its anonymous-field blur no longer owns
+   * native focus; the original base view blurs the owning application input. */
+  original_date_blur(view);
+  void *node=id?radio_node_for_id(id):NULL;struct NativeForm *form=node?find_form(node):NULL;
+  if(form&&form->control==control&&date_view(node)==view&&form_focused(node))
+    ((void (*)(void *))(base+NXS_DATE_BASE_BLUR))(view);
+}
 static int date_mouse_dispatch(void *manager,void *target,const void *type,const void *event,const void *last,
     void *related,int check,const void *pointer_id,const void *pointer_type,void *down,void *up,struct MouseDispatchResult *result)
 {
@@ -181,6 +214,7 @@ static int date_mouse_dispatch(void *manager,void *target,const void *type,const
   return 1;
 }
 static struct Detour date_detours[]={
+ {NXS_DATE_BLUR,date_blur_bytes,date_blur,(void **)&original_date_blur},
  {NXS_DATE_FOCUS_IN,date_focus_in_bytes,date_focus_in,(void **)&original_date_focus_in},
  {NXS_DATE_FIELD_FOCUS,date_field_focus_bytes,date_field_focus,(void **)&original_date_field_focus},
  {NXS_DATE_INDICATOR_FOCUS,date_indicator_focus_bytes,date_indicator_focus,(void **)&original_date_indicator_focus},

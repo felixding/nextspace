@@ -4,14 +4,17 @@
 static void *date_active_node;
 static uint64_t date_active_control;
 static void (*original_date_shadow)(void *,int,int,int,int);
+static void (*original_date_notify)(void *);
 static void (*original_date_display)(void *,void *,const void *);
 static int (*original_date_focus)(void *,unsigned,uint8_t *,int *);
 static int (*original_date_intrinsic)(void *,const void *,int);
 static void date_end(const void *);
+static void date_finish(const void *,int);
 static int date_node(const void *node)
 {
-  return dates_enabled&&native_web_process()&&node&&*(const uintptr_t *)node==base+0xa00fc30+16&&
-    *((const unsigned char *)node+144)==132;
+  if(!dates_enabled||!native_web_process()||!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
+  unsigned type=*((const unsigned char *)node+144);
+  return type==132||(times_enabled&&(type==146||type==150));
 }
 static int date_mutable(const void *node)
 {return date_node(node)&&!(*(const uint64_t *)((const char *)node+112)&0x800010u);}
@@ -33,6 +36,12 @@ static void date_shadow(void *node,int widget,int delegate,int slots,int notify)
   }
   original_date_shadow(node,widget,delegate,slots,notify);
 }
+static void date_notify(void *node)
+{
+  /* Temporal-to-temporal type changes reuse the shadow root and notify the UA
+   * widget directly. Keep that replaced editor retired on this path too. */
+  if(!date_node(node))original_date_notify(node);
+}
 static int date_focus(void *node,unsigned flags,uint8_t *focusable,int *tab_index)
 {
   if(!date_node(node))return original_date_focus(node,flags,focusable,tab_index);
@@ -48,6 +57,9 @@ static int date_model(void *node,NXSDateModel *model)
   double milliseconds=range_number(node,NXS_GECKO_DATE_VALUE);
   *model=(NXSDateModel){.size=sizeof(*model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY,
     .elements=NXS_DATE_YEAR_MONTH_DAY,.style=NXS_DATE_TEXT_AND_STEPPER};
+  unsigned type=*((const unsigned char *)node+144);
+  if(type==146){model->elements=NXS_DATE_HOUR_MINUTE_SECOND;model->flags|=NXS_DATE_TIME_OF_DAY;}
+  else if(type==150)model->elements=NXS_DATE_DATE_AND_TIME;
   if(isnan(milliseconds))model->flags|=NXS_DATE_EMPTY;
   else if(isfinite(milliseconds))model->value=milliseconds/1000.;
   else return 0;
@@ -95,11 +107,14 @@ static int draw_date_image(void *target,void *frame,const struct RectF *area)
 static void date_apply(struct Widget *w)
 {
   struct NXSNativeActionBatch batch;uint64_t control=w->id;void *node=w->node;
+  NXSDateModel domain=w->date.model;int rebound=0;
   int accepted=native_date_binding_actions(&w->date,&batch);
   if(accepted<0){note("native Gecko date receipts unavailable");return;}
   ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
   for(unsigned i=0;accepted&&i<batch.count;i++) {
     w=widget_for_node(node);if(!w||w->id!=control||!date_mutable(node))break;
+    NXSDateModel current;
+    if(!date_model(node,&current)||!native_date_model_domain_same(&domain,&current)){rebound=1;break;}
     const struct NXSActionReceipt *action=&batch.actions[i];
     static const uint16_t empty;struct GeckoString value={.data=&empty,.flags=1};
     if(action->state==0) {
@@ -115,15 +130,19 @@ static void date_apply(struct Widget *w)
     void *principal=manager?*(void **)((char *)manager+56):NULL;
     if(!principal){((void (*)(void *))(base+0x3826f2c))(&value);break;}
     native_date_binding_echo(&w->date,action);
+    NXSDateModel expected=w->date.model;
     /* Exact original NodePrincipal load and SetUserInput, as in color input.
      * This retains original user-edit bookkeeping and trusted input/change. */
     ((void (*)(void *,const void *,void *))(base+NXS_GECKO_DATE_SET_USER))(node,&value,principal);
     ((void (*)(void *))(base+0x3826f2c))(&value);
+    w=widget_for_node(node);if(!w||w->id!=control)break;
+    if(!date_model(node,&current)||!native_date_model_same(&expected,&current)){rebound=1;break;}
   }
   w=widget_for_node(node);
   if(w&&w->id==control) {
     invalidate_widget(w);
-    if(date_tracking(w)&&!date_mutable(node))date_end(NULL);
+    if(date_tracking(w)&&(!date_mutable(node)||rebound))date_finish(NULL,1);
+    else if(rebound)native_date_binding_discard(&w->date);
   }
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);
 }
@@ -152,7 +171,7 @@ static uint32_t date_widget_post(void *node,void *visitor,uint32_t (*original)(v
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);
   return handled?0:original(node,visitor);
 }
-static void date_end(const void *event)
+static void date_finish(const void *event,int discard)
 {
   void *node=date_active_node;uint64_t control=date_active_control;
   date_active_node=NULL;date_active_control=0;if(!node)return;
@@ -163,10 +182,12 @@ static void date_end(const void *event)
     for(unsigned n=0;response&&response->parts[0].y&&n<100;n++) {
       struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);response=widget_request(w,5,0,0,0);
     }
-    date_apply(w);
+    if(discard)native_date_binding_discard(&w->date);
+    else date_apply(w);
   }
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);
 }
+static void date_end(const void *event){date_finish(event,0);}
 static int date_pointer_post(void *self,void *context,void *event,void *frame,int *status,void *override,uint32_t *result)
 {
   if(!dates_enabled||!(*(const uint8_t *)((char *)event+48)&1))return 0;
@@ -217,6 +238,7 @@ static void date_forget(struct Widget *w)
 static void date_reset(void){date_active_node=NULL;date_active_control=0;}
 static struct Detour date_detours[]={
  {NXS_GECKO_DATE_ATTACH_SHADOW,gecko_date_attach_shadow_bytes,date_shadow,(void **)&original_date_shadow},
+ {NXS_GECKO_DATE_NOTIFY_SHADOW,gecko_date_notify_shadow_bytes,date_notify,(void **)&original_date_notify},
  {NXS_GECKO_DATE_CONTAINER_DISPLAY,gecko_date_container_display_bytes,date_display,(void **)&original_date_display},
  {NXS_GECKO_DATE_FOCUS,gecko_date_focus_bytes,date_focus,(void **)&original_date_focus},
  {NXS_GECKO_DATE_INTRINSIC,gecko_date_intrinsic_bytes,date_intrinsic,(void **)&original_date_intrinsic}

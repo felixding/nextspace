@@ -1196,6 +1196,19 @@ Firefox now reuses that same date component, nullable model and action binding.
 The shared browser date cohort passes 37 checks per engine, including native
 callback witnesses, held-gesture script mutations and four full native images
 per engine. See [current date qualification](../../Experiments/FirefoxNativeUI/date-qualification.json).
-The provider/function table is unchanged by the Firefox consumer. Other temporal
-types, native calendar presentation, broader compatibility, recovery and
-deployment remain unfinished; the libraries are still staged.
+The provider/function table is unchanged by the Firefox date consumer.
+
+The same NSDatePicker now supplies opt-in `time` and `datetime-local` fields in
+both pinned browsers. An explicit TIME_OF_DAY capability/model flag asks the
+GNUstep provider to project its native date onto UTC clock components through
+Foundation. Canonical integer milliseconds keep native field selection intact
+through browser echoes. Unflagged date/time models retain full Unix seconds.
+DateBinding retires queued receipts when page callbacks replace the model;
+neither engine implements another clock, calendar or editor.
+
+The temporal checkpoint passes 400 checks and 54 complete native images:
+100 native date-input checks, 96 specialized regressions, and date/time/number
+cohorts in both engines. See [temporal qualification](temporal-qualification.json)
+for exact staged libraries, source guards, evidence and reproduction commands.
+Month/week consumers, native calendar presentation, broader compatibility,
+recovery and deployment remain unfinished; the libraries are still staged.

@@ -14,7 +14,8 @@ struct NativeForm {
   struct NXSListBinding list;
   struct NXSStepperBinding stepper;
   struct NXSDateBinding date;
-  int date_commit_pending;
+  int date_commit_pending,date_discard_pending;
+  NXSDateModel date_commit_domain;
   void *node;
   uint64_t control;
   uint32_t radio_owner,radio_member;
@@ -69,7 +70,7 @@ static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
 static int forms_color_enabled,forms_numbers_enabled;
-static int forms_dates_enabled;
+static int forms_dates_enabled,forms_times_enabled;
 static int forms_placeholder_enabled;
 static int forms_search_enabled;
 static int forms_search_actions_enabled,forms_search_clear_enabled;
@@ -400,7 +401,9 @@ static void finish_form(double x,double y,unsigned modifiers) {
   }
   if(form->kind==NXS_DATEPICKER) {
     click_form=NULL;uint32_t node=radio_node_id(form->node);uint64_t control=form->control;
-    date_apply(form);void *owner=radio_node_for_id(node);if(owner)date_commit(owner,control);
+    if(form->date_discard_pending){form->date_discard_pending=0;native_date_binding_discard(&form->date);}
+    else date_apply(form);
+    void *owner=radio_node_for_id(node);if(owner)date_commit(owner,control);
     refresh_form_watch();return;
   }
   if(form->kind==NXS_SLIDER){

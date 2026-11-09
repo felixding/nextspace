@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <dlfcn.h>
 static unsigned checks,actions,images;
+static double last_action_value;
+static int last_action_state;
 static IMP original_init;
 static NSDatePicker *observed;
 @interface NSDatePickerCell (NXSDateInputWitness)
@@ -24,7 +26,7 @@ static id witness_init(id self,SEL selector,NSRect frame)
 static void check(const char *name,BOOL passed)
 {printf("{\"case\":\"%s\",\"passed\":%s}\n",name,passed?"true":"false");fflush(stdout);checks++;assert(passed);}
 static void changed(void *context,int event,const NXSControlState *state)
-{assert(event==NXS_VALUE_CHANGED);actions++;}
+{assert(event==NXS_VALUE_CHANGED);actions++;last_action_value=state->value;last_action_state=state->state;}
 static void key(NXSControl *control,unsigned code,const char *text)
 {NXSKeyEvent event={.size=sizeof(event),.type=NXS_KEY_DOWN,.key=code,.text=text};nxs_control_key(control,&event);}
 static double value(NXSControl *control)
@@ -153,6 +155,40 @@ int main(int argc,char **argv)
     NXSDateModel invalid=model;invalid.flags=NXS_DATE_EMPTY;
     check("empty-model-requires-explicit-nullable-policy",!nxs_control_date_sync(control,&invalid)&&value(control)==0);
   }
+  check("time-of-day-projection-capability-is-explicit",nxs_control_specialized_capabilities()&NXS_SPECIAL_TIME_OF_DAY);
+  model=(NXSDateModel){.size=sizeof(model),.flags=NXS_DATE_UTC|NXS_DATE_ALLOW_EMPTY|NXS_DATE_TIME_OF_DAY,
+    .elements=NXS_DATE_HOUR_MINUTE_SECOND,.style=NXS_DATE_TEXT_AND_STEPPER,.value=86399.875};
+  prior=actions;assert(nxs_control_date_sync(control,&model));
+  check("clock-model-sync-preserves-fraction-without-action",value(control)==86399.875&&actions==prior);
+  key(control,NXS_KEY_UP_ARROW,"");
+  check("original-native-clock-carries-through-midnight",[[observed dateValue] timeIntervalSince1970]>86400&&value(control)==3599.875&&actions==prior+1);
+  check("clock-callback-uses-same-lossless-projected-model",last_action_state==0&&last_action_value==value(control));
+  model.value=12.123;assert(nxs_control_date_sync(control,&model));
+  check("clock-model-echo-preserves-nonbinary-milliseconds",value(control)==12.123);
+  key(control,NXS_KEY_UP_ARROW,"");
+  check("clock-action-echo-preserves-nonbinary-milliseconds",value(control)==3612.123&&last_action_value==3612.123);
+  model.value=.123;assert(nxs_control_date_sync(control,&model));key(control,NXS_KEY_DOWN_ARROW,"");
+  check("clock-pre-epoch-carry-preserves-nonbinary-milliseconds",value(control)==82800.123&&last_action_value==82800.123);
+  model.value=.125;assert(nxs_control_date_sync(control,&model));prior=actions;key(control,NXS_KEY_DOWN_ARROW,"");
+  check("original-native-clock-carries-back-before-epoch",[[observed dateValue] timeIntervalSince1970]<0&&value(control)==82800.125&&actions==prior+1);
+  model.flags|=NXS_DATE_EMPTY;model.value=0;assert(nxs_control_date_sync(control,&model));prior=actions;
+  check("empty-clock-model-and-focus-stay-empty",nxs_control_focus(control,1)&&nxs_control_state(control).state==-1&&actions==prior);
+  key(control,NXS_KEY_UP_ARROW,"");
+  check("first-empty-clock-edit-exports-time-without-hidden-date",value(control)>=0&&value(control)<86400&&actions==prior+1&&last_action_value==value(control));
+  key(control,NXS_KEY_BACKSPACE,"");
+  check("clock-clear-keeps-distinct-native-empty-state",nxs_control_state(control).state==-1&&last_action_state==-1&&last_action_value==0);
+  NXSDateModel invalidClock=model;invalidClock.flags&=~NXS_DATE_UTC;
+  check("clock-domain-requires-explicit-utc",!nxs_control_date_sync(control,&invalidClock));
+  invalidClock=model;invalidClock.elements=NXS_DATE_YEAR_MONTH_DAY;
+  check("clock-domain-rejects-date-elements",!nxs_control_date_sync(control,&invalidClock));
+  invalidClock=model;invalidClock.flags&=~NXS_DATE_EMPTY;invalidClock.value=86400;
+  check("clock-domain-rejects-noncanonical-day-value",!nxs_control_date_sync(control,&invalidClock));
+  invalidClock=model;invalidClock.flags|=NXS_DATE_MINIMUM;invalidClock.minimum=-1;
+  check("clock-domain-rejects-noncanonical-minimum",!nxs_control_date_sync(control,&invalidClock));
+  invalidClock=model;invalidClock.flags|=NXS_DATE_MAXIMUM;invalidClock.maximum=86400;
+  check("clock-domain-rejects-noncanonical-maximum",!nxs_control_date_sync(control,&invalidClock));
+  model.flags=NXS_DATE_UTC;model.value=1794054600;assert(nxs_control_date_sync(control,&model));
+  check("legacy-time-model-retains-complete-date-value",value(control)==model.value);
   assert(argc>2);double scale=atof(argv[2]);
   model.flags=NXS_DATE_UTC;model.elements=NXS_DATE_YEAR_MONTH_DAY;model.style=NXS_DATE_TEXT_AND_STEPPER;
   compare(control,&model,argv[1],"date-editor",scale);

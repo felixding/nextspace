@@ -1303,5 +1303,18 @@ unchanged.
 Run `python3 Tests/Wayland/native_date_fields.py <owned-fixture-directory>`.
 The focused cohort passes 31 checks, including four full independent native
 images. See [date qualification](date-qualification.json) and
-[source audit](date-source-audit.json). Firefox dates, time/datetime-local/month/
-week consumers, broad compatibility and deployment remain unfinished.
+[source audit](date-source-audit.json) for that first checkpoint.
+
+With the shared TIME_OF_DAY capability, the same flag also enables `time` and
+`datetime-local`. Foundation projects native clock actions; Blink retains its
+original serialization, validation and trusted events. The adapter restores
+original owner blur through InputTypeView after retiring anonymous-field focus.
+Script model/type changes end native tracking and discard stale receipts.
+Browser tabs and toolbars retain their original implementation.
+
+Run `python3 Tests/Wayland/native_temporal_fields.py <owned-fixture-directory>`.
+The current cohort passes 41 checks/four complete independent native images;
+date and number regressions pass 37 and 21 checks. See the shared
+[temporal qualification](../../Libraries/NativeUI/temporal-qualification.json).
+Month/week consumers, calendar presentation, broad compatibility and deployment
+remain unfinished.

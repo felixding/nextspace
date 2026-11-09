@@ -21,6 +21,7 @@ struct NXSControl {
   SEL text_command;
   NSString *text_value;
   unsigned specialized_callback;
+  unsigned date_flags;
   BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
 };
 double nxs_gnustep_control_backing_scale(NXSControl *control)
@@ -432,7 +433,7 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
     state.state=[[(NSMatrix *)control->view selectedCell] state];
   } else if(control->kind==NXS_COLORWELL)state.state=[(NSColorWell *)control->view isActive];
   else if(control->kind==NXS_DATEPICKER) {
-    NSDate *date=[(NSDatePicker *)control->view dateValue];state.value=[date timeIntervalSince1970];
+    NSDate *date=[(NSDatePicker *)control->view dateValue];state.value=date_model_value(control,date);
     state.state=date?0:-1; /* Exact native nil is distinct from the Unix epoch. */
   }
   else if(control->kind==NXS_TABVIEW)state.value=nxs_gnustep_control_tab_state(control).selected_index;

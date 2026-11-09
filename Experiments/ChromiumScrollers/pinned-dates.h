@@ -16,6 +16,8 @@ static const unsigned char date_edit_default_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd
 #define NXS_DATE_INDICATOR_DEFAULT 0xe722220ul
 static const unsigned char date_indicator_default_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0xf4,0x4f,0x01,0xa9,0x48,0xee,0x01,0x90,0xfd,0x03,0x00,0x91};
 #define NXS_DATE_TYPE_VTABLE 0x11d44308ul
+#define NXS_TIME_TYPE_VTABLE 0x11d45bb8ul
+#define NXS_DATETIME_TYPE_VTABLE 0x11d47030ul
 #define NXS_DATE_VIEW_VTABLE 0x11d342f0ul
 /* MultipleFieldsTemporalInputTypeView::DidSetValue(String const&, bool). */
 #define NXS_DATE_SET_VALUE 0xe714888ul
@@ -26,4 +28,8 @@ static const unsigned char date_field_focus_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,
 static const unsigned char date_indicator_focus_bytes[20]={0x5f,0x24,0x03,0xd5,0xa8,0xf5,0x01,0x90,0x08,0x81,0x47,0x39,0x1f,0x05,0x00,0x71,0xe1,0x02,0x00,0x54};
 #define NXS_DATE_FOCUS_IN 0xe7130e0ul
 static const unsigned char date_focus_in_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbc,0xa9,0xf7,0x0b,0x00,0xf9,0xb7,0xee,0x01,0xf0,0xfd,0x03,0x00,0x91};
-static int guard_date_calls(void) {return !memcmp((void *)(base+NXS_DATE_FOCUS_IN),date_focus_in_bytes,20)&&!memcmp((void *)(base+NXS_DATE_INDICATOR_FOCUS),date_indicator_focus_bytes,20)&&!memcmp((void *)(base+NXS_DATE_FIELD_FOCUS),date_field_focus_bytes,20)&&!memcmp((void *)(base+NXS_DATE_SET_VALUE),date_set_value_bytes,20)&&!memcmp((void *)(base+NXS_RADIO_NODE_ID_OFFSET),nxs_radio_node_id_bytes,20)&&!memcmp((void *)(base+NXS_RADIO_NODE_FOR_ID_OFFSET),nxs_radio_node_for_id_bytes,20)&&!memcmp((void *)(base+NXS_DATE_VALUE),date_value_bytes,20)&&!memcmp((void *)(base+NXS_DATE_CHOOSE),date_choose_bytes,20)&&!memcmp((void *)(base+NXS_DATE_COMMIT),date_commit_bytes,20)&&!memcmp((void *)(base+NXS_DATE_READONLY),date_readonly_bytes,20)&&!memcmp((void *)(base+NXS_DATE_VIEW_MEMBER),date_view_member_bytes,20)&&!memcmp((void *)(base+NXS_DATE_FIELD_DEFAULT),date_field_default_bytes,20)&&!memcmp((void *)(base+NXS_DATE_EDIT_DEFAULT),date_edit_default_bytes,20)&&!memcmp((void *)(base+NXS_DATE_INDICATOR_DEFAULT),date_indicator_default_bytes,20);}
+#define NXS_DATE_BLUR 0xe711c44ul
+static const unsigned char date_blur_bytes[20]={0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbd,0xa9,0xf5,0x0b,0x00,0xf9,0xd5,0xee,0x01,0xb0,0xfd,0x03,0x00,0x91};
+#define NXS_DATE_BASE_BLUR 0xe721bacul
+static const unsigned char date_base_blur_bytes[20]={0x5f,0x24,0x03,0xd5,0x08,0xf2,0x01,0xb0,0x08,0x01,0x24,0x91,0x09,0x0c,0x80,0xb9,0x08,0x01,0x40,0xf9};
+static int guard_date_calls(void) {return !memcmp((void *)(base+NXS_DATE_BLUR),date_blur_bytes,20)&&!memcmp((void *)(base+NXS_DATE_BASE_BLUR),date_base_blur_bytes,20)&&!memcmp((void *)(base+NXS_DATE_FOCUS_IN),date_focus_in_bytes,20)&&!memcmp((void *)(base+NXS_DATE_INDICATOR_FOCUS),date_indicator_focus_bytes,20)&&!memcmp((void *)(base+NXS_DATE_FIELD_FOCUS),date_field_focus_bytes,20)&&!memcmp((void *)(base+NXS_DATE_SET_VALUE),date_set_value_bytes,20)&&!memcmp((void *)(base+NXS_RADIO_NODE_ID_OFFSET),nxs_radio_node_id_bytes,20)&&!memcmp((void *)(base+NXS_RADIO_NODE_FOR_ID_OFFSET),nxs_radio_node_for_id_bytes,20)&&!memcmp((void *)(base+NXS_DATE_VALUE),date_value_bytes,20)&&!memcmp((void *)(base+NXS_DATE_CHOOSE),date_choose_bytes,20)&&!memcmp((void *)(base+NXS_DATE_COMMIT),date_commit_bytes,20)&&!memcmp((void *)(base+NXS_DATE_READONLY),date_readonly_bytes,20)&&!memcmp((void *)(base+NXS_DATE_VIEW_MEMBER),date_view_member_bytes,20)&&!memcmp((void *)(base+NXS_DATE_FIELD_DEFAULT),date_field_default_bytes,20)&&!memcmp((void *)(base+NXS_DATE_EDIT_DEFAULT),date_edit_default_bytes,20)&&!memcmp((void *)(base+NXS_DATE_INDICATOR_DEFAULT),date_indicator_default_bytes,20);}
