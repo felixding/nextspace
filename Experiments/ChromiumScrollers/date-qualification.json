@@ -1,5 +1,5 @@
 {
-  "status": "Partial pinned Chromium date and shared nullable native-library checkpoint; full browser and application goal remains active",
+  "status": "Historical Chromium date/shared-library checkpoint at bbdbdce7; current cross-browser date checks are recorded in superseded_by",
   "base_revision": "36a69d91",
   "browser_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
   "browser_flag": "NEXTSPACE_CHROMIUM_DATES=1",
@@ -352,5 +352,7 @@
       ".build/native-ui/archive-browser-dates.py"
     ],
     "dependency_archive": ".build/evidence/components/native-date-libraries-20261108-v1-evidence.tar.gz"
-  }
+  },
+  "checkpoint_commit": "bbdbdce7",
+  "superseded_by": "Experiments/FirefoxNativeUI/date-qualification.json"
 }

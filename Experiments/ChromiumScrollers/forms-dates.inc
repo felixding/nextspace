@@ -61,7 +61,10 @@ static void date_apply(struct NativeForm *form)
     ((void (*)(void *,double))(base+NXS_DATE_CHOOSE))(view,action->state==-1?NAN:action->value*1000.);
   }
   void *node=radio_node_for_id(id);form=node?find_form(node):NULL;
-  if(form&&form->control==control)invalidate_form(form);
+  if(form&&form->control==control) {
+    invalidate_form(form);
+    if(active_form==form&&!date_enabled(node))finish_form(-10000,-10000,0);
+  }
 }
 static void date_commit(void *node,uint64_t control)
 {

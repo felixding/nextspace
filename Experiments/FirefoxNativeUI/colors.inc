@@ -1,7 +1,6 @@
 /* Original Gecko color model/callback ownership. All picker UI remains in the
  * shared GNUstep provider. Exact guarded libxul build; GPL-2.0-or-later. */
 #include "pinned-colors.h"
-#include "../../Libraries/NativeUI/Bridge/Specialized.inc"
 #include "../../Libraries/NativeUI/Bridge/ColorBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/ColorOwners.inc"
 static struct {void *picker;struct NXSColorBinding binding;} color_session;

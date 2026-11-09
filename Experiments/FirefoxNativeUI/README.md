@@ -1016,5 +1016,19 @@ native image comparisons. See [qualification](number-qualification.json) and
 The fixed fixture compares source/native pointer actions through unchanged
 anonymous-frame geometry. Broad styles/scales/RTL/IME/accessibility, intrinsic
 native height, host/receipt-loss recovery, derivatives and deployment remain
-unqualified. Dates/times and other unfinished controls, remaining detached
+unqualified. Remaining temporal controls, detached
 menus/shortcuts and subsequent GTK/Qt/KDE integration are still required.
+
+`NEXTSPACE_FIREFOX_DATES=1` enables `<input type=date>` through the same shared
+NSDatePicker, nullable model and ordered action binding as Chromium. The
+adapter replaces the original UA widget attachment so hidden JavaScript
+segments cannot consume edits or focus behind the native picker. Original
+Gecko serialization, SetUserInput, validation, trusted events and focus order
+remain in use. Browser chrome stays original.
+
+Run `python3 Tests/Wayland/native_date_fields.py <owned-fixture> <Marionette-port>`.
+The focused cohort passes 37 checks, including explicit original native action
+witnesses and four complete independent native images. See
+[date qualification](date-qualification.json) and [source audit](date-source-audit.json).
+Other temporal types, native calendar showPicker presentation, broad geometry/
+style/accessibility qualification, recovery and deployment remain unfinished.

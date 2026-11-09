@@ -1,0 +1,341 @@
+{
+  "status": "Partial pinned Firefox/Chromium date checkpoint; complete browser and application integration remains active",
+  "base_revision": "bbdbdce7",
+  "supported_type": "date",
+  "flags": [
+    "NEXTSPACE_FIREFOX_DATES=1",
+    "NEXTSPACE_CHROMIUM_DATES=1"
+  ],
+  "api": {
+    "version": 1,
+    "bytes": 720,
+    "preserved_prefix": 648
+  },
+  "components": [
+    "Original GNUstep NSDatePicker/NSDatePickerCell",
+    "Unchanged shared DateBinding, ActionReceipts and typed nullable model",
+    "Original Gecko decimal/date serialization, SetUserInput, trusted events and focus manager",
+    "Original Blink temporal model/actions and focus controller"
+  ],
+  "checks": 218,
+  "native_images": 56,
+  "runs": {
+    "firefox/date-checks": {
+      "checks": 37,
+      "passed": true
+    },
+    "firefox/number-checks": {
+      "checks": 27,
+      "passed": true
+    },
+    "firefox/button-results": {
+      "checks": 96,
+      "passed": true
+    },
+    "chromium/date-checks": {
+      "checks": 37,
+      "passed": true
+    },
+    "chromium/number-checks": {
+      "checks": 21,
+      "passed": true
+    }
+  },
+  "candidates": {
+    "gui": {
+      "path": "/var/tmp/nextspace-native-ui/date-gui-02/stage/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 9877592,
+      "sha256": "c04e0bf9c7ecccd63fcab1da4c0e284d45be0cbc2aa2cb6942200dd1d9dac2ef"
+    },
+    "base": {
+      "path": "/var/tmp/nextspace-native-ui/date-base-01/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+      "bytes": 8780616,
+      "sha256": "786fe2fc8ba9e7a0c24ceb77253dffd863d3bd700c19ce0cf3877c66b46093ac"
+    },
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/date-nullable-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 412560,
+      "sha256": "76b6f2fe66e807d96b0f5944cc2c93f5e341a4bcc8954faadbf183eb7795b7bb"
+    },
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/date-nullable-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 75104,
+      "sha256": "5ca595d69d7b52155809ed22e6e45b715379e823af34eb3f6d7a39a8870132c7"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/date-nullable-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "609e8c3e90fa1db0335b7ccb4215f59dceb7db5d8888c61b5b3c0aed82b094c9"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-date-05-hook.so",
+      "bytes": 233936,
+      "sha256": "d87d0d717971b9dc91f1d7279317a0c54739546c67902029f1a1405a4332efa7"
+    },
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-date-07-hook.so",
+      "bytes": 241240,
+      "sha256": "ef79bdbebccc49523bb87e6bdb2fe37129bf698851b0d0fd84681c15bdc47874"
+    }
+  },
+  "production": {
+    "files/chromium": {
+      "path": "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium",
+      "bytes": 308415392,
+      "sha256": "7bcc9f719bc77d34358194026b4f148a468e97e4ddc45366e6ce02c119fb9bd1"
+    },
+    "files/firefox": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+      "bytes": 549896,
+      "sha256": "25ba4ed56923ad27ed378ea7aeab346d4c3cbb24183ffdf0183eadceae581a48"
+    },
+    "files/libxul": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/libxul.so",
+      "bytes": 171640536,
+      "sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524"
+    },
+    "files/appkit": {
+      "path": "/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 10063865,
+      "sha256": "48aa66f4b9f99588f1aed49819d70afdc5cffb731274a2e4f0319f6fb45f3f21"
+    },
+    "files/supervisor": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-01/nextspace-session",
+      "bytes": 78144,
+      "sha256": "9d42e0dfcc4932b009e88d5f1bbdeb036578f664edbc6f34daffa5ecf298f4ac"
+    },
+    "files/compositor": {
+      "path": "/var/tmp/nextspace-native-ui/surface-geometry-compositor-02/nextspace-compositor",
+      "bytes": 1381176,
+      "sha256": "57db0e3df9ce4237fc88ed31a11ea8a6c8f4c87dfe3c38c96693a3a632b65c99"
+    },
+    "files/workspace": {
+      "path": "/var/tmp/nextspace-native-ui/menu-selection-workspace-02/Workspace/Workspace.app/Workspace",
+      "bytes": 1258024,
+      "sha256": "b9cb6e00d7a4818c86676b231752afe5163c93de7c997ce4915af8b39da19ec6"
+    },
+    "files/chromium_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-button-sizing-05-hook.so",
+      "bytes": 165008,
+      "sha256": "0d2fc22779b3e2559a3968dffbbb3e5d9064b2bcf0076b2e29405db1993c17df"
+    },
+    "files/firefox_adapter": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-popup-sizing-04-hook.so",
+      "bytes": 158256,
+      "sha256": "99265fdd04f2d74bb3180ecbd280891838b294a0f3d9804c4afaf32ab4a49ab7"
+    },
+    "files/backend": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-backing-02/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1042672,
+      "sha256": "175122726a355ba1f38165cd4c2640f51228a1d06d2bb015c7266d44421746f0"
+    },
+    "files/gtk3": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/aarch64-linux-gnu/libgdk-3.so.0.2417.32",
+      "bytes": 1186176,
+      "sha256": "4e6c156bd76bf00ad727cdf5f9760e75da00b4c7f6798aeac97330f171c31be0"
+    },
+    "files/native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "e3a9ab59b8449be7820b6b6456450f70f7a62a46ef2a041a0f2369d598faf70a"
+    },
+    "files/native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui.so.0.1",
+      "bytes": 73064,
+      "sha256": "6a50efce52ea2d4c6010f52b2ddb287c56db6758d163334e315396bfb3b6522d"
+    },
+    "files/native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/toolbar-provider-06/stage/usr/NextSpace/lib/nextspace-scrollbars/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310712,
+      "sha256": "a26428f47c1c407d567328f828856deb5f7e92a72a41d31c06ffca6792d9acb7"
+    },
+    "files/chromium_adapter_tabs_disabled_regression": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-tabs-12-hook.so",
+      "bytes": 166448,
+      "sha256": "7c817e23ea580d7af7a8786703eecaba9f2b7c50321fb8350b3dbd5bcc3d0558"
+    },
+    "files/firefox_chrome_archive": {
+      "path": "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/browser/omni.ja",
+      "bytes": 54175769,
+      "sha256": "00586f758b510c8105f5711804ed5fb244b4f65f8c69fc366e84d8081bd4adac"
+    },
+    "files/gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-geometry-build-02/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 72728,
+      "sha256": "ce60ad0c60cc78bd1b0208947eff28eb61f9d340758f264588587bb4b77d9464"
+    },
+    "files/probe_native_shim": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "435436b8b937d9235d8ed88417d014f353877aff0cd571f2878b2a90cf6cecad"
+    },
+    "files/probe_native_loader": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 73176,
+      "sha256": "5300cbb85452b5d02827382f306599cd8f430af3413b25140164cc2560f6c9a8"
+    },
+    "files/probe_native_provider": {
+      "path": "/var/tmp/nextspace-native-ui/popup-title-provider-03/build/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 310960,
+      "sha256": "7799fb35173f53246adfc7181de5ae13c0b8e4af46de824b0d341af6d53ea860"
+    }
+  },
+  "prior_sdk": {
+    "prior_sdk/loader": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 74560,
+      "sha256": "d27d64892e8d03bd26dbd4cfdd07d3ad3c7627b3bac5b1b0a4cb5ceedf14b698"
+    },
+    "prior_sdk/provider": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 335632,
+      "sha256": "03cc41cde5771b05eaf89f5cc6ba5e7986360e5fc715222ef5220f3556115623"
+    },
+    "prior_sdk/shim": {
+      "path": "/var/tmp/nextspace-native-ui/color-panel-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "5e7861e89eb2bade7f3509d862102432acbed87e1b64ab6d48de2097667157de"
+    },
+    "sdk/loader": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui.so.0.1",
+      "sha256": "5ca595d69d7b52155809ed22e6e45b715379e823af34eb3f6d7a39a8870132c7",
+      "bytes": 75104
+    },
+    "sdk/provider": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "sha256": "f3ce8f27105a05d8437b57208fdabb13b232f3aeae7787d53191081c98c206b7",
+      "bytes": 411608
+    },
+    "sdk/shim": {
+      "path": "/var/tmp/nextspace-native-ui/file-panel-04/libnextspace-native-scroller.so.0.1",
+      "sha256": "7a400ad4b6aadd721e4f2ab0bd03e75bf9285201e1820b7f85e6b5ae1e072024",
+      "bytes": 69968
+    }
+  },
+  "installed_base_snapshot": {
+    "path": "/Library/Libraries/libgnustep-base.so.1.31.1",
+    "bytes": 8964641,
+    "sha256": "d5ac37fb0bed60e18539eebf2a1882d9c0f6b748a51e620021de77538ff75e0b",
+    "owner": 0,
+    "mode": "0o755",
+    "writable_by_task": false
+  },
+  "sandbox": {
+    "firefox": [
+      {
+        "pid": 274920,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 274995,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 275040,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 275051,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 275056,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 275072,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      }
+    ],
+    "chromium": [
+      {
+        "pid": 275436,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 275457,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      },
+      {
+        "pid": 275458,
+        "Seccomp": 2,
+        "NoNewPrivs": 1
+      }
+    ]
+  },
+  "loaded_images": [
+    {
+      "pid": 274842,
+      "libraries": [
+        "/var/tmp/nextspace-native-ui/date-base-01/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+        "/var/tmp/nextspace-native-ui/date-gui-02/stage/Library/Libraries/libgnustep-gui.so.0.32.0",
+        "/var/tmp/nextspace-native-ui/date-nullable-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+        "/var/tmp/nextspace-native-ui/date-nullable-01/native-ui/libnextspace-native-ui.so.0.1"
+      ]
+    }
+  ],
+  "package_count": 1050,
+  "source_files": {
+    "Experiments/ChromiumScrollers/date-qualification.json": "22bce35c87b0bb83d2038ba1810ee028570bfb13c77b25426035b8e87729abe5",
+    "Experiments/ChromiumScrollers/forms-dates.inc": "3be6ddb0fe9073d876872d2c777e22f18ef860d5403f77dcf699ad290fcc6891",
+    "Experiments/FirefoxNativeUI/README.md": "c6f3cc1573ef8770a0fd6b4d110e49b2b0ecd179d0bd0730f18e9aa081ce19ac",
+    "Experiments/FirefoxNativeUI/colors.inc": "d0cfa6a48c8750671553012c154faa7968bc028b870c60a0b7fc4493e3a9aca0",
+    "Experiments/FirefoxNativeUI/controls.inc": "2b3e159728929ce21b5a737783ab08170aac185f15673b56e2e58c4bfe4d5f63",
+    "Experiments/FirefoxNativeUI/date-source-audit.json": "b33e62225fce95d8234d9535cdcdb02d4a23f6cbece1afd75b75c6d6b9851525",
+    "Experiments/FirefoxNativeUI/dates.inc": "f9729bd315f37af4158b2449b92efaa61cf9b34d41f65a8a382a478e60e386c8",
+    "Experiments/FirefoxNativeUI/frontend.inc": "5a3fc831bb9d88ae727787c59669fc1706f05e617ac4a2447cd8d98e2f32e7ef",
+    "Experiments/FirefoxNativeUI/hook.c": "055f24bc3e9e91c9b1661a9e74b6387b73f958588f55299e1bf2ecd8df76176d",
+    "Experiments/FirefoxNativeUI/pinned-dates.h": "d99a0ddc486323f6cd5f355d51352ce36c629ed2cc0a4097a740bd0b48bd2207",
+    "Experiments/FirefoxNativeUI/text.inc": "a8dbdc05a80f7eac48c77a6aac488c376276178d3fdb4b0cfde4e1a0f0fab0f4",
+    "Libraries/NativeUI/README.md": "18da5a14b4e19420f3957d707525b601ff221ec95492b073b865d257afc9457d",
+    "Tests/Wayland/native_date_fields.py": "d295ffc3c33cc7e5e0fc1e24182393927e0de49bff70afd00f275bd6315d23bf"
+  },
+  "browser_binaries_rebuilt": false,
+  "native_provider_changed": false,
+  "installed_runtime_deployment": false,
+  "browser_toolbar_tabs_preserved": true,
+  "qualified_scope": [
+    "Owned scale-1 browser fixtures",
+    "Filled/empty/Unix-epoch dates, native digit/segment editing and clearing",
+    "Ordered original native callback witnesses and trusted original engine input/change",
+    "Page cancellation and script model changes during keyboard/pointer actions",
+    "Original forward/backward document focus traversal",
+    "Immediate native-repeat cancellation and native release after readonly/retype/removal",
+    "Complete independent native pixels for four date states per engine",
+    "Number regressions in both engines and original button layout/actions in Firefox"
+  ],
+  "remaining": [
+    "time, datetime-local, month and week consumers",
+    "Native calendar showPicker presentation",
+    "Broad style/zoom/DPI/RTL/IME/accessibility and automatic intrinsic sizing qualification",
+    "Opt-in Firefox date attachment removes the original editor before layout; unsupported scale/style and host-loss fallback still need completion",
+    "Receipt-loss/host-restart recovery",
+    "Browser derivatives and runtime deployment",
+    "Remaining detached menus/native shortcuts and subsequent GTK/Qt/KDE integration"
+  ],
+  "evidence": {
+    "archive": ".build/evidence/components/native-firefox-date-20261109-v1-evidence.tar.gz",
+    "runtime_audit": ".build/native-ui/firefox-date-runtime-audit.json",
+    "dependencies": [
+      ".build/evidence/components/native-browser-date-20261108-v1-evidence.tar.gz",
+      ".build/evidence/components/native-date-libraries-20261108-v1-evidence.tar.gz"
+    ],
+    "recipes": [
+      ".build/native-ui/pin-firefox-dates.py",
+      ".build/native-ui/run-firefox-date-05.py",
+      ".build/native-ui/run-chromium-date-08.py",
+      ".build/native-ui/check-firefox-date-number-regression.py",
+      ".build/native-ui/check-date-number-regression-08.py",
+      ".build/native-ui/snapshot-firefox-date-runtime.py",
+      ".build/native-ui/audit-firefox-dates.py"
+    ]
+  }
+}

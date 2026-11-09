@@ -161,6 +161,7 @@ static int text_notification(int fd,unsigned condition,void *unused) {
   drain_widget_notifier();
   color_native_work(0);
   number_native_work();
+  date_native_work();
   tabs_native_notification();native_popup_notification();
   if(active_widget&&text_kind(active_widget->kind)) {
     void *node=active_widget->node;
@@ -168,7 +169,7 @@ static int text_notification(int fd,unsigned condition,void *unused) {
     if(widget_focused(active_widget))echo_native_selection(active_widget);
     ((unsigned (*)(void *))(base+0x47ba6b8))(node);
   }
-  for(struct Widget *w=widgets;w;w=w->next)if((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL)invalidate_widget(w);
+  for(struct Widget *w=widgets;w;w=w->next)if((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL||w->kind==NXS_DATEPICKER)invalidate_widget(w);
   return 1;
 }
 static void *text_pointer_frame(void *frame) {
@@ -352,6 +353,9 @@ static void text_value_changed(void *node,unsigned kind,int empty,const void *kn
   if(texts_enabled&&text_kind(node_kind(node))) {
     struct Widget *w=widget_for_node(node);
     if(w&&w->text_owned)invalidate_widget(w);
+  }
+  if(date_node(node)) {
+    struct Widget *w=widget_for_node(node);if(w)invalidate_widget(w);
   }
 }
 static int prepare_text_image(void *frame) {

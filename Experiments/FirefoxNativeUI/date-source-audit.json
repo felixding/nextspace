@@ -1,0 +1,77 @@
+{
+  "status": "Original Gecko model, event, focus and lifetime adapter to the unchanged shared GNUstep date component",
+  "primary_revision": "d63de7b9609253a860fbb0050f678700f4cdc492",
+  "browser_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "references": {
+    ".build/native-ui/firefox-date-source/nsDateTimeControlFrame.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsDateTimeControlFrame.cpp",
+      "sha256": "3006ead930759c465a60e2f9451588f76a587091745b1480bfac87b679b79abf",
+      "bytes": 6808
+    },
+    ".build/native-ui/firefox-date-source/nsDateTimeControlFrame.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/forms/nsDateTimeControlFrame.h",
+      "sha256": "f06d9cd76a209fdb005762724df76514210ab8d22121d5d8e0e4fe2ff4c8a5f1",
+      "bytes": 2010
+    },
+    ".build/native-ui/firefox-date-source/datetimebox.js": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/toolkit/content/widgets/datetimebox.js",
+      "sha256": "712694e384fc6897f46330bfca7ee4da29f27fa844cd7660f2505cc0243d453d",
+      "bytes": 43979
+    },
+    ".build/native-ui/firefox-date-source/HTMLInputElement.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.cpp",
+      "sha256": "619e7dd68ac62b9a58925c23cc2c045b6016bd35d7674c4b2d6691e86eb5dd8d",
+      "bytes": 258800
+    },
+    ".build/native-ui/firefox-date-source/HTMLInputElement.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/HTMLInputElement.h",
+      "sha256": "05d97a7d6603ddb1b954900a8c524b7f75323dcb8365e2f88d39582ac0bb8f65",
+      "bytes": 59334
+    },
+    ".build/native-ui/firefox-date-source/Element.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Element.h",
+      "sha256": "5cc0edcb4db581904c270b740d15b34346004b5b27aaa35a66ed136afbb0bd82",
+      "bytes": 108607
+    },
+    ".build/native-ui/firefox-date-source/nsIFormControl.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/nsIFormControl.h",
+      "sha256": "ee0f8bee96f0f31b6a3215dca63d702b80f6654ab23d48e158defd71097b1d12",
+      "bytes": 9607
+    },
+    ".build/native-ui/firefox-date-source/InputType.h": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/input/InputType.h",
+      "sha256": "4a9806a882593737f0df93a4973a5a502ec71b520a73ef3376b6f976469e2136",
+      "bytes": 8452
+    },
+    ".build/native-ui/firefox-date-source/nsContainerFrame.cpp": {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/generic/nsContainerFrame.cpp",
+      "sha256": "184753625402aa5da090f39c771fdff3d0c0a82b840358ec6820d71cf1ee737f",
+      "bytes": 116420
+    }
+  },
+  "original_methods": [
+    "Element::AttachAndSetUAShadowRoot",
+    "HTMLInputElement::IsHTMLFocusable and original form-control base",
+    "nsContainerFrame::BuildDisplayList and existing frame background display item",
+    "nsDateTimeControlFrame::IntrinsicISize using provider cellSize",
+    "HTMLInputElement::GetValueAsDecimal",
+    "InputType::ConvertNumberToString through original guarded slot",
+    "HTMLInputElement::SetUserInput with original NodePrincipal data",
+    "HTMLInputElement::OnValueChanged",
+    "nsFocusManager::MoveFocus"
+  ],
+  "boundaries": [
+    "One empty original UA shadow root suppresses the replaced JavaScript editor and focus delegation, including inlined setup paths",
+    "One shared GNUstep NSDatePicker implementation supplies native appearance, fields, digit entry, hit testing and repeat",
+    "Native DateBinding/ActionReceipts are reused directly without new provider operations or API entries",
+    "Original Gecko serializer and SetUserInput own canonical values, user bookkeeping, trusted events and validation",
+    "The existing engine keyboard transport is factored once for ordinary controls and dates; no new physical shortcut map",
+    "Original node references and frame retirement protect application callbacks and tracking lifetime"
+  ],
+  "remaining": [
+    "Other temporal input types and native calendar showPicker presentation",
+    "Broader style/zoom/DPI/RTL/IME/accessibility and default intrinsic layout qualification",
+    "Receipt-loss/host-restart recovery and runtime deployment",
+    "Browser derivatives and subsequent toolkit integration"
+  ]
+}

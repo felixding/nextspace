@@ -29,6 +29,7 @@ static int frontend_webrender(void *item,void *builder,void *resources,void *sta
   void *frame=frontend_item_frame(item);
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   if(frame_kind(frame)==NXS_COLORWELL)prepare_color_image(frame);
+  if(frame_kind(frame)==NXS_DATEPICKER)prepare_date_image(frame);
   if(native_popup_frame(frame))prepare_popup_image(frame);
   if(native_list_frame(frame))prepare_list_image(frame);
   /* The active nsITheme can be GTK even for web content. Select Gecko's
@@ -40,6 +41,7 @@ static void frontend_paint(void *item,void *builder,void *context) {
   void *frame=frontend_item_frame(item);
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   if(frame_kind(frame)==NXS_COLORWELL)prepare_color_image(frame);
+  if(frame_kind(frame)==NXS_DATEPICKER)prepare_date_image(frame);
   if(native_popup_frame(frame))prepare_popup_image(frame);
   if(native_list_frame(frame))prepare_list_image(frame);
   if(native_popup_owned(frame)||native_list_owned(frame)||tabs_frame_owned(frame)||frontend_item_owned(frame)) {
@@ -50,7 +52,7 @@ static void frontend_paint(void *item,void *builder,void *context) {
     void *pres_context=*(void **)((char *)frame+40);
     double units=*(int *)((char *)pres_context+200);
     struct RectF area=((struct RectF (*)(const void *,double,const void *))(base+0x6db633c))((char *)item+120,units,target);
-    if(draw_list_image(target,frame,&area)||draw_popup_image(target,frame,&area)||tabs_draw(target,frame,&area)||draw_text_image(target,frame,&area))return;
+    if(draw_date_image(target,frame,&area)||draw_list_image(target,frame,&area)||draw_popup_image(target,frame,&area)||tabs_draw(target,frame,&area)||draw_text_image(target,frame,&area))return;
   }
   original_frontend_paint(item,builder,context);
 }

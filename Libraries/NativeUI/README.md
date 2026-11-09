@@ -1192,5 +1192,10 @@ one ordered action-receipt decoder, while native controls own all UI behavior.
 The nullable cohort passes 66 date checks and 96 specialized checks, including
 32 complete native images at 1x/2x. Chromium's first date consumer adds 31 browser
 checks/four native images. See [browser date qualification](../../Experiments/ChromiumScrollers/date-qualification.json).
-These libraries are staged; Firefox date/time consumers, broader compatibility,
-recovery and deployment remain unfinished.
+Firefox now reuses that same date component, nullable model and action binding.
+The shared browser date cohort passes 37 checks per engine, including native
+callback witnesses, held-gesture script mutations and four full native images
+per engine. See [current date qualification](../../Experiments/FirefoxNativeUI/date-qualification.json).
+The provider/function table is unchanged by the Firefox consumer. Other temporal
+types, native calendar presentation, broader compatibility, recovery and
+deployment remain unfinished; the libraries are still staged.
