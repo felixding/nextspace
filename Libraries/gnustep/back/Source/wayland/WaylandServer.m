@@ -118,6 +118,8 @@ handle_global(void *data, struct wl_registry *registry, uint32_t name,
     wlconfig->viewporter = wl_registry_bind(registry, name, &wp_viewporter_interface, 1);
   else if (strcmp(interface, xdg_activation_v1_interface.name) == 0)
     wlconfig->activation = wl_registry_bind(registry, name, &xdg_activation_v1_interface, 1);
+  else if (strcmp(interface, zxdg_importer_v2_interface.name) == 0)
+    wlconfig->foreign_importer = wl_registry_bind(registry, name, &zxdg_importer_v2_interface, 1);
   else if (strcmp(interface, zwp_primary_selection_device_manager_v1_interface.name) == 0)
     wlconfig->primary_manager = wl_registry_bind(registry, name, &zwp_primary_selection_device_manager_v1_interface, 1);
   else if (strcmp(interface, zxdg_decoration_manager_v1_interface.name) == 0)
@@ -258,6 +260,24 @@ NSArray *WaylandWindowNumbers(WaylandConfig *config)
   wl_list_for_each(window, &config->window_list, link)
     [numbers addObject:[NSNumber numberWithInt:window->window_id]];
   return numbers;
+}
+
+static void foreign_parent_destroyed(void *data,struct zxdg_imported_v2 *parent)
+{
+  struct window *window=data;
+  if(window->foreign_parent==parent) {
+    window->foreign_parent=NULL;free(window->foreign_parent_name);window->foreign_parent_name=NULL;
+  }
+  zxdg_imported_v2_destroy(parent);
+}
+static const struct zxdg_imported_v2_listener foreign_parent_listener={.destroyed=foreign_parent_destroyed};
+static void WaylandApplyForeignParent(struct window *window)
+{
+  if(!window->toplevel||!window->surface||!window->foreign_parent_name||
+     !window->wlconfig->foreign_importer||window->foreign_parent)return;
+  window->foreign_parent=zxdg_importer_v2_import_toplevel(window->wlconfig->foreign_importer,window->foreign_parent_name);
+  zxdg_imported_v2_add_listener(window->foreign_parent,&foreign_parent_listener,window);
+  zxdg_imported_v2_set_parent_of(window->foreign_parent,window->surface);
 }
 
 double WaylandDesktopBottom(WaylandConfig *config)
@@ -859,6 +879,17 @@ WaylandServer (WindowOps)
   return window->window_id;
 }
 
+- (BOOL)setforeignparent:(NSString *)handle forwindow:(int)win
+{
+  struct window *window=get_window_with_id(wlconfig,win);
+  const char *name=[handle length]?[handle UTF8String]:NULL;
+  if(!window || (name && (!wlconfig->foreign_importer || strlen(name)>4096)))return NO;
+  char *copy=name?strdup(name):NULL;if(name&&!copy)return NO;
+  if(window->foreign_parent)zxdg_imported_v2_destroy(window->foreign_parent);
+  window->foreign_parent=NULL;free(window->foreign_parent_name);window->foreign_parent_name=copy;
+  WaylandApplyForeignParent(window);wl_display_flush(wlconfig->display);return YES;
+}
+
 - (void)termwindow:(int)win
 {
   NSDebugLog(@"termwindow: win=%d", win);
@@ -868,6 +899,7 @@ WaylandServer (WindowOps)
     return;
 
   [self destroyWindowShell:window];
+  free(window->foreign_parent_name);window->foreign_parent_name=NULL;
   // FIXME should wait for buffer release before detroying it
   //
   // wl_buffer_destroy(window->buffer);
@@ -1243,10 +1275,18 @@ WaylandServer (WindowOps)
   wl_display_flush(wlconfig->display);
 }
 
+static BOOL activate_window_token(struct window *window, const char *name)
+{
+  if (!window || window->terminated || window->is_out || !window->toplevel ||
+      !window->wlconfig->activation || !name || !*name) return NO;
+  xdg_activation_v1_activate(window->wlconfig->activation, name, window->surface);
+  wl_display_flush(window->wlconfig->display);
+  return YES;
+}
 static void activation_done(void *data, struct xdg_activation_token_v1 *token, const char *name)
 {
   struct window *window = data;
-  xdg_activation_v1_activate(window->wlconfig->activation, name, window->surface);
+  activate_window_token(window, name);
   xdg_activation_token_v1_destroy(token);
   window->activation_token = NULL;
   wl_display_flush(window->wlconfig->display);
@@ -1300,6 +1340,13 @@ static const struct xdg_activation_token_v1_listener activation_listener = { .do
   xdg_activation_token_v1_set_serial(window->activation_token, serial, wlconfig->seat);
   xdg_activation_token_v1_commit(window->activation_token);
   wl_display_flush(wlconfig->display);
+}
+
+/* A cooperating application may pass a standard token from its original
+ * input connection. The compositor still validates and consumes that token. */
+- (BOOL)activatewindow:(int)win withToken:(NSString *)token
+{
+  return activate_window_token(get_window_with_id(wlconfig, win), [token UTF8String]);
 }
 
 - (void)setalpha:(float)alpha:(int)win
@@ -1406,6 +1453,7 @@ WaylandServer (SurfaceRoles)
       xdg_toplevel_set_app_id(window->toplevel, [appID UTF8String]);
       struct window *parent = get_window_with_id(wlconfig, window->parent_id);
       if (parent && parent->toplevel) xdg_toplevel_set_parent(window->toplevel, parent->toplevel);
+      WaylandApplyForeignParent(window);
 
       WaylandSetupApplicationWindow(window);
       WaylandSetupDecoration(window);
@@ -1632,6 +1680,10 @@ WaylandServer (SurfaceRoles)
     {
       return;
     }
+  if (window->foreign_parent) {
+    zxdg_imported_v2_destroy(window->foreign_parent);
+    window->foreign_parent=NULL;
+  }
   if (window->layer_surface)
     {
       zwlr_layer_surface_v1_destroy(window->layer_surface);

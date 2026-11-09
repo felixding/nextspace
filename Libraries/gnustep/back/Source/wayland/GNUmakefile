@@ -46,6 +46,7 @@ generated/fractional-scale-v1-protocol.c \
 generated/viewporter-protocol.c \
 generated/xdg-output-unstable-v1-protocol.c \
 generated/xdg-activation-v1-protocol.c \
+generated/xdg-foreign-unstable-v2-protocol.c \
 generated/primary-selection-unstable-v1-protocol.c \
 generated/text-input-unstable-v3-protocol.c \
 generated/nextspace-application-v1-protocol.c \

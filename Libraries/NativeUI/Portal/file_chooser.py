@@ -112,7 +112,7 @@ class FileChooser:
                 raise ValueError('Duplicate handle or too many pending requests')
             if not handle.startswith('/org/freedesktop/portal/desktop/request/'):
                 raise ValueError('Invalid request path')
-            model = Model(method, title, options)
+            model = Model(method, title, options, parent)
             request = Request(handle, sender, model, invocation)
             request.registration = self.bus.register_object(handle,
                 Gio.DBusNodeInfo.new_for_xml(REQUEST_XML).interfaces[0], self.close_request, None, None)
@@ -208,6 +208,8 @@ class FileChooser:
             try:
                 if not request.cancelled:
                     self.panel = self.native.nxs_file_panel_create(request.model.mode, callback, None)
+                    if request.model.config.parent_window and not self.native.nxs_file_panel_capabilities() & 2:
+                        raise RuntimeError('Native file panels lack cross-client parent support')
                     if not self.panel or not self.native.nxs_file_panel_configure(self.panel, C.byref(request.model.config)):
                         raise RuntimeError('Cannot configure the native file panel')
                     response = self.native.nxs_file_panel_run(self.panel)

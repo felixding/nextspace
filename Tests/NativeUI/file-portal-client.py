@@ -13,6 +13,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('method', choices=['OpenFile', 'SaveFile', 'SaveFiles'])
 parser.add_argument('--options', default='{}')
 parser.add_argument('--title', default='Native file portal trial')
+parser.add_argument('--parent-window', default='')
 args = parser.parse_args()
 options = {name: GLib.Variant(signature, value)
            for name, (signature, value) in json.loads(args.options).items()}
@@ -24,7 +25,7 @@ def response(connection, sender, path, interface, signal, parameters):
 subscription = bus.signal_subscribe('org.freedesktop.portal.Desktop', 'org.freedesktop.portal.Request',
     'Response', None, None, Gio.DBusSignalFlags.NONE, response)
 handle = bus.call_sync('org.freedesktop.portal.Desktop', '/org/freedesktop/portal/desktop',
-    'org.freedesktop.portal.FileChooser', args.method, GLib.Variant('(ssa{sv})', ('', args.title, options)),
+    'org.freedesktop.portal.FileChooser', args.method, GLib.Variant('(ssa{sv})', (args.parent_window, args.title, options)),
     GLib.VariantType.new('(o)'), Gio.DBusCallFlags.NONE, 10000, None).unpack()[0]
 print(json.dumps(dict(event='request', handle=handle)), flush=True)
 def command(source, condition):

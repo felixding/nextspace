@@ -1,5 +1,7 @@
 /* GNUstep binding declarations, private to this provider. GPL-2.0-or-later. */
 #include "../NativeUI.h"
+unsigned nxs_gnustep_control_auxiliary_capabilities(void);
+int nxs_gnustep_control_auxiliary_activate(NXSControl *,const char *);
 unsigned nxs_gnustep_control_specialized_capabilities(void);
 int nxs_gnustep_control_color_open(NXSControl *,int);
 int nxs_gnustep_control_color_sync(NXSControl *,const NXSColorModel *);
@@ -84,6 +86,7 @@ NXSRect nxs_gnustep_control_toolbar_item_rect(NXSControl *,uint64_t);
 
 NXSEventSource *nxs_gnustep_source_callback(int,NXSPump,void *);
 NXSFilePanel *nxs_gnustep_file_panel_create(int,NXSFileAllows,void *);
+unsigned nxs_gnustep_file_panel_parent_capabilities(void);
 int nxs_gnustep_file_panel_configure(NXSFilePanel *,const NXSFilePanelConfig *);
 int nxs_gnustep_file_panel_run(NXSFilePanel *);
 int nxs_gnustep_file_panel_cancel(NXSFilePanel *);

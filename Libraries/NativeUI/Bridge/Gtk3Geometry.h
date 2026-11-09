@@ -11,4 +11,9 @@ typedef void (*NXSGtk3GeometryChanged)(void *gdk_window);
  * This observes geometry only; it changes no GDK or compositor window policy. */
 int nxs_gtk3_surface_geometry(void *gdk_window, NXSGtk3SurfaceGeometry *geometry,
                             NXSGtk3GeometryChanged changed);
+/* Forward original GTK startup-notification tokens generated for actual input.
+ * GTK owns serial/seat selection and protocol requests; callback borrows token.
+ * UI-thread only; one subscriber per process. NULL disables observation. */
+typedef void (*NXSGtk3ActivationToken)(uintptr_t surface, const char *token, void *context);
+int nxs_gtk3_activation_observe(NXSGtk3ActivationToken callback, void *context);
 #endif

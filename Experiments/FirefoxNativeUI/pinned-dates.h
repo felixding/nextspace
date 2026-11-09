@@ -21,4 +21,28 @@ static const unsigned char gecko_date_value_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,
 static const unsigned char gecko_date_serialize_witness_bytes[20]={0x13,0xd4,0x40,0xf9,0xe9,0x43,0x00,0xb9,0x29,0x02,0xc0,0xd2,0x08,0x51,0x00,0x91,0x69,0x00,0xe0,0xf2};
 #define NXS_GECKO_DATE_PRINCIPAL_WITNESS 0x5889508ul
 static const unsigned char gecko_date_principal_witness_bytes[20]={0x68,0x16,0x40,0xf9,0xe1,0x83,0x00,0x91,0xe0,0x03,0x13,0xaa,0x08,0x25,0x40,0xf9,0x02,0x1d,0x40,0xf9};
-static int guard_date_calls(void) {return !memcmp((void *)(base+NXS_GECKO_DATE_NOTIFY_SHADOW),gecko_date_notify_shadow_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SHADOW_SETUP),gecko_date_shadow_setup_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_ATTACH_SHADOW),gecko_date_attach_shadow_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_CONTAINER_DISPLAY),gecko_date_container_display_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_FOCUS),gecko_date_focus_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_BASE_FOCUS),gecko_date_base_focus_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_INTRINSIC),gecko_date_intrinsic_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SET_USER),gecko_date_set_user_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_VALUE),gecko_date_value_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SERIALIZE_WITNESS),gecko_date_serialize_witness_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_PRINCIPAL_WITNESS),gecko_date_principal_witness_bytes,20);}
+/* Original date reflow consumes logical BSize at 272, min at 296, max at 304.
+ * Guard the original consumers as well as the called layout methods. */
+#define NXS_GECKO_DATE_REFLOW 0x6ef00dcul
+static const unsigned char gecko_date_reflow_bytes[20]={0x3f,0x23,0x3,0xd5,0xfd,0x7b,0xba,0xa9,0xfc,0x6f,0x1,0xa9,0xfa,0x67,0x2,0xa9,0xf8,0x5f,0x3,0xa9};
+#define NXS_GECKO_DATE_SET_BSIZE 0x6ddabe8ul
+static const unsigned char gecko_date_set_bsize_bytes[20]={0x5f,0x24,0x3,0xd5,0x8,0x10,0x41,0xb9,0x1f,0x1,0x1,0x6b,0x60,0x1,0x0,0x54,0x28,0x7c,0xa1,0xa};
+#define NXS_GECKO_DATE_LINE_HEIGHT 0x6dd1794ul
+static const unsigned char gecko_date_line_height_bytes[20]={0x3f,0x23,0x3,0xd5,0xff,0x43,0x1,0xd1,0xe8,0xb,0x0,0xfd,0xfe,0xf,0x0,0xf9,0xf8,0x5f,0x2,0xa9};
+#define NXS_GECKO_DATE_REFLOW_SIZE_WITNESS 0x6ef0154ul
+static const unsigned char gecko_date_reflow_size_witness_bytes[12]={0xcb,0x62,0x40,0x39,0xc8,0xe,0x41,0xb9,0xd8,0x12,0x41,0xb9};
+#define NXS_GECKO_DATE_REFLOW_MAX_WITNESS 0x6ef04c4ul
+static const unsigned char gecko_date_reflow_max_witness_bytes[4]={0xc8,0x32,0x41,0xb9};
+#define NXS_GECKO_DATE_REFLOW_MIN_WITNESS 0x6ef04dcul
+static const unsigned char gecko_date_reflow_min_witness_bytes[4]={0xc8,0x2a,0x41,0xb9};
+static int guard_date_layout_calls(void){return !memcmp((void *)(base+NXS_GECKO_DATE_REFLOW),gecko_date_reflow_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SET_BSIZE),gecko_date_set_bsize_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_LINE_HEIGHT),gecko_date_line_height_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_REFLOW_SIZE_WITNESS),gecko_date_reflow_size_witness_bytes,12)&&!memcmp((void *)(base+NXS_GECKO_DATE_REFLOW_MAX_WITNESS),gecko_date_reflow_max_witness_bytes,4)&&!memcmp((void *)(base+NXS_GECKO_DATE_REFLOW_MIN_WITNESS),gecko_date_reflow_min_witness_bytes,4);}
+static int guard_date_calls(void) {return guard_date_layout_calls()&&!memcmp((void *)(base+NXS_GECKO_DATE_NOTIFY_SHADOW),gecko_date_notify_shadow_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SHADOW_SETUP),gecko_date_shadow_setup_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_ATTACH_SHADOW),gecko_date_attach_shadow_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_CONTAINER_DISPLAY),gecko_date_container_display_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_FOCUS),gecko_date_focus_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_BASE_FOCUS),gecko_date_base_focus_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_INTRINSIC),gecko_date_intrinsic_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SET_USER),gecko_date_set_user_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_VALUE),gecko_date_value_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_SERIALIZE_WITNESS),gecko_date_serialize_witness_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_DATE_PRINCIPAL_WITNESS),gecko_date_principal_witness_bytes,20);}
+
+#define NXS_GECKO_DATE_SHOW_PICKER 0x5891bdcul
+static const unsigned char gecko_date_show_picker_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x83,0x01,0xd1,0xfe,0x57,0x04,0xa9,0xf4,0x4f,0x05,0xa9,0x88,0x52,0x02,0xd0};
+
+#define NXS_GECKO_DATE_OPEN_PICKER 0x588a760ul
+static const unsigned char gecko_date_open_picker_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x03,0x01,0xd1,0xfe,0x57,0x02,0xa9,0xf4,0x4f,0x03,0xa9,0xc8,0x52,0x02,0xb0};
+
+#define NXS_GECKO_DATE_CLOSE_PICKER 0x588a850ul
+static const unsigned char gecko_date_close_picker_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x00,0xd1,0xfe,0x13,0x00,0xf9,0xc8,0x52,0x02,0xb0,0x29,0x00,0x80,0x52};

@@ -17,3 +17,13 @@ static int guard_geometry_calls(void) {return !memcmp((void *)(base+NXS_GECKO_GE
 !memcmp((void *)(base+NXS_GECKO_GEOMETRY_RECOMPUTE),gecko_geometry_recompute_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_GEOMETRY_ADDREF),gecko_geometry_addref_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_GEOMETRY_RELEASE),gecko_geometry_release_bytes,20);}
+
+#define NXS_GECKO_GEOMETRY_ROOT_FRAME 0x6daae44ul
+static const unsigned char gecko_geometry_root_frame_bytes[20]={0x5f,0x24,0x03,0xd5,0x08,0x14,0x40,0xf9,0x08,0x11,0x40,0xf9,0x08,0x41,0x40,0xf9,0x00,0x05,0x40,0xf9};
+
+#define NXS_GECKO_GEOMETRY_CLIENT_RECT 0x6e8651cul
+static const unsigned char gecko_geometry_client_rect_bytes[20]={0x3f,0x23,0x03,0xd5,0xfe,0x0f,0x1e,0xf8,0xf4,0x4f,0x01,0xa9,0xf3,0x03,0x00,0xaa,0xf4,0x03,0x08,0xaa};
+
+#define NXS_GECKO_GEOMETRY_SCREEN_RECT 0x6e84ee8ul
+static const unsigned char gecko_geometry_screen_rect_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x00,0xd1,0xfe,0x13,0x00,0xf9,0xe8,0xa2,0x01,0xf0,0x08,0x89,0x44,0xf9};
+static int guard_frame_geometry_calls(void) {return !memcmp((void *)(base+NXS_GECKO_GEOMETRY_ROOT_FRAME),gecko_geometry_root_frame_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_GEOMETRY_CLIENT_RECT),gecko_geometry_client_rect_bytes,20)&&!memcmp((void *)(base+NXS_GECKO_GEOMETRY_SCREEN_RECT),gecko_geometry_screen_rect_bytes,20);}

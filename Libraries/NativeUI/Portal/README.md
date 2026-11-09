@@ -35,13 +35,22 @@ these files still needs the regular portal frontend and Python's Gio bindings.
 The owned browser fixture supports `--file-portal --hold` with a private bus,
 the real portal frontend and the same GNUstep provider used by webpage controls.
 `Tests/NativeUI/check-file-portal.py --fixture DIR` checks public frontend
-requests and real native input. Its compositor focus operation is explicit:
-cross-client parent import, reliable activation on repeated dialogs and focus
-restoration are not qualified. Sandboxed document exports, multi-file gestures,
+requests and real native input. The initial backend-only cohort used explicit
+compositor focus assistance and left parent import and repeat activation open.
+The later pinned-browser experience cohort below covers those paths and native
+multiple selection without assistance. Sandboxed document exports,
 filter/choice changes, broader styles/scales and installed session activation
-also need qualification. Browser file inputs' inline buttons/labels remain a
-separate adapter gap. This backend does not establish full native browser form
-coverage.
+still need qualification. This backend does not establish full native browser
+form coverage.
 
 Reference contracts: [FileChooser backend](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.impl.portal.FileChooser.html)
 and [backend Request](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.impl.portal.Request.html).
+
+The [browser controls experience qualification](../browser-controls-experience-qualification.json)
+supersedes the earlier pinned-browser parenting/focus gap: original GTK3/GTK4
+exported parent handles import through the native Wayland backend and wlroots
+xdg-foreign v1/v2. Both pinned browsers pass repeat-open, accept/cancel focus
+restoration and real native NSBrowser multiple selection without focus
+assistance. A separate policy cohort rejects focus stealing by background,
+unparented and invalid-parent requests. This does not qualify every application
+or general deployment.

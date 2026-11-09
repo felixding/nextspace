@@ -15,7 +15,14 @@ add_custom_command(OUTPUT "${APPLICATION_HEADER}" "${APPLICATION_CODE}"
   COMMAND "${WAYLAND_SCANNER}" client-header "${APPLICATION_PROTOCOL}" "${APPLICATION_HEADER}"
   COMMAND "${WAYLAND_SCANNER}" private-code "${APPLICATION_PROTOCOL}" "${APPLICATION_CODE}"
   DEPENDS "${APPLICATION_PROTOCOL}" VERBATIM)
-add_library(nextspace-wayland-geometry SHARED WaylandGeometry.c "${APPLICATION_HEADER}" "${APPLICATION_CODE}")
+set(ACTIVATION_PROTOCOL "${CMAKE_CURRENT_SOURCE_DIR}/../../gnustep/back/Source/wayland/protocols/xdg-activation-v1.xml")
+set(ACTIVATION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/xdg-activation-v1-client-protocol.h")
+set(ACTIVATION_CODE "${CMAKE_CURRENT_BINARY_DIR}/xdg-activation-v1-protocol.c")
+add_custom_command(OUTPUT "${ACTIVATION_HEADER}" "${ACTIVATION_CODE}"
+  COMMAND "${WAYLAND_SCANNER}" client-header "${ACTIVATION_PROTOCOL}" "${ACTIVATION_HEADER}"
+  COMMAND "${WAYLAND_SCANNER}" private-code "${ACTIVATION_PROTOCOL}" "${ACTIVATION_CODE}"
+  DEPENDS "${ACTIVATION_PROTOCOL}" VERBATIM)
+add_library(nextspace-wayland-geometry SHARED WaylandGeometry.c "${APPLICATION_HEADER}" "${APPLICATION_CODE}" "${ACTIVATION_HEADER}" "${ACTIVATION_CODE}")
 target_include_directories(nextspace-wayland-geometry PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(nextspace-wayland-geometry PRIVATE PkgConfig::WAYLAND_GEOMETRY)
 set_target_properties(nextspace-wayland-geometry PROPERTIES VERSION 0.1 SOVERSION 1)
@@ -23,7 +30,7 @@ install(TARGETS nextspace-wayland-geometry LIBRARY DESTINATION lib/nextspace-scr
 install(FILES WaylandGeometry.h DESTINATION include/NextSpaceNativeUI)
 option(NXS_BUILD_GTK3_GEOMETRY "Build the GTK3 geometry lifetime adapter" ON)
 if(NXS_BUILD_GTK3_GEOMETRY)
-  pkg_check_modules(GTK3_GEOMETRY REQUIRED IMPORTED_TARGET glib-2.0 gobject-2.0)
+  pkg_check_modules(GTK3_GEOMETRY REQUIRED IMPORTED_TARGET glib-2.0 gobject-2.0 gio-2.0)
   add_library(nextspace-gtk3-geometry SHARED Gtk3Geometry.c)
   target_link_libraries(nextspace-gtk3-geometry PRIVATE nextspace-wayland-geometry PkgConfig::GTK3_GEOMETRY PkgConfig::WAYLAND_GEOMETRY ${CMAKE_DL_LIBS})
   set_target_properties(nextspace-gtk3-geometry PROPERTIES VERSION 0.1 SOVERSION 1 BUILD_RPATH "$ORIGIN" INSTALL_RPATH "$ORIGIN")

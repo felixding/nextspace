@@ -2,7 +2,8 @@
 """Verify original browser file inputs consume the shared native portal.
 
 Uses an owned frontend fixture, real seat input and the browser's own File API.
-Focus assistance is recorded separately; it does not qualify parent import.
+Parenting and physical compositor focus are required by default. Historical
+native-panel-only probes may explicitly allow and record focus assistance.
 """
 import argparse
 import json
@@ -16,6 +17,7 @@ parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--fixture', type=Path, required=True)
 parser.add_argument('--engine', choices=['firefox', 'chromium'], required=True)
 parser.add_argument('--port', type=int)
+parser.add_argument('--allow-focus-assistance', action='store_true')
 args = parser.parse_args()
 root = args.fixture
 repo = Path(__file__).resolve().parents[2]
@@ -26,6 +28,10 @@ portal_pid = next(json.loads(row)['pid'] for row in (root/'file-portal.jsonl').r
 owned = Path('/var/tmp/nxs-file-test.txt')
 payload = 'Owned native file dialog fixture\n'
 owned.write_text(payload)
+multiple_dir=Path('/var/tmp/nxs-native-files-'+args.engine)
+multiple_dir.mkdir(exist_ok=True)
+multiple_names=['native-first.txt','native-second.txt']
+for name in multiple_names:(multiple_dir/name).write_text(name+'\n')
 
 
 def command(value):
@@ -74,10 +80,14 @@ def panel():
 
 def show_panel(label):
     window = until(lambda: (item if (item := panel()) and item['buffer_width'] == item['width'] and item['buffer_height'] == item['height'] else None), 'native panel did not finish presenting')
-    if not window['focused']:
+    if args.allow_focus_assistance and not window['focused']:
         assisted.append(label)
         assert command('focus '+str(window['id']))['ok']
         until(lambda: panel() and panel()['focused'], 'native panel focus failed')
+    if not args.allow_focus_assistance:
+        check(label+'-has-physical-keyboard-focus', until(lambda: panel() and panel()['focused'], 'native panel keyboard focus'))
+        parent = next(w for w in command('windows') if w['id'] == panel()['parent_id'])
+        check(label+'-has-original-browser-parent', parent['pid'] == browser_pid and parent['level'] == 0)
     return window
 
 
@@ -90,6 +100,7 @@ def capture(name):
 
 browser_pid = json.loads((root/'launch.json').read_text())['pids'][-1]
 client = None
+complete = False
 if args.engine == 'firefox':
     sys.path.insert(0, str(repo/'Experiments/FirefoxNativeUI'))
     from marionette import Marionette
@@ -134,6 +145,9 @@ def click_field(identifier):
 
 try:
     until(lambda: js('document.title') == 'Native file fields', 'browser fixture did not load')
+    click_field('disabled')
+    time.sleep(.15)
+    check('disabled-file-input-keeps-original-gate', not panel() and js('events.length') == 0)
     click_field('single')
     show_panel('first-open')
     capture('native-file-panel-desktop.png')
@@ -153,6 +167,8 @@ try:
     js('single.files[0].text().then(value=>window.fileText=value)')
     until(lambda: js('window.fileText') == payload, 'selected file payload differs')
     check('browser-read-the-selected-file-payload', True)
+    check('acceptance-restores-original-browser-focus', until(lambda: any(
+        w['pid'] == browser_pid and w['focused'] for w in command('windows')), 'browser focus after file acceptance'))
     capture('native-file-selected-desktop.png')
     click_field('single')
     window = show_panel('reopen')
@@ -171,8 +187,36 @@ try:
     check('native-cancel-preserved-selection-and-original-trusted-event',
           js('events[2].type') == 'cancel' and js('events[2].trusted')
           and js('single.files[0].name') == owned.name)
+    check('cancellation-restores-original-browser-focus', until(lambda: any(
+        w['pid'] == browser_pid and w['focused'] for w in command('windows')), 'browser focus after file cancellation'))
+    click_field('multiple')
+    window=show_panel('multiple-open')
+    type_text(str(multiple_dir)+'/');key(28);time.sleep(.2)
+    # Actual NSBrowser range selection in the pinned original file-panel Gorm.
+    # This owned folder contains exactly two known rows; no File API setter or
+    # native model shortcut stands in for the user's selection gesture.
+    for event in (f"pointer {window['x']+window['width']-140} {window['y']+128}",
+                  'button 272 1','button 272 0','key 42 1',
+                  f"pointer {window['x']+window['width']-140} {window['y']+143}",
+                  'button 272 1','button 272 0','key 42 0',
+                  f"pointer {window['x']+window['width']-48} {window['y']+window['height']-29}",
+                  'button 272 1','button 272 0'):
+        assert command(event)['ok']
+        # Deliver motion before the next press, and let the original NSBrowser
+        # finish each tracking loop before another gesture changes the pointer.
+        time.sleep(.1)
+    until(lambda: js('multiple.files.length')==2,'native multiple file selection')
+    check('native-browser-range-selection-returns-both-original-files',
+          sorted(js('Array.from(multiple.files,f=>f.name)'))==multiple_names)
+    check('multiple-selection-retains-original-trusted-events',js('events.slice(-2)')==[
+        dict(id='multiple',type=kind,trusted=True,files=multiple_names) for kind in ['input','change']])
+    js('Promise.all(Array.from(multiple.files,f=>f.text())).then(values=>window.multipleText=values)')
+    check('browser-reads-both-native-selected-file-payloads',until(
+        lambda: js('window.multipleText')==[name+'\n' for name in multiple_names],'native selected file payloads'))
+    complete = True
 finally:
     if client:
         client.close()
     (root/'browser-file-checks.json').write_text(json.dumps(dict(engine=args.engine, results=results,
-        focus_assistance=assisted, cancel_clicks=locals().get('cancel_clicks'), parent_import_qualified=False), indent=2)+'\n')
+        focus_assistance=assisted, cancel_clicks=locals().get('cancel_clicks'),
+        parent_import_qualified=complete and not args.allow_focus_assistance), indent=2)+'\n')

@@ -15,7 +15,9 @@ adapters, so changes to native controls stay in one UI library.
 The optional [native FileChooser portal](Portal/README.md) shares original
 GNUstep open/save panels across browsers and later GTK/Qt consumers. Its
 transport forwards models and results; the provider owns every visible control.
-Parent-window import and repeated-dialog activation remain unqualified.
+The pinned Chromium/Firefox experience milestone now qualifies original parent
+import and repeated-dialog activation through standard xdg-foreign and the
+shared native provider. See the [experience qualification](browser-controls-experience-qualification.json).
 
 The optional [session host](Host/README.md) now starts through the user launcher
 and supervisor when installed. It reuses the shared bridge and this provider,
@@ -1278,13 +1280,44 @@ The renderer's existing work loop observes anchor changes; the provider moves
 its same native panel without changing the model or adding a timer. Browser
 toolbar, address bar and tabs are unchanged.
 
-This is a partial staged implementation. Firefox showPicker, native panel
-application ownership, all temporal popup variants and broader compatibility
-remain unfinished. The calendar movement and field regression cases do not
+The original calendar checkpoint below was a partial staged implementation.
+Its Firefox showPicker and repeated-open focus gaps are now covered by the
+[experience milestone](browser-controls-experience-qualification.json). All
+temporal popup variants and broader compatibility remain unfinished. The calendar movement and field regression cases do not
 qualify those requirements or complete browser integration.
-The repeated-open browser test currently fails: the calendar is visible while
+At that earlier checkpoint, the repeated-open browser test failed: the calendar was visible while
 Chromium retains compositor keyboard focus. The shared provider correctly
 resigns its native key window on close, but cross-client auxiliary ownership and
-activation still need integration. Native key-state/API injection checks alone
+activation still needed integration. Native key-state/API injection checks alone
 do not prove physical keyboard delivery. See
 [calendar/geometry qualification](calendar-geometry-qualification.json).
+
+## Browser controls experience checkpoint
+
+The current candidate passes the real-seat calendar, color and original native
+file-panel lifetimes in both pinned browsers, including repeat presentation and
+actual compositor keyboard focus. Firefox also retains original native
+indeterminate progress animation, with complete frames compared to independent
+GNUstep references. The shared auxiliary activation path is reused for date and
+color panels; file panels use original toolkit exported parents and wlroots
+xdg-foreign v1/v2 support. No control implementation is copied into adapters.
+
+The optional API table is version 1, 744 bytes, preserving the former 736-byte
+prefix. File-panel configuration accepts the original 80-byte prefix as well as
+the appended parent field in the 88-byte current structure. Legacy callers do
+not supply or require the optional parent field.
+
+This is an experience checkpoint for the exact pinned Linux ARM64 builds and
+100% scale, not general release qualification. Chrome/Vivaldi/Firefox
+derivatives, broad CSS/zoom/HiDPI, IME and accessibility coverage remain open.
+Browser toolbar, address bar and tabs remain original. Detached menus, remaining
+application shortcuts and later GTK/Qt/KDE integration are separate phases.
+Development pauses here for user feedback after the manual preview is ready.
+
+Default browser control sizing has a separate acceptance cohort. Firefox's
+original native date cell supplies automatic preferred block-size, while Gecko
+retains CSS constraints, borders, baselines and reflow. Default number fields
+use the existing original frame-to-screen conversion to snap editor/stepper
+viewport edges at device pixels. The default-size cohort includes independent
+whole native images and trusted model edits; explicit author sizes alone do
+not qualify this behavior.

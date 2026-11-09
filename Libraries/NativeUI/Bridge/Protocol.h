@@ -360,4 +360,16 @@ struct NXSControlDateRequest {
  * revokes the reference and closes its panel. Color replies part 2.height
  * records the native-action count superseded by application model sync, so
  * model echoes never masquerade as native user edits. */
+/* Optional bootstrap part 1.y bit 2: native auxiliary activation tokens.
+ * Operation 64 publishes a standard xdg-activation token from an original
+ * toolkit input connection, followed by text_size UTF8 bytes without NUL.
+ * kind=0, control=opaque source surface identity, state=1, x=input serial (0 when the original toolkit owns it internally);
+ * other model fields are zero. Publication is one-way: it inserts no reply on
+ * a connection shared with synchronous native requests. Kernel credentials/
+ * pidfd bind the source to the sending process. Only one unambiguous live
+ * ancestor may supply a token to an owned popup, including across the
+ * application's separate UI/renderer connections. Tokens are consumed once;
+ * a closed/destroyed popup never receives a pending handoff. The compositor
+ * validates token provenance/expiry. No helper focus policy is introduced. */
+
 #endif

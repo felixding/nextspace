@@ -2,6 +2,7 @@
 #include "Gtk3Geometry.h"
 #include <dlfcn.h>
 #include <glib-object.h>
+#include <gio/gio.h>
 #include <stdlib.h>
 #include <wayland-client.h>
 
@@ -130,4 +131,65 @@ int nxs_gtk3_surface_geometry(void *gdk, NXSGtk3SurfaceGeometry *geometry, NXSGt
   }
   window->changed = changed; attach(window);
   return nxs_wayland_geometry_read(window->observation, geometry);
+}
+
+/* The public GTK event signal and GDK launch-context API retain GTK's actual
+ * implicit-grab serial and focused surface. No private toolkit offsets, input
+ * implementation or independent activation protocol producer is needed. */
+static NXSGtk3ActivationToken activation_callback;
+static void *activation_context;
+static gulong activation_hook;
+static guint activation_signal;
+static int activation_busy;
+static void *(*activation_event_window)(const void *), *(*activation_toplevel)(void *);
+static guint32 (*activation_event_time)(const void *);
+static GAppLaunchContext *(*activation_launch_context)(void *);
+static void (*activation_timestamp)(void *,guint32);
+static gboolean activation_event(GSignalInvocationHint *hint, guint count,
+                                const GValue *values, gpointer data)
+{
+  if(!activation_callback || activation_busy || count<2)return TRUE;
+  /* Public GdkEventAny prefix. Synthetic events do not create new grants. */
+  const struct {int type;void *window;gint8 send_event;} *event=g_value_get_boxed(values+1);
+  if(!event || event->send_event || (event->type!=4 && event->type!=8))return TRUE;
+  void *gdk=activation_event_window(event);
+  if(!gdk || !(gdk=activation_toplevel(gdk)))return TRUE;
+  /* Keep the existing geometry subscription/callback unchanged. */
+  if(!load_gdk() || !g_type_check_instance_is_a(gdk,wayland_window_type()) ||
+     window_destroyed(gdk) || !window_viewable(gdk))return TRUE;
+  void *display=window_display(gdk);
+  GAppLaunchContext *context=activation_launch_context(display);
+  if(!context)return TRUE;
+  activation_busy=1;
+  activation_timestamp(context,activation_event_time(event));
+  GAppInfo *info=g_app_info_create_from_commandline("nextspace-native-ui",NULL,0,NULL);
+  char *token=info?g_app_launch_context_get_startup_notify_id(context,info,NULL):NULL;
+  if(token && *token && activation_callback)
+    activation_callback((uintptr_t)wayland_surface(gdk),token,activation_context);
+  g_free(token);if(info)g_object_unref(info);g_object_unref(context);
+  activation_busy=0;return TRUE;
+}
+int nxs_gtk3_activation_observe(NXSGtk3ActivationToken callback,void *context)
+{
+  if(!callback) {
+    if(activation_hook)g_signal_remove_emission_hook(activation_signal,activation_hook);
+    activation_hook=0;activation_callback=NULL;activation_context=NULL;return 1;
+  }
+  if(activation_callback)return activation_callback==callback && activation_context==context;
+  GType (*widget_type)(void)=dlsym(RTLD_DEFAULT,"gtk_widget_get_type");
+  activation_event_window=dlsym(RTLD_DEFAULT,"gdk_event_get_window");
+  activation_toplevel=dlsym(RTLD_DEFAULT,"gdk_window_get_toplevel");
+  activation_event_time=dlsym(RTLD_DEFAULT,"gdk_event_get_time");
+  activation_launch_context=dlsym(RTLD_DEFAULT,"gdk_display_get_app_launch_context");
+  activation_timestamp=dlsym(RTLD_DEFAULT,"gdk_app_launch_context_set_timestamp");
+  if(!load_gdk() || !widget_type || !activation_event_window || !activation_toplevel ||
+     !activation_event_time || !activation_launch_context || !activation_timestamp)return 0;
+  gpointer klass=g_type_class_ref(widget_type());
+  activation_signal=g_signal_lookup("event",widget_type());
+  GSignalQuery query={0};g_signal_query(activation_signal,&query);
+  if(query.signal_id && !(query.signal_flags&G_SIGNAL_NO_HOOKS))
+    activation_hook=g_signal_add_emission_hook(activation_signal,0,activation_event,NULL,NULL);
+  g_type_class_unref(klass);
+  if(!activation_hook)return 0;
+  activation_callback=callback;activation_context=context;return 1;
 }

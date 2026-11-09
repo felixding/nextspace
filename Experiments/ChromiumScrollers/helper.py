@@ -80,7 +80,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
                 result.parts[2].x=forms.item_hit_capabilities
                 result.parts[2].y=bool(forms.list_capabilities&1)
                 result.parts[1].x=forms.specialized_capabilities
-                result.parts[1].y=forms.color_panel_capabilities
+                result.parts[1].y=forms.color_panel_capabilities|(forms.auxiliary_capabilities<<1)
                 result.parts[0].y=bool(forms.color_panel_capabilities)
                 result.parts[4].x=forms.tab_capabilities
                 result.parts[4].y=forms.radio_capabilities

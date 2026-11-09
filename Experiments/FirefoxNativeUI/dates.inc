@@ -8,8 +8,10 @@ static void (*original_date_notify)(void *);
 static void (*original_date_display)(void *,void *,const void *);
 static int (*original_date_focus)(void *,unsigned,uint8_t *,int *);
 static int (*original_date_intrinsic)(void *,const void *,int);
+static void (*original_date_reflow)(void *,void *,void *,const void *,void *);
 static void date_end(const void *);
 static void date_finish(const void *,int);
+static void date_panel_forget(struct Widget *);
 static int date_node(const void *node)
 {
   if(!dates_enabled||!native_web_process()||!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
@@ -90,6 +92,32 @@ static int date_intrinsic(void *frame,const void *input,int type)
   struct NXSResponse *response=widget_sync(w);
   double width=response?response->parts[1].width:0;
   return isfinite(width)&&width>0&&width<8192?lround(width*60):original_date_intrinsic(frame,input,type);
+}
+static void date_reflow(void *frame,void *context,void *output,const void *input,void *status)
+{
+  /* The replaced anonymous editor no longer supplies auto block-size. Read
+   * the existing native cell's preferred height, while original Gecko retains
+   * line-height, CSS min/max, borders, padding, baselines and final reflow. */
+  int previous=*(const int *)((const char *)input+272),changed=0;
+  if(native_date_frame(frame)&&previous==0x3fffffff&&
+     !(*(const unsigned char *)((const char *)input+24)&1)) {
+    struct Widget *w=bind_widget(frame);
+    struct NXSResponse *response=w?widget_sync(w):NULL;
+    double preferred=response?response->parts[1].height:0;
+    if(isfinite(preferred)&&preferred>0&&preferred<8192) {
+      int size=lround(preferred*60);
+      int line=((int (*)(const void *))(base+NXS_GECKO_DATE_LINE_HEIGHT))(input);
+      if(line>size&&line<0x3fffffff)size=line;
+      int minimum=*(const int *)((const char *)input+296);
+      int maximum=*(const int *)((const char *)input+304);
+      if(maximum!=0x3fffffff&&size>maximum)size=maximum;
+      if(minimum!=0x3fffffff&&size<minimum)size=minimum;
+      ((void (*)(const void *,int,unsigned))(base+NXS_GECKO_DATE_SET_BSIZE))(input,size,0);
+      changed=1;
+    }
+  }
+  original_date_reflow(frame,context,output,input,status);
+  if(changed)((void (*)(const void *,int,unsigned))(base+NXS_GECKO_DATE_SET_BSIZE))(input,previous,0);
 }
 static void date_display(void *frame,void *builder,const void *lists)
 {
@@ -231,16 +259,22 @@ static void date_native_work(void)
 }
 static void date_forget(struct Widget *w)
 {
+  date_panel_forget(w);
   if(date_tracking(w)) {
     void *node=date_active_node;date_active_node=NULL;date_active_control=0;
     widget_request(w,4,-10000,-10000,0);((unsigned (*)(void *))(base+0x47ba6b8))(node);
   }
 }
 static void date_reset(void){date_active_node=NULL;date_active_control=0;}
+#include "date-panels.inc"
 static struct Detour date_detours[]={
  {NXS_GECKO_DATE_ATTACH_SHADOW,gecko_date_attach_shadow_bytes,date_shadow,(void **)&original_date_shadow},
  {NXS_GECKO_DATE_NOTIFY_SHADOW,gecko_date_notify_shadow_bytes,date_notify,(void **)&original_date_notify},
  {NXS_GECKO_DATE_CONTAINER_DISPLAY,gecko_date_container_display_bytes,date_display,(void **)&original_date_display},
  {NXS_GECKO_DATE_FOCUS,gecko_date_focus_bytes,date_focus,(void **)&original_date_focus},
  {NXS_GECKO_DATE_INTRINSIC,gecko_date_intrinsic_bytes,date_intrinsic,(void **)&original_date_intrinsic}
+ ,{NXS_GECKO_DATE_REFLOW,gecko_date_reflow_bytes,date_reflow,(void **)&original_date_reflow}
+ ,{NXS_GECKO_DATE_SHOW_PICKER,gecko_date_show_picker_bytes,date_show_picker,(void **)&original_date_show_picker}
+ ,{NXS_GECKO_DATE_OPEN_PICKER,gecko_date_open_picker_bytes,date_open_picker,(void **)&original_date_open_picker}
+ ,{NXS_GECKO_DATE_CLOSE_PICKER,gecko_date_close_picker_bytes,date_close_picker,(void **)&original_date_close_picker}
 };

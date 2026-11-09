@@ -4,6 +4,7 @@
 #include <stdint.h>
 struct wl_display;
 struct wl_surface;
+struct wl_seat;
 struct wl_proxy;
 struct wl_interface;
 typedef struct NXSGeometryDisplay NXSGeometryDisplay;
@@ -45,4 +46,15 @@ void nxs_wayland_geometry_unobserve(NXSGeometrySurface *);
 /* Zero means no compositor snapshot yet. An unmapped snapshot cannot anchor a
  * visible control. Notifications may destroy the observation or connection. */
 int nxs_wayland_geometry_read(NXSGeometrySurface *, NXSWaylandSurfaceGeometry *);
+/* Standard xdg-activation transport on the same owning connection/queue.
+ * The source must be mapped and serial must come from original user input.
+ * A NULL seat uses the connection's sole advertised seat; multiple seats
+ * require an explicit original seat. The compositor validates provenance.
+ * A successful request calls back once, with borrowed UTF8 valid during the
+ * callback. Rebinding/releasing the observation cancels pending requests.
+ * Zero reports unavailable; it never fabricates a token or grants focus. */
+typedef void (*NXSWaylandActivationToken)(void *context,const char *token);
+int nxs_wayland_activation_request(NXSGeometrySurface *, struct wl_seat *, uint32_t serial,
+                                   NXSWaylandActivationToken, void *context);
+int nxs_wayland_activation_apply(NXSGeometryDisplay *, struct wl_surface *, const char *token);
 #endif

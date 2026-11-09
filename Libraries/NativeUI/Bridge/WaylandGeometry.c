@@ -1,10 +1,12 @@
 /* Toolkit-independent owned-surface protocol transport. MIT license. */
 #include "WaylandGeometry.h"
 #include "nextspace-application-v1-client-protocol.h"
+#include "xdg-activation-v1-client-protocol.h"
 #include <stdlib.h>
 #include <string.h>
 #include <wayland-client.h>
 
+struct NXSActivationRequest;
 struct NXSGeometrySurface {
   struct NXSGeometrySurface *next;
   NXSGeometryDisplay *display;
@@ -14,14 +16,19 @@ struct NXSGeometrySurface {
   NXSGeometryChanged changed;
   void *context;
   int received;
+  struct NXSActivationRequest *tokens;
 };
 struct NXSGeometryDisplay {
   NXSWaylandClientAPI api;
   struct wl_display *wayland;
   struct wl_registry *registry;
   struct nextspace_application_v1 *manager;
+  struct xdg_activation_v1 *activation;
+  struct wl_seat *seat;
+  uint32_t seat_name,seat_count;
   NXSGeometrySurface *surfaces;
 };
+#include "WaylandActivation.inc"
 /* Same scanner-defined requests, dispatched through the owning client's C
  * API. These helpers contain no knowledge of toolkit objects or geometry. */
 static void destroy_resource(NXSGeometryDisplay *display, void *resource, uint32_t opcode)
@@ -47,6 +54,7 @@ static void geometry_event(void *data, struct nextspace_surface_geometry_v1 *obs
 static void geometry_closed(void *data, struct nextspace_surface_geometry_v1 *observer)
 {
   NXSGeometrySurface *surface = data;
+  activation_cancel(surface, 1);
   surface->observer = NULL; surface->surface = NULL;
   surface->value.mapped = 0; surface->received = 1;
   destroy_resource(surface->display, observer, NEXTSPACE_SURFACE_GEOMETRY_V1_DESTROY);
@@ -76,6 +84,7 @@ static void global(void *data, struct wl_registry *registry, uint32_t name,
     const char *interface, uint32_t version)
 {
   NXSGeometryDisplay *display = data;
+  if (activation_global(display, registry, name, interface, version)) return;
   if (display->manager || version < 10 || strcmp(interface, "nextspace_application_v1")) return;
   display->manager = (void *)display->api.marshal_flags((struct wl_proxy *)registry,
       WL_REGISTRY_BIND, &nextspace_application_v1_interface, 10, 0,
@@ -85,7 +94,14 @@ static void global(void *data, struct wl_registry *registry, uint32_t name,
   for (NXSGeometrySurface *surface = display->surfaces; surface; surface = surface->next) attach(surface);
   display->api.flush(display->wayland);
 }
-static void global_removed(void *data, struct wl_registry *registry, uint32_t name) {}
+static void global_removed(void *data, struct wl_registry *registry, uint32_t name)
+{
+  NXSGeometryDisplay *display=data;
+  if (name==display->seat_name) {
+    display->api.destroy((struct wl_proxy *)display->seat);
+    display->seat=NULL;display->seat_name=0;
+  }
+}
 static const struct wl_registry_listener registry_listener = {.global = global, .global_remove = global_removed};
 NXSGeometryDisplay *nxs_wayland_geometry_connect(struct wl_display *wayland,
                                                struct wl_display *creation_display)
@@ -116,10 +132,13 @@ void nxs_wayland_geometry_disconnect(NXSGeometryDisplay *display, int proxies_va
   while (display->surfaces) {
     NXSGeometrySurface *surface = display->surfaces;
     display->surfaces = surface->next;
+    activation_cancel(surface, proxies_valid);
     if (proxies_valid && surface->observer) destroy_observer(surface);
     free(surface);
   }
   if (proxies_valid) {
+    if (display->activation) activation_destroy(display, display->activation, XDG_ACTIVATION_V1_DESTROY);
+    if (display->seat) display->api.destroy((struct wl_proxy *)display->seat);
     if (display->manager) destroy_resource(display, display->manager, NEXTSPACE_APPLICATION_V1_DESTROY);
     display->api.destroy((struct wl_proxy *)display->registry);
   }
@@ -140,6 +159,7 @@ NXSGeometrySurface *nxs_wayland_geometry_observe(NXSGeometryDisplay *display, st
 void nxs_wayland_geometry_rebind(NXSGeometrySurface *surface, struct wl_surface *wayland)
 {
   if (!surface || surface->surface == wayland) return;
+  activation_cancel(surface, 1);
   if (surface->observer) destroy_observer(surface);
   surface->observer = NULL; surface->surface = wayland; surface->received = 0;
   surface->value = (NXSWaylandSurfaceGeometry){0};
@@ -148,6 +168,7 @@ void nxs_wayland_geometry_rebind(NXSGeometrySurface *surface, struct wl_surface 
 void nxs_wayland_geometry_unobserve(NXSGeometrySurface *surface)
 {
   if (!surface) return;
+  activation_cancel(surface, 1);
   NXSGeometrySurface **link = &surface->display->surfaces;
   while (*link && *link != surface) link = &(*link)->next;
   if (*link) *link = surface->next;

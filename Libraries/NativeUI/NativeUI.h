@@ -36,6 +36,7 @@ typedef struct {
   const char *const *filter_titles;
   const NXSFileChoice *choices;
   const char *const *batch_names; /* SaveFiles: names within one chosen folder. */
+  const char *parent_window; /* Optional appended field: portal window identifier. */
 } NXSFilePanelConfig;
 typedef struct { uint32_t size;int32_t result;uint32_t count,selected_filter; } NXSFilePanelState;
 
@@ -357,8 +358,18 @@ typedef struct {
   size_t (*file_panel_result)(NXSFilePanel *,uint32_t,char *,size_t);
   int (*file_panel_choice)(NXSFilePanel *,uint32_t);
   int (*file_panel_destroy)(NXSFilePanel *);
+  unsigned (*control_auxiliary_capabilities)(void);
+  int (*control_auxiliary_activate)(NXSControl *,const char *);
+  unsigned (*file_panel_parent_capabilities)(void);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
+
+/* Optional standard activation-token handoff for a visible native auxiliary
+ * window owned by this control. Bit 1 reports backend support. This does not
+ * grant focus by itself; the native backend/compositor validates the token.
+ * No window is created, shown or selected by this call. */
+unsigned nxs_control_auxiliary_capabilities(void);
+int nxs_control_auxiliary_activate(NXSControl *,const char *token);
 
 /* Loader API. The GNUstep provider is the default. An alternate provider may
  * implement nxs_native_ui_provider(version) and be selected by
@@ -377,6 +388,7 @@ int nxs_control_color_open(NXSControl *,int open);
  * callbacks. The caller retains callback/context ownership until destroy.
  * Results are file URIs; result() returns required bytes including the NUL and
  * copies only if capacity is sufficient. state.result is -1 while running. */
+/* Bit 0: native file panels. Bit 1: optional appended portal parent_window. */
 unsigned nxs_file_panel_capabilities(void);
 /* Read the descriptor in this UI-thread callback. It is also serviced during
  * native modal/tracking loops; descriptor and callback remain caller-owned. */

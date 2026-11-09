@@ -159,6 +159,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
 static int text_notification(int fd,unsigned condition,void *unused) {
   if(condition&~1u){text_watch=0;color_native_work(1);return 0;}
   drain_widget_notifier();
+  progress_retire_unstyled();
   color_native_work(0);
   number_native_work();
   date_native_work();
@@ -169,7 +170,7 @@ static int text_notification(int fd,unsigned condition,void *unused) {
     if(widget_focused(active_widget))echo_native_selection(active_widget);
     ((unsigned (*)(void *))(base+0x47ba6b8))(node);
   }
-  for(struct Widget *w=widgets;w;w=w->next)if((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL||w->kind==NXS_DATEPICKER)invalidate_widget(w);
+  for(struct Widget *w=widgets;w;w=w->next)if((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL||w->kind==NXS_DATEPICKER||w->kind==NXS_PROGRESS)invalidate_widget(w);
   return 1;
 }
 static void *text_pointer_frame(void *frame) {
@@ -369,8 +370,15 @@ static int prepare_text_image(void *frame) {
   struct Widget *w=bind_widget(frame);if(!w)goto release;
   int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
   double width=rect[2]/60.,height=rect[3]/60.;
-  if(width<1||height<1||width>8192||height>8192||
-     (!frontend_text_frame(frame)&&(width!=floor(width)||height!=floor(height))))goto release;
+  if(width<1||height<1||width>8192||height>8192)goto release;
+  if(number_node(w->node)) {
+    /* Snap edges in the original frame's coordinate system. Rounding only
+     * width loses a pixel when default font metrics place the frame between
+     * device pixels. Gecko still owns the CSS box and paint rectangle. */
+    struct NXSRectD box={0,0,width,height};
+    if(!gecko_frame_pixel_rect(frame,&box))goto release;
+    width=box.width;height=box.height;
+  } else if(!frontend_text_frame(frame)&&(width!=floor(width)||height!=floor(height)))goto release;
   w->width=width;w->height=height;
   if(w->number_stepper.control&&!number_node(w->node))number_forget(w);
   if(number_node(w->node)&&!number_prepare(w,width,height))goto release;

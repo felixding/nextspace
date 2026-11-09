@@ -330,9 +330,8 @@ static int popup_event_name(const struct GeckoString *name,const char *text) {
   for(unsigned i=0;i<size;i++)if(name->data[i]!=(unsigned char)text[i])return 0;return 1;
 }
 static int popup_origin(struct GeckoPopup *p) {
-  struct PopupRectI rect=((struct PopupRectI (*)(const void *))(base+NXS_GECKO_POPUP_SCREEN_RECT))(p->frame);
-  struct NXSControlRequest origin={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=13,.process=identity(),.kind=NXS_POPUP,.control=p->id,.x=rect.x,.y=rect.y};
-  struct NXSResponse *r=exchange_bytes(&origin,sizeof(origin));return r&&r->parts[3].x==1;
+  double x,y;
+  return gecko_frame_screen_origin(p->frame,&x,&y)&&native_popup_binding_origin(NXS_POPUP,p->id,x,y);
 }
 static struct NXSResponse *popup_pointer_request(struct GeckoPopup *p,unsigned operation,const void *event) {
   struct PointI point=((struct PointI (*)(const void *,struct RelativeTo))(base+0x6da35a8))(event,(struct RelativeTo){p->frame,0});

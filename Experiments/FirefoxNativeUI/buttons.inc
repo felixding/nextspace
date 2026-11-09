@@ -34,6 +34,14 @@ static char *button_title(const struct Widget *w) {
   static const uint16_t empty;
   struct GeckoString label={.data=&empty,.flags=1};
   if(html_button_node(w->node)) {
+    void *parent=*(void **)((char *)w->node+48);
+    if(parent&&*(uintptr_t *)parent==base+0xa00fc30+16&&*((const unsigned char *)parent+144)==134) {
+      /* The engine-owned ::file-selector-button is a native-anonymous root.
+       * Rendered innerText omits that subtree; original textContent retains
+       * Gecko's localized caption. Ordinary authored buttons keep innerText. */
+      if(memcmp((void *)(base+0x466f9d4),gecko_file_button_text_bytes,20))return NULL;
+      ((void (*)(const void *,int,void *))(base+0x466f9d4))(w->node,0,&label);
+    } else {
     /* Reuse Gecko's rendered-text accessor: whitespace, hidden descendants,
      * Unicode and line boundaries stay with the engine. Never flush layout
      * recursively from a native measurement or display-list transaction. */
@@ -41,6 +49,7 @@ static char *button_title(const struct Widget *w) {
     ((void (*)(void *,void *,void *))(base+NXS_GECKO_HTML_BUTTON_INNER_TEXT_OFFSET))(&label,&error,w->node);
     int failed=!!(error.result&0x80000000u);clear_text_error(&error);
     if(failed){((void (*)(void *))(base+0x3826f2c))(&label);return NULL;}
+    }
   } else ((void (*)(void *,void *))(base+0x6eedb5c))(w->frame,&label);
   char *result=utf8_text(label.data,label.length);
   ((void (*)(void *))(base+0x3826f2c))(&label);

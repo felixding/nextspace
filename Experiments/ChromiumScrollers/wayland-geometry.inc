@@ -8,6 +8,9 @@ static NXSGeometrySurface *(*wayland_observe)(NXSGeometryDisplay *,struct wl_sur
 static void (*wayland_rebind)(NXSGeometrySurface *,struct wl_surface *);
 static void (*wayland_unobserve)(NXSGeometrySurface *);
 static int (*wayland_read)(NXSGeometrySurface *,NXSWaylandSurfaceGeometry *);
+static int (*wayland_request_activation)(NXSGeometrySurface *,struct wl_seat *,uint32_t,NXSWaylandActivationToken,void *);
+static unsigned wayland_auxiliary_capabilities;
+struct OzoneActivationToken;
 static void (*original_wayland_show)(void *,int);
 static void (*original_wayland_destroy)(void *);
 static void (*original_wayland_connection_destroy)(void *);
@@ -23,10 +26,12 @@ struct OzoneGeometryWindow {
   NXSGeometrySurface *observation;
   unsigned depth;
   int retired;
+  struct OzoneActivationToken *tokens;
 };
 static struct OzoneGeometryDisplay *ozone_geometry_displays;
 static struct OzoneGeometryWindow *ozone_geometry_windows;
 static void *ozone_field(void *object,size_t offset) {return *(void **)((char *)object+offset);}
+#include "wayland-activation.inc"
 static void ozone_geometry_changed(void *context)
 {
   struct OzoneGeometryWindow *entry=context;
@@ -49,6 +54,7 @@ static void ozone_geometry_retire(struct OzoneGeometryWindow *entry)
   while(*link&&*link!=entry)link=&(*link)->next;
   if(*link)*link=entry->next;
   if(entry->observation)wayland_unobserve(entry->observation);
+  ozone_activation_retire(entry);
   entry->observation=NULL;entry->retired=1;
   if(!entry->depth)free(entry);
 }
@@ -154,5 +160,7 @@ static int prepare_wayland_geometry(void)
      !prepare_detours(wayland_geometry_detours,sizeof(wayland_geometry_detours)/sizeof(*wayland_geometry_detours))) {
     note("Wayland geometry lifetime guard failed; ordinary origin retained");return 0;
   }
+  wayland_request_activation=dlsym(library,"nxs_wayland_activation_request");
+  prepare_wayland_activation();
   return 1;
 }

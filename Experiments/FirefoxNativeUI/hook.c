@@ -22,7 +22,9 @@ static uintptr_t base;
 static int log_fd=-1,installed;
 static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),message);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
+#include "../../Libraries/NativeUI/Bridge/AuxiliaryActivation.inc"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
+#include "../../Libraries/NativeUI/Bridge/PopupBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/Radios.inc"
 #include "../../Libraries/NativeUI/Bridge/Lists.inc"
 #include "../../Libraries/NativeUI/Bridge/ListBinding.inc"
@@ -69,6 +71,9 @@ static int native_web_process(void) {
   return base&&(NXS_BROWSER_UI_PATCH||!((int (*)(void))(base+0x7546c5c))());
 }
 static int tabs_requested,tabs_trace_enabled;
+static int gecko_frame_screen_origin(void *,double *,double *);
+static int gecko_frame_pixel_rect(void *,struct NXSRectD *);
+static void progress_retire_unstyled(void);
 static int popups_requested,lists_requested;
 /* Engine-frame metadata shared by native text and list scroll consumers. */
 struct FrameViewport {
@@ -141,6 +146,21 @@ static double progress_position(void *frame) {
      *(uint32_t *)((char *)info+32)!=3)return -2;
   return ((double (*)(const void *))(base+0x589f280))(content);
 }
+static void progress_retire_unstyled(void)
+{
+  struct Widget **cursor=&widgets;
+  while(*cursor) {
+    struct Widget *w=*cursor;
+    if(w->kind==NXS_PROGRESS) {
+      const void *style=*(void **)((char *)w->frame+32);
+      const void *display=style?*(void **)((char *)style+80):NULL;
+      if(!display||!original_frontend_themed(w->frame,display,NULL)||fabsf(frame_scale(w->frame)-1)>.000001f) {
+        forget_widget(cursor);continue;
+      }
+    }
+    cursor=&w->next;
+  }
+}
 static int eligible(void *frame,unsigned appearance) {
   if(channel<0)return 0;
   if(native_popup_owned(frame))return 1;
@@ -148,7 +168,7 @@ static int eligible(void *frame,unsigned appearance) {
   if(widgets_enabled&&(appearance==4||appearance==5||(buttons_enabled&&appearance==10)||(sliders_enabled&&appearance==19))&&frame_kind(frame))return 1;
   if(appearance!=9)return 0;
   double position=progress_position(frame);
-  return isfinite(position)&&position>=0&&position<=1;
+  return isfinite(position)&&position>=-1&&position<=1;
 }
 static int webrender(void *self,void *builder,void *resources,void *stacking,
     void *manager,void *frame,unsigned appearance,const void *rect) {
@@ -163,12 +183,22 @@ static void progress(void *self,void *frame,void *target,const struct RectF *rec
   /* The current bitmap transport draws generic controls at scale 1. Preserve
    * Gecko's path until that transport can request the provider's scaled draw. */
   float scale=dpi?*(const float *)dpi:0;
-  if(!isfinite(scale)||fabsf(scale-1)>0.000001f||!isfinite(value)||value<0||value>1||!rect||
+  if(!isfinite(scale)||fabsf(scale-1)>0.000001f||!isfinite(value)||value<-1||value>1||!rect||
      !isfinite(rect->x)||!isfinite(rect->y)||!isfinite(rect->width)||!isfinite(rect->height)||
      rect->width<1||rect->height<1||rect->width>8192||rect->height>8192)goto fallback;
+  struct Widget *w=widgets_enabled?widget_for_frame(frame):NULL;
+  if(value<0&&!widgets_enabled)goto fallback;
+  if(widgets_enabled&&!w) {
+    if(!ensure_widget_lifetime()||!ensure_text_watch())goto fallback;
+    w=calloc(1,sizeof(*w));if(!w)goto fallback;
+    w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=NXS_PROGRESS;
+    w->next=widgets;widgets=w;
+  }
+  if(w&&w->kind!=NXS_PROGRESS)goto fallback;
+  if(w){w->width=rect->width;w->height=rect->height;}
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=1,
-    .process=identity(),.kind=5,.control=(uintptr_t)frame,
-    .width=rect->width,.height=rect->height,.maximum=1,.value=value,.enabled=1};
+    .process=identity(),.kind=NXS_PROGRESS,.control=w?w->id:(uintptr_t)frame,
+    .width=rect->width,.height=rect->height,.maximum=1,.value=value<0?0:value,.enabled=1,.indeterminate=value<0};
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   uint32_t *pixels=NULL;int width=0,height=0;
   if(response&&response->width>0&&response->height>0&&response->width<=8192&&response->height<=8192&&
@@ -178,9 +208,10 @@ static void progress(void *self,void *frame,void *target,const struct RectF *rec
     pixels=malloc((size_t)response->stride*height);
     if(pixels)memcpy(pixels,response+1,(size_t)response->stride*height);
   }
-  /* Determinate indicators are read-only. Release this actual native object
-   * after each snapshot; no frame-pointer cache can outlive a Gecko frame. */
-  request.operation=6;exchange_bytes(&request,sizeof(request));
+  /* The existing frame/shell lifetime owns this object. Its original native
+   * timer emits invalidations through the shared notifier; Gecko only repaints.
+   * No animation phase, duration or interval is implemented in the adapter. */
+  if(!widgets_enabled){request.operation=6;exchange_bytes(&request,sizeof(request));}
   if(!pixels)goto fallback;
   draw_bitmap(target,rect,pixels,width,height);free(pixels);
   if(log_fd>=0)dprintf(log_fd,"%d native-progress frame=%p value=%.17g rect=%.0f,%.0f %dx%d\n",getpid(),frame,value,rect->x,rect->y,width,height);

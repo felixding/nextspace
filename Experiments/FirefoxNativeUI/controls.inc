@@ -688,7 +688,7 @@ static void prepare_widget_metrics(void) {
   }
   widgets_enabled=1;
   const char *colors=getenv("NEXTSPACE_FIREFOX_COLORS");
-  colors_enabled=colors&&!strcmp(colors,"1")&&((unsigned)response->parts[1].x&NXS_SPECIAL_COLOR)&&response->parts[1].y==1&&response->parts[0].y==1;
+  colors_enabled=colors&&!strcmp(colors,"1")&&((unsigned)response->parts[1].x&NXS_SPECIAL_COLOR)&&((unsigned)response->parts[1].y&1)&&response->parts[0].y==1;
   const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
   radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);

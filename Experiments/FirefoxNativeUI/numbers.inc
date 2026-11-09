@@ -34,6 +34,7 @@ static int number_prepare(struct Widget *w,double width,double height)
   int bounds[4]={0};engine_frame_rect((void *)(base+0x6daae5c),button,bounds);
   struct PointI offset=((struct PointI (*)(const void *,const void *))(base+NXS_GECKO_NUMBER_OFFSET))(button,w->frame);
   struct NXSRectD rect={offset.x/60.,offset.y/60.,bounds[2]/60.,bounds[3]/60.};
+  if(!gecko_frame_pixel_rect(w->frame,&rect))return 0;
   if(rect.x<1||rect.y<0||rect.width<1||rect.height<1||rect.x+rect.width>width||rect.y+rect.height>height)return 0;
   w->number_rect=rect;w->number_width=width;w->number_height=height;w->width=rect.x;
   if(!w->number_stepper.control)w->number_stepper.control=++next_widget;

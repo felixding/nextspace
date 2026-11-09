@@ -325,6 +325,9 @@ static int control_ready(int fd, uint32_t mask, void *data)
       fprintf(f, "%s{\"id\":%u,\"title\":", first ? "" : ",", t->id); first = false;
       json_string(f, view_title(t));
       fputs(",\"app_id\":", f); json_string(f, view_app_id(t));
+      struct nextspace_toplevel *parent = t->xdg_toplevel && t->xdg_toplevel->parent ?
+        view_for_surface(server, t->xdg_toplevel->parent->base->surface) : NULL;
+      fprintf(f, ",\"parent_id\":%u", parent ? parent->id : 0);
       fprintf(f, ",\"pid\":%d", view_pid(t));
       fprintf(f, ",\"legacy\":false,\"level\":%d", t->level);
       fprintf(f, ",\"minimized\":%s", t->minimized ? "true" : "false");

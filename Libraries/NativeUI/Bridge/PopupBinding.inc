@@ -2,6 +2,13 @@
  * controls stay in the UI provider. No application model is implemented here.
  * Include after Protocol.h/Transport.inc. GPL-2.0-or-later. */
 struct NXSPopupBinding {uint64_t control;uint32_t epoch,kind;int open;};
+static int native_popup_binding_origin(uint32_t kind,uint64_t control,double x,double y)
+{
+  struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=13,
+    .process=identity(),.kind=kind,.control=control,.x=x,.y=y};
+  struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+  return response&&response->parts[3].x==1;
+}
 static struct NXSResponse *native_popup_visibility(uint32_t kind,uint64_t control,int open)
 {
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=14,

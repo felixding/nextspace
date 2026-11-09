@@ -591,6 +591,10 @@ int nxs_gnustep_control_set_screen_origin(NXSControl *control,double x,double y)
   if(result&&control->kind==NXS_DATEPICKER)date_panel_position(control);
   [pool drain];return result;
 }
+unsigned nxs_gnustep_control_auxiliary_capabilities(void)
+{return nxs_host_auxiliary_capabilities();}
+int nxs_gnustep_control_auxiliary_activate(NXSControl *control,const char *token)
+{return control&&!control->destroying?nxs_host_auxiliary_activate(control->host,token):0;}
 int nxs_gnustep_control_popup_open(NXSControl *control,int open)
 {
   if(control&&control->kind==NXS_DATEPICKER)return date_panel_open(control,open);

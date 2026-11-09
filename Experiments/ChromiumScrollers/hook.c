@@ -44,6 +44,7 @@ static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
 #include "../../Libraries/NativeUI/Bridge/PopupBinding.inc"
+#include "../../Libraries/NativeUI/Bridge/AuxiliaryActivation.inc"
 #include "../../Libraries/NativeUI/Bridge/Radios.inc"
 #include "../../Libraries/NativeUI/Bridge/Lists.inc"
 #include "../../Libraries/NativeUI/Bridge/ListBinding.inc"
@@ -270,6 +271,7 @@ __attribute__((constructor)) static void initialize(void) {
   forms_months_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_MONTH_START);
   forms_weeks_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_WEEK_START);
   forms_date_panel_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_DATE_PANEL);
+  wayland_auxiliary_capabilities=((unsigned)metrics->parts[1].y>>1)&1;
   forms_proleptic_enabled=forms_dates_enabled&&((unsigned)metrics->parts[1].x&NXS_SPECIAL_DATE_PROLEPTIC);
   forms_placeholder_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_PLACEHOLDER);
   forms_search_enabled=forms_text_enabled&&((unsigned)metrics->parts[6].y&NXS_TEXT_SEARCH);
@@ -313,7 +315,7 @@ __attribute__((constructor)) static void initialize(void) {
   const uint32_t patch[]={0xd503245f,0x52800020,0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
-  if(wayland_geometry_enabled){activate_detours(wayland_geometry_detours,sizeof(wayland_geometry_detours)/sizeof(*wayland_geometry_detours));note("shared native Wayland geometry enabled");}
+  if(wayland_geometry_enabled){activate_detours(wayland_geometry_detours,sizeof(wayland_geometry_detours)/sizeof(*wayland_geometry_detours));note("shared native Wayland geometry enabled");activate_wayland_activation();}
   if(forms_available){activate_forms();note("experimental native forms enabled");}
   if(forms_input_enabled)note("experimental native form focus/keyboard enabled");
   if(forms_progress_enabled)note("experimental native determinate progress enabled");

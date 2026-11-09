@@ -206,6 +206,15 @@ static void policy_set_client_presented(struct nextspace_toplevel *view, bool pr
   if (view->client_hidden == !presented) return;
   view->client_hidden = !presented;
   policy_apply_visibility(view);
+  /* A modal transient explicitly attached to the focused parent may regain
+     focus when shown again. xdg-foreign authenticates cross-client parenting;
+     unrelated/background windows retain the ordinary activation-token path. */
+  if (presented && policy_visible(view) && view->application_window &&
+      view->application_window->accepts_focus && view->level == 100 &&
+      view->xdg_toplevel && view->xdg_toplevel->parent &&
+      view->server->seat->keyboard_state.focused_surface ==
+        view->xdg_toplevel->parent->base->surface)
+    focus_toplevel(view, view_surface(view));
   shell_window_changed(view);
 }
 

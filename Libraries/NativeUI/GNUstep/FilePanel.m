@@ -6,6 +6,13 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
+#include <GNUstepGUI/GSDisplayServer.h>
+@interface NSObject (NXSForeignParent)
+- (BOOL)setforeignparent:(NSString *)handle forwindow:(int)window;
+@end
+@interface NSWindow (NXSDeferredNativeWindow)
+- (void)_initBackendWindow;
+@end
 @class NXSFileDelegate;
 struct NXSFilePanel {
   NSSavePanel *panel;
@@ -78,6 +85,8 @@ static NSTextField *label(NSString *title)
   [view setBordered:NO];[view setDrawsBackground:NO];[view sizeToFit];return view;
 }
 int nxs_gnustep_file_panel_active(void){return running_panel!=NULL;}
+unsigned nxs_gnustep_file_panel_parent_capabilities(void)
+{return [GSCurrentServer() respondsToSelector:@selector(setforeignparent:forwindow:)]?1:0;}
 NXSFilePanel *nxs_gnustep_file_panel_create(int mode,NXSFileAllows allows,void *context)
 {
   if(current_panel||(mode!=NXS_FILE_OPEN&&mode!=NXS_FILE_SAVE))return NULL;
@@ -94,12 +103,16 @@ NXSFilePanel *nxs_gnustep_file_panel_create(int mode,NXSFileAllows allows,void *
 }
 int nxs_gnustep_file_panel_configure(NXSFilePanel *p,const NXSFilePanelConfig *c)
 {
-  if(!owned(p)||p->running||p->depth||!c||c->size<sizeof(*c)||c->flags&~7u||
+  if(!owned(p)||p->running||p->depth||!c||c->size<offsetof(NXSFilePanelConfig,parent_window)||c->flags&~7u||
      c->filter_count>64||c->choice_count>64||(c->filter_count&&(!c->filter_titles||c->selected_filter>=c->filter_count))||
      (c->choice_count&&!c->choices)||c->batch_count>4096||(c->batch_count&&(!c->batch_names||p->mode!=NXS_FILE_OPEN||(c->flags&3)!=NXS_FILE_DIRECTORY))||(p->mode==NXS_FILE_SAVE&&(c->flags&3)))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   NSString *title=c->title?text(c->title):@"",*directory=c->directory?text(c->directory):nil;
   NSString *name=c->name?text(c->name):@"",*accept=c->accept_label?text(c->accept_label):nil;
+  const char *identifier=c->size>=sizeof(*c)?c->parent_window:NULL;
+  NSString *parent=identifier?text(identifier):nil;
+  if(identifier&&!parent){[pool drain];return 0;}
+  if([parent length]&&![parent hasPrefix:@"wayland:"]){[pool drain];return 0;}
   if(!title||!name||(c->directory&&!directory)||(c->accept_label&&!accept)){[pool drain];return 0;}
   NSMutableArray *filterTitles=[NSMutableArray array];
   for(unsigned i=0;i<c->filter_count;i++){NSString *value=text(c->filter_titles[i]);if(!value){[pool drain];return 0;}[filterTitles addObject:value];}
@@ -124,6 +137,19 @@ int nxs_gnustep_file_panel_configure(NXSFilePanel *p,const NXSFilePanelConfig *c
     if(![value length]||[value isAbsolutePath]||![value isEqual:[value lastPathComponent]]||[value isEqual:@"."]||[value isEqual:@".."]) {[pool drain];return 0;}
     [batch addObject:value];
   }
+  id server=GSCurrentServer();
+  if([server respondsToSelector:@selector(setforeignparent:forwindow:)]) {
+    /* The original file-panel factory defers its native window. Initialize
+     * that original window without presenting it, so the imported parent is
+     * installed before its first show. No window or panel is recreated. */
+    if(![p->panel windowNumber]) {
+      if(![p->panel respondsToSelector:@selector(_initBackendWindow)]){[pool drain];return 0;}
+      [p->panel _initBackendWindow];
+    }
+    if(![server setforeignparent:[parent length]?[parent substringFromIndex:8]:nil forwindow:(int)[p->panel windowNumber]]) {
+      [pool drain];return 0;
+    }
+  } else if([parent length]){[pool drain];return 0;}
   p->depth++;
   @try {
     [p->batch release];p->batch=[batch copy];
@@ -189,7 +215,9 @@ int nxs_gnustep_file_panel_run(NXSFilePanel *p)
   } @catch(NSException *exception){p->result=2;}
   @finally {
     [NSObject cancelPreviousPerformRequestsWithTarget:p->delegate selector:@selector(continueCancellation) object:nil];
-    running_panel=NULL;p->running=0;[p->panel orderOut:nil];
+    running_panel=NULL;p->running=0;
+    if([p->panel isKeyWindow])[p->panel resignKeyWindow];
+    [p->panel orderOut:nil];
   }
   int result=p->result;[pool drain];return result;
 }

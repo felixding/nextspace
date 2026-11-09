@@ -2,8 +2,13 @@
 #import "ViewHost.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 #include <limits.h>
 #include <objc/runtime.h>
+#include <GNUstepGUI/GSDisplayServer.h>
+@interface NSObject (NXSWindowActivation)
+- (BOOL)activatewindow:(int)number withToken:(NSString *)token;
+@end
 @interface NSGraphicsContext (NXSBackingReadback)
 - (NSDictionary *)GSReadRectAtBackingScale:(NSRect)rect;
 @end
@@ -91,6 +96,22 @@ struct NXSInputWindow {
   struct NXSInputWindow *next;
 };
 static struct NXSInputWindow *input_windows;
+unsigned nxs_host_auxiliary_capabilities(void)
+{return [GSCurrentServer() respondsToSelector:@selector(activatewindow:withToken:)]?1:0;}
+int nxs_host_auxiliary_activate(NXSViewHost *host,const char *token)
+{
+  if(!host||!token||!*token||strlen(token)>4096||!nxs_host_auxiliary_capabilities())return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];int accepted=0;
+  NSWindow *window=nil;
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if(entry->host==host&&[entry->window isVisible]) {
+      if(window){[pool drain];return 0;}
+      window=entry->window;
+    }
+  if(window)accepted=[(id)GSCurrentServer() activatewindow:(int)[window windowNumber]
+      withToken:[NSString stringWithUTF8String:token]];
+  [pool drain];return accepted;
+}
 /* The native menu still resolves targets and validates its own items. This
  * proxy lets the embedding application's existing controller own selected
  * semantic actions, while all unclaimed native methods remain untouched. */
@@ -149,7 +170,7 @@ void nxs_host_bind_input_window(NXSViewHost *host,NSWindow *window)
 {
   if(!host||!window)return;
   for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
-    if(entry->window==window)return;
+    if(entry->window==window){entry->host=host;return;}
   Class original=object_getClass(window);
   NSString *name=[@"NXSInputWindow_" stringByAppendingString:NSStringFromClass(original)];
   Class adapted=objc_getClass([name UTF8String]);

@@ -39,6 +39,8 @@ NXSRect nxs_host_rect_from_view(NXSViewHost *,NSView *,NSRect);
 NSView *nxs_host_hit_view(NXSViewHost *,double,double);
 NSPoint nxs_host_point_to_view(NXSViewHost *,NSView *,double,double);
 void nxs_host_bind_input_window(NXSViewHost *,NSWindow *);
+unsigned nxs_host_auxiliary_capabilities(void);
+int nxs_host_auxiliary_activate(NXSViewHost *,const char *);
 void nxs_host_unbind_input_windows(NXSViewHost *);
 
 int nxs_gnustep_file_panel_active(void);

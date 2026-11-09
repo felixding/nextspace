@@ -370,6 +370,18 @@ class NativeControlServer:
             spec=importlib.util.spec_from_file_location('nextspace_color_owners',Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge/color_owners.py')
             module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);ColorOwners=module.ColorOwners
         self.color_owners=ColorOwners(self)
+        self.auxiliary_capabilities=0
+        if hasattr(native,'nxs_control_auxiliary_capabilities'):
+            native.nxs_control_auxiliary_capabilities.restype=C.c_uint
+            self.auxiliary_capabilities=native.nxs_control_auxiliary_capabilities() if self.notification_capabilities else 0
+            native.nxs_control_auxiliary_activate.argtypes=[C.c_void_p,C.c_char_p]
+            native.nxs_control_auxiliary_activate.restype=C.c_int
+        try:from auxiliary_activation import AuxiliaryActivation
+        except ModuleNotFoundError as error:
+            if error.name!='auxiliary_activation':raise
+            spec=importlib.util.spec_from_file_location('nextspace_auxiliary_activation',Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge/auxiliary_activation.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);AuxiliaryActivation=module.AuxiliaryActivation
+        self.auxiliary_activation=AuxiliaryActivation(self,ColorOwners.ancestor)
 
     def send(self,client,response,data=b''):
         barrier=self.reply_barriers.get((client,int(response.reserved)&0xffffffff))
@@ -672,6 +684,11 @@ class NativeControlServer:
         for kind,flag in [(15,1),(16,2),(17,4)]:
             if self.specialized_capabilities&flag:kinds.append(kind)
         for kind in kinds:self.preferred(kind)
+        # Backend-specific support is known after the first native host draw
+        # has initialized AppKit and loaded the selected display backend.
+        if hasattr(self.native,'nxs_control_auxiliary_capabilities'):
+            self.auxiliary_capabilities=self.native.nxs_control_auxiliary_capabilities() if self.notification_capabilities else 0
+        self.log('native-auxiliary-capabilities',capabilities=self.auxiliary_capabilities)
 
     def preferred(self, kind):
         if kind not in self.metric_cache:
@@ -855,12 +872,19 @@ class NativeControlServer:
         if not all(math.isfinite(x) for x in (req.x, req.y)):
             self._respond(client, req)
             return
+        if req.operation==64:
+            if not descriptors:self.auxiliary_activation.publish(client,req,sender_pid,data[C.sizeof(req):])
+            return
         if req.operation in (60,61,62):
             self.color_owners.message(client,req,sender_pid);return
         if req.operation in (5,59) and req.kind==16:
             source=self.color_owners.resolve(client,req,sender_pid)
             if source:
                 accepted=req.operation==5 or req.state in (0,1) and bool(self.native.nxs_control_color_open(source['native'],req.state))
+                if accepted and req.operation==59:
+                    owner=self.notifiers.get(source['key'][0])
+                    if req.state and owner:self.auxiliary_activation.open(source,owner['pid'])
+                    else:self.auxiliary_activation.retire(source)
                 self._respond(client,req,source,input_result=int(accepted),pixels=bool(accepted));return
         if req.operation in (15,16):
             self.notification_message(client,req,descriptors,sender_pid)
@@ -992,6 +1016,9 @@ class NativeControlServer:
                 return
             if req.operation==59:
                 accepted=bool(req.kind==16 and not req.text_size and req.state in (0,1) and self.color_panel_capabilities and state['client'] is client and self.native.nxs_control_color_open(state['native'],req.state))
+                if accepted:
+                    if req.state:self.auxiliary_activation.open(state,sender_pid)
+                    else:self.auxiliary_activation.retire(state)
                 self._respond(client,req,state,input_result=int(accepted),pixels=accepted)
                 return
             if req.operation==54:
@@ -1045,6 +1072,9 @@ class NativeControlServer:
             if req.operation==14 and req.kind in (6,17) and self.popup_open_capabilities:
                 accepted=int(bool(state['client'] is client and not req.text_size and req.state in (0,1) and
                     (req.kind==6 or self.specialized_capabilities&256) and self.native.nxs_control_popup_open(state['native'],req.state)))
+                if accepted:
+                    if req.state:self.auxiliary_activation.open(state,sender_pid)
+                    else:self.auxiliary_activation.retire(state)
                 self._respond(client,req,state,input_result=accepted)
                 return
             if req.operation==12 and req.kind==6 and self.popup_capabilities:
@@ -1345,6 +1375,7 @@ class NativeControlServer:
             self.log('native-form-release',process=state['key'][0],control=state['key'][1],kind=state['key'][2],actions=state['actions'])
 
     def disconnect(self, client):
+        self.auxiliary_activation.disconnect(client)
         self.color_owners.disconnect(client)
         self.drop_menu_replies(client=client)
         for process,entry in list(self.notifiers.items()):
@@ -1356,6 +1387,7 @@ class NativeControlServer:
                 self.destroy_later(state)
 
     def destroy_later(self,state):
+        self.auxiliary_activation.retire(state)
         self.color_owners.retire(state)
         state['destroy']=True
         if self.active is state:
@@ -1364,6 +1396,7 @@ class NativeControlServer:
             self.finish_tracking(state)
 
     def cleanup(self):
+        self.auxiliary_activation.prune()
         self.menus.cleanup()
         for process in {state['key'][0] for state in self.controls.values() if state.get('text_filter')}:
             self.update_text_filters(process)
@@ -1379,6 +1412,7 @@ class NativeControlServer:
                 del self.contexts[state['context']]
 
     def close(self):
+        self.auxiliary_activation.close()
         for process in list(self.notifiers):self.remove_notifier(process)
         self.menus.close()
         for state in self.controls.values():

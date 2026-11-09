@@ -45,6 +45,7 @@
 #include "wayland/generated/nextspace-application-v1-client-protocol.h"
 #include "wayland/generated/xdg-output-unstable-v1-client-protocol.h"
 #include "wayland/generated/xdg-activation-v1-client-protocol.h"
+#include "wayland/generated/xdg-foreign-unstable-v2-client-protocol.h"
 #include "wayland/generated/primary-selection-unstable-v1-client-protocol.h"
 #include "wayland/generated/text-input-unstable-v3-client-protocol.h"
 
@@ -129,6 +130,7 @@ typedef struct _WaylandConfig
   NSMutableDictionary *pending_work_areas;
   struct zxdg_output_manager_v1 *output_manager;
   struct xdg_activation_v1 *activation;
+  struct zxdg_importer_v2 *foreign_importer;
   struct wl_list output_list;
   int		 output_count;
   struct wl_list window_list;
@@ -259,6 +261,8 @@ struct window
   struct wp_viewport *viewport;
   struct nextspace_window_v1 *application_window;
   struct xdg_activation_token_v1 *activation_token;
+  struct zxdg_imported_v2 *foreign_parent;
+  char *foreign_parent_name;
   char *preferred_output_name;
   struct wl_callback *frame_callback;
 };

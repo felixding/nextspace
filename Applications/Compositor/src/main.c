@@ -13,6 +13,9 @@
 #include <wlr/types/wlr_viewporter.h>
 #include <wlr/types/wlr_xdg_output_v1.h>
 #include <wlr/types/wlr_xdg_activation_v1.h>
+#include <wlr/types/wlr_xdg_foreign_registry.h>
+#include <wlr/types/wlr_xdg_foreign_v1.h>
+#include <wlr/types/wlr_xdg_foreign_v2.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
 #include <wlr/types/wlr_session_lock_v1.h>
@@ -1836,6 +1839,10 @@ int main(int argc, char *argv[]) {
   server.layout_change.notify = application_layout_changed;
   wl_signal_add(&server.output_layout->events.change, &server.layout_change);
 	server.xdg_shell = wlr_xdg_shell_create(server.wl_display, 3);
+  struct wlr_xdg_foreign_registry *foreign_registry = wlr_xdg_foreign_registry_create(server.wl_display);
+  if (!foreign_registry || !wlr_xdg_foreign_v1_create(server.wl_display, foreign_registry) ||
+      !wlr_xdg_foreign_v2_create(server.wl_display, foreign_registry))
+    return EXIT_FAILURE;
   struct wlr_xdg_activation_v1 *activation = wlr_xdg_activation_v1_create(server.wl_display);
   activation->token_timeout_msec = 5000;
   server.request_activate.notify = request_activate;

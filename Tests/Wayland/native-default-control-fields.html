@@ -1,0 +1,17 @@
+<!doctype html><meta charset="utf-8"><title>Native default controls</title>
+<style>body{margin:28px;background:white;font:16px sans-serif}label{display:block;margin:16px 0}</style>
+<label>Date <input id="normal" type="date" value="2026-11-10"></label>
+<label>Empty <input id="empty" type="date"></label>
+<label>Read only <input id="readonly" type="date" value="2026-11-10" readonly></label>
+<label>Disabled <input id="disabled" type="date" value="2026-11-10" disabled></label>
+<label>Time <input id="clock" type="time" value="12:30"></label>
+<label>Timestamp <input id="stamp" type="datetime-local" value="2026-11-10T12:30"></label>
+<label>Minimum <input id="minimum" type="date" value="2026-11-10" style="min-height:48px"></label>
+<label>Maximum <input id="maximum" type="date" value="2026-11-10" style="max-height:10px"></label>
+<label>Explicit <input id="explicit" type="date" value="2026-11-10" style="width:260px;height:30px"></label>
+<label>Number <input id="number" type="number" value="12" min="0" max="100"></label>
+<script>
+window.events=[];
+for(const e of document.querySelectorAll('input'))
+ for(const type of ['input','change'])e.addEventListener(type,event=>events.push({id:e.id,type,trusted:event.isTrusted}));
+</script>

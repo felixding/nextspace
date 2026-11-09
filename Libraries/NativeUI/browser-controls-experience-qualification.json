@@ -1,0 +1,224 @@
+{
+  "date": "2026-11-10",
+  "status": "Pinned-browser controls experience checkpoint; user evaluation next",
+  "baseline": "34ee0bb8",
+  "scope": {
+    "engines": [
+      "Pinned unchanged Chromium ARM64 eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+      "Pinned unchanged Firefox ESR ARM64 libxul ace600697490ec169e3e371fb456dcb542e3abef"
+    ],
+    "scale": 1,
+    "browser_rebuilt": false,
+    "browser_toolbar_address_bar_and_tabs": "original browser components",
+    "native_ui": "original GNUstep controls through one shared provider; no copied control implementation"
+  },
+  "api": {
+    "version": 1,
+    "bytes": 744,
+    "preserved_prefix": 736,
+    "file_panel_original_config_bytes": 80,
+    "file_panel_config_bytes": 88
+  },
+  "checks": 329,
+  "cohorts": {
+    "chromium/colors": {
+      "root": "/var/tmp/nxs-chromium-controls-15",
+      "file": "color-model-checks.json",
+      "checks": 17,
+      "all_passed": true
+    },
+    "chromium/calendars": {
+      "root": "/var/tmp/nxs-chromium-controls-15",
+      "file": "calendar-browser-checks.json",
+      "checks": 32,
+      "all_passed": true
+    },
+    "chromium/files": {
+      "root": "/var/tmp/nxs-chromium-controls-15",
+      "file": "browser-file-checks.json",
+      "checks": 16,
+      "all_passed": true
+    },
+    "chromium/color-focus": {
+      "root": "/var/tmp/nxs-chromium-controls-14",
+      "file": "color-focus-checks.json",
+      "checks": 9,
+      "all_passed": true
+    },
+    "firefox/colors": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "color-model-checks.json",
+      "checks": 17,
+      "all_passed": true
+    },
+    "firefox/calendars": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "calendar-browser-checks.json",
+      "checks": 32,
+      "all_passed": true
+    },
+    "firefox/files": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "browser-file-checks.json",
+      "checks": 16,
+      "all_passed": true
+    },
+    "firefox/progress": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "progress-animation-checks.json",
+      "checks": 41,
+      "all_passed": true
+    },
+    "firefox/dates": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "date-checks.json",
+      "checks": 37,
+      "all_passed": true
+    },
+    "firefox/temporal": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "temporal-checks.json",
+      "checks": 41,
+      "all_passed": true
+    },
+    "firefox/numbers": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "number-checks.json",
+      "checks": 27,
+      "all_passed": true
+    },
+    "firefox/default-sizes": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "default-controls-checks.json",
+      "checks": 23,
+      "all_passed": true
+    },
+    "firefox/color-focus": {
+      "root": "/var/tmp/nxs-firefox-controls-17",
+      "file": "color-focus-checks.json",
+      "checks": 9,
+      "all_passed": true
+    },
+    "shared/activation": {
+      "root": "/var/tmp",
+      "file": "color-aux-broker-01.json",
+      "checks": 12,
+      "all_passed": true
+    }
+  },
+  "candidates": {
+    "provider": {
+      "path": "/var/tmp/nextspace-native-ui/color-activation-model-01/native-ui/libnextspace-native-ui-gnustep.so.0.1",
+      "bytes": 437120,
+      "sha256": "9e8c9ed907f7b0488ec02234542e9265c4bf936c15ab36cb48541d4b8995e463"
+    },
+    "loader": {
+      "path": "/var/tmp/nextspace-native-ui/color-activation-model-01/native-ui/libnextspace-native-ui.so.0.1",
+      "bytes": 75216,
+      "sha256": "2b14a2355ed86f6aa9a5da8b9e6d356ba93f2eb4f2e131a7fca645b770cb9b8d"
+    },
+    "shim": {
+      "path": "/var/tmp/nextspace-native-ui/color-activation-model-01/libnextspace-native-scroller.so.0.1",
+      "bytes": 69968,
+      "sha256": "c8ba9125288645c4f202ae64545d51507a3ff550d5329f731c5d42f4f25e954e"
+    },
+    "firefox": {
+      "path": "/var/tmp/nextspace-native-ui/firefox-default-size-02-hook.so",
+      "bytes": 235888,
+      "sha256": "8fe73cf270913cadc1cf758bdfb896804f54d5d5ec6f0db634f1f7d80c9481d6"
+    },
+    "chromium": {
+      "path": "/var/tmp/nextspace-native-ui/chromium-activation-02-hook.so",
+      "bytes": 311816,
+      "sha256": "ec6e38834ef2ffec1067bb54029a35743c5772219377d6d90ad0b4faa36cc2ee"
+    },
+    "compositor": {
+      "path": "/var/tmp/nextspace-native-ui/foreign-parent-compositor-02/nextspace-compositor",
+      "bytes": 1382392,
+      "sha256": "acae4085680c443f808a2b0cf681eb23b15bf2c8c9f065bcdcfd283999ed4fa5"
+    },
+    "backend": {
+      "path": "/var/tmp/nextspace-native-ui/foreign-parent-backend-01/stage/Library/Bundles/libgnustep-wayland-032.bundle/libgnustep-wayland-032",
+      "bytes": 1045464,
+      "sha256": "e3e1fa20f20130a289fcc4db74700e0f9a5b45e58a9a1701fbd3686513f1aa0b"
+    },
+    "gtk_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/gtk3-activation-build-01/libnextspace-gtk3-geometry.so.0.1",
+      "bytes": 90176,
+      "sha256": "764b3070413d10137313ed0fadf54d1580749ffe96eb4ec113689175c50cafb1"
+    },
+    "wayland_geometry": {
+      "path": "/var/tmp/nextspace-native-ui/wayland-activation-build-01/libnextspace-wayland-geometry.so.0.1",
+      "bytes": 73064,
+      "sha256": "2ec18a4da051da02c8fd309b6529742d413859008a8c4d85d752f9a9bc92cc94"
+    },
+    "gui": {
+      "path": "/var/tmp/nextspace-native-ui/week-gui-04/stage/Library/Libraries/libgnustep-gui.so.0.32.0",
+      "bytes": 9878280,
+      "sha256": "99c4f04362adc94d9521eeed3583d55c05d6fa326ac12ac86661b897a881df56"
+    },
+    "base": {
+      "path": "/var/tmp/nextspace-native-ui/week-base-05/stage/Library/Libraries/libgnustep-base.so.1.31.1",
+      "bytes": 8782816,
+      "sha256": "bf9daa7d9e2c6d2ca7b5247ec48892431b1bd8cd8a3826e348a3c3d3b71f66a7"
+    }
+  },
+  "production": {
+    "unchanged_files": 20,
+    "package_count": 1050
+  },
+  "implemented": [
+    "Shared authenticated, one-use standard xdg-activation handoff across original browser/renderer connections",
+    "Original Gecko showPicker permission checks and shared original NSDatePicker/NSPanel lifecycle",
+    "Shared original NSColorPanel ownership, pointer/keyboard reopen and retired-owner cleanup",
+    "Original GTK3/GTK4 exported file parents imported through native Wayland and wlroots xdg-foreign v1/v2",
+    "File accept/cancel focus restoration and original NSBrowser multi-selection returned as original browser File objects",
+    "Firefox localized native file-button caption from original anonymous node content",
+    "Firefox original native indeterminate progress timers and native frame retirement",
+    "Default Firefox date/time/datetime auto block-size uses original native preferred metrics with original Gecko line-height and computed CSS min/max",
+    "Default fractional number fields reuse original frame screen origins for device-pixel editor/stepper viewports"
+  ],
+  "excluded_attempts": [
+    "Previous calendar checkpoint failed repeated-open keyboard focus; the current two-browser real-seat cohort passes",
+    "Firefox old equality check disabled color capability after the field became a bit mask; the isolated GTK fallback then aborted on missing original GTK schemas",
+    "Concurrent reference-generation harness timeouts are not counted as passes",
+    "Immediate post-layout progress capture sampled the preceding surface; qualification waits for the first committed native frame, then strictly compares all sampled frames",
+    "Unpaced multiple-selection gestures moved the pointer before original NSBrowser tracking handled the press; current checks pace real seat gestures",
+    "Manual preview exposed a zero-height default date field; the width-only intrinsic bridge was insufficient after replacing the anonymous editor",
+    "Rounding only default number width could suppress original paint at fractional origins; the final adapter snaps original frame edges, and independent native editor/stepper pixels pass"
+  ],
+  "remaining": [
+    "Broad CSS, zoom, fractional scaling and HiDPI",
+    "IME and accessibility qualification",
+    "Chrome, Vivaldi and other derivative exact-build adapters",
+    "Additional month/week chooser variants and calendar range selection",
+    "Installed production session rollout",
+    "Detached menus and remaining application-native shortcuts",
+    "Subsequent GTK/Qt/KDE integration",
+    "Snapshot RPC backpressure under concurrent high load; the two-core desktop timed out, and four-core startup still logged one unavailable bitmap before manual interaction passed"
+  ],
+  "experience": {
+    "state": "Manual preview running; development paused for user evaluation",
+    "application": "NEXTSPACE Preview",
+    "window": "Lima: nextspace-gui",
+    "runtime": "/var/tmp/nextspace-native-ui/interactive-browser-preview-07",
+    "cpus": 4,
+    "memory_gib": 6,
+    "automation_flags": false,
+    "mouse_and_keyboard_input": "Observed original native text editing through the real macOS VM window; two browser windows remain open with original chrome and staggered titlebars",
+    "automatic_development_after_handoff": false,
+    "remaining": "Broader compatibility and high-load latency remain unqualified; this is a pinned-build experience checkpoint."
+  },
+  "evidence": {
+    "archive": ".build/evidence/components/native-browser-controls-experience-20261110-v2-evidence.tar.gz",
+    "sha256": "bb27966363076f2deee9d04f1e93b7b1f50d6b9011a3f70d59aa89513b38016f",
+    "archive_members": 302,
+    "runtime_audit": ".build/native-ui/browser-controls-milestone-runtime-final.json",
+    "desktop_screenshots": [
+      ".build/native-ui/browser-controls-experience-chromium.png",
+      ".build/native-ui/browser-controls-experience-firefox.png"
+    ],
+    "manual_launcher": ".build/native-ui/interactive-browser-preview-07.py",
+    "demo_page": ".build/native-ui/desktop-demo/native-controls.html"
+  }
+}

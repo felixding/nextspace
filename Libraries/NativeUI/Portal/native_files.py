@@ -23,7 +23,8 @@ class Config(C.Structure):
     _fields_ = [(name, C.c_uint32) for name in
                 ('size', 'flags', 'filter_count', 'selected_filter', 'choice_count', 'batch_count')]
     _fields_ += [(name, C.c_char_p) for name in ('title', 'directory', 'name', 'accept_label')]
-    _fields_ += [('filter_titles', STRINGS), ('choices', C.POINTER(Choice)), ('batch_names', STRINGS)]
+    _fields_ += [('filter_titles', STRINGS), ('choices', C.POINTER(Choice)), ('batch_names', STRINGS),
+                ('parent_window', C.c_char_p)]
 
 
 class State(C.Structure):
@@ -53,8 +54,9 @@ def mnemonic(value):
 
 
 class Model:
-    def __init__(self, method, title, options):
+    def __init__(self, method, title, options, parent=''):
         self.config = Config(size=C.sizeof(Config), title=text(title))
+        self.config.parent_window = text(parent) if parent else None
         self.mode = int(method == 'SaveFile')
         self.filters = list(options.get('filters', []))
         current = options.get('current_filter')

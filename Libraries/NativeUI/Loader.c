@@ -237,7 +237,7 @@ unsigned nxs_native_ui_callback_source_capabilities(void)
 NXSEventSource *nxs_native_ui_source_callback(int descriptor,NXSPump callback,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_callback)?p->event_source_callback(descriptor,callback,context):NULL;}
 unsigned nxs_file_panel_capabilities(void)
-{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_create)&&HAS_INPUT(p,file_panel_configure)&&HAS_INPUT(p,file_panel_run)&&HAS_INPUT(p,file_panel_cancel)&&HAS_INPUT(p,file_panel_state)&&HAS_INPUT(p,file_panel_result)&&HAS_INPUT(p,file_panel_choice)&&HAS_INPUT(p,file_panel_destroy)?1:0;}
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_create)&&HAS_INPUT(p,file_panel_configure)&&HAS_INPUT(p,file_panel_run)&&HAS_INPUT(p,file_panel_cancel)&&HAS_INPUT(p,file_panel_state)&&HAS_INPUT(p,file_panel_result)&&HAS_INPUT(p,file_panel_choice)&&HAS_INPUT(p,file_panel_destroy)?1|((HAS_INPUT(p,file_panel_parent_capabilities)&&p->file_panel_parent_capabilities())?2:0):0;}
 NXSFilePanel * nxs_file_panel_create(int mode,NXSFileAllows filter,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_create)?p->file_panel_create(mode,filter,context):NULL;}
 int nxs_file_panel_configure(NXSFilePanel *panel,const NXSFilePanelConfig *config)
@@ -254,3 +254,7 @@ int nxs_file_panel_choice(NXSFilePanel *panel,uint32_t index)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_choice)?p->file_panel_choice(panel,index):-1;}
 int nxs_file_panel_destroy(NXSFilePanel *panel)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,file_panel_destroy)?p->file_panel_destroy(panel):0;}
+unsigned nxs_control_auxiliary_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_auxiliary_capabilities)&&HAS_INPUT(p,control_auxiliary_activate)?p->control_auxiliary_capabilities():0;}
+int nxs_control_auxiliary_activate(NXSControl *control,const char *token)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_auxiliary_activate)?p->control_auxiliary_activate(control,token):0;}
