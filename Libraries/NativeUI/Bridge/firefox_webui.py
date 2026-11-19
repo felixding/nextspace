@@ -25,6 +25,8 @@ RENDERER_PATH = DEVTOOLS_ROOT + 'shared/vendor/react-dom.mjs'
 RENDERER_SHA256 = 'da5bc67e755d89230f2b52d2ae40c275f30a71b875dc813056e5a2d36a62ef45'
 TOOLTIP_PATH = DEVTOOLS_ROOT + 'shared/widgets/tooltip/HTMLTooltip.js'
 TOOLTIP_SHA256 = '755d90092e2c4fca6000309010c056f0a468bbb6275ed91f85e6b196d6b34b29'
+EDITOR_PATH = DEVTOOLS_ROOT + 'shared/sourceeditor/editor.js'
+EDITOR_SHA256 = 'cdb60a1fd55f400ec65dd58a5316eeffde48de141856dedfba2f968c1061386f'
 DEVTOOLS_ADAPTER_PATH = DEVTOOLS_ROOT + 'shared/nextspace-native-controls.js'
 
 
@@ -85,6 +87,26 @@ def patch_browser_pack(data, adapter, *, replace_controls=True):
                     assert text.count(anchor) == 1
                     text = text.replace(anchor, anchor + '\n  nxsNativeDevtoolsRoot(container);', 1)
                 value = (bootstrap + text).encode()
+            elif not replace_controls and item.filename == EDITOR_PATH:
+                if hashlib.sha256(value).hexdigest() != EDITOR_SHA256:
+                    raise ValueError('Shared Firefox editor differs from audited source')
+                text = value.decode()
+                setup = '    editors.set(this, cm);\n\n    this.reloadPreferences'
+                controller = '    insertCommandsController(this);'
+                registry = 'const editors = new WeakMap();'
+                assert text.count(setup) == text.count(controller) == text.count(registry) == 1
+                # Gecko's focused textarea dispatches to its existing command controller.
+                # Some original DevTools callers also install it explicitly.
+                text = text.replace(setup, setup.replace('\n\n', '\n    this.insertCommandsController();\n\n'), 1)
+                text = text.replace(registry, registry + '\nconst nxsCommandEditors = new WeakSet();', 1)
+                text = text.replace(controller,
+                    '    const editor = editors.get(this);\n'
+                    '    if (nxsCommandEditors.has(editor)) {\n'
+                    '      return;\n'
+                    '    }\n'
+                    '    insertCommandsController(this);\n'
+                    '    nxsCommandEditors.add(editor);', 1)
+                value = text.encode()
             elif item.filename == TOOLTIP_PATH:
                 if hashlib.sha256(value).hexdigest() != TOOLTIP_SHA256:
                     raise ValueError('Shared Firefox tooltip differs from audited source')
@@ -111,7 +133,7 @@ def prepare_native_webui(executable, profile, lifetime, environment, *, replace_
     with executable.open('rb') as source:
         if hashlib.file_digest(source, 'sha256').hexdigest() != EXECUTABLE_SHA256:
             raise ValueError('Unsupported Firefox executable for native WebUI')
-    prefix = 'nxs-webui-' + uuid.uuid4().hex + '-'
+    prefix = 'nxs-webui-' + uuid.uuid4().hex + '-' if replace_controls else ''
     here = Path(__file__).parent
     adapter = ((here / 'NativeWebControls.js').read_text() + '\n' +
                (here / 'FirefoxWebUI.js').read_text()).replace('__NXS_WEBUI_PREFIX__', prefix)
@@ -132,7 +154,7 @@ def prepare_native_webui(executable, profile, lifetime, environment, *, replace_
         original_browser_pack_sha256=BROWSER_PACK_SHA256,
         private_browser_pack_sha256=hashlib.sha256(browser_pack).hexdigest(),
         shared_base_resources=[BASE_PATH, PANEL_PATH, RENDERER_PATH, TOOLTIP_PATH] if replace_controls
-                              else [PANEL_PATH, TOOLTIP_PATH],
+                              else [PANEL_PATH, TOOLTIP_PATH, EDITOR_PATH],
         adapter_sha256=hashlib.sha256(adapter.encode()).hexdigest(),
         adapter_prefix=prefix if replace_controls else None,
         devtools_adapter_sha256=hashlib.sha256(devtools_adapter.encode()).hexdigest()), indent=2) + '\n'

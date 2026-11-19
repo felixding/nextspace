@@ -1,10 +1,44 @@
 """Verify the delivery payload against libraries mapped by the ordinary preview."""
 import argparse,hashlib,json,os,socket,struct
 from pathlib import Path
+import sys
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('root',type=Path)
 parser.add_argument('--payload',type=Path,default=Path(__file__).resolve().parents[2]/'.build/native-ui/runtime-update')
+parser.add_argument('--browser-platform',action='store_true')
 args=parser.parse_args();root=args.root;payload=args.payload
+bridge=Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge'
+sys.path.insert(0,str(bridge))
+def digest(path):
+ return hashlib.sha256(path.read_bytes()).hexdigest()
+def verify_webui(family,executable,receipt_path):
+ if args.browser_platform and family=='chromium':
+  from chromium_webui import EXECUTABLE_SHA256, PACK_SHA256
+  assert not receipt_path.exists(),'Chromium replaced its original WebUI resources'
+  assert digest(executable)==EXECUTABLE_SHA256
+  assert digest(executable.parent/'resources.pak')==PACK_SHA256
+  return dict(case='chromium-original-builtin-resources',passed=True)
+ receipt=json.loads(receipt_path.read_text())
+ private=Path(receipt['root'])
+ assert executable.parent==private,(executable,private)
+ assert digest(executable)==receipt['executable_sha256']
+ prefix=receipt['adapter_prefix']
+ common=(bridge/'NativeWebControls.js').read_text()+'\n'+(bridge/f'{family.capitalize()}WebUI.js').read_text()
+ if family=='firefox':
+  from firefox_webui import PANEL_PATH, TOOLTIP_PATH, EDITOR_PATH
+  common=common.replace('__NXS_WEBUI_PREFIX__',prefix or '')
+  if args.browser_platform:
+   assert prefix is None and receipt['shared_base_resources']==[PANEL_PATH,TOOLTIP_PATH,EDITOR_PATH]
+  else:
+   common+='\nnxsNativeFirefox(document);\n'
+  assert digest(private/'omni.ja')==receipt['private_pack_sha256']
+  assert digest(private/'browser/omni.ja')==receipt['private_browser_pack_sha256']
+  assert digest(bridge/'FirefoxDevTools.js')==receipt['devtools_adapter_sha256']
+ else:
+  common=common.replace('__NXS_RADIO_PREFIX__',prefix)
+  assert digest(private/'resources.pak')==receipt['private_pack_sha256']
+ assert hashlib.sha256(common.encode()).hexdigest()==receipt['adapter_sha256']
+ return dict(case=family+'-shared-builtin-adapter-and-private-resources-match',passed=True,root=str(private))
 def control(value):
  with socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET) as s:
   s.settimeout(20);s.connect(str(root/'control.sock'));s.send(json.dumps(dict(command=value)).encode());return json.loads(s.recv(1048576))
@@ -15,29 +49,10 @@ for app,hook in [('chromium-browser','chromium-density-06.so'),('firefox-esr','f
  assert not any(flag in arg for arg in command for flag in
                 (b'--marionette',b'--remote-debugging',b'--remote-allow-system-access')),command
  family='firefox' if app=='firefox-esr' else 'chromium'
- receipt=json.loads((root/'runtime'/f'{family}-profile/native-webui.json').read_text())
- private=Path(receipt['root'])
  # Chromium rewrites argv[0] to its complete process title. The kernel's
  # executable link identifies the running file independently of that title.
  executable=(Path('/proc')/str(w['pid'])/'exe').resolve()
- assert executable.parent==private,(executable,private)
- digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
- assert digest(executable)==receipt['executable_sha256']
- # Process-title rewriting can also overwrite the kernel's initial environ
- # range. The launch receipt records the exact resource-generation namespace.
- prefix=receipt['adapter_prefix']
- bridge=Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge'
- common=(bridge/'NativeWebControls.js').read_text()+'\n'+(bridge/f'{family.capitalize()}WebUI.js').read_text()
- if family=='firefox':
-  common=common.replace('__NXS_WEBUI_PREFIX__',prefix)
-  assert digest(private/'omni.ja')==receipt['private_pack_sha256']
-  assert digest(private/'browser/omni.ja')==receipt['private_browser_pack_sha256']
-  assert digest(bridge/'FirefoxDevTools.js')==receipt['devtools_adapter_sha256']
- else:
-  common=common.replace('__NXS_RADIO_PREFIX__',prefix)
-  assert digest(private/'resources.pak')==receipt['private_pack_sha256']
- assert hashlib.sha256(common.encode()).hexdigest()==receipt['adapter_sha256']
- checks.append(dict(case=family+'-shared-builtin-adapter-and-private-resources-match',passed=True,root=str(private)))
+ checks.append(verify_webui(family,executable,root/'runtime'/f'{family}-profile/native-webui.json'))
  paths={line.split()[-1] for line in (Path('/proc')/str(w['pid'])/'maps').read_text().splitlines() if len(line.split())>=6}
  mapped=next(Path(p) for p in paths if p.endswith('/'+hook));stage=mapped.parent
  assert hashlib.sha256(mapped.read_bytes()).digest()==hashlib.sha256((payload/hook).read_bytes()).digest()
@@ -51,13 +66,21 @@ for app,hook in [('chromium-browser','chromium-density-06.so'),('firefox-esr','f
   checks.append(dict(case=app+'-'+name+'-exact-delivery-library-mapped',passed=True,pid=w['pid'],path=str(library)))
  if app=='firefox-esr':
   parent_log='\n'.join(line for line in (root/'firefox-hook.log').read_text().splitlines() if line.startswith(str(w['pid'])+' '))
-  features=['native Gecko color binding installed','native Gecko text bindings installed',
-            'native Gecko frontend text binding installed','native Gecko original key registry and global menu binding installed',
+  features=['native Gecko color binding installed','native Gecko original key registry and global menu binding installed',
             'native Gecko focus/input ordering installed','original GTK activation handoff enabled',
             'original GTK activation input ordering enabled',
             'original GTK activation tokens requested at presentation']
+  if args.browser_platform:
+   features.append('native Gecko edit bindings enabled')
+   assert 'native Gecko text bindings installed' not in parent_log
+  else:
+   features.extend(['native Gecko text bindings installed','native Gecko frontend text binding installed'])
   assert all(message in parent_log for message in features),'Firefox parent missed native feature negotiation'
   checks.append(dict(case='firefox-parent-native-features-negotiated',passed=True,pid=w['pid'],features=features))
+ elif args.browser_platform:
+  parent_log='\n'.join(line for line in (root/'chromium-hook.log').read_text().splitlines() if line.startswith(str(w['pid'])+' '))
+  assert 'native LinuxUi edit bindings enabled' in parent_log
+  checks.append(dict(case='chromium-parent-native-edit-commands-negotiated',passed=True,pid=w['pid']))
 prefs=(root/'runtime/firefox-profile/prefs.js').read_text()
 assert 'user_pref("focusmanager.testmode", true)' not in prefs
 checks.append(dict(case='ordinary-browsers-without-automation-focus-overrides',passed=True))
