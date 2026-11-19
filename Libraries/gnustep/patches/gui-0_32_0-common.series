@@ -5,3 +5,8 @@ patches/gui-0_32_0-print-export.patch
 patches/gui-0_32_0-popup-release.patch
 patches/gui-0_32_0-scroll-copy.patch
 patches/gui-0_32_0-date-picker.patch
+patches/gui-0_32_0-standard-edit-menu.patch
+patches/gui-0_32_0-color-palette.patch
+patches/gui-0_32_0-field-editor-resize.patch
+patches/gui-0_32_0-menu-placement.patch
+patches/gui-0_32_0-menu-keyboard.patch

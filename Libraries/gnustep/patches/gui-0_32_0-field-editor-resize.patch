@@ -1,0 +1,17 @@
+--- a/Source/NSCell.m
++++ b/Source/NSCell.m
+@@ -3159,7 +3159,13 @@
+ 
+       if ([clipView isKindOfClass: [NSClipView class]])
+ 	{
+-	  [clipView setFrame: titleRect];
++          if (!NSEqualRects([clipView frame], titleRect))
++            {
++              [clipView setFrame: titleRect];
++              /* Autoresizing can round the editor's fractional frame. Keep
++                 the existing editor in the cell's original coordinates. */
++              [textObject setFrame: titleRect];
++            }
+ 	}
+       else
+ 	{

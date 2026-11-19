@@ -205,8 +205,10 @@ void WaylandDestroyOffer(struct wl_data_offer *offer)
   NSMutableData *bytes;
 }
 - (NSData *)receive:(void *)offer primary:(BOOL)primary mime:(NSString *)mime config:(WaylandConfig *)config timeout:(NSTimeInterval)timeout;
+- (void)cancel;
 @end
 @implementation WaylandPasteboardRead
+- (void)cancel { failed = finished = YES; }
 - (void)receivedEvent:(void *)data type:(RunLoopEventType)type extra:(void *)extra forMode:(NSString *)mode
 {
   unsigned char buffer[16384];
@@ -310,7 +312,8 @@ void WaylandWriteDataToFD(NSData *data, int fd)
   NSDictionary *snapshot;
   NSString *marker;
   unsigned generation;
-  BOOL pending, writing;
+  BOOL pending, writing, importing, importPending;
+  WaylandPasteboardRead *importReader;
 }
 - (id)initWithConfig:(WaylandConfig *)value primary:(BOOL)isPrimary;
 - (NSPasteboard *)pasteboard;
@@ -387,6 +390,8 @@ static const struct zwp_primary_selection_device_v1_listener primary_device_list
      shared pasteboard and any unpublished local copy, but cancel old imports. */
   [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(importSelection:) object:nil];
   generation++;
+  importPending = NO;
+  [importReader cancel];
   [self destroySelection];
 }
 - (void)dealloc
@@ -398,6 +403,8 @@ static const struct zwp_primary_selection_device_v1_listener primary_device_list
 - (void)invalidate
 {
   [NSObject cancelPreviousPerformRequestsWithTarget:self];
+  importPending = NO;
+  [importReader cancel];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [self destroySource]; [self destroySelection];
 }
@@ -405,6 +412,8 @@ static const struct zwp_primary_selection_device_v1_listener primary_device_list
 {
   if (writing || ![[[notification object] name] isEqual:(primary ? @"Selection" : NSGeneralPboard)]) return;
   generation++;
+  importPending = NO;
+  [importReader cancel];
   pending = YES;
   [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(publish:) object:nil];
   [self performSelector:@selector(publish:) withObject:nil afterDelay:0 inModes:WaylandApplicationModes()];
@@ -464,15 +473,25 @@ static const struct zwp_primary_selection_device_v1_listener primary_device_list
 {
   [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(importSelection:) object:nil];
   generation++;
+  [importReader cancel];
+  importPending = NO;
   if (selection != offer) [self destroySelection];
   selection = offer;
   if ((!offer && pending) || [selectionMimes(offer) containsObject:marker]) return;
   pending = NO;
-  [self performSelector:@selector(importSelection:) withObject:nil afterDelay:0 inModes:WaylandApplicationModes()];
+  importPending = YES;
+  if (!importing)
+    [self performSelector:@selector(importSelection:) withObject:nil afterDelay:0 inModes:WaylandApplicationModes()];
 }
 - (void)importSelection:(id)unused
 {
   if (!config->keyboard_focus) return;
+  /* receive: pumps NSRunLoop. Coalesce offers arriving there instead of
+     recursively importing each selection on the same pasteboard stack. */
+  if (importing) { importPending = YES; return; }
+  importing = YES;
+  importPending = NO;
+  @try {
   if (!selection) {
     /* Keep shared storage on focus loss. A focused, idle receiver imports
        explicit clearing for either clipboard or primary selection. */
@@ -491,7 +510,9 @@ static const struct zwp_primary_selection_device_v1_listener primary_device_list
     NSString *type = WaylandTypeForMime([mime UTF8String]);
     if ([data objectForKey:type]) continue;
     WaylandPasteboardRead *reader = [WaylandPasteboardRead new];
+    importReader = reader;
     NSData *bytes = [reader receive:selection primary:primary mime:mime config:config timeout:5];
+    importReader = nil;
     [reader release];
     if (generation != started || !config->keyboard_focus) return;
     id value = WaylandPasteboardValue(mime, bytes);
@@ -506,6 +527,12 @@ static const struct zwp_primary_selection_device_v1_listener primary_device_list
       WaylandStorePasteboardValue(pasteboard, type, [data objectForKey:type]);
     }
   } @finally { writing = NO; }
+  } @finally {
+    importReader = nil;
+    importing = NO;
+    if (importPending && config->keyboard_focus)
+      [self performSelector:@selector(importSelection:) withObject:nil afterDelay:0 inModes:WaylandApplicationModes()];
+  }
 }
 @end
 

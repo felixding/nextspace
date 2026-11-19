@@ -1,0 +1,30 @@
+--- a/Source/NSColorWell.m
++++ b/Source/NSColorWell.m
+@@ -302,8 +302,10 @@
+   if ([self isEnabled] == NO)
+     return;
+ 
+-  // Unbordered color wells start a drag immediately upon mouse down
+-  if ([self isBordered] == NO)
++  // Plain unbordered wells start a drag immediately. Action-bearing swatches
++  // must first distinguish a click from a drag, using the existing native
++  // mouseDragged handling below.
++  if ([self isBordered] == NO && _action == NULL)
+     {
+       [NSColorPanel dragColor: _the_color
+ 		    withEvent: theEvent
+@@ -368,7 +370,13 @@
+ 
+   if (inside)
+     {
+-      [self performClick: self];
++      /* Palette swatches are unbordered wells. A click must apply their
++       * existing target/action instead of activating them exclusively
++       * and disconnecting the edited well. */
++      if (_is_bordered)
++        [self performClick: self];
++      else
++        [self sendAction: _action to: _target];
+     }
+ }
+ 

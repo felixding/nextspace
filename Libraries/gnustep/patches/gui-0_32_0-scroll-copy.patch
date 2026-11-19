@@ -71,3 +71,27 @@
      {
        /* Copy the portion of the view that is common before and after
           scrolling.  Then, document view needs to redraw the remaining
+
+--- a/Source/NSClipView.m
++++ b/Source/NSClipView.m
+@@ -416,16 +416,10 @@
+       new.y = NSMaxY(documentFrame) - _bounds.size.height;
+     }
+ 
+-  /* Make it an integer coordinate in device space - this is to make
+-     sure that when the coordinates are changed and we need to copy to
+-     do the scrolling, the difference is an integer and so we can copy
+-     the image translating it by an integer in device space - and not
+-     by a float. */
+-  
+-  new = [self convertPoint: new  toView: nil];
+-  new.x = GSRoundTowardsInfinity(new.x);
+-  new.y = GSRoundTowardsInfinity(new.y);
+-  new = [self convertPoint: new  fromView: nil];
++  /* Keep the clamped logical position. Pixel rounding here can move it
++     outside the document and accumulate drift with fractional view bounds.
++     setBoundsOrigin: already copies only integral device-pixel translations
++     and redraws every other move through the original native view. */
+   return new;
+ }
+ 

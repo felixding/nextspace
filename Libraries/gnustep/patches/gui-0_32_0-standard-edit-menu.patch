@@ -1,0 +1,34 @@
+--- a/Source/NSTextView.m
++++ b/Source/NSTextView.m
+@@ -657,9 +657,28 @@
+   if (!textViewMenu)
+     {
+       textViewMenu = [[NSMenu alloc] initWithTitle: @""];
+-      [textViewMenu insertItemWithTitle: _(@"Cut") action:@selector(cut:) keyEquivalent:@"x" atIndex:0];
+-      [textViewMenu insertItemWithTitle: _(@"Copy") action:@selector(copy:) keyEquivalent:@"c" atIndex:1];
+-      [textViewMenu insertItemWithTitle: _(@"Paste") action:@selector(paste:) keyEquivalent:@"v" atIndex:2];
++      /* Keep the standard editing menu with the native text implementation.
++       * NSMenu owns key equivalents, user overrides, validation and dispatch;
++       * NSTextView and its responder chain own the actions. Embedders must
++       * not reproduce this menu or interpret its physical shortcuts. */
++      [textViewMenu addItemWithTitle: _(@"Undo")
++                             action: @selector(undo:) keyEquivalent: @"z"];
++      NSMenuItem *redo = [textViewMenu addItemWithTitle: _(@"Redo")
++                                                action: @selector(redo:)
++                                         keyEquivalent: @"Z"];
++      [redo setKeyEquivalentModifierMask: NSCommandKeyMask | NSShiftKeyMask];
++      [textViewMenu addItem: [NSMenuItem separatorItem]];
++      [textViewMenu addItemWithTitle: _(@"Cut")
++                             action: @selector(cut:) keyEquivalent: @"x"];
++      [textViewMenu addItemWithTitle: _(@"Copy")
++                             action: @selector(copy:) keyEquivalent: @"c"];
++      [textViewMenu addItemWithTitle: _(@"Paste")
++                             action: @selector(paste:) keyEquivalent: @"v"];
++      [textViewMenu addItemWithTitle: _(@"Delete")
++                             action: @selector(delete:) keyEquivalent: @""];
++      [textViewMenu addItem: [NSMenuItem separatorItem]];
++      [textViewMenu addItemWithTitle: _(@"Select All")
++                             action: @selector(selectAll:) keyEquivalent: @"a"];
+     }
+   return textViewMenu;
+ }

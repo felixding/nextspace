@@ -45,15 +45,38 @@ void WaylandCancelRepeat(WaylandConfig *config)
   [config->composed_text release]; config->composed_text = nil;
 }
 
-void WaylandApplicationFocusChanged(WaylandConfig *config)
+void WaylandCancelDeactivation(WaylandConfig *config)
 {
   WaylandServer *server = (WaylandServer *)GSCurrentServer();
   [NSObject cancelPreviousPerformRequestsWithTarget:server selector:@selector(deactivateIfUnfocused:) object:nil];
-  if (!config->keyboard_focus)
+  [NSObject cancelPreviousPerformRequestsWithTarget:server selector:@selector(finishDeactivationIfUnfocused:) object:nil];
+  if (config->deactivation_sync) {
+    wl_callback_destroy(config->deactivation_sync);
+    config->deactivation_sync = NULL;
+  }
+}
+
+void WaylandApplicationFocusChanged(WaylandConfig *config)
+{
+  WaylandServer *server = (WaylandServer *)GSCurrentServer();
+  WaylandCancelDeactivation(config);
+  if (!config->keyboard_focus&&!WaylandHasPendingActivation(config))
     [server performSelector:@selector(deactivateIfUnfocused:) withObject:nil afterDelay:0
       inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode, NSConnectionReplyMode,
         NSModalPanelRunLoopMode, NSEventTrackingRunLoopMode, nil]];
 }
+
+static void deactivation_sync_done(void *data, struct wl_callback *callback, uint32_t serial)
+{
+  WaylandConfig *config = data;
+  wl_callback_destroy(callback);
+  config->deactivation_sync = NULL;
+  if (!config->keyboard_focus&&!WaylandHasPendingActivation(config))
+    [(WaylandServer *)GSCurrentServer() performSelector:@selector(finishDeactivationIfUnfocused:)
+      withObject:nil afterDelay:0 inModes:[NSArray arrayWithObjects:NSDefaultRunLoopMode,
+        NSConnectionReplyMode, NSModalPanelRunLoopMode, NSEventTrackingRunLoopMode, nil]];
+}
+static const struct wl_callback_listener deactivation_sync_listener = {.done = deactivation_sync_done};
 
 static void load_modifier_keys(WaylandConfig *config)
 {
@@ -377,12 +400,25 @@ const struct wl_keyboard_listener keyboard_listener
 @implementation WaylandServer (KeyboardOps)
 - (void)deactivateIfUnfocused:(id)sender
 {
-  /* A leave/enter pair within this connection keeps the application active.
-     Real application deactivation runs outside protocol callbacks so AppKit
-     can resign key/main status and hide its menus or auxiliary panels safely. */
-  if (wlconfig && !wlconfig->keyboard_focus) {
+  /* Observe acknowledgements of already queued activation requests before
+     deciding that a leave is still current. This is an asynchronous protocol
+     fence, not a delay or a second focus policy. */
+  if (wlconfig && !wlconfig->keyboard_focus && !WaylandHasPendingActivation(wlconfig) && !wlconfig->deactivation_sync) {
+    wlconfig->deactivation_sync = wl_display_sync(wlconfig->display);
+    wl_callback_add_listener(wlconfig->deactivation_sync, &deactivation_sync_listener, wlconfig);
+    wl_display_flush(wlconfig->display);
+  }
+}
+- (void)finishDeactivationIfUnfocused:(id)sender
+{
+  /* Keep AppKit resignation outside protocol callbacks. A new enter or
+     activation request cancels this pending completion. */
+  if (wlconfig && !wlconfig->keyboard_focus && !WaylandHasPendingActivation(wlconfig)) {
     WaylandPasteboardFocusLost(wlconfig);
-    if ([NSApp isActive]) [NSApp deactivate];
+    /* Embedded native components can present before AppKit consumes enter.
+     * Deliver the confirmed leave even if the application is still inactive;
+     * ordinary NSApplication already treats repeated deactivation as a no-op. */
+    [NSApp deactivate];
   }
 }
 - (NSArray *)keyboardLayoutNames

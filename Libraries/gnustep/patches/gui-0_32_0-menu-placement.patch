@@ -1,0 +1,98 @@
+diff --git a/Source/NSMenu.m b/Source/NSMenu.m
+--- a/Source/NSMenu.m
++++ b/Source/NSMenu.m
+@@ -312,8 +312,10 @@
+       
+       if ((_aWindow != nil) && ([_aWindow screen] != nil))
+         {
+-          NSPoint origin = NSMakePoint(0, [[_aWindow screen] visibleFrame].size.height 
+-                               - [_aWindow frame].size.height);
++          NSRect screenFrame = [[_aWindow screen] visibleFrame];
++          NSPoint origin = NSMakePoint(NSMinX(screenFrame),
++                                       NSMaxY(screenFrame)
++                                       - [_aWindow frame].size.height);
+ 	  
+           [_aWindow setFrameOrigin: origin];
+           [_bWindow setFrameOrigin: origin];
+@@ -1830,6 +1832,16 @@
+       [self _setGeometry];
+     }
+   
++  /* Reuse the window's native constraint after restored positions or model
++     resizing. Oversized menus retain their original edge-shifting behavior. */
++  if (!_menu.horizontal && _popUpButtonCell == nil
++      && (_superMenu == nil || [self isTornOff]))
++    {
++      NSRect frame = [_aWindow constrainFrameRect: [_aWindow frame]
++                                       toScreen: [_aWindow screen]];
++      [_aWindow setFrameOrigin: frame.origin];
++    }
++
+   NSDebugLLog (@"NSMenu", 
+                @"Display, origin: %@", 
+                NSStringFromPoint ([_aWindow frame].origin));
+@@ -1893,6 +1905,12 @@
+     }
+ 
+   [_bWindow setFrameOrigin: location];
++
++  /* Constrain the native transient frame before creating its surface role.
++     The original window constraint also handles oversized native menus. */
++  NSRect frame = [_bWindow constrainFrameRect: [_bWindow frame]
++                                    toScreen: [_bWindow screen]];
++  [_bWindow setFrameOrigin: frame.origin];
+ 
+   [_view removeFromSuperviewWithoutNeedingDisplay];
+ 
+@@ -2095,9 +2113,10 @@
+     return;
+ 
+   // 1 - determine the amount we need to shift in the y direction.
+-  if (pointerLoc.y <= 1 && NSMinY (frameRect) < 0)
+-    {
+-      vector.y = MIN (SHIFT_DELTA, -NSMinY (frameRect));
++  if (pointerLoc.y <= NSMinY(screenRect) + 1
++      && NSMinY (frameRect) < NSMinY(screenRect))
++    {
++      vector.y = MIN (SHIFT_DELTA, NSMinY(screenRect) - NSMinY (frameRect));
+       moveIt = YES;
+     }
+   /* Note: pointerLoc.y may be greater than NSMaxY(screenRect) if we have a
+@@ -2111,15 +2130,16 @@
+     }
+ 
+   // 2 - determine the amount we need to shift in the x direction.
+-  if (pointerLoc.x == 0 && NSMinX (frameRect) < 0)
+-    {
+-      vector.x = MIN (SHIFT_DELTA, -NSMinX (frameRect));
++  if (pointerLoc.x <= NSMinX(screenRect)
++      && NSMinX (frameRect) < NSMinX(screenRect))
++    {
++      vector.x = MIN (SHIFT_DELTA, NSMinX(screenRect) - NSMinX (frameRect));
+       moveIt = YES;
+     }
+   // Note the -3.  This is done so the menu, after shifting completely
+   // has some spare room on the right hand side.  This is needed otherwise
+   // the user can never access submenus of this menu.
+-  else if (pointerLoc.x == NSMaxX(screenRect) - 1 &&
++  else if (pointerLoc.x >= NSMaxX(screenRect) - 1 &&
+ 	   NSMaxX (frameRect) > NSMaxX (screenRect) - 3)
+     {
+       vector.x
+diff --git a/Source/NSMenuView.m b/Source/NSMenuView.m
+--- a/Source/NSMenuView.m
++++ b/Source/NSMenuView.m
+@@ -1675,9 +1675,10 @@
+                * between X-coordinates and GNUstep coordinates let the
+                * GNUstep screen coordinates start with 1.
+                */
+-              if (pointerLoc.x == 0 || pointerLoc.y == 1
+-                || pointerLoc.x == screenFrame.size.width - 1
+-                || pointerLoc.y == screenFrame.size.height)
++              if (pointerLoc.x <= NSMinX(screenFrame)
++                || pointerLoc.y <= NSMinY(screenFrame) + 1
++                || pointerLoc.x >= NSMaxX(screenFrame) - 1
++                || pointerLoc.y >= NSMaxY(screenFrame))
+                 [_attachedMenu shiftOnScreen];
+             }
+ 

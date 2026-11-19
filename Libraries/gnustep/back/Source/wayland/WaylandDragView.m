@@ -219,7 +219,7 @@ const struct wl_data_device_listener data_device_listener = {
   if (hasContext && [source respondsToSelector:@selector(draggingSourceOperationMaskForLocal:)])
     localActions = waylandActions([source draggingSourceOperationMaskForLocal:YES]);
   uint32_t actions = externalActions | localActions;
-  if (!window || !config->data_device_manager || !config->data_device ||
+  if (!window || !window->surface || !config->data_device_manager || !config->data_device ||
       wl_data_device_manager_get_version(config->data_device_manager) < 3 || !actions) {
     sourceFinished(source, image, location, NSDragOperationNone);
     return;
@@ -247,7 +247,7 @@ const struct wl_data_device_listener data_device_listener = {
     return;
   }
   window = get_window_with_id(config, origin);
-  if (!window) {
+  if (!window || !window->surface) {
     sourceFinished(source, image, location, NSDragOperationNone);
     return;
   }
@@ -272,7 +272,7 @@ const struct wl_data_device_listener data_device_listener = {
       window = get_window_with_id(config, origin);
       owner = dragOwner(window);
       if (hasContext && owner) nextspace_window_v1_prepare_drag(owner->application_window, localActions, externalActions);
-      if (!window) { [self sourceEnded:_dataSource operation:NSDragOperationNone]; }
+      if (!window || !window->surface) { [self sourceEnded:_dataSource operation:NSDragOperationNone]; }
     }
     if (_dragActive) {
       wl_data_device_start_drag(config->data_device, _dataSource, window->surface, [_icon surface], serial);

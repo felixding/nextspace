@@ -529,6 +529,7 @@ static BOOL clientOwnsZoomFrame(struct window *window)
       WaylandAbandonColorPick(wlconfig, 0);
       WaylandFinishCursor(wlconfig);
       WaylandCancelRepeat(wlconfig);
+      WaylandCancelDeactivation(wlconfig);
       [wlconfig->pasteboard_bridge performSelector:@selector(invalidate)];
       [wlconfig->pasteboard_bridge release];
       [wlconfig->primary_bridge performSelector:@selector(invalidate)];
@@ -1039,6 +1040,13 @@ WaylandServer (WindowOps)
       if (window->application_window && nextspace_window_v1_get_version(window->application_window) >= 5) {
         nextspace_window_v1_set_presented(window->application_window, 0);
         window->is_out = 1;
+        if(window->activation_token) {
+          xdg_activation_token_v1_destroy(window->activation_token);window->activation_token=NULL;
+        }
+        if(window->pending_activation_name) {
+          free(window->pending_activation_name);window->pending_activation_name=NULL;
+          WaylandApplicationFocusChanged(wlconfig);
+        }
       } else [self destroyWindowShell:window];
     }
   else
@@ -1279,9 +1287,37 @@ static BOOL activate_window_token(struct window *window, const char *name)
 {
   if (!window || window->terminated || window->is_out || !window->toplevel ||
       !window->wlconfig->activation || !name || !*name) return NO;
+  /* An xdg_toplevel exists before its first buffer maps it. Keep the original
+   * token until that commit; activating the unconfigured surface consumes it
+   * without a valid compositor target. New requests supersede old ones. */
+  if(!window->first_buffer_committed) {
+    char *copy=strdup(name);if(!copy)return NO;
+    free(window->pending_activation_name);
+    window->pending_activation_name=copy;
+    WaylandApplicationFocusChanged(window->wlconfig);
+    return YES;
+  }
   xdg_activation_v1_activate(window->wlconfig->activation, name, window->surface);
   wl_display_flush(window->wlconfig->display);
+  WaylandApplicationFocusChanged(window->wlconfig);
   return YES;
+}
+BOOL WaylandHasPendingActivation(WaylandConfig *config)
+{
+  struct window *window;
+  wl_list_for_each(window,&config->window_list,link)
+    if(window->pending_activation_name&&!window->is_out&&!window->terminated)return YES;
+  return NO;
+}
+void WaylandBufferCommitted(struct window *window)
+{
+  window->first_buffer_committed=YES;
+  char *name=window->pending_activation_name;window->pending_activation_name=NULL;
+  if(name) {
+    if(!window->is_out&&!window->terminated)activate_window_token(window,name);
+    free(name);
+    WaylandApplicationFocusChanged(window->wlconfig);
+  }
 }
 static void activation_done(void *data, struct xdg_activation_token_v1 *token, const char *name)
 {
@@ -1328,7 +1364,7 @@ static const struct xdg_activation_token_v1_listener activation_listener = { .do
 - (void)setinputfocus:(int)win
 {
   struct window *window = get_window_with_id(wlconfig, win);
-  if (!window || !window->toplevel || window->activation_token || !wlconfig->activation ||
+  if (!window || !window->toplevel || window->activation_token || window->pending_activation_name || !wlconfig->activation ||
       wlconfig->keyboard_focus == window ||
       (![GSWindowWithNumber(win) canBecomeKeyWindow] && !WaylandMenuActivationFallback(window))) return;
   struct window *source = wlconfig->pointer.focus ?: wlconfig->keyboard_focus;
@@ -1346,7 +1382,13 @@ static const struct xdg_activation_token_v1_listener activation_listener = { .do
  * input connection. The compositor still validates and consumes that token. */
 - (BOOL)activatewindow:(int)win withToken:(NSString *)token
 {
-  return activate_window_token(get_window_with_id(wlconfig, win), [token UTF8String]);
+  struct window *window=get_window_with_id(wlconfig,win);
+  /* A delegated request supersedes an older automatic token request, even
+   * when that old request's asynchronous callback has not arrived yet. */
+  if(window&&window->activation_token) {
+    xdg_activation_token_v1_destroy(window->activation_token);window->activation_token=NULL;
+  }
+  return activate_window_token(window, [token UTF8String]);
 }
 
 - (void)setalpha:(float)alpha:(int)win
@@ -1658,7 +1700,13 @@ WaylandServer (SurfaceRoles)
     }
 
   xdg_popup_add_listener(child->popup, &xdg_popup_listener, child);
-  if (wlconfig->pointer.button_state == WL_POINTER_BUTTON_STATE_PRESSED && wlconfig->pointer.serial)
+  NSWindow *native = GSWindowWithNumber(child->window_id);
+  NSMenu *menu = [native respondsToSelector:@selector(_menu)] ? [native _menu] : nil;
+  /* Attached application menus persist according to NSMenu's own policy.
+   * A popup grab would consume the next click in the owning application.
+   * Preserve dismissal grabs for transient and popup-button menus. */
+  if ((!menu || child->level != NSSubmenuWindowLevel || [menu isTransient]) &&
+      wlconfig->pointer.button_state == WL_POINTER_BUTTON_STATE_PRESSED && wlconfig->pointer.serial)
     xdg_popup_grab(child->popup, wlconfig->seat, wlconfig->pointer.serial);
   xdg_surface_add_listener(child->xdg_surface, &xdg_surface_listener, child);
 
@@ -1714,6 +1762,14 @@ WaylandServer (SurfaceRoles)
     }
   WaylandDestroySurface(window);
   window->configured = NO;
+  window->first_buffer_committed=NO;
+  if(window->activation_token) {
+    xdg_activation_token_v1_destroy(window->activation_token);window->activation_token=NULL;
+  }
+  if(window->pending_activation_name) {
+    free(window->pending_activation_name);window->pending_activation_name=NULL;
+    WaylandApplicationFocusChanged(wlconfig);
+  }
 }
 
 - (void)destroyWindowShell:(struct window *)window

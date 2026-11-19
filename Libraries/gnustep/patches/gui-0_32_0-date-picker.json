@@ -12,7 +12,7 @@
       "path": "Source/NSDatePickerCell.m",
       "url": "https://raw.githubusercontent.com/gnustep/libs-gui/8ac9f1db1d5ce39522f8a3993b00fa3d86aa7899/Source/NSDatePickerCell.m",
       "sha256": "e4a7dd93f1886130c44b2ba7a4467de5f76f37a32e550d9200864177f0e93613",
-      "effective_sha256": "210eb892a197e74fac21e95432de661bf8a231546311266ce0c8a77f363f6f3a"
+      "effective_sha256": "1ce3cb0ef50e59e8d5578bfa81949dc619498fbd64037dc9a39d01198c453db0"
     },
     {
       "path": "Headers/AppKit/NSDatePicker.h",

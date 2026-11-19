@@ -104,6 +104,7 @@ typedef struct _WaylandConfig
   struct wl_shm		*shm;
   struct wl_seat		 *seat;
   struct wl_keyboard	     *keyboard;
+  struct wl_callback *deactivation_sync;
   struct xkb_compose_table *compose_table;
   struct xkb_compose_state *compose_state;
   NSString *composed_text;
@@ -261,6 +262,8 @@ struct window
   struct wp_viewport *viewport;
   struct nextspace_window_v1 *application_window;
   struct xdg_activation_token_v1 *activation_token;
+  char *pending_activation_name;
+  BOOL first_buffer_committed;
   struct zxdg_imported_v2 *foreign_parent;
   char *foreign_parent_name;
   char *preferred_output_name;
@@ -303,6 +306,9 @@ void WaylandSetPosition(struct window *window, float x, float y);
 void WaylandApplySizeHints(struct window *window);
 void WaylandCancelRepeat(WaylandConfig *config);
 void WaylandApplicationFocusChanged(WaylandConfig *config);
+void WaylandCancelDeactivation(WaylandConfig *config);
+BOOL WaylandHasPendingActivation(WaylandConfig *config);
+void WaylandBufferCommitted(struct window *window);
 NSArray *WaylandMimesForType(NSString *type);
 NSString *WaylandTypeForMime(const char *mime);
 void WaylandSetupPasteboard(WaylandConfig *config);

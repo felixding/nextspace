@@ -217,6 +217,7 @@ static const struct wl_callback_listener frame_listener = {.done = frame_done};
     wl_surface_damage_buffer(w->surface, 0, 0, width, height);
   else wl_surface_damage(w->surface, 0, 0, logicalSize.width, logicalSize.height);
   wl_surface_commit(w->surface);
+  WaylandBufferCommitted(w);
   wl_display_flush(w->wlconfig->display);
   w->buffer_needs_attach = NO;
   pending = NO;

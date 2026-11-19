@@ -30,6 +30,8 @@
 #include <AppKit/NSApplication.h>
 #include <AppKit/NSGraphics.h>
 #include <AppKit/NSWindow.h>
+#include <AppKit/NSMenu.h>
+#include <AppKit/NSMenuView.h>
 #include <math.h>
 
 @interface NSWindow (WaylandFullscreen)
@@ -192,7 +194,25 @@ static void
 xdg_popup_done(void *data, struct xdg_popup *xdg_popup)
 {
   struct window *window = data;
-  [GSWindowWithNumber(window->window_id) orderOut:nil];
+  NSWindow *native = GSWindowWithNumber(window->window_id);
+  /* Closing only the surface leaves NSMenu's attached submenu/highlight
+   * intact. Its next click then closes that invisible submenu. Let the
+   * original menu close its window and update its parent together. */
+  for (NSView *view in [[native contentView] subviews])
+    if ([view isKindOfClass:[NSMenuView class]])
+      {
+        NSMenu *menu = [(NSMenuView *)view menu];
+        if ([menu window] == native)
+          {
+            [menu retain];
+            @try {
+              if ([menu isTransient]) [menu closeTransient];
+              else [menu close];
+            } @finally { [menu release]; }
+            return;
+          }
+      }
+  [native orderOut:nil];
 }
 
 static void

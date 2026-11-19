@@ -1,0 +1,180 @@
+--- a/Headers/AppKit/NSMenuView.h
++++ b/Headers/AppKit/NSMenuView.h
+@@ -83,7 +83,8 @@
+ {
+   NSMutableArray *_itemCells;
+   BOOL           _horizontal;
+-  char		 _pad1[3];
++  BOOL           _keyboardNavigation;
++  char		 _pad1[2];
+   NSFont         *_font;
+   int            _highlightedItemIndex;
+   float          _horizontalEdgePad;
+--- a/Source/NSMenuView.m
++++ b/Source/NSMenuView.m
+@@ -1455,6 +1455,128 @@
+ /*
+  * Event Handling
+  */
++/* Native command interpretation is shared by ordinary and embedded menus.
++ * The system input manager supplies bindings; menu commands only manipulate
++ * this view's existing cells, submenu presentations and target/actions. */
++- (void) keyDown: (NSEvent *)event
++{
++  NSMenuView *target = self;
++  _keyboardNavigation = YES;
++  while ([[target menu] attachedMenu] != nil)
++    target = [[[target menu] attachedMenu] menuRepresentation];
++  target->_keyboardNavigation = YES;
++  [target interpretKeyEvents: [NSArray arrayWithObject: event]];
++}
++
++- (void) _moveHighlight: (NSInteger)step from: (NSInteger)index
++{
++  NSInteger count = [_items_link count], remaining = count;
++  if (count == 0) return;
++  while (remaining-- > 0)
++    {
++      index = (index + step + count) % count;
++      NSMenuItem *item = [_items_link objectAtIndex: index];
++      if ([item isEnabled] && ![item isSeparatorItem])
++        {
++          [self detachSubmenu];
++          [self setHighlightedItemIndex: index];
++          return;
++        }
++    }
++  [self setHighlightedItemIndex: -1];
++}
++
++- (void) moveDown: (id)sender
++{
++  if (_horizontal) [self moveRight: sender];
++  else [self _moveHighlight: 1 from: _highlightedItemIndex];
++}
++
++- (void) moveUp: (id)sender
++{
++  if (_horizontal) [self moveLeft: sender];
++  else [self _moveHighlight: -1 from:
++    _highlightedItemIndex < 0 ? 0 : _highlightedItemIndex];
++}
++
++- (void) moveRight: (id)sender
++{
++  if (_horizontal)
++    [self _moveHighlight: 1 from: _highlightedItemIndex];
++  else if (_highlightedItemIndex >= 0)
++    {
++      NSMenuItem *item = [_items_link objectAtIndex: _highlightedItemIndex];
++      if ([item isEnabled] && [item submenu] != nil)
++        {
++          [self attachSubmenuForItemAtIndex: _highlightedItemIndex];
++          NSMenuView *view = [self attachedMenuView];
++          view->_keyboardNavigation = YES;
++          [view moveToBeginningOfDocument: sender];
++        }
++    }
++}
++
++- (void) moveLeft: (id)sender
++{
++  if (_horizontal)
++    [self _moveHighlight: -1 from:
++      _highlightedItemIndex < 0 ? 0 : _highlightedItemIndex];
++  else
++    {
++      NSMenu *parent = [_attachedMenu supermenu];
++      if ([parent attachedMenu] == _attachedMenu)
++        {
++          NSMenuView *view = [parent menuRepresentation];
++          view->_keyboardNavigation = YES;
++          [view detachSubmenu];
++        }
++      else [self cancelOperation: sender];
++    }
++}
++
++- (void) moveToBeginningOfDocument: (id)sender
++{ [self _moveHighlight: 1 from: -1]; }
++- (void) moveToEndOfDocument: (id)sender
++{ [self _moveHighlight: -1 from: 0]; }
++- (void) moveToBeginningOfLine: (id)sender
++{ [self moveToBeginningOfDocument: sender]; }
++- (void) moveToEndOfLine: (id)sender
++{ [self moveToEndOfDocument: sender]; }
++
++- (void) insertNewline: (id)sender
++{
++  if (_highlightedItemIndex < 0) return;
++  NSMenuItem *item = [_items_link objectAtIndex: _highlightedItemIndex];
++  if (![item isEnabled] || [item isSeparatorItem]) return;
++  if ([item submenu] != nil) [self moveRight: sender];
++  else
++    {
++      [self performActionWithHighlightingForItemAtIndex: _highlightedItemIndex];
++      [self cancelOperation: sender];
++    }
++}
++
++- (void) complete: (id)sender
++{ [self cancelOperation: sender]; }
++
++- (void) cancelOperation: (id)sender
++{
++  NSMenu *menu = _attachedMenu;
++  while ([menu isTransient] && [menu supermenu] != nil)
++    menu = [menu supermenu];
++  NSMenuView *view = [menu menuRepresentation];
++  [view detachSubmenu];
++  [view setHighlightedItemIndex: -1];
++  if ([menu isTransient]) [menu closeTransient];
++  /* End the existing mouse tracking loop without selecting its hover row. */
++  NSEvent *release = [NSEvent mouseEventWithType: NSLeftMouseUp
++    location: NSZeroPoint modifierFlags: 0
++    timestamp: [NSDate timeIntervalSinceReferenceDate]
++    windowNumber: [[menu window] windowNumber] context: nil
++    eventNumber: 0 clickCount: 1 pressure: 0];
++  [NSApp postEvent: release atStart: YES];
++}
++
+ - (void) performActionWithHighlightingForItemAtIndex: (NSInteger)index
+ {
+   NSMenu     *candidateMenu = _attachedMenu;
+@@ -1582,7 +1704,7 @@
+    * handle them automatically either for code which goes in to an event
+    * tracking loop.
+    */
+-  eventMask |= NSAppKitDefinedMask;
++  eventMask |= NSAppKitDefinedMask | NSKeyDownMask;
+ 
+   eventMask |= NSRightMouseUpMask | NSRightMouseDraggedMask;
+   eventMask |= NSRightMouseDownMask;
+@@ -1618,6 +1740,9 @@
+     }
+   do
+     {
++      if (type == NSKeyDown)
++        [self keyDown: event];
++
+       if (type == NSFlagsChanged)
+ 	{
+ 	  /* Close the menu if the user press a modifier key and menu
+@@ -1657,6 +1782,9 @@
+             {
+               firstIndex = index;
+             }
++          if (_keyboardNavigation && NSEqualPoints(location, lastLocation))
++            goto nextEvent;
++          _keyboardNavigation = NO;
+           if (index != firstIndex)
+             {
+               shouldFinish = YES;
+@@ -1825,6 +1953,7 @@
+           lastLocation = location;
+         }
+ 
++    nextEvent:
+       do
+ 	{
+ 	  event = [NSApp nextEventMatchingMask: eventMask
