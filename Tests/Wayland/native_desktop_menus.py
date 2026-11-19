@@ -8,6 +8,7 @@ from desktop_input import Desktop
 
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('root',type=Path)
+p.add_argument('--browser-platform',action='store_true')
 a=p.parse_args();desktop=Desktop(a.root);rows=[];outside_targets=[]
 report=a.root/'ordinary-menu-ux.json'
 def save(complete=False,**extra):
@@ -39,8 +40,8 @@ def outside(main):
 
 try:
     for family,icon_title,menu_title,item_y in (
-            ('chromium','chromium-browser','Chromium',391),
-            ('firefox','firefox-esr','firefox-esr',32)):
+            ('chromium','chromium-browser','Chromium',32 if a.browser_platform else 391),
+            ('firefox','firefox-esr','firefox-esr',112 if a.browser_platform else 32)):
         if not any(w['title']==menu_title for w in menus()):
             icon=next(w for w in desktop.command('windows')
                 if w['visible'] and w['app_id']=='org.nextspace.Workspace' and w['title']==icon_title)

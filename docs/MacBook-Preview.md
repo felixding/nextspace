@@ -84,13 +84,15 @@ Minimize each browser and restore it through its actual application icon, then
 repeat the control interactions. Also check that activating an application with
 an open window leaves its other minimized windows minimized.
 
-For browser control changes, `Tests/Lima/check-preview-desktop.py` runs fresh ordinary
-desktop sessions at 100%, 125%, 150%, 175% and 200% inside the review VM, using the same preview helper
-and delivery runtime. It exercises real seat input without setting focus for the
-interaction assertions, then verifies the mapped runtime against its manifest.
-Startup, interaction and payload failures keep its result incomplete. Preserve
-the receipts and inspect the resulting screenshots before refreshing the existing
-archive. Isolated native API checks complement this gate; they do not replace it.
-Repeated colour/calendar keyboard opening after switching apps is part of this
-gate at every scale. Retention, current parent ownership and the single current
-app menu must pass without focus overrides or changed key sequences.
+For the browser platform integration, run `Tests/Lima/check-preview-desktop.py`
+with `--browser-platform`. It starts fresh ordinary desktop sessions at 100%,
+125%, 150%, 175% and 200% with the delivery runtime. The real-seat checks cover
+left scrollbar arrows, dropdown lifetime and alignment, the detached menu,
+and editing and clipboard shortcuts. The suite verifies the live runtime and
+clean teardown at each density. Preserve the receipts and inspect the captures.
+
+Use the normal desktop review above to check browser-owned calendars, Chromium's
+color picker, Firefox's GNUstep color panel, native file panels, and original
+Settings and DevTools. Repeat opening and cancellation after switching apps
+and restoring minimized windows. The older full-native preview continues to
+use the original suite with native picker ownership and keyboard checks.

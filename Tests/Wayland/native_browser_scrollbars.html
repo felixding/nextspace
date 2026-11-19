@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>NEXTSPACE controls</title>
+<style>
+  body { min-height: 2300px; margin: 36px; background: white; font: 16px sans-serif; }
+  textarea, select[multiple] { display: block; box-sizing: border-box; width: 340px; height: 180px; margin: 20px 0; }
+  textarea { resize: none; }
+</style>
+<h2>Scrollbar check</h2>
+<label>Choice <select id="choice"><option>First</option><option>Second</option><option>Third</option></select></label>
+<textarea aria-label="Notes"></textarea>
+<select aria-label="Choices" multiple></select>
+<script>
+const notes = document.querySelector("textarea");
+const choices = document.querySelector("select[multiple]");
+const choice = document.querySelector("#choice");
+for (let item = 1; item <= 64; ++item) {
+  notes.value += "Note " + item + "\n";
+  choices.add(new Option("Choice " + item));
+}
+function state(element) {
+  const { x, y, width, height } = element.getBoundingClientRect();
+  return [x, y, width, height, element.offsetWidth - element.clientWidth, element.scrollTop];
+}
+let pageScrollEnds = 0;
+window.addEventListener("scrollend", () => ++pageScrollEnds);
+function report() {
+  const {x, y, width, height} = choice.getBoundingClientRect();
+  // Keep the report within the window title's length limit.
+  const stateRow = [
+    devicePixelRatio, visualViewport.height, innerWidth - document.documentElement.clientWidth,
+    scrollY, pageScrollEnds, state(notes), state(choices), [x, y, width, height], choice.matches(":open"),
+    [notes.selectionStart, notes.selectionEnd, notes.value.length],
+    document.hasFocus() && document.activeElement === notes,
+    notes.value === location.href
+  ];
+  document.title = "NEXTSPACE controls|" + JSON.stringify(stateRow,
+    (key, value) => typeof value === "number" ? Math.round(value * 1000) / 1000 : value);
+}
+for (const owner of [window, notes, choices]) owner.addEventListener("scroll", report);
+window.addEventListener("resize", report);
+setInterval(report, 60);
+report();
+</script>

@@ -22,6 +22,7 @@ parser.add_argument('--preview',type=Path,default=repo/'.build/native-ui/macbook
 parser.add_argument('--output',type=Path,required=True)
 scales=(1,1.25,1.5,1.75,2)
 parser.add_argument('--scale',type=float,choices=scales,action='append')
+parser.add_argument('--browser-platform',action='store_true')
 args=parser.parse_args()
 assert sys.platform.startswith('linux') and os.geteuid()!=0,'Run as the desktop user inside the Linux VM'
 args.output.mkdir(parents=True,exist_ok=True)
@@ -45,6 +46,8 @@ for index,scale in enumerate(args.scale or scales):
     env=dict(os.environ,NEXTSPACE_PREVIEW_HEADLESS='1',
              NEXTSPACE_PREVIEW_OUTPUT_SIZE=f'{width}x{height}',
              NEXTSPACE_PREVIEW_SCALE=str(units))
+    if args.browser_platform:
+        env['NEXTSPACE_PREVIEW_FIXTURE']='browser-scrollbars'
     # Diagnostics, automation ports and an extended startup deadline cannot
     # silently become part of a successful ordinary-session qualification.
     for name in ('NEXTSPACE_TRACE_ACTIVATION','NEXTSPACE_TRACE_NATIVE_RPC',
@@ -60,7 +63,7 @@ for index,scale in enumerate(args.scale or scales):
                 assert child.poll() is None,('Preview exited before readiness',child.returncode)
                 if not select.select([child.stdout],[],[],.5)[0]:continue
                 line=child.stdout.readline()
-                if not line:continue
+                if not line.startswith('{'):continue
                 event=json.loads(line)
                 if event.get('event')=='manual-preview-starting':
                     run['root']=event['root'];save()
@@ -68,8 +71,22 @@ for index,scale in enumerate(args.scale or scales):
             root=Path(event['root']);run['root']=str(root);save()
             # Fail new payload-verification wiring before the long interaction
             # sequence. Recheck afterward against the actual panel owner too.
-            subprocess.run([sys.executable,str(repo/'Tests/Lima/check-preview-payload.py'),str(root)],
-                env=env,check=True,timeout=120)
+            payload=[sys.executable,str(repo/'Tests/Lima/check-preview-payload.py'),str(root)]
+            if args.browser_platform:
+                payload.append('--browser-platform')
+            subprocess.run(payload,env=env,check=True,timeout=120)
+            if args.browser_platform:
+                subprocess.run([sys.executable,str(repo/'Tests/Wayland/native_browser_scrollbars.py'),str(root)],
+                    env=env,check=True,timeout=120)
+                subprocess.run([sys.executable,str(repo/'Tests/Wayland/native_desktop_menus.py'),str(root),
+                    '--browser-platform'],env=env,check=True,timeout=120)
+                subprocess.run(payload,env=env,check=True,timeout=120)
+                reports=[json.loads((root/name).read_text()) for name in
+                         ('ordinary-browser-scrollbars.json','ordinary-menu-ux.json')]
+                assert all(result['complete'] for result in reports)
+                run.update(complete=True,checks=sum(len(result['checks']) for result in reports))
+                save()
+                continue
             subprocess.run([sys.executable,str(repo/'Tests/Wayland/native_desktop_shortcuts.py'),str(root)],
                 env=env,check=True,timeout=120)
             subprocess.run([sys.executable,str(repo/'Tests/Wayland/native_desktop_pickers.py'),str(root),
