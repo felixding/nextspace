@@ -948,6 +948,105 @@ int nxs_host_menu_key(NSMenu *menu,const NXSKeyEvent *input)
   NSEvent *event=key_event(input,[menu window]);
   return event&&[(NXSApplication *)NSApp dispatchNativeEvent:event toMenu:menu];
 }
+
+@interface NXSEditInputManager : NSInputManager
+- (BOOL)awaitingKey;
+@end
+@implementation NXSEditInputManager
+- (BOOL)awaitingKey
+{return [_pendingKeyEvents count]!=0||_interpretNextKeyStrokeLiterally;}
+@end
+
+@interface NXSEditReceiver : NSResponder {
+ @public NSMutableArray *commands;
+}
+@end
+@implementation NXSEditReceiver
+- (void)doCommandBySelector:(SEL)selector
+{if(selector)[commands addObject:NSStringFromSelector(selector)];}
+- (void)insertText:(id)text
+{(void)text;} /* Literal input remains with the original editor and its IME. */
+- (void)receiveMenuCommand:(NSMenuItem *)item
+{[self doCommandBySelector:NSSelectorFromString([item representedObject])];}
+@end
+
+struct NXSEditBindings {
+  NXSEditInputManager *manager;
+  NXSEditReceiver *receiver;
+  NSMenu *menu;
+};
+
+NXSEditBindings *nxs_host_edit_bindings_create(void)
+{
+  if(![NSThread isMainThread])return NULL;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NXSEditBindings *bindings=nxs_host_initialize()?calloc(1,sizeof(*bindings)):NULL;
+  if(bindings) {
+    bindings->manager=[[NXSEditInputManager alloc] initWithName:nil host:nil];
+    bindings->receiver=[NXSEditReceiver new];
+    /* Use the installed NSTextView edit menu's real actions and equivalents.
+       Project a private command target, without creating a field editor. */
+    bindings->menu=[[NSTextView defaultMenu] copy];
+    [bindings->menu setAutoenablesItems:NO];
+    for(NSMenuItem *item in [bindings->menu itemArray]) {
+      SEL action=[item action];
+      if(!action)continue;
+      [item setRepresentedObject:NSStringFromSelector(action)];
+      [item setTarget:bindings->receiver];
+      [item setAction:@selector(receiveMenuCommand:)];
+      [item setEnabled:YES];
+    }
+    if(!bindings->manager||!bindings->receiver||!bindings->menu) {
+      nxs_host_edit_bindings_destroy(bindings);
+      bindings=NULL;
+    }
+  }
+  [pool drain];return bindings;
+}
+
+void nxs_host_edit_bindings_destroy(NXSEditBindings *bindings)
+{
+  if(!bindings)return;
+  [bindings->menu release];
+  [bindings->manager release];
+  [bindings->receiver release];
+  free(bindings);
+}
+
+void nxs_host_edit_bindings_reset(NXSEditBindings *bindings)
+{
+  if(!bindings)return;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  [bindings->manager resetInternalState];
+  [pool drain];
+}
+
+int nxs_host_edit_bindings_resolve(NXSEditBindings *bindings,const NXSKeyEvent *input,NXSEditCommand receive,void *context)
+{
+  if(!bindings||!receive||!input||input->size<sizeof(*input)||input->type!=NXS_KEY_DOWN)
+    return NXS_EDIT_UNBOUND;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  int result=NXS_EDIT_UNBOUND;
+  @try {
+    NSEvent *event=key_event(input,nil);
+    if(event) {
+      NSMutableArray *commands=[NSMutableArray array];
+      bindings->receiver->commands=commands;
+      @try {
+        if([(NXSApplication *)NSApp dispatchNativeEvent:event toMenu:bindings->menu])
+          [bindings->manager resetInternalState];
+        else [bindings->manager handleKeyboardEvents:@[event] client:bindings->receiver];
+        result=[commands count]?NXS_EDIT_COMMANDS:
+          [bindings->manager awaitingKey]?NXS_EDIT_SEQUENCE:NXS_EDIT_UNBOUND;
+      }
+      @finally {bindings->receiver->commands=nil;}
+      for(NSString *command in commands)receive(context,[command UTF8String]);
+    }
+  }
+  @finally {[pool drain];}
+  return result;
+}
+
 int nxs_host_responder_key(NSResponder *responder,NSWindow *window,const NXSKeyEvent *input)
 {
   NSEvent *event=key_event(input,window);if(!event)return 0;

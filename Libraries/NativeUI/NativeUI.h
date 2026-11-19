@@ -12,6 +12,7 @@ typedef struct NXSControl NXSControl;
 typedef struct NXSEventSource NXSEventSource;
 typedef struct NXSMenu NXSMenu;
 typedef struct NXSFilePanel NXSFilePanel;
+typedef struct NXSEditBindings NXSEditBindings;
 typedef struct { double x, y, width, height; } NXSRect;
 typedef struct { double width, height; } NXSSize;
 typedef struct { double x, y; } NXSPoint;
@@ -191,6 +192,10 @@ typedef struct {
   /* NUL-terminated UTF-8. NULL text is empty; NULL unmodified_text uses text. */
   const char *text, *unmodified_text;
 } NXSKeyEvent;
+typedef void (*NXSEditCommand)(void *context,const char *selector);
+enum NXSEditBindingResult {
+  NXS_EDIT_UNBOUND, NXS_EDIT_COMMANDS, NXS_EDIT_SEQUENCE
+};
 enum NXSTextCapability { NXS_TEXT_EDITING = 1, NXS_TEXT_FILTER = 2, NXS_TEXT_COMMAND = 4,
   NXS_TEXT_MULTILINE = 8, NXS_TEXT_VIEWPORT = 16, NXS_TEXT_GEOMETRY = 32,
   NXS_TEXT_SEARCH = 64, NXS_TEXT_SEARCH_ACTION = 128, NXS_TEXT_SEARCH_CLEAR_COMMAND = 256,
@@ -390,6 +395,10 @@ typedef struct {
   int (*menu_auxiliary_activate)(NXSMenu *,const char *);
   int (*control_set_screen_bounds)(NXSControl *,NXSRect);
   int (*control_outline_items)(NXSControl *,const NXSOutlineItem *,uint32_t);
+  NXSEditBindings *(*edit_bindings_create)(void);
+  void (*edit_bindings_destroy)(NXSEditBindings *);
+  void (*edit_bindings_reset)(NXSEditBindings *);
+  int (*edit_bindings_resolve)(NXSEditBindings *,const NXSKeyEvent *,NXSEditCommand,void *);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 /* Optional original NSScrollView content rectangle with both scrollers.
@@ -530,6 +539,14 @@ unsigned nxs_control_input_capabilities(void);
 int nxs_control_focus(NXSControl *control, int focused);
 int nxs_control_focused(NXSControl *control);
 int nxs_control_key(NXSControl *control, const NXSKeyEvent *event);
+/* Interpret editing keys for an application-owned editor. The provider uses
+ * its actual edit menu and bindings. It emits selectors synchronously, in
+ * order. The caller owns insertion, the editor model and command execution.
+ * Reset the UI-thread interpreter when its focused editing context changes. */
+NXSEditBindings *nxs_edit_bindings_create(void);
+void nxs_edit_bindings_destroy(NXSEditBindings *);
+void nxs_edit_bindings_reset(NXSEditBindings *);
+int nxs_edit_bindings_resolve(NXSEditBindings *,const NXSKeyEvent *,NXSEditCommand,void *);
 unsigned nxs_native_ui_event_capabilities(void);
 /* Service native events on the owning UI thread. maximum_wait is in seconds;
  * zero is nonblocking. Return seconds until the next native deadline, or -1

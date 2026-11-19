@@ -88,6 +88,8 @@ class NativeCommand(C.Structure):
 class NativeCommandDecision(C.Structure):
     _fields_=[('magic',C.c_uint32),('result',C.c_int32),('serial',C.c_uint64)]
 CommandFilter=C.CFUNCTYPE(C.c_int,C.c_void_p,C.c_char_p,C.c_uint)
+EditCommand=C.CFUNCTYPE(None,C.c_void_p,C.c_char_p)
+EDIT_BINDINGS_OPERATION=72
 class PopupItem(C.Structure):
     _fields_ = [('size',C.c_uint32),('title',C.c_char_p),('enabled',C.c_int),('separator',C.c_int)]
 class ControlRect(C.Structure):
@@ -275,6 +277,16 @@ class NativeControlServer:
         self.host_epoch = 0
         self.global_generations = {}
         self.notifiers = {}
+        self.edit_bindings_available = hasattr(native, 'nxs_edit_bindings_resolve')
+        if self.edit_bindings_available:
+            native.nxs_edit_bindings_create.argtypes = []
+            native.nxs_edit_bindings_create.restype = C.c_void_p
+            native.nxs_edit_bindings_destroy.argtypes = [C.c_void_p]
+            native.nxs_edit_bindings_destroy.restype = None
+            native.nxs_edit_bindings_reset.argtypes = [C.c_void_p]
+            native.nxs_edit_bindings_reset.restype = None
+            native.nxs_edit_bindings_resolve.argtypes = [C.c_void_p, C.POINTER(KeyEvent), EditCommand, C.c_void_p]
+            native.nxs_edit_bindings_resolve.restype = C.c_int
         self.range_capabilities=0
         self.popup_capabilities=0
         self.popup_title_capabilities=0
@@ -463,6 +475,8 @@ class NativeControlServer:
         self.remove_text_filter(process)
         entry=self.notifiers.pop(process,None)
         if entry:
+            if entry.get('edit_bindings'):
+                self.native.nxs_edit_bindings_destroy(entry['edit_bindings'])
             assert self.native.nxs_native_ui_source_destroy(entry['source'])
             os.close(entry['lifetime']);os.close(entry['descriptor'])
 
@@ -894,6 +908,10 @@ class NativeControlServer:
         self.send(client, response, data)
 
     def message(self, client, data, descriptors=(),sender_pid=None,presentation=None):
+        if len(data) >= 8 and int.from_bytes(data[4:8], 'little') == EDIT_BINDINGS_OPERATION:
+            if not descriptors:
+                self.edit_bindings_message(client, data, sender_pid)
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==71:
             self.outlines.message(client,data);return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==65:
@@ -1500,6 +1518,53 @@ class NativeControlServer:
         accepted=self.native.nxs_control_popup_items(state['native'],items,req.count,req.selected)
         if accepted:self.log('native-popup-model',process=req.process,control=req.control,count=req.count,selected=req.selected)
         self._respond(client,req,state,pixels=bool(accepted),input_result=accepted)
+
+    def edit_bindings_message(self, client, data, sender_pid):
+        header_size = C.sizeof(ControlInputRequest)
+        if len(data) < header_size:
+            return
+        req = ControlInputRequest.from_buffer_copy(data)
+        if (req.magic != MAGIC or req.kind or not req.control or req.focused not in (0, 1)
+                or req.text_size + req.unmodified_size != len(data) - header_size
+                or len(data) - header_size > 128 or req.type or req.repeat > 1
+                or req.modifiers & ~15 or not (req.key < 15 or 32 <= req.key <= 55)
+                or not self.edit_bindings_available
+                or not self.owns_process(client, req.process, sender_pid)):
+            self._respond(client, req)
+            return
+        owner = self.notifiers[req.process]
+        interpreter = owner.get('edit_bindings')
+        if not req.focused:
+            if not req.text_size and not req.unmodified_size and interpreter and owner.get('editor') == req.control:
+                self.native.nxs_edit_bindings_reset(interpreter)
+                owner.pop('editor', None)
+            self._respond(client, req)
+            return
+        text = data[header_size:header_size + req.text_size]
+        unmodified = data[header_size + req.text_size:]
+        if b'\0' in text or b'\0' in unmodified:
+            self._respond(client, req)
+            return
+        if not interpreter:
+            interpreter = self.native.nxs_edit_bindings_create()
+            if not interpreter:
+                self._respond(client, req)
+                return
+            owner['edit_bindings'] = interpreter
+        if owner.get('editor') != req.control:
+            self.native.nxs_edit_bindings_reset(interpreter)
+            owner['editor'] = req.control
+        commands = []
+
+        @EditCommand
+        def receive(context, selector):
+            commands.append(selector)
+
+        event = KeyEvent(C.sizeof(KeyEvent), req.type, req.modifiers, req.key, req.repeat,
+                         text, unmodified if req.unmodified_size else None)
+        result = self.native.nxs_edit_bindings_resolve(interpreter, C.byref(event), receive, None)
+        self._respond(client, req, input_result=result,
+                      payload=b''.join(command + b'\0' for command in commands))
 
     def input_message(self, client, data,sender_pid=None):
         if len(data) < C.sizeof(ControlInputRequest):

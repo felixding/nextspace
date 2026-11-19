@@ -103,6 +103,18 @@ int nxs_control_focused(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_focused)?p->control_focused(c):0;}
 int nxs_control_key(NXSControl *c,const NXSKeyEvent *event)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_key)?p->control_key(c,event):NXS_INPUT_UNHANDLED;}
+NXSEditBindings *nxs_edit_bindings_create(void)
+{
+  const NXSNativeUIAPI *p=nxs_native_ui_api();
+  return HAS_INPUT(p,edit_bindings_create)&&HAS_INPUT(p,edit_bindings_destroy)&&
+    HAS_INPUT(p,edit_bindings_reset)&&HAS_INPUT(p,edit_bindings_resolve)?p->edit_bindings_create():NULL;
+}
+void nxs_edit_bindings_destroy(NXSEditBindings *bindings)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();if(bindings&&HAS_INPUT(p,edit_bindings_destroy))p->edit_bindings_destroy(bindings);}
+void nxs_edit_bindings_reset(NXSEditBindings *bindings)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();if(bindings&&HAS_INPUT(p,edit_bindings_reset))p->edit_bindings_reset(bindings);}
+int nxs_edit_bindings_resolve(NXSEditBindings *bindings,const NXSKeyEvent *event,NXSEditCommand receive,void *context)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return bindings&&HAS_INPUT(p,edit_bindings_resolve)?p->edit_bindings_resolve(bindings,event,receive,context):NXS_EDIT_UNBOUND;}
 unsigned nxs_native_ui_event_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,dispatch_events)&&HAS_INPUT(p,control_needs_display)?NXS_EVENTS:0;}
 double nxs_native_ui_dispatch_events(double maximum_wait)

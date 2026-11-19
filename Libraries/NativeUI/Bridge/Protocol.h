@@ -102,6 +102,14 @@ struct NXSControlInputRequest {
   uint32_t type, modifiers, key, repeat, unmodified_size;
   int32_t focused;
 };
+/* Operation 72 resolves a key for an application-owned editor using the same
+ * envelope and UTF-8 payload as operation 8, with kind=0 and a nonzero editor
+ * identity in control. focused=0 with no payload releases that editor's key
+ * sequence. Otherwise only key down is accepted. The same kernel process and
+ * connection must own the native notification subscription. Response part 3.x
+ * is NXSEditBindingResult, with NUL-separated selectors after the header.
+ * No editor text is read or written by this request. */
+#define NXS_EDIT_BINDINGS_OPERATION 72u
 /* Optional operation 10: slider data quantum. Bootstrap part 5.width and
  * generic response part 5.width advertise range capabilities; part 5.x is
  * the configured quantum. The original 104-byte request stays unchanged. */

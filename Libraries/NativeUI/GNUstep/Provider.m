@@ -1,5 +1,6 @@
 /* The provider binds the C contract to GNUstep's actual controls. GPL-2.0-or-later. */
 #include "Provider.h"
+#include "ViewHost.h"
 __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provider(uint32_t version)
 {
   static const NXSNativeUIAPI api={
@@ -88,7 +89,11 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .control_color_lifecycle=nxs_gnustep_control_color_lifecycle,
     .menu_popup=nxs_gnustep_menu_popup,
     .menu_auxiliary_parent=nxs_gnustep_menu_auxiliary_parent,
-    .menu_auxiliary_activate=nxs_gnustep_menu_auxiliary_activate
+    .menu_auxiliary_activate=nxs_gnustep_menu_auxiliary_activate,
+    .edit_bindings_create=nxs_host_edit_bindings_create,
+    .edit_bindings_destroy=nxs_host_edit_bindings_destroy,
+    .edit_bindings_reset=nxs_host_edit_bindings_reset,
+    .edit_bindings_resolve=nxs_host_edit_bindings_resolve
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }
