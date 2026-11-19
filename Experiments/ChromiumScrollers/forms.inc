@@ -117,6 +117,7 @@ static struct NativeForm *find_form(const void *node) {
 }
 static struct NativeForm *bind_input_form(void *node);
 static int refresh_form_watch(void);
+static int native_form_events_ready(void);
 static int color_watch_needed(void);
 static void color_native_work(int);
 static void color_forget(void *);
@@ -698,9 +699,13 @@ static struct Detour form_detours[]={
  {NXS_INLINE_CHILDREN_OFFSET,nxs_inline_children_bytes,inline_children,(void **)&original_inline_children},
  {NXS_BLOCK_CHILDREN_OFFSET,nxs_block_children_bytes,block_children,(void **)&original_block_children},
  {NXS_DOM_DISPATCH_OFFSET,nxs_dom_dispatch_bytes,dom_dispatch,(void **)&original_dom_dispatch},
- {NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach},
  {NXS_MOUSE_DISPATCH_OFFSET,nxs_mouse_dispatch_bytes,mouse_dispatch,(void **)&original_mouse_dispatch}
 };
+static struct Detour form_lifetime_detour={NXS_ELEMENT_DETACH_OFFSET,nxs_element_detach_bytes,element_detach,(void **)&original_element_detach};
+static int prepare_popup_lifecycle(void) {
+  return guard_popup_model_calls()&&guard_form_coordinates()&&guard_form_origin_calls()&&
+    prepare_detours(popup_lifecycle_detours,sizeof(popup_lifecycle_detours)/sizeof(*popup_lifecycle_detours));
+}
 static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_calls())&&(!forms_labels_enabled||prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours)))&&guard_form_coordinates()&&guard_form_origin_calls()&&guard_form_layout()&&prepare_detours(form_layout_detours,sizeof(form_layout_detours)/sizeof(*form_layout_detours))&&prepare_detours(button_model_detours,sizeof(button_model_detours)/sizeof(*button_model_detours))&&prepare_detours(form_detours,sizeof(form_detours)/sizeof(*form_detours))&&
   (!forms_input_enabled||(prepare_form_input()&&guard_checkbox_calls()&&prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours))))&&
   (!forms_progress_enabled||prepare_detours(&progress_detour,1))&&
@@ -709,7 +714,7 @@ static int prepare_forms(void){return (!forms_radio_groups_enabled||guard_radio_
   (!forms_date_panel_enabled||(guard_date_panel_calls()&&prepare_detours(date_panel_detours,sizeof(date_panel_detours)/sizeof(*date_panel_detours))))&&
   (!forms_color_enabled||(guard_color_calls()&&prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours))))&&
   (!forms_sliders_enabled||prepare_detours(slider_detours,sizeof(slider_detours)/sizeof(*slider_detours)))&&
-  (!forms_popups_enabled||(guard_popup_model_calls()&&prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours))))&&
+  (!forms_popups_enabled||prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))&&
   (!forms_lists_enabled||(guard_list_calls()&&guard_list_hit_calls()&&prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))&&
   (!forms_text_enabled||(guard_text_calls()&&prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours))))&&
   (!(forms_multiline_viewport_enabled||forms_lists_enabled)||(guard_multiline_scroll_calls()&&prepare_detours(multiline_scroll_detours,sizeof(multiline_scroll_detours)/sizeof(*multiline_scroll_detours))))&&

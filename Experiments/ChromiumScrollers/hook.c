@@ -308,7 +308,8 @@ __attribute__((constructor)) static void initialize(void) {
   const char *sliders=getenv("NEXTSPACE_CHROMIUM_SLIDERS");
   forms_sliders_enabled=forms_input_enabled&&sliders&&!strcmp(sliders,"1")&&metrics->parts[4].height==1&&metrics->parts[5].width==1;
   const char *popups=getenv("NEXTSPACE_CHROMIUM_POPUPS");
-  forms_popups_enabled=forms_input_enabled&&popups&&!strcmp(popups,"1")&&metrics->parts[4].height==1&&metrics->parts[6].width==1&&metrics->parts[6].height==1;
+  forms_popups_enabled=(forms_input_enabled||(!forms_available&&forms_notifications_enabled))&&popups&&!strcmp(popups,"1")&&
+    metrics->parts[4].height==1&&metrics->parts[6].width==1&&metrics->parts[6].height==1;
   const char *color=getenv("NEXTSPACE_CHROMIUM_COLORS");
   forms_color_enabled=forms_input_enabled&&color&&!strcmp(color,"1")&&
     ((unsigned)metrics->parts[1].x&NXS_SPECIAL_COLOR)&&((unsigned)metrics->parts[1].y&1);
@@ -346,7 +347,7 @@ __attribute__((constructor)) static void initialize(void) {
   tabs_enabled=NXS_BROWSER_UI_PATCH&&views_enabled&&tabs&&!strcmp(tabs,"1")&&((unsigned)metrics->parts[4].x&NXS_TAB_ITEMS);
   tabs_trace_enabled=tabs_enabled&&tabs_trace&&!strcmp(tabs_trace,"1");
   const char *menus=getenv("NEXTSPACE_CHROMIUM_MENUS"),*menu_trace=getenv("NEXTSPACE_CHROMIUM_MENUS_TRACE");
-  menus_enabled=forms_text_enabled&&menus&&!strcmp(menus,"1")&&((unsigned)metrics->parts[5].height&1);
+  menus_enabled=menus&&!strcmp(menus,"1")&&forms_notifications_enabled&&((unsigned)metrics->parts[5].height&1);
   menus_trace_enabled=menus_enabled&&menu_trace&&!strcmp(menu_trace,"1");
   const char *menu_keys=getenv("NEXTSPACE_CHROMIUM_MENU_KEYS");
   menu_keys_enabled=menus_enabled&&menu_keys&&!strcmp(menu_keys,"1")&&((unsigned)metrics->parts[5].height&4);
@@ -359,6 +360,8 @@ __attribute__((constructor)) static void initialize(void) {
   const unsigned char originals[][12]={{0x5f,0x24,0x03,0xd5,0x08,0x38,0x80,0xb9,0xa8,0x01,0x00,0x34},{0x5f,0x24,0x03,0xd5,0xc8,0x09,0x02,0xd0,0x08,0x01,0x24,0x91},{0x3f,0x23,0x03,0xd5,0xfd,0x7b,0xbe,0xa9,0xf3,0x0b,0x00,0xf9}};
   for(int i=0;i<3;i++)if(memcmp((void *)(base+offsets[i]),originals[i],12)){note("instruction guard failed; unchanged");return;}
   if(!prepare_input()){note("input guard failed; unchanged");return;}
+  if((forms_available||forms_popups_enabled)&&!prepare_detours(&form_lifetime_detour,1)){note("form lifetime guard failed; unchanged");return;}
+  if(forms_popups_enabled&&!prepare_popup_lifecycle()){note("select popup lifecycle guard failed; unchanged");return;}
   if(forms_available&&!prepare_forms()){note("form guard failed; unchanged");return;}
   if(views_enabled&&(!guard_views_calls()||!prepare_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours)))){note("Views guard failed; unchanged");return;}
   if((views_enabled||menu_keys_enabled)&&!prepare_detours(browser_accelerator_detour,1)){note("browser command boundary guard failed; unchanged");return;}
@@ -370,6 +373,8 @@ __attribute__((constructor)) static void initialize(void) {
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
   if(wayland_geometry_enabled){activate_detours(wayland_geometry_detours,sizeof(wayland_geometry_detours)/sizeof(*wayland_geometry_detours));note("shared native Wayland geometry enabled");activate_wayland_activation();}
+  if(forms_available||forms_popups_enabled)activate_detours(&form_lifetime_detour,1);
+  if(forms_popups_enabled)activate_detours(popup_lifecycle_detours,sizeof(popup_lifecycle_detours)/sizeof(*popup_lifecycle_detours));
   if(forms_available){activate_forms();note("experimental native forms enabled");}
   if(forms_input_enabled)note("experimental native form focus/keyboard enabled");
   if(forms_progress_enabled)note("experimental native determinate progress enabled");

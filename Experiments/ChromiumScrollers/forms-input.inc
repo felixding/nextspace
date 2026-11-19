@@ -21,10 +21,11 @@ static int form_focused(const void *node) {
 }
 static int input_form_kind(void *node) {
   uintptr_t table=*(const uintptr_t *)node;
+  if(forms_popups_enabled&&popup_element(node))return component_native_kind(node)?component_native_kind(node):NXS_POPUP;
+  if(!forms_available)return 0;
   if(forms_numbers_enabled&&number_owner(node))return NXS_STEPPER;
   if(table==base+0x11cf3500+16)return NXS_BUTTON;
   if(forms_lists_enabled&&list_element(node))return NXS_LISTBOX;
-  if(forms_popups_enabled&&popup_element(node))return component_native_kind(node)?component_native_kind(node):NXS_POPUP;
   if(forms_multiline_enabled&&table==base+NXS_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(table!=base+0x11dc01d8+16)return 0;
   const void *atom=((const void *(*)(const void *))(base+0xefa0da4))(node);

@@ -88,7 +88,7 @@ static void context_run(void *object,void *parent,void *button,const struct Rect
   if(m&&m->running)return;
   struct ContextModelRoot *r=context_root(*(void **)((char *)object+24));
   if(!r||!r->model)goto original;
-  if(!refresh_form_watch()||form_watch.wake_fd<0||!native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())goto original;
+  if(!native_form_events_ready()||!native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())goto original;
   if(!m) {
     m=calloc(1,sizeof(*m));if(!m)goto original;
     m->object=object;m->projection.owner=pthread_self();m->projection.control=(1ull<<40)|++next_context_menu;

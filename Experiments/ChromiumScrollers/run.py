@@ -85,14 +85,14 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary, ExitStack
             environment.update(LD_PRELOAD=str(args.hook.resolve()),
                                NEXTSPACE_CHROMIUM_SOCKET=str(endpoint),
                                NEXTSPACE_CHROMIUM_LOG=str((args.log_directory / 'hook.log').resolve()))
-            if args.native_controls or args.native_menus:
+            if args.native_controls:
                 environment.update(NEXTSPACE_CHROMIUM_FORMS='1', NEXTSPACE_CHROMIUM_INPUT='1',
                                    NEXTSPACE_CHROMIUM_TEXT='1')
-            if args.native_controls:
                 for flag in ('PROGRESS','ANIMATION','SLIDERS','POPUPS','MULTILINE','MULTILINE_VIEWPORT','WHEEL'):
                     environment['NEXTSPACE_CHROMIUM_'+flag] = '1'
             if args.native_menus:
                 environment['NEXTSPACE_CHROMIUM_MENUS'] = '1'
+                environment['NEXTSPACE_CHROMIUM_POPUPS'] = '1'
             if args.native_frame:
                 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Libraries/NativeUI/Bridge'))
                 from browser_frames import prepare_native_frame

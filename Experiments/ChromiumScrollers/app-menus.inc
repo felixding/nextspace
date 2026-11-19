@@ -288,7 +288,7 @@ static int app_menu_bind(struct AppMenuBinding *menu) {
   if(menu->bound){native_menu_request(menu->control,29,0);menu->bound=0;}
   app_menu_clear_model(menu);
   if(!app_menu_project(menu,menu->model,-1,0)||
-     (menu_keys_enabled&&!app_menu_registry(menu))||!refresh_form_watch()||form_watch.wake_fd<0||
+     (menu_keys_enabled&&!app_menu_registry(menu))||!native_form_events_ready()||
      !native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())return 0;
   menu->bound=1;
   menu->epoch=atomic_load(&native_host_epoch);

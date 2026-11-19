@@ -304,13 +304,17 @@ static void internal_popup_show(void *self,int type)
   /* showPicker can precede paint (including a transparent WebUI menu anchor).
    * Bind its existing layout/model at the event boundary, just as keyboard
    * focus already binds ordinary controls before their first paint. */
-  struct NativeForm *form=find_form(node);if(!form)form=bind_input_form(node);
+  struct NativeForm *form=node?find_form(node):NULL;if(node&&!form)form=bind_input_form(node);
   if(form&&form->kind==NXS_WEBUI_MENU) {
     if(!component_menu_open(form,self)){form->popup_open=0;popup_engine_closed(self);}
     return;
   }
   if(!form||form->kind!=NXS_POPUP){original_internal_popup_show(self,type);return;}
   form->popup_engine=self;form->popup_open=1;
+  if(!forms_available&&!native_form_events_ready()) {
+    form->popup_open=0;form->popup_engine=NULL;refresh_form_watch();
+    original_internal_popup_show(self,type);return;
+  }
   struct NXSResponse *response=sync_form_focus(form,form_request(form,1,0,0,0));
   if(response&&response->parts[6].width<=0) {
     if(popup_mouse_event) {
@@ -348,7 +352,9 @@ static struct Detour popup_detours[]={
  {NXS_POPUP_INLINE_SIZE_OFFSET,nxs_popup_inline_size_bytes,popup_inline_size,(void **)&original_popup_inline_size},
  {NXS_POPUP_PAINT_OFFSET,nxs_popup_paint_bytes,paint_popup,(void **)&original_popup_paint},
  {NXS_POPUP_DECORATION_OFFSET,nxs_popup_decoration_bytes,paint_popup_decoration,(void **)&original_popup_decoration},
- {NXS_SELECT_DEFAULT_OFFSET,nxs_select_default_bytes,select_default,(void **)&original_select_default},
+ {NXS_SELECT_DEFAULT_OFFSET,nxs_select_default_bytes,select_default,(void **)&original_select_default}
+};
+static struct Detour popup_lifecycle_detours[]={
  {NXS_INTERNAL_POPUP_SHOW_OFFSET,nxs_internal_popup_show_bytes,internal_popup_show,(void **)&original_internal_popup_show},
  {NXS_INTERNAL_POPUP_HIDE_OFFSET,nxs_internal_popup_hide_bytes,internal_popup_hide,(void **)&original_internal_popup_hide}
 };

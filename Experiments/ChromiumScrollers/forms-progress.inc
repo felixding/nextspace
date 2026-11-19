@@ -72,7 +72,7 @@ static void *watch_native_forms(void *unused) {
   return NULL;
 }
 static int refresh_form_watch(void) {
-  if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return 1;
+  if(!forms_available&&!forms_popups_enabled&&!menus_enabled)return 1;
   int needed=active_form&&(active_form->kind==NXS_SLIDER||active_form->kind==NXS_STEPPER||active_form->kind==NXS_DATEPICKER);double generation=needed?active_form->generation:0;
   if(color_watch_needed()||date_panel_watch_needed())needed=1;
   if(views_watch_needed())needed=1;
@@ -109,6 +109,9 @@ static int refresh_form_watch(void) {
   if(join){pthread_join(thread,NULL);pthread_mutex_lock(&form_watch.mutex);form_watch.started=0;close_form_notifier();pthread_mutex_unlock(&form_watch.mutex);}
   return usable;
 }
+static int native_form_events_ready(void) {
+  return refresh_form_watch()&&form_watch.wake_fd>=0;
+}
 static void schedule_form_paint(struct NativeForm *form) {
   void *layout=decode_member((const char *)form->node+48);if(!layout)return;
   invalidate_form(form);
@@ -117,7 +120,7 @@ static void schedule_form_paint(struct NativeForm *form) {
 }
 static void form_native_work(void *controller) {
   native_layout_work();
-  if(!forms_input_enabled&&!forms_animation_enabled&&!forms_sliders_enabled&&!forms_popups_enabled&&!forms_text_enabled)return;
+  if(!forms_available&&!forms_popups_enabled&&!menus_enabled)return;
   pthread_mutex_lock(&form_watch.mutex);
   int owner=form_watch.running&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
   int ready=owner&&form_watch.pending;
