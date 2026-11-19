@@ -110,6 +110,8 @@ struct NXSControlInputRequest {
  * is NXSEditBindingResult, with NUL-separated selectors after the header.
  * No editor text is read or written by this request. */
 #define NXS_EDIT_BINDINGS_OPERATION 72u
+/* Bootstrap operation 7 uses the otherwise unused bitmap width as flags. */
+#define NXS_BOOTSTRAP_EDIT_BINDINGS 1u
 /* Optional operation 10: slider data quantum. Bootstrap part 5.width and
  * generic response part 5.width advertise range capabilities; part 5.x is
  * the configured quantum. The original 104-byte request stays unchanged. */

@@ -543,6 +543,7 @@ int nxs_control_key(NXSControl *control, const NXSKeyEvent *event);
  * its actual edit menu and bindings. It emits selectors synchronously, in
  * order. The caller owns insertion, the editor model and command execution.
  * Reset the UI-thread interpreter when its focused editing context changes. */
+unsigned nxs_edit_bindings_capabilities(void);
 NXSEditBindings *nxs_edit_bindings_create(void);
 void nxs_edit_bindings_destroy(NXSEditBindings *);
 void nxs_edit_bindings_reset(NXSEditBindings *);

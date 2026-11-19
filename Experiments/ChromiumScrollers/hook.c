@@ -250,6 +250,7 @@ static void views_native_work(int failed);
 #include "views-tabs.inc"
 #include "app-menus.inc"
 #include "global-menu-keys.inc"
+#include "edit-bindings.inc"
 static int chromium_application_command(const struct NXSNativeCommand *command,const char *selector) {
   if(views_transaction)return views_application_command(command,selector);
   return blink_application_command(command,selector);
@@ -351,6 +352,9 @@ __attribute__((constructor)) static void initialize(void) {
   menus_trace_enabled=menus_enabled&&menu_trace&&!strcmp(menu_trace,"1");
   const char *menu_keys=getenv("NEXTSPACE_CHROMIUM_MENU_KEYS");
   menu_keys_enabled=menus_enabled&&menu_keys&&!strcmp(menu_keys,"1")&&((unsigned)metrics->parts[5].height&4);
+  const char *edit_keys=getenv("NEXTSPACE_CHROMIUM_EDIT_KEYS");
+  int edit_keys_enabled=menu_keys_enabled&&edit_keys&&!strcmp(edit_keys,"1")&&
+    (metrics->width&NXS_BOOTSTRAP_EDIT_BINDINGS);
   struct NXSRectD native_clip;
   if(!native_scroller_layout(128,128,&native_clip)){note("native scroller layout unavailable; unchanged");return;}
   native_scroller_on_left=native_clip.x>128-native_clip.x-native_clip.width;
@@ -368,6 +372,10 @@ __attribute__((constructor)) static void initialize(void) {
   if(tabs_enabled&&!prepare_tabs()){note("tab binding guard failed; unchanged");return;}
   if(menus_enabled&&(!guard_views_calls()||!prepare_app_menus())){note("application menu guard failed; unchanged");return;}
   if(menu_keys_enabled&&!prepare_global_menu_keys()){note("global menu key guard failed; unchanged");return;}
+  if(edit_keys_enabled&&!prepare_detours(&linux_edit_key_detour,1)) {
+    edit_keys_enabled=0;
+    note("native edit key guard failed; original bindings retained");
+  }
   int wayland_geometry_enabled=prepare_wayland_geometry();
   const uint32_t patch[]={0xd503245f,0x52800000|((uint32_t)native_scroller_on_left<<5),0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
@@ -390,4 +398,5 @@ __attribute__((constructor)) static void initialize(void) {
   if(tabs_enabled){activate_tabs();note("experimental native browser tabs enabled");}
   if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));activate_detours(context_menu_detours,sizeof(context_menu_detours)/sizeof(*context_menu_detours));note("experimental native application menu binding enabled");}
   if(menu_keys_enabled){activate_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));note("experimental native global menu keys enabled");}
+  if(edit_keys_enabled){activate_detours(&linux_edit_key_detour,1);note("native LinuxUi edit bindings enabled");}
 }

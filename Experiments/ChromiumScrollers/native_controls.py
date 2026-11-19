@@ -277,7 +277,10 @@ class NativeControlServer:
         self.host_epoch = 0
         self.global_generations = {}
         self.notifiers = {}
-        self.edit_bindings_available = hasattr(native, 'nxs_edit_bindings_resolve')
+        self.edit_bindings_available = False
+        if hasattr(native, 'nxs_edit_bindings_capabilities'):
+            native.nxs_edit_bindings_capabilities.restype = C.c_uint
+            self.edit_bindings_available = bool(native.nxs_edit_bindings_capabilities() & 1)
         if self.edit_bindings_available:
             native.nxs_edit_bindings_create.argtypes = []
             native.nxs_edit_bindings_create.restype = C.c_void_p

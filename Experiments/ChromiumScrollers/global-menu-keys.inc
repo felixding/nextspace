@@ -18,6 +18,24 @@ static __thread uint64_t selected_menu_browser;
  * shared desktop broker alone decides whether its menu is presented. */
 static __thread struct MenuBrowser *creating_menu_browser;
 static __thread unsigned menu_key_preflight;
+static NXSKeyEvent chromium_key_event(const void *event)
+{
+  uint16_t unit=((uint16_t (*)(const void *))(base+NXS_KEY_TEXT_OFFSET))(event);
+  char *plain=views_layout_character(event);
+  if(!plain) {
+    uint16_t fallback=((uint16_t (*)(const void *))(base+NXS_KEY_UNMODIFIED_OFFSET))(event);
+    plain=encode_text(&fallback,fallback?1:0,0);
+  }
+  return (NXSKeyEvent){.size=sizeof(NXSKeyEvent),.type=NXS_KEY_DOWN,.modifiers=views_modifiers(event),
+    .key=views_logical(*(const uint16_t *)((const char *)event+136)),
+    .repeat=!!(*(const unsigned *)((const char *)event+80)&(1u<<17)),
+    .text=encode_text(&unit,unit?1:0,0),.unmodified_text=plain};
+}
+static void chromium_key_event_free(NXSKeyEvent key)
+{
+  free((void *)key.text);
+  free((void *)key.unmodified_text);
+}
 static void (*original_browser_added)(void *);
 static void (*original_browser_destroying)(void *,void *);
 static void (*original_browser_active)(void *,void *,int);
@@ -190,17 +208,9 @@ static int menu_browser_key(struct MenuBrowser *b,const void *event,int execute)
   if(!state||state->parts[3].x!=1) {
     if(!state||!app_menu_bind(menu))return 0;
   }
-  uint16_t text_unit=((uint16_t (*)(const void *))(base+NXS_KEY_TEXT_OFFSET))(event);
-  uint16_t plain_unit=((uint16_t (*)(const void *))(base+NXS_KEY_UNMODIFIED_OFFSET))(event);
-  char *text=encode_text(&text_unit,text_unit?1:0,0),*plain=encode_text(&plain_unit,plain_unit?1:0,0);
-  int handled=0;
-  if(text&&plain) {
-    NXSKeyEvent key={.size=sizeof(key),.type=NXS_KEY_DOWN,.modifiers=views_modifiers(event),
-      .key=views_logical(*(const uint16_t *)((const char *)event+136)),
-      .repeat=!!(*(const unsigned *)((const char *)event+80)&(1u<<17)),.text=text,.unmodified_text=plain};
-    handled=native_model_menu_key(menu->control,&key,execute);
-  }
-  free(text);free(plain);
+  NXSKeyEvent key=chromium_key_event(event);
+  int handled=key.text&&key.unmodified_text&&native_model_menu_key(menu->control,&key,execute);
+  chromium_key_event_free(key);
   if(log_fd>=0&&handled)dprintf(log_fd,"%d app-menu-global-key browser=%llu execute=%d handled=1\n",getpid(),(unsigned long long)b->identity,execute);
   return handled;
 }

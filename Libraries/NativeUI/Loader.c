@@ -103,12 +103,14 @@ int nxs_control_focused(NXSControl *c)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_focused)?p->control_focused(c):0;}
 int nxs_control_key(NXSControl *c,const NXSKeyEvent *event)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_key)?p->control_key(c,event):NXS_INPUT_UNHANDLED;}
-NXSEditBindings *nxs_edit_bindings_create(void)
+unsigned nxs_edit_bindings_capabilities(void)
 {
   const NXSNativeUIAPI *p=nxs_native_ui_api();
   return HAS_INPUT(p,edit_bindings_create)&&HAS_INPUT(p,edit_bindings_destroy)&&
-    HAS_INPUT(p,edit_bindings_reset)&&HAS_INPUT(p,edit_bindings_resolve)?p->edit_bindings_create():NULL;
+    HAS_INPUT(p,edit_bindings_reset)&&HAS_INPUT(p,edit_bindings_resolve);
 }
+NXSEditBindings *nxs_edit_bindings_create(void)
+{return nxs_edit_bindings_capabilities()?nxs_native_ui_api()->edit_bindings_create():NULL;}
 void nxs_edit_bindings_destroy(NXSEditBindings *bindings)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(bindings&&HAS_INPUT(p,edit_bindings_destroy))p->edit_bindings_destroy(bindings);}
 void nxs_edit_bindings_reset(NXSEditBindings *bindings)

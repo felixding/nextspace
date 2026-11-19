@@ -284,16 +284,23 @@ static int views_key(struct ViewsField *f,const void *event,const void *string,i
   }
   return transaction.attempted?NXS_INPUT_HANDLED:transaction.proposed?0:handled;
 }
+static char *views_layout_character(const void *event) {
+  /* GetCharacter initializes the actual layout key lazily. Its return value
+   * may be a control byte, so use the already translated printable DomKey. */
+  ((uint16_t (*)(const void *))(base+NXS_CHROMIUM_VIEWS_CHARACTER_OFFSET))(event);
+  unsigned dom=*(const unsigned *)((const char *)event+152),code=dom&0x1fffff;
+  if((dom&0x600000)!=0x400000)return NULL;
+  uint16_t units[2]={code,0};unsigned count=1;
+  if(code>0xffff){code-=0x10000;units[0]=0xd800+(code>>10);units[1]=0xdc00+(code&1023);count=2;}
+  return encode_text(units,count,0);
+}
 static int views_command_key(struct ViewsField *f,const void *event) {
   if(!f||*(const int *)((const char *)event+8)!=7)return 0;
   unsigned key=*(const uint16_t *)((const char *)event+136),logical=views_logical(key);
   if(key==16||key==17||key==18||key==91||key==92||key==9||key==13)return 0;
   if(!logical&&!(views_modifiers(event)&(NXS_CONTROL|NXS_ALT|NXS_SUPER)))return 0; /* Real character insertion follows. */
-  ((uint16_t (*)(const void *))(base+NXS_CHROMIUM_VIEWS_CHARACTER_OFFSET))(event);
-  unsigned dom=*(const unsigned *)((const char *)event+152),code=dom&0x1fffff;
-  uint16_t units[2]={code,0};unsigned count=1;
-  if(code>0xffff){code-=0x10000;units[0]=0xd800+(code>>10);units[1]=0xdc00+(code&1023);count=2;}
-  char *text=(dom&0x600000)==0x400000?encode_text(units,count,0):strdup("");
+  char *text=views_layout_character(event);
+  if(!text)text=strdup("");
   int handled=0;if(text){handled=views_key(f,event,NULL,0,text,0);free(text);}return handled;
 }
 static int views_accelerator_key(void *manager,const void *event) {
