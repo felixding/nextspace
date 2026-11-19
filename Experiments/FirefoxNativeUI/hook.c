@@ -98,6 +98,7 @@ static void native_popup_release_context(void *);
 static void native_popup_notification(const struct NXSInvalidations *);
 static int native_popups_exist(void);
 static void native_popup_pointer_post(const void *);
+static void native_popup_dismiss(void);
 static int tabs_frame_owned(const void *);
 static int tabs_draw(void *,void *,const struct RectF *);
 static void tabs_forget(void *);

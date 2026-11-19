@@ -24,6 +24,7 @@ static struct GeckoPopup *gecko_popups;
 static void *popup_label_atom,*popup_hidden_atom;
 static __thread const void *popup_mouse_event;
 static uint64_t popup_tracking_id;
+static uint64_t popup_pending_press;
 static uint32_t (*original_popup_chrome_event)(void *,void *,const void *,int,int,int *);
 static uint32_t (*original_popup_post)(void *,void *);
 static int (*original_popup_longest)(void *,void *);
@@ -326,6 +327,13 @@ static void native_popup_notification(const struct NXSInvalidations *invalidatio
   for(i=0;i<count;i++){struct GeckoPopup *p=popup_find_id(ids[i]);if(p)popup_after_input(ids[i],popup_request(p,5,0));}
   free(ids);
 }
+static void native_popup_dismiss(void) {
+  for(struct GeckoPopup *p=gecko_popups;p;p=p->next)if(p->visible) {
+    uint64_t id=p->id;
+    popup_after_input(id,popup_request(p,14,0));
+    return;
+  }
+}
 static int popup_event_name(const struct GeckoString *name,const char *text) {
   size_t size=strlen(text);if(name->length!=size)return 0;
   for(unsigned i=0;i<size;i++)if(name->data[i]!=(unsigned char)text[i])return 0;return 1;
@@ -343,9 +351,10 @@ static struct NXSResponse *popup_pointer_request(struct GeckoPopup *p,unsigned o
   return exchange_bytes(&request,sizeof(request));
 }
 static void native_popup_pointer_post(const void *event) {
-  struct GeckoPopup *p=popup_find_id(popup_tracking_id);if(!p)return;
   unsigned message=*(const uint16_t *)((const char *)event+18);
   if(message!=13&&(message!=14||*(const int16_t *)((const char *)event+152)!=0))return;
+  if(message==14)popup_pending_press=0;
+  struct GeckoPopup *p=popup_find_id(popup_tracking_id);if(!p)return;
   uint64_t id=p->id;struct NXSResponse *r=popup_pointer_request(p,message==13?3:4,event);
   if(r){if(!r->parts[0].y)popup_tracking_id=0;popup_after_input(id,r);}
 }
@@ -355,9 +364,16 @@ static uint32_t popup_chrome_event(void *document,void *target,const void *name,
     void *frame=*(void **)((char *)target+96);
     if((show||hide)&&prepare_popup_image(frame)) {
       struct GeckoPopup *p=popup_find(frame);uint64_t id=p->id;
+      if(hide&&popup_pending_press==id)popup_pending_press=0;
       /* A native empty model has no menu to open. Keep the original engine
        * lifecycle closed instead of creating a second, empty actor window. */
       if(show&&p->model.packet&&!p->model.packet->count){popup_engine_open(target,0);if(result)*result=1;return 0;}
+      if(show&&paint_forms_only&&popup_mouse_event) {
+        /* Finish Gecko's opening click before the native menu can receive it. */
+        popup_pending_press=id;
+        if(result)*result=1;
+        return 0;
+      }
       if(popup_origin(p)) {
         struct NXSResponse *r=show&&popup_mouse_event?popup_pointer_request(p,2,popup_mouse_event):popup_request(p,14,show);
         if(r&&(r->parts[3].x==1||(show&&popup_mouse_event&&r->parts[0].y))) {
@@ -391,15 +407,29 @@ static uint32_t popup_post(void *node,void *visitor) {
     }
   }
   const void *previous=popup_mouse_event;
-  if(p&&p->owned&&message==15&&(*(const uint8_t *)((char *)event+48)&1)&&
-      *(const int16_t *)((const char *)event+152)==0)popup_mouse_event=event;
-  uint32_t result=original_popup_post(node,visitor);popup_mouse_event=previous;return result;
+  int primary=(message==14||message==15)&&(*(const uint8_t *)((char *)event+48)&1)&&
+      *(const int16_t *)((const char *)event+152)==0;
+  if(primary&&message==15&&p&&p->owned) {
+    popup_pending_press=0;
+    popup_mouse_event=event;
+  }
+  uint64_t pending=primary&&message==14&&p&&p->id==popup_pending_press?p->id:0;
+  uint32_t result=original_popup_post(node,visitor);popup_mouse_event=previous;
+  if(pending) {
+    popup_pending_press=0;
+    p=popup_find_id(pending);
+    if(p&&prepare_popup_image(p->frame)&&popup_origin(p))
+      popup_after_input(pending,popup_request(p,14,1));
+  }
+  return result;
 }
 static void native_popup_forget(void *frame) {
   struct GeckoPopup **link=&gecko_popups;
   while(*link) {
     struct GeckoPopup *p=*link;if(p->frame!=frame){link=&p->next;continue;}
-    *link=p->next;if(popup_tracking_id==p->id)popup_tracking_id=0;popup_request(p,14,0);popup_request(p,6,0);if(p->visible)popup_engine_open(p->node,0);
+    *link=p->next;if(popup_tracking_id==p->id)popup_tracking_id=0;
+    if(popup_pending_press==p->id)popup_pending_press=0;
+    popup_request(p,14,0);popup_request(p,6,0);if(p->visible)popup_engine_open(p->node,0);
     popup_model_free(&p->model);free(p->pixels);free(p);release_idle_widget_notifier();break;
   }
 }

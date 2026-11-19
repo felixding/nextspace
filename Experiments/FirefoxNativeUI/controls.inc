@@ -456,11 +456,14 @@ static uint32_t radio_pre_event(void *self,void *context,void *event,void *frame
   return result;
 }
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
+  unsigned message=*(const uint16_t *)((const char *)event+18);
+  int trusted=*(const uint8_t *)((const char *)event+48)&1;
+  /* Menu clicks belong to the native surface. A press or wheel delivered
+   * to Gecko belongs to the browser underneath, including its scrollers. */
+  if(paint_forms_only&&trusted&&(message==15||message==220))native_popup_dismiss();
   if(document_scroller_pointer_post(frame,event,status))
     return original_post_event(self,context,event,frame,status,override);
   uint64_t tab_target=tabs_pointer_target(frame,event);
-  unsigned message=*(const uint16_t *)((const char *)event+18);
-  int trusted=*(const uint8_t *)((const char *)event+48)&1;
   if(trusted&&message==15)native_activation_clear(&native_search_activation);
   if(trusted){native_popup_pointer_post(event);native_list_pointer_post(event);}
   if(paint_forms_only)return original_post_event(self,context,event,frame,status,override);
