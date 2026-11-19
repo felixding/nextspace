@@ -11,6 +11,11 @@ static uint64_t global_key_walk(void *listener,unsigned purpose,void *dom_event)
      * callers; keep them explicit before crossing the independent UI bridge. */
     if(*(uint16_t *)((char *)event+18)==4&&(flags&1)&&!(flags&((1u<<9)|(1u<<23)))&&
        !text_modifier_event(event)&&ensure_widget_lifetime()) {
+      int modal=gtk_context_owns_keys();
+      /* The current event already carries Gecko's editor commands. Leave
+       * dispatch to the editor instead of queueing a second menu action. */
+      if(!modal&&edit_keys_requested&&gecko_event_has_edit_commands(event))
+        return original_global_key_walk(listener,purpose,dom_event);
       char *text=key_text(event);
       if(text) {
         NXSKeyEvent key={.size=sizeof(key),.type=NXS_KEY_DOWN,.text=text,.unmodified_text=text,
@@ -19,7 +24,6 @@ static uint64_t global_key_walk(void *listener,unsigned purpose,void *dom_event)
         /* Modal menu input precedes the retained chrome field's handlers.
          * Preventing this original event also prevents a second walk from
          * dispatching its action again. NSMenu owns matching and commands. */
-        int modal=gtk_context_owns_keys();
         int execute=purpose==0||modal;
         int accepted=native_application_menu_key(&key,execute);free(text);
         if(accepted||modal) {

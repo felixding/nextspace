@@ -113,6 +113,7 @@ static int document_scrollers_exist(void);
 static int document_scroller_pointer_post(void *,void *,int *);
 static int document_scroller_pointer_pre(void *,void *,int *);
 #include "controls.inc"
+#include "edit-bindings.inc"
 #include "tabs.inc"
 #include "popups.inc"
 #include "focus-order.inc"
@@ -298,6 +299,10 @@ static void install(void) {
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_focus_input_order()){note("Gecko focus/input ordering guard failed; unchanged");return;}
   if(!prepare_global_keys()){note("Gecko global menu key guard failed; unchanged");return;}
+  if(edit_keys_requested&&!prepare_gecko_edit_keys()) {
+    edit_keys_requested=0;
+    note("Gecko edit command guard failed; original bindings retained");
+  }
   if(gtk_surface_geometry){activate_detours(geometry_detours,1);activate_popup_geometry();note("experimental shared GTK surface geometry binding installed");note("original Gecko popup parent coordinate conversion enabled");}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   activate_detours(background_detours,sizeof(background_detours)/sizeof(*background_detours));
@@ -323,6 +328,7 @@ static void install(void) {
     activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));
     note("native Gecko original key registry and global menu binding installed");
   }
+  if(edit_keys_requested){activate_detours(&gecko_edit_key_detour,1);note("native Gecko edit bindings enabled");}
   if(widgets_enabled){activate_detours(focus_order_detours,2);note("native Gecko focus/input ordering installed");}
   installed=1;
   if(document_scrollbars_enabled)activate_detours(document_scroller_detours,sizeof(document_scroller_detours)/sizeof(*document_scroller_detours));
