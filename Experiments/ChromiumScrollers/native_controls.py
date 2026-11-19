@@ -8,9 +8,13 @@ import time
 import select
 import socket
 import importlib.util
+import struct
 from pathlib import Path
 
 MAGIC = 0x4e585549
+
+def native_presentation_scale_supported(scale):
+    return math.isfinite(scale) and .125<=scale<=8
 
 class ControlRequest(C.Structure):
     _fields_ = [('magic', C.c_uint32), ('operation', C.c_uint32), ('process', C.c_uint32),
@@ -24,6 +28,10 @@ class ControlConfig(C.Structure):
     _fields_ = [('size', C.c_uint32), ('width', C.c_double), ('height', C.c_double),
                 ('minimum', C.c_double), ('maximum', C.c_double), ('value', C.c_double),
                 ('enabled', C.c_int), ('state', C.c_int), ('indeterminate', C.c_int), ('title', C.c_char_p)]
+
+def scale_rectangle(rectangle, scale):
+    for field in ('x','y','width','height'):
+        setattr(rectangle,field,getattr(rectangle,field)*scale)
 
 class ControlActionsRequest(C.Structure):
     _fields_ = ControlRequest._fields_[:7]+[('after',C.c_uint64),('subscribe',C.c_uint32),
@@ -159,7 +167,7 @@ class NativeControlServer:
         self.active = None
         self.metric_cache = {}
         self.changed = ControlChanged(self._changed)
-        self.pump = pump_type(lambda context: dispatch(0))
+        self.pump = pump_type(self.pump_tracking)
         native.nxs_control_create.argtypes = [C.c_int, ControlChanged, pump_type, C.c_void_p]
         native.nxs_control_create.restype = C.c_void_p
         native.nxs_control_destroy.argtypes = [C.c_void_p]
@@ -214,6 +222,9 @@ class NativeControlServer:
             native.nxs_control_color_panel_capabilities.restype=C.c_uint
             self.color_panel_capabilities=native.nxs_control_color_panel_capabilities()
             native.nxs_control_color_open.argtypes=[C.c_void_p,C.c_int];native.nxs_control_color_open.restype=C.c_int
+            if self.color_panel_capabilities&2:
+                native.nxs_control_color_lifecycle.argtypes=[C.c_void_p,C.c_uint]
+                native.nxs_control_color_lifecycle.restype=C.c_int
         if hasattr(native,'nxs_control_specialized_capabilities'):
             native.nxs_control_specialized_capabilities.restype=C.c_uint
             self.specialized_capabilities=native.nxs_control_specialized_capabilities()
@@ -261,6 +272,8 @@ class NativeControlServer:
             native.nxs_control_track_clicks.restype=C.c_int
         self.event_capabilities, self.event_deadline = 0, -1
         self.generations = {}
+        self.host_epoch = 0
+        self.global_generations = {}
         self.notifiers = {}
         self.range_capabilities=0
         self.popup_capabilities=0
@@ -312,6 +325,7 @@ class NativeControlServer:
             native.nxs_control_popup_open.argtypes=[C.c_void_p,C.c_int]
             native.nxs_control_popup_open.restype=C.c_int
         self.source_capabilities=0
+        self.callback_source_capabilities=0
         if hasattr(native,'nxs_native_ui_source_capabilities'):
             native.nxs_native_ui_source_capabilities.argtypes=[]
             native.nxs_native_ui_source_capabilities.restype=C.c_uint
@@ -320,6 +334,12 @@ class NativeControlServer:
             native.nxs_native_ui_source_create.restype=C.c_void_p
             native.nxs_native_ui_source_destroy.argtypes=[C.c_void_p]
             native.nxs_native_ui_source_destroy.restype=C.c_int
+            if hasattr(native,'nxs_native_ui_callback_source_capabilities'):
+                native.nxs_native_ui_callback_source_capabilities.argtypes=[]
+                native.nxs_native_ui_callback_source_capabilities.restype=C.c_uint
+                self.callback_source_capabilities=native.nxs_native_ui_callback_source_capabilities()
+                native.nxs_native_ui_source_callback.argtypes=[C.c_int,pump_type,C.c_void_p]
+                native.nxs_native_ui_source_callback.restype=C.c_void_p
         if hasattr(native,'nxs_control_popup_capabilities'):
             native.nxs_control_popup_capabilities.argtypes=[]
             native.nxs_control_popup_capabilities.restype=C.c_uint
@@ -332,6 +352,9 @@ class NativeControlServer:
             native.nxs_control_popup_item_rect.restype=ControlRect
             native.nxs_control_set_screen_origin.argtypes=[C.c_void_p,C.c_double,C.c_double]
             native.nxs_control_set_screen_origin.restype=C.c_int
+            if hasattr(native,'nxs_control_set_screen_bounds'):
+                native.nxs_control_set_screen_bounds.argtypes=[C.c_void_p,ControlRect]
+                native.nxs_control_set_screen_bounds.restype=C.c_int
         if hasattr(native,'nxs_control_popup_title_capabilities'):
             native.nxs_control_popup_title_capabilities.restype=C.c_uint
             self.popup_title_capabilities=native.nxs_control_popup_title_capabilities()
@@ -376,12 +399,21 @@ class NativeControlServer:
             self.auxiliary_capabilities=native.nxs_control_auxiliary_capabilities() if self.notification_capabilities else 0
             native.nxs_control_auxiliary_activate.argtypes=[C.c_void_p,C.c_char_p]
             native.nxs_control_auxiliary_activate.restype=C.c_int
+            if hasattr(native,'nxs_control_auxiliary_parent'):
+                native.nxs_control_auxiliary_parent.argtypes=[C.c_void_p,C.c_char_p]
+                native.nxs_control_auxiliary_parent.restype=C.c_int
         try:from auxiliary_activation import AuxiliaryActivation
         except ModuleNotFoundError as error:
             if error.name!='auxiliary_activation':raise
             spec=importlib.util.spec_from_file_location('nextspace_auxiliary_activation',Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge/auxiliary_activation.py')
             module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);AuxiliaryActivation=module.AuxiliaryActivation
         self.auxiliary_activation=AuxiliaryActivation(self,ColorOwners.ancestor)
+        try:from outlines import NativeOutlines
+        except ModuleNotFoundError as error:
+            if error.name!='outlines':raise
+            spec=importlib.util.spec_from_file_location('nextspace_outlines',Path(__file__).resolve().parents[2]/'Libraries/NativeUI/Bridge/outlines.py')
+            module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);NativeOutlines=module.NativeOutlines
+        self.outlines=NativeOutlines(self,ControlListRequest)
 
     def send(self,client,response,data=b''):
         barrier=self.reply_barriers.get((client,int(response.reserved)&0xffffffff))
@@ -423,6 +455,7 @@ class NativeControlServer:
             decision=NativeCommandDecision.from_buffer_copy(data)
             if decision.magic not in (TEXT_EDIT_MAGIC,COMMAND_MAGIC,MENU_COMMAND_MAGIC) or decision.serial>=serial or decision.result not in ((-1,0,1) if decision.magic==COMMAND_MAGIC else (0,1)):break
             if decision.magic==MENU_COMMAND_MAGIC:self.complete_menu_reply(process,decision.serial)
+        self.log('native-menu-owner-unavailable',stage='acknowledgment',process=process,control=state['key'][1],serial=serial,expired=time.monotonic()>=deadline)
         if self.text_filters.get(process) is entry:self.fail_text_filter(entry)
         return False
 
@@ -540,7 +573,9 @@ class NativeControlServer:
                 if decision.magic==MENU_COMMAND_MAGIC:self.complete_menu_reply(process,decision.serial)
             self.native.nxs_native_ui_dispatch_events(min(.1,max(0,deadline-time.monotonic())))
             self.dispatch(0)
-        if not state['destroy'] and self.text_filters.get(process) is entry:self.fail_text_filter(entry)
+        if not state['destroy'] and self.text_filters.get(process) is entry:
+            self.log('native-menu-owner-unavailable' if magic==MENU_COMMAND_MAGIC else 'native-command-owner-unavailable',stage='decision',process=process,control=state['key'][1],serial=serial,expired=time.monotonic()>=deadline)
+            self.fail_text_filter(entry)
         return 0
 
     def _command(self,context,selector,phase):
@@ -601,10 +636,28 @@ class NativeControlServer:
             try:os.eventfd_write(notifier['descriptor'],1)
             except BlockingIOError:pass # Already readable: invalidations coalesce.
 
-    def invalidate(self,process):
-        self.generations[process]=self.generations.get(process,0)+1
+    def generation(self,process):
+        return self.generations.get(process,self.host_epoch<<32)
+
+    def invalidate(self,process,state=None,fanout=True):
+        generation=self.generation(process)+1
+        self.generations[process]=generation
+        if state is None:self.global_generations[process]=generation
+        else:state['native_generation']=generation
         self.signal(process)
-        self.color_owners.fanout(process)
+        if fanout:self.color_owners.fanout(process,state)
+
+    def invalidation_snapshot(self,process,since):
+        # Generation receipts survive another request reading a native image.
+        # A missing/overflowed history requires a full application repaint.
+        current=self.generation(process)
+        full=(not math.isfinite(since) or since!=int(since) or since<=0 or since>current or
+              self.global_generations.get(process,0)>since)
+        rows=[(state['key'][1],state['key'][2]) for state in self.controls.values()
+              if state['key'][0]==process and not state['destroy'] and
+                 state.get('native_generation',0)>since]
+        if full or len(rows)>1024:return struct.pack('II',0x4e584449,0xffffffff)
+        return struct.pack('II',0x4e584449,len(rows))+b''.join(struct.pack('QII',control,kind,0) for control,kind in rows)
 
     def notification_message(self,client,req,descriptors,sender_pid):
         accepted=0;reason="request-or-owner"
@@ -615,7 +668,7 @@ class NativeControlServer:
                 self.remove_notifier(req.process)
                 accepted=1
             elif (req.operation==15 and self.notification_capabilities and sender_pid and sender_pid>0 and len(descriptors)==1 and
-                  math.isfinite(req.value) and 0<=req.value<=self.generations.get(req.process,0)):
+                  math.isfinite(req.value) and 0<=req.value<=self.generation(req.process)):
                 reason="eventfd-validation"
                 descriptor=descriptors[0]
                 try:
@@ -644,7 +697,7 @@ class NativeControlServer:
                         accepted=1
                         # Cover the race between the renderer's generation
                         # snapshot and registration without polling or timers.
-                        if self.generations.get(req.process,0)>req.value:self.signal(req.process)
+                        if self.generation(req.process)>req.value:self.signal(req.process)
                 except (OSError,KeyError,ValueError) as error:reason=type(error).__name__+":"+str(error)
         if not accepted:self.log('native-notifier-rejected',reason=reason,sender_pid=sender_pid,descriptors=len(descriptors))
         self.log('native-notifier',process=req.process,operation=req.operation,accepted=accepted,
@@ -661,14 +714,23 @@ class NativeControlServer:
                 if visible!=state.get('popup_visible',False):
                     state['popup_visible']=visible
                     process,control,kind=state['key']
-                    self.invalidate(process)
+                    self.invalidate(process,state)
                     self.log('native-popup-visibility',process=process,control=control,visible=visible,generation=self.generations[process])
+            if state['key'][2]==16 and not state['destroy']:
+                active=bool(self.native.nxs_control_state(state['native']).state)
+                if active!=state.get('color_panel_active',False):
+                    state['color_panel_active']=active
+                    process,control,kind=state['key']
+                    # Picker completion must wake its owner even if the inline
+                    # image remains dirty or a renderer has no new bitmap.
+                    self.invalidate(process,state)
+                    self.log('native-color-panel-state',process=process,control=control,active=active)
             if state['destroy'] or state.get('invalidated'):
                 continue
             if self.native.nxs_control_needs_display(state['native']):
                 state['invalidated'] = True
                 process, control, kind = state['key']
-                self.invalidate(process)
+                self.invalidate(process,state)
                 self.log('native-form-invalidation', process=process, control=control, kind=kind,
                          generation=self.generations[process])
         return self.event_deadline
@@ -718,7 +780,7 @@ class NativeControlServer:
         state['activations']=state.get('activations',0)+int(event==1)
         process=state['key'][0]
         timestamp=time.monotonic_ns()
-        self.invalidate(process)
+        self.invalidate(process,state)
         self.log('native-form-action', process=state['key'][0], control=state['key'][1],
                  kind=state['key'][2], action=event, count=state['actions'],
                  value=native_state.contents.value, state=native_state.contents.state,monotonic_ns=timestamp)
@@ -731,12 +793,40 @@ class NativeControlServer:
         return bool(entry and entry['client'] is client and entry['pid']==pid and
                     not select.select([entry['lifetime']],[],[],0)[0])
 
-    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None, payload=b'',viewport=None,image=None):
+    def record_input_result(self,client,req,state,result):
+        # Keep the original action baseline, even if the user edits the native
+        # panel before a delayed/lost opening reply is recovered. No UI is run
+        # when reading a receipt. Retention is bounded per native control.
+        receipts=state.setdefault('input_receipts',[])
+        current=self.native.nxs_control_state(state['native'])
+        current.tracking=self._tracking(state)
+        receipts.append((client,req.process,req.control,req.operation,req.reserved,
+                         int(result),current,state['actions']))
+        del receipts[:-8]
+
+    def reply_input_receipt(self,client,req,state,sender_pid):
+        valid=bool(state and state['client'] is client and not req.text_size and
+            (not self.input_owner or self.owns_process(client,req.process,sender_pid)))
+        receipt=state.get('last_key') if valid and req.x==0 else None
+        snapshot=None
+        if valid and req.x in (2,4,14,22,59):
+            saved=next((r for r in reversed(state.get('input_receipts',[])) if
+                r[:5]==(client,req.process,req.control,int(req.x),req.value)),None)
+            if saved:receipt=(saved[4],saved[5]);snapshot=(saved[6],saved[7])
+        accepted=bool(receipt and req.value==receipt[0])
+        self.log('native-input-receipt' if req.x else 'native-key-receipt',process=req.process,
+                 control=req.control,operation=req.x or 8,sequence=receipt[0] if accepted else None,accepted=accepted)
+        self._respond(client,req,state,input_result=receipt[1] if accepted else 0,key_receipt=accepted,
+            native_snapshot=snapshot,
+            payload=self.radio_snapshot(state) if accepted and req.kind==12 else self.list_snapshot(state) if accepted and req.kind==13 else b'')
+
+    def _respond(self, client, req, state=None, pixels=False, input_result=0, rectangle=None, payload=b'',viewport=None,image=None,key_receipt=False,native_snapshot=None):
         response = self.response_type()
         response.magic, response.reserved = MAGIC, req.reserved
         response.parts[3].x = input_result
+        response.parts[3].height = int(key_receipt)
         response.parts[3].width = self.input_capabilities
-        response.parts[4].x = self.generations.get(req.process, 0)
+        response.parts[4].x = self.generation(req.process)
         response.parts[4].y = self.event_deadline
         response.parts[4].width = self.event_capabilities
         response.parts[5].width = self.range_capabilities
@@ -747,14 +837,15 @@ class NativeControlServer:
         data = payload
         if state:
             response.parts[5].x=state.get('step',0)
-            current = self.native.nxs_control_state(state['native'])
+            current = native_snapshot[0] if native_snapshot else self.native.nxs_control_state(state['native'])
             response.parts[0].x = current.value
-            response.parts[0].y = self._tracking(state)
-            response.parts[0].width = state['actions']
+            response.parts[0].y = current.tracking if native_snapshot else self._tracking(state)
+            response.parts[0].width = native_snapshot[1] if native_snapshot else state['actions']
             response.parts[0].height = current.state
             if req.kind==16:response.parts[2].height=state.get('color_model_actions',0)
             preferred = self.native.nxs_control_size(state['native'])
-            response.parts[1].width, response.parts[1].height = preferred.width, preferred.height
+            presentation=state.get('presentation',1)
+            response.parts[1].width, response.parts[1].height = preferred.width*presentation, preferred.height*presentation
             response.parts[2].x = current.enabled
             if req.kind in self.text_kinds:
                 response.parts[2].width=state.get('edits',0)
@@ -771,11 +862,16 @@ class NativeControlServer:
                 frame=rectangle if rectangle is not None else tabs.content
                 for field in ('x','y','width','height'):setattr(response.parts[6],field,getattr(frame,field))
             if req.kind==13:
-                response.parts[5].y=self.native.nxs_control_backing_scale(state['native']) if hasattr(self.native,'nxs_control_backing_scale') else state.get('scale',1)
+                response.parts[5].y=state.get('presentation') or (self.native.nxs_control_backing_scale(state['native']) if hasattr(self.native,'nxs_control_backing_scale') else state.get('scale',1))
             if req.kind in (12,13) and rectangle is not None:
                 for field in ('x','y','width','height'):setattr(response.parts[6],field,getattr(rectangle,field))
             if pixels:
+                draw_started=time.monotonic() if os.environ.get('NEXTSPACE_TRACE_NATIVE_RPC')=='1' else None
                 bitmap = self.native.nxs_control_draw(state['native'], state.get('scale',1))
+                if draw_started is not None and time.monotonic()-draw_started>=.02:
+                    self.log('native-draw-timing',process=req.process,kind=req.kind,control=req.control,
+                             seconds=time.monotonic()-draw_started,finished=time.monotonic(),
+                             width=bitmap.width,height=bitmap.height)
                 if bitmap.pixels:
                     response.width, response.height, response.stride = bitmap.width, bitmap.height, bitmap.stride
                     data = C.string_at(bitmap.pixels, bitmap.stride * bitmap.height)
@@ -785,9 +881,32 @@ class NativeControlServer:
         if viewport is not None:
             for field in ('x','y','width','height'):setattr(response.parts[5],field,getattr(viewport.visible,field))
             response.parts[6].width=viewport.content.width;response.parts[6].height=viewport.content.height
+        if state and state.get('presentation',1)!=1:
+            scale=state['presentation']
+            scale_rectangle(response.parts[6],scale)
+            if viewport is not None:scale_rectangle(response.parts[5],scale)
+            if req.operation in (34,52) and len(data)==C.sizeof(TextGeometry):
+                geometry=TextGeometry.from_buffer_copy(data)
+                scale_rectangle(geometry.clip,scale)
+                for field in ('width','height'):setattr(geometry.client,field,getattr(geometry.client,field)*scale)
+                for point in (geometry.minimum,geometry.maximum):point.x*=scale;point.y*=scale
+                data=bytes(geometry)
         self.send(client, response, data)
 
-    def message(self, client, data, descriptors=(),sender_pid=None):
+    def message(self, client, data, descriptors=(),sender_pid=None,presentation=None):
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==71:
+            self.outlines.message(client,data);return
+        if len(data)>=8 and int.from_bytes(data[4:8],'little')==65:
+            size=C.sizeof(ControlRequest)
+            if descriptors or len(data)<size+8:return
+            req=ControlRequest.from_buffer_copy(data)
+            scale=struct.unpack_from('d',data,size)[0]
+            if (req.magic!=MAGIC or req.text_size!=len(data)-size-8 or
+                    not native_presentation_scale_supported(scale)):
+                self._respond(client,req);return
+            req.operation=1
+            self.message(client,bytes(req)+data[size+8:],(),sender_pid,presentation=scale)
+            return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==63:
             if len(data)!=C.sizeof(ControlActionsRequest):return
             req=ControlActionsRequest.from_buffer_copy(data)
@@ -810,7 +929,7 @@ class NativeControlServer:
                 state['action_log']=ActionLog(state['actions'])
             payload=state['action_log'].snapshot(req.after,baseline)
             self._respond(client,req,state,input_result=1,payload=payload);return
-        if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19)):return
+        if descriptors and (len(data)<8 or int.from_bytes(data[4:8],'little') not in (15,19,64)):return
         if len(data)>=8 and int.from_bytes(data[4:8],'little') in (55,56,57,58):
             self.specialized_message(client,data,sender_pid)
             return
@@ -835,7 +954,7 @@ class NativeControlServer:
         if len(data)>=8 and int.from_bytes(data[4:8],'little') in (36,38):
             self.tab_message(client,data)
             return
-        if len(data)>=8 and int.from_bytes(data[4:8],'little') in (25,26,27,28,29,30):
+        if len(data)>=8 and int.from_bytes(data[4:8],'little') in (25,26,27,28,29,30,69,70):
             self.menus.message(client,data,sender_pid)
             return
         if len(data)>=8 and int.from_bytes(data[4:8],'little')==31:
@@ -873,19 +992,23 @@ class NativeControlServer:
             self._respond(client, req)
             return
         if req.operation==64:
-            if not descriptors:self.auxiliary_activation.publish(client,req,sender_pid,data[C.sizeof(req):])
+            if descriptors:self.auxiliary_activation.register(client,req,sender_pid,descriptors)
+            else:self.auxiliary_activation.publish(client,req,sender_pid,data[C.sizeof(req):])
             return
-        if req.operation in (60,61,62):
+        if req.operation in (60,61,62,67):
             self.color_owners.message(client,req,sender_pid);return
-        if req.operation in (5,59) and req.kind==16:
+        if req.operation in (0,5,59,66) and req.kind==16:
             source=self.color_owners.resolve(client,req,sender_pid)
             if source:
-                accepted=req.operation==5 or req.state in (0,1) and bool(self.native.nxs_control_color_open(source['native'],req.state))
+                if req.operation==66:
+                    self.reply_input_receipt(client,req,source,sender_pid);return
+                accepted=req.operation in (0,5) or req.state in (0,1) and self.color_owners.panel(client,req,sender_pid,source)
+                if req.operation==59:self.record_input_result(client,req,source,accepted)
                 if accepted and req.operation==59:
                     owner=self.notifiers.get(source['key'][0])
                     if req.state and owner:self.auxiliary_activation.open(source,owner['pid'])
                     else:self.auxiliary_activation.retire(source)
-                self._respond(client,req,source,input_result=int(accepted),pixels=bool(accepted));return
+                self._respond(client,req,source,input_result=int(accepted),pixels=bool(accepted and req.operation!=0));return
         if req.operation in (15,16):
             self.notification_message(client,req,descriptors,sender_pid)
             return
@@ -894,7 +1017,7 @@ class NativeControlServer:
             return
         if req.operation == 9:
             self.dispatch_events()
-            self._respond(client, req)
+            self._respond(client, req,payload=self.invalidation_snapshot(req.process,req.value) if self.owns_process(client,req.process,sender_pid) else struct.pack('II',0x4e584449,0xffffffff))
             return
         key = req.process, req.control, req.kind
         state = self.controls.get(key)
@@ -903,11 +1026,21 @@ class NativeControlServer:
         if state and state['destroy'] and req.operation != 5:
             self._respond(client, req)
             return
+        if req.operation==66:
+            self.reply_input_receipt(client,req,state,sender_pid)
+            return
+        if state and req.operation in (2,3,4,22,33,35,53):
+            scale=state.get('presentation',1)
+            req.x/=scale;req.y/=scale
+            if req.operation==35:req.minimum/=scale;req.maximum/=scale
         if req.operation == 1:
+            scale=presentation if presentation is not None else state.get('presentation',1) if state else 1
+            if state and self._tracking(state) and scale!=state.get('presentation',1):
+                self._respond(client,req);return
             if req.kind==13 and (not req.process or not req.control or req.text_size or req.enabled not in (0,1) or
                     any((req.minimum,req.maximum,req.value,req.x,req.y,req.state,req.indeterminate,req.modifiers))):
                 self._respond(client,req);return
-            if (req.kind not in (*range(1,11),12,13,14,15,16,17) or (req.kind>=15 and not self.specialized_capabilities&(1<<(req.kind-15))) or (req.kind==14 and not self.text_capabilities&64) or (req.kind==13 and not self.list_capabilities) or (req.kind==12 and not self.radio_capabilities) or (req.kind==10 and not self.tab_capabilities) or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
+            if (req.kind not in (*range(1,11),12,13,14,15,16,17,18) or (15<=req.kind<=17 and not self.specialized_capabilities&(1<<(req.kind-15))) or (req.kind==18 and not self.outlines.available) or (req.kind==14 and not self.text_capabilities&64) or (req.kind==13 and not self.list_capabilities) or (req.kind==12 and not self.radio_capabilities) or (req.kind==10 and not self.tab_capabilities) or (req.kind==9 and not self.text_capabilities&8) or (req.kind==6 and not self.popup_capabilities) or
                 (req.kind in self.text_kinds and not self.text_capabilities) or
                 not all(math.isfinite(x) for x in (req.width, req.height, req.minimum, req.maximum, req.value))):
                 self._respond(client, req)
@@ -916,8 +1049,8 @@ class NativeControlServer:
                 self._respond(client, req)
                 return
             if req.kind in (10,12,13):
-                scale=state.get('scale',1) if state else 1
-                if (state and self._tracking(state)) or math.floor(req.width*scale+.5)*math.floor(req.height*scale+.5)>8*1024*1024:
+                density=(state.get('scale',1) if state else 1) if presentation is None else 1
+                if (state and self._tracking(state)) or math.floor(req.width*density+.5)*math.floor(req.height*density+.5)>8*1024*1024:
                     self._respond(client,req);return
             title = data[C.sizeof(req):]
             if b'\0' in title:
@@ -935,7 +1068,7 @@ class NativeControlServer:
                     self._respond(client, req)
                     return
                 if req.kind==13:
-                    density=self.native.nxs_control_backing_scale(pointer) if hasattr(self.native,'nxs_control_backing_scale') else 1
+                    density=1 if presentation is not None else self.native.nxs_control_backing_scale(pointer) if hasattr(self.native,'nxs_control_backing_scale') else 1
                     if not math.isfinite(density) or not 1<=density<=8 or math.floor(req.width*density+.5)*math.floor(req.height*density+.5)>8*1024*1024:
                         self.native.nxs_control_destroy(pointer);self._respond(client,req);return
                 state = dict(key=key, native=pointer, context=context, client=client, actions=0, destroy=False)
@@ -943,10 +1076,15 @@ class NativeControlServer:
                     state['scale']=self.native.nxs_control_backing_scale(pointer) or 1
                 self.controls[key] = self.contexts[context] = state
                 if req.kind in self.text_kinds and req.process in self.text_filters:self.update_text_filters(req.process)
-                self.log('native-form-control', process=req.process, control=req.control, kind=req.kind,
-                         width=req.width, height=req.height)
+            if presentation is not None:
+                if state.get('presentation')!=presentation:
+                    self.log('native-presentation',process=req.process,control=req.control,kind=req.kind,scale=presentation)
+                state['presentation']=presentation
+                state['scale']=presentation
+            scale=state.get('presentation',1)
+            req.width/=scale;req.height/=scale
             if req.kind in (12,13):
-                scale=self.native.nxs_control_backing_scale(state['native']) if hasattr(self.native,'nxs_control_backing_scale') else 1
+                scale=state.get('presentation') or (self.native.nxs_control_backing_scale(state['native']) if hasattr(self.native,'nxs_control_backing_scale') else 1)
                 if math.floor(req.width*scale+.5)*math.floor(req.height*scale+.5)>8*1024*1024:
                     self._respond(client,req);return
             current = self.native.nxs_control_state(state['native'])
@@ -964,6 +1102,11 @@ class NativeControlServer:
             if not self.native.nxs_control_sync(state['native'], C.byref(config)):
                 self._respond(client, req)
                 return
+            dimensions=(req.width*scale,req.height*scale)
+            if dimensions!=state.get('logged_dimensions'):
+                state['logged_dimensions']=dimensions
+                self.log('native-form-control',process=req.process,control=req.control,kind=req.kind,
+                         width=dimensions[0],height=dimensions[1])
             if req.kind in (15,17):
                 state['tracking_configuration']=(req.width,req.height,req.minimum,req.maximum,req.enabled,title)
             if req.kind in (10,12,13):state['dimensions']=(req.width,req.height)
@@ -996,7 +1139,7 @@ class NativeControlServer:
                 tabs=self.native.nxs_control_tab_state(state['native'])
                 wire=TabWireState(tabs.count,tabs.selected_index,tabs.selected,tabs.content)
                 self._respond(client,req,state,input_result=1,payload=bytes(wire));return
-            if req.operation==35 and req.kind in (9,13) and self.wheel_capabilities and not req.text_size:
+            if req.operation==35 and req.kind in (9,13,18) and self.wheel_capabilities and not req.text_size:
                 event=WheelEvent(C.sizeof(WheelEvent),req.modifiers,req.x,req.y,req.minimum,req.maximum)
                 accepted=state['client'] is client and all(math.isfinite(v) for v in (req.minimum,req.maximum)) and self.native.nxs_control_wheel(state['native'],C.byref(event))
                 viewport=self.native.nxs_control_text_viewport(state['native']) if accepted and req.kind==9 and self.text_capabilities&16 else None
@@ -1015,7 +1158,10 @@ class NativeControlServer:
                 self._respond(client,req,state,input_result=int(accepted),payload=bytes(identifier) if accepted else b'')
                 return
             if req.operation==59:
-                accepted=bool(req.kind==16 and not req.text_size and req.state in (0,1) and self.color_panel_capabilities and state['client'] is client and self.native.nxs_control_color_open(state['native'],req.state))
+                accepted=bool(req.kind==16 and not req.text_size and req.state in (0,1,2) and self.color_panel_capabilities and state['client'] is client and self.color_owners.panel(client,req,sender_pid,state))
+                self.record_input_result(client,req,state,accepted)
+                if not accepted:
+                    self.log('native-color-panel-rejected',process=req.process,control=req.control,open=req.state,tracking=bool(self._tracking(state)))
                 if accepted:
                     if req.state:self.auxiliary_activation.open(state,sender_pid)
                     else:self.auxiliary_activation.retire(state)
@@ -1047,7 +1193,9 @@ class NativeControlServer:
                     (req.kind==13 or self.native.nxs_control_state(state['native']).enabled))
                 if accepted:
                     state['starting']=True
+                    state['press_sequence']=req.reserved
                     self.pending.append(lambda:self.track(state,req.x,req.y,req.modifiers,req.state))
+                self.record_input_result(client,req,state,accepted)
                 self._respond(client,req,state,input_result=int(accepted))
                 return
             if req.operation==21 and req.kind in self.text_kinds and self.text_capabilities&4 and not req.text_size:
@@ -1072,8 +1220,13 @@ class NativeControlServer:
             if req.operation==14 and req.kind in (6,17) and self.popup_open_capabilities:
                 accepted=int(bool(state['client'] is client and not req.text_size and req.state in (0,1) and
                     (req.kind==6 or self.specialized_capabilities&256) and self.native.nxs_control_popup_open(state['native'],req.state)))
+                self.record_input_result(client,req,state,accepted)
                 if accepted:
-                    if req.state:self.auxiliary_activation.open(state,sender_pid)
+                    # A menu stays a non-key window. The original source
+                    # select retains keyboard focus and forwards native menu
+                    # keys; activating its auxiliary surface would blur and
+                    # dismiss the source before an item can be selected.
+                    if req.state:self.auxiliary_activation.open(state,sender_pid,activate=req.kind!=6)
                     else:self.auxiliary_activation.retire(state)
                 self._respond(client,req,state,input_result=accepted)
                 return
@@ -1084,7 +1237,16 @@ class NativeControlServer:
                 self._respond(client,req,state,rectangle=rectangle)
                 return
             if req.operation==13 and self.popup_capabilities:
-                accepted=self.native.nxs_control_set_screen_origin(state['native'],req.x,req.y)
+                if req.width or req.height:
+                    bounds=ControlRect(req.x,req.y,req.width,req.height)
+                    accepted=(self.native.nxs_control_set_screen_bounds(state['native'],bounds)
+                              if hasattr(self.native,'nxs_control_set_screen_bounds') else 0)
+                    if accepted and state.get('screen_bounds')!=(req.x,req.y,req.width,req.height):
+                        state['screen_bounds']=(req.x,req.y,req.width,req.height)
+                        self.log('native-control-screen-bounds',process=req.process,control=req.control,
+                                 x=req.x,y=req.y,width=req.width,height=req.height)
+                else:
+                    accepted=self.native.nxs_control_set_screen_origin(state['native'],req.x,req.y)
                 if accepted and state.get('screen_origin')!=(req.x,req.y):
                     state['screen_origin']=(req.x,req.y)
                     self.log('native-control-screen-origin',process=req.process,control=req.control,
@@ -1093,15 +1255,30 @@ class NativeControlServer:
                 return
             if req.operation == 2 and self.idle():
                 state['starting'] = True
+                state['press_sequence']=req.reserved
                 self.pending.append(lambda: self.track(state, req.x, req.y, req.modifiers))
+            elif req.operation==68:
+                accepted=bool(state['client'] is client and not req.text_size and
+                    (not self.input_owner or self.owns_process(client,req.process,sender_pid)) and
+                    req.value>0 and req.value==state.get('press_sequence'))
+                if accepted:
+                    if self.active is state:
+                        self.native.nxs_control_send(state['native'],0,-10000,-10000,0)
+                        self.native.nxs_control_send(state['native'],1,-10000,-10000,0)
+                        self.finish_tracking(state)
+                    elif state.get('starting'):
+                        state['starting']=False;state['cancel_start']=True
+                self._respond(client,req,state,input_result=int(accepted));return
             elif req.operation in (3, 4):
                 if self.active is state:
                     self.native.nxs_control_send(state['native'], 0 if req.operation == 3 else 1, req.x, req.y, req.modifiers)
                     self.finish_tracking(state)
-                elif req.operation==4 and state.get('starting'):
-                    # A view may retire before its queued native mouseDown.
-                    # No new press is accepted until this pending job drains.
-                    state['starting']=False;state['cancel_start']=True
+                elif state.get('starting'):
+                    # Preserve real motion/release that outruns queued native
+                    # mouseDown. Explicit cancellation/retirement have their
+                    # own paths; an ordinary quick click is not cancellation.
+                    state.setdefault('pending_pointer',[]).append(
+                        (0 if req.operation==3 else 1,req.x,req.y,req.modifiers))
             elif req.operation == 6:
                 self.color_owners.retire(state)
                 state['destroy'] = True
@@ -1109,7 +1286,8 @@ class NativeControlServer:
                     if req.kind!=16:self.native.nxs_control_send(state['native'], 0, -1, -1, 0)
                     self.native.nxs_control_send(state['native'], 1, -1, -1, 0)
                     self.finish_tracking(state)
-        self._respond(client, req, state, pixels=req.operation==5 and req.kind in (*self.text_kinds,10,12,13,15,16,17))
+        if state and req.operation in (2,4):self.record_input_result(client,req,state,0)
+        self._respond(client, req, state, pixels=req.operation==5 and req.kind in (*self.text_kinds,10,12,13,15,16,17,18))
 
     def list_snapshot(self,state):
         value=self.native.nxs_control_list_state(state['native'])
@@ -1117,6 +1295,9 @@ class NativeControlServer:
         selection=(C.c_uint64*value.selected_count)()
         if self.native.nxs_control_list_selection(state['native'],selection,value.selected_count)!=value.selected_count:
             raise RuntimeError('Native list selection changed during snapshot')
+        scale=state.get('presentation',1)
+        scale_rectangle(value.visible,scale)
+        value.content[0]*=scale;value.content[1]*=scale
         return bytes(ListWireState(value.count,value.selected_count,value.flags,0,value.primary,value.key_cell,value.actions,value.visible,value.content))+bytes(selection)
 
     def list_message(self,client,data):
@@ -1138,9 +1319,10 @@ class NativeControlServer:
             accepted=rect.width>0 and rect.height>0
             self._respond(client,req,state,input_result=int(accepted),rectangle=rect,payload=self.list_snapshot(state) if accepted else b'');return
         if operation==51:
+            req.x/=state.get('presentation',1);req.y/=state.get('presentation',1)
             accepted=not self._tracking(state) and math.isfinite(req.x) and math.isfinite(req.y) and self.native.nxs_control_list_scroll(state['native'],req.x,req.y)
             self._respond(client,req,state,input_result=int(bool(accepted)),payload=self.list_snapshot(state) if accepted else b'');return
-        scale=self.native.nxs_control_backing_scale(state['native']) if hasattr(self.native,'nxs_control_backing_scale') else 1
+        scale=state.get('presentation') or (self.native.nxs_control_backing_scale(state['native']) if hasattr(self.native,'nxs_control_backing_scale') else 1)
         dimensions=state.get('dimensions',(1,1))
         if self._tracking(state) or req.count>4096 or req.flags&~1 or not math.isfinite(req.scale) or req.scale!=scale or math.floor(dimensions[0]*scale+.5)*math.floor(dimensions[1]*scale+.5)>8*1024*1024:
             self._respond(client,req);return
@@ -1181,6 +1363,7 @@ class NativeControlServer:
             if operation==45:
                 self._respond(client,req,state,input_result=1,rectangle=rect);return
             if req.width or req.height:
+                req.width/=state.get('presentation',1);req.height/=state.get('presentation',1)
                 if req.width!=rect.width or req.height!=rect.height:
                     if self._tracking(state) or not self.radio_capabilities&2 or not self.native.nxs_control_radio_cell_size(state['native'],req.width,req.height):
                         self._respond(client,req);return
@@ -1192,7 +1375,7 @@ class NativeControlServer:
             pixels=b''.join(C.string_at(bitmap.pixels+(y+row)*bitmap.stride+x*4,width*4) for row in range(height))
             state['invalidated']=False
             self._respond(client,req,state,input_result=1,rectangle=rect,image=(width,height,width*4,pixels));return
-        if self._tracking(state) or req.count>4096 or not req.columns or req.count%req.columns or not math.isfinite(req.scale) or not 1<=req.scale<=8:
+        if self._tracking(state) or req.count>4096 or not req.columns or (req.count and req.columns>req.count) or not native_presentation_scale_supported(req.scale):
             self._respond(client,req);return
         offset=C.sizeof(req);items=(RadioItem*req.count)()
         for index in range(req.count):
@@ -1206,7 +1389,7 @@ class NativeControlServer:
             items[index]=RadioItem(C.sizeof(RadioItem),identifier,title,enabled)
         if offset!=len(data):self._respond(client,req);return
         accepted=self.native.nxs_control_radio_items(state['native'],items,req.count,req.columns,req.selected,req.key_cell)
-        if accepted:state['scale']=req.scale
+        if accepted:state['scale']=state.get('presentation',req.scale)
         self._respond(client,req,state,input_result=int(bool(accepted)),payload=self.radio_snapshot(state))
 
     def tab_message(self,client,data):
@@ -1223,7 +1406,7 @@ class NativeControlServer:
             rect=self.native.nxs_control_tab_item_rect(state['native'],req.identifier)
             self._respond(client,req,state,input_result=1,rectangle=rect);return
         count=req.count
-        if self._tracking(state) or count>4096 or not math.isfinite(req.scale) or not 1<=req.scale<=8:
+        if self._tracking(state) or count>4096 or not native_presentation_scale_supported(req.scale):
             self._respond(client,req);return
         width,height=state['dimensions']
         if math.floor(width*req.scale+.5)*math.floor(height*req.scale+.5)>8*1024*1024:
@@ -1267,7 +1450,7 @@ class NativeControlServer:
                         state['color_model']=snapshot;state['color_model_actions']=state['actions']
                         if changed:
                             self.color_owners.model_applied(state)
-                            self.invalidate(state['key'][0])
+                            self.invalidate(state['key'][0],state)
             elif operation==57:
                 model.flags,model.elements,model.style=req.flags,req.elements,req.style
                 model.value,model.minimum,model.maximum=req.value,req.minimum,req.maximum
@@ -1275,6 +1458,8 @@ class NativeControlServer:
             else:
                 accepted=bool(getattr(self.native,'nxs_control_color_get' if color else 'nxs_control_date_get')(state['native'],C.byref(model)))
                 if accepted and color:self.color_owners.acknowledge(client,req,state)
+        if not accepted and operation in (55,57):
+            self.log('native-specialized-model-rejected',operation=operation,process=req.process,control=req.control,exists=bool(state),same_client=bool(state and state['client'] is client),tracking=bool(state and self._tracking(state)))
         self._respond(client,req,state,input_result=int(bool(accepted)),pixels=bool(accepted and operation in (55,57)),payload=bytes(model) if accepted and operation in (56,58) else b'')
 
     def text_message(self,client,data):
@@ -1353,11 +1538,21 @@ class NativeControlServer:
             # Text is deliberately excluded from the diagnostic log.
             self.log('native-form-key', process=req.process, control=req.control, kind=req.kind,
                      type=req.type, result=result, actions=state['actions'])
+            state['last_key']=(req.reserved,result)
         self._respond(client, req, state, input_result=result,
             payload=self.radio_snapshot(state) if req.kind==12 and self.radio_capabilities else self.list_snapshot(state) if req.kind==13 and self.list_capabilities else b'')
 
+    def pump_tracking(self,context):
+        state=self.contexts.get(context)
+        if (state is not None and state is self.active and not state['destroy'] and
+                self.native.nxs_control_state(state['native']).tracking):
+            for event in state.pop('pending_pointer',[]):
+                self.native.nxs_control_send(state['native'],*event)
+        self.dispatch(0)
+
     def track(self, state, x, y, modifiers,click_count=None):
         if state['destroy'] or state.pop('cancel_start',False):
+            state.pop('pending_pointer',None)
             state['starting'] = False
             self.log('native-form-cancelled-before-start',process=state['key'][0],control=state['key'][1],kind=state['key'][2])
             return

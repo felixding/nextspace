@@ -29,7 +29,7 @@ static int native_wheel_post(void *event,void *frame,int *status) {
     text&&text->id==id&&text->frame==native_frame&&text->text_owned&&sync_text_widget(text)!=NULL;
   if(!ready||!viewport_data(native_frame,&data,0)||data.id!=id||data.node!=node){((unsigned (*)(void *))(base+0x47ba6b8))(node);return 0;}
   struct PointI point=((struct PointI (*)(const void *,struct RelativeTo))(base+0x6da35a8))(event,(struct RelativeTo){native_frame,0});
-  NXSWheelEvent wheel={.size=sizeof(wheel),.x=point.x/60.,.y=point.y/60.,.delta_x=dx,.delta_y=dy,.modifiers=widget_modifiers(event)};
+  NXSWheelEvent wheel={.size=sizeof(wheel),.x=point.x/frame_units(native_frame),.y=point.y/frame_units(native_frame),.delta_x=dx,.delta_y=dy,.modifiers=widget_modifiers(event)};
   int received,accepted;
   if(data.kind==NXS_LISTBOX)received=accepted=list_viewport_wheel(&data,&wheel);
   else {

@@ -66,7 +66,7 @@ with headless_session(a.compositor,out,extra_env=dict(
                 sys.path.insert(0,str(REPO/'Experiments/FirefoxNativeUI'))
                 from marionette import Marionette
                 profile=Path(env['XDG_RUNTIME_DIR'])/'profile';profile.mkdir()
-                preferences={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,
+                preferences={'remote.prefs.recommended':False,'focusmanager.testmode':False,'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,
                     'browser.startup.page':0,'browser.aboutwelcome.enabled':False,
                     'browser.startup.homepage_override.mstone':'ignore','gfx.webrender.software':True}
                 (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in preferences.items()))

@@ -5,7 +5,7 @@ static uint64_t number_active_control;
 static __thread struct {const void *event;void *node;uint64_t control;} number_default;
 static int number_node(const void *node)
 {
-  return numbers_enabled&&native_web_process()&&node&&*(const uintptr_t *)node==base+0xa00fc30+16&&
+  return numbers_enabled&&native_form_process()&&node&&*(const uintptr_t *)node==base+0xa00fc30+16&&
     *((const unsigned char *)node+144)==139;
 }
 static int number_mutable(const void *node)
@@ -14,6 +14,7 @@ static int number_tracking(const struct Widget *w)
 {return number_active_node==w->node&&number_active_control==w->id;}
 static struct NXSResponse *number_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers)
 {
+  if(operation==1&&!native_control_presentation(NXS_STEPPER,w->number_stepper.control,frame_scale(w->frame)))return NULL;
   return native_stepper_request(w->number_stepper.control,operation,w->number_rect.width,w->number_rect.height,
     number_mutable(w->node),x,y,modifiers);
 }
@@ -29,11 +30,18 @@ static int number_pixels(struct Widget *w,const struct NXSResponse *response)
 }
 static int number_prepare(struct Widget *w,double width,double height)
 {
+  w->number_prepared=0;
   void *button=((void *(*)(const void *))(base+NXS_GECKO_NUMBER_BUTTON))(w->frame);
-  if(!button)return 0;
-  int bounds[4]={0};engine_frame_rect((void *)(base+0x6daae5c),button,bounds);
+  int bounds[4]={0};if(button)engine_frame_rect((void *)(base+0x6daae5c),button,bounds);
+  if(!button||bounds[2]<=0||bounds[3]<=0) {
+    /* Gecko's original CSS layout can omit its spinner. The same native
+     * editor owns the complete field; no replacement spinner is invented. */
+    number_forget(w);memset(&w->number_rect,0,sizeof(w->number_rect));
+    w->number_width=width;w->number_height=height;w->width=width;
+    w->number_prepared=1;return 1;
+  }
   struct PointI offset=((struct PointI (*)(const void *,const void *))(base+NXS_GECKO_NUMBER_OFFSET))(button,w->frame);
-  struct NXSRectD rect={offset.x/60.,offset.y/60.,bounds[2]/60.,bounds[3]/60.};
+  struct NXSRectD rect={offset.x/frame_units(w->frame),offset.y/frame_units(w->frame),bounds[2]/frame_units(w->frame),bounds[3]/frame_units(w->frame)};
   if(!gecko_frame_pixel_rect(w->frame,&rect))return 0;
   if(rect.x<1||rect.y<0||rect.width<1||rect.height<1||rect.x+rect.width>width||rect.y+rect.height>height)return 0;
   w->number_rect=rect;w->number_width=width;w->number_height=height;w->width=rect.x;
@@ -45,14 +53,14 @@ static int number_prepare(struct Widget *w,double width,double height)
     struct NXSStepperBatch baseline;
     if(native_stepper_actions(&w->number_stepper,1,&baseline)<1)return 0;
   }
-  return 1;
+  w->number_prepared=1;return 1;
 }
 static int number_draw(void *target,struct Widget *w,const struct RectF *area)
 {
-  if(!w->number_pixels||lround(area->width)!=lround(w->number_width)||
-     lround(area->height)!=lround(w->number_height))return 0;
-  struct RectF rect={area->x+w->number_rect.x,area->y+w->number_rect.y,
-    w->number_rect.width,w->number_rect.height};
+  if(!w->number_prepared)return 0;
+  if(!w->number_stepper.control)return 1;
+  if(!w->number_pixels)return 0;
+  struct RectF rect=gecko_image_part(area,w->number_width,w->number_height,w->number_rect);
   draw_bitmap(target,&rect,w->number_pixels,w->number_pixel_width,w->number_pixel_height);
   if(log_fd>=0)dprintf(log_fd,"%d native-number id=%llu stepper=%llu rect=%.3f,%.3f %.3fx%.3f\n",getpid(),
     (unsigned long long)w->id,(unsigned long long)w->number_stepper.control,
@@ -62,14 +70,14 @@ static int number_draw(void *target,struct Widget *w,const struct RectF *area)
 static struct PointI number_point(struct Widget *w,const void *event)
 {
   struct PointI point=widget_point(w,event);
-  point.x-=lround(w->number_rect.x*60);point.y-=lround(w->number_rect.y*60);return point;
+  point.x-=lround(w->number_rect.x*frame_units(w->frame));point.y-=lround(w->number_rect.y*frame_units(w->frame));return point;
 }
 static int number_hit(struct Widget *w,const void *event)
 {
   if(!number_node(w->node)||!w->number_pixels)return 0;
   struct PointI point=number_point(w,event);
   /* Route to the original spin-box component only. NSStepper chooses arrows. */
-  return point.x>=0&&point.y>=0&&point.x<w->number_rect.width*60&&point.y<w->number_rect.height*60;
+  return point.x>=0&&point.y>=0&&point.x<w->number_rect.width*frame_units(w->frame)&&point.y<w->number_rect.height*frame_units(w->frame);
 }
 static int number_default_pointer(void *node,void *visitor)
 {
@@ -104,7 +112,7 @@ static void number_end(int commit,const void *event)
   struct Widget *w=widget_for_node(node);
   if(w&&w->id==control) {
     struct PointI point=event?number_point(w,event):(struct PointI){-600000,-600000};
-    struct NXSResponse *response=number_request(w,4,point.x/60.,point.y/60.,event?widget_modifiers(event):0);
+    struct NXSResponse *response=number_request(w,4,point.x/frame_units(w->frame),point.y/frame_units(w->frame),event?widget_modifiers(event):0);
     for(unsigned n=0;response&&response->parts[0].y&&n<100;n++) {
       struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);response=number_request(w,5,0,0,0);
     }
@@ -148,7 +156,7 @@ static int number_pointer_post(void *self,void *context,void *event,void *frame,
         struct NXSStepperBatch baseline;
         if(native_stepper_actions(&w->number_stepper,1,&baseline)>0) {
           struct PointI point=number_point(w,event);
-          struct NXSResponse *response=number_request(w,2,point.x/60.,point.y/60.,widget_modifiers(event));
+          struct NXSResponse *response=number_request(w,2,point.x/frame_units(w->frame),point.y/frame_units(w->frame),widget_modifiers(event));
           if(response&&response->parts[0].y) {
             ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
             number_active_node=node;number_active_control=control;
@@ -158,7 +166,7 @@ static int number_pointer_post(void *self,void *context,void *event,void *frame,
       }
     } else if(number_tracking(w)) {
       struct PointI point=number_point(w,event);
-      number_request(w,3,point.x/60.,point.y/60.,widget_modifiers(event));number_apply(w);
+      number_request(w,3,point.x/frame_units(w->frame),point.y/frame_units(w->frame),widget_modifiers(event));number_apply(w);
     }
   }
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);return 1;

@@ -26,13 +26,13 @@ api = NativeControlServer(native, Bitmap, Response, Pump, lambda _: None, [],
 results = []
 for item in json.loads(args.controls.read_text()):
     def save_image(suffix=''):
-        image = native.nxs_control_draw(pointer, 1)
+        image = native.nxs_control_draw(pointer, item.get('scale',1))
         assert image.pixels and image.stride == image.width * 4
         pixels = C.string_at(image.pixels, image.stride * image.height)
         rendered=Image.frombytes('RGBA', (image.width, image.height), pixels, 'raw', 'BGRA')
         if item['kind']==12:
             rect=native.nxs_control_radio_item_rect(pointer,item['member'])
-            rendered=rendered.crop((round(rect.x),round(rect.y),round(rect.x+rect.width),round(rect.y+rect.height)))
+            rendered=rendered.crop(tuple(round(v*item.get('scale',1)) for v in (rect.x,rect.y,rect.x+rect.width,rect.y+rect.height)))
         rendered.save(args.output / (item['id'] + suffix + '.png'))
         return image
     def release(_):
@@ -43,11 +43,11 @@ for item in json.loads(args.controls.read_text()):
             if not pointer_case['pumped']:
                 pointer_case['pumped']=True;pointer_case['initial']=selected
                 native.nxs_control_send(pointer,0 if pointer_case['drag'] else 1,
-                    pointer_case['end'],12,pointer_case['modifiers'])
+                    pointer_case['end'],pointer_case.get('end_y',12),pointer_case['modifiers'])
             # Word/line dragging may keep the initial range. Release on the
             # next native event-pump pass even when that range did not change.
             elif not pointer_case['drag'] or selected!=pointer_case['initial'] or pointer_case['clicks']>1:
-                native.nxs_control_send(pointer,1,pointer_case['end'],12,pointer_case['modifiers'])
+                native.nxs_control_send(pointer,1,pointer_case['end'],pointer_case.get('end_y',12),pointer_case['modifiers'])
             return
         save_image('-pressed')
         native.nxs_control_send(pointer, 1, config.width / 2, config.height / 2, 0)
@@ -155,7 +155,8 @@ for item in json.loads(args.controls.read_text()):
         image = save_image()
         preferred = native.nxs_control_size(pointer)
         results.append(dict(id=item['id'], size=[image.width, image.height],
-                            preferred=[preferred.width, preferred.height]))
+                            preferred=[preferred.width, preferred.height],
+                            backing_scale=native.nxs_control_backing_scale(pointer)))
         if text_keys:results[-1]['text_keys']=text_keys
         if item['kind']==14:
             native.nxs_control_search_part.argtypes=[C.c_void_p,C.c_int]
@@ -237,7 +238,7 @@ for item in json.loads(args.controls.read_text()):
             assert native.nxs_control_text_get(pointer,buffer,len(buffer),C.byref(state))
             results[-1]['return_sequence']=dict(value=buffer.value.decode(),start=state.selection_start,
                 end=state.selection_start+state.selection_length)
-        if args.pointers and item['enabled'] and item['kind'] in (7,8,14):
+        if args.pointers and item['enabled'] and item['kind'] in (7,8,9,14):
             assert native.nxs_control_focused(pointer) or native.nxs_control_focus(pointer,1),item['id']
             values=[]
             cases=[('left',3,3,0),('near',10,10,0),('middle',25,25,0),
@@ -253,11 +254,13 @@ for item in json.loads(args.controls.read_text()):
             for name,start,end,modifiers,clicks in cases:
                 model=TextModel(C.sizeof(TextModel),item['text'].encode(),1 if modifiers else 0,2 if modifiers else 0,item.get('editable',1))
                 assert native.nxs_control_text_sync(pointer,C.byref(model))
-                pointer_case=dict(pumped=False,drag=start!=end,end=end,modifiers=modifiers,clicks=clicks)
-                if clicks==1:native.nxs_control_track(pointer,start,12,modifiers)
+                coordinates=next((v for v in item.get('pointer_cases',[]) if v['name']==name),{})
+                y=coordinates.get('y',12);end_y=coordinates.get('end_y',y)
+                pointer_case=dict(pumped=False,drag=start!=end or y!=end_y,end=end,end_y=end_y,modifiers=modifiers,clicks=clicks)
+                if clicks==1:native.nxs_control_track(pointer,start,y,modifiers)
                 else:
                     assert api.pointer_capabilities&1
-                    assert native.nxs_control_track_clicks(pointer,start,12,modifiers,clicks)
+                    assert native.nxs_control_track_clicks(pointer,start,y,modifiers,clicks)
                 state=TextState(size=C.sizeof(TextState));buffer=C.create_string_buffer(256)
                 assert native.nxs_control_text_get(pointer,buffer,len(buffer),C.byref(state))
                 assert pointer_case['pumped'] and not native.nxs_control_state(pointer).tracking

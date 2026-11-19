@@ -120,7 +120,7 @@ try:
  family='firefox'
  current=dict(browser_env);prefix='NEXTSPACE_'+family.upper()+'_';current[prefix+'SOCKET']=browser_env['NEXTSPACE_NATIVE_UI_SOCKET'];current[prefix+'LOG']=str(root/(family+'-hook.log'))
  profile=runtime/'firefox-profile';profile.mkdir();prefs={'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore','widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True,'gfx.webrender.software':True}
- prefs.update({'marionette.port':args.port,'datareporting.policy.firstRunURL':'','browser.startup.firstrunSkipsHomepage':True})
+ prefs.update({'remote.prefs.recommended':False,'focusmanager.testmode':False,'marionette.port':args.port,'datareporting.policy.firstRunURL':'','browser.startup.firstrunSkipsHomepage':True})
  (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+','+json.dumps(v)+');\n' for k,v in prefs.items()))
  if args.native_frame:prepare_native_frame('firefox',profile,current)
  current.update(LD_PRELOAD=str(args.hook),MOZ_ENABLE_WAYLAND='1')

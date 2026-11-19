@@ -18,11 +18,14 @@ static uint32_t (*original_text_keypress)(void *,void *);
 static void *original_text_delete_subaction;
 static uint32_t (*original_text_delete_action)(void *,short,short,void *);
 static uint32_t (*original_text_frame_event)(void *,void *,void *,int *);
-static unsigned text_watch;
+static unsigned text_watch,text_refresh;
 static int (*text_watch_remove)(unsigned);
+static unsigned (*text_refresh_add)(int,int (*)(void *),void *,void (*)(void *));
+static struct NXSInvalidations text_pending_refresh;
 static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA||kind==NXS_SEARCHFIELD;}
 static void *text_control_state(void *node)
 {return *(void **)((char *)node+(node_kind(node)==NXS_TEXTAREA?304:352));}
+#include "password-visibility.inc"
 static uint32_t (*original_textarea_post)(void *,void *);
 static uint32_t textarea_post(void *node,void *visitor)
 {if(multiline_enabled)text_post_keyboard(node,visitor);return original_textarea_post(node,visitor);}
@@ -115,8 +118,25 @@ static struct NXSResponse *end_text_pointer(struct Widget *w,int commit,void *co
   if(w&&w->id==control){w->text_tracking=0;if(transaction.attempted)response=sync_text_widget(w);}
   return response;
 }
+static int text_cache_update(struct Widget *w,const struct NXSResponse *response) {
+  if(!button_cache_update(w,response))return 0;
+  w->text_bitmap_width=w->width;w->text_bitmap_height=w->height;return 1;
+}
+static int text_cache_matches(struct Widget *w) {
+  if(!button_cache_available(w))return 0;
+  /* Native readback owns pixel dimensions. Snapshot identity follows its
+   * configured viewport; Gecko's paint transform does not resize that model. */
+  return w->text_bitmap_width==w->width&&w->text_bitmap_height==w->height;
+}
 static struct NXSResponse *sync_text_widget(struct Widget *w) {
   struct TextModel model={0};if(!text_model(w->node,&model))return NULL;
+  int kind=password_presentation_kind(w->node);
+  if(text_kind(kind)&&kind!=w->kind) {
+    if(w->text_tracking)end_text_pointer(w,0,NULL,NULL);
+    if(!widget_request(w,6,0,0,0)){free(model.value);return NULL;}
+    free(w->bitmap.pixels);memset(&w->bitmap,0,sizeof(w->bitmap));
+    w->kind=kind;w->text_owned=w->painted=w->input_owned=0;w->text_epoch=0;
+  }
   if(w->text_tracking) {
     struct NXSResponse *native=native_text_state(w);struct NXSTextResponse state={0};
     if(native)memcpy(&state,native+1,sizeof(state));
@@ -126,7 +146,7 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
       widget_focused(w)&&native->parts[2].x&&w->width==w->text_width&&w->height==w->text_height;
     if(same) {
       struct NXSResponse *response=widget_request(w,5,0,0,0);
-      if(!response||!button_cache_update(w,response))response=NULL;
+      if(response)text_cache_update(w,response);
       free(model.value);return response;
     }
     end_text_pointer(w,0,NULL,NULL);
@@ -150,27 +170,52 @@ static struct NXSResponse *sync_text_widget(struct Widget *w) {
     .selection_length=model.end-model.start,.editable=model.editable};
   memcpy(request+1,model.value,length);response=exchange_bytes(request,size);free(request);
   if(!response||response->parts[3].x!=1){response=NULL;goto done;}
+  w->input_owned=1;w->input_epoch=atomic_load(&native_host_epoch);
   if(multiline_viewport_enabled&&w->kind==NXS_TEXTAREA) {
     response=sync_viewport_widget(w)?widget_request(w,5,0,0,0):NULL;
   }
-  if(!response||!button_cache_update(w,response))response=NULL;
+  if(response)text_cache_update(w,response);
  done:free(model.value);return response;
+}
+static int text_refresh_idle(void *unused) {
+  text_refresh=0;
+  struct NXSInvalidations invalidations=text_pending_refresh;
+  memset(&text_pending_refresh,0,sizeof(text_pending_refresh));
+  progress_retire_unstyled();tabs_native_notification();
+  for(struct Widget *w=widgets;w;w=w->next) {
+    if(w->button_claim_pending) {
+      w->button_claim_pending=0;
+      if(button_cache_available(w)) {
+        w->button_label_owned=1;w->button_model_changed=0;
+        invalidate_widget(w);
+      }
+    }
+    if(native_invalidation_contains(&invalidations,w->kind,w->id)&&
+       ((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL||w->kind==NXS_DATEPICKER||w->kind==NXS_PROGRESS))invalidate_widget(w);
+  }
+  return 0;
 }
 static int text_notification(int fd,unsigned condition,void *unused) {
   if(condition&~1u){text_watch=0;color_native_work(1);return 0;}
   drain_widget_notifier();
-  progress_retire_unstyled();
+  static double generation;
+  struct NXSControlRequest poll={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=9,.process=identity(),.value=generation};
+  struct NXSResponse *changed=exchange_bytes(&poll,sizeof(poll));
+  struct NXSInvalidations invalidations={0};native_invalidation_read(changed,&invalidations);
+  if(changed)generation=changed->parts[4].x;
   color_native_work(0);
   number_native_work();
   date_native_work();
-  tabs_native_notification();native_popup_notification();
-  if(active_widget&&text_kind(active_widget->kind)) {
+  document_scroller_notification();
+  native_popup_notification(&invalidations);
+  if(active_widget&&text_kind(active_widget->kind)&&native_invalidation_contains(&invalidations,active_widget->kind,active_widget->id)) {
     void *node=active_widget->node;
     ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
     if(widget_focused(active_widget))echo_native_selection(active_widget);
     ((unsigned (*)(void *))(base+0x47ba6b8))(node);
   }
-  for(struct Widget *w=widgets;w;w=w->next)if((text_kind(w->kind)&&w->text_owned)||w->kind==NXS_COLORWELL||w->kind==NXS_DATEPICKER||w->kind==NXS_PROGRESS)invalidate_widget(w);
+  native_invalidation_merge(&invalidations,&text_pending_refresh);
+  if(text_watch&&!text_refresh)text_refresh=text_refresh_add(200,text_refresh_idle,NULL,NULL);
   return 1;
 }
 static void *text_pointer_frame(void *frame) {
@@ -195,7 +240,7 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
   if(node)((unsigned (*)(void *))(base+0x3b9f0e4))(node);
   if(active_widget&&text_kind(active_widget->kind)&&(message==13||message==14)) {
     struct Widget *w=active_widget;void *owner=w->node;uint64_t control=w->id;struct PointI point=widget_point(w,event);
-    w->range_x=point.x/60.;w->range_y=point.y/60.;
+    w->range_x=point.x/frame_units(w->frame);w->range_y=point.y/frame_units(w->frame);
     if(message==14&&*(const int16_t *)((char *)event+152)==0)end_text_pointer(w,1,context,event);
     else if(message==13)pointer_request(w,3,event);
     w=widget_for_node(owner);
@@ -218,7 +263,7 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
       if(w&&widget_focused(w)&&!active_widget) {
         struct NXSResponse *response=widget_sync(w);
         if(response&&response->parts[2].x) {
-          struct PointI point=widget_point(w,event);w->range_x=point.x/60.;w->range_y=point.y/60.;
+          struct PointI point=widget_point(w,event);w->range_x=point.x/frame_units(w->frame);w->range_y=point.y/frame_units(w->frame);
           response=pointer_request(w,2,event);
           if(response&&response->parts[0].y) {
             w->text_tracking=1;w->text_width=w->width;w->text_height=w->height;active_widget=w;
@@ -235,14 +280,25 @@ static uint32_t text_pointer_post(void *self,void *context,void *event,void *fra
 }
 static int ensure_text_watch(void) {
   if(text_watch)return 1;
-  unsigned (*add)(int,unsigned,int (*)(int,unsigned,void *),void *)=dlsym(RTLD_DEFAULT,"g_unix_fd_add");
+  unsigned (*add)(int,int,unsigned,int (*)(int,unsigned,void *),void *,void (*)(void *))=
+    dlsym(RTLD_DEFAULT,"g_unix_fd_add_full");
   text_watch_remove=dlsym(RTLD_DEFAULT,"g_source_remove");
-  if(!add||!text_watch_remove||widget_notifier<0)return 0;
-  text_watch=add(widget_notifier,1,text_notification,NULL);return text_watch!=0;
+  text_refresh_add=dlsym(RTLD_DEFAULT,"g_idle_add_full");
+  if(!add||!text_watch_remove||!text_refresh_add||widget_notifier<0)return 0;
+  /* Lifecycle/action receipts share GTK and Gecko's ordinary event priority.
+   * Painting is merged separately at idle priority: progress/caret redraws
+   * must neither delay picker completion nor run ahead of engine focus work. */
+  text_watch=add(0,widget_notifier,1,text_notification,NULL,NULL);return text_watch!=0;
+}
+static int schedule_button_refresh(void) {
+  if(!ensure_text_watch())return 0;
+  if(!text_refresh)text_refresh=text_refresh_add(200,text_refresh_idle,NULL,NULL);
+  return text_refresh!=0;
 }
 static void remove_text_watch(void) {
   if(text_watch&&text_watch_remove)text_watch_remove(text_watch);
-  text_watch=0;
+  if(text_refresh&&text_watch_remove)text_watch_remove(text_refresh);
+  text_watch=text_refresh=0;memset(&text_pending_refresh,0,sizeof(text_pending_refresh));
 }
 static uint16_t *text_utf16(const char *input,uint32_t *length) {
   size_t bytes=strlen(input);uint16_t *out=malloc((bytes+1)*sizeof(*out));if(!out)return NULL;
@@ -347,6 +403,23 @@ static uint32_t search_click_events(void *self,void *shell,void *event,int *stat
   return result;
 }
 static void (*original_text_value_changed)(void *,unsigned,int,const void *);
+static void (*original_text_selection_changed)(void *,void *,int16_t);
+static void text_selection_changed(void *listener,void *selection,int16_t reason) {
+  void *node=NULL;
+  if(texts_enabled&&(*(const unsigned char *)((char *)listener+NXS_GECKO_TEXT_SELECTION_FLAGS_BYTE)&
+                     NXS_GECKO_TEXT_SELECTION_LISTENING_MASK))
+    node=*(void **)((char *)listener+NXS_GECKO_TEXT_SELECTION_OWNER_BYTE);
+  if(node)((unsigned (*)(void *))(base+0x3b9f0e4))(node);
+  original_text_selection_changed(listener,selection,reason);
+  /* Engine commands/JS change its canonical selection without repainting
+   * the native replacement in the owner's background display item. Reuse
+   * normal frame invalidation for every selection change, not a key/action. */
+  if(node) {
+    struct Widget *w=widget_for_node(node);
+    if(w&&w->text_owned)invalidate_widget(w);
+    ((unsigned (*)(void *))(base+0x47ba6b8))(node);
+  }
+}
 static void text_value_changed(void *node,unsigned kind,int empty,const void *known) {
   original_text_value_changed(node,kind,empty,known);
   /* Value changes normally invalidate anonymous editor content. Its native
@@ -360,7 +433,7 @@ static void text_value_changed(void *node,unsigned kind,int empty,const void *kn
   }
 }
 static int prepare_text_image(void *frame) {
-  if(!native_text_frame(frame)||fabsf(frame_scale(frame)-1)>0.000001f)goto release;
+  if(!native_text_frame(frame)||!frame_scale_supported(frame))goto release;
   /* Engine callbacks can reflow while the native editor is waiting for its
    * pre-edit decision. Its existing object/image remain valid but busy. */
   if(text_transaction) {
@@ -369,25 +442,31 @@ static int prepare_text_image(void *frame) {
   }
   struct Widget *w=bind_widget(frame);if(!w)goto release;
   int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
-  double width=rect[2]/60.,height=rect[3]/60.;
+  double width=rect[2]/frame_units(frame),height=rect[3]/frame_units(frame);
   if(width<1||height<1||width>8192||height>8192)goto release;
-  if(number_node(w->node)) {
-    /* Snap edges in the original frame's coordinate system. Rounding only
-     * width loses a pixel when default font metrics place the frame between
-     * device pixels. Gecko still owns the CSS box and paint rectangle. */
-    struct NXSRectD box={0,0,width,height};
-    if(!gecko_frame_pixel_rect(frame,&box))goto release;
-    width=box.width;height=box.height;
-  } else if(!frontend_text_frame(frame)&&(width!=floor(width)||height!=floor(height)))goto release;
+  /* Every field uses the original frame's snapped viewport, including chrome
+   * and DevTools. Rounding only a CSS width can create a64-pixel native view
+   * for a63-pixel engine destination. Gecko still owns CSS layout and paint. */
+  struct NXSRectD box;
+  if(!native_frame_viewport(frame,&box))goto release;
+  width=box.width;height=box.height;
   w->width=width;w->height=height;
   if(w->number_stepper.control&&!number_node(w->node))number_forget(w);
   if(number_node(w->node)&&!number_prepare(w,width,height))goto release;
   if(frontend_text_frame(frame)&&log_fd>=0)dprintf(log_fd,"%d native-frontend-geometry id=%llu size=%.17g,%.17g\n",getpid(),(unsigned long long)w->id,width,height);
   if(!ensure_text_watch()||!native_text_filter_register(native_text_proposal)||
      (application_commands&&!native_command_filter_register(native_application_command))||!sync_text_widget(w))goto release;
-  w->text_owned=1;w->painted=1;return 1;
+  w->text_owned=text_cache_matches(w);
+  w->painted=w->text_owned;return w->text_owned;
  release: {
     struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
+    if(*cursor&&text_kind((*cursor)->kind)&&native_text_frame(frame)&&frame_scale_supported(frame)&&
+       (!number_node((*cursor)->node)||(*cursor)->number_prepared)&&
+       (*cursor)->input_owned&&(*cursor)->input_epoch==atomic_load(&native_host_epoch)) {
+      struct Widget *retained=*cursor;
+      retained->text_owned=text_cache_matches(retained);
+      return retained->text_owned;
+    }
     if(*cursor&&text_kind((*cursor)->kind))forget_widget(cursor);
     return 0;
   }
@@ -436,6 +515,10 @@ __attribute__((naked)) static void text_delete(void *editor,short direction,shor
 }
 static int dispatch_text_key(void *node,void *event,void *listener) {
   void *manager=*(void **)(base+0xa439c38);
+  if(log_fd>=0&&getenv("NEXTSPACE_FIREFOX_TRACE_KEYS"))
+    dprintf(log_fd,"%d native-text-key-route node=%p focused=%p kind=%d flags=%x/%x message=%u\n",getpid(),
+      node,manager?*(void **)((char *)manager+128):NULL,node?node_kind(node):0,
+      *((uint8_t *)event+48),*((uint8_t *)event+49),*(uint16_t *)((char *)event+18));
   if(!node||!manager||node!=*(void **)((char *)manager+128)||!text_kind(node_kind(node))||
      !(*(const uint8_t *)((char *)event+48)&1)||(*((const uint8_t *)event+49)&2)||text_transaction)return 0;
   ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
@@ -451,7 +534,9 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
     if(native_search_activation.control==control)native_activation_clear(&native_search_activation);
   }
   void *frame=*(void **)((char *)node+96);
-  if(!prepare_text_image(frame))goto release_editor;
+  int prepared=prepare_text_image(frame);
+  w=widget_for_node(node);
+  if(!prepared&&(!w||!w->input_owned||w->input_epoch!=atomic_load(&native_host_epoch)))goto release_editor;
   w=widget_for_node(node);if(!w)goto release_editor;
   struct TextModel before={0};if(!text_model(node,&before))goto release_editor;
   int modifier=text_modifier_event(event);
@@ -466,7 +551,7 @@ static int dispatch_text_key(void *node,void *event,void *listener) {
   text_transaction=&transaction;
   struct NXSResponse *response=exchange_bytes(request,size);
   text_transaction=NULL;free(request);free(before.value);
-  int handled=response?response->parts[3].x:transaction.attempted?NXS_INPUT_HANDLED:0;
+  int handled=response?response->parts[3].x:NXS_INPUT_HANDLED;
   if(response&&!modifier&&!transaction.attempted&&text_command_reporting) {
     struct NXSControlRequest get={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=21,.process=identity(),.kind=w->kind,.control=w->id};
     response=exchange_bytes(&get,sizeof(get));
@@ -508,8 +593,10 @@ static uint32_t text_keypress(void *listener,void *event) {
   return original_text_keypress(listener,event);
 }
 static struct Detour text_detours[]={
+  {0x588ef74,password_set_reveal_bytes,password_set_reveal,(void **)&original_password_set_reveal},
   {NXS_GECKO_TEXT_DELETE_ACTION_OFFSET,gecko_text_delete_action_bytes,text_delete_action,(void **)&original_text_delete_action},
   {NXS_GECKO_TEXT_VALUE_CHANGED_OFFSET,gecko_text_value_changed_bytes,text_value_changed,(void **)&original_text_value_changed},
+  {NXS_GECKO_TEXT_SELECTION_NOTIFY_OFFSET,gecko_text_selection_notify_bytes,text_selection_changed,(void **)&original_text_selection_changed},
   {NXS_GECKO_MULTILINE_POST_OFFSET,gecko_multiline_post_bytes,textarea_post,(void **)&original_textarea_post},
   {NXS_GECKO_TEXT_FRAME_EVENT_OFFSET,gecko_text_frame_event_bytes,text_frame_event,(void **)&original_text_frame_event},
   {NXS_GECKO_TEXT_SCROLL_DISPLAY_OFFSET,gecko_text_scroll_display_bytes,text_scroll_display,(void **)&original_text_scroll_display},

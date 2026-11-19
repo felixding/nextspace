@@ -9,6 +9,7 @@ static struct {
   int running,started,pending,wake_fd,failed;
   double generation;
   uint32_t applied_epoch;
+  struct NXSInvalidations invalidations;
 } form_watch={.mutex=PTHREAD_MUTEX_INITIALIZER,.condition=PTHREAD_COND_INITIALIZER,.wake_fd=-1};
 static void wake_form_watch(void)
 {
@@ -34,11 +35,13 @@ static void *watch_native_forms(void *unused) {
   for(;;){
     pthread_mutex_lock(&form_watch.mutex);int running=form_watch.running;pthread_mutex_unlock(&form_watch.mutex);
     if(!running)break;
-    struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=9,.process=identity()};
+    pthread_mutex_lock(&form_watch.mutex);double since=form_watch.generation;pthread_mutex_unlock(&form_watch.mutex);
+    struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=9,.process=identity(),.value=since};
     struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
     double generation=response?response->parts[4].x:0,delay=response?response->parts[4].y:-1;
     pthread_mutex_lock(&form_watch.mutex);
-    if(form_watch.running&&response&&generation>form_watch.generation){
+    if(form_watch.running&&response&&generation!=form_watch.generation){
+      native_invalidation_read(response,&form_watch.invalidations);
       form_watch.generation=generation;form_watch.pending=1;
       /* ScheduleWork is thread-safe. Actual DOM/layout access stays on the
        * owning renderer thread when its existing work loop wakes. */
@@ -119,12 +122,14 @@ static void form_native_work(void *controller) {
   int owner=form_watch.running&&form_watch.controller==controller&&pthread_equal(form_watch.owner,pthread_self());
   int ready=owner&&form_watch.pending;
   int failed=form_watch.failed;
-  if(ready)form_watch.pending=0;
+  struct NXSInvalidations invalidations={0};
+  if(ready){form_watch.pending=0;invalidations=form_watch.invalidations;memset(&form_watch.invalidations,0,sizeof(form_watch.invalidations));}
   pthread_mutex_unlock(&form_watch.mutex);
   /* Browser/layout work can change the anchor without a native UI action.
    * Observe that on the existing owner loop, without adding a polling timer. */
   if(owner)date_panel_geometry_work();
   if(!ready)return;
+  component_menus_native_work(failed);
   views_native_work(failed);
   tabs_native_work(failed);
   app_menus_native_work(failed);
@@ -161,7 +166,8 @@ static void form_native_work(void *controller) {
   if(popup)popup_after_input(popup,form_request(popup,5,0,0,0));
   for(struct NativeForm *f=native_forms;f;f=f->next){
     int list=f->kind==NXS_LISTBOX&&list_owned(f);
-    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&(f->kind==NXS_SLIDER||f->kind==NXS_STEPPER))||text_kind(f->kind)||list))continue;
+    if(!native_invalidation_contains(&invalidations,f->kind,f->control))continue;
+    if(!f->painted||!((f->kind==NXS_PROGRESS&&f->indeterminate)||(f==active_form&&(f->kind==NXS_SLIDER||f->kind==NXS_STEPPER))||text_kind(f->kind)||f->kind==NXS_OUTLINE||list))continue;
     if(forms_multiline_viewport_enabled&&f->kind==NXS_TEXTAREA&&read_text_viewport(f))echo_text_viewport(f);
     /* Native model changes can reveal a newly selected list row too. Mirror
      * that viewport through the same engine setter used for native input. */

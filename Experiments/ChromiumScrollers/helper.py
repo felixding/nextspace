@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Experimental renderer transport to the independent native UI provider."""
-import argparse,array,ctypes as C,fcntl,itertools,json,os,select,signal,socket,struct,sys,time
+import argparse,array,ctypes as C,fcntl,itertools,json,math,os,select,signal,socket,struct,sys,time
 from pathlib import Path
-from native_controls import MAGIC as CONTROL_MAGIC, NativeControlServer, ControlInputRequest
+from native_controls import MAGIC as CONTROL_MAGIC, NativeControlServer, ControlInputRequest, ControlRequest
 class Request(C.Structure):
     _fields_=[('magic',C.c_uint32),('operation',C.c_uint32),('process',C.c_uint32),('layer',C.c_uint32),('control',C.c_uint64),('horizontal',C.c_int32),('reserved',C.c_int32),('length',C.c_double),('total',C.c_double),('page',C.c_double),('value',C.c_double)]
 class Rect(C.Structure):
     _fields_=[('x',C.c_double),('y',C.c_double),('width',C.c_double),('height',C.c_double)]
+class Size(C.Structure):
+    _fields_=[('width',C.c_double),('height',C.c_double)]
 class Response(C.Structure):
     _fields_=[('magic',C.c_uint32),('size',C.c_uint32),('width',C.c_int32),('height',C.c_int32),('stride',C.c_int32),('reserved',C.c_int32),('parts',Rect*7)]
 class Bitmap(C.Structure):
@@ -38,13 +40,18 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
     native.nxs_scroller_tracking.argtypes=[C.c_void_p];native.nxs_scroller_tracking.restype=C.c_int
     native.nxs_scroller_track.argtypes=[C.c_void_p,C.c_double,C.c_double,C.c_uint]
     native.nxs_scroller_send.argtypes=[C.c_void_p,C.c_int,C.c_double,C.c_double,C.c_uint]
+    scroller_layout=getattr(native,'nxs_scroller_layout',None)
+    if scroller_layout:
+        scroller_layout.argtypes=[Size,C.POINTER(Rect)];scroller_layout.restype=C.c_int
     server=socket.socket(socket.AF_UNIX,socket.SOCK_SEQPACKET)
     server.setblocking(False)
     clients=[];controls={};contexts={};pending=[];active=None;forms=None;sources={};menu_broker=None;menu_sources=set()
-    native_dispatch_depth=0;deferred_keys=set()
+    native_dispatch_depth=0;deferred_actions=set();callback_failure=None
     def add_source(connection):
         if forms and forms.source_capabilities:
-            source=native.nxs_native_ui_source_create(connection if isinstance(connection,int) else connection.fileno())
+            descriptor=connection if isinstance(connection,int) else connection.fileno()
+            source=(native.nxs_native_ui_source_callback(descriptor,source_ready,None)
+                    if forms.callback_source_capabilities else native.nxs_native_ui_source_create(descriptor))
             if not source:raise RuntimeError('Cannot register embedding descriptor with native loop')
             sources[connection]=source
     def remove_source(connection):
@@ -55,9 +62,30 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
     @Changed
     def changed(context,value):
         state=contexts[context];state['value']=value
-        log('native-action',process=state['key'][0],control=state['key'][1],value=value)
+        log('native-action',process=state['key'][0],control=state['key'][1],value=value*state.get('scale',1))
+        if forms:forms.invalidate(state['key'][0])
     @Pump
-    def pump(context):reentrant_dispatch(0)
+    def pump(context):
+        state=contexts.get(context)
+        if state and state.get('native') and native.nxs_scroller_tracking(state['native']):
+            for event in state.pop('pending_pointer',[]):
+                native.nxs_scroller_send(state['native'],*event)
+        reentrant_dispatch(0)
+    @Pump
+    def source_ready(context):
+        nonlocal callback_failure
+        # Clipboard transfers run a nested native loop. A browser may need its
+        # pending paint reply before it can supply that transfer. Drain our
+        # transport here without recursively entering native event dispatch.
+        # Queued tracking retains its early pointer packets until the original
+        # native control starts. It must not hold unrelated transport replies:
+        # the clipboard source may need those replies to finish this import.
+        if callback_failure:return
+        try:reentrant_dispatch(0,native_events=False)
+        except BaseException:
+            # ctypes cannot unwind through the native event callback. Re-raise
+            # STOP/errors at the outer Python boundary, with normal cleanup.
+            callback_failure=sys.exc_info()
     def response(client,req,state,pixels=False,scroller_width=0):
         result=Response();result.magic=req.magic;result.reserved=req.reserved
         result.parts[0].width=scroller_width
@@ -80,7 +108,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
                 result.parts[2].x=forms.item_hit_capabilities
                 result.parts[2].y=bool(forms.list_capabilities&1)
                 result.parts[1].x=forms.specialized_capabilities
-                result.parts[1].y=forms.color_panel_capabilities|(forms.auxiliary_capabilities<<1)
+                result.parts[1].y=(forms.color_panel_capabilities&1)|(forms.auxiliary_capabilities<<1)
                 result.parts[0].y=bool(forms.color_panel_capabilities)
                 result.parts[4].x=forms.tab_capabilities
                 result.parts[4].y=forms.radio_capabilities
@@ -88,11 +116,15 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
                 for part,kind in ((1,2),(2,3),(3,1)):
                     result.parts[part].width,result.parts[part].height=forms.preferred(kind)
         if state and state.get('native'):
-            for part in range(1,7):result.parts[part]=native.nxs_scroller_part(state['native'],part)
-            result.parts[0].x=state['value'];result.parts[0].y=bool(state.get('starting') or native.nxs_scroller_tracking(state['native']))
+            scale=state.get('scale',1)
+            for part in range(1,7):
+                rect=native.nxs_scroller_part(state['native'],part)
+                result.parts[part]=Rect(rect.x*scale,rect.y*scale,rect.width*scale,rect.height*scale)
+            result.parts[0].x=state['value']*scale;result.parts[0].y=bool(state.get('starting') or native.nxs_scroller_tracking(state['native']))
+        if req.operation==8:result.parts[0].height=1
         data=b''
         if pixels:
-            bitmap=native.nxs_scroller_draw(state['native'],1)
+            bitmap=native.nxs_scroller_draw(state['native'],state.get('scale',1))
             result.width=bitmap.width;result.height=bitmap.height;result.stride=bitmap.stride
             data=C.string_at(bitmap.pixels,bitmap.stride*bitmap.height)
         if forms:forms.send(client,result,data)
@@ -103,25 +135,32 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
     def message(client,data,descriptors,sender_pid):
         if len(data)>=4 and int.from_bytes(data[:4],'little')==CONTROL_MAGIC:
             if forms:
-                if (native_dispatch_depth and len(data)>=C.sizeof(ControlInputRequest) and int.from_bytes(data[4:8],'little')==8 and not descriptors
-                        and client not in deferred_keys and len(deferred_keys)<128
-                        and (forms.menus.busy() or menu_broker and menu_broker.busy())):
-                    # NSMenu is validating/tracking on the native stack. A
-                    # temporary refusal is not an unhandled application key.
-                    # Preserve the original packet/sequence, then revalidate
-                    # its lifetime and focus after that native call returns.
-                    deferred_keys.add(client)
+                operation=int.from_bytes(data[4:8],'little')
+                callback_owner=any(owner['client'] is client and forms.text_filters.get(process,{}).get('waiting')
+                                   for process,owner in forms.notifiers.items())
+                native_key=len(data)>=C.sizeof(ControlInputRequest) and operation==8 and not callback_owner
+                presentation=(len(data)==C.sizeof(ControlRequest) and operation in (14,59) and
+                              ControlRequest.from_buffer_copy(data).state in ((1,2) if operation==59 else (1,)) and not callback_owner)
+                if (native_dispatch_depth and not descriptors and (native_key or presentation)
+                        and client not in deferred_actions and len(deferred_actions)<128):
+                    # Native validation/tracking can pump another client's
+                    # presentation. Run it after that native stack returns;
+                    # transient busy state must not select a browser fallback.
+                    # Preserve the packet/sequence and revalidate ownership.
+                    deferred_actions.add(client)
                     deadline=time.monotonic()+1
+                    label='native-presentation' if presentation else 'native-key'
+                    request_type=ControlRequest if presentation else ControlInputRequest
                     def later():
-                        deferred_keys.discard(client)
+                        deferred_actions.discard(client)
                         if client in clients:
                             if time.monotonic()>=deadline:
-                                # Never apply an input after the caller's
+                                # Never apply an action after the caller's
                                 # bounded RPC wait could have fallen back.
-                                forms._respond(client,ControlInputRequest.from_buffer_copy(data))
-                                log('native-key-expired')
+                                forms._respond(client,request_type.from_buffer_copy(data))
+                                log(label+'-expired')
                             else:message(client,data,(),sender_pid)
-                    pending.append(later);log('native-key-deferred')
+                    pending.append(later);log(label+'-deferred')
                     return
                 previous=activation.pending if activation else None
                 if activation:
@@ -138,34 +177,50 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
         if req.operation==7:
             response(client,req,None,scroller_width=native.nxs_scroller_width())
             return
+        if req.operation==9:
+            clip=Rect();result=Response(magic=req.magic,reserved=req.reserved)
+            if scroller_layout and scroller_layout(Size(req.length,req.total),C.byref(clip)):
+                result.parts[0]=clip
+            emit_response(client,result);return
         key=(req.process,req.control,req.horizontal);state=controls.get(key)
-        if req.operation==1:
-            if req.layer>1 or not 1<=req.length<=8192:return
+        if req.operation in (1,8):
+            if req.operation==8:
+                if not math.isfinite(req.length) or not .125<=req.length<=8:return
+            elif req.layer>1 or not 1<=req.length<=8192:return
             if state is None:
                 context=next(context_ids);state=dict(key=key,context=context,value=req.value,client=client,destroy=False);contexts[context]=state
                 state['native']=native.nxs_scroller_create(req.horizontal,changed,pump,context);controls[key]=state
                 if not state['native']:raise RuntimeError('Native NSScroller initialization failed')
                 log('native-control',process=req.process,control=req.control,horizontal=bool(req.horizontal),length=req.length,total=req.total,page=req.page)
+            if req.operation==8:
+                state['scale']=req.length;response(client,req,state);return
+            scale=state.get('scale',1)
             metrics=(req.length,req.total,req.page)
             if state.get('metrics')!=metrics:
                 state['metrics']=metrics
                 log('native-metrics',process=req.process,control=req.control,horizontal=bool(req.horizontal),length=req.length,total=req.total,page=req.page)
-            if not native.nxs_scroller_tracking(state['native']):state['value']=req.value
-            native.nxs_scroller_sync(state['native'],req.length,0,req.total,req.page,40,req.page*.875,state['value'],1)
+            if not native.nxs_scroller_tracking(state['native']):state['value']=req.value/scale
+            native.nxs_scroller_sync(state['native'],req.length/scale,0,req.total/scale,req.page/scale,40,req.page/scale*.875,state['value'],1)
             response(client,req,state,req.layer==1)
         elif state:
             if req.operation==2 and not pending and active is None and (not forms or forms.active is None):
-                state['starting']=True;pending.append(lambda: track_scroller(state,req.length,req.total,int(req.page)))
+                scale=state.get('scale',1)
+                state['starting']=True;pending.append(lambda: track_scroller(state,req.length/scale,req.total/scale,int(req.page)))
                 log('native-press',process=req.process,control=req.control,x=req.length,y=req.total,modifiers=int(req.page))
-            elif req.operation in (3,4) and native.nxs_scroller_tracking(state['native']):
-                native.nxs_scroller_send(state['native'],0 if req.operation==3 else 1,req.length,req.total,int(req.page))
+            elif req.operation in (3,4):
+                scale=state.get('scale',1)
+                event=(0 if req.operation==3 else 1,req.length/scale,req.total/scale,int(req.page))
+                if native.nxs_scroller_tracking(state['native']):
+                    native.nxs_scroller_send(state['native'],*event)
+                elif state.get('starting'):
+                    state.setdefault('pending_pointer',[]).append(event)
             elif req.operation==6:
                 state['destroy']=True
                 if native.nxs_scroller_tracking(state['native']):native.nxs_scroller_send(state['native'],1,0,0,0)
             response(client,req,state)
         else:response(client,req,None)
     def dispatch(timeout,native_events=True):
-        nonlocal menu_sources
+        nonlocal menu_sources,callback_failure
         if pending:timeout=0
         readers,writers,menu_delay=set(),set(),None
         if menu_broker:
@@ -177,6 +232,9 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
         if menu_delay is not None:maximum=min(maximum,menu_delay)
         if writers:maximum=0
         native_wait=forms.dispatch_events(maximum) if forms and native_events else -1
+        if callback_failure and not native_dispatch_depth:
+            _,error,trace=callback_failure;callback_failure=None
+            raise error.with_traceback(trace)
         if sources:timeout=0
         if native_wait>=0:
             timeout=native_wait if timeout is None else min(timeout,native_wait)
@@ -211,7 +269,18 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
                     elif level==socket.SOL_SOCKET and kind==socket.SCM_CREDENTIALS and len(payload)>=12:
                         sender_pid=struct.unpack('3i',payload[:12])[0]
                 try:
-                    if data and not flags&(socket.MSG_TRUNC|socket.MSG_CTRUNC):message(client,data,descriptors,sender_pid)
+                    if data and not flags&(socket.MSG_TRUNC|socket.MSG_CTRUNC):
+                        trace_started=time.monotonic() if os.environ.get('NEXTSPACE_TRACE_NATIVE_RPC')=='1' else None
+                        message(client,data,descriptors,sender_pid)
+                        if trace_started is not None:
+                            elapsed=time.monotonic()-trace_started
+                            if elapsed>=.02:
+                                log('native-rpc-timing',operation=int.from_bytes(data[4:8],'little'),
+                                    sender_pid=sender_pid,seconds=elapsed,finished=time.monotonic(),
+                                    magic=int.from_bytes(data[:4],'little'),
+                                    process=int.from_bytes(data[8:12],'little'),
+                                    kind=int.from_bytes(data[12:16],'little'),
+                                    control=int.from_bytes(data[16:24],'little'))
                 finally:
                     for descriptor in descriptors:os.close(descriptor)
                 if data:continue
@@ -233,11 +302,13 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
     def track_scroller(state,x,y,modifiers):
         nonlocal active
         state['starting']=False
-        if state['destroy']:return
+        if state['destroy']:
+            state.pop('pending_pointer',None);return
         active=state
         try:native.nxs_scroller_track(state['native'],x,y,modifiers)
         finally:active=None
         log('native-release',process=state['key'][0],control=state['key'][1],value=state['value'])
+        if forms:forms.invalidate(state['key'][0])
     if hasattr(native,'nxs_control_create'):
         forms=NativeControlServer(native,Bitmap,Response,Pump,reentrant_dispatch,pending,emit_response,
                                   lambda: not pending and active is None and forms.active is None,log)
@@ -278,7 +349,7 @@ def run(library,path,menu_descriptor=None,menu_output=None,prepared=None,activat
             for key,state in list(controls.items()):
                 if state['destroy'] and not native.nxs_scroller_tracking(state['native']):
                     native.nxs_scroller_destroy(state['native']);state['native']=None;del controls[key];del contexts[state['context']]
-            if forms:forms.cleanup()
+            if forms:forms.menus.dispatch_context();forms.cleanup()
             if menu_broker:menu_broker.tick()
     finally:
         # Record the original failure before closing the private roles. A

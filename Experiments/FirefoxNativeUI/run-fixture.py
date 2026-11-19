@@ -55,7 +55,7 @@ with tempfile.TemporaryDirectory(prefix='fixture-',dir=args.output) as temporary
     root=Path(temporary);root.chmod(0o700)
     runtime=root/'runtime';runtime.mkdir(mode=0o700)
     profile=root/'profile';profile.mkdir()
-    preferences={'marionette.port':args.port,'browser.shell.checkDefaultBrowser':False,
+    preferences={'remote.prefs.recommended':False,'focusmanager.testmode':False,'marionette.port':args.port,'browser.shell.checkDefaultBrowser':False,
         'browser.startup.page':0,'browser.startup.homepage':'about:blank',
         'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore',
         'datareporting.policy.dataSubmissionEnabled':False,'gfx.webrender.software':True}

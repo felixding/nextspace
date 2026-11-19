@@ -42,14 +42,15 @@ static struct GeckoPopup *popup_find_id(uint64_t id) {
 }
 static int native_popups_exist(void){return gecko_popups!=NULL;}
 static int native_popup_frame(const void *frame) {
-  if(!popups_requested||!native_web_process()||!frame||*(const uintptr_t *)frame!=base+NXS_GECKO_POPUP_FRAME_VTABLE+16)return 0;
+  if(!popups_requested||!native_form_process()||!frame||*(const uintptr_t *)frame!=base+NXS_GECKO_POPUP_FRAME_VTABLE+16)return 0;
   void *node=*(void **)((const char *)frame+24);
   if(!node||*(uintptr_t *)node!=base+NXS_GECKO_POPUP_SELECT_VTABLE+16||*(void **)((char *)node+96)!=frame)return 0;
   const void *style=*(void **)((const char *)frame+32),*display=*(void **)((const char *)style+80);
   /* Let Gecko resolve appearance:auto and its native-widget eligibility. */
-  return fabsf(frame_scale(frame)-1)<0.000001f&&original_frontend_themed(frame,display,NULL);
+  return frame_scale_supported(frame)&&original_frontend_themed(frame,display,NULL);
 }
 static struct NXSResponse *popup_request(struct GeckoPopup *p,unsigned op,int value) {
+  if(op==1&&!native_control_presentation(NXS_POPUP,p->id,frame_scale(p->frame)))return NULL;
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=op,.process=identity(),
     .kind=NXS_POPUP,.control=p->id,.width=p->width,.height=p->height,.enabled=!(*(uint64_t *)((char *)p->node+112)&16),.state=value};
   return exchange_bytes(&request,sizeof(request));
@@ -206,12 +207,12 @@ static int popup_preferred(void *frame,struct LogicalSizeI *size) {
   struct GeckoPopup *p=popup_bind(frame);if(!p||(*((const unsigned char *)frame+108)&1))return 0;
   /* The one-unit probe hosts only the native model before first reflow.
    * NSPopUpButtonCell::cellSize supplies all title/arrow/border metrics. */
-  if(p->width<1||p->height<1)p->width=p->height=1;
+  if(p->width<1||p->height<1)p->width=p->height=frame_scale(frame);
   struct NXSResponse *r=popup_sync(p);if(!r)return 0;
   double width=r->parts[1].width,height=r->parts[1].height;
   if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return 0;
   p->preferred_width=width;p->preferred_height=height;
-  *size=(struct LogicalSizeI){ceil(width)*60,ceil(height)*60};return 1;
+  *size=(struct LogicalSizeI){ceil(width)*frame_units(frame),ceil(height)*frame_units(frame)};return 1;
 }
 static int popup_longest(void *frame,void *rendering) {
   struct LogicalSizeI preferred;
@@ -267,8 +268,9 @@ static void popup_content_added(void *node,void *child,int append) {
 }
 static int prepare_popup_image(void *frame) {
   struct GeckoPopup *p=popup_bind(frame);if(!p)return 0;
-  int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);p->width=rect[2]/60.;p->height=rect[3]/60.;p->owned=0;
-  if(p->width<1||p->height<1||p->width!=floor(p->width)||p->height!=floor(p->height)||p->width>8192||p->height>8192)return 0;
+  p->owned=0;struct NXSRectD viewport;
+  if(!native_frame_viewport(frame,&viewport))return 0;
+  p->width=viewport.width;p->height=viewport.height;
   struct NXSResponse *r=popup_sync(p);p->owned=r!=NULL;
   if(r&&(p->preferred_width!=r->parts[1].width||p->preferred_height!=r->parts[1].height)) {
     p->preferred_width=r->parts[1].width;p->preferred_height=r->parts[1].height;
@@ -285,11 +287,6 @@ static int native_popup_display(void *frame,void *builder,const void *lists) {
 }
 static int draw_popup_image(void *target,void *frame,const struct RectF *area) {
   struct GeckoPopup *p=popup_find(frame);if(!p||!p->owned||!p->pixels)return 0;
-  if(p->pixel_width!=lround(area->width)||p->pixel_height!=lround(area->height)) {
-    static unsigned notes;
-    if(log_fd>=0&&notes++<16)dprintf(log_fd,"%d native-select size mismatch id=%llu bitmap=%dx%d area=%.3f,%.3f %.3fx%.3f\n",getpid(),(unsigned long long)p->id,p->pixel_width,p->pixel_height,area->x,area->y,area->width,area->height);
-    return 0;
-  }
   draw_bitmap(target,area,p->pixels,p->pixel_width,p->pixel_height);
   if(log_fd>=0)dprintf(log_fd,"%d native-select id=%llu count=%u selected=%d rect=%.0f,%.0f %dx%d\n",getpid(),(unsigned long long)p->id,p->model.packet->count,p->model.packet->selected,area->x,area->y,p->pixel_width,p->pixel_height);
   return 1;
@@ -318,10 +315,14 @@ static void popup_after_input(uint64_t id,const struct NXSResponse *response) {
   ((unsigned (*)(void *))(base+NXS_GECKO_POPUP_NODE_RELEASE))(node);
   p=popup_find_id(id);if(p){popup_sync(p);popup_invalidate(p);}
 }
-static void native_popup_notification(void) {
-  unsigned count=0;for(struct GeckoPopup *p=gecko_popups;p;p=p->next)count++;
+static void native_popup_notification(const struct NXSInvalidations *invalidations) {
+  /* A closed, unchanged select must not rebuild its display list whenever
+   * another native control animates. The shared receipt identifies its owner. */
+  unsigned count=0;for(struct GeckoPopup *p=gecko_popups;p;p=p->next)
+    if(native_invalidation_contains(invalidations,NXS_POPUP,p->id))count++;
   uint64_t *ids=calloc(count?count:1,sizeof(*ids));if(!ids)return;
-  unsigned i=0;for(struct GeckoPopup *p=gecko_popups;p;p=p->next)ids[i++]=p->id;
+  unsigned i=0;for(struct GeckoPopup *p=gecko_popups;p;p=p->next)
+    if(native_invalidation_contains(invalidations,NXS_POPUP,p->id))ids[i++]=p->id;
   for(i=0;i<count;i++){struct GeckoPopup *p=popup_find_id(ids[i]);if(p)popup_after_input(ids[i],popup_request(p,5,0));}
   free(ids);
 }
@@ -330,13 +331,15 @@ static int popup_event_name(const struct GeckoString *name,const char *text) {
   for(unsigned i=0;i<size;i++)if(name->data[i]!=(unsigned char)text[i])return 0;return 1;
 }
 static int popup_origin(struct GeckoPopup *p) {
-  double x,y;
-  return gecko_frame_screen_origin(p->frame,&x,&y)&&native_popup_binding_origin(NXS_POPUP,p->id,x,y);
+  struct NXSRectD bounds;uint64_t id=p->id;
+  if(!gecko_frame_screen_bounds(p->frame,&bounds))return 0;
+  p=popup_find_id(id);
+  return p&&native_popup_binding_bounds(NXS_POPUP,id,bounds);
 }
 static struct NXSResponse *popup_pointer_request(struct GeckoPopup *p,unsigned operation,const void *event) {
   struct PointI point=((struct PointI (*)(const void *,struct RelativeTo))(base+0x6da35a8))(event,(struct RelativeTo){p->frame,0});
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),.kind=NXS_POPUP,
-    .control=p->id,.x=point.x/60.,.y=point.y/60.,.modifiers=widget_modifiers(event)};
+    .control=p->id,.x=point.x/frame_units(p->frame),.y=point.y/frame_units(p->frame),.modifiers=widget_modifiers(event)};
   return exchange_bytes(&request,sizeof(request));
 }
 static void native_popup_pointer_post(const void *event) {

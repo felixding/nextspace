@@ -2,7 +2,8 @@
  * That callback performs controller lookup, availability checks and dispatch;
  * the address bar's registered custom controller stays authoritative. */
 static const struct {const char *selector,*name;uint8_t command;} text_commands[]={
-  {"copy:","cmd_copy",5},{"cut:","cmd_cut",6},{"paste:","cmd_paste",24}
+  {"copy:","cmd_copy",5},{"cut:","cmd_cut",6},{"paste:","cmd_paste",24},
+  {"undo:","cmd_undo",60},{"redo:","cmd_redo",61}
 };
 static int guard_text_commands(void) {
   static const unsigned char callback[20]={0x3f,0x23,0x03,0xd5,0xff,0x43,0x01,0xd1,0xfe,0x57,0x03,0xa9,0xf4,0x4f,0x04,0xa9,0xe8,0x50,0x02,0xd0};

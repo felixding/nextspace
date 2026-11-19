@@ -27,6 +27,7 @@ static int frontend_item_owned(void *frame) {
 }
 static int frontend_webrender(void *item,void *builder,void *resources,void *stacking,void *manager,void *display_builder) {
   void *frame=frontend_item_frame(item);
+  if(document_scroller_owned(frame,*((const unsigned char *)item+156)))return 0;
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   if(frame_kind(frame)==NXS_COLORWELL)prepare_color_image(frame);
   if(frame_kind(frame)==NXS_DATEPICKER)prepare_date_image(frame);
@@ -39,6 +40,12 @@ static int frontend_webrender(void *item,void *builder,void *resources,void *sta
 }
 static void frontend_paint(void *item,void *builder,void *context) {
   void *frame=frontend_item_frame(item);
+  if(document_scroller_owned(frame,*((const unsigned char *)item+156))) {
+    void *target=*(void **)((char *)context+216);
+    struct RectF area=((struct RectF (*)(const void *,double,const void *))(base+0x6db633c))(
+      (char *)item+120,frame_units(frame),target);
+    if(document_scroller_draw(target,frame,*((const unsigned char *)item+156),&area))return;
+  }
   if(frame_kind(frame)==NXS_BUTTON)prepare_button_image(frame);
   if(frame_kind(frame)==NXS_COLORWELL)prepare_color_image(frame);
   if(frame_kind(frame)==NXS_DATEPICKER)prepare_date_image(frame);

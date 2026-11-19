@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-14",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "source": {
+    "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/TextControlState.cpp",
+    "sha256": "c2609d0b8f2f559611408a6c048679c405e97677e0764e10948e72c12ac5c653",
+    "function": "mozilla::TextInputListener::OnSelectionChange"
+  },
+  "interface": {
+    "address": "0x58c0e2c",
+    "entry_guard_bytes": 20,
+    "owner_load_guard_address": "0x58c0e50",
+    "owner_load_guard_bytes": 12,
+    "owner_byte": 32,
+    "flags_byte": 48,
+    "listening_mask": 32
+  },
+  "finding": "Canonical selection notifications invalidate anonymous engine text content. The native field is painted in its owner background display item and needs the existing complete-frame invalidation too.",
+  "implementation": "Retain the original owner across the original callback, resolve its current native widget after callback dispatch, invalidate through the existing frame path, then release. No command names, key bindings, editor behavior or drawing are duplicated.",
+  "verification": {
+    "before": "/var/tmp/nxs-firefox-reported-ux-323",
+    "after": "/var/tmp/nxs-firefox-reported-ux-324",
+    "regression": "Tests/Wayland/native_selection_paint.py",
+    "limit": "References are prepared before the stimulus. No blur, pointer move, focus change or additional input may follow the selection before the compositor image comparison.",
+    "chromium": "/var/tmp/nxs-chromium-reported-ux-325",
+    "fixture_geometry": "Explicit integral CSS viewport isolates selection repaint from engine intrinsic-size baseline snapping; separate density fixtures retain intrinsic-size coverage."
+  }
+}

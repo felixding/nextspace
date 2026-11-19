@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-15",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "path": "widget/gtk/NativeMenuGtk.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuGtk.cpp",
+      "sha256": "242568b19d6841b503f774c144a099d0dcc5496ae3ea97adaf051112f2597595"
+    },
+    {
+      "path": "dom/base/nsINode.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsINode.h",
+      "sha256": "c11f55874f4191fbcbbd3942eb632cb3b47e8627b7bb4d35ec3c9c2e0cb87122"
+    },
+    {
+      "path": "dom/xul/nsXULElement.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/xul/nsXULElement.cpp",
+      "sha256": "360833a55febba7cc4c6eaf96a2036916e3b82a6874f826928ff84ffbbc84f84"
+    },
+    {
+      "path": "dom/events/GlobalKeyListener.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/events/GlobalKeyListener.cpp",
+      "sha256": "c0a4ab0a703929d135cf026b648fefcac625311c6ec0c2392dd2282f2e927c18"
+    }
+  ],
+  "abi": {
+    "model_element_offset": 40,
+    "model_root_offset": 56,
+    "node_parent_offset": 48,
+    "constructor": "0x6b142b8",
+    "destructors": [
+      "0x6b107d0",
+      "0x6b108a8"
+    ],
+    "recompute": "0x6afa9fc",
+    "append_original_item": "0x6afac14",
+    "original_dirty": "0x6af9a04",
+    "original_activation": "0x6b12644",
+    "xul_namespace_id": 8,
+    "xul_namespace_evidence": "Actual original XUL keyset/command insertion reports NodeInfo namespace8 in582. The previous assumed9 failed dynamic updates;582 remains incomplete."
+  },
+  "policy": [
+    "Original MenubarModelDBus observes the containing chrome document element through its original constructor and removes that observer through its original destructor. Element() remains the actual menubar for existing UI lifecycle.",
+    "Original exporter AppendMenuItem handles original XUL key elements, including key/modifier parsing, state and original command activation. No shortcut names, key codes or commands are hardcoded.",
+    "The shared D-Bus binding projects key-only metadata into the existing original NSMenu bindings; native fields and global commands therefore see one application menu model.",
+    "Native lifecycle menus accept existing key-only entries and preserve them during original branch replacement. Key-only entries cannot be inserted into a popup branch.",
+    "Original mutation callbacks and script-runner scheduling refresh the same model after key, keyset and command changes. Original GObject callback sources retain their DOM node until the original callback object retires.",
+    "Original NSMenu matching, native key preferences, text editing and Gecko global command cancellation remain unchanged.",
+    "The original referenced command element is resolved with nsINode::GetElementById; its live disabled/internal attributes supplement the original key leaf availability. The original exporter only checks the key leaf itself.",
+    "Root observation forwards the original menu callbacks only for actual menubar descendants. Original key/keyset/command nodes refresh the registry; unrelated chrome/context-menu mutations do not rebuild the application menu.",
+    "Pass each original key element ID as opaque source identity. Identical original shortcuts remain distinct across complete exporter rebuilds; no identity is inferred from the chord. Ambiguous anonymous siblings still retire safely."
+  ],
+  "limits": [
+    "Non-character and multi-chord metadata unsupported by the existing D-Bus character shortcut translator retain their original paths.",
+    "Pinned Firefox/libxul only; no browser binary is rebuilt."
+  ],
+  "regression": [
+    "Tests/Wayland/native_application_shortcuts.py",
+    "Tests/Wayland/native_desktop_shortcuts.py",
+    "Tests/NativeUI/menu-lifecycle-probe.c"
+  ],
+  "failed_trials": [
+    "Ephemeral standalone key models displaced the D-Bus menu in573/574 and broke editing; these runs remain incomplete.",
+    "An isolated key-only model in577 preserved menu ownership but was absent from the native editor application menu and could not focus the URL field. This unpublished approach was removed.",
+    "Dynamic insertion582 used an incorrect namespace9 assumption; actual pinned XUL NodeInfo namespace8 was recorded and corrected.",
+    "Trial584 found that original key leaves do not mirror every referenced command disabled attribute; the exporter supplement now includes that live command state.",
+    "Ordinary598 caught persistent File menu closure after availability refresh. A native state-update probe601 reproduces replacing original controls; state updates602 retain original NSMenuItems and open submenus.",
+    "Personal603 still closed File: two original Control-Shift-W keys shared a signature and received new identities on every rebuild. Preserve original element IDs rather than merging duplicate shortcuts or weakening ambiguous-sibling rejection."
+  ]
+}

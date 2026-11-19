@@ -5,7 +5,7 @@ from pathlib import Path
 import time
 from gi.repository import Gio, GLib
 
-from native_menus import MenuItem, MenuState
+from native_menus import MenuItem, MenuState, MENU_ENABLED_SNAPSHOT, MENU_STATE_SNAPSHOTS
 from menu_model import MenuModel, flattened, replace_children
 from menu_events import application_event as deliver_event
 
@@ -71,16 +71,31 @@ class MenuBinding:
         generation = 0
         revision = None
         commands = []
+        retry_source = 0
+        fetch_sequence = refreshed_sequence = 0
+
+
+        def projected(root):
+            result, indices = [], {}
+            for index,(parent,node) in enumerate(flattened(root)):
+                if parent>=0 and parent not in indices:continue
+                if node.properties.get('x-nextspace-key-only') and not shortcut(node.properties.get('shortcut'))[0]:continue
+                indices[index] = len(result)
+                result.append((indices[parent] if parent>=0 else -1,node))
+            return result
 
 
         def projection(root):
             result = []
-            for parent,node in flattened(root):
+            for parent,node in projected(root):
                 values = node.properties
                 flags = (1 if values.get('type')=='separator' else 0)
                 flags |= 0 if values.get('enabled',True) else 2
                 flags |= 4 if values.get('toggle-state')==1 else 8 if values.get('toggle-state')==-1 else 0
                 flags |= 16 if values.get('children-display')=='submenu' or node.children else 0
+                flags |= 32 if values.get('x-nextspace-key-only') else 0
+                if not flags&1 and native.nxs_native_ui_menu_capabilities()&MENU_STATE_SNAPSHOTS:
+                    flags |= MENU_ENABLED_SNAPSHOT
                 key,modifiers = shortcut(values.get('shortcut'))
                 result.append((parent,0 if flags&1 else node.native,values.get('label','').encode(),key,modifiers,flags))
             return result
@@ -93,7 +108,7 @@ class MenuBinding:
 
         def dump_states(*unused):
             states = []
-            for index,(_,node) in enumerate(flattened(native_root)):
+            for index,(_,node) in enumerate(projected(native_root)):
                 state = native.nxs_menu_state(menu,index)
                 states.append(dict(index=index,command=node.native,remote=node.remote,title=node.properties.get('label',''),
                     visible=state.visible,tracking=state.tracking,highlighted=state.highlighted,
@@ -134,9 +149,9 @@ class MenuBinding:
                 GLib.VariantType.new('()'),Gio.DBusCallFlags.NONE,3000,None,callback,data or name)
 
 
-        def execute_command(identifier,phase):
+        def execute_command(identifier,phase,refreshed=False):
             try:
-                if phase==1 and a.lifecycle:
+                if phase==1 and a.lifecycle and not refreshed:
                     refresh_layout()
                 node = model.nodes.get(identifier)
                 enabled = alive and node is not None and node.properties.get('enabled',True) and node.properties.get('visible',True)
@@ -152,10 +167,15 @@ class MenuBinding:
 
 
         def command(unused,identifier,phase):
+            nonlocal dirty
             if deferred and phase==1:
                 node = model.nodes.get(identifier)
                 if not alive or node is None or not node.properties.get('enabled',True) or not node.properties.get('visible',True):return 0
-                commands.append(identifier)
+                # Validate after admission, without holding the embedding RPC
+                # or discarding the key when a pre-dispatch refresh times out.
+                # A read already in flight predates this command's admission.
+                commands.append((identifier,fetch_sequence+1))
+                dirty = True
                 log('application-command-queued',native=identifier)
                 return 1
             return execute_command(identifier,phase)
@@ -198,9 +218,12 @@ class MenuBinding:
 
 
         def refresh_layout():
-            nonlocal generation,fetching
+            nonlocal generation,fetching,fetch_sequence,refreshed_sequence
             generation += 1;fetching = False
+            fetch_sequence += 1
+            sequence = fetch_sequence
             accept_layout(awaiting('GetLayout',GLib.Variant('(iias)',(0,-1,[]))))
+            refreshed_sequence = sequence
 
 
         def application_event(token,name):
@@ -238,18 +261,40 @@ class MenuBinding:
                 log('native-submenu-error',message=str(error));return 0
 
 
-        def fetched(connection,result,epoch):
-            nonlocal fetching,alive
+        def fetched(connection,result,request):
+            nonlocal fetching,alive,dirty,retry_source,refreshed_sequence
+            epoch,sequence = request
             try:
                 value = connection.call_finish(result).unpack()
                 if epoch==generation:
                     fetching = False
                     accept_layout(value)
+                    refreshed_sequence = sequence
             except (GLib.Error,ValueError,TypeError) as error:
                 if epoch==generation:
-                    fetching = False;alive = False
+                    fetching = False
+                    temporary = isinstance(error,GLib.Error) and (
+                        error.matches(Gio.io_error_quark(),Gio.IOErrorEnum.TIMED_OUT) or
+                        any(error.matches(Gio.dbus_error_quark(),code) for code in
+                            (Gio.DBusError.NO_REPLY,Gio.DBusError.TIMEOUT,Gio.DBusError.TIMED_OUT)))
+                    if temporary and alive:
+                        # A delayed refresh is not an owner loss. Keep the
+                        # original native items; actions still refresh and
+                        # validate against the pinned owner before execution.
+                        dirty = True
+                        if not retry_source:retry_source = GLib.timeout_add(250,retry_layout)
+                        log('layout-retry',message=str(error))
+                        return
+                    alive = False
                     native.nxs_menu_cancel(menu)
                     log('layout-error',message=str(error))
+
+
+        def retry_layout():
+            nonlocal retry_source
+            retry_source = 0
+            if alive:request_layout()
+            return GLib.SOURCE_REMOVE
 
 
         def changed(*unused):
@@ -259,12 +304,13 @@ class MenuBinding:
 
 
         def request_layout():
-            nonlocal dirty,fetching
-            if not alive or fetching:return
+            nonlocal dirty,fetching,fetch_sequence
+            if not alive or fetching or retry_source:return
             dirty,fetching = False,True
+            fetch_sequence += 1
             bus.call(owner,a.path,'com.canonical.dbusmenu','GetLayout',
                 GLib.Variant('(iias)',(0,-1,[])),None,Gio.DBusCallFlags.NONE,
-                3000,None,fetched,generation)
+                3000,None,fetched,(generation,fetch_sequence))
 
 
         def name_changed(connection,sender,path,interface,member,parameters,unused):
@@ -294,10 +340,12 @@ class MenuBinding:
 
 
         def stop(*unused):
-            nonlocal alive,generation,fetching
+            nonlocal alive,generation,fetching,retry_source
             if destroyed:return
             alive = False
             generation += 1;fetching = False
+            if retry_source:
+                GLib.source_remove(retry_source);retry_source = 0
             commands.clear()
             native.nxs_menu_cancel(menu)
 
@@ -310,8 +358,19 @@ class MenuBinding:
             if not alive:return
             # Called after the embedding RPC dispatcher returns its pending reply.
             while commands and alive:
-                execute_command(commands.pop(0),1)
-            if dirty and not fetching:
+                identifier,required = commands[0]
+                if refreshed_sequence<required:break
+                commands.pop(0)
+                # Remove before Event: an uncertain application reply must not
+                # replay an action that the original owner may have executed.
+                execute_command(identifier,1,refreshed=True)
+                if commands:
+                    # The action may change command availability or identity.
+                    # Revalidate its successor against the owner's new model.
+                    following,required = commands[0]
+                    commands[0] = (following,max(required,fetch_sequence+1))
+            waiting = commands and commands[0][1]>refreshed_sequence
+            if (dirty or waiting) and not fetching and not retry_source:
                 request_layout()
             if pending_root is not None:
                 if projection(pending_root)==projection(native_root):pending_root = None
@@ -340,4 +399,4 @@ class MenuBinding:
         self._callbacks = (command_callback,pump_callback,lifecycle_callback if a.lifecycle else None)
         self.tick,self.stop,self.close,self.dump_states,self.pump = tick,stop,close,dump_states,pump
         self.is_alive = lambda:alive
-        self.needs_tick = lambda:alive and bool(commands or (dirty and not fetching) or pending_root is not None)
+        self.needs_tick = lambda:alive and bool(commands or (dirty and not fetching and not retry_source) or pending_root is not None)

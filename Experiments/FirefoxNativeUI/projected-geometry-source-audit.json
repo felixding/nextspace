@@ -1,0 +1,96 @@
+{
+  "build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+  "debug_elf_sha256": "a0089de680a491261517e7da34490c7a8a198f53fba97f50f772ba0c010e5be2",
+  "debug_package_snapshot": "https://snapshot.debian.org/file/d268da906b275fafa204068aca7ddb92b7572507",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsDOMWindowUtils.cpp",
+      "sha256": "b3ddb82700eb509880788a36ea4cfbbdfa38d1e37874e7de149242814237d4aa"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsGlobalWindowOuter.h",
+      "sha256": "8f5f59cfa30ae45e54345bd92352fcbf0f3f21ecc03a24da86f466270e8b8215"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsGlobalWindowOuter.cpp",
+      "sha256": "76cc967f1ce27605a541930480f42dae5f5bf1cead9fdb2921bbd04d8b6b1b65"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/DOMRect.h",
+      "sha256": "d0c0ba55f5fef4c93e3e9ea88db31bddd90ffac4367d5d37d43ee09fa7705c01"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/nsLayoutUtils.cpp",
+      "sha256": "a36dc15a40d3acf81914fdfc556abb0e7a7c87a4b6f5c407ad523882a50f3ccd"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/nsIWidget.h",
+      "sha256": "5d95c36db12328eae63ae418230880f921a3329bf6b6a99068fb15170771185f"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsWindow.cpp",
+      "sha256": "64954b3a542c2a1678d5c38ef31024ce267f9e7dfee83667c155ee9ff4059738"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/PuppetWidget.h",
+      "sha256": "682e8a9d2d3a2df457171274570aa295acfa1f13554d9fd8dde17e1b338ec928"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/src/nsDeviceContext.cpp",
+      "sha256": "bce48c6720d049e3d2f13d41dc63cfa1a4ad4dcb2b86854f3929c64c49e12620"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "_ZN16nsDOMWindowUtils28GetElementBoundingScreenRectEPN7mozilla3dom7ElementEPPNS1_7DOMRectE",
+      "offset": "0x468fdf8",
+      "bytes": 180
+    },
+    {
+      "name": "_ZN16nsDOMWindowUtils22ToScreenRectInCSSUnitsEffffPPN7mozilla3dom7DOMRectE",
+      "offset": "0x468feac",
+      "bytes": 572
+    },
+    {
+      "name": "_ZN19nsGlobalWindowOuter11WindowUtilsEv",
+      "offset": "0x46d83d4",
+      "bytes": 100
+    },
+    {
+      "name": "_ZN7mozilla3dom15DOMRectReadOnly7ReleaseEv",
+      "offset": "0x3b9f134",
+      "bytes": 72
+    },
+    {
+      "name": "_ZN7mozilla3dom11DOMRectList7ReleaseEv",
+      "offset": "0x3b9f134",
+      "bytes": 72
+    },
+    {
+      "name": "_ZN7mozilla3dom7DOMRect7ReleaseEv",
+      "offset": "0x3b9f134",
+      "bytes": 72
+    },
+    {
+      "name": "_ZNK15nsDeviceContext39AppUnitsPerDevPixelInTopLevelChromePageEv",
+      "offset": "0x400e964",
+      "bytes": 88
+    },
+    {
+      "name": "_ZN19nsGlobalWindowInner23GetDesktopToDeviceScaleERN7mozilla11ErrorResultE",
+      "offset": "0x46b241c",
+      "bytes": 336
+    }
+  ],
+  "contract": [
+    "Use original GetElementBoundingScreenRect only at event or popup polling boundaries: it flushes layout. Revalidate control identity after it returns.",
+    "Original ConvertTo handles cross-document transforms, visual viewport resolution, ancestor transforms/scroll and desktop widget origin. Its result uses top-level chrome CSS units.",
+    "nsPIDOMWindowOuter is a secondary base; its original Itanium offset-to-top identifies the complete outer window before WindowUtils.",
+    "DOMRect stores the four output doubles at byte 48; guarded original allocation initializes that span. Release through original DOMRect::Release.",
+    "Transport the full projected screen rectangle independently of the untransformed native model and raster viewport. GNUstep uses original NSAffineTransform in backing-window global coordinate conversions.",
+    "Chrome CSS density is quantized to app units and can differ from the platform desktop scale. Convert all four screen rectangle coordinates by the original AppUnitsPerDevPixelInTopLevelChromePage and GetDesktopToDeviceScale values; never assume devicePixelRatio equals output scale.",
+    "The independent browser oracle uses original toScreenRect device-pixel bounds divided by original window.desktopToDeviceScale. The initial918 report only checked CSS-unit transport agreement, so it cannot establish desktop-unit alignment. Preserve919 failure and the175% visual drift separately."
+  ],
+  "guards": "pinned-geometry.h:guard_projected_geometry_calls"
+}

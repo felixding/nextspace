@@ -44,8 +44,8 @@ static struct Point local_point(void *bar,const void *event) {
   return ((Local)(base+0xe8ffa68))(bar,&root);
 }
 static struct NXSResponse *input_request(uintptr_t bar,int horizontal,int operation,struct Point point,unsigned modifiers) {
-  struct NXSRequest req={.magic=NXS_CHROMIUM_MAGIC,.operation=operation,.process=identity(),.control=bar,.horizontal=horizontal,.length=point.x,.total=point.y,.page=modifiers};
-  return exchange(req);
+  struct NXSScrollerBinding binding={.control=bar,.horizontal=horizontal};
+  return native_scroller_input(&binding,operation,point.x,point.y,modifiers);
 }
 static void apply_value(void *bar,float value) {
   if(!bar||scroll_offset_slot<0||minimum_offset_slot<0)return;
@@ -165,12 +165,12 @@ static void autoscroll(void *bar,int64_t delay) {
 }
 static void destroy_scrollbar(void *bar) {
   stop_native(bar,(struct Point){0},0,0);
-  input_request((uintptr_t)bar,*(const int *)((char *)bar+16)==0,6,(struct Point){0},0);
+  chromium_scroller_retire(bar);
   original_destroy(bar);
 }
 static void disconnect_scrollbar(void *bar) {
   stop_native(bar,(struct Point){0},0,0);
-  input_request((uintptr_t)bar,*(const int *)((char *)bar+16)==0,6,(struct Point){0},0);
+  chromium_scroller_retire(bar);
   ((void (*)(void *))(base+0xb249734))(bar);
 }
 
@@ -194,6 +194,7 @@ static struct Detour input_detours[]={
  {NXS_DESTROY_OFFSET,nxs_destroy_bytes,destroy_scrollbar,(void **)&original_destroy}
 };
 static int prepare_input(void) {
+  if(memcmp((void *)(base+NXS_BLINK_SCROLLBAR_SCALE_OFFSET),nxs_blink_scrollbar_scale_bytes,20))return 0;
   uintptr_t *table=(uintptr_t *)(base+0x11d4b228);
   for(int i=2;i<120;i++)if(table[i]==base+0xc7a3550){if(scroll_offset_slot>=0)return 0;scroll_offset_slot=i-2;}
   for(int i=2;i<120;i++)if(table[i]==base+0xdfe7078){if(minimum_offset_slot>=0)return 0;minimum_offset_slot=i-2;}

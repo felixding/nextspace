@@ -1,0 +1,102 @@
+{
+  "date": "2026-11-14",
+  "chromium_build_id": "eeeef03b83096958e9eb6385a4a92aa8d2aa404e",
+  "upstream_commit": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "sources": [
+    {
+      "path": "ui/views/controls/menu/menu_runner_impl_adapter.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner_impl_adapter.cc",
+      "sha256": "6e657c1158a08b825a86778b81814e03d0ba818a609718e2560476626ca4d769",
+      "bytes": 1731
+    },
+    {
+      "path": "ui/views/controls/menu/menu_runner_impl_adapter.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner_impl_adapter.h",
+      "sha256": "7ee905320adeb896b201a9b2698d40bc7cbb28663d7577bf02a1e1f2141303e0",
+      "bytes": 1908
+    },
+    {
+      "path": "ui/views/controls/menu/menu_runner_impl_interface.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner_impl_interface.h",
+      "sha256": "3b6c6154c11a9fbfd514a4b89904a187c761bebdbf7ada877647460c95d20039",
+      "bytes": 2727
+    },
+    {
+      "path": "ui/views/controls/menu/menu_runner.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner.h",
+      "sha256": "50b7716960debeb37f1f2a720d314c29b26a35947571456828a5dfada253625a",
+      "bytes": 7746
+    },
+    {
+      "path": "ui/views/controls/menu/menu_runner_impl.h",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner_impl.h",
+      "sha256": "584a5f5198546926efe06d50223a738724e333689ee0a4bd6286c1c701f034c1",
+      "bytes": 3663
+    },
+    {
+      "path": "ui/views/controls/menu/menu_runner_impl.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/views/controls/menu/menu_runner_impl.cc",
+      "sha256": "2536b173a4faed65540f831dd29c3b82d89541c7bf4f66b8cb399449ff9c3c23",
+      "bytes": 10177
+    },
+    {
+      "path": "chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/chrome/browser/ui/views/renderer_context_menu/render_view_context_menu_views.cc",
+      "sha256": "06477cf1f38e3ac8be56b759fae14162dcd09c1232bd6f61b2f25e68c519324e",
+      "bytes": 16922
+    },
+    {
+      "path": "components/renderer_context_menu/views/toolkit_delegate_views.cc",
+      "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/components/renderer_context_menu/views/toolkit_delegate_views.cc",
+      "sha256": "1dd6ed75dabc6cc95710ff306a15f0c138993c4582743a5003a83a5109dc7dba",
+      "bytes": 1917
+    }
+  ],
+  "guards": [
+    {
+      "name": "BUILD",
+      "offset": "0xc67a38c",
+      "bytes": "3f2303d5ff4301d1fd7b01a908f402d0fd430091"
+    },
+    {
+      "name": "MODEL_DTOR",
+      "offset": "0xc67a224",
+      "bytes": "3f2303d5ffc300d1fd7b01a908f402d0fd430091"
+    },
+    {
+      "name": "RUN",
+      "offset": "0xc67bd58",
+      "bytes": "3f2303d5ff0302d1fd7b02a9fd83009108e04039"
+    },
+    {
+      "name": "CANCEL",
+      "offset": "0xc67c208",
+      "bytes": "5f2403d508e040391f05007141010054082040f9"
+    },
+    {
+      "name": "RELEASE",
+      "offset": "0xc67ba98",
+      "bytes": "3f2303d5ff4301d1fd7b01a908f402b0fd430091"
+    },
+    {
+      "name": "DTOR",
+      "offset": "0xc67c9bc",
+      "bytes": "3f2303d5fd7bbda9f50b00f9151040f9a8af02b0"
+    },
+    {
+      "name": "CLOSED",
+      "offset": "0x962dc44",
+      "bytes": "3f2303d5fd7bbea9f44f01a9132040f9fd030091"
+    }
+  ],
+  "layouts": {
+    "menu_model_adapter_model": 16,
+    "menu_runner_impl_menu": 24,
+    "menu_runner_impl_running": 56
+  },
+  "boundary": "Original MenuModelAdapter::BuildMenu supplies the live ui::MenuModel for either MenuRunner constructor. Original MenuWillShow, MenuWillClose, ActivatedAt and OnMenuClosed remain in Chromium. Existing NSMenu projection is reused.",
+  "lifetime": "Original adapter destruction revokes the model association. Native cancellation closes tracking before deferred source Release. UI tasks retain numeric controls and recheck live source bindings.",
+  "verification_status": "Desktop readiness is recorded separately in Libraries/NativeUI/browser-reported-issues-qualification.json; this source audit is not a desktop qualification.",
+  "keyboard_ownership": "While a native context menu tracks, deliver its keys to the existing native interpreter before renderer handling, retained Views address controllers and accelerator dispatch; consume unmatched menu input.",
+  "callback_recovery": "Retire disconnected callback generations, complete the original context runner without replay, and re-project the current original application model on Chromium's real UI task queue. Repaint existing Views fields after registration succeeds."
+}

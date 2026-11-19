@@ -1,24 +1,33 @@
 {
   "status": "Gecko model, original IPC correlation and callback ownership only; no widget implementation",
   "sources": {
-    "Libraries/NativeUI/Bridge/color_owners.py": "b5cbae144667186a1c6368271958635836985eda69871cbb4c1db330102e43c7",
-    "Libraries/NativeUI/Bridge/ColorOwners.inc": "8ec2c82dbcd54fd83dd9060678fbd1ab31a94722abf0e35353d86324ef58dad1",
-    "Libraries/NativeUI/Bridge/ColorBinding.inc": "4143b4fd17b5390bf54aef0c6bb781cd9505c79c72d3cb24442b8755c5b75cb1",
-    "Libraries/NativeUI/Bridge/Protocol.h": "3a2254d0538d8cee807f689bef817146e05453a479c46e90007c702c23ecd2ab",
-    "Libraries/ForeignScrollers/CMakeLists.txt": "f31796eb3937466e93ab20bdaba11a23f2ade5d8c58c6a955cce77d7fcda40a1",
-    "Experiments/ChromiumScrollers/native_controls.py": "f2386140aea2e5a9a261c1cf3dabdf14b1e79607ab7b873cf415da16fd1a5227",
-    "Experiments/ChromiumScrollers/helper.py": "b4403c854404d7795cb9378e9f480ce53abee00bf21509fb55ff60a06dcda822",
-    "Experiments/ChromiumScrollers/hook.c": "2c88411b7ec87303f11d198eeaa072aa9bcf7eda46d516cca1fffdacdb508e53",
-    "Experiments/FirefoxNativeUI/colors.inc": "2485b36b8871377b0661d54fdd847eb9996142e8a96e9e9bfcfa7cb207c0d4e3",
+    "Libraries/NativeUI/Bridge/color_owners.py": "735e843702b411d74e4277f83bb216b15f25a028a8a1bf10cadd1f95f7142e8f",
+    "Libraries/NativeUI/Bridge/ColorOwners.inc": "f4c634433df1036d1a2585e050c2914e606ea5ba7469e1cfd1f9e0b93f14c6ac",
+    "Libraries/NativeUI/Bridge/ColorBinding.inc": "8390ad2c677ce33cc0cdd6d633985658fbb15208f1de23d2c5cedf72c28f4751",
+    "Libraries/NativeUI/Bridge/Protocol.h": "df167ea70e8e8d0328520f9c802d5cf7e900941c678329920ea2cc9d27195412",
+    "Libraries/ForeignScrollers/CMakeLists.txt": "d91c051c0f626dd2a88349732c184713ac30043273c507684c9524721293acb0",
+    "Experiments/ChromiumScrollers/native_controls.py": "153e4c01ae994f2192ef9f4cd3433b36cee0ac1d7722366e35c6b3f4a6b78cce",
+    "Experiments/ChromiumScrollers/helper.py": "5c060043ee31b8f9f271076f1f8e3787eb37d0951a2bd6af59531b5aacb58443",
+    "Experiments/ChromiumScrollers/hook.c": "d625fbc7cd2db0252ee41872e7799b229b402d91412e0c4069fba7594724ea78",
+    "Experiments/FirefoxNativeUI/colors.inc": "725358c13ccee24d0fd18b43604ab25cef650ddfc65e3d1af8410efeb6f18c31",
     "Experiments/FirefoxNativeUI/pinned-colors.h": "0e76e802bb5067cd8617fd6571671e87c5a3f0fad3e5d4099fd5707e7848bf47",
-    "Experiments/FirefoxNativeUI/controls.inc": "0bf62b4d15fbc02b84c92d3bbdb28f5a0aa3a71909e23a24273b8bc39b643612",
-    "Experiments/FirefoxNativeUI/buttons.inc": "747e173d13e194f4b10807135c5b6541c7b0e380e4985115597cfd7b1694852d",
-    "Experiments/FirefoxNativeUI/frontend.inc": "2e882a033c689edf440bf890b787d59d8d1211dc6993582700e7aec25467ec2d",
-    "Experiments/FirefoxNativeUI/text.inc": "2b769033e382956d60e466f7389666966f34d79dbeae9d2c7b3ef0501a752570",
-    "Experiments/FirefoxNativeUI/hook.c": "ae9ea4de8fb0f6a1b1eea036aae73de0d97e2b855d6c4f8ffa08205e009e78b3",
+    "Experiments/FirefoxNativeUI/controls.inc": "97dbceabbb30b4700b208e05f51286475e292b8128fe51d2db7a6075f6c4712f",
+    "Experiments/FirefoxNativeUI/buttons.inc": "3d50cd0e941b006014cffb88925c7bb7a23f38af633196c33b2809cbace552b4",
+    "Experiments/FirefoxNativeUI/frontend.inc": "6348ac36aead31ea11dab9ab394e7da53bf831c98a678ed545a0832aa24e1a2b",
+    "Experiments/FirefoxNativeUI/text.inc": "1edb5afa43d38c9fc8152bff9b07fcc7adb2a63108cd36d6af1b00ca33779b9f",
+    "Experiments/FirefoxNativeUI/hook.c": "8090191b0b9b3f2a95ba02720d100b25fbe789662664dfcf842d33b293af3997",
     "Experiments/FirefoxNativeUI/check-button-sizing.py": "b3c3171bb73c21539446fc6f64692894803c25d17d739dfd48320fc44a2ef5a3",
-    "Tests/NativeUI/color-owner-transport.py": "c69c7e0bae0f77ae64e4e0a88209f721cf63dc95f0ed9ad340cf33ee1ecc57f4",
-    "Tests/Wayland/native_color_fields.py": "bef0fcd0c4af6e54e870880998680254c30d31ce680d8a76dce9600802174ced"
+    "Tests/NativeUI/color-owner-transport.py": "a62277448c79a05e16d66a36275f9179598676c9dd3a922927aafdab7e43a35a",
+    "Tests/Wayland/native_color_fields.py": "bef0fcd0c4af6e54e870880998680254c30d31ce680d8a76dce9600802174ced",
+    "Experiments/FirefoxNativeUI/color-callback.inc": "051efac5954e5699d598fd50abbc7b574a8399b8e9d581d021bc9728a48db927",
+    "Tests/NativeUI/gecko-color-callback-probe.c": "d5b79659ddc38b2266153ceb78e002a1a0cbe6fcde776e6642a01a0d55348eee",
+    "Libraries/NativeUI/Bridge/Gtk3Geometry.c": "68bcbd8922c58484c226b66d95dba926ddd178f03038f1e4d9d23d88ddf3bfcc",
+    "Libraries/NativeUI/Bridge/Gtk3Geometry.h": "b9ef312fb025ebf8ebe9d962deada325be94ee34d9901df4d2fbd5e87aebc4c5",
+    "Libraries/NativeUI/Bridge/auxiliary_activation.py": "9da73d19b5681f20add91507c60f11d2616fd328d7083b6565cbaf451c5f3bd6",
+    "Experiments/FirefoxNativeUI/geometry.inc": "ae7ed70a0c921db0b8a56696e78b72a3843870555a045531e4911ac4a5ab6cc9",
+    "Experiments/FirefoxNativeUI/focus-order.inc": "131d2599cbaf9d2f26f5c0f8b9cee191a041d866c968949e97910401037784f1",
+    "Tests/NativeUI/presentation-reentrancy.py": "926928ac4a87ace2cb0d733592c08f2f046ba7bc58100d6b4e97b23a493b7985",
+    "Tests/Wayland/native_picker_keyboard.py": "79d115d4f912da5dd344c076788c92f3290d721acc2116c4f0a33eca48f5d1f8"
   },
   "pinned_calls": [
     {
@@ -201,5 +210,53 @@
     "original block/display-list/draw-target methods"
   ],
   "native_ui": "existing shared NSColorWell/NSColorPanel only",
-  "browser_rebuilt": false
+  "browser_rebuilt": false,
+  "picker_activation_boundary": "Original InitColorPicker validates and consumes user activation before the proxy refreshes the native model and obtains the original color-owner token. Native drawing must not precede that permission check.",
+  "callback_completion": "The original XPCOM Update/Done callback is retained and forwarded. The shared native panel stays visible after its close request until original Done returns and its source process acknowledges the exact original session token. Reentrant new sessions reject stale completion. No queued input, shortcut override or duplicated picker is introduced.",
+  "native_notification_priority": {
+    "lifecycle_and_actions": 0,
+    "repaint": 200,
+    "finding": "Lifecycle completion and native action receipts are serviced at ordinary GTK/Gecko event priority. Dirty-control repaint requests are merged separately and dispatched at idle priority; progress painting cannot gate a picker callback."
+  },
+  "bootstrap_negotiation": "A missing constructor capability reply is retried at the existing libxul bootstrap boundary before feature bindings are committed. A real lost-first-reply regression verifies colour, text, address and menu-key bindings in the actual parent; no browser rebuild or duplicate native control.",
+  "presentation_reply": "Both adapters use the completed native presentation reply as their state/action baseline. An unavailable follow-up status read no longer rejects an already opened panel. The real-provider transaction regression reproduces the old failure and verifies retention plus explicit close with the current shared header.",
+  "running_picker_reveal": "Shared operation59/state2 reveals an already-active original NSColorWell panel. It preserves its browser callback, close ticket and borrowed references; inactive controls cannot create a session through reveal.",
+  "native_stack_reentrancy": "The shared host defers another connection's presentation and key input through its existing bounded queue until the current native stack returns. The callback owner keeps original immediate refusal; the UI-library action/key guards remain unchanged.18 real-provider cases verify one button action and retained original picker ownership.",
+  "atomic_color_snapshot": {
+    "implementation": "Libraries/NativeUI/Bridge/ColorBinding.inc and Specialized.inc",
+    "finding": "Separate status/model reads could consume a newer native colour with an older action cursor and permanently drop the application update. One existing typed-model reply already carries both values atomically.",
+    "regression": "Tests/NativeUI/color-snapshot-probe.c: old binding fails the deterministic response-boundary action; new binding passes nine cases",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "native_color_key_lifetime": {
+    "implementation": "Libraries/NativeUI/GNUstep/Specialized.inc",
+    "finding": "The component host does not run NSApplication; NSWindow close skips key resignation in that state. Resign the existing original NSColorPanel before acknowledged close, as the immediate-close path already does.",
+    "regression": "Tests/NativeUI/color-lifetime-probe.m fails on the previous provider and passes with the original resignKeyWindow call.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "gtk_activation_focus_snapshot": {
+    "qualified": true,
+    "source": "Libraries/NativeUI/Bridge/Gtk3Geometry.c",
+    "change": "Synchronize original GDK display protocol state before its launch context selects the input serial and focused source. Recheck the existing generation after synchronization.",
+    "regression": "Tests/NativeUI/check-gtk-activation-focus.py",
+    "negative_control": "The active original GNUstep well remains active while its panel becomes hidden after a token with no focused source.",
+    "controls_duplicated": false,
+    "browser_rebuilt": false,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/gtk-focus-sync-130/results.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  }
 }

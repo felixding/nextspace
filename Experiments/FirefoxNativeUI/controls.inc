@@ -20,14 +20,16 @@ struct Widget {
   struct NXSRectD radio_rect;
   int kind,painted;
   double width,height,actions;
-  uint32_t *button_pixels;int button_width,button_height,button_label_owned,button_focused;
+  struct NXSBitmapBinding bitmap;int button_label_owned,button_focused,button_claim_pending;
   double button_preferred_width,button_preferred_height;
   int button_reflow_pending;
   char *button_model_title;
   int button_model_changed;
   double range_step,range_x,range_y;int range_tracking,range_keypress;
-  int text_owned,text_tracking;
+  int text_owned,text_tracking,input_owned;
+  uint32_t input_epoch;
   double text_width,text_height;
+  double text_bitmap_width,text_bitmap_height;
   NXSTextGeometry text_geometry;
   NXSTextViewport text_viewport;
   uint32_t text_epoch;
@@ -35,6 +37,7 @@ struct Widget {
   struct NXSStepperBinding number_stepper;
   struct NXSRectD number_rect;
   double number_width,number_height;
+  int number_prepared;
   uint32_t *number_pixels;
   int number_pixel_width,number_pixel_height;
   struct NXSDateBinding date;
@@ -78,6 +81,7 @@ static uint32_t (*original_radio_pre_event)(void *,void *,void *,void *,void *,i
 static uint32_t gecko_radio_key(struct Widget *,void *,void *);
 static char *utf8_text(const uint16_t *,uint32_t);
 static int prepare_button_image(void *);
+static int schedule_button_refresh(void);
 static int native_color_frame(const void *);
 static int prepare_color_image(void *);
 static int color_display(void *,void *,const void *);
@@ -107,6 +111,9 @@ static void remove_text_watch(void);
 static int dispatch_text_key(void *,void *,void *);
 static int text_modifier_event(const void *);
 static int text_kind(int);
+static float frame_scale(const void *);
+static double frame_units(const void *);
+static int frame_scale_supported(const void *);
 static int native_wheel_post(void *,void *,int *);
 static void *text_pointer_frame(void *);
 static uint32_t text_pointer_post(void *,void *,void *,void *,int *,void *,void *);
@@ -145,14 +152,19 @@ static void (*original_active)(void *,int);
 static int html_button_node(const void *node) {
   return buttons_enabled&&node&&*(const uintptr_t *)node==base+0xa008c98+16;
 }
+static int native_component_node(const void *node);
+static int native_form_process(void)
+{return native_web_process()||frontend_requested;}
 static int node_kind(const void *node) {
-  if(!native_web_process())return 0;
-  if(html_button_node(node))return NXS_BUTTON;
+  if(!native_form_process())return 0;
+  /* Form semantics do not depend on the process hosting the document.
+   * Keep the explicitly retained browser buttons out of this shared path. */
+  if(html_button_node(node))return native_web_process()||native_component_node(node)?NXS_BUTTON:0;
   if(node&&multiline_enabled&&*(const uintptr_t *)node==base+NXS_GECKO_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
   unsigned type=*((const unsigned char *)node+144);
   return type==130?NXS_CHECKBOX:type==141?NXS_RADIO:
-    buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
+    (native_web_process()||native_component_node(node))&&buttons_enabled&&(type==129||type==136||type==143)?NXS_BUTTON:
     sliders_enabled&&type==148?NXS_SLIDER:
     colors_enabled&&type==131?NXS_COLORWELL:
     ((dates_enabled&&type==132)||(times_enabled&&(type==146||type==150)))?NXS_DATEPICKER:
@@ -184,6 +196,7 @@ static uint64_t widget_content_state(const struct Widget *w) {
   return ((uint64_t (*)(const void *,unsigned))(base+0x6a7dc9c))(w->frame,(w->kind==NXS_BUTTON||w->kind==NXS_COLORWELL)?10:w->kind==NXS_SLIDER?19:w->kind==NXS_CHECKBOX?4:5);
 }
 static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,double x,double y,unsigned modifiers) {
+  if(operation==1&&!native_control_presentation(w->kind,w->id,frame_scale(w->frame)))return NULL;
   if(w->kind==NXS_RADIO&&radio_groups_enabled)return gecko_radio_request(w,operation,x,y,modifiers);
   uint64_t state=widget_content_state(w);
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,
@@ -192,7 +205,10 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
     .enabled=!(state&16),.x=x,.y=y,.modifiers=modifiers};
   if(w->kind==NXS_DATEPICKER)request.enabled=date_mutable(w->node);
   if(w->kind==NXS_SLIDER&&operation==1&&!range_config(w,&request))return NULL;
-  char *title=w->kind==NXS_BUTTON&&operation==1?button_title(w):NULL;
+  /* A pending intrinsic reflow must keep the last complete title, but still
+   * configure the viewport supplied by the current paint transaction. */
+  char *title=w->kind==NXS_BUTTON&&operation==1?
+    (w->button_reflow_pending&&w->button_model_title?strdup(w->button_model_title):button_title(w)):NULL;
   if(w->kind==NXS_BUTTON&&operation==1&&!title)return NULL;
   size_t length=title?strlen(title):0;
   request.text_size=length;
@@ -203,12 +219,13 @@ static struct NXSResponse *widget_request(struct Widget *w,unsigned operation,do
   if(response&&title&&(!w->button_model_title||strcmp(w->button_model_title,title))) {
     free(w->button_model_title);w->button_model_title=title;title=NULL;w->button_model_changed=1;
   }
+  if(!response&&w->kind==NXS_DATEPICKER&&log_fd>=0)
+    dprintf(log_fd,"%d native date request unavailable control=%llu operation=%u scale=%.3f errno=%d\n",getpid(),(unsigned long long)w->id,operation,frame_scale(w->frame),errno);
   free(title);return response;
 }
 static struct NXSResponse *widget_sync(struct Widget *w) {
   if(w->kind==NXS_RADIO&&radio_groups_enabled)return widget_request(w,1,0,0,0);
   if(text_kind(w->kind))return sync_text_widget(w);
-  if(w->button_reflow_pending)return widget_request(w,5,0,0,0);
   struct NXSResponse *response=widget_request(w,1,0,0,0);
   if(!response)return NULL;
   if(w->kind==NXS_SLIDER&&response->parts[5].x!=w->range_step) {
@@ -239,7 +256,7 @@ static void reset_widget_process(void) {
     date_reset();
     gecko_radio_reset_process();
     remove_text_watch();
-    while(widgets){struct Widget *next=widgets->next;free(widgets->number_pixels);free(widgets->button_pixels);free(widgets->button_model_title);free(widgets);widgets=next;}
+    while(widgets){struct Widget *next=widgets->next;free(widgets->number_pixels);free(widgets->bitmap.pixels);free(widgets->button_model_title);free(widgets);widgets=next;}
     active_widget=NULL;memset(&click_gate,0,sizeof(click_gate));next_widget=0;
     if(widget_notifier>=0)close(widget_notifier);
     widget_notifier=-1;widget_pid=getpid();
@@ -259,15 +276,30 @@ static float frame_scale(const void *frame) {
   int units=*(const int *)((const char *)context+200);
   return units>0?(60.f/units)*(*(const float *)((const char *)style+228)):0;
 }
+static double frame_units(const void *frame)
+{
+  const void *context=frame?*(void *const *)((const char *)frame+40):NULL;
+  int units=context?*(const int *)((const char *)context+200):0;
+  return units>0?units:60;
+}
+static int frame_scale_supported(const void *frame)
+{double scale=frame?frame_scale(frame):0;return isfinite(scale)&&scale>=.125&&scale<=8;}
 /* nsRect is returned indirectly in x8 in this binary. Forward to Gecko's
  * existing frame-rectangle union; do not duplicate frame/transform geometry. */
 __attribute__((naked)) static void engine_frame_rect(void *function,void *frame,void *output) {
   __asm__("mov x16,x0\nmov x0,x1\nmov x8,x2\nmov w2,wzr\nbr x16");
 }
+static int native_frame_viewport(void *frame,struct NXSRectD *viewport)
+{
+  int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
+  *viewport=(struct NXSRectD){0,0,rect[2]/frame_units(frame),rect[3]/frame_units(frame)};
+  return gecko_frame_pixel_rect(frame,viewport)&&isfinite(viewport->width)&&isfinite(viewport->height)&&
+    viewport->width>=1&&viewport->height>=1&&viewport->width<=8192&&viewport->height<=8192;
+}
 static struct Widget *bind_widget(void *frame) {
   struct Widget *existing=widget_for_frame(frame);if(existing)return existing;
   int kind=frame_kind(frame);if(!widgets_enabled||!kind)return NULL;
-  float scale=frame_scale(frame);if(!isfinite(scale)||fabsf(scale-1)>0.000001f)return NULL;
+  if(!frame_scale_supported(frame))return NULL;
   int native;
   if(kind==NXS_BUTTON)native=native_button_frame(frame);
   else if(kind==NXS_SLIDER)native=native_range_frame(frame);
@@ -277,10 +309,10 @@ static struct Widget *bind_widget(void *frame) {
   else {metric_probe=1;native=original_intrinsic(frame,NULL,0);metric_probe=0;}
   if(!native||!ensure_widget_lifetime())return NULL;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
-  double width=rectangle[2]/60.,height=rectangle[3]/60.;
+  double width=rectangle[2]/frame_units(frame),height=rectangle[3]/frame_units(frame);
   /* A native button can be measured before its first reflow. This viewport
    * only hosts the model probe; the provider's cellSize supplies the metrics. */
-  if((kind==NXS_BUTTON||kind==NXS_DATEPICKER)&&(width<1||height<1))width=height=1;
+  if((kind==NXS_BUTTON||kind==NXS_DATEPICKER)&&(width<1||height<1))width=height=frame_scale(frame);
   if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return NULL;
   struct Widget *w=calloc(1,sizeof(*w));if(!w)return NULL;
   w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
@@ -293,6 +325,7 @@ static struct Widget *bind_widget(void *frame) {
 static int draw_text_image(void *target,void *frame,const struct RectF *area) {
   struct Widget *w=widget_for_frame(frame);
   if(!w||!w->text_owned||!button_cache_available(w))return 0;
+  if(number_node(w->node)&&!w->number_prepared)return 0;
   /* Focus may change without rebuilding Gecko's retained display list. Refresh
    * native focus and pixels only; do not mutate engine scroll state in paint. */
   int focused=widget_focused(w);
@@ -301,13 +334,19 @@ static int draw_text_image(void *target,void *frame,const struct RectF *area) {
       .process=identity(),.kind=w->kind,.control=w->id,.focused=focused};
     if(!exchange_bytes(&focus,sizeof(focus))||!button_cache_update(w,widget_request(w,5,0,0,0)))return 0;
   }
-  /* Parent frames may have fractional bounds. Native readback owns pixel
-   * rounding; transport its actual bitmap without scaling or rounding it again. */
-  if(!frontend_text_frame(frame)&&
-     (w->button_width!=lround(number_node(w->node)?w->width:area->width)||w->button_height!=lround(area->height)))return 0;
-  draw_bitmap(target,area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
+  /* One image boundary for web and browser fields: native pixels describe
+   * the configured view; Gecko owns destination snapping and transforms. */
+  struct RectF destination=*area;
+  if(number_node(w->node)&&w->number_stepper.control)
+    destination=gecko_image_part(area,w->number_width,w->number_height,(struct NXSRectD){0,0,w->width,w->height});
+  draw_bitmap(target,&destination,w->bitmap.pixels,w->bitmap.width,w->bitmap.height);w->painted=1;
+  if(log_fd>=0&&getenv("NEXTSPACE_FIREFOX_TRACE_SCALE")) {
+    double x,y;
+    if(gecko_frame_device_origin(frame,&x,&y))dprintf(log_fd,"%d native-pixel-origin kind=%d screen=%.9g,%.9g paint=%.9g,%.9g %.9gx%.9g\n",
+      getpid(),w->kind,x,y,area->x,area->y,area->width,area->height);
+  }
   if(number_node(w->node)&&!number_draw(target,w,area))return 0;
-  if(log_fd>=0)dprintf(log_fd,"%d native-text id=%llu kind=%d size=%dx%d\n",getpid(),(unsigned long long)w->id,w->kind,w->button_width,w->button_height);
+  if(log_fd>=0)dprintf(log_fd,"%d native-text id=%llu kind=%d size=%dx%d\n",getpid(),(unsigned long long)w->id,w->kind,w->bitmap.width,w->bitmap.height);
   return 1;
 }
 static int draw_widget(void *self,void *target,void *frame,unsigned appearance,const void *rect,int overflow) {
@@ -324,7 +363,7 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   if(kind==NXS_SLIDER&&!prepare_range_image(frame))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
-  if(!widgets_enabled||!kind||(!is_text&&appearance!=(unsigned)((kind==NXS_BUTTON||kind==NXS_COLORWELL)?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5))||fabsf(frame_scale(frame)-1)>0.000001f||
+  if(!widgets_enabled||!kind||(!is_text&&appearance!=(unsigned)((kind==NXS_BUTTON||kind==NXS_COLORWELL)?10:kind==NXS_SLIDER?19:kind==NXS_CHECKBOX?4:5))||!frame_scale_supported(frame)||
      (kind==NXS_SLIDER&&!native_range_frame(frame)))
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   const void *context=*(void *const *)((const char *)frame+40);
@@ -339,7 +378,11 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
     w->frame=frame;w->node=*(void **)((char *)frame+24);w->id=++next_widget;w->kind=kind;
     w->next=widgets;widgets=w;
   }
-  if(!is_text){w->width=area.width;w->height=area.height;}
+  if(!is_text&&kind!=NXS_BUTTON) {
+    struct NXSRectD viewport;
+    if(!native_frame_viewport(frame,&viewport))return original_draw_target(self,target,frame,appearance,rect,overflow);
+    w->width=viewport.width;w->height=viewport.height;
+  }
   if(is_text) {
     if(draw_text_image(target,frame,&area))return 1;
     return original_draw_target(self,target,frame,appearance,rect,overflow);
@@ -347,19 +390,22 @@ static int draw_widget(void *self,void *target,void *frame,unsigned appearance,c
   if(kind==NXS_BUTTON) {
     if(!w->button_label_owned)return original_draw_target(self,target,frame,appearance,rect,overflow);
     widget_sync(w);
-    if(button_cache_available(w)&&w->button_width==lround(area.width)&&w->button_height==lround(area.height)) {
-      draw_bitmap(target,&area,w->button_pixels,w->button_width,w->button_height);w->painted=1;
-      if(log_fd>=0)dprintf(log_fd,"%d native-button id=%llu frame=%p size=%dx%d\n",getpid(),(unsigned long long)w->id,frame,w->button_width,w->button_height);
+    if(button_cache_available(w)) {
+      draw_bitmap(target,&area,w->bitmap.pixels,w->bitmap.width,w->bitmap.height);w->painted=1;
+      if(log_fd>=0)dprintf(log_fd,"%d native-button id=%llu frame=%p size=%dx%d\n",getpid(),(unsigned long long)w->id,frame,w->bitmap.width,w->bitmap.height);
       return 1;
     }
+    static unsigned button_mismatch_notes;
+    if(log_fd>=0&&button_mismatch_notes++<16)dprintf(log_fd,"%d native-button viewport mismatch bitmap=%dx%d paint=%.9gx%.9g\n",getpid(),w->bitmap.width,w->bitmap.height,area.width,area.height);
     return original_draw_target(self,target,frame,appearance,rect,overflow);
   }
   struct NXSResponse *response=widget_sync(w);w->painted=0;
-  if(!response||response->width!=lround(area.width)||response->height!=lround(area.height)||response->stride!=response->width*4||
-     sizeof(*response)+(size_t)response->stride*response->height!=response->size)
+  if(!native_bitmap_response_valid(response)) {
+    static unsigned widget_mismatch_notes;
+    if(log_fd>=0&&widget_mismatch_notes++<16)dprintf(log_fd,"%d native-widget viewport mismatch kind=%d bitmap=%dx%d paint=%.9gx%.9g\n",getpid(),kind,response?response->width:0,response?response->height:0,area.width,area.height);
     return original_draw_target(self,target,frame,appearance,rect,overflow);
+  }
   draw_bitmap(target,&area,(const uint32_t *)(response+1),response->width,response->height);w->painted=1;
-  drain_widget_notifier();
   if(log_fd>=0)dprintf(log_fd,"%d native-widget id=%llu kind=%d frame=%p rect=%.0f,%.0f %.0fx%.0f\n",getpid(),(unsigned long long)w->id,w->kind,frame,area.x,area.y,area.width,area.height);
   return 1;
 }
@@ -395,17 +441,21 @@ static struct NXSResponse *pointer_request(struct Widget *w,unsigned operation,c
      * +236 in this exact libxul. No local click aggregation or word rules. */
     unsigned clicks=*(const uint32_t *)((const char *)event+236);
     if(clicks>1&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT))
-      return native_pointer_press(w->kind,w->id,point.x/60.,point.y/60.,widget_modifiers(event),clicks);
+      return native_pointer_press(w->kind,w->id,point.x/frame_units(w->frame),point.y/frame_units(w->frame),widget_modifiers(event),clicks);
   }
-  return widget_request(w,operation,point.x/60.,point.y/60.,widget_modifiers(event));
+  return widget_request(w,operation,point.x/frame_units(w->frame),point.y/frame_units(w->frame),widget_modifiers(event));
 }
 static uint32_t radio_pre_event(void *self,void *context,void *event,void *frame,void *content,int *status,void *override) {
   if(radio_groups_enabled&&context&&event&&status&&*(const uint16_t *)((const char *)event+18)==15&&
      (*(const uint8_t *)((const char *)event+48)&1)&&*(const int16_t *)((const char *)event+152)==0)
     gecko_radio_pointer_capture(frame);
-  return original_radio_pre_event(self,context,event,frame,content,status,override);
+  uint32_t result=original_radio_pre_event(self,context,event,frame,content,status,override);
+  if(context&&event&&status)document_scroller_pointer_pre(frame,event,status);
+  return result;
 }
 static uint32_t post_event(void *self,void *context,void *event,void *frame,int *status,void *override) {
+  if(document_scroller_pointer_post(frame,event,status))
+    return original_post_event(self,context,event,frame,status,override);
   uint64_t tab_target=tabs_pointer_target(frame,event);
   unsigned message=*(const uint16_t *)((const char *)event+18);
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
@@ -558,6 +608,8 @@ static struct NXSResponse *widget_key_request(struct Widget *w,const void *event
 static void text_post_keyboard(void *node,void *visitor) {
     void *event=*(void **)((char *)visitor+8);int *status=(int *)((char *)visitor+24);
     unsigned message=*(const uint16_t *)((char *)event+18);
+    if(log_fd>=0&&getenv("NEXTSPACE_FIREFOX_TRACE_KEYS")&&message==4)
+      dprintf(log_fd,"%d native-text-key-post node=%p status=%d modifiers=%u\n",getpid(),node,*status,widget_modifiers(event));
     /* Accelerators and navigation may never produce keypress. Take their
      * default action after DOM keydown listeners, before engine commands. */
     if((message==3||message==4)&&*status!=1&&text_modifier_event(event)) {
@@ -599,7 +651,7 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
   int handled=response->parts[3].x,activate=response->parts[0].width>actions;
   struct NXSControlAction checkbox_action;native_control_action_snapshot(response,actions,&checkbox_action);
   if(w->kind==NXS_SLIDER)w->range_keypress=handled==NXS_INPUT_UNHANDLED;
-  invalidate_widget(w);drain_widget_notifier();
+  invalidate_widget(w);
   if(handled==NXS_INPUT_NEXT||handled==NXS_INPUT_PREVIOUS) {
     if(advance_focus(node,handled))*status=1;
   } else if(handled==NXS_INPUT_HANDLED)*status=1;
@@ -617,7 +669,7 @@ static uint32_t input_post(void *node,void *visitor) {
   return widget_post(node,visitor,original_input_post);
 }
 static void release_idle_widget_notifier(void) {
-  if(!color_watch_needed()&&!widgets&&!native_popups_exist()&&!native_lists_exist()&&widget_notifier>=0) {
+  if(!color_watch_needed()&&!widgets&&!native_popups_exist()&&!native_lists_exist()&&!document_scrollers_exist()&&widget_notifier>=0) {
     remove_text_watch();
     struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=16,.process=identity()};
     exchange_bytes(&request,sizeof(request));close(widget_notifier);widget_notifier=-1;
@@ -629,10 +681,11 @@ static void forget_widget(struct Widget **cursor) {
   date_forget(w);
   if(native_search_activation.control==w->id)native_activation_clear(&native_search_activation);
   if(active_widget==w)active_widget=NULL;
-  widget_request(w,6,0,0,0);*cursor=w->next;free(w->button_pixels);free(w->button_model_title);free(w);
+  widget_request(w,6,0,0,0);*cursor=w->next;free(w->bitmap.pixels);free(w->button_model_title);free(w);
   release_idle_widget_notifier();
 }
 static void frame_destroy(void *frame,void *context) {
+  document_scroller_forget(frame);
   tabs_forget(frame);native_popup_forget(frame);native_list_forget(frame);
   reset_widget_process();
   struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
@@ -641,6 +694,7 @@ static void frame_destroy(void *frame,void *context) {
 }
 static void release_shell_widgets(void *shell) {
   reset_widget_process();void *context=*(void **)((char *)shell+120);
+  document_scroller_release_context(context);
   gecko_radio_pointer_release_context(context);
   native_popup_release_context(context);native_list_release_context(context);
   struct Widget **cursor=&widgets;
@@ -725,5 +779,5 @@ static void prepare_widget_metrics(void) {
   times_enabled=dates_enabled&&((unsigned)response->parts[1].x&NXS_SPECIAL_TIME_OF_DAY);
   proleptic_enabled=dates_enabled&&((unsigned)response->parts[1].x&NXS_SPECIAL_DATE_PROLEPTIC);
   application_menu_keys=!!((unsigned)response->parts[5].height&2);
-  const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=NXS_BROWSER_UI_PATCH&&texts_enabled&&frontend&&!strcmp(frontend,"1");
+  const char *frontend=getenv("NEXTSPACE_FIREFOX_FRONTEND");frontend_requested=NXS_BROWSER_TEXT_PATCH&&texts_enabled&&frontend&&!strcmp(frontend,"1");
 }

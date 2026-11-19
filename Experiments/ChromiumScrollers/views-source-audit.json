@@ -314,7 +314,7 @@
     "Suppress only the engine caret visibility predicate during its actual UpdateCursorVisibility call. All other focus/model/accessibility queries retain application focus.",
     "Native pre-edit proposals execute original Views InsertChar/InsertText/DeleteRange transactions and veto the second native mutation.",
     "Actual NativeUI command selectors route cut/copy/paste to Omnibox ExecuteTextEditCommand, preserving application clipboard callbacks and paste sanitization.",
-    "FocusManager receives modified native editing keys before browser accelerators; GNUstep resolves the commands without a copied key-binding table.",
+    "FocusManager receives modified native editing keys before browser accelerators; the owned native editor also precedes the retained address controller's command side effects. GNUstep resolves the commands without a copied key-binding table.",
     "Native eventfd invalidations schedule the actual Views paint callback; the adapter adds no caret timer.",
     "SelectionController OnMousePressed with handled=true retains real engine click-count/drag-threshold bookkeeping while bypassing engine text geometry.",
     "Native pointer selection enters the same actual NSTextField tracking loop used by Blink and Gecko; Views SetEditableSelectionRange applies the native range through real application callbacks.",

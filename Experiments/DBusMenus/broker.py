@@ -57,7 +57,7 @@ class MenuBroker:
         except ConnectionResetError:data=b'';ancillary=[];flags=0
         if not data:
             self.connected=False;self.stop();self.discard_pending();return
-        candidate=None
+        candidate=None;reused=False
         try:
             if ancillary or flags&(socket.MSG_TRUNC|socket.MSG_CTRUNC):raise ValueError('Invalid menu broker packet')
             request=json.loads(data)
@@ -76,19 +76,33 @@ class MenuBroker:
                         raise ValueError('Invalid menu window identity')
                     selected_pid=pid
                     if not self.models or not self.models.has_owner(pid):
-                        binding=MenuBinding(lambda:self.native,service=request['service'],path=request['path'],
-                            owner=pid,title=title,output=self.output/str(window),lifecycle=True,
-                            embedding_pump=lambda:self.dispatch(0,False),deferred=True,logger=self.log)
-                        try:lifetime=os.pidfd_open(pid,0)
-                        except OSError:
-                            assert binding.close();raise
-                        candidate=dict(window=window,pid=pid,lifetime=lifetime,binding=binding)
-                if self.pending is not _UNCHANGED and self.pending:
-                    if not self.dispose(self.pending):raise RuntimeError('Previous menu replacement is busy')
-                self.pending=candidate
+                        signature=(window,pid,request['service'],request['path'],title)
+                        target=self.current if self.pending is _UNCHANGED else self.pending
+                        reused=bool(target and target.get('signature')==signature and target['binding'].is_alive()
+                                    and not select.select([target['lifetime']],[],[],0)[0])
+                        if not reused:
+                            binding=MenuBinding(lambda:self.native,service=request['service'],path=request['path'],
+                                owner=pid,title=title,output=self.output/str(window),lifecycle=True,
+                                embedding_pump=lambda:self.dispatch(0,False),deferred=True,logger=self.log)
+                            try:lifetime=os.pidfd_open(pid,0)
+                            except OSError:
+                                assert binding.close();raise
+                            candidate=dict(window=window,pid=pid,lifetime=lifetime,binding=binding,signature=signature)
+                # Workspace can report the same owner while native lifecycle
+                # callbacks pump its channel. Keep that original menu alive;
+                # replacing it here cancels its in-flight submenu/command.
+                if not reused:
+                    if self.pending is not _UNCHANGED and self.pending:
+                        if not self.dispose(self.pending):raise RuntimeError('Previous menu replacement is busy')
+                    self.pending=candidate
                 self.selected_pid=selected_pid
-                if self.current:self.current['binding'].stop()
-                reply=dict(accepted=True,pending=True)
+                # This channel is also pumped by native modal tracking.
+                # Cancel the previous owner's context immediately; waiting
+                # for tick() would require that same tracking loop to finish.
+                if self.models:self.models.cancel_foreign_contexts(selected_pid)
+                if os.environ.get('NEXTSPACE_TRACE_NATIVE_CONTEXT_MENUS')=='1':self.log('native-context-menu-owner-selection',operation=operation,pid=selected_pid,window=request.get('window'))
+                if self.current and not reused:self.current['binding'].stop()
+                reply=dict(accepted=True,pending=self.pending is not _UNCHANGED)
             else:raise ValueError('Unknown menu broker operation')
         except Exception as error:
             if candidate and candidate is not self.pending:assert self.dispose(candidate)
@@ -133,7 +147,10 @@ class MenuBroker:
                 self.pending=_UNCHANGED
                 self.models.select_owner(self.selected_pid)
                 return
-            self.models.select_owner(0)
+            # The actual application still owns its context menus when its
+            # detached menu comes from D-Bus. An absent direct app-menu model
+            # is not a foreground-owner change.
+            self.models.select_owner(self.selected_pid)
         if self.current and (self.pending is not _UNCHANGED or not self.current['binding'].is_alive()):
             if not self.dispose(self.current):return
             self.current=None

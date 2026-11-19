@@ -56,21 +56,20 @@ static char *button_title(const struct Widget *w) {
   return result;
 }
 static int button_preferred(void *frame,struct LogicalSizeI *size) {
-  float scale=frame_scale(frame);
-  if(!native_button_frame(frame)||!isfinite(scale)||fabsf(scale-1)>0.000001f||
+  if(!native_button_frame(frame)||!frame_scale_supported(frame)||
      (*((const unsigned char *)frame+108)&1))return 0;
   if(html_button_node(*(void **)((char *)frame+24))) {
     /* Before the first layout, rendered text is not a complete label yet.
      * Use the native metrics supplied by the last complete display model. */
     struct Widget *w=widget_for_frame(frame);
     if(!w||w->button_preferred_width<1||w->button_preferred_height<1)return 0;
-    *size=(struct LogicalSizeI){ceil(w->button_preferred_width)*60,ceil(w->button_preferred_height)*60};return 1;
+    *size=(struct LogicalSizeI){ceil(w->button_preferred_width)*frame_units(frame),ceil(w->button_preferred_height)*frame_units(frame)};return 1;
   }
   struct Widget *w=bind_widget(frame);if(!w)return 0;
   struct NXSResponse *response=widget_sync(w);if(!response)return 0;
   double width=response->parts[1].width,height=response->parts[1].height;
   if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return 0;
-  *size=(struct LogicalSizeI){ceil(width)*60,ceil(height)*60};
+  *size=(struct LogicalSizeI){ceil(width)*frame_units(frame),ceil(height)*frame_units(frame)};
   return 1;
 }
 /* Gecko owns shrink-to-fit, explicit sizes, min/max, flex/grid and box sizing.
@@ -103,32 +102,25 @@ static struct LogicalSizeI button_auto_size(void *frame,const void *input,unsign
   return result;
 }
 static int button_cache_update(struct Widget *w,const struct NXSResponse *response) {
-  if(!response||response->width<1||response->height<1||response->width>8192||response->height>8192||
-     response->stride!=response->width*4||sizeof(*response)+(size_t)response->stride*response->height!=response->size)return 0;
-  uint32_t *pixels=malloc((size_t)response->stride*response->height);if(!pixels)return 0;
-  memcpy(pixels,response+1,(size_t)response->stride*response->height);free(w->button_pixels);
-  w->button_pixels=pixels;w->button_width=response->width;w->button_height=response->height;
+  if(!native_bitmap_store(&w->bitmap,response))return 0;
   w->button_focused=!!response->parts[3].y;return 1;
 }
-static int button_cache_available(const struct Widget *w) {return w&&w->button_pixels;}
+static int button_cache_available(const struct Widget *w) {return w&&native_bitmap_available(&w->bitmap);}
 static void release_button_frame(void *frame) {
   reset_widget_process();
   struct Widget **cursor=&widgets;while(*cursor&&(*cursor)->frame!=frame)cursor=&(*cursor)->next;
   if(*cursor&&(*cursor)->kind==NXS_BUTTON)forget_widget(cursor);
 }
 static int prepare_button_image(void *frame) {
-  float scale=frame_scale(frame);
-  if(!native_button_frame(frame)||!isfinite(scale)||fabsf(scale-1)>0.000001f) {
+  if(!native_button_frame(frame)||!frame_scale_supported(frame)) {
     release_button_frame(frame);return 0;
   }
   struct Widget *w=bind_widget(frame);if(!w)return 0;
-  if(w->button_reflow_pending)return w->button_label_owned&&button_cache_available(w);
-  int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
-  double width=rectangle[2]/60.,height=rectangle[3]/60.;
-  if(width<1||height<1||width>8192||height>8192) {
+  struct NXSRectD viewport;
+  if(!native_frame_viewport(frame,&viewport)) {
     release_button_frame(frame);return 0;
   }
-  w->width=width;w->height=height;
+  w->width=viewport.width;w->height=viewport.height;
   /* Refresh for this display-list transaction. Keep a complete native title
    * and bezel snapshot if the service disappears before the item is painted.
    * A later failed preparation restores Gecko's whole background and label. */
@@ -136,7 +128,7 @@ static int prepare_button_image(void *frame) {
   if(!response||!button_cache_available(w)) {
     release_button_frame(frame);return 0;
   }
-  if(html_button_node(w->node)) {
+  if(html_button_node(w->node)&&!w->button_reflow_pending) {
     double width=response->parts[1].width,height=response->parts[1].height;
     if(isfinite(width)&&isfinite(height)&&width>=1&&height>=1&&width<=8192&&height<=8192&&
        (width!=w->button_preferred_width||height!=w->button_preferred_height)) {
@@ -150,10 +142,15 @@ static int prepare_button_image(void *frame) {
       if(shell)((void (*)(void *,void *,unsigned,uint64_t,unsigned))(base+NXS_GECKO_HTML_BUTTON_REFLOW_OFFSET))(shell,frame,2,0x400,2);
     }
   }
-  if(width!=floor(width)||height!=floor(height)) {
-    if(!html_button_node(w->node))release_button_frame(frame);
-    else {w->button_label_owned=0;w->painted=0;}
-    return 0;
+  /* Fractional device bounds are ordinary at desktop scaling and page zoom.
+   * The original draw target supplies the final snapped paint viewport. */
+  if(html_button_node(w->node)&&!w->button_label_owned) {
+    /* Acquiring title painting changes retained display-item ownership. Keep
+     * this transaction wholly engine-owned, then rebuild at the existing idle
+     * boundary. A paint-only update can leave Gecko's old glyphs over the
+     * original NSButton title, especially after native owner reacquisition. */
+    if(schedule_button_refresh())w->button_claim_pending=1;
+    w->painted=0;return 0;
   }
   w->button_label_owned=1;w->painted=1;
   if(html_button_node(w->node)&&w->button_model_changed) {

@@ -25,9 +25,9 @@ class ChromiumNumbers:
                        window['y']+(window['frame_top'] if window['server_decorated'] else 0)
                        +window['surface_height']-inside['height'])
 
-    def command(self, value):
+    def command(self, value, timeout=20):
         with socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET) as connection:
-            connection.settimeout(20)
+            connection.settimeout(timeout)
             connection.connect(str(self.root/'control.sock'))
             connection.send(json.dumps(dict(command=value)).encode())
             return json.loads(connection.recv(1048576))
@@ -46,8 +46,8 @@ class ChromiumNumbers:
         return response['result'].get('value')
 
     @staticmethod
-    def until(predicate, label):
-        deadline = time.monotonic()+10
+    def until(predicate, label, timeout=10):
+        deadline = time.monotonic()+timeout
         while time.monotonic() < deadline:
             result = predicate()
             if result:

@@ -41,6 +41,9 @@ static int views_watch_needed(void) {
 }
 static void views_schedule(void *view)
 {((void (*)(void *))(base+NXS_CHROMIUM_VIEWS_SCHEDULE_OFFSET))(view);}
+static void views_callback_recovered(void) {
+  if(views_enabled)for(struct ViewsField *f=views_fields;f;f=f->next)views_schedule(f->transport.node);
+}
 static void views_native_work(int failed) {
   if(!views_enabled)return;
   for(struct ViewsField *f=views_fields;f;f=f->next)if(f->owned) {
@@ -76,6 +79,8 @@ static void views_trace(struct ViewsField *f,const struct BlinkTextModel *model)
 static struct NXSResponse *views_sync(struct ViewsField *f) {
   void *view=f->transport.node;
   f->transport.rect=*(struct Rect *)((char *)view+440);
+  f->transport.rect.width=lround(f->transport.rect.width*f->transport.presentation_scale);
+  f->transport.rect.height=lround(f->transport.rect.height*f->transport.presentation_scale);
   f->transport.enabled=*(const unsigned char *)((char *)view+458)==1;
   if(f->transport.text_tracking) {
     if(views_pointer_echo(f)) {
@@ -117,6 +122,11 @@ static void views_text_paint(void *view,void *canvas) {
     f->next=views_fields;views_fields=f;
   }
   f->owned=0;
+  /* gfx::Canvas owns the browser UI's device scale. These are Views objects,
+   * not Blink elements; never read a DOM layout field through this pointer. */
+  double scale=*(const float *)((const char *)canvas+NXS_VIEWS_CANVAS_SCALE);
+  if(!isfinite(scale)||scale<.125||scale>8){original_views_text_paint(view,canvas);return;}
+  f->transport.presentation_scale=scale;
   struct NXSResponse *response=views_sync(f);
   if(response&&response->width>0&&response->height>0&&response->width==f->transport.rect.width&&
      response->height==f->transport.rect.height&&response->stride==response->width*4&&
@@ -130,7 +140,7 @@ static void views_text_paint(void *view,void *canvas) {
       if(paint) {
         f->owned=1;
         if(refresh_form_watch()) {
-          draw_native_bitmap(paint,pixels,header.width,0,0,0,0,header.width,header.height);
+          draw_native_bitmap_scaled(paint,pixels,header.width,0,0,0,0,header.width,header.height,scale);
           free(pixels);views_cursor(view);return;
         }
       }
@@ -172,7 +182,8 @@ static int views_application_command(const struct NXSNativeCommand *request,cons
   struct ViewsField *f=find_views_field(t->view);
   if(!f||!f->owned||f->transport.control!=t->control||!original_views_has_focus(t->view))return 0;
   int command=!strcmp(selector,"copy:")?NXS_VIEWS_COPY:!strcmp(selector,"cut:")?NXS_VIEWS_CUT:
-    !strcmp(selector,"paste:")?NXS_VIEWS_PASTE:-1;
+    !strcmp(selector,"paste:")?NXS_VIEWS_PASTE:!strcmp(selector,"undo:")?NXS_VIEWS_UNDO:
+    !strcmp(selector,"redo:")?NXS_VIEWS_REDO:-1;
   if(command<0)return -1;
   int enabled=((uint8_t (*)(const void *,int))(base+NXS_CHROMIUM_VIEWS_OMNIBOX_ENABLED_OFFSET))((char *)t->view-16,command);
   if(request->phase==NXS_COMMAND_VALIDATE)return !!enabled;
@@ -286,6 +297,7 @@ static int views_command_key(struct ViewsField *f,const void *event) {
   int handled=0;if(text){handled=views_key(f,event,NULL,0,text,0);free(text);}return handled;
 }
 static int views_accelerator_key(void *manager,const void *event) {
+  if(menu_keys_enabled&&context_menu_owns_keys()&&app_menu_views_key(manager,event))return 0;
   /* Native menus also route keys from the stock address bar. Optional
    * app-patch editors retain their existing priority without owning the
    * default browser fields or introducing a shortcut table. */
@@ -298,8 +310,15 @@ static int views_accelerator_key(void *manager,const void *event) {
   return original_views_accelerator_key(manager,event);
 }
 static int views_controller_key(void *controller,void *view,const void *event) {
-  int handled=original_views_controller_key(controller,view,event);
-  return handled?handled:views_command_key(find_views_field(view),event);
+  /* A modal native menu owns input before the retained address controller,
+   * including commands that controller would otherwise consume itself. */
+  if(menu_keys_enabled&&context_menu_owns_keys()&&app_menu_views_key(
+      ((void *(*)(void *))(base+NXS_CHROMIUM_VIEWS_FOCUS_MANAGER_OFFSET))(view),event))return 1;
+  /* The original address controller can schedule browser actions even when
+   * returning unhandled. Let the existing native editor claim its commands
+   * before that side effect, matching the accelerator boundary above. */
+  int handled=views_command_key(find_views_field(view),event);
+  return handled?handled:original_views_controller_key(controller,view,event);
 }
 static void views_insert_char(void *view,const void *event) {
   struct ViewsField *f=find_views_field(view);

@@ -1,0 +1,6 @@
+<!doctype html><meta charset="utf-8"><title>Native projected popups</title>
+<style>body{font:16px sans-serif;margin:30px}label{display:block;margin:35px 0;width:850px;transform-origin:0 0}input,select,button{font:inherit}</style>
+<h1>Native projected popups</h1>
+<label id="dateRow">Date <input id="date" type="date" value="2026-11-10"><button id="calendar" onclick="date.showPicker()">Calendar…</button></label>
+<label id="choiceRow">Choice <select id="choice"><option>Alpha</option><option>Beta</option><option>Gamma</option></select></label>
+<script>window.events=[];choice.addEventListener('input',e=>events.push({trusted:e.isTrusted,index:choice.selectedIndex}));</script>

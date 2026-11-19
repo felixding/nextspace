@@ -13,7 +13,7 @@ static struct Widget *viewport_widget(const void *frame) {
   struct Widget *w=widget_for_frame(frame);
   return w&&w->kind==NXS_TEXTAREA&&w->viewport_ready&&
     *(void **)((char *)w->node+96)==frame&&native_text_frame(frame)&&
-    fabsf(frame_scale(frame)-1)<.000001f?w:NULL;
+    frame_scale_supported(frame)?w:NULL;
 }
 static struct PointI viewport_engine_position(const void *frame) {
   const void *child=*(void *const *)((const char *)frame+NXS_GECKO_VIEWPORT_SCROLLED_FRAME_BYTE);
@@ -70,7 +70,7 @@ static int sync_viewport_widget(struct Widget *w) {
    * the engine's retained position for that new binding as well as a new host. */
   if(!initialized||w->text_epoch!=epoch) {
     struct PointI position=viewport_engine_position(w->frame);
-    struct NXSResponse *r=widget_request(w,33,position.x/60.,position.y/60.,0);
+    struct NXSResponse *r=widget_request(w,33,position.x/frame_units(w->frame),position.y/frame_units(w->frame),0);
     if(!r||r->parts[3].x!=1||!read_native_viewport(w))return 0;
     w->text_epoch=epoch;
   }
@@ -81,9 +81,10 @@ static void echo_native_viewport(void *frame) {
   if(viewport_syncing||!viewport_data(frame,&data,1)||data.epoch!=atomic_load(&native_host_epoch))return;
   struct PointI current=viewport_engine_position(frame);
   struct ViewportPoint offset={data.native.visible.x,data.native.visible.y};
-  if(fabs(current.x-offset.x*60)<.001&&fabs(current.y-offset.y*60)<.001)return;
+  if(fabs(current.x-offset.x*frame_units(frame))<.001&&fabs(current.y-offset.y*frame_units(frame))<.001)return;
   void *node=data.node;
   ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
+  offset.x*=frame_units(frame)/60.;offset.y*=frame_units(frame)/60.;
   viewport_syncing=1;
   ((void (*)(void *,const struct ViewportPoint *,unsigned))(base+NXS_GECKO_VIEWPORT_SCROLL_CSS_OFFSET))(frame,&offset,0);
   viewport_syncing=0;
@@ -103,10 +104,10 @@ static void viewport_reflow(void *frame,void *context,void *output,const void *i
   if(!(list?prepare_list_image(frame):prepare_text_image(frame)))goto done;
   struct FrameViewport data;if(!viewport_data(frame,&data,0))goto done;
   if(!text_transaction) {
-    if(!viewport_scroll_native(&data,previous.x/60.,previous.y/60.)||!viewport_data(frame,&data,0))goto done;
+    if(!viewport_scroll_native(&data,previous.x/frame_units(frame),previous.y/frame_units(frame))||!viewport_data(frame,&data,0))goto done;
   }
   NXSRect clip=data.geometry.clip;
-  struct ViewportRect port={lround(clip.x*60),lround(clip.y*60),lround(clip.width*60),lround(clip.height*60)};
+  struct ViewportRect port={lround(clip.x*frame_units(frame)),lround(clip.y*frame_units(frame)),lround(clip.width*frame_units(frame)),lround(clip.height*frame_units(frame))};
   memcpy((char *)frame+NXS_GECKO_VIEWPORT_SCROLL_PORT_BYTE,&port,sizeof(port));
   static __thread unsigned logged;
   if(logged++<32&&log_fd>=0)dprintf(log_fd,"%d native-viewport-reflow id=%llu kind=%d previous=%d,%d clip=%d,%d,%d,%d native=%.2f,%.2f\n",getpid(),(unsigned long long)data.id,data.kind,previous.x,previous.y,port.x,port.y,port.width,port.height,data.native.visible.x,data.native.visible.y);
@@ -119,7 +120,7 @@ __attribute__((naked)) static void call_viewport_rect(void *function,const void 
 }
 __attribute__((used,noinline)) static void viewport_compute_rect_impl(const void *frame,const void *reference,struct ViewportRect *output) {
   struct FrameViewport data;
-  if(viewport_data(frame,&data,0)) {*output=(struct ViewportRect){0,0,lround(data.native.content.width*60),lround(data.native.content.height*60)};return;}
+  if(viewport_data(frame,&data,0)) {*output=(struct ViewportRect){0,0,lround(data.native.content.width*frame_units(frame)),lround(data.native.content.height*frame_units(frame))};return;}
   call_viewport_rect(original_viewport_compute_rect,frame,reference,output);
 }
 __attribute__((naked)) static void viewport_compute_rect(const void *frame,const void *reference) {
@@ -127,7 +128,7 @@ __attribute__((naked)) static void viewport_compute_rect(const void *frame,const
 }
 __attribute__((used,noinline)) static void viewport_layout_range_impl(const void *frame,struct ViewportRect *output) {
   struct FrameViewport data;
-  if(viewport_data(frame,&data,0)) {NXSScrollGeometry g=data.geometry;*output=(struct ViewportRect){lround(g.minimum.x*60),lround(g.minimum.y*60),lround((g.maximum.x-g.minimum.x)*60),lround((g.maximum.y-g.minimum.y)*60)};return;}
+  if(viewport_data(frame,&data,0)) {NXSScrollGeometry g=data.geometry;*output=(struct ViewportRect){lround(g.minimum.x*frame_units(frame)),lround(g.minimum.y*frame_units(frame)),lround((g.maximum.x-g.minimum.x)*frame_units(frame)),lround((g.maximum.y-g.minimum.y)*frame_units(frame))};return;}
   call_viewport_rect(original_viewport_layout_range,frame,NULL,output);
 }
 __attribute__((naked)) static void viewport_layout_range(const void *frame) {
@@ -140,8 +141,8 @@ static void viewport_scroll_impl(void *frame,struct PointI position,const void *
   int native_position=!!(bound&&viewport_syncing);
   if(node)((unsigned (*)(void *))(base+0x3b9f0e4))(node);
   if(bound&&!viewport_syncing) {
-    if(viewport_scroll_native(&data,position.x/60.,position.y/60.)&&viewport_data(frame,&data,0)){
-      position=(struct PointI){lround(data.native.visible.x*60),lround(data.native.visible.y*60)};native_position=1;
+    if(viewport_scroll_native(&data,position.x/frame_units(frame),position.y/frame_units(frame))&&viewport_data(frame,&data,0)){
+      position=(struct PointI){lround(data.native.visible.x*frame_units(frame)),lround(data.native.visible.y*frame_units(frame))};native_position=1;
     }
   }
   if(node&&*(void **)((char *)node+96)!=frame)goto done;

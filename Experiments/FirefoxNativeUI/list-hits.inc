@@ -31,7 +31,7 @@ static uint32_t list_frames_for_area(struct RelativeTo origin,const struct Viewp
     }
     uint64_t item=0;
     int queried=transformed&&ready&&list&&list->frame==owner&&list->node==root&&
-      native_control_item_at_point(NXS_LISTBOX,id,point.x/60.,point.y/60.,&item);
+      native_control_item_at_point(NXS_LISTBOX,id,point.x/frame_units(owner),point.y/frame_units(owner),&item);
     list=list_find_id(id);
     if(*(void **)((char *)root+96)!=owner) {
       *(uint32_t *)*(void **)frames=0;

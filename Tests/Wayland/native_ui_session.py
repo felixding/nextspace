@@ -86,7 +86,7 @@ with tempfile.TemporaryDirectory(prefix='native-ui-session-') as runtime:
     method=a.output/'input-method'
     method.write_text('#!/usr/bin/python3\nimport os\nfd=os.open('+repr(str(fifo))+',os.O_RDWR);os.dup2(fd,0);os.close(fd)\nlog=os.open('+repr(str(a.output/'input.jsonl'))+',os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600);os.dup2(log,1);os.close(log)\nos.execv('+repr(str(a.registry_probe))+','+repr([str(a.registry_probe),'--input-method'])+')\n');method.chmod(0o700)
     profile=Path(runtime)/'profile';profile.mkdir()
-    preferences={'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,
+    preferences={'remote.prefs.recommended':False,'focusmanager.testmode':False,'marionette.port':a.port,'browser.shell.checkDefaultBrowser':False,'browser.startup.page':0,
         'browser.aboutwelcome.enabled':False,'browser.startup.homepage_override.mstone':'ignore',
         'widget.gtk.global-menu.enabled':True,'widget.gtk.global-menu.wayland.enabled':True,'gfx.webrender.software':True}
     (profile/'user.js').write_text(''.join('user_pref('+json.dumps(k)+', '+json.dumps(v)+');\n' for k,v in preferences.items()))

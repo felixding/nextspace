@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native density controls</title>
+<style>
+body { margin: 20px; font: 16px sans-serif; background: white; color: black }
+label { display: block; margin: 18px 0 }
+input[type=text],input[type=search],input[type=password] { width: 240px }
+textarea { width: 300px; height: 100px }
+select[multiple] { width: 200px; height: 100px }
+</style>
+<h1>Native density controls</h1>
+<label>Text <input id="text" value="Alpha beta"></label>
+<label>Search <input id="search" type="search" value="Alpha beta" placeholder="Search"></label>
+<label>Password <input id="password" type="password" value="secret"></label>
+<label><input id="check" type="checkbox" checked> Checkbox</label>
+<label><input id="radioOne" type="radio" name="group" value="one"> One
+<input id="radioTwo" type="radio" name="group" value="two" checked> Two</label>
+<label><button id="button" type="button">Native button</button></label>
+<label>Choice <select id="choice"><option>First</option><option>Second</option></select></label>
+<label>Number <input id="number" type="number" value="12"></label>
+<label>Range <input id="range" type="range" value="40"></label>
+<label>Date <input id="date" type="date" value="2026-11-10"></label>
+<label>Time <input id="time" type="time" value="12:30"></label>
+<label>Color <input id="color" type="color" value="#2888bb"></label>
+<label>File <input id="file" type="file"></label>
+<label>Progress <progress id="progress" value="40" max="100"></progress></label>
+<label>Notes <textarea id="notes">Alpha beta
+Line two
+Line three
+Line four
+Line five
+Line six
+Line seven
+Line eight</textarea></label>
+<label>Multiple choice <select id="list" multiple><option selected>First</option><option>Second</option><option>Third</option><option>Fourth</option><option>Fifth</option><option>Sixth</option></select></label>
+<script>
+window.events=[];
+for (const element of document.querySelectorAll('input,textarea,select'))
+  for (const name of ['beforeinput','input','change','copy','cut','paste'])
+    element.addEventListener(name,event=>events.push({id:element.id,type:name,trusted:event.isTrusted}));
+</script>

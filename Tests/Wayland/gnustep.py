@@ -52,7 +52,9 @@ def capture_process_failure(process, artifacts, name):
         if shutil.which('gdb'):
             with (artifacts/(name+'-backtrace.log')).open('w') as log:
                 try:
-                    subprocess.run(['gdb','--batch','--nx','-p',str(process.pid),
+                    subprocess.run(['gdb','--batch','--nx',
+                        '-iex','set debuginfod enabled off',
+                        '-iex','set auto-load python-scripts off','-p',str(process.pid),
                         '-ex','thread apply all bt'],stdout=log,stderr=log,timeout=15)
                 except subprocess.TimeoutExpired:
                     log.write('\nDebugger timed out.\n')
@@ -65,16 +67,33 @@ def pasteboard_storage(server, probe, env, artifacts):
     from integration import until
     started = time.monotonic()
     attempts = []
-    with (artifacts/'gpbs.log').open('w') as log:
-        storage = subprocess.Popen([str(server), '--no-fork', '-GSLogSyslog', 'NO'],
-            env=env, stdout=log, stderr=log)
+    log_path = artifacts/'gpbs.log'
+    log_path.write_text('')
+    registration_offset = 0
+    def launch():
+        nonlocal registration_offset
+        registration_offset = log_path.stat().st_size
+        with log_path.open('a') as log:
+            return subprocess.Popen([str(server), '--no-fork', '--verbose', '-GSLogSyslog', 'NO'],
+                env=env, stdout=log, stderr=log)
+    storage = launch()
     try:
         def ready():
-            assert storage.poll() is None, (artifacts/'gpbs.log').read_text()
+            nonlocal storage
+            def registration_collision():
+                if storage.poll() is None:
+                    return False
+                message = log_path.read_text()[registration_offset:]
+                assert storage.returncode == 1 and 'Unable to register with name server.' in message, message
+                return True
+            collision = registration_collision()
             ping = subprocess.Popen([str(probe), '--ping'], env=env,
                 stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
             try:
-                stdout,stderr = ping.communicate(timeout=3)
+                # This is process/library startup, before any interaction.
+                # Cold font and distributed-object setup can exceed three
+                # seconds; keep it separate from the native input RPC limit.
+                stdout,stderr = ping.communicate(timeout=30)
             except subprocess.TimeoutExpired:
                 try:
                     capture_process_failure(ping,artifacts,'failure-gpbs-ping')
@@ -89,8 +108,20 @@ def pasteboard_storage(server, probe, env, artifacts):
                 return False
             attempts.append(dict(elapsed_seconds=time.monotonic()-started,
                 returncode=ping.returncode,stdout=stdout,stderr=stderr))
-            return ping.returncode == 0
-        until(ready, 'owned native pasteboard storage')
+            if collision or registration_collision():
+                # Desktop startup can auto-launch native storage first. Its
+                # original --auto lifetime ends when the probing client leaves.
+                # Retry only our foreground server after that native exchange;
+                # never remove another server's registration or extend startup.
+                attempts[-1]['registration_collision_pid'] = storage.pid
+                if ping.returncode != 0:
+                    storage = launch()
+                return False
+            # A successful lookup could belong to an auto-started competitor
+            # while our process has not yet reached registerName. Require the
+            # original server's own post-registration announcement as well.
+            return ping.returncode == 0 and 'GNU pasteboard server startup.' in log_path.read_text()[registration_offset:]
+        until(ready, 'owned native pasteboard storage', timeout=90)
         (artifacts/'gpbs-runtime.json').write_text(json.dumps(process_runtime(storage.pid), indent=2)+'\n')
         yield storage
     finally:
@@ -159,5 +190,17 @@ def headless_session(compositor, artifacts, application_directory=None, extra_en
                 (artifacts / 'compositor-runtime.json').write_text(json.dumps(process_runtime(server.pid), indent=2) + '\n')
                 yield env, command
             finally:
-                if server.poll() is None: command('quit'); server.wait(timeout=5)
-                server.stdout.close(); control.close()
+                forced=False
+                try:
+                    if server.poll() is None:
+                        try:command('quit')
+                        except (OSError,ValueError):pass
+                        try:server.wait(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            forced=True;server.terminate()
+                            try:server.wait(timeout=5)
+                            except subprocess.TimeoutExpired:server.kill();server.wait(timeout=10)
+                finally:
+                    (artifacts/'compositor-cleanup.json').write_text(json.dumps(dict(
+                        pid=server.pid,exit_code=server.poll(),forced=forced,live=server.poll() is None),indent=2)+'\n')
+                    server.stdout.close();control.close()

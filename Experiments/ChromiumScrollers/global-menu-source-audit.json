@@ -84,5 +84,39 @@
     "Native menu key queries use an optional transport bit and the existing authenticated owner endpoint; another socket cannot query or execute a known model.",
     "NSMenu::setMain may replace NSMenuView while adopting system interface style. Restore the lifecycle/query subclass after the native call and preserve style when installing it. No matching, rendering, layout or tracking implementation is copied.",
     "Only Clang on AArch64 is accepted, because the existing input handoff uses a naked ABI wrapper."
-  ]
+  ],
+  "registry_extension": {
+    "date": "2026-11-11",
+    "key_metadata": "Original ui::KeyEvent construction, GetUnmodifiedText and original non-deleting Event destructor supply glyph conversion; native modifier roles are sent separately. Construction uses Shift plus Num Lock, avoiding original C0 folding of Ctrl+letter metadata. Hardware keys with no native Unicode equivalent stay on the original event path. No shortcut list is copied.",
+    "layout": "Original BrowserView::GetAccelerator compiled loop: begin=1664, end-node=1672; node key=32 (32 bytes), command_id=64; left/right/parent=0/8/16. Original BrowserView::AcceleratorPressed and AppMenuModel::IsCommandIdEnabled retain command behavior.",
+    "native_model": "NXS_MENU_KEY_ONLY binds actual command metadata to undisplayed original NSMenu items. The displayed application menu remains its original model.",
+    "sources": [
+      {
+        "path": "ui/events/event.cc",
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event.cc",
+        "sha256": "5fb0a9d4b1ddaf994f674d5806676c766bebc3ae9a93a48bdafc6ae0e332171c"
+      },
+      {
+        "path": "ui/events/event_constants.h",
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/ui/events/event_constants.h",
+        "sha256": "faafc4e6950a16876bd631f5fd63faf8464ca2e51013e0c384c53378a85d7139"
+      }
+    ]
+  },
+  "renderer_process_identity": {
+    "sources": [
+      {
+        "path": "content/zygote/zygote_linux.cc",
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/content/zygote/zygote_linux.cc",
+        "sha256": "9e9b398cbe6d77f7c33d6b90260348eebc74f6e0298878a7fe8c8e4e79786212"
+      },
+      {
+        "path": "base/process/launch_posix.cc",
+        "url": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/base/process/launch_posix.cc",
+        "sha256": "51ff868b65a4cc2957820ae529e083b34ff3cb6a1f52da062a02b0b60387fa2e"
+      }
+    ],
+    "finding": "The zygote can clone into nested PID namespaces through raw clone, bypassing pthread_atfork. Cached namespace PIDs do not uniquely identify address spaces. Shared bridge MADV_WIPEONFORK detection allocates a distinct cookie and detaches inherited private callback endpoints.",
+    "regression": "Tests/NativeUI/process-identity-probe.c forces getpid() to 1 in the parent and raw-cloned children; the old bridge fails distinct identities and callback detachment, while the corrected bridge passes."
+  }
 }

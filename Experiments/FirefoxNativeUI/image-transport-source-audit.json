@@ -1,0 +1,71 @@
+{
+  "build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+  "debug_elf_sha256": "a0089de680a491261517e7da34490c7a8a198f53fba97f50f772ba0c010e5be2",
+  "debug_package_snapshot": "https://snapshot.debian.org/file/d268da906b275fafa204068aca7ddb92b7572507",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/2d/2D.h",
+      "sha256": "e3c212bd157d183f53be553cb242ae4876874ea4b83e2db356ee5d771e74ba47"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/gfx/2d/Types.h",
+      "sha256": "5d0521d4e673084b8cc8eb08e480e17d76a7545b5dfa96366934b7a8d085b5c4"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/mfbt/ThreadSafeWeakPtr.h",
+      "sha256": "94c421b0abeaacc49208db2cc477dcb124e372e72a804a4f7d6ff3eb513c34c9"
+    }
+  ],
+  "abi": {
+    "DrawTargetSkia.vtable": "0x9e22190",
+    "DrawSurface": {
+      "slot": 17,
+      "offset": "0x3fc20a4"
+    },
+    "FillRect": {
+      "slot": 27,
+      "offset": "0x3fc3108"
+    },
+    "CreateSourceSurfaceFromData": {
+      "slot": 50,
+      "offset": "0x3fc5ba4"
+    },
+    "SurfaceFormat.B8G8R8A8": 0,
+    "DrawSurfaceOptions": [
+      1,
+      0
+    ],
+    "DrawOptions": [
+      1,
+      1,
+      3
+    ],
+    "SourceSurface.weak_reference": 8,
+    "ThreadSafeWeakReference.strong_count": 8,
+    "SourceSurface.deleting_destructor_slot": 1,
+    "release_witness": {
+      "symbol": "mozilla::detail::ProxyReleaseEvent<mozilla::gfx::SourceSurface>::Run",
+      "offset": "0x406b920",
+      "prologue": [
+        "d503233f",
+        "f81e0ffe",
+        "a9014ff4",
+        "f9401014",
+        "b40001d4",
+        "f9400688",
+        "aa0003f3",
+        "92800000",
+        "91002101"
+      ]
+    }
+  },
+  "contract": [
+    "GNUstep alone draws controls and supplies native readback dimensions.",
+    "A snapshot is keyed by its configured layout viewport, not by a separately rounded paint size.",
+    "Gecko alone maps the complete native image into its destination using its original DrawSurface transform, sampling and clipping.",
+    "No layout model is resized from paint bounds. Composite native number components use the same rectangle mapping.",
+    "Each CreateSourceSurfaceFromData result is an owned reference; release uses the pinned native refcount ABI and original virtual destructor. No image or widget drawing implementation is copied.",
+    "Unknown binary or image ABI prevents adapter installation."
+  ]
+}

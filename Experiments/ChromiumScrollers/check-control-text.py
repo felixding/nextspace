@@ -76,6 +76,7 @@ try:
         response,pixels=model('Hello',1,2)
         check(label+'-model',response.parts[3].x==1 and response.parts[0].width==0)
         suffix='secure-normal' if kind==8 else 'normal'
+        (a.output/(label+'-native.argb')).write_bytes(pixels)
         check(label+'-native-pixels',pixels==(a.references/('text-'+suffix+'.argb')).read_bytes())
         check(label+'-focus',key(operation=7,focused=1).parts[3].y==1)
         if bootstrap.parts[5].x==1:

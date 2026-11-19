@@ -38,10 +38,17 @@ _Static_assert(offsetof(struct NXSRequest,reserved)==28,"Shared scrollbar sequen
 static int log_fd=-1,draw_slot=-1;
 static uintptr_t base;
 static double native_thickness;
+static int native_scroller_on_left;
 static __thread struct NXSRequest cached_request;
 static __thread struct NXSResponse cached_response;
+static __thread uint32_t cached_scroller_epoch;
+static __thread double cached_scroller_scale;
 static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),text);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
+#include "../../Libraries/NativeUI/Bridge/Invalidations.inc"
+#include "../../Libraries/NativeUI/Bridge/BitmapBinding.inc"
+#include "../../Libraries/NativeUI/Bridge/ScrollerBinding.inc"
+#include "pinned-scrollbar-scale.h"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
 #include "../../Libraries/NativeUI/Bridge/PopupBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/AuxiliaryActivation.inc"
@@ -49,6 +56,41 @@ static void note(const char *text) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid
 #include "../../Libraries/NativeUI/Bridge/Lists.inc"
 #include "../../Libraries/NativeUI/Bridge/ListBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/ItemHits.inc"
+#include "../../Libraries/NativeUI/Bridge/Tabs.inc"
+#include "../../Libraries/NativeUI/Bridge/Menu.inc"
+
+struct ChromiumScrollerBinding {
+  struct ChromiumScrollerBinding *next;
+  struct NXSScrollerBinding native;
+};
+static struct ChromiumScrollerBinding *chromium_scrollers;
+static struct NXSScrollerBinding *chromium_scroller_binding(const void *bar,int horizontal)
+{
+  int32_t compressed=*(const int32_t *)((const char *)bar+12);
+  if(!compressed)return NULL;
+  uintptr_t mask=*(const uintptr_t *)(base+0x12562900);
+  void *area=(void *)(mask&((uint64_t)(int64_t)compressed<<3));
+  double scale=((float (*)(const void *))(base+NXS_BLINK_SCROLLBAR_SCALE_OFFSET))(area);
+  if(!isfinite(scale)||scale<.125||scale>8)return NULL;
+  struct ChromiumScrollerBinding *item=chromium_scrollers;
+  while(item&&item->native.control!=(uintptr_t)bar)item=item->next;
+  if(!item) {
+    item=calloc(1,sizeof(*item));if(!item)return NULL;
+    item->native.control=(uintptr_t)bar;item->native.horizontal=horizontal;
+    item->next=chromium_scrollers;chromium_scrollers=item;
+  }
+  return native_scroller_prepare(&item->native,scale)?&item->native:NULL;
+}
+static void chromium_scroller_retire(const void *bar)
+{
+  struct ChromiumScrollerBinding **cursor=&chromium_scrollers;
+  while(*cursor) {
+    struct ChromiumScrollerBinding *item=*cursor;
+    if(item->native.control!=(uintptr_t)bar){cursor=&item->next;continue;}
+    native_scroller_retire(&item->native);*cursor=item->next;free(item);break;
+  }
+  memset(&cached_request,0,sizeof(cached_request));memset(&cached_response,0,sizeof(cached_response));
+}
 
 static struct NXSResponse *query(const void *bar,int layer,float value,int override_value) {
   if(!bar||channel<0||!shared)return NULL;
@@ -64,10 +106,14 @@ static struct NXSResponse *query(const void *bar,int layer,float value,int overr
    * NSScroller already handles that range; rejecting it here leaks Blink's
    * fallback artwork into an otherwise native control. */
   if((orientation!=0&&orientation!=1)||req.length<1||req.length>8192||req.total<0||req.page<1||!isfinite(req.value))return NULL;
-  if(!layer&&cached_response.magic&&memcmp(&req,&cached_request,sizeof(req))==0)return &cached_response;
-  struct NXSResponse *response=exchange(req);
+  struct NXSScrollerBinding *binding=chromium_scroller_binding(bar,orientation==0);
+  if(!binding)return NULL;
+  if(!layer&&cached_response.magic&&cached_scroller_epoch==binding->epoch&&
+     cached_scroller_scale==binding->scale&&memcmp(&req,&cached_request,sizeof(req))==0)return &cached_response;
+  struct NXSResponse *response=native_scroller_model(binding,req.length,req.total,req.page,req.value,layer!=0);
   if(!response)return NULL;
-  if(!layer) {req.reserved=0;cached_request=req;cached_response=*response;return &cached_response;}
+  if(!layer) {req.reserved=0;cached_request=req;cached_response=*response;
+    cached_scroller_epoch=binding->epoch;cached_scroller_scale=binding->scale;return &cached_response;}
   if(response->width<=0||response->height<=0||response->stride!=response->width*4||sizeof(*response)+(size_t)response->stride*response->height!=response->size)return NULL;
   return response;
 }
@@ -94,9 +140,10 @@ static struct Rect zero_insets(void*t,const void*b){return (struct Rect){0};}
 static int all_parts(void*t,const void*b,float old,float value){return -1;}
 static int yes(void*t){return 1;}
 static int no(void*t){return 0;}
+static int scroller_on_left(void*t){return native_scroller_on_left;}
 static int has_thumb(void*t,const void*b){return *(const int *)((const char *)b+36)>*(const int *)((const char *)b+32);}
 
-static int draw_native_bitmap(void *canvas,const uint32_t *pixels,int width,float origin_x,float origin_y,int first_x,int first_y,int last_x,int last_y) {
+static int draw_native_bitmap_scaled(void *canvas,const uint32_t *pixels,int width,float origin_x,float origin_y,int first_x,int first_y,int last_x,int last_y,double scale) {
   typedef void (*Draw)(void *,const float *,const struct Flags *);
   Draw draw=(Draw)(*(uintptr_t **)canvas)[draw_slot];
   struct Flags flags={.miter=4,.bits=3u<<8,.hdr=-1};
@@ -109,12 +156,15 @@ static int draw_native_bitmap(void *canvas,const uint32_t *pixels,int width,floa
       if(color>>24) {
         float alpha=(color>>24)/255.f;
         flags.color[0]=((color>>16)&255)/(255.f*alpha);flags.color[1]=((color>>8)&255)/(255.f*alpha);flags.color[2]=(color&255)/(255.f*alpha);flags.color[3]=alpha;
-        float area[4]={origin_x+x,origin_y+y,origin_x+end,origin_y+y+1};draw(canvas,area,&flags);rectangles++;
+        float area[4]={origin_x+x/scale,origin_y+y/scale,origin_x+end/scale,origin_y+(y+1)/scale};draw(canvas,area,&flags);rectangles++;
       }
       x=end;
     }
   }
   return rectangles;
+}
+static int draw_native_bitmap(void *canvas,const uint32_t *pixels,int width,float origin_x,float origin_y,int first_x,int first_y,int last_x,int last_y) {
+  return draw_native_bitmap_scaled(canvas,pixels,width,origin_x,origin_y,first_x,first_y,last_x,last_y,1);
 }
 
 static void paint(void *theme,void *info,const void *bar,const struct Rect *rect,int layer) {
@@ -173,7 +223,7 @@ static void configure(uintptr_t offset) {
   set_slot(table,15,all_parts);set_slot(table,18,transparent);set_slot(table,48,zero_insets);
   set_slot(table,4,yes);set_slot(table,6,thickness);set_slot(table,26,position);set_slot(table,27,track_position);set_slot(table,28,track_length);
   set_slot(table,30,yes);set_slot(table,31,yes);set_slot(table,32,has_thumb);set_slot(table,33,back);set_slot(table,34,forward);set_slot(table,35,track);set_slot(table,36,thumb);set_slot(table,37,minimum);
-  set_slot(table,39,paint_thumb);set_slot(table,46,no);set_slot(table,47,yes);set_slot(table,49,no);set_slot(table,61,paint_track);
+  set_slot(table,39,paint_thumb);set_slot(table,46,no);set_slot(table,47,scroller_on_left);set_slot(table,49,no);set_slot(table,61,paint_track);
   writable((char *)table-1,65*8+1,PROT_READ);note("native theme vtable installed");
 }
 static void form_native_work(void *controller);
@@ -185,6 +235,7 @@ static void tabs_forget(void *);
 static int menus_enabled,menus_trace_enabled;
 static int menu_keys_enabled;
 static int app_menu_views_key(void *,const void *);
+static int context_menu_owns_keys(void);
 static int app_menus_watch_needed(void);
 static void app_menus_native_work(int);
 static unsigned forms_pointer_capabilities;
@@ -289,16 +340,19 @@ __attribute__((constructor)) static void initialize(void) {
   const char *wheel=getenv("NEXTSPACE_CHROMIUM_WHEEL");
   forms_wheel_enabled=(forms_multiline_viewport_enabled||forms_lists_enabled)&&wheel&&!strcmp(wheel,"1")&&((unsigned)metrics->parts[0].x&NXS_WHEEL_EVENTS);
   const char *views=getenv("NEXTSPACE_CHROMIUM_VIEWS"),*trace=getenv("NEXTSPACE_CHROMIUM_VIEWS_TRACE");
-  views_enabled=NXS_BROWSER_UI_PATCH&&forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
+  views_enabled=NXS_BROWSER_TEXT_PATCH&&forms_text_enabled&&views&&!strcmp(views,"1")&&((unsigned)metrics->parts[6].y&NXS_TEXT_COMMAND);
   views_trace_enabled=views_enabled&&trace&&!strcmp(trace,"1");
   const char *tabs=getenv("NEXTSPACE_CHROMIUM_TABS"),*tabs_trace=getenv("NEXTSPACE_CHROMIUM_TABS_TRACE");
-  tabs_enabled=views_enabled&&tabs&&!strcmp(tabs,"1")&&((unsigned)metrics->parts[4].x&NXS_TAB_ITEMS);
+  tabs_enabled=NXS_BROWSER_UI_PATCH&&views_enabled&&tabs&&!strcmp(tabs,"1")&&((unsigned)metrics->parts[4].x&NXS_TAB_ITEMS);
   tabs_trace_enabled=tabs_enabled&&tabs_trace&&!strcmp(tabs_trace,"1");
   const char *menus=getenv("NEXTSPACE_CHROMIUM_MENUS"),*menu_trace=getenv("NEXTSPACE_CHROMIUM_MENUS_TRACE");
   menus_enabled=forms_text_enabled&&menus&&!strcmp(menus,"1")&&((unsigned)metrics->parts[5].height&1);
   menus_trace_enabled=menus_enabled&&menu_trace&&!strcmp(menu_trace,"1");
   const char *menu_keys=getenv("NEXTSPACE_CHROMIUM_MENU_KEYS");
   menu_keys_enabled=menus_enabled&&menu_keys&&!strcmp(menu_keys,"1")&&((unsigned)metrics->parts[5].height&4);
+  struct NXSRectD native_clip;
+  if(!native_scroller_layout(128,128,&native_clip)){note("native scroller layout unavailable; unchanged");return;}
+  native_scroller_on_left=native_clip.x>128-native_clip.x-native_clip.width;
   uintptr_t *aura=(uintptr_t *)(base+0x11d4fe40),*fluent=(uintptr_t *)(base+0x11d50048);
   if(aura[39]!=base+0xe906d0c||aura[61]!=base+0xe906124||fluent[39]!=base+0xe906d0c||fluent[61]!=base+0xe906124){note("theme guard failed; unchanged");return;}
   const uintptr_t offsets[]={0xe80ebec,0xe428628,0xe590960};
@@ -312,7 +366,7 @@ __attribute__((constructor)) static void initialize(void) {
   if(menus_enabled&&(!guard_views_calls()||!prepare_app_menus())){note("application menu guard failed; unchanged");return;}
   if(menu_keys_enabled&&!prepare_global_menu_keys()){note("global menu key guard failed; unchanged");return;}
   int wayland_geometry_enabled=prepare_wayland_geometry();
-  const uint32_t patch[]={0xd503245f,0x52800020,0xd65f03c0};
+  const uint32_t patch[]={0xd503245f,0x52800000|((uint32_t)native_scroller_on_left<<5),0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
   configure(0x11d4fe40);configure(0x11d50048);activate_input();note("exact-build runtime adapter initialized");
   if(wayland_geometry_enabled){activate_detours(wayland_geometry_detours,sizeof(wayland_geometry_detours)/sizeof(*wayland_geometry_detours));note("shared native Wayland geometry enabled");activate_wayland_activation();}
@@ -325,10 +379,10 @@ __attribute__((constructor)) static void initialize(void) {
   if(forms_text_enabled)note("experimental native text fields enabled");
   if(forms_multiline_viewport_enabled)note("experimental native multiline viewport enabled");
   if(forms_wheel_enabled)note("experimental native wheel dispatch enabled");
-  if(!NXS_BROWSER_UI_PATCH)note("browser-owned tabs, address bar and toolbar preserved");
+  if(!NXS_BROWSER_UI_PATCH)note("browser-owned tabs and toolbar buttons preserved");
   if(views_enabled){activate_detours(views_detours,sizeof(views_detours)/sizeof(*views_detours));note("experimental native address-bar fields enabled");}
   if(views_enabled||menu_keys_enabled)activate_detours(browser_accelerator_detour,1);
   if(tabs_enabled){activate_tabs();note("experimental native browser tabs enabled");}
-  if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));note("experimental native application menu binding enabled");}
+  if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));activate_detours(context_menu_detours,sizeof(context_menu_detours)/sizeof(*context_menu_detours));note("experimental native application menu binding enabled");}
   if(menu_keys_enabled){activate_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));note("experimental native global menu keys enabled");}
 }

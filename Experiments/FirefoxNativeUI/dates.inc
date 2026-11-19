@@ -14,7 +14,7 @@ static void date_finish(const void *,int);
 static void date_panel_forget(struct Widget *);
 static int date_node(const void *node)
 {
-  if(!dates_enabled||!native_web_process()||!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
+  if(!dates_enabled||!native_form_process()||!node||*(const uintptr_t *)node!=base+0xa00fc30+16)return 0;
   unsigned type=*((const unsigned char *)node+144);
   return type==132||(times_enabled&&(type==146||type==150));
 }
@@ -70,17 +70,24 @@ static int date_model(void *node,NXSDateModel *model)
 }
 static struct NXSResponse *sync_date_widget(struct Widget *w,struct NXSResponse *response)
 {
-  NXSDateModel model;if(!response||!date_model(w->node,&model)||!ensure_text_watch())return NULL;
+  NXSDateModel model;
+  if(!response){note("native date configuration reply unavailable");return NULL;}
+  if(!date_model(w->node,&model)){note("native date model unavailable");return NULL;}
+  if(!ensure_text_watch()){note("native date notification watch unavailable");return NULL;}
   w->date.control=w->id;
-  if(!native_date_binding_sync(&w->date,&model,date_tracking(w)))return NULL;
+  if(!native_date_binding_sync(&w->date,&model,date_tracking(w))) {
+    if(log_fd>=0)dprintf(log_fd,"%d native date binding unavailable control=%llu ready=%d model=%d cursor=%llu epoch=%u current=%u\n",getpid(),(unsigned long long)w->id,w->date.ready,w->date.model_ready,(unsigned long long)w->date.cursor,w->date.epoch,atomic_load(&native_host_epoch));
+    return NULL;
+  }
   return widget_request(w,5,0,0,0);
 }
 static int prepare_date_image(void *frame)
 {
-  if(!native_date_frame(frame)||fabsf(frame_scale(frame)-1)>.000001f)return 0;
+  if(!native_date_frame(frame)||!frame_scale_supported(frame))return 0;
   struct Widget *w=bind_widget(frame);if(!w)return 0;
-  int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
-  w->width=rectangle[2]/60.;w->height=rectangle[3]/60.;
+  struct NXSRectD viewport;
+  if(!native_frame_viewport(frame,&viewport))return 0;
+  w->width=viewport.width;w->height=viewport.height;
   if(w->width<1||w->height<1)return 0;
   struct NXSResponse *response=widget_sync(w);
   w->painted=response&&button_cache_update(w,response);w->text_owned=w->painted;return w->painted;
@@ -91,7 +98,7 @@ static int date_intrinsic(void *frame,const void *input,int type)
   struct Widget *w=bind_widget(frame);if(!w)return original_date_intrinsic(frame,input,type);
   struct NXSResponse *response=widget_sync(w);
   double width=response?response->parts[1].width:0;
-  return isfinite(width)&&width>0&&width<8192?lround(width*60):original_date_intrinsic(frame,input,type);
+  return isfinite(width)&&width>0&&width<8192?lround(width*frame_units(frame)):original_date_intrinsic(frame,input,type);
 }
 static void date_reflow(void *frame,void *context,void *output,const void *input,void *status)
 {
@@ -105,7 +112,7 @@ static void date_reflow(void *frame,void *context,void *output,const void *input
     struct NXSResponse *response=w?widget_sync(w):NULL;
     double preferred=response?response->parts[1].height:0;
     if(isfinite(preferred)&&preferred>0&&preferred<8192) {
-      int size=lround(preferred*60);
+      int size=lround(preferred*frame_units(frame));
       int line=((int (*)(const void *))(base+NXS_GECKO_DATE_LINE_HEIGHT))(input);
       if(line>size&&line<0x3fffffff)size=line;
       int minimum=*(const int *)((const char *)input+296);
@@ -129,9 +136,10 @@ static void date_display(void *frame,void *builder,const void *lists)
 static int draw_date_image(void *target,void *frame,const struct RectF *area)
 {
   struct Widget *w=widget_for_frame(frame);
-  if(!w||w->kind!=NXS_DATEPICKER||!w->painted||!button_cache_available(w)||
-     w->button_width!=lround(area->width)||w->button_height!=lround(area->height))return 0;
-  draw_bitmap(target,area,w->button_pixels,w->button_width,w->button_height);return 1;
+  if(!w||w->kind!=NXS_DATEPICKER||!w->painted||!button_cache_available(w))return 0;
+  if(log_fd>=0&&getenv("NEXTSPACE_FIREFOX_TRACE_SCALE"))
+    dprintf(log_fd,"%d native-date-viewport width=%.9g height=%.9g\n",getpid(),w->width,w->height);
+  draw_bitmap(target,area,w->bitmap.pixels,w->bitmap.width,w->bitmap.height);return 1;
 }
 static void date_apply(struct Widget *w)
 {
@@ -139,6 +147,9 @@ static void date_apply(struct Widget *w)
   NXSDateModel domain=w->date.model;int rebound=0;
   int accepted=native_date_binding_actions(&w->date,&batch);
   if(accepted<0){note("native Gecko date receipts unavailable");return;}
+  /* An empty native receipt is observation, not an engine value edit.
+   * Selection/focus repainting arrives through the native invalidation path. */
+  if(!accepted||!batch.count)return;
   ((unsigned (*)(void *))(base+0x3b9f0e4))(node);
   for(unsigned i=0;accepted&&i<batch.count;i++) {
     w=widget_for_node(node);if(!w||w->id!=control||!date_mutable(node))break;
@@ -207,7 +218,7 @@ static void date_finish(const void *event,int discard)
   struct Widget *w=widget_for_node(node);
   if(w&&w->id==control) {
     struct PointI point=event?widget_point(w,event):(struct PointI){-600000,-600000};
-    struct NXSResponse *response=widget_request(w,4,point.x/60.,point.y/60.,event?widget_modifiers(event):0);
+    struct NXSResponse *response=widget_request(w,4,point.x/frame_units(w->frame),point.y/frame_units(w->frame),event?widget_modifiers(event):0);
     for(unsigned n=0;response&&response->parts[0].y&&n<100;n++) {
       struct timespec pause={.tv_nsec=2000000};nanosleep(&pause,NULL);response=widget_request(w,5,0,0,0);
     }
@@ -239,7 +250,7 @@ static int date_pointer_post(void *self,void *context,void *event,void *frame,in
       w=widget_for_node(node);
       if(w&&w->id==control&&widget_sync(w)) {
         struct PointI point=widget_point(w,event);
-        if(widget_request(w,2,point.x/60.,point.y/60.,widget_modifiers(event))) {
+        if(widget_request(w,2,point.x/frame_units(w->frame),point.y/frame_units(w->frame),widget_modifiers(event))) {
           ((unsigned (*)(void *))(base+0x3b9f0e4))(node);date_active_node=node;date_active_control=control;
           ((void (*)(void *,unsigned,void *))(base+NXS_GECKO_TEXT_CAPTURE_OFFSET))(node,1,NULL);
           date_apply(w);
@@ -247,7 +258,7 @@ static int date_pointer_post(void *self,void *context,void *event,void *frame,in
       }
     } else if(date_tracking(w)) {
       struct PointI point=widget_point(w,event);
-      widget_request(w,3,point.x/60.,point.y/60.,widget_modifiers(event));date_apply(w);
+      widget_request(w,3,point.x/frame_units(w->frame),point.y/frame_units(w->frame),widget_modifiers(event));date_apply(w);
     }
   }
   ((unsigned (*)(void *))(base+0x47ba6b8))(node);return 1;

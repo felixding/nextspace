@@ -1,0 +1,7 @@
+{
+  "manifest_version": 3,
+  "name": "NEXTSPACE adapter fixture",
+  "version": "1.0",
+  "description": "Owned, permission-free fixture for the built-in extension manager.",
+  "action": { "default_title": "NEXTSPACE adapter fixture" }
+}

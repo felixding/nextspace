@@ -7,6 +7,7 @@ struct RadioSnapshot {
   uint32_t root,canonical_selected;
   uint64_t selected,focused;
   unsigned count,total;
+  unsigned columns;
 };
 struct NativeRadioGroup {
   struct NativeRadioGroup *next;
@@ -29,10 +30,83 @@ static void *radio_node_for_id(uint64_t identifier)
 {return identifier&&identifier<=UINT32_MAX?((void *(*)(uint32_t))(base+NXS_RADIO_NODE_FOR_ID_OFFSET))(identifier):NULL;}
 static void *radio_next(void *node,int forward)
 {return ((void *(*)(void *,int))(base+NXS_RADIO_NEXT_OFFSET))(node,forward);}
+/* Explicit shared-component membership crosses HTML shadow trees. The original
+ * component transports group/order through a per-launch name namespace. AppKit
+ * still owns one NSMatrix, navigation and tracking; DOM actions remain Blink's. */
+static int radio_component_key(void *node,uint64_t *group,unsigned *order)
+{
+  const char *prefix=getenv("NEXTSPACE_CHROMIUM_WEBUI_RADIO_PREFIX");
+  if(!prefix||!*prefix)return 0;
+  const void *atom=((const void *(*)(void *))(base+NXS_RADIO_NAME_OFFSET))(node);
+  char *name=atom?string_text(*(const void *const *)atom):NULL;
+  size_t length=strlen(prefix);int valid=0;
+  if(name&&!strncmp(name,prefix,length)) {
+    char *end=NULL;unsigned long long identifier=strtoull(name+length,&end,10);
+    if(identifier&&end&&*end==':') {
+      char *last=NULL;unsigned long index=strtoul(end+1,&last,10);
+      if(last&&!*last&&index<4096){*group=identifier;*order=index;valid=1;}
+    }
+  }
+  free(name);return valid;
+}
+struct ComponentRadioItem {NXSRadioItem item;unsigned order;};
+static int radio_component_order(const void *a,const void *b)
+{
+  unsigned x=((const struct ComponentRadioItem *)a)->order,y=((const struct ComponentRadioItem *)b)->order;
+  return (x>y)-(x<y);
+}
+static int radio_component_snapshot(void *anchor,struct RadioSnapshot *snapshot)
+{
+  uint64_t group;unsigned order;
+  if(!radio_component_key(anchor,&group,&order))return -1;
+  struct ComponentRadioItem *items=calloc(4096,sizeof(*items));if(!items)return 0;
+  void *document=node_document(anchor);int valid=1;
+  for(struct NativeForm *form=native_forms;form;form=form->next) {
+    uint64_t member_group;unsigned member_order;void *node=form->node;
+    if(form->kind!=NXS_RADIO||node_document(node)!=document||
+       !radio_component_key(node,&member_group,&member_order)||member_group!=group)continue;
+    if(++snapshot->total>4096){valid=0;break;}
+    uint32_t identifier=radio_node_id(node);if(!identifier){valid=0;break;}
+    int checked=form_state(node,NXS_RADIO);
+    if(checked)snapshot->canonical_selected=identifier;
+    if(!decode_member((char *)node+48))continue;
+    struct FloatRect box=((struct FloatRect (*)(const void *))(base+NXS_COORDINATE_CLIENT_BOX_OFFSET))(node);
+    if(!isfinite(box.width)||!isfinite(box.height)||box.width<1||box.height<1)continue;
+    items[snapshot->count++]=(struct ComponentRadioItem){
+      {sizeof(NXSRadioItem),identifier,"",form_enabled(node)},member_order};
+    if(checked)snapshot->selected=identifier;
+    if(form_focused(node))snapshot->focused=identifier;
+  }
+  if(valid&&snapshot->count) {
+    qsort(items,snapshot->count,sizeof(*items),radio_component_order);
+    snapshot->items=calloc(snapshot->count,sizeof(*snapshot->items));
+    if(!snapshot->items)valid=0;
+    else for(unsigned i=0;i<snapshot->count;i++) {
+      if(i&&items[i].order==items[i-1].order){valid=0;break;}
+      snapshot->items[i]=items[i].item;
+    }
+    snapshot->root=items[0].item.identifier;
+  } else valid=0;
+  free(items);
+  if(!valid){free(snapshot->items);snapshot->items=NULL;return 0;}
+  return 1;
+}
+static void radio_snapshot_columns(struct RadioSnapshot *snapshot)
+{
+  struct NXSRectD positions[4096];
+  for(unsigned i=0;i<snapshot->count;i++) {
+    void *node=radio_node_for_id(snapshot->items[i].identifier);
+    struct FloatRect box=node?((struct FloatRect (*)(const void *))(base+NXS_COORDINATE_CLIENT_BOX_OFFSET))(node):(struct FloatRect){0};
+    positions[i]=(struct NXSRectD){box.x,box.y,box.width,box.height};
+  }
+  snapshot->columns=native_radio_columns(positions,snapshot->count);
+}
 static int radio_snapshot(void *anchor,struct RadioSnapshot *snapshot)
 {
   memset(snapshot,0,sizeof(*snapshot));
   if(!anchor||input_form_kind(anchor)!=NXS_RADIO)return 0;
+  int component=radio_component_snapshot(anchor,snapshot);
+  if(component>=0){if(component)radio_snapshot_columns(snapshot);return component;}
   const void *name=((const void *(*)(void *))(base+NXS_RADIO_NAME_OFFSET))(anchor);
   const void *string=name?*(const void *const *)name:NULL;
   int named=string&&*(const uint32_t *)((const char *)string+4);
@@ -54,7 +128,7 @@ static int radio_snapshot(void *anchor,struct RadioSnapshot *snapshot)
     if(form_focused(node))snapshot->focused=identifier;
   }
   if(!snapshot->count){free(snapshot->items);snapshot->items=NULL;return 0;}
-  return 1;
+  radio_snapshot_columns(snapshot);return 1;
 }
 static struct NativeRadioGroup *radio_group(uint32_t root)
 {for(struct NativeRadioGroup *g=radio_groups;g;g=g->next)if(g->root==root)return g;return NULL;}
@@ -85,10 +159,13 @@ static struct NativeRadioGroup *radio_sync(struct NativeForm *form)
     g=calloc(1,sizeof(*g));if(!g){free(snapshot.items);return NULL;}
     g->root=snapshot.root;g->native.control=++next_form_control;g->next=radio_groups;radio_groups=g;
   }
-  int changed=!native_radio_binding_same(&g->native,snapshot.items,snapshot.count,1)||g->native.state.selected!=snapshot.selected;
+  int changed=!native_radio_binding_same(&g->native,snapshot.items,snapshot.count,snapshot.columns)||g->native.state.selected!=snapshot.selected;
   uint32_t anchor=radio_node_id(form->node);uint64_t control=form->control;
   g->busy++;
-  int okay=native_radio_binding_sync(&g->native,snapshot.items,snapshot.count,1,snapshot.selected,snapshot.focused,1);
+  void *layout=decode_member((const char *)form->node+48);
+  double scale=native_layout_scale(form->node,layout);
+  native_control_presentation(NXS_RADIOGROUP,g->native.control,scale);
+  int okay=native_radio_binding_sync(&g->native,snapshot.items,snapshot.count,snapshot.columns,snapshot.selected,snapshot.focused,scale);
   void *node=radio_node_for_id(anchor);form=node?find_form(node):NULL;
   okay=okay&&form&&form->control==control&&input_form_kind(node)==NXS_RADIO;
   if(okay) {
@@ -127,7 +204,7 @@ static void *radio_action_target(struct NativeRadioGroup *g,uint32_t origin,uint
   void *node=radio_node_for_id(origin);struct NativeForm *form=node?find_form(node):NULL;
   if(!form||form->control!=control||form->radio_owner!=g->root||input_form_kind(node)!=NXS_RADIO||!selected)return NULL;
   struct RadioSnapshot snapshot;
-  int valid=radio_snapshot(node,&snapshot)&&snapshot.root==g->root&&native_radio_binding_same(&g->native,snapshot.items,snapshot.count,1);
+  int valid=radio_snapshot(node,&snapshot)&&snapshot.root==g->root&&native_radio_binding_same(&g->native,snapshot.items,snapshot.count,snapshot.columns);
   free(snapshot.items);void *target=valid?radio_node_for_id(selected):NULL;
   return target&&input_form_kind(target)==NXS_RADIO&&form_enabled(target)?target:NULL;
 }

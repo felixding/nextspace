@@ -7,7 +7,8 @@ def signature(properties):
     # Mutable availability/check state is presentation, not command identity.
     return (properties.get('type','standard'),properties.get('label',''),
         properties.get('children-display',''),properties.get('toggle-type',''),
-        tuple(tuple(chord) for chord in properties.get('shortcut',[])))
+        tuple(tuple(chord) for chord in properties.get('shortcut',[])),
+        bool(properties.get('x-nextspace-key-only')),properties.get('x-nextspace-key-source',''))
 
 
 @dataclass(frozen=True)
@@ -36,7 +37,7 @@ class MenuModel:
                     or not isinstance(children,(tuple,list))):
                 raise ValueError('Invalid or excessive D-Bus menu hierarchy')
             seen.add(identifier)
-            for key in ('label','type','children-display','toggle-type'):
+            for key in ('label','type','children-display','toggle-type','x-nextspace-key-source'):
                 if key in props and not isinstance(props[key],str):
                     raise ValueError('Invalid D-Bus menu string')
             shortcut=props.get('shortcut',[])

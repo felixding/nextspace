@@ -16,10 +16,15 @@ static uint64_t global_key_walk(void *listener,unsigned purpose,void *dom_event)
         NXSKeyEvent key={.size=sizeof(key),.type=NXS_KEY_DOWN,.text=text,.unmodified_text=text,
           .key=logical_key(*(uint32_t *)((char *)event+200)),.modifiers=widget_modifiers(event),
           .repeat=!!*((uint8_t *)event+223)};
-        int accepted=native_application_menu_key(&key,purpose==0);free(text);
-        if(accepted) {
-          if(purpose==0)((void (*)(void *))(base+0x56ff600))(dom_event);
-          if(log_fd>=0)dprintf(log_fd,"%d native-global-menu-key execute=%d\n",getpid(),purpose==0);
+        /* Modal menu input precedes the retained chrome field's handlers.
+         * Preventing this original event also prevents a second walk from
+         * dispatching its action again. NSMenu owns matching and commands. */
+        int modal=gtk_context_owns_keys();
+        int execute=purpose==0||modal;
+        int accepted=native_application_menu_key(&key,execute);free(text);
+        if(accepted||modal) {
+          if(execute)((void (*)(void *))(base+0x56ff600))(dom_event);
+          if(log_fd>=0)dprintf(log_fd,"%d native-global-menu-key execute=%d\n",getpid(),execute);
           /* WalkHandlersResult: meaningful=true, reserved=false, disabled=false,
            * no relevant engine command. LookForCommand therefore uses Gecko's
            * normal remote-reply wait without reserving the key against content. */
@@ -39,7 +44,7 @@ static int prepare_global_keys(void)
   static const unsigned char prevent[]={0x5f,0x24,0x03,0xd5,0x21,0x00,0x80,0x52,0xe2,0x03,0x1f,0xaa,0x01,0x00,0x00,0x14};
   static const unsigned char pointer[]={0x5f,0x24,0x03,0xd5,0x00,0x14,0x40,0xf9,0xc0,0x03,0x5f,0xd6};
   static const unsigned char parent[]={0x5f,0x24,0x03,0xd5,0xe8,0x6c,0x01,0xd0,0x08,0xad,0x40,0xf9,0x08,0x01,0x40,0xb9,0x1f,0x01,0x00,0x71};
-  return !menu_keys_requested||(!memcmp((void *)(base+0x56ff600),prevent,sizeof(prevent))&&
+  return !menu_keys_requested||(prepare_key_registry()&&!memcmp((void *)(base+0x56ff600),prevent,sizeof(prevent))&&
     !memcmp((void *)(base+0x34fce18),pointer,sizeof(pointer))&&
     !memcmp((void *)(base+0x7546c5c),parent,sizeof(parent))&&
     prepare_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours)));

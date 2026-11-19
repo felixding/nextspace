@@ -21,6 +21,14 @@ static const unsigned char gecko_text_selection_start_bytes[20]={0x3f,0x23,0x03,
 static const unsigned char gecko_text_selection_end_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x00,0xd1,0xfe,0x0b,0x00,0xf9,0xf4,0x4f,0x02,0xa9,0x88,0x52,0x02,0xd0};
 #define NXS_GECKO_TEXT_SELECTION_SET_OFFSET 0x58c2fc8ul
 static const unsigned char gecko_text_selection_set_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0xc3,0x07,0xd1,0xe8,0xc3,0x00,0xfd,0xfd,0x7b,0x19,0xa9,0xfc,0x6f,0x1a,0xa9};
+/* Original TextInputListener::OnSelectionChange(Selection&, int16_t).
+ * Compiled loads at +0x24 verify its listening bit and owner element. */
+#define NXS_GECKO_TEXT_SELECTION_NOTIFY_OFFSET 0x58c0e2cul
+static const unsigned char gecko_text_selection_notify_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x83,0x03,0xd1,0xfe,0x5f,0x0b,0xa9,0xf6,0x57,0x0c,0xa9,0xf4,0x4f,0x0d,0xa9};
+static const unsigned char gecko_text_selection_owner_bytes[12]={0x08,0xc0,0x40,0x39,0xa8,0x0d,0x28,0x36,0x13,0x10,0x40,0xf9};
+#define NXS_GECKO_TEXT_SELECTION_OWNER_BYTE 32u
+#define NXS_GECKO_TEXT_SELECTION_FLAGS_BYTE 48u
+#define NXS_GECKO_TEXT_SELECTION_LISTENING_MASK 32u
 #define NXS_GECKO_TEXT_EDITOR_OFFSET 0x588acb0ul
 static const unsigned char gecko_text_editor_bytes[20]={0x5f,0x24,0x03,0xd5,0x09,0x40,0x42,0x39,0x28,0x00,0x80,0x52,0x2a,0x5c,0x8b,0x52,0x2a,0x00,0xa0,0x72};
 #define NXS_GECKO_TEXT_INSERT_ACTION_OFFSET 0x6b81facul
@@ -63,6 +71,8 @@ return !memcmp((void *)(base+0x41345f8),click_count_bytes,8)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_SELECTION_START_OFFSET),gecko_text_selection_start_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_SELECTION_END_OFFSET),gecko_text_selection_end_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_SELECTION_SET_OFFSET),gecko_text_selection_set_bytes,20)&&
+!memcmp((void *)(base+NXS_GECKO_TEXT_SELECTION_NOTIFY_OFFSET),gecko_text_selection_notify_bytes,20)&&
+!memcmp((void *)(base+NXS_GECKO_TEXT_SELECTION_NOTIFY_OFFSET+0x24),gecko_text_selection_owner_bytes,12)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_EDITOR_OFFSET),gecko_text_editor_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_INSERT_ACTION_OFFSET),gecko_text_insert_action_bytes,20)&&
 !memcmp((void *)(base+NXS_GECKO_TEXT_DELETE_ACTION_OFFSET),gecko_text_delete_action_bytes,20)&&

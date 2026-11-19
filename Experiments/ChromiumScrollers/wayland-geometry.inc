@@ -9,11 +9,13 @@ static void (*wayland_rebind)(NXSGeometrySurface *,struct wl_surface *);
 static void (*wayland_unobserve)(NXSGeometrySurface *);
 static int (*wayland_read)(NXSGeometrySurface *,NXSWaylandSurfaceGeometry *);
 static int (*wayland_request_activation)(NXSGeometrySurface *,struct wl_seat *,uint32_t,NXSWaylandActivationToken,void *);
+static const char *(*wayland_surface_parent)(NXSGeometrySurface *);
 static unsigned wayland_auxiliary_capabilities;
 struct OzoneActivationToken;
 static void (*original_wayland_show)(void *,int);
 static void (*original_wayland_destroy)(void *);
 static void (*original_wayland_connection_destroy)(void *);
+static void (*original_wayland_configure_origin)(void *,int,int,int,int,const void *);
 struct OzoneGeometryDisplay {
   struct OzoneGeometryDisplay *next;
   void *connection;
@@ -32,6 +34,22 @@ static struct OzoneGeometryDisplay *ozone_geometry_displays;
 static struct OzoneGeometryWindow *ozone_geometry_windows;
 static void *ozone_field(void *object,size_t offset) {return *(void **)((char *)object+offset);}
 #include "wayland-activation.inc"
+static void native_wayland_configure_origin(void *window,int x,int y,int width,int height,const void *states)
+{
+  struct OzoneGeometryWindow *entry=ozone_geometry_windows;
+  while(entry&&entry->window!=window)entry=entry->next;
+  NXSWaylandSurfaceGeometry geometry;
+  /* Ordinary xdg_toplevel configure carries no position. Ozone supplies zero
+   * to its existing origin-aware handler, which would overwrite the actual
+   * origin already delivered by the shared compositor geometry transport.
+   * Feed that handler the same authoritative origin on every configure; its
+   * original state queue and delegate still own applying and notifying it. */
+  if(entry&&!entry->retired&&entry->observation&&
+     wayland_read(entry->observation,&geometry)&&geometry.mapped) {
+    x=geometry.x;y=geometry.y;
+  }
+  original_wayland_configure_origin(window,x,y,width,height,states);
+}
 static void ozone_geometry_changed(void *context)
 {
   struct OzoneGeometryWindow *entry=context;
@@ -129,6 +147,7 @@ static void native_wayland_connection_destroy(void *connection)
   original_wayland_connection_destroy(connection);
 }
 static struct Detour wayland_geometry_detours[]={
+  {NXS_WAYLAND_CONFIGURE_ORIGIN,wayland_configure_origin_bytes,native_wayland_configure_origin,(void **)&original_wayland_configure_origin},
   {NXS_WAYLAND_SHOW,wayland_show_bytes,native_wayland_show,(void **)&original_wayland_show},
   {NXS_WAYLAND_DESTROY,wayland_destroy_bytes,native_wayland_destroy,(void **)&original_wayland_destroy},
   {NXS_WAYLAND_CONNECTION_DESTROY,wayland_connection_destroy_bytes,native_wayland_connection_destroy,(void **)&original_wayland_connection_destroy}
@@ -161,6 +180,7 @@ static int prepare_wayland_geometry(void)
     note("Wayland geometry lifetime guard failed; ordinary origin retained");return 0;
   }
   wayland_request_activation=dlsym(library,"nxs_wayland_activation_request");
+  wayland_surface_parent=dlsym(library,"nxs_wayland_geometry_parent");
   prepare_wayland_activation();
   return 1;
 }

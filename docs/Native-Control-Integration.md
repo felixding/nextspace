@@ -20,9 +20,9 @@ and Firefox-based browser families, then continue with the remaining non-GNUstep
 Both stages use the same native UI library and keep the no-duplication and
 no-application-recompile requirements.
 
-The current browser scope keeps each browser's built-in tabs, address bar and
-toolbar. Work proceeds through webpage controls, detached menus and native
-shortcuts. Native command routing can operate the existing tabs without
+The current browser scope keeps each browser's built-in tabs and toolbar buttons,
+including Home, Stop, Reload and extension buttons. The address editor, webpage
+controls, detached menus and native shortcuts use the shared native integration. Native command routing can operate the existing tabs without
 replacing their component. Later requested browser-UI changes belong to optional
 app-specific patches above the shared engine/toolkit bridges and UI library.
 GTK and Qt/KDE integration will reuse that shared layer, with app-specific
@@ -49,7 +49,9 @@ application names and toolkit identities do not select this behavior. TimeMon
 in the earlier failure capture identifies the visible symptom, not the scope
 of the fix.
 
-Workspace's version-19 shell connection now selects the active window's menu
+Workspace's version-20 shell connection now follows compositor-reported transient
+parents, including standard xdg-foreign associations, to select the owning app's
+menu while a native auxiliary window has focus. It selects the active window's menu
 address and forwards it through an optional inherited native-host role. The
 live two-window Firefox check follows focus to TextEdit and back without copied
 controls. The session supervisor now owns the shared host, publishes its endpoint
@@ -205,7 +207,7 @@ required integration surfaces differ:
 | Qt Widgets and KDE applications | Qt controls and application models, including KDE menus/actions, editing, dialogs and shortcuts | Existing Qt6 Widgets adapter covers scrollbars only; Konsole additionally uses its existing scrollbar-placement setting. |
 | Qt Quick/QML and KDE frontends using them | Their control, rendering, layout, command and input boundaries | The Qt Widgets scrollbar adapter does not cover this surface. |
 | Chromium web controls | Blink layout, theme, input and renderer transport | One exact ARM64 binary has experimental native scrollbars, partial button/checkbox/radio/slider/select integration, native progress animation and plain/password drawing, editing keys and single/Shift/double/triple-click selection and dragging connected to real Blink transactions. Native clipboard validation/execution now uses the existing Blink commands. IME, sizing/scaling and broader commands remain open. |
-| Chrome/Chromium browser UI | Views controls, text editing and menu models | An earlier optional Views patch bound the Omnibox to the shared native field; the current browser scope keeps the original address bar, toolbar and tabs. The application menu model binds to native detached menus. Chrome builds and broader command availability remain unqualified. |
+| Chrome/Chromium browser UI | Views controls, text editing and menu models | An earlier optional Views patch bound the Omnibox to the shared native field; the current browser scope includes the address editor and preserves toolbar buttons and tabs. The application menu model binds to native detached menus. Chrome builds and broader command availability remain unqualified. |
 | Vivaldi browser UI | Its HTML/CSS/JS frontend plus the underlying Chromium integration | The current scope preserves Vivaldi's frontend components. Its underlying engine, menus and native command integration still require qualification; pinned Chromium evidence does not establish Vivaldi coverage. |
 | Firefox web controls | Gecko widget/layout/input and process transport | One exact unchanged ARM64 Firefox ESR build has experimental determinate progress, checkbox/radio, input buttons with native intrinsic sizing, native ranges and plain/password fields with single/Shift/double/triple-click selection and dragging through the shared provider. Native clipboard validation/execution now uses the existing Gecko controllers. Selected-text data dragging, IME, other controls, scaled output and broader input remain open. |
 | Firefox browser UI | HTML/XUL frontend, command/menu models and Gecko integration | An earlier optional frontend patch bound the address editor to the shared field; the current scope keeps the original address bar, toolbar and tabs. The actual D-Bus menu model supplies native detached menus and commands. Native webpage editing and original-component app commands share the native host; broader commands, derivatives and installed deployment remain open. |
@@ -930,3 +932,158 @@ for paired browser results and real-process transport checks. This supersedes
 the earlier "Firefox color bindings unfinished" status for the measured native
 sRGB path only; broad color modes, recovery, derivatives and deployment remain
 open along with the other control types, menus and shortcuts listed above.
+
+The November 10 density candidate fixes the reproduced MacBook mismatch through
+shared presentation metadata, original engine geometry, and the original
+GNUstep view hierarchy. Shared native snapshot retention and exact key receipts
+preserve native editing during missing images/replies without replaying keys.
+Browser executables, toolbars, address bars and tabs remain original.
+
+The expanded [density checks](../Tests/Wayland/native_density_controls.py) now
+pass 85 cases per pinned browser at 2x, 85 Firefox cases at 1.5x and 54 cases
+per browser at 1x. These include complete native images, physical selection,
+number controls, editing/clipboard events, native popup/file-panel actions,
+window-size preservation and snapshot/reply faults. Separate native file-panel
+checks pass 16 cases per browser, including actual single/multiple file contents,
+original parent association, physical focus and trusted browser events.
+See the [measured qualification](../Libraries/NativeUI/browser-density-qualification.json).
+
+The shared textarea resize transaction prevents the reproduced GNUstep autohide
+recursion. Native file panels now expose the original modal key window to
+AppKit's existing shortcut dispatcher. Gecko uses its original full-precision
+screen rectangle and snapped temporal paint viewport at fractional density.
+The compositor retires acknowledged normal-window size hints and preserves
+committed client dimensions during focus changes; this fixes both stale-size
+replay and GTK restoring its saved default on a zero-size activation configure.
+The independent ordinary-window regression fails before this change and passes
+47 checks afterwards; existing decoration/density/lifecycle checks also pass.
+
+The root-document scrollbar gap is closed in the pinned trial builds. Both
+browsers use the shared original NSScroller binding, including presentation
+scale and layout measurements from the original NSScrollView. No scrollbar
+drawing, hit testing or tracking is implemented in either engine adapter.
+Gecko's anonymous scrollbar parts enter the existing guarded pre-event bridge,
+and Blink supplies its original ScrollableArea display scale. The original
+browser continues to own document layout, scrolling and trusted DOM events.
+
+Both browsers pass 20 root-scroller checks each at 1x and 1.5x, plus 31 each at
+2x including resize, fitting/overflow transitions and native-control retirement
+when the document closes. Checks require real native arrow/thumb handling and
+exact native pixels. Chromium's fractional browser chrome clips one bottom edge
+at 1.5x; the receipt records the original client boundary and compares every
+visible pixel without resampling or color tolerances. References wait for the
+original engine's device-pixel alignment to echo back after native tracking.
+The current runtime also passes 54 form cases per browser at 1x, 85 per browser
+at 2x, and 16 real file-panel cases per browser without focus assistance.
+
+The original DRM desktop runs both browsers without automation flags through
+the same runtime packaged for the MacBook. Actual desktop captures verify the
+native form fields and left document scrollers. The small verified update
+preserves the transferred app wrapper, Start.command and VM disk. Its installer
+checks the runtime manifest before using a content-addressed stage. The existing
+launcher supplies the original UID/video-group identity required by seatd.
+The pinned browser-control checkpoint passes the ordinary 1x/2x desktop gate
+and visible interaction review at 175%. Delivery still requires the existing
+archive's source, runtime and manifest verification.
+Pinned Chromium/Firefox bindings include native page controls, address editing
+and detached menus. Toolbar buttons and tabs stay unchanged. GTK/Qt/KDE and
+other browser builds require their own adapters and qualification.
+
+Native date/time auto sizing now consumes the original cell metrics through
+the same intrinsic-size path as buttons. Explicit CSS dimensions remain owned
+by the browser. Exact native pixels alone do not prove that a supplied frame
+fits the control's text.
+
+Cross-application data dragging from embedded fields remains unimplemented.
+The shared Wayland backend cancels a drag with no mapped origin surface through
+the original native callback, preserving the display connection and later
+popups. Ordinary native-window drag-and-drop passes same/cross-client transfers
+at five display densities. No drag UI or control implementation is copied.
+
+
+Native key interpretation stays in GNUstep's existing responder/input-manager
+and NSMenu implementations. The shared bridge routes events and semantic edit
+transactions; adapters invoke each application's original models and commands.
+Application accelerators are imported from the live browser registry rather than
+copied into a shortcut table. The shared transport detects raw namespace clones
+with MADV_WIPEONFORK so separate renderers cannot inherit one control identity.
+
+Root menu state reads report geometry and lifetime without querying every
+application command. Key dispatch delegates matching to NSMenu, whose matched
+item validation and original target/action remain authoritative. Explicit item
+availability queries still refresh the native menu. Regressions cover unmatched
+keys, root state reads, editor priority, modifier preferences and original command
+validation; this avoids blocking native editing on an unrelated bulk menu pass.
+
+Native delivery and its acknowledgement are separate facts. A lost reply after
+opening a native chooser must not start the browser's fallback chooser. The
+shared transport reads the original operation's exact receipt without replaying
+input or Open. Bounded, owner-scoped receipts preserve the native action baseline
+even if a user edits a panel while its opening reply is delayed. An uncertain
+opener keeps its existing owner until native state resolves it. An uncertain
+press is cancelled through native tracking only while its original request
+sequence still owns that gesture. These delivery rules are shared; GNUstep
+continues to own all controls, panels, drawing and input interpretation.
+
+
+## Built-in browser component adapters
+
+Built-in pages can bypass the engine's ordinary form-control APIs. The Chromium
+prototype binds shared WebUI component models at CrLitElement, plus semantic ARIA
+trees. It uses one adapter resource rather than page URL rules. Standard HTML
+controls enter the existing Blink/NativeUI path; original application actions
+retain settings, extension state, navigation and validation. Browser toolbar
+buttons and top-level tabs retain their original implementation.
+
+The private launch directory hard-links the unchanged Chromium executable and
+links unchanged assets. Only a verified copy of its resource pack receives the
+shared adapter. The existing launch lifetime removes that directory afterward.
+Exact executable, pack and shared-source hashes reject unsupported versions.
+This requires no Chromium build and does not modify the installed executable.
+
+The shared provider adds an ordinary NSOutlineView data source for hierarchy
+models. Its public model carries stable identifiers, parent identifiers, labels
+and enabled/selected/expanded state. Original AppKit owns selection, disclosure,
+keyboard navigation, scrolling, drawing and row hit tests. Ordered native action
+receipts return application transactions. Other toolkit adapters can reuse this
+contract without implementing another tree control.
+
+Chromium DevTools uses its existing native-host context-menu API. The shared
+menu-section adapter converts custom button rows into native submenus with the
+original labels, enabled state and callbacks. Plain ToolbarInput TextPrompt
+models bind to actual native HTML input fields; original text-change callbacks
+continue filtering the inspector. No editing key map is added. Rich code editors
+and prompts with application completion retain their original renderer.
+
+Blink paints authored selects through PaintMenuListButton rather than the
+ordinary PaintMenuList boundary. The same native popup provider handles this
+path for explicitly owned built-in models. A hidden empty optgroup identifies
+ownership without changing original option values or indices. Gecko needs its
+native control styles retained: forcing an authored corner radius disables its
+native-widget eligibility. Remove duplicate clipping from component wrappers.
+
+Firefox binds its shared MozLitElement, selection groups and PanelList models.
+DevTools adopts the same document adapter at ReactDOM root/portal boundaries;
+its shared menu-tooltip component passes semantic items to Firefox's existing
+framework Menu API. That API reaches the shared GNUstep NSMenu bridge. Original
+components still own application commands and settings. Private resource archives
+are owned by the launch lifetime; installed archives remain unchanged.
+
+The common DOM layer manages root discovery, control ownership and replaced
+component key listeners. Browser adapters supply models and original callbacks;
+GNUstep owns widget behavior. Native menu navigation belongs to NSMenuView and
+its existing input manager. Radio group geometry supplies matrix columns through
+one scale-independent overlap calculation, without another key implementation.
+
+The built-in component adapter is qualified in the pinned Chromium and Firefox
+preview. Focused model/action checks and ordinary desktop interactions cover
+100%, 125%, 150%, 175% and 200%. Personal review through Start.command covers
+those display scales, native selectors, Bookmarks outline selection, extension
+dialogs, cancellation, resizing, scrolling and page zoom. Running executable,
+resource-pack, provider, backend and compositor hashes are checked separately.
+
+This qualifies standard built-in controls, not every browser-rendered surface.
+Rich code editors, completion-enabled prompts and Firefox's outer hamburger
+panel retain browser rendering. The original outer tabs and toolbar buttons
+also remain unchanged. Original application logic and specialized content stay
+with the browser; the shared adapters do not contain per-page replacements.

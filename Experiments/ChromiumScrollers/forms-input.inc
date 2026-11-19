@@ -24,7 +24,7 @@ static int input_form_kind(void *node) {
   if(forms_numbers_enabled&&number_owner(node))return NXS_STEPPER;
   if(table==base+0x11cf3500+16)return NXS_BUTTON;
   if(forms_lists_enabled&&list_element(node))return NXS_LISTBOX;
-  if(forms_popups_enabled&&popup_element(node))return NXS_POPUP;
+  if(forms_popups_enabled&&popup_element(node))return component_native_kind(node)?component_native_kind(node):NXS_POPUP;
   if(forms_multiline_enabled&&table==base+NXS_TEXTAREA_VTABLE_OFFSET+16)return NXS_TEXTAREA;
   if(table!=base+0x11dc01d8+16)return 0;
   const void *atom=((const void *(*)(const void *))(base+0xefa0da4))(node);
@@ -46,7 +46,7 @@ static int input_form_kind(void *node) {
 static struct NativeForm *bind_input_form(void *node) {
   struct NativeForm *form=find_form(node);if(form)return form;
   int kind=input_form_kind(node);
-  if(kind==NXS_POPUP||kind==NXS_LISTBOX||kind==NXS_TEXTAREA)return NULL; /* These controls bind through theme paint. */
+  if(kind==NXS_LISTBOX||kind==NXS_TEXTAREA)return NULL; /* These controls bind through theme paint. */
   if(!kind||!decode_member((const char *)node+48))return NULL;
   if(text_kind(kind)&&!native_layout_appearance(node,decode_member((const char *)node+48),kind==NXS_SEARCHFIELD?11:12))return NULL;
   /* Keyboard focus can precede the first paint. Use the engine's layout box
@@ -60,8 +60,10 @@ static struct NativeForm *bind_input_form(void *node) {
   form->enabled=form_enabled(node);form->state=form_state(node,kind);
   if(kind==NXS_SLIDER&&!sync_slider_model(form)){free(form->title);free(form);return NULL;}
   form->next=native_forms;native_forms=form;
+  if(kind==NXS_WEBUI_MENU)return form;
   if(log_fd>=0)dprintf(log_fd,"%d native form bound before paint id=%llu kind=%d\n",getpid(),(unsigned long long)form->control,kind);
   struct NXSResponse *response=form_request(form,1,0,0,0);
+  if(kind==NXS_POPUP)response=sync_popup_model(form,response);
   if(text_kind(kind)) {
     response=sync_text_form(form,response);
     if(response)form->generation=response->parts[4].x;
@@ -71,6 +73,10 @@ static struct NativeForm *bind_input_form(void *node) {
 }
 static struct NXSResponse *form_input_request(struct NativeForm *form,int operation,int focus,
     int type,unsigned logical,const char *text,const char *unmodified,unsigned modifiers,int repeat) {
+  if(form->kind==NXS_WEBUI_MENU) {
+    NXSKeyEvent key={.size=sizeof(key),.type=type,.key=logical,.text=text,.unmodified_text=unmodified,.modifiers=modifiers,.repeat=repeat};
+    return operation==8?component_menu_key(form,&key):component_menu_request(form,5);
+  }
   if(form->kind==NXS_LISTBOX){NXSKeyEvent key={.size=sizeof(key),.type=type,.key=logical,.text=text,.unmodified_text=unmodified,.modifiers=modifiers,.repeat=repeat};struct NXSResponse *r=native_list_input(form->control,focus,operation==8?&key:NULL);if(r&&operation==7){native_list_binding_snapshot(&form->list,r);form->list.focused=!!focus;}return r;}
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled&&operation==7)return radio_form_focus(form);
   size_t a=text?strlen(text):0,b=unmodified?strlen(unmodified):0;
@@ -85,7 +91,7 @@ static struct NXSResponse *form_input_request(struct NativeForm *form,int operat
   struct NXSResponse *response=exchange_bytes(req,size);free(req);return response;
 }
 static struct NXSResponse *sync_form_focus(struct NativeForm *form,struct NXSResponse *response) {
-  if(form->kind==NXS_LISTBOX||(form->kind==NXS_RADIO&&forms_radio_groups_enabled))return response;
+  if(form->kind==NXS_WEBUI_MENU||form->kind==NXS_LISTBOX||(form->kind==NXS_RADIO&&forms_radio_groups_enabled))return response;
   if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_FOCUS)||!response)return response;
   int focus=form_focused(form->node);
   if(!!response->parts[3].y==focus)return response;
@@ -191,6 +197,15 @@ static int default_form_key(void *node,void *event) {
   free(text);free(unmodified);
   if(!response){*flags|=0x40;note("native keyboard transport unavailable; action cancelled");return 1;}
   int result=response->parts[3].x,action=response->parts[0].width>before;
+  if(form->kind==NXS_WEBUI_MENU) {
+    if(result!=NXS_INPUT_UNHANDLED||up)*flags|=0x40;
+    return 1;
+  }
+  if(form->kind==NXS_TABVIEW||form->kind==NXS_OUTLINE) {
+    if(result==NXS_INPUT_NEXT||result==NXS_INPUT_PREVIOUS)advance_form_focus(node,event,result);
+    if(result!=NXS_INPUT_UNHANDLED||action||up)*flags|=0x40;
+    if(form->kind==NXS_OUTLINE)component_outline_after_input(form);else component_tabs_after_input(form);return 1;
+  }
   struct NXSControlAction checkbox_action;native_control_action_snapshot(response,before,&checkbox_action);
   invalidate_form(form);
   if(form->kind==NXS_POPUP){
@@ -219,7 +234,7 @@ static int default_form_key(void *node,void *event) {
 static void button_default(void *node,void *event)
 {if(!default_form_key(node,event))original_button_default(node,event);}
 static void input_default(void *node,void *event)
-{if(!slider_mouse_default(node,event)&&!default_form_key(node,event))original_input_default(node,event);}
+{if(!slider_mouse_default(node,event)&&!default_form_key(node,event))color_input_default(node,event);}
 static struct Detour form_input_detours[]={
  {NXS_ELEMENT_FOCUS_OFFSET,nxs_element_focus_bytes,element_focus,(void **)&original_element_focus},
  {NXS_BUTTON_DEFAULT_OFFSET,nxs_button_default_bytes,button_default,(void **)&original_button_default},

@@ -1,0 +1,66 @@
+{
+  "build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "libxul_sha256": "0652dbd00b80ef62cf2a01c2e72d147b7ab55ed6daf768924813aae5c2cc5524",
+  "debug_elf_sha256": "a0089de680a491261517e7da34490c7a8a198f53fba97f50f772ba0c010e5be2",
+  "debug_package_snapshot": "https://snapshot.debian.org/file/d268da906b275fafa204068aca7ddb92b7572507",
+  "sources": [
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsWindowWayland.cpp",
+      "sha256": "fbdc387bb050a36f5e41655da6c0f11009ec97bc895e0c4b8098d73af411212d"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsWindowWayland.h",
+      "sha256": "fbacb9e3daccfa1cfa9df8502c20312ba45829316fb847a7cfad78da565e16f2"
+    }
+  ],
+  "symbols": [
+    {
+      "name": "_ZN8nsWindow28WidgetToScreenOffsetUnscaledEv",
+      "offset": "0x38966e8",
+      "bytes": 12
+    },
+    {
+      "name": "_ZN7mozilla6widget15nsWindowWayland33WaylandPopupGetPositionFromLayoutEv",
+      "offset": "0x6abb70c",
+      "bytes": 2896
+    },
+    {
+      "name": "_ZN7mozilla6widget15nsWindowWayland29WaylandPopupCheckAndGetAnchorEP20_cairo_rectangle_intP9_GdkPoint",
+      "offset": "0x6abc5a4",
+      "bytes": 1072
+    },
+    {
+      "name": "_ZNK7mozilla6widget15nsWindowWayland24WaylandGetParentPositionEv",
+      "offset": "0x6abc9d4",
+      "bytes": 360
+    }
+  ],
+  "changes": [
+    {
+      "offset": "0x6abc72c",
+      "operation": "NOP",
+      "purpose": "use original parent conversion for first popup"
+    },
+    {
+      "offset": "0x6abc730",
+      "operation": "NOP",
+      "purpose": "use original parent conversion for first popup"
+    },
+    {
+      "offset": "0x6abc734",
+      "operation": "NOP",
+      "purpose": "use original parent conversion for first popup"
+    },
+    {
+      "offset": "0x6abca48",
+      "operation": "NOP",
+      "purpose": "use original WidgetToScreenOffsetUnscaled for toplevel parents"
+    }
+  ],
+  "original_behavior_preserved": [
+    "parent discovery and null checks",
+    "GTK anchor, gravity, margins and constraints",
+    "nested-popup parent conversion",
+    "all popup model and input behavior"
+  ]
+}

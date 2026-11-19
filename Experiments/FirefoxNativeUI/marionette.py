@@ -3,8 +3,8 @@
 import json,socket
 
 class Marionette:
-    def __init__(self,port):
-        self.connection=socket.create_connection(('127.0.0.1',port),timeout=20)
+    def __init__(self,port,timeout=20):
+        self.connection=socket.create_connection(('127.0.0.1',port),timeout=timeout)
         self.sequence=0;self.has_session=False
         try:
             self.greeting=self.receive()

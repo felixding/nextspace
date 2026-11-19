@@ -31,16 +31,16 @@ static void release_range_frame(void *frame) {
   if(*cursor&&(*cursor)->kind==NXS_SLIDER)forget_widget(cursor);
 }
 static int prepare_range_image(void *frame) {
-  float scale=frame?frame_scale(frame):0;
-  if(!native_range_frame(frame)||!isfinite(scale)||fabsf(scale-1)>0.000001f){release_range_frame(frame);return 0;}
+  if(!native_range_frame(frame)||!frame_scale_supported(frame)){release_range_frame(frame);return 0;}
   struct Widget *w=bind_widget(frame);if(!w)return 0;
-  int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
-  double width=rect[2]/60.,height=rect[3]/60.;
+  struct NXSRectD viewport;
+  if(!native_frame_viewport(frame,&viewport)){release_range_frame(frame);return 0;}
+  double width=viewport.width,height=viewport.height;
   int horizontal=((int (*)(const void *))(base+0x6ef8690))(frame);
-  if(width<1||height<1||width>8192||height>8192||width!=floor(width)||height!=floor(height)||horizontal!=(width>=height)){release_range_frame(frame);return 0;}
+  if(width<1||height<1||width>8192||height>8192||horizontal!=(width>=height)){release_range_frame(frame);return 0;}
   w->width=width;w->height=height;
   struct NXSResponse *response=widget_sync(w);
-  w->painted=response&&response->width==width&&response->height==height;
+  w->painted=native_bitmap_response_valid(response);
   if(!w->painted){release_range_frame(frame);return 0;}
   return 1;
 }
@@ -66,7 +66,7 @@ static struct GeckoDecimal range_point(void *frame,void *event) {
   if(!(*(const uint8_t *)((const char *)event+48)&1)||
      (message!=13&&message!=14&&message!=15)||!prepare_range_image(frame))return original_range_point(frame,event);
   struct Widget *w=widget_for_frame(frame);if(!w)return original_range_point(frame,event);
-  struct PointI point=widget_point(w,event);w->range_x=point.x/60.;w->range_y=point.y/60.;
+  struct PointI point=widget_point(w,event);w->range_x=point.x/frame_units(w->frame);w->range_y=point.y/frame_units(w->frame);
   struct NXSResponse *response;
   if(message==15) {
     response=widget_request(w,2,w->range_x,w->range_y,widget_modifiers(event));w->range_tracking=!!response;

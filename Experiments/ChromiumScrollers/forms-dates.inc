@@ -66,6 +66,7 @@ static void date_apply(struct NativeForm *form)
   struct NXSNativeActionBatch batch;
   int accepted=native_date_binding_actions(&form->date,&batch);
   if(accepted<0){note("native date action receipts unavailable");return;}
+  if(!accepted||!batch.count)return;
   for(unsigned i=0;accepted&&i<batch.count;i++) {
     void *node=radio_node_for_id(id);form=node?find_form(node):NULL;
     if(!form||form->control!=control||form->kind!=NXS_DATEPICKER||!date_enabled(node))break;

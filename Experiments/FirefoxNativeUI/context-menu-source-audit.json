@@ -1,0 +1,80 @@
+{
+  "date": "2026-11-14",
+  "libxul_build_id": "ace600697490ec169e3e371fb456dcb542e3abef",
+  "sources": [
+    {
+      "path": "widget/gtk/NativeMenuSupport.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuSupport.cpp",
+      "sha256": "0d751b6362660f0b26f8f26a40e91a4c7f5901006e071fbae8eea2b8463b31c0",
+      "bytes": 1307
+    },
+    {
+      "path": "widget/gtk/NativeMenuGtk.cpp",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuGtk.cpp",
+      "sha256": "242568b19d6841b503f774c144a099d0dcc5496ae3ea97adaf051112f2597595",
+      "bytes": 28382
+    },
+    {
+      "path": "widget/gtk/NativeMenuGtk.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/NativeMenuGtk.h",
+      "sha256": "a87764a4ecd04f171f69149e8c8658c5a9ed903b8d09b84bcb8774e637f62d3b",
+      "bytes": 2500
+    },
+    {
+      "path": "layout/xul/nsXULPopupManager.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/xul/nsXULPopupManager.h",
+      "sha256": "8cc231a3c8fe7815a3114929b698d76235a033c7583f7addb8499857e7e849a9",
+      "bytes": 35263
+    },
+    {
+      "path": "widget/NativeMenu.h",
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/NativeMenu.h",
+      "sha256": "2d75bdf78ac5ce819ddefb45b9872a4475aa79d1c7f0952726246fd99ccbfa44",
+      "bytes": 4284
+    }
+  ],
+  "public_adapter": "GTK3 GMenuModel/GActionGroup data and original activation; ordinary GtkMenuItem callbacks remain available for non-model toolkit menus.",
+  "source_corrections": [
+    "Honor hidden/collapsed containers before original recursive GMenu export.",
+    "Call original nsXULPopupManager::UpdateMenuItems after original popupshown and before deferred GTK model projection.",
+    "Deliver original NativeMenu opening observer callbacks, matching the original closing observer snapshot.",
+    "Wait for complete labels from the original asynchronously localized GMenuModel before first presentation.",
+    "Connect existing NSMenu lifecycle and branch replacement to the original Gecko submenu opened/closed dispatcher.",
+    "Pin the original GAction and source element across lazy GMenu rebuilds; do not resolve a possibly reassigned action name.",
+    "Retire obsolete callback generations and finish the original GTK lifecycle without replaying an uncertain selection."
+  ],
+  "layouts": {
+    "native_gtk_model": 32,
+    "model_element": 40,
+    "model_showing": 49,
+    "native_gtk_observers": 40,
+    "ns_tarray_header_bytes": 8
+  },
+  "verification_status": "Desktop readiness is recorded separately in Libraries/NativeUI/browser-reported-issues-qualification.json; this source audit is not a desktop qualification.",
+  "action_callback_guards": [
+    {
+      "name": "ActivateSignal",
+      "offset": "0x6af97c0",
+      "bytes": "3f2303d5fe4fbfa9f30302aa620000b4e00313aa",
+      "signal": "activate"
+    },
+    {
+      "name": "ChangeStateSignal",
+      "offset": "0x6af97b8",
+      "bytes": "5f2403d5c0035fd6",
+      "signal": "change-state"
+    }
+  ],
+  "keyboard_ownership": "Active context menus dispatch trusted key-downs at Gecko preflight before retained address-field handlers, then prevent the original event to avoid duplicate handling. NSMenu owns matching; omitted GTK accelerators reuse the current original native application-menu registry. Ordinary application keys retain Gecko content cancellation and remote-reply ordering.",
+  "password_visibility": {
+    "source": "Original HTMLInputElement::RevealPassword and cancellable SetRevealPassword model; existing NativeUI plain/secure controls only.",
+    "getter": {
+      "offset": "0x588f094",
+      "bytes": "5f2403d5083840f90940423908b96ed33f310271"
+    },
+    "setter": {
+      "offset": "0x588ef74",
+      "bytes": "3f2303d5ff0301d1fe5702a9f44f03a9a85202b0"
+    }
+  }
+}

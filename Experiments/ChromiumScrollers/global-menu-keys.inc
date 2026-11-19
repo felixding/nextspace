@@ -12,6 +12,10 @@ struct MenuBrowser {
 static struct MenuBrowser *menu_browsers;
 static void menu_browser_schedule(struct MenuBrowser *);
 static uint64_t next_menu_browser;
+static __thread uint64_t selected_menu_browser;
+/* Physical deactivation can transfer focus to this application's native
+ * auxiliary window. Retain the last selected original window model; the
+ * shared desktop broker alone decides whether its menu is presented. */
 static __thread struct MenuBrowser *creating_menu_browser;
 static __thread unsigned menu_key_preflight;
 static void (*original_browser_added)(void *);
@@ -23,6 +27,50 @@ static struct MenuBrowser *menu_browser_find(void *view,uint64_t identity) {
   for(struct MenuBrowser *b=menu_browsers;b;b=b->next)
     if((view?b->view==view:b->identity==identity)&&pthread_equal(b->owner,pthread_self()))return b;
   return NULL;
+}
+static int app_menu_registry(struct AppMenuBinding *menu) {
+  struct MenuBrowser *browser=menu_browser_find(NULL,menu->browser);
+  if(!browser){note("command registry has no live browser owner");return 0;}
+  /* Read the application's live, fully initialized registry. Its original
+   * GetAccelerator method walks precisely these same std::map nodes. Keep no
+   * parallel shortcut policy and no copied browser command table. */
+  void *end=(char *)browser->view+NXS_BROWSER_ACCELERATOR_TABLE_END;
+  void *node=*(void **)((char *)browser->view+NXS_BROWSER_ACCELERATOR_TABLE_BEGIN);
+  unsigned count=0,imported=0,missing=0;
+  while(node!=end) {
+    if(!node||++count>4096){note("command registry node bound rejected");return 0;}
+    const unsigned char *accelerator=(unsigned char *)node+NXS_BROWSER_ACCELERATOR_KEY;
+    int command=*(const int *)((char *)node+NXS_BROWSER_ACCELERATOR_COMMAND);
+    /* Native menus match key-down equivalents. Original key-up registrations
+     * and non-command input continue through their original event paths. */
+    if(*(const int *)(accelerator+4)==0&&(*(const int *)(accelerator+8)&(4|16))) {
+      char label[64];snprintf(label,sizeof(label),"Command %d",command);
+      int at=menu_entry_add(menu,-1,menu->model,0,2,command,NXS_MENU_KEY_ONLY,strdup(label),accelerator);
+      if(at<0)return 0;
+      if(!*menu->items[at].key_equivalent) {
+        if(log_fd>=0)dprintf(log_fd,"%d command-registry-key-unavailable code=%u flags=%u command=%d\n",getpid(),
+          *(const uint16_t *)accelerator,*(const unsigned *)(accelerator+8),command);
+        free((void *)menu->items[at].title);free((void *)menu->items[at].key_equivalent);menu->count--;missing++;
+      } else {
+        menu->entries[at].browser_view=browser->view;
+        memcpy(menu->entries[at].accelerator,accelerator,32);imported++;
+      }
+    }
+    if(*(void **)((char *)node+8)) {
+      node=*(void **)((char *)node+8);
+      while(*(void **)node)node=*(void **)node;
+    } else {
+      void *parent=*(void **)((char *)node+16);
+      while(node!=*(void **)parent){node=parent;parent=*(void **)((char *)node+16);}
+      node=parent;
+    }
+  }
+  if(log_fd>=0)dprintf(log_fd,"%d app-command-registry browser=%llu entries=%u native=%u missing=%u\n",getpid(),
+    (unsigned long long)browser->identity,count,imported,missing);
+  /* Some hardware-only commands have no Unicode key equivalent. Leave them
+   * on the application's original hardware-event path rather than inventing
+   * a native shortcut or disabling the ordinary command registry. */
+  return 1;
 }
 static struct AppMenuBinding *menu_browser_model(struct MenuBrowser *browser) {
   for(struct AppMenuBinding *menu=app_menus;menu;menu=menu->next)
@@ -47,19 +95,19 @@ static void app_menu_browser_removed(uint64_t identity,uint64_t control) {
     /* Chromium can retire its temporary AppMenu when tab input cancels the
      * old runner. Recreate its real model on the existing UI queue while the
      * browser stays active, without waiting for a key or focus transition. */
-    if(b->active)menu_browser_schedule(b);
+    if(b->identity==selected_menu_browser)menu_browser_schedule(b);
   }
 }
 static int app_menu_browser_visible(uint64_t identity) {
   if(!menu_keys_enabled)return 1;
   struct MenuBrowser *b=menu_browser_find(NULL,identity);
-  if(!b||!b->active)return 0;
+  if(!b||b->identity!=selected_menu_browser)return 0;
   menu_browser_hide_others(identity);return 1;
 }
 static void app_menu_browser_task(uint64_t identity) {
   struct MenuBrowser *b=menu_browser_find(NULL,identity);if(!b)return;
   b->pending=0;
-  if(!b->active) {
+  if(b->identity!=selected_menu_browser) {
     struct AppMenuBinding *menu=menu_browser_model(b);if(menu)native_menu_request(menu->control,30,0);
     if(log_fd>=0)dprintf(log_fd,"%d app-menu-browser-selected id=%llu active=0\n",getpid(),(unsigned long long)identity);
     return;
@@ -83,6 +131,11 @@ static void menu_browser_schedule(struct MenuBrowser *b) {
     if(!app_menu_post_task(-1,0,0,0,b->identity)){b->pending=0;note("browser menu UI task rejected");}
   }
 }
+static void app_menu_callback_lost(void) {
+  context_menu_callback_lost();
+  for(struct MenuBrowser *b=menu_browsers;b;b=b->next)
+    if(pthread_equal(b->owner,pthread_self())&&b->identity==selected_menu_browser)menu_browser_schedule(b);
+}
 static void app_menus_native_work(int failed) {
   if(!menu_keys_enabled||failed)return;
   uint32_t epoch=atomic_load(&native_host_epoch);
@@ -92,7 +145,7 @@ static void app_menus_native_work(int failed) {
     /* Host invalidation wakes the existing engine work loop. Re-project on
      * its actual UI task queue before the next key, even without a focus or
      * tab change. Reuse the live application model; never replay commands. */
-    if(menu&&menu->epoch!=epoch)menu_browser_schedule(b);
+    if(menu&&(menu->epoch!=epoch||menu->callback_generation!=native_callback_generation))menu_browser_schedule(b);
   }
 }
 static void browser_menu_added(void *view) {
@@ -104,6 +157,7 @@ static void browser_menu_added(void *view) {
   b->view=view;b->owner=pthread_self();b->identity=++next_menu_browser;
   b->manager=((void *(*)(void *))(base+NXS_WIDGET_FOCUS_MANAGER_OFFSET))(widget);
   b->active=((int (*)(void *))(base+NXS_WIDGET_ACTIVE_OFFSET))(widget);
+  if(b->active)selected_menu_browser=b->identity;
   b->next=menu_browsers;menu_browsers=b;
   if(log_fd>=0)dprintf(log_fd,"%d app-menu-browser-added id=%llu active=%d\n",getpid(),(unsigned long long)b->identity,b->active);
   menu_browser_schedule(b);
@@ -111,13 +165,14 @@ static void browser_menu_added(void *view) {
 static void browser_menu_active(void *view,void *widget,int active) {
   original_browser_active(view,widget,active);
   struct MenuBrowser *b=menu_browser_find(view,0);
-  if(b){b->active=!!active;menu_browser_schedule(b);}
+  if(b){b->active=!!active;if(active)selected_menu_browser=b->identity;menu_browser_schedule(b);}
 }
 static void browser_menu_destroying(void *view,void *widget) {
   struct MenuBrowser **cursor=&menu_browsers;
   while(*cursor&&(*cursor)->view!=view)cursor=&(*cursor)->next;
   if(*cursor) {
     struct MenuBrowser *b=*cursor;*cursor=b->next;
+    if(selected_menu_browser==b->identity)selected_menu_browser=0;
     struct AppMenuBinding *menu=menu_browser_model(b);if(menu)native_menu_request(menu->control,30,0);
     if(log_fd>=0)dprintf(log_fd,"%d app-menu-browser-removed id=%llu\n",getpid(),(unsigned long long)b->identity);
     free(b); /* Queued tasks retain only the never-reused identity. */
@@ -157,6 +212,12 @@ static const void *menu_browser_web_event(const void *event) {
 }
 static int browser_menu_pre_key(void *view,const void *event) {
   const void *native=menu_browser_web_event(event);
+  /* A tracking native menu owns keyboard input. Dispatch before Chromium's
+   * renderer can consume it, including keys the menu leaves unmatched. */
+  if(native&&context_menu_owns_keys()) {
+    menu_browser_key(menu_browser_find(view,0),native,1);
+    return 0; /* HANDLED. */
+  }
   if(native&&menu_browser_key(menu_browser_find(view,0),native,0))return 3; /* NOT_HANDLED_IS_SHORTCUT, USE_AURA. */
   menu_key_preflight++;
   int result=original_browser_pre_key(view,event);
@@ -171,6 +232,13 @@ static int browser_menu_key(void *view,const void *event) {
 }
 static int app_menu_views_key(void *manager,const void *event) {
   if(menu_key_preflight)return 0;
+  if(context_menu_owns_keys()) {
+    for(struct MenuBrowser *b=menu_browsers;b;b=b->next)
+      if(b->manager==manager&&pthread_equal(b->owner,pthread_self())) {
+        menu_browser_key(b,event,1);return 1;
+      }
+    return 0;
+  }
   /* Respect the real focused View's event contract before global matching.
    * WebView requests first delivery to its renderer here; BrowserView's
    * before/after-renderer hooks perform native lookup and execution later. */
@@ -191,7 +259,11 @@ static int prepare_global_menu_keys(void) {
   const struct {uintptr_t offset;const unsigned char *bytes;} calls[]={
     {NXS_BROWSER_SHOW_MENU_OFFSET,nxs_browser_show_menu_bytes},{NXS_BROWSER_WIDGET_OFFSET,nxs_browser_widget_bytes},
     {NXS_WIDGET_FOCUS_MANAGER_OFFSET,nxs_widget_focus_manager_bytes},{NXS_WIDGET_ACTIVE_OFFSET,nxs_widget_active_bytes},
-    {NXS_KEY_TEXT_OFFSET,nxs_key_text_bytes},{NXS_KEY_UNMODIFIED_OFFSET,nxs_key_unmodified_bytes}};
+    {NXS_KEY_TEXT_OFFSET,nxs_key_text_bytes},{NXS_KEY_UNMODIFIED_OFFSET,nxs_key_unmodified_bytes},
+    {NXS_BROWSER_ACCELERATOR_EXECUTE,nxs_browser_accelerator_execute_bytes},
+    {NXS_APP_COMMAND_ENABLED,nxs_app_command_enabled_bytes}};
   for(unsigned i=0;i<sizeof(calls)/sizeof(*calls);i++)if(memcmp((void *)(base+calls[i].offset),calls[i].bytes,20))return 0;
+  if(memcmp((void *)(base+NXS_BROWSER_ACCELERATOR_TABLE_GUARD),nxs_browser_accelerator_table_bytes,12)||
+     memcmp((void *)(base+NXS_BROWSER_ACCELERATOR_VALUE_GUARD),nxs_browser_accelerator_value_bytes,12))return 0;
   return prepare_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));
 }

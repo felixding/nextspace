@@ -10,7 +10,7 @@ struct GeckoRadioNode {void *node;uint64_t identifier;};
 struct GeckoRadioSnapshot {
   void *container,*group,*selected_node;
   struct GeckoRadioNode *nodes;unsigned count;
-  NXSRadioItem *items;unsigned visible;
+  NXSRadioItem *items;unsigned visible,columns;
   uint64_t selected,focused;
 };
 struct GeckoRadioGroup {
@@ -22,6 +22,40 @@ struct GeckoRadioGroup {
 };
 static struct GeckoRadioGroup *gecko_radio_groups;
 static void *gecko_radio_name_atom,*gecko_radio_id_atom;
+static char *component_attribute(const void *node,const char *name,void **atom)
+{
+ if(!node||memcmp((void *)(base+NXS_GECKO_RADIO_ATTR),gecko_radio_attr_bytes,sizeof(gecko_radio_attr_bytes))||
+    memcmp((void *)(base+NXS_GECKO_RADIO_ATOMIZE),gecko_radio_atomize_bytes,sizeof(gecko_radio_atomize_bytes)))return NULL;
+ if(!*atom)*atom=((void *(*)(const char *))(base+NXS_GECKO_RADIO_ATOMIZE))(name);
+ if(!*atom)return NULL;
+ static const uint16_t empty;struct GeckoString value={.data=&empty,.flags=1};
+ ((int (*)(const void *,const void *,void *))(base+NXS_GECKO_RADIO_ATTR))(node,*atom,&value);
+ char *text=utf8_text(value.data,value.length);
+ ((void (*)(void *))(base+NXS_GECKO_RADIO_STRING_RELEASE))(&value);return text;
+}
+static int native_component_node(const void *node)
+{
+ const char *prefix=getenv("NEXTSPACE_FIREFOX_WEBUI_PREFIX");
+ if(!frontend_requested||!prefix||!*prefix)return 0;
+ static void *atom;char *value=component_attribute(node,"data-nextspace-native-widget",&atom);
+ int owned=value&&!strcmp(value,prefix);free(value);return owned;
+}
+struct ComponentRadioNode {void *node;unsigned order;};
+static char *component_radio_key(const void *node,unsigned *order)
+{
+ const char *prefix=getenv("NEXTSPACE_FIREFOX_WEBUI_PREFIX");if(!prefix||!*prefix)return NULL;
+ char *name=component_attribute(node,"name",&gecko_radio_name_atom);
+ size_t size=strlen(prefix);char *separator=name?strrchr(name,':'):NULL;
+ if(!name||strncmp(name,prefix,size)||!separator){free(name);return NULL;}
+ char *end;unsigned long index=strtoul(separator+1,&end,10);
+ if(end==separator+1||*end||index>=4096){free(name);return NULL;}
+ *separator=0;*order=index;return name;
+}
+static int component_radio_order(const void *a,const void *b)
+{
+ unsigned x=((const struct ComponentRadioNode *)a)->order,y=((const struct ComponentRadioNode *)b)->order;
+ return (x>y)-(x<y);
+}
 static void gecko_radio_addref(void *node)
 {((unsigned (*)(void *))(base+NXS_GECKO_RADIO_ADDREF))(node);}
 static void gecko_radio_release_node(void *node)
@@ -30,6 +64,31 @@ static void gecko_radio_nodes_free(struct GeckoRadioNode *nodes,unsigned count,i
 {if(release)for(unsigned i=0;i<count;i++)gecko_radio_release_node(nodes[i].node);free(nodes);}
 static void gecko_radio_snapshot_free(struct GeckoRadioSnapshot *s)
 {gecko_radio_nodes_free(s->nodes,s->count,1);free(s->items);memset(s,0,sizeof(*s));}
+static int component_radio_snapshot(void *anchor,struct GeckoRadioSnapshot *s)
+{
+ unsigned order;char *key=component_radio_key(anchor,&order);if(!key)return -1;
+ struct ComponentRadioNode *members=calloc(4096,sizeof(*members));if(!members){free(key);return 0;}
+ unsigned count=0;int valid=1;
+ for(struct Widget *w=widgets;w;w=w->next) {
+  if(w->kind!=NXS_RADIO)continue;
+  unsigned index;char *candidate=component_radio_key(w->node,&index);
+  if(candidate&&!strcmp(candidate,key)) {
+   if(count==4096)valid=0;
+   else members[count++]=(struct ComponentRadioNode){w->node,index};
+  }
+  free(candidate);if(!valid)break;
+ }
+ free(key);qsort(members,count,sizeof(*members),component_radio_order);
+ s->nodes=calloc(count?count:1,sizeof(*s->nodes));s->items=calloc(count?count:1,sizeof(*s->items));
+ if(!count||!s->nodes||!s->items)valid=0;
+ if(valid)for(unsigned i=0;i<count;i++) {
+  if(i&&members[i].order==members[i-1].order){valid=0;break;}
+  void *node=members[i].node;gecko_radio_addref(node);s->nodes[s->count++].node=node;
+  if(*((const unsigned char *)node+458)&32)s->selected_node=node;
+ }
+ if(valid)s->container=s->group=members[0].node;
+ free(members);if(!valid){gecko_radio_snapshot_free(s);return 0;}return 1;
+}
 static void gecko_radio_reset_process(void)
 {
   memset(&radio_pointer_source,0,sizeof(radio_pointer_source));
@@ -67,6 +126,7 @@ static void gecko_radio_release(struct Widget *w)
 static int gecko_radio_snapshot(void *anchor,struct GeckoRadioSnapshot *s)
 {
   memset(s,0,sizeof(*s));if(node_kind(anchor)!=NXS_RADIO)return 0;
+  int component=component_radio_snapshot(anchor,s);if(component>=0)return component;
   if(!gecko_radio_name_atom)gecko_radio_name_atom=((void *(*)(const char *))(base+NXS_GECKO_RADIO_ATOMIZE))("name");
   if(!gecko_radio_name_atom)return 0;
   /* GetCurrentRadioGroupContainer is inlined in the pinned VisitGroup and
@@ -100,19 +160,23 @@ static void *gecko_radio_node(const struct GeckoRadioGroup *g,uint64_t identifie
 {for(unsigned i=0;i<g->count;i++)if(g->nodes[i].identifier==identifier)return g->nodes[i].node;return NULL;}
 static void gecko_radio_model(struct GeckoRadioSnapshot *s,const struct GeckoRadioGroup *g)
 {
+  struct NXSRectD positions[4096];
   void *manager=*(void **)(base+0xa439c38),*focused=manager?*(void **)((char *)manager+128):NULL;
   for(unsigned i=0;i<s->count;i++) {
     void *node=s->nodes[i].node;
     uint64_t identifier=gecko_radio_identifier(g,node);if(!identifier)identifier=++next_widget;
     s->nodes[i].identifier=identifier;
-    void *frame=*(void **)((char *)node+96);if(!frame||frame_kind(frame)!=NXS_RADIO||fabsf(frame_scale(frame)-1)>0.000001f)continue;
+    void *frame=*(void **)((char *)node+96);if(!frame||frame_kind(frame)!=NXS_RADIO||!frame_scale_supported(frame))continue;
     metric_probe=1;int themed=original_intrinsic(frame,NULL,0);metric_probe=0;if(!themed)continue;
     int bounds[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,bounds);
     if(bounds[2]<60||bounds[3]<60)continue;
+    double x,y;if(!gecko_frame_device_origin(frame,&x,&y))continue;
+    positions[s->visible]=(struct NXSRectD){x,y,bounds[2]/frame_units(frame),bounds[3]/frame_units(frame)};
     s->items[s->visible++]=(NXSRadioItem){sizeof(NXSRadioItem),identifier,"",!(*(uint64_t *)((char *)node+112)&16)};
     if(s->selected_node==node)s->selected=identifier;
     if(focused==node)s->focused=identifier;
   }
+  s->columns=native_radio_columns(positions,s->visible);
 }
 static int gecko_radio_same_nodes(const struct GeckoRadioGroup *g,const struct GeckoRadioSnapshot *s)
 {
@@ -148,9 +212,11 @@ static struct GeckoRadioGroup *gecko_radio_sync(struct Widget *w)
     g->container=s.container;g->group=s.group;g->native.control=++next_widget;g->next=gecko_radio_groups;gecko_radio_groups=g;
   }
   gecko_radio_model(&s,g);
-  int changed=!gecko_radio_same_nodes(g,&s)||!native_radio_binding_same(&g->native,s.items,s.visible,1)||g->native.state.selected!=s.selected;
+  int changed=!gecko_radio_same_nodes(g,&s)||!native_radio_binding_same(&g->native,s.items,s.visible,s.columns)||g->native.state.selected!=s.selected;
   void *node=w->node;uint64_t id=w->id;gecko_radio_addref(node);g->busy++;
-  int okay=s.visible&&native_radio_binding_sync(&g->native,s.items,s.visible,1,s.selected,s.focused,1);
+  double scale=frame_scale(w->frame);
+  native_control_presentation(NXS_RADIOGROUP,g->native.control,scale);
+  int okay=s.visible&&native_radio_binding_sync(&g->native,s.items,s.visible,s.columns,s.selected,s.focused,scale);
   w=widget_for_node(node);okay=okay&&w&&w->id==id&&node_kind(node)==NXS_RADIO;
   if(okay) {
     gecko_radio_nodes_free(g->nodes,g->count,1);g->nodes=s.nodes;g->count=s.count;s.nodes=NULL;s.count=0;
@@ -206,7 +272,7 @@ static void *gecko_radio_action_target(struct GeckoRadioGroup *g,void *origin,ui
   struct Widget *w=widget_for_node(origin);
   if(!w||w->id!=id||w->radio_owner!=g->native.control||node_kind(origin)!=NXS_RADIO||!selected)return NULL;
   struct GeckoRadioSnapshot s;int valid=gecko_radio_snapshot(origin,&s);
-  if(valid){gecko_radio_model(&s,g);valid=gecko_radio_same_nodes(g,&s)&&native_radio_binding_same(&g->native,s.items,s.visible,1);}
+  if(valid){gecko_radio_model(&s,g);valid=gecko_radio_same_nodes(g,&s)&&native_radio_binding_same(&g->native,s.items,s.visible,s.columns);}
   void *target=valid?gecko_radio_node(g,selected):NULL;
   gecko_radio_snapshot_free(&s);
   return target&&node_kind(target)==NXS_RADIO&&!(*(uint64_t *)((char *)target+112)&16)?target:NULL;

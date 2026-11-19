@@ -14,6 +14,7 @@ struct PopupSnapshot {
   char *title;
 };
 static int (*original_popup_paint)(void *,const void *,const void *,const void *,const void *,const struct Rect *);
+static int (*original_popup_decoration)(void *,const void *,const void *,const void *,const void *,const struct Rect *);
 static void (*original_select_default)(void *,void *);
 static void (*original_internal_popup_show)(void *,int);
 static void (*original_internal_popup_hide)(void *);
@@ -41,7 +42,7 @@ static void *popup_ua_sheet(const void *sheet) {
   void *result=original_popup_ua_sheet(&value);((void (*)(void *))(base+0x7246038))(&value);
   free(changed);free(text);note("native popup disabled appearance delegated to native cell");return result;
 }
-static int form_sync_screen_origin(struct NativeForm *form)
+static int form_screen_rectangle(struct NativeForm *form,struct Rect *rectangle)
 {
   void *document=node_document(form->node);
   void *window=document?decode_member((char *)document+264):NULL;
@@ -55,6 +56,11 @@ static int form_sync_screen_origin(struct NativeForm *form)
   struct Rect local=((struct Rect (*)(const void *))(base+NXS_DATE_PANEL_LOCAL_BOUNDS))(form->node);
   struct Rect screen=((struct Rect (*)(void *,const struct Rect *,const void *))
     (*(uintptr_t **)chrome)[15])(chrome,&local,view);
+  *rectangle=screen;return 1;
+}
+static int form_sync_screen_origin(struct NativeForm *form)
+{
+  struct Rect screen;if(!form_screen_rectangle(form,&screen))return 0;
   uint32_t epoch=atomic_load(&native_host_epoch);
   if(form->screen_anchor_valid&&form->screen_anchor_epoch==epoch&&
      !memcmp(&form->screen_anchor,&screen,sizeof(screen)))return 1;
@@ -170,15 +176,20 @@ static struct NXSResponse *sync_popup_model(struct NativeForm *form,struct NXSRe
   popup_snapshot_free(&snapshot);return response;
 }
 static int popup_preferred(void *node,const void *layout,struct SizeI *size) {
-  if(!popup_element(node)||!native_layout_unit_scale(node,layout))return 0;
+  if(!popup_element(node)||!native_layout_supported_scale(node,layout))return 0;
+  /* Hierarchy carriers fill an existing application viewport. Their model
+   * metadata is not an intrinsic text width, and an unlaid-out 1px rectangle
+   * must not resize the native scroll view during measurement. */
+  if(component_native_kind(node)==NXS_OUTLINE||component_native_kind(node)==NXS_WEBUI_MENU)return 0;
+  int kind=component_native_kind(node)?component_native_kind(node):NXS_POPUP;
   struct NativeForm *form=find_form(node);
   if(!form) {
     form=calloc(1,sizeof(*form));if(!form)return 0;
-    form->node=node;form->kind=NXS_POPUP;form->control=++next_form_control;
+    form->node=node;form->kind=kind;form->control=++next_form_control;
     form->title=strdup("");form->rect=(struct Rect){0,0,1,1};
     form->next=native_forms;native_forms=form;
   }
-  form->enabled=form_enabled(node);form->state=form_state(node,NXS_POPUP);
+  form->enabled=form_enabled(node);form->state=form_state(node,kind);
   /* Before first layout, host only the application model. Native NSCell size
    * owns all title/arrow/border metrics; no geometry query may flush layout. */
   popup_measuring++;struct NXSResponse *response=form_request(form,1,0,0,0);popup_measuring--;
@@ -263,16 +274,42 @@ static void popup_after_input(struct NativeForm *form,struct NXSResponse *respon
 }
 static int paint_popup(void *self,const void *element,const void *document,const void *style,const void *info,const struct Rect *rect)
 {
-  if(popup_element((void *)element)&&!paint_form(NXS_POPUP,self,element,document,style,info,rect))return 0;
+  if(component_native_kind((void *)element)==NXS_WEBUI_MENU)return 0;
+  if(popup_element((void *)element)&&!paint_form(component_native_kind((void *)element)?component_native_kind((void *)element):NXS_POPUP,self,element,document,style,info,rect))return 0;
   return original_popup_paint(self,element,document,style,info,rect);
 }
 static void select_default(void *node,void *event)
-{if(!list_default_event(node,event)&&!default_form_key(node,event))original_select_default(node,event);}
+{
+  int component=component_native_kind(node);
+  if(component&&component!=NXS_POPUP) {
+    /* Suppress the select's popup default, without marking pointerdown as
+     * handled: Blink must still construct its compatibility mouse events. */
+    if(!native_wheel_default(node,event))default_form_key(node,event);
+    return;
+  }
+  if(!list_default_event(node,event)&&!default_form_key(node,event))original_select_default(node,event);
+}
+static int paint_popup_decoration(void *self,const void *element,const void *document,const void *style,const void *info,const struct Rect *rect)
+{
+  /* Blink sends selects with authored backgrounds through decorations instead
+   * of PaintMenuList. Explicit shared-component ownership enters the same
+   * native popup renderer; ordinary authored website controls keep Blink's path. */
+  if(component_native_kind((void *)element)==NXS_POPUP&&
+     !paint_form(NXS_POPUP,self,element,document,style,info,rect))return 0;
+  return original_popup_decoration(self,element,document,style,info,rect);
+}
 static void internal_popup_show(void *self,int type)
 {
   void *node=decode_member((char *)self+20);
-  struct NativeForm *form=find_form(node);
-  if(!form||form->kind!=NXS_POPUP||!form->painted){original_internal_popup_show(self,type);return;}
+  /* showPicker can precede paint (including a transparent WebUI menu anchor).
+   * Bind its existing layout/model at the event boundary, just as keyboard
+   * focus already binds ordinary controls before their first paint. */
+  struct NativeForm *form=find_form(node);if(!form)form=bind_input_form(node);
+  if(form&&form->kind==NXS_WEBUI_MENU) {
+    if(!component_menu_open(form,self)){form->popup_open=0;popup_engine_closed(self);}
+    return;
+  }
+  if(!form||form->kind!=NXS_POPUP){original_internal_popup_show(self,type);return;}
   form->popup_engine=self;form->popup_open=1;
   struct NXSResponse *response=sync_form_focus(form,form_request(form,1,0,0,0));
   if(response&&response->parts[6].width<=0) {
@@ -290,7 +327,10 @@ static void internal_popup_hide(void *self)
 {
   void *node=decode_member((char *)self+20);
   struct NativeForm *form=find_form(node);
-  int owned=form&&form->kind==NXS_POPUP&&form->popup_engine==self;
+  int owned=form&&(form->kind==NXS_POPUP||form->kind==NXS_WEBUI_MENU)&&form->popup_engine==self;
+  if(owned&&form->kind==NXS_WEBUI_MENU) {
+    form->popup_open=0;component_menu_request(form,6);original_internal_popup_hide(self);popup_engine_closed(self);refresh_form_watch();return;
+  }
   if(owned){
     form->popup_open=0;
     if(active_form==form)finish_form(-10000,-10000,0);
@@ -307,6 +347,7 @@ static struct Detour popup_detours[]={
  {NXS_POPUP_GROUP_ATTRIBUTE_OFFSET,nxs_popup_group_attribute_bytes,popup_group_attribute,(void **)&original_popup_group_attribute},
  {NXS_POPUP_INLINE_SIZE_OFFSET,nxs_popup_inline_size_bytes,popup_inline_size,(void **)&original_popup_inline_size},
  {NXS_POPUP_PAINT_OFFSET,nxs_popup_paint_bytes,paint_popup,(void **)&original_popup_paint},
+ {NXS_POPUP_DECORATION_OFFSET,nxs_popup_decoration_bytes,paint_popup_decoration,(void **)&original_popup_decoration},
  {NXS_SELECT_DEFAULT_OFFSET,nxs_select_default_bytes,select_default,(void **)&original_select_default},
  {NXS_INTERNAL_POPUP_SHOW_OFFSET,nxs_internal_popup_show_bytes,internal_popup_show,(void **)&original_internal_popup_show},
  {NXS_INTERNAL_POPUP_HIDE_OFFSET,nxs_internal_popup_hide_bytes,internal_popup_hide,(void **)&original_internal_popup_hide}

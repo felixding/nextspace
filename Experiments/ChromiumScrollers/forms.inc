@@ -10,6 +10,7 @@
 #include "../../Libraries/NativeUI/Bridge/StepperBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/Specialized.inc"
 #include "../../Libraries/NativeUI/Bridge/DateBinding.inc"
+#define NXS_WEBUI_MENU 256
 struct NativeForm {
   struct NativeForm *next;
   struct NXSListBinding list;
@@ -18,13 +19,19 @@ struct NativeForm {
   int date_commit_pending,date_discard_pending;
   NXSDateModel date_commit_domain;
   void *node;
-  uint64_t control;
+  uint64_t control,menu_control,menu_selected;
+  int menu_bound,menu_closed;
   uint32_t radio_owner,radio_member;
   unsigned radio_clicks;
   struct NXSControlAction checkbox_action;
   struct NXSRectD radio_rect;
   int kind,enabled,state,painted,input_owned,indeterminate;
+  uint32_t input_epoch,outline_epoch;
+  uint64_t outline_cursor;
+  int outline_ready;
+  struct NXSBitmapBinding bitmap;
   struct Rect rect;
+  double presentation_scale; /* Explicit for toolkit views without Blink nodes. */
   struct Rect screen_anchor;
   uint32_t screen_anchor_epoch;
   int screen_anchor_valid;
@@ -113,6 +120,7 @@ static int refresh_form_watch(void);
 static int color_watch_needed(void);
 static void color_native_work(int);
 static void color_forget(void *);
+static void color_input_default(void *,void *);
 static int date_panel_watch_needed(void);
 static void date_panel_native_work(int);
 static void date_panel_geometry_work(void);
@@ -137,10 +145,22 @@ static int sync_slider_model(struct NativeForm *);
 static void apply_slider_value(struct NativeForm *,struct NXSResponse *,int);
 static int slider_mouse_default(void *,void *);
 static int popup_element(void *);
+static int component_native_kind(void *);
+static int component_menu_open(struct NativeForm *,void *);
+static void component_menus_native_work(int);
+static struct NXSResponse *component_menu_request(struct NativeForm *,int);
+static struct NXSResponse *component_menu_key(struct NativeForm *,const NXSKeyEvent *);
+static void component_outline_context(struct NativeForm *,struct FloatPoint);
+static struct NXSResponse *component_outline_sync(struct NativeForm *,struct NXSResponse *);
+static void component_outline_after_input(struct NativeForm *);
+static struct NXSResponse *component_tabs_sync(struct NativeForm *,struct NXSResponse *);
+static void component_tabs_after_input(struct NativeForm *);
+static int component_tabs_mouse_dispatch(void *,void *,const void *,const void *,const void *,void *,int,const void *,const void *,void *,void *,struct MouseDispatchResult *);
 static int list_element(void *);
 static int list_owned(const struct NativeForm *);
 static int list_style(void *);
 static int native_layout_appearance(const void *,const void *,unsigned);
+static double native_layout_scale(const void *,const void *);
 static void list_forget(struct NativeForm *);
 static void list_model_changed(void *,uint64_t);
 static struct NXSResponse *list_form_request(struct NativeForm *,unsigned,double,double,unsigned);
@@ -153,7 +173,7 @@ static struct NXSResponse *sync_popup_model(struct NativeForm *,struct NXSRespon
 static void popup_after_input(struct NativeForm *,struct NXSResponse *);
 static void popup_free_model(struct NativeForm *);
 static int form_sync_screen_origin(struct NativeForm *);
-static void native_button_size_changed(struct NativeForm *,const struct NXSResponse *);
+static void native_form_size_changed(struct NativeForm *,const struct NXSResponse *);
 static int native_button_owned(const struct NativeForm *);
 static int text_kind(int);
 static void search_activate(void *,void *,uint64_t);
@@ -243,6 +263,16 @@ static char *form_title(void *node) {
   return result;
 }
 static struct NXSResponse *form_request(struct NativeForm *form,int operation,double x,double y,unsigned modifiers) {
+  if(form->kind==NXS_WEBUI_MENU)return component_menu_request(form,operation);
+  if(operation==1&&form->kind==NXS_OUTLINE&&active_form==form)operation=5;
+  if(operation==1) {
+    double scale=form->presentation_scale;
+    if(!scale) {
+      void *layout=decode_member((const char *)form->node+48);
+      scale=native_layout_scale(form->node,layout);
+    }
+    if(!native_control_presentation(form->kind,form->control,scale))return NULL;
+  }
   if(form->kind==NXS_STEPPER)return native_stepper_request(form->control,operation,form->rect.width,form->rect.height,form->enabled,x,y,modifiers);
   if(form->kind==NXS_LISTBOX)return list_form_request(form,operation,x,y,modifiers);
   if(form->kind==NXS_RADIO&&forms_radio_groups_enabled)return radio_form_request(form,operation,x,y,modifiers);
@@ -264,6 +294,8 @@ static struct NXSResponse *form_request(struct NativeForm *form,int operation,do
     response=exchange_bytes(&step,sizeof(step));
   }
   if(operation==1&&form->kind==NXS_POPUP&&response)response=sync_popup_model(form,response);
+  if(operation==1&&form->kind==NXS_TABVIEW&&response)response=component_tabs_sync(form,response);
+  if(operation==1&&form->kind==NXS_OUTLINE&&response)response=component_outline_sync(form,response);
   return response;
 }
 static void invalidate_form(struct NativeForm *form) {
@@ -273,12 +305,19 @@ static void invalidate_form(struct NativeForm *form) {
 static struct NXSResponse *sync_form_focus(struct NativeForm *,struct NXSResponse *);
 static int paint_form(int kind,void *self,const void *element,const void *document,const void *style,const void *info,const struct Rect *rect) {
   struct NativeForm *form=find_form(element);
-  if(form){if(form->kind==NXS_LISTBOX&&kind!=NXS_LISTBOX)list_forget(form);form->painted=0;}
+  if(form){if(form->kind==NXS_LISTBOX&&kind!=NXS_LISTBOX)list_forget(form);if(form->kind!=kind)native_bitmap_retire(&form->bitmap);form->painted=0;}
   if(rect->width<1||rect->height<1)return 0;
   char *title=kind==1?form_title((void *)element):strdup("");
   if(!title)return 1;
   if(!form){form=calloc(1,sizeof(*form));if(!form){free(title);return 1;}form->node=(void *)element;form->control=++next_form_control;form->next=native_forms;native_forms=form;}
   free(form->title);form->title=title;form->kind=kind;form->rect=*rect;
+  static unsigned scale_traces;
+  if(log_fd>=0&&getenv("NEXTSPACE_CHROMIUM_TRACE_SCALE")&&scale_traces++<32) {
+    void *layout=decode_member((const char *)element+48);
+    struct FloatRect client=((struct FloatRect (*)(const void *))(base+NXS_COORDINATE_CLIENT_BOX_OFFSET))(element);
+    dprintf(log_fd,"%d native-scale kind=%d paint=%dx%d client=%.4gx%.4g layout=%.6g\n",getpid(),kind,
+      rect->width,rect->height,client.width,client.height,native_layout_scale(element,layout));
+  }
   form->enabled=kind==NXS_PROGRESS?1:kind==NXS_STEPPER?number_enabled(form->node):kind==NXS_DATEPICKER?date_enabled(form->node):form_enabled(form->node);form->state=form_state(form->node,kind);
   if(kind==NXS_SLIDER&&!sync_slider_model(form))return 1;
   if(kind==NXS_PROGRESS){
@@ -302,30 +341,30 @@ static int paint_form(int kind,void *self,const void *element,const void *docume
     if(kind==NXS_COLORWELL)response=sync_color_image(form,response);
     if(kind==NXS_DATEPICKER)response=sync_date_image(form,response);
   }
-  if(!response||response->width<1||response->height<1||response->stride!=response->width*4||
-     sizeof(*response)+(size_t)response->stride*response->height!=response->size){
+  struct NXSResponse header=response?*response:(struct NXSResponse){0};
+  int bitmap_error=response?0:errno;
+  int stored=native_bitmap_store(&form->bitmap,response);
+  if(response)form->generation=header.parts[4].x;
+  /* Model/keyboard ownership does not depend on receiving a bitmap, including
+   * the first draw. Register the native callback owner before any image-only
+   * fallback; the response buffer is already retained/copied above. */
+  if(forms_input_enabled&&!refresh_form_watch()){form->painted=0;form->input_owned=0;return 1;}
+  if(!stored){
     if(log_fd>=0)dprintf(log_fd,"%d native bitmap unavailable kind=%d id=%llu response=%p errno=%d\n",
-      getpid(),kind,(unsigned long long)form->control,(void *)response,response?0:errno);
-    form->painted=0;return 1;
+      getpid(),kind,(unsigned long long)form->control,(void *)response,bitmap_error);
+    if(!native_bitmap_available(&form->bitmap)||form->bitmap.width!=rect->width||form->bitmap.height!=rect->height){form->painted=0;return 1;}
+    note("retaining native snapshot while replacement is unavailable");
   }
-  struct NXSResponse header=*response;
-  form->generation=header.parts[4].x;
-  uint32_t *pixels=malloc((size_t)header.stride*header.height);if(!pixels){form->painted=0;return 1;}
-  memcpy(pixels,response+1,(size_t)header.stride*header.height);
   if(kind==NXS_TEXTAREA&&forms_multiline_viewport_enabled)read_text_viewport(form);
   void *canvas=*(void **)*(void **)info;
-  /* The desktop host validates every input against a registered renderer
-   * lifetime, including documents containing only buttons or other controls.
-   * Establish ownership before committing any native pixels. */
   form->painted=!!canvas;
-  if(canvas&&forms_input_enabled&&!refresh_form_watch()){form->painted=0;free(pixels);return 1;}
   static __thread unsigned progress_paints;
   if(kind==NXS_PROGRESS&&progress_paints++<32&&log_fd>=0)dprintf(log_fd,"%d progress paint id=%llu value=%.8g rect=%d,%d,%d,%d canvas=%p\n",
     getpid(),(unsigned long long)form->control,form->value,rect->x,rect->y,rect->width,rect->height,canvas);
-  if(canvas)draw_native_bitmap(canvas,pixels,header.width,rect->x,rect->y,0,0,header.width,header.height);
-  free(pixels);form->painted=!!canvas;
+  if(canvas)draw_native_bitmap(canvas,form->bitmap.pixels,form->bitmap.width,rect->x,rect->y,0,0,form->bitmap.width,form->bitmap.height);
+  form->painted=!!canvas;
   if(kind==NXS_LISTBOX&&canvas&&log_fd>=0)dprintf(log_fd,"%d native-list id=%llu count=%u selected=%u rect=%d,%d %dx%d\n",getpid(),(unsigned long long)form->control,form->list.state.count,form->list.state.selected_count,rect->x,rect->y,rect->width,rect->height);
-  if(kind==NXS_BUTTON&&canvas)native_button_size_changed(form,&header);
+  if((kind==NXS_BUTTON||kind==NXS_DATEPICKER)&&canvas&&response)native_form_size_changed(form,&header);
   return canvas?0:1;
 }
 static int paint_checkbox(void*s,const void*e,const void*d,const void*style,const void*i,const struct Rect*r)
@@ -365,7 +404,7 @@ static int native_button_parent(void) {
   if(f&&f->painted&&text_kind(f->kind)) {
     int number=number_text_children(f->node,native_parent);if(number>=0)return number;
   }
-  return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_COLORWELL||f->kind==NXS_DATEPICKER||text_kind(f->kind)||list_owned(f))&&f->painted);
+  return f&&(f->kind==NXS_BUTTON?native_button_owned(f):(f->kind==NXS_POPUP||f->kind==NXS_TABVIEW||f->kind==NXS_OUTLINE||f->kind==NXS_COLORWELL||f->kind==NXS_DATEPICKER||text_kind(f->kind)||list_owned(f))&&f->painted);
 }
 static void inline_children(void*s,const void*i,const void*a,const void*b,void*c)
 {if(!native_button_parent())original_inline_children(s,i,a,b,c);}
@@ -401,6 +440,7 @@ static void finish_form(double x,double y,unsigned modifiers) {
   }
   native_control_action_snapshot(response,form->actions_before,&form->checkbox_action);
   click_form=form;form_click_allowed=response&&!response->parts[0].y&&response->parts[0].width>form->actions_before;
+  if(form->kind==NXS_OUTLINE){click_form=NULL;component_outline_after_input(form);refresh_form_watch();return;}
   if(form->kind==NXS_POPUP){click_form=NULL;popup_after_input(form,response);refresh_form_watch();return;}
   if(form->kind==NXS_STEPPER) {
     click_form=NULL;uint32_t node=radio_node_id(form->node);uint64_t control=form->control;
@@ -428,6 +468,7 @@ static struct MouseDispatchResult mouse_dispatch(void *manager,void *target,cons
   if(date_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   if(number_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   if(forms_lists_enabled&&list_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
+  if(component_tabs_mouse_dispatch(manager,target,type,event,last,related,check,pointer_id,pointer_type,down,up,&list_result))return list_result;
   uintptr_t atom=*(const uintptr_t *)type;
   unsigned modifiers=event_modifiers(event);
   if(same_atom(atom,0x123a55f8)&&*(const int *)((const char *)event+120)==0)radio_pointer_gate.armed=0;
@@ -624,7 +665,7 @@ static void element_detach(void *node,int reattach) {
     native_wheel_binding(form,0);
     if(active_form==form)active_form=NULL;
     if(click_form==form)click_form=NULL;
-    form_request(form,6,0,0,0);*cursor=form->next;popup_free_model(form);free(form->title);free(form);
+    form_request(form,6,0,0,0);*cursor=form->next;popup_free_model(form);native_bitmap_retire(&form->bitmap);free(form->title);free(form);
     refresh_form_watch();
   }
   original_element_detach(node,reattach);
@@ -637,6 +678,7 @@ static void element_detach(void *node,int reattach) {
 #include "forms-layout.inc"
 #include "forms-buttons.inc"
 #include "forms-popups.inc"
+#include "forms-webui.inc"
 #include "forms-progress.inc"
 #include "forms-numbers.inc"
 #include "forms-dates.inc"

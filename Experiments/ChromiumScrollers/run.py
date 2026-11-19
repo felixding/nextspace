@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Launch one isolated Chromium instance with the opt-in native scrollbar experiment."""
 import argparse
+from contextlib import ExitStack
 import hashlib
 import os
 from pathlib import Path
@@ -18,6 +19,8 @@ parser.add_argument('--hook', type=Path, required=True)
 parser.add_argument('--backend', help='Optional GNUstep backend name, passed only to the helper')
 parser.add_argument('--native-controls', action='store_true',
                     help='Use the shared native webpage controls while preserving browser-owned UI')
+parser.add_argument('--native-webui', action='store_true',
+                    help='Use shared native adapters for built-in page components')
 parser.add_argument('--native-views', action='store_true',
                     help='Retired; browser-owned UI remains unchanged')
 parser.add_argument('--native-menus', action='store_true',
@@ -29,6 +32,8 @@ parser.add_argument('--native-tabs', action='store_true',
 parser.add_argument('--log-directory', type=Path, required=True)
 parser.add_argument('arguments', nargs=argparse.REMAINDER)
 args = parser.parse_args()
+if args.native_webui and not args.native_controls:
+    parser.error('--native-webui requires --native-controls')
 for path in (args.chromium, args.native_library, args.hook):
     if not path.is_file():
         parser.error(f'Missing file: {path}')
@@ -57,7 +62,7 @@ def interrupted(signum, frame):
     raise KeyboardInterrupt
 
 signal.signal(signal.SIGTERM, interrupted)
-with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
+with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary, ExitStack() as services:
     root = Path(temporary)
     endpoint = root / 'native.sock'
     environment = dict(os.environ)
@@ -92,7 +97,12 @@ with tempfile.TemporaryDirectory(prefix='nxs-chromium-') as temporary:
                 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Libraries/NativeUI/Bridge'))
                 from browser_frames import prepare_native_frame
                 prepare_native_frame('chromium', root / 'profile', environment)
-            command = [str(args.chromium.resolve()), '--ozone-platform=wayland', '--gtk-version=4',
+            executable = args.chromium.resolve()
+            if args.native_webui:
+                sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'Libraries/NativeUI/Bridge'))
+                from chromium_webui import prepare_native_webui
+                executable = prepare_native_webui(executable, root / 'profile', services, environment)
+            command = [str(executable), '--ozone-platform=wayland', '--gtk-version=4',
                        '--disable-gpu',
                        '--disable-features=OverlayScrollbar', '--no-first-run', '--no-default-browser-check',
                        '--user-data-dir=' + str(root / 'profile')] + arguments

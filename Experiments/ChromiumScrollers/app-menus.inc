@@ -2,15 +2,20 @@
  * No native menu implementation, artwork, geometry or shortcut table.
  * GPL-2.0-or-later. */
 #include "pinned-app-menu.h"
+#include "pinned-command-registry.h"
 #include "../../Libraries/NativeUI/Bridge/Menu.inc"
 struct MenuString {unsigned char bytes[24];};
-struct MenuEntry {void *model;size_t index;int button,command_id;};
+struct MenuEntry {
+  void *model;size_t index;int button,command_id;
+  void *browser_view;
+  unsigned char accelerator[32];
+};
 struct MenuLabel {struct MenuLabel *next;void *model;size_t index;char *label;};
 struct AppMenuBinding {
   struct AppMenuBinding *next;
   void *object,*model;
   pthread_t owner;
-  uint64_t control,browser;
+  uint64_t control,browser,callback_generation;
   struct MenuLabel *labels;
   NXSMenuItem *items;
   struct MenuEntry *entries;
@@ -33,6 +38,11 @@ struct MenuTaskLocation {const char *function,*file;int line,padding;const void 
 struct MenuTask {unsigned char state[32];int descriptor;uint32_t epoch;uint64_t generation,control,command,browser;};
 static int app_menu_ensure_watch(void);
 static int app_menu_post_task(int,uint64_t,uint64_t,uint64_t,uint64_t);
+static int app_menu_registry(struct AppMenuBinding *);
+static int context_menu_command(const struct NXSNativeMenuCommand *);
+static void context_menu_complete(uint64_t);
+static void context_menu_callback_lost(void);
+static void app_menu_callback_lost(void);
 static void (*original_app_menu_ctor)(void *,void *,void *,int,void *);
 static void (*original_app_menu_dtor)(void *);
 static void (*original_app_menu_run)(void *,void *,int);
@@ -78,6 +88,32 @@ static void app_menu_clear_model(struct AppMenuBinding *menu) {
   for(unsigned i=0;i<menu->count;i++){free((void *)menu->items[i].title);free((void *)menu->items[i].key_equivalent);}
   free(menu->items);free(menu->entries);menu->items=NULL;menu->entries=NULL;menu->count=0;
 }
+static uint16_t menu_accelerator_character(const unsigned char *accelerator) {
+  /* Convert the application's key metadata through its original KeyEvent.
+   * Letter case, punctuation, numeric keypad and layout conversion remain in
+   * Chromium. This disposable event is never sent as application input. */
+  unsigned char event[256] __attribute__((aligned(16)))={0};
+  unsigned code=*(const uint16_t *)accelerator;
+  /* Glyphs and modifier roles are separate menu metadata. The original
+   * GetCharacter folds Control into C0 characters, so ask it for the shifted
+   * glyph, with numeric keypad digits enabled, then transport roles below. */
+  unsigned character_flags=(*(const unsigned *)(accelerator+8)&2)|(1u<<8);
+  ((void (*)(void *,int,int,int,uint64_t))(base+NXS_MENU_KEY_EVENT_CTOR))
+    (event,7,code,character_flags,0);
+  uint16_t unit=((uint16_t (*)(const void *))(base+NXS_MENU_KEY_EVENT_TEXT))(event);
+  ((void (*)(void *))(base+NXS_MENU_KEY_EVENT_DTOR))(event);
+  /* Native function-key characters are the cross-toolkit wire representation,
+   * rather than Chromium's nonprinting key-code namespace. */
+  if(code>=112&&code<=135)return 0xf704+code-112;
+  switch(views_logical(code)) {
+    case NXS_KEY_PAGE_UP:return 0xf72c;case NXS_KEY_PAGE_DOWN:return 0xf72d;
+    case NXS_KEY_END:return 0xf72b;case NXS_KEY_HOME:return 0xf729;
+    case NXS_KEY_LEFT:return 0xf702;case NXS_KEY_UP_ARROW:return 0xf700;
+    case NXS_KEY_RIGHT:return 0xf703;case NXS_KEY_DOWN_ARROW:return 0xf701;
+    case NXS_KEY_INSERT:return 0xf727;case NXS_KEY_DELETE:return 0xf728;
+    default:return unit;
+  }
+}
 static int menu_entry_add(struct AppMenuBinding *menu,int parent,void *model,size_t index,int button,
     int command,unsigned flags,char *title,const unsigned char *accelerator) {
   if(!title||menu->count>=4096){free(title);return -1;}
@@ -88,12 +124,7 @@ static int menu_entry_add(struct AppMenuBinding *menu,int parent,void *model,siz
   if(!entries){free(title);return -1;}menu->entries=entries;
   char *key=strdup("");unsigned modifiers=0;
   if(accelerator) {
-    int code=*(const int *)accelerator,flags=*(const int *)(accelerator+8);uint16_t unit=0;
-    if(code>='A'&&code<='Z')unit=(flags&2)?code:code+32;
-    else if(code>='0'&&code<='9')unit=code;
-    else if(code>=112&&code<=135)unit=0xf704+code-112; /* Native function-key Unicode metadata. */
-    else if(code==187)unit=(flags&2)?'+':'=';
-    else if(code==189)unit=(flags&2)?'_':'-';
+    int flags=*(const int *)(accelerator+8);uint16_t unit=menu_accelerator_character(accelerator);
     if(unit){free(key);key=encode_text(&unit,1,0);}
     /* The application's primary Ctrl accelerator becomes the native Command
      * role. GNUstep owns its user's physical Command-key preference. */
@@ -102,7 +133,7 @@ static int menu_entry_add(struct AppMenuBinding *menu,int parent,void *model,siz
   if(!key){free(title);return -1;}
   menu->items[at]=(NXSMenuItem){.size=sizeof(NXSMenuItem),.parent=parent,.command=flags&(NXS_MENU_SUBMENU|NXS_MENU_SEPARATOR)?0:at+1,
     .title=title,.key_equivalent=key,.modifiers=modifiers,.flags=flags};
-  menu->entries[at]=(struct MenuEntry){model,index,button,command};menu->count++;return at;
+  menu->entries[at]=(struct MenuEntry){.model=model,.index=index,.button=button,.command_id=command};menu->count++;return at;
 }
 static int app_menu_buttons(struct AppMenuBinding *menu,void *model,int parent) {
   if(!model)return 0;
@@ -132,7 +163,7 @@ static int app_menu_project(struct AppMenuBinding *menu,void *model,int parent,u
     int type=((int (*)(void *,size_t))methods[4])(model,index),command=((int (*)(void *,size_t))methods[6])(model,index);
     char *label=type==3?strdup(""):menu_model_label(model,index);unsigned flags=0;
     if(type==3)flags=NXS_MENU_SEPARATOR;
-    else if(type==4||type==5)flags=NXS_MENU_SUBMENU;
+    else if(type==4||type==5||type==6)flags=NXS_MENU_SUBMENU;
     else if(type==8)flags=NXS_MENU_DISABLED;
     else if(type!=0&&type!=1&&type!=2&&type!=7){free(label);return 0;}
     if((type==1||type==2)&&((int (*)(void *,size_t))methods[19])(model,index))flags|=NXS_MENU_CHECKED;
@@ -144,7 +175,8 @@ static int app_menu_project(struct AppMenuBinding *menu,void *model,int parent,u
     int at=menu_entry_add(menu,parent,model,index,0,command,flags,label,has_accelerator?accelerator:NULL);
     if(at<0)return 0;
     if(type==4&&!app_menu_buttons(menu,buttons,at))return 0;
-    if(type==5&&!app_menu_project(menu,((void *(*)(void *,size_t))methods[29])(model,index),at,depth+1))return 0;
+    if(type==6&&menu_entry_add(menu,at,model,index,0,command,0,menu_model_label(model,index),has_accelerator?accelerator:NULL)<0)return 0;
+    if((type==5||type==6)&&!app_menu_project(menu,((void *(*)(void *,size_t))methods[29])(model,index),at,depth+1))return 0;
   }
   return 1;
 }
@@ -154,6 +186,8 @@ static struct AppMenuBinding *app_menu_for_command(uint64_t control,uint64_t com
   return menu&&menu->bound&&pthread_equal(menu->owner,pthread_self())&&command&&command<=menu->count?menu:NULL;
 }
 static int app_menu_entry_enabled(struct MenuEntry entry) {
+  if(entry.button==2)
+    return ((int (*)(const void *,int))(base+NXS_APP_COMMAND_ENABLED))(entry.model,entry.command_id);
   if(entry.button) {
     void *delegate=*(void **)((char *)entry.model+48);
     return !delegate||((int (*)(void *,int))(*(uintptr_t **)delegate)[6])(delegate,entry.command_id);
@@ -164,7 +198,11 @@ static void app_menu_execute(uint64_t control,uint64_t command) {
   struct AppMenuBinding *menu=app_menu_for_command(control,command);if(!menu)return;
   struct MenuEntry entry=menu->entries[command-1];int enabled=app_menu_entry_enabled(entry);
   if(enabled) {
-    if(entry.button) {
+    if(entry.button==2) {
+      /* Original command lookup, availability, browser callbacks and history
+       * stay in Chromium; only native matching selected this action. */
+      ((int (*)(void *,const void *))(base+NXS_BROWSER_ACCELERATOR_EXECUTE))(entry.browser_view,entry.accelerator);
+    } else if(entry.button) {
       void *delegate=*(void **)((char *)entry.model+48);
       if(delegate)((void (*)(void *,int,int))(*(uintptr_t **)delegate)[5])(delegate,entry.command_id,0);
     } else ((void (*)(void *,size_t,int))(*(uintptr_t **)entry.model)[31])(entry.model,entry.index,0);
@@ -174,6 +212,7 @@ static void app_menu_execute(uint64_t control,uint64_t command) {
 }
 static int app_menu_command(const struct NXSNativeMenuCommand *request) {
   if(request->process!=identity())return 0;
+  int context=context_menu_command(request);if(context>=0)return context;
   struct AppMenuBinding *menu=app_menu_for_command(request->control,request->command);if(!menu)return 0;
   struct MenuEntry entry=menu->entries[request->command-1];int enabled=app_menu_entry_enabled(entry);
   /* Synchronous native RPCs may dispatch this callback during a Chromium
@@ -190,11 +229,13 @@ static void app_menu_task(void *state) {
   if(task->browser){app_menu_browser_task(task->browser);return;}
   if(log_fd>=0)dprintf(log_fd,"%d app-menu-task owner=%d\n",getpid(),native_callback_owner());
   int current=native_callback_owner()&&task->descriptor==native_edit_channel&&task->generation==native_callback_generation&&task->epoch==atomic_load(&native_host_epoch);
+  if(task->control&(1ull<<40)){if(current)context_menu_complete(task->control);return;}
   if(task->command){if(current)app_menu_execute(task->control,task->command);}
   else {
-    app_menu_watch=0;
+    if(app_menu_watch_fd==task->descriptor&&app_menu_watch_generation==task->generation)app_menu_watch=0;
     if(current)native_callbacks_dispatch();
     if(native_edit_channel>=0)app_menu_ensure_watch();
+    else if(native_callback_owner())app_menu_callback_lost();
   }
 }
 static void app_menu_task_destroy(const void *state) {free((void *)state);}
@@ -246,13 +287,16 @@ static int app_menu_bind(struct AppMenuBinding *menu) {
   if(!menu||!pthread_equal(menu->owner,pthread_self())||*(uintptr_t *)menu->model!=base+0x11b63b38+16)return 0;
   if(menu->bound){native_menu_request(menu->control,29,0);menu->bound=0;}
   app_menu_clear_model(menu);
-  if(!app_menu_project(menu,menu->model,-1,0)||!refresh_form_watch()||form_watch.wake_fd<0||
+  if(!app_menu_project(menu,menu->model,-1,0)||
+     (menu_keys_enabled&&!app_menu_registry(menu))||!refresh_form_watch()||form_watch.wake_fd<0||
      !native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())return 0;
   menu->bound=1;
   menu->epoch=atomic_load(&native_host_epoch);
   if(!native_menu_model(menu->control,"Chromium",menu->items,menu->count)){menu->bound=0;return 0;}
   struct NXSResponse *response=native_menu_request(menu->control,26,app_menu_browser_visible(menu->browser));
   if(!response||response->parts[3].x!=1){native_menu_request(menu->control,29,0);menu->bound=0;return 0;}
+  menu->callback_generation=native_callback_generation;
+  views_callback_recovered();
   if(log_fd>=0) {
     struct NXSRectD frame=response->parts[1];
     dprintf(log_fd,"%d app-menu-native id=%llu count=%u frame=%.0f,%.0f,%.0f,%.0f\n",getpid(),(unsigned long long)menu->control,menu->count,frame.x,frame.y,frame.width,frame.height);
@@ -297,11 +341,15 @@ static struct Detour app_menu_detours[]={
  {NXS_APP_MENU_RUN_ANCHOR_OFFSET,nxs_app_menu_run_anchor_bytes,app_menu_run_anchor,(void **)&original_app_menu_run_anchor},
  {NXS_APP_MENU_ACCESSIBLE_NAME_OFFSET,nxs_app_menu_accessible_name_bytes,app_menu_accessible_name,(void **)&original_app_menu_accessible_name}
 };
+#include "context-menus.inc"
 static int prepare_app_menus(void) {
   return !memcmp((void *)(base+NXS_APP_MENU_REMOVE_MNEMONIC_OFFSET),nxs_app_menu_remove_mnemonic_bytes,20)&&
     !memcmp((void *)(base+NXS_TASK_BIND_STATE_CTOR_OFFSET),nxs_task_bind_state_ctor_bytes,20)&&
     !memcmp((void *)(base+NXS_TASK_POST_OFFSET),nxs_task_post_bytes,20)&&
     !memcmp((void *)(base+NXS_TASK_UI_RUNNER_OFFSET),nxs_task_ui_runner_bytes,20)&&
     !memcmp((void *)(base+NXS_TASK_LOCATION_OFFSET),nxs_task_location_bytes,20)&&
-    prepare_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));
+    !memcmp((void *)(base+NXS_MENU_KEY_EVENT_CTOR),nxs_menu_key_event_ctor_bytes,20)&&
+    !memcmp((void *)(base+NXS_MENU_KEY_EVENT_DTOR),nxs_menu_key_event_dtor_bytes,20)&&
+    !memcmp((void *)(base+NXS_MENU_KEY_EVENT_TEXT),nxs_menu_key_event_text_bytes,20)&&
+    prepare_context_menus()&&prepare_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));
 }

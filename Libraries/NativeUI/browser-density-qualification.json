@@ -1,0 +1,178 @@
+{
+  "status": "ready-for-next-browser-trial",
+  "scope": "Pinned Chromium and Firefox webpage controls, native editing and document scrollers; browser toolbar/address bar/tabs remain original",
+  "cohorts": [
+    {
+      "family": "chromium",
+      "scale": 1.0,
+      "checks": 54,
+      "passed": true,
+      "source": "/var/tmp/nxs-chromium-density-fix-19/forms-120-checks.json",
+      "sha256": "4e9e08f21825dce420796bdc9895784e27511fe628214268c37d188bb854c85b"
+    },
+    {
+      "family": "chromium",
+      "scale": 2.0,
+      "checks": 85,
+      "passed": true,
+      "source": "/var/tmp/nxs-chromium-density-fix-19/forms-240-checks.json",
+      "sha256": "af47e1b3419be0eabc30b90a2e39ba4d75e19bf8a28935876f8c3f58d992117f"
+    },
+    {
+      "family": "firefox",
+      "scale": 1.0,
+      "checks": 54,
+      "passed": true,
+      "source": "/var/tmp/nxs-firefox-root-bind-05/forms-120-checks.json",
+      "sha256": "4e9e08f21825dce420796bdc9895784e27511fe628214268c37d188bb854c85b"
+    },
+    {
+      "family": "firefox",
+      "scale": 2.0,
+      "checks": 85,
+      "passed": true,
+      "source": "/var/tmp/nxs-firefox-root-bind-05/forms-240-checks.json",
+      "sha256": "af47e1b3419be0eabc30b90a2e39ba4d75e19bf8a28935876f8c3f58d992117f"
+    }
+  ],
+  "root_scrollers": [
+    {
+      "family": "chromium",
+      "scale": 1.0,
+      "checks": 20,
+      "passed": true,
+      "source": "/var/tmp/nxs-chromium-density-fix-19/root-120-checks.json",
+      "sha256": "49b809f373f9e5bfa125a4422cc557c9a82353b59cca29d00c434abfdfb174ab",
+      "original_client_clip_recorded": false
+    },
+    {
+      "family": "chromium",
+      "scale": 1.5,
+      "checks": 20,
+      "passed": true,
+      "source": "/var/tmp/nxs-chromium-density-fix-19/root-180-checks.json",
+      "sha256": "2045efc78c8b3ad8eba11bc68b46eb62ca4b197a1471f47bb96f157826826b9f",
+      "original_client_clip_recorded": true
+    },
+    {
+      "family": "chromium",
+      "scale": 2.0,
+      "checks": 31,
+      "passed": true,
+      "source": "/var/tmp/nxs-chromium-density-fix-19/root-240-checks.json",
+      "sha256": "719116e09c256e7be4cb3edc7edf933c10a088c495e79f5a489c5bb531c1adf7",
+      "original_client_clip_recorded": false
+    },
+    {
+      "family": "firefox",
+      "scale": 1.0,
+      "checks": 20,
+      "passed": true,
+      "source": "/var/tmp/nxs-firefox-root-bind-05/root-120-checks.json",
+      "sha256": "49b809f373f9e5bfa125a4422cc557c9a82353b59cca29d00c434abfdfb174ab",
+      "original_client_clip_recorded": false
+    },
+    {
+      "family": "firefox",
+      "scale": 1.5,
+      "checks": 20,
+      "passed": true,
+      "source": "/var/tmp/nxs-firefox-root-bind-05/root-180-checks.json",
+      "sha256": "49b809f373f9e5bfa125a4422cc557c9a82353b59cca29d00c434abfdfb174ab",
+      "original_client_clip_recorded": false
+    },
+    {
+      "family": "firefox",
+      "scale": 2.0,
+      "checks": 31,
+      "passed": true,
+      "source": "/var/tmp/nxs-firefox-root-bind-05/root-lifecycle-240-checks.json",
+      "sha256": "719116e09c256e7be4cb3edc7edf933c10a088c495e79f5a489c5bb531c1adf7",
+      "original_client_clip_recorded": false
+    }
+  ],
+  "file_panels": [
+    {
+      "family": "chromium",
+      "checks": 16,
+      "passed": true,
+      "source": "/var/tmp/nxs-chromium-density-fix-19/browser-file-checks.json",
+      "sha256": "e6712265c1c7bb63b40a1eb98e7742f3e2f1e72eb0c954f26d3e187d6391c0e0"
+    },
+    {
+      "family": "firefox",
+      "checks": 16,
+      "passed": true,
+      "source": "/var/tmp/nxs-firefox-root-bind-05/browser-file-checks.json",
+      "sha256": "2a59a8e0663dd2da005245a5a4ab6e13448261ded95e793c1020202345d44e32"
+    }
+  ],
+  "manual_desktop": {
+    "root": "/var/tmp/nextspace-native-ui/macbook-preview-kwc5lnoz",
+    "runtime": "browser-density-update-dfac0d6d5858061a",
+    "backend": "drm,libinput/pixman",
+    "automation_flags": false,
+    "browsers": [
+      {
+        "family": "chromium",
+        "pid": 17905,
+        "command": [
+          "/var/tmp/nextspace-chromium-prototype/root/usr/lib/chromium/chromium --ozone-platform=wayland --gtk-version=4 --disable-gpu --disable-dev-shm-usage --no-first-run --no-default-browser-check --disable-background-networking --disable-sync --disable-component-update --password-store=basic --window-size=1120,794 --user-data-dir=/var/tmp/nextspace-native-ui/macbook-preview-kwc5lnoz/runtime/chromium-profile file:///workspace/.build/native-ui/desktop-demo/native-controls.html"
+        ],
+        "hooks": [
+          "/var/tmp/nextspace-native-ui/browser-density-update-dfac0d6d5858061a/chromium-density-06.so"
+        ]
+      },
+      {
+        "family": "firefox",
+        "pid": 17667,
+        "command": [
+          "/var/tmp/nextspace-firefox-prototype/root/usr/lib/firefox-esr/firefox-esr",
+          "--no-remote",
+          "--profile",
+          "/var/tmp/nextspace-native-ui/macbook-preview-kwc5lnoz/runtime/firefox-profile",
+          "--width",
+          "1120",
+          "--height",
+          "794",
+          "file:///workspace/.build/native-ui/desktop-demo/native-controls.html"
+        ],
+        "hooks": [
+          "/var/tmp/nextspace-native-ui/browser-density-update-dfac0d6d5858061a/firefox-root-04.so"
+        ]
+      }
+    ],
+    "screenshots": {
+      "chromium": "52d2c7c3c5a712102dd36fb7084d152cb027722788c6c1ae74dee6c397fe07ab",
+      "firefox": "746d6ff82933c47b473bab4d8412218809d3bcbe734cd8bcdfc8c07543eec060"
+    }
+  },
+  "handoff": {
+    "archive": "nextspace-browser-controls-update.tar.gz",
+    "runtime_manifest_sha256": "dfac0d6d5858061a98b8b4cb7800df82c1e10926233544680b1bfcb2c2c65bde",
+    "preserved": "existing app, Start.command and copied VM disk"
+  },
+  "geometry_regression": {
+    "before": "/var/tmp/nxs-normal-client-size-before-01/results.json",
+    "before_case": "plain-client-size-survives-focus-loss",
+    "before_passed": false,
+    "after": "/var/tmp/nxs-normal-client-size-after-02/results.json",
+    "after_checks": 47,
+    "after_passed": true
+  },
+  "decorations_regression": {
+    "source": "/var/tmp/nxs-size-fix-decorations-03/results.json",
+    "passed": true
+  },
+  "runtime": {
+    "chromium-density-06.so": "3c24f05e149380ea3cda5e0a8b6fdb7f7778154a756120150bf2a7de14e2a7b2",
+    "firefox-root-04.so": "6f76f7944d122877beac153108138bb009a530d601101e3eeae39e67c43fed28",
+    "libnextspace-native-scroller.so.0.1": "35770226c9c0909058fbae366333a2e9b0d3ec86c2644d51e0c9b466545845da",
+    "native-ui/libnextspace-native-ui-gnustep.so.0.1": "0f9503db98daaf4a27f50a997d9cf7c64ca7b36fe8d1b61e221b109987eda20b",
+    "native-ui/libnextspace-native-ui.so.0.1": "44ba221c8c309803a96b16828ce7937c798c3849952da10dc3d82340dc4e9c0c",
+    "native-ui/native-pasteboard-probe": "40a952546ef0b82c0e0d712dbb6e45c1c2b07e9904e9de68c860aaef573e7987",
+    "nextspace-compositor": "01faaf649d36a5b3378b332d8c3b3b07130430aed382845a62bc09d36432ae69",
+    "manifest.json": "dfac0d6d5858061a98b8b4cb7800df82c1e10926233544680b1bfcb2c2c65bde"
+  },
+  "wider_scope": "GTK/Qt/KDE integration, detached application menus, application-wide shortcuts and other browser builds are later checkpoints."
+}

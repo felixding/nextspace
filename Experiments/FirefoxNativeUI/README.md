@@ -1064,3 +1064,23 @@ early eras and number controls. Firefox's adapter is reused unchanged for this
 native-library update. Preference-enabled month/week pickers and native calendar
 presentation remain unfinished. See the shared
 [week qualification](../../Libraries/NativeUI/week-qualification.json).
+
+
+The command registry supplement exports original XUL key elements absent from
+the visible menu, including address-bar focus. It reuses Gecko's original
+D-Bus item exporter and command callbacks, then the shared binding projects
+key-only entries into the same GNUstep NSMenu. Native editors and global keys
+therefore use the same application model. Original key parsing, model mutation
+scheduling, GNUstep key matching and native editing remain in their owners.
+
+The existing model observes the chrome document element, while its Element()
+continues to identify the real menubar. Its original destructor removes that
+observer. Original key/command state and keyset availability refresh the model;
+key-only entries remain undisplayed across lazy submenu replacement. Browser
+toolbar buttons and tabs remain unchanged. The adapter and model bindings are
+listed in key-registry-source-audit.json.
+
+Tests/Wayland/native_application_shortcuts.py exercises actual guest keyboard
+input, first/repeated address focus, web cancellation, dynamically registered
+original commands, disabled state, removal and retained detached menus. Run it
+for each browser explicitly; Chromium coverage does not qualify Firefox.

@@ -57,13 +57,14 @@ static int views_pointer_press(void *controller,const void *event,int handled,in
     struct NXSResponse *response=views_sync(f);struct BlinkTextModel model={0};
     if(response&&views_model(f->transport.node,&model)) {
       const float *point=(const float *)((const char *)event+136);
-      response=clicks==1?form_request(&f->transport,2,point[0],point[1],views_modifiers(event)):
-        native_pointer_press(f->transport.kind,f->transport.control,point[0],point[1],views_modifiers(event),clicks);
+      double x=point[0]*f->transport.presentation_scale,y=point[1]*f->transport.presentation_scale;
+      response=clicks==1?form_request(&f->transport,2,x,y,views_modifiers(event)):
+        native_pointer_press(f->transport.kind,f->transport.control,x,y,views_modifiers(event),clicks);
       if(response&&response->parts[0].y) {
         f->pointer_owned=1;f->pointer_modifiers=views_modifiers(event);f->transport.text_tracking=1;
         f->transport.text_start=model.start;f->transport.text_end=model.end;
         f->transport.text_width=f->transport.rect.width;f->transport.text_height=f->transport.rect.height;
-        f->transport.text_x=point[0];f->transport.text_y=point[1];
+        f->transport.text_x=x;f->transport.text_y=y;
         /* The original handled path retains real click-count/drag-threshold
          * bookkeeping without entering engine selection geometry. */
         original_views_pointer_press(controller,event,1,initial_focus);
@@ -79,9 +80,9 @@ static int views_pointer_drag(void *controller,const void *event) {
   if(f&&f->pointer_owned) {
     if(f->transport.text_tracking) {
       const float *point=(const float *)((const char *)event+136);
-      f->transport.text_x=point[0];f->transport.text_y=point[1];
+      f->transport.text_x=point[0]*f->transport.presentation_scale;f->transport.text_y=point[1]*f->transport.presentation_scale;
       f->pointer_modifiers=views_modifiers(event);
-      form_request(&f->transport,3,point[0],point[1],f->pointer_modifiers);
+      form_request(&f->transport,3,f->transport.text_x,f->transport.text_y,f->pointer_modifiers);
       if(!views_pointer_echo(f))views_pointer_end(f,0);
       views_schedule(f->transport.node);
     }

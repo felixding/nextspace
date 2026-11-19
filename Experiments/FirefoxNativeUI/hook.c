@@ -22,6 +22,9 @@ static uintptr_t base;
 static int log_fd=-1,installed;
 static void note(const char *message) {if(log_fd>=0)dprintf(log_fd,"%d %s\n",getpid(),message);}
 #include "../../Libraries/NativeUI/Bridge/Transport.inc"
+#include "../../Libraries/NativeUI/Bridge/Invalidations.inc"
+#include "../../Libraries/NativeUI/Bridge/BitmapBinding.inc"
+#include "../../Libraries/NativeUI/Bridge/ScrollerBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/AuxiliaryActivation.inc"
 #include "../../Libraries/NativeUI/Bridge/Popups.inc"
 #include "../../Libraries/NativeUI/Bridge/PopupBinding.inc"
@@ -47,24 +50,8 @@ static ProgressPaint original_progress;
 static WebRenderPaint original_webrender;
 static int eligible(void *,unsigned);
 
-static void draw_bitmap(void *target,const struct RectF *rect,const uint32_t *pixels,int width,int height) {
-  typedef void (*FillRect)(void *,const struct RectF *,const struct ColorPattern *,const struct DrawOptions *);
-  FillRect fill=(FillRect)(*(uintptr_t **)target)[27];
-  struct ColorPattern pattern={.vptr=base+0x9e21210+16};
-  struct DrawOptions options={.alpha=1,.composition=1,.antialias=0};
-  for(int y=0;y<height;y++)for(int x=0;x<width;) {
-    uint32_t color=pixels[y*width+x];int end=x+1;
-    while(end<width&&pixels[y*width+end]==color)end++;
-    if(color>>24) {
-      float alpha=(color>>24)/255.f;
-      pattern.red=((color>>16)&255)/(255.f*alpha);
-      pattern.green=((color>>8)&255)/(255.f*alpha);
-      pattern.blue=(color&255)/(255.f*alpha);pattern.alpha=alpha;
-      struct RectF run={rect->x+x,rect->y+y,end-x,1};fill(target,&run,&pattern,&options);
-    }
-    x=end;
-  }
-}
+#include "images.inc"
+#include "window.inc"
 /* Browser chrome stays with Gecko. Process role is evaluated at use time,
  * after child startup, using the same guarded engine getter as menu dispatch. */
 static int native_web_process(void) {
@@ -72,6 +59,9 @@ static int native_web_process(void) {
 }
 static int tabs_requested,tabs_trace_enabled;
 static int gecko_frame_screen_origin(void *,double *,double *);
+static int gecko_frame_screen_bounds(void *,struct NXSRectD *);
+static int gecko_frame_device_origin(void *,double *,double *);
+static int gecko_frame_device_origin(void *,double *,double *);
 static int gecko_frame_pixel_rect(void *,struct NXSRectD *);
 static void progress_retire_unstyled(void);
 static int popups_requested,lists_requested;
@@ -105,7 +95,7 @@ static int native_popup_display(void *,void *,const void *);
 static int draw_popup_image(void *,void *,const struct RectF *);
 static void native_popup_forget(void *);
 static void native_popup_release_context(void *);
-static void native_popup_notification(void);
+static void native_popup_notification(const struct NXSInvalidations *);
 static int native_popups_exist(void);
 static void native_popup_pointer_post(const void *);
 static int tabs_frame_owned(const void *);
@@ -114,9 +104,18 @@ static void tabs_forget(void *);
 static void tabs_native_notification(void);
 static uint64_t tabs_pointer_target(void *,void *);
 static void tabs_pointer_post(uint64_t,void *,int);
+static int document_scroller_owned(void *,unsigned);
+static int document_scroller_draw(void *,void *,unsigned,const struct RectF *);
+static void document_scroller_forget(void *);
+static void document_scroller_release_context(void *);
+static void document_scroller_notification(void);
+static int document_scrollers_exist(void);
+static int document_scroller_pointer_post(void *,void *,int *);
+static int document_scroller_pointer_pre(void *,void *,int *);
 #include "controls.inc"
 #include "tabs.inc"
 #include "popups.inc"
+#include "focus-order.inc"
 #define NXS_GECKO_PLACEHOLDER_NEWLINES 0x466d198ul
 static const unsigned char gecko_placeholder_newlines_bytes[20]={0x5f,0x24,0x03,0xd5,0x55,0xde,0xd0,0x17,0x3f,0x23,0x03,0xd5,0xfe,0x4f,0xbf,0xa9,0xa1,0x01,0x80,0x52};
 static char *text_placeholder(void *node) {
@@ -131,9 +130,19 @@ static char *text_placeholder(void *node) {
 }
 #include "lists.inc"
 #include "geometry.inc"
+#include "scrollbars.inc"
 #include "menus.inc"
+#include "context-menu-model.inc"
+#include "key-registry.inc"
 #include "../../Libraries/NativeUI/Bridge/Menu.inc"
+static int gtk_context_owns_keys(void);
 #include "global-keys.inc"
+static int gecko_context_prepare(int (*handler)(const struct NXSNativeMenuCommand *))
+{return menu_lifecycle_requested&&ensure_widget_lifetime()&&native_menu_filter_register(handler);}
+#define NXS_GTK_CONTEXT_PREPARE(handler) gecko_context_prepare(handler)
+#include "../../Libraries/NativeUI/Bridge/GtkContextMenus.inc"
+#undef NXS_GTK_CONTEXT_PREPARE
+
 
 /* Frame/content and model access are audited against this libxul, including
  * Gecko's own FromNode tag/namespace check. NativeUI has no DOM knowledge. */
@@ -154,7 +163,7 @@ static void progress_retire_unstyled(void)
     if(w->kind==NXS_PROGRESS) {
       const void *style=*(void **)((char *)w->frame+32);
       const void *display=style?*(void **)((char *)style+80):NULL;
-      if(!display||!original_frontend_themed(w->frame,display,NULL)||fabsf(frame_scale(w->frame)-1)>.000001f) {
+      if(!display||!original_frontend_themed(w->frame,display,NULL)||!frame_scale_supported(w->frame)) {
         forget_widget(cursor);continue;
       }
     }
@@ -180,10 +189,7 @@ static int webrender(void *self,void *builder,void *resources,void *stacking,
 static void progress(void *self,void *frame,void *target,const struct RectF *rect,
     const void *state,const void *colors,const void *dpi,int meter) {
   double value=meter?-2:progress_position(frame);
-  /* The current bitmap transport draws generic controls at scale 1. Preserve
-   * Gecko's path until that transport can request the provider's scaled draw. */
-  float scale=dpi?*(const float *)dpi:0;
-  if(!isfinite(scale)||fabsf(scale-1)>0.000001f||!isfinite(value)||value<-1||value>1||!rect||
+  if(!frame_scale_supported(frame)||!isfinite(value)||value<-1||value>1||!rect||
      !isfinite(rect->x)||!isfinite(rect->y)||!isfinite(rect->width)||!isfinite(rect->height)||
      rect->width<1||rect->height<1||rect->width>8192||rect->height>8192)goto fallback;
   struct Widget *w=widgets_enabled?widget_for_frame(frame):NULL;
@@ -199,6 +205,7 @@ static void progress(void *self,void *frame,void *target,const struct RectF *rec
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=1,
     .process=identity(),.kind=NXS_PROGRESS,.control=w?w->id:(uintptr_t)frame,
     .width=rect->width,.height=rect->height,.maximum=1,.value=value<0?0:value,.enabled=1,.indeterminate=value<0};
+  if(!native_control_presentation(NXS_PROGRESS,request.control,frame_scale(frame)))goto fallback;
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   uint32_t *pixels=NULL;int width=0,height=0;
   if(response&&response->width>0&&response->height>0&&response->width<=8192&&response->height<=8192&&
@@ -239,11 +246,25 @@ static int find_xul(struct dl_phdr_info *info,size_t size,void *unused) {
   }
   return 1;
 }
+static void prepare_native_features(void) {
+  const char *input=getenv("NEXTSPACE_FIREFOX_INPUT");
+  if(input&&!strcmp(input,"1"))prepare_widget_metrics();
+  const char *tabs=getenv("NEXTSPACE_FIREFOX_TABS"),*tab_trace=getenv("NEXTSPACE_FIREFOX_TABS_TRACE");
+  tabs_requested=NXS_BROWSER_UI_PATCH&&frontend_requested&&tabs&&!strcmp(tabs,"1");
+  tabs_trace_enabled=tabs_requested&&tab_trace&&!strcmp(tab_trace,"1");
+  const char *menu_keys=getenv("NEXTSPACE_FIREFOX_MENU_KEYS");
+  menu_keys_requested=menu_keys&&!strcmp(menu_keys,"1")&&application_menu_keys;
+  if(menu_keys&&!strcmp(menu_keys,"1")&&!menu_keys_requested)note("native global menu keys unavailable in this helper/configuration");
+ }
 static void install(void) {
   if(installed||channel<0)return;
   dl_iterate_phdr(find_xul,NULL);if(!base)return;
+  /* A cold startup capability reply can be lost before libxul loads. Retry
+   * at this existing bootstrap boundary before committing the feature mask;
+   * otherwise the parent keeps GTK pickers while content uses NativeUI. */
+  if(!widgets_enabled)prepare_native_features();
   uintptr_t *table=(uintptr_t *)(base+0x9e22190+16);
-  if(table[27]!=base+0x3fc3108||*(uintptr_t *)(base+0x9e21210+32)!=base+0x316fee8||
+  if(!guard_native_image_calls()||table[27]!=base+0x3fc3108||*(uintptr_t *)(base+0x9e21210+32)!=base+0x316fee8||
      memcmp((void *)(base+0x6a7782c),(unsigned char[]){0x00,0x0f,0x40,0xf9},4)||
      memcmp((void *)(base+0x589f280),(unsigned char[]){0x5f,0x24,0x03,0xd5,0x00,0x10,0x7e,0x1e},8)||
      !prepare_detours(detours,sizeof(detours)/sizeof(*detours))) {note("Gecko layout/instruction guard failed; unchanged");return;}
@@ -257,7 +278,7 @@ static void install(void) {
   if((buttons_enabled||popups_requested)&&(!guard_html_button_calls()||!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours)))){note("Gecko button guard failed; unchanged");return;}
   if(sliders_enabled&&!prepare_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours))){note("Gecko range guard failed; unchanged");return;}
   if(colors_enabled&&(!guard_color_calls()||!prepare_detours(color_detours,sizeof(color_detours)/sizeof(*color_detours)))){note("Gecko color guard failed; unchanged");return;}
-  if(texts_enabled&&(!guard_text_calls()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
+  if(texts_enabled&&(!guard_text_calls()||!guard_password_visibility()||!prepare_detours(text_detours,sizeof(text_detours)/sizeof(*text_detours)))){note("Gecko text guard failed; unchanged");return;}
   if(texts_enabled&&!guard_text_commands()){note("Gecko text command guard failed; unchanged");return;}
   if(numbers_enabled&&!guard_number_calls()){note("Gecko number guard failed; unchanged");return;}
   if(dates_enabled&&(!guard_date_calls()||!prepare_detours(date_detours,sizeof(date_detours)/sizeof(*date_detours)))){note("Gecko date guard failed; unchanged");return;}
@@ -265,6 +286,7 @@ static void install(void) {
      memcmp((void *)(base+NXS_GECKO_POPUP_ATOMIZE),gecko_popup_atomize_bytes,20)||
      memcmp((void *)(base+NXS_GECKO_PLACEHOLDER_NEWLINES),gecko_placeholder_newlines_bytes,20))){note("Gecko placeholder model guard failed; unchanged");return;}
   if(!prepare_background_bindings()){note("Gecko native background guard failed; unchanged");return;}
+  if(!prepare_document_scrollers()){note("Gecko native document scroller guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_frontend_bindings()){note("Gecko owned-background guard failed; unchanged");return;}
   if(popups_requested&&(!guard_popup_calls()||!prepare_detours(popup_detours,sizeof(popup_detours)/sizeof(*popup_detours)))){note("Gecko select guard failed; unchanged");return;}
   if(lists_requested&&(!guard_list_calls()||!guard_list_geometry_calls()||!guard_list_hit_calls()||
@@ -272,14 +294,16 @@ static void install(void) {
      (!texts_enabled&&!prepare_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours))))){note("Gecko list guard failed; unchanged");return;}
   if(!prepare_geometry()){note("Gecko geometry guard failed; unchanged");return;}
   if(tabs_requested&&!prepare_tabs()){note("Gecko tab guard failed; unchanged");return;}
+  if(!prepare_context_menu_model()){note("Gecko context menu model guard failed; unchanged");return;}
   if(!prepare_menu_lifecycle()){note("Gecko external menu lifecycle guard failed; unchanged");return;}
+  if(widgets_enabled&&!prepare_focus_input_order()){note("Gecko focus/input ordering guard failed; unchanged");return;}
   if(!prepare_global_keys()){note("Gecko global menu key guard failed; unchanged");return;}
-  if(gtk_surface_geometry){activate_detours(geometry_detours,1);note("experimental shared GTK surface geometry binding installed");}
+  if(gtk_surface_geometry){activate_detours(geometry_detours,1);activate_popup_geometry();note("experimental shared GTK surface geometry binding installed");note("original Gecko popup parent coordinate conversion enabled");}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   activate_detours(background_detours,sizeof(background_detours)/sizeof(*background_detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
   if(widgets_enabled)activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));
-  if(radio_groups_enabled)activate_detours(radio_pointer_detours,sizeof(radio_pointer_detours)/sizeof(*radio_pointer_detours));
+  if(radio_groups_enabled||document_scrollbars_enabled)activate_detours(radio_pointer_detours,sizeof(radio_pointer_detours)/sizeof(*radio_pointer_detours));
   if(labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));
   if(buttons_enabled||popups_requested){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note(buttons_enabled?"native Gecko input buttons installed":"native Gecko block display binding installed");}
   if(sliders_enabled){activate_detours(range_detours,sizeof(range_detours)/sizeof(*range_detours));note("native Gecko ranges installed");}
@@ -293,9 +317,15 @@ static void install(void) {
   if(lists_requested){if(!texts_enabled)activate_detours(list_detours,sizeof(list_detours)/sizeof(*list_detours));
     activate_detours(list_hit_detours,sizeof(list_hit_detours)/sizeof(*list_hit_detours));note("experimental native Gecko list binding installed");}
   if(tabs_requested){activate_detours(tabs_detours,sizeof(tabs_detours)/sizeof(*tabs_detours));note("experimental native Gecko tab container installed");}
-  if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));note("native Gecko external menu lifecycle binding installed");}
-  if(menu_keys_requested){activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));note("native Gecko global menu key binding installed");}
+  if(menu_lifecycle_requested){activate_detours(menu_lifecycle_detours,sizeof(menu_lifecycle_detours)/sizeof(*menu_lifecycle_detours));activate_detours(context_model_detours,sizeof(context_model_detours)/sizeof(*context_model_detours));note("native Gecko external menu lifecycle binding installed");}
+  if(menu_keys_requested){
+    activate_detours(registry_detours,sizeof(registry_detours)/sizeof(*registry_detours));
+    activate_detours(global_key_detours,sizeof(global_key_detours)/sizeof(*global_key_detours));
+    note("native Gecko original key registry and global menu binding installed");
+  }
+  if(widgets_enabled){activate_detours(focus_order_detours,2);note("native Gecko focus/input ordering installed");}
   installed=1;
+  if(document_scrollbars_enabled)activate_detours(document_scroller_detours,sizeof(document_scroller_detours)/sizeof(*document_scroller_detours));
   note("exact-build Gecko native progress adapter installed");
 }
 void *dlopen(const char *path,int flags) {
@@ -310,16 +340,9 @@ __attribute__((constructor)) static void initialize(void) {
   if(!endpoint)return;
   if(log)log_fd=open(log,O_WRONLY|O_CREAT|O_APPEND|O_CLOEXEC,0600);
   if(!bridge_connect(endpoint))return;
-  const char *input=getenv("NEXTSPACE_FIREFOX_INPUT");
   const char *menus=getenv("NEXTSPACE_FIREFOX_MENU_LIFECYCLE");
   menu_lifecycle_requested=menus&&!strcmp(menus,"1");
-  if(input&&!strcmp(input,"1"))prepare_widget_metrics();
-  const char *tabs=getenv("NEXTSPACE_FIREFOX_TABS"),*tab_trace=getenv("NEXTSPACE_FIREFOX_TABS_TRACE");
-  tabs_requested=frontend_requested&&tabs&&!strcmp(tabs,"1");
-  tabs_trace_enabled=tabs_requested&&tab_trace&&!strcmp(tab_trace,"1");
-  const char *menu_keys=getenv("NEXTSPACE_FIREFOX_MENU_KEYS");
-  menu_keys_requested=menu_keys&&!strcmp(menu_keys,"1")&&application_menu_keys;
-  if(menu_keys&&!strcmp(menu_keys,"1")&&!menu_keys_requested)note("native global menu keys unavailable in this helper/configuration");
-  if(!NXS_BROWSER_UI_PATCH)note("browser-owned tabs, address bar and toolbar preserved");
+  prepare_native_features();
+  if(!NXS_BROWSER_UI_PATCH)note("browser-owned tabs and toolbar buttons preserved");
   note("Firefox native transport connected before sandbox");install();
 }

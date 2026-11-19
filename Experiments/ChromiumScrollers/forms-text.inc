@@ -18,7 +18,9 @@ static int blink_application_command(const struct NXSNativeCommand *request,cons
   static const struct {const char *selector,*name;uintptr_t enabled;} commands[]={
     {"copy:","Copy",NXS_CHROMIUM_TEXT_COPY_ENABLED_OFFSET},
     {"cut:","Cut",NXS_CHROMIUM_TEXT_CUT_ENABLED_OFFSET},
-    {"paste:","Paste",NXS_CHROMIUM_TEXT_PASTE_ENABLED_OFFSET}};
+    {"paste:","Paste",NXS_CHROMIUM_TEXT_PASTE_ENABLED_OFFSET},
+    {"undo:","Undo",NXS_CHROMIUM_TEXT_UNDO_ENABLED_OFFSET},
+    {"redo:","Redo",NXS_CHROMIUM_TEXT_REDO_ENABLED_OFFSET}};
   struct BlinkTextTransaction *t=text_transaction;
   if(!t||request->process!=identity()||request->control!=t->control)return 0;
   struct NativeForm *form=find_form(t->node);
@@ -86,8 +88,9 @@ static void *text_pointer_controller,*text_pointer_frame,*text_pointer_handler;
 static int text_kind(int kind){return kind==NXS_TEXTFIELD||kind==NXS_PASSWORD||kind==NXS_TEXTAREA||kind==NXS_SEARCHFIELD;}
 static int native_text_input_owned(const struct NativeForm *form) {
   return form&&text_kind(form->kind)&&(form->painted||
-    (form->input_owned&&form->kind!=NXS_TEXTAREA&&
-     native_layout_appearance(form->node,decode_member((const char *)form->node+48),form->kind==NXS_SEARCHFIELD?11:12)));
+    (form->input_owned&&form->input_epoch==atomic_load(&native_host_epoch)&&
+     native_layout_appearance(form->node,decode_member((const char *)form->node+48),
+       form->kind==NXS_TEXTAREA?13:form->kind==NXS_SEARCHFIELD?11:12)));
 }
 static void (*original_textarea_default)(void *,void *);
 static void textarea_default(void *node,void *event)
@@ -136,6 +139,7 @@ static struct NXSResponse *sync_text_form(struct NativeForm *form,struct NXSResp
   }
   response=send_text_model(form,model.value,model.start,model.end-model.start,model.editable);
   free(model.value);
+  if(response){form->input_owned=1;form->input_epoch=atomic_load(&native_host_epoch);}
   if(response&&forms_multiline_viewport_enabled&&form->kind==NXS_TEXTAREA&&
      form->text_epoch!=atomic_load(&native_host_epoch)) {
     if(!restore_text_viewport(form))return NULL;
@@ -168,8 +172,10 @@ static void echo_text_selection(struct NativeForm *form) {
     struct NXSTextResponse state;memcpy(&state,response+1,sizeof(state));
     if(state.selection_start<=UINT32_MAX&&state.selection_length<=UINT32_MAX-state.selection_start) {
       form->text_start=state.selection_start;form->text_end=state.selection_start+state.selection_length;
-      if(model.start!=form->text_start||model.end!=form->text_end)
-        text_selection(form->node,state.selection_start,state.selection_length);
+      /* A newly focused empty input can retain cached (0,0) offsets while
+       * Blink's frame selection still belongs to the previous editor. Let
+       * the original setter adopt this editor even when its offsets match. */
+      text_selection(form->node,state.selection_start,state.selection_length);
     }
   } else if(active_form==form)end_text_pointer(form,0);
   free(model.value);
@@ -410,7 +416,9 @@ static int default_text_key(void *node,void *event) {
     text_transaction=NULL;
   } else response=NULL;
   free(text);free(unmodified);free(before.value);
-  int handled=response?response->parts[3].x:transaction.attempted?NXS_INPUT_HANDLED:0;
+  /* A missing reply does not prove that the native key was unhandled. Never
+   * execute the same uncertain key through Blink's different binding table. */
+  int handled=response?response->parts[3].x:NXS_INPUT_HANDLED;
   form=find_form(node);
   if(form&&form->control==control) {
     if(response&&!transaction.attempted) {

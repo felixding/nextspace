@@ -81,6 +81,22 @@
     {
       "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/layout/base/PresShell.cpp",
       "sha256": "ed828332158b15815aa400b160b64eac30cac1b9e83a02e7e12c2b2710af0353"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/ipc/BrowserParent.cpp",
+      "sha256": "132b0169f872817343d609207ccf4cd8f8f4702e8a7b74132ae6356d1f3dd7fb"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/ipc/ContentParent.cpp",
+      "sha256": "eed2f96b272bff80739fe1ad62ac8c212adc352be07b510ebef13ab477af3825"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/ipc/PBrowser.ipdl",
+      "sha256": "96e409ca5c75024f857455e80dc25eaf70cd1d9c0ae0b0c4574890eb2e073d08"
+    },
+    {
+      "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/widget/gtk/nsAppShell.cpp",
+      "sha256": "c0d2988749f995e41a6229d0539d021683438f5478a3973a7d09564fd536bc11"
     }
   ],
   "guards": "The shared ELF build-ID guard and pinned-input.h prologues are checked before activating any interactive detour. The launch fixture also checks the complete executable and libxul SHA256.",
@@ -158,7 +174,14 @@
       "move_focus": "0x4873490",
       "forward": 1,
       "backward": 2,
-      "by_key": 8192
+      "by_key": 8192,
+      "window_focus_interface": {
+        "get_focused_window": 6,
+        "get_focused_element_for_window": 14,
+        "guarded_set_focus": 11,
+        "guarded_move_focus": 12,
+        "ownership": "Original nsIFocusManager COM references and per-window DOM focus; independent of native auxiliary window activation"
+      }
     },
     "lifetime": {
       "frame_destroy": "0x6e7763c",
@@ -174,5 +197,164 @@
     "Exact ARM64 build only; scale 1 horizontal fixtures qualified.",
     "Standalone native radio controls own their key interpretation; native radio-group arrow navigation remains open.",
     "Other native controls and browser application interfaces remain open."
-  ]
+  ],
+  "calendar_owner_window": {
+    "original_sources": [
+      {
+        "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/Document.h",
+        "sha256": "e541feef207ff6899784b3fda1065d1f79ae76fcff5eeae24f9caf7befaf9ef9"
+      },
+      {
+        "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/base/nsPIDOMWindow.h",
+        "sha256": "d49599a458564e17e545a0e5519ca40a98f946ee3a390e0cf3d3d8fd6a98b32b"
+      }
+    ],
+    "original_code_witness": "HTMLInputElement::ShowPicker at 0x5891cd0, 40 exact guarded bytes",
+    "object_layout": {
+      "node_info": 40,
+      "node_info_document": 8,
+      "document_removed_byte": 763,
+      "removed_mask": 2,
+      "document_inner_window": 1128,
+      "inner_document": 16,
+      "inner_outer_window": 112,
+      "inner_window_global_child_witness": 200
+    },
+    "ownership": "Retain the original document outer window through its original XPCOM methods; use original nsIFocusManager per-window focused descendant. Never change browser focus or use global focusedWindow as the field owner.",
+    "controls": "The existing shared native NSDatePicker/NSPanel; no new control implementation."
+  },
+  "keyboard_activation_focus_evidence": {
+    "url": "https://hg.mozilla.org/releases/mozilla-esr153/raw-file/d63de7b9609253a860fbb0050f678700f4cdc492/dom/html/nsGenericHTMLElement.cpp",
+    "sha256": "c9a878dc04a3d8741d1e0412ada7ddd1d12f4df852cc84d214161eaa342ef742",
+    "function": "nsGenericHTMLElement::HandleKeyboardActivation",
+    "finding": "The original handler rejects activation when GetFocusedElementStatic does not equal the event target. Diagnostic33 observes this exact mismatch after three passing cohorts; per-window focus still names the target. No replacement keyboard activation or focus mutation is implemented."
+  },
+  "focus_input_ordering": {
+    "adapter": "Experiments/FirefoxNativeUI/focus-order.inc",
+    "activation": "BrowserParent::Activate/Deactivate",
+    "barrier": "ContentParent::SetInputPriorityEventEnabled",
+    "finding": "Input-priority events can overtake normal-priority activation while native rendering occupies the content thread. Reuse the original suspend/flush/resume barriers around the original focus messages and restore the previous mode. No focus mutation or copied key handler.",
+    "offsets": {
+      "activate": "0x655fd6c",
+      "deactivate": "0x655ff14",
+      "manager": "0x34fcd1c",
+      "priority_toggle": "0x657ddcc"
+    },
+    "diagnostic": "Original-queue barriers pass 32 repeated real seat-input picker cases; retained in the final adapter. Full final desktop qualification remains pending."
+  },
+  "gtk_activation_input_ordering": {
+    "adapter": "Experiments/FirefoxNativeUI/geometry.inc",
+    "shared_transport": "Libraries/NativeUI/Bridge/Gtk3Geometry.c",
+    "wire": "operation64/state0 retires the preceding source input grant",
+    "original_api": "g_app_launch_context_get_startup_notify_id",
+    "source": "https://raw.githubusercontent.com/GNOME/gtk/3.24.49/gdk/wayland/gdkapplaunchcontext-wayland.c",
+    "source_sha256": "5604f75202d0e3f8cb3633ab1933ab255a8028ac517a4e3036e56da4a29428b2",
+    "finding": "The original GDK API uses a dedicated Wayland event queue. Eager grants expired during browser work. The shared host now requests a fresh token from the original toolkit API at native presentation through a private ticketed SEQPACKET endpoint; new input retires in-flight requests. GTK event propagation is observed once. The endpoint is re-registered on real input after native-host replacement.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ],
+    "delayed_and_host_replacement_evidence": ".build/native-ui/reported-issues/ux-regressions/delayed-131/delayed-picker-activation.json"
+  },
+  "shared_host_generation": {
+    "implementation": "Libraries/NativeUI/Host/connections.py and Experiments/ChromiumScrollers/native_controls.py",
+    "finding": "New clients must receive the current host epoch in their first control/menu reply, before any edit/command callback. A later artificial epoch transition resets valid action receipt cursors and makes calendar configuration fail.",
+    "regression": "Tests/NativeUI/host-generation.py: old code fails its first control reply; eight checks pass with the session epoch used as the default generation."
+  },
+  "native_notification_delivery": {
+    "lifecycle_priority": 0,
+    "repaint_priority": 200,
+    "implementation": "Experiments/FirefoxNativeUI/text.inc",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "atomic_color_snapshot": {
+    "implementation": "Libraries/NativeUI/Bridge/ColorBinding.inc and Specialized.inc",
+    "finding": "Separate status/model reads could consume a newer native colour with an older action cursor and permanently drop the application update. One existing typed-model reply already carries both values atomically.",
+    "regression": "Tests/NativeUI/color-snapshot-probe.c: old binding fails the deterministic response-boundary action; new binding passes nine cases",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "frontend_snapshot_viewport": {
+    "implementation": "Experiments/FirefoxNativeUI/text.inc and controls.inc",
+    "finding": "A fractional frontend viewport can have a native readback width different from lround(viewport). Cache the logical viewport of each accepted original native snapshot; do not reject its authoritative bitmap size or retain it for a different viewport.",
+    "regression": "Tests/Wayland/native_address_fields.py compares the complete original native field at the actual display density.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/firefox-editing-131/native-address-image.json",
+      ".build/native-ui/reported-issues/ux-regressions/firefox-editing-131/native-address-resized-image.json",
+      ".build/native-ui/reported-issues/ux-regressions/firefox-editing-131/native-address-unfocused-image.json"
+    ]
+  },
+  "native_color_key_lifetime": {
+    "implementation": "Libraries/NativeUI/GNUstep/Specialized.inc",
+    "finding": "The component host does not run NSApplication; NSWindow close skips key resignation in that state. Resign the existing original NSColorPanel before acknowledged close, as the immediate-close path already does.",
+    "regression": "Tests/NativeUI/color-lifetime-probe.m fails on the previous provider and passes with the original resignKeyWindow call.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "native_field_editor_resize": {
+    "implementation": "Libraries/gnustep/patches/gui-0_32_0-field-editor-resize.patch",
+    "finding": "NSView autoresizing rounded the existing field editor while its NSClipView retained fractional bounds. The original NSCell now gives both the same original title rectangle when the viewport changes. No text editor or geometry algorithm is copied into an adapter.",
+    "regression": "Tests/NativeUI/backing-probe.c compares resized text, password and search fields with fresh native controls. A direct2x NativeUI probe differed by3942 bytes before the fix and matches exactly afterward.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "bootstrap_scroller_measurement": {
+    "implementation": "Experiments/FirefoxNativeUI/scrollbars.inc",
+    "finding": "A failed bootstrap native scrollbar measurement disabled all parent-process controls. Keep binary guards independent of recoverable native measurements; the original layout path already queries them when needed.",
+    "regression": "Tests/NativeUI/scroller-bootstrap-fault-helper.py returns one failed original measurement; check-bootstrap-recovery.py compares the real parent bindings before and after the fix.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/scroller-bootstrap-112-before/bootstrap-recovery.json",
+      ".build/native-ui/reported-issues/ux-regressions/scroller-bootstrap-112-after/bootstrap-recovery.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  },
+  "frontend_native_clipping": {
+    "implementation": "Experiments/FirefoxNativeUI/native_fields_profile.py",
+    "upstream_entry": "browser/omni.ja:chrome/browser/skin/classic/browser/urlbar-searchbar.css",
+    "finding": "Firefox applies a text overflow mask to its unfocused address input. A complete original GNUstep field includes its own border and clipping, so the browser mask incorrectly fades the entire native control. The app-specific profile patch removes only that mask; it preserves existing CSS, toolbar buttons and tabs.",
+    "regression": "Tests/Wayland/native_address_fields.py compares complete native fields when focused, resized and unfocused after ordinary page input. The previous unfocused image fails; the patch matches exactly.",
+    "qualified": true,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/firefox-address-mask-before-116/native-address-unfocused-image.json",
+      ".build/native-ui/reported-issues/ux-regressions/firefox-editing-131/native-address-unfocused-image.json"
+    ]
+  },
+  "gtk_activation_focus_snapshot": {
+    "qualified": true,
+    "source": "Libraries/NativeUI/Bridge/Gtk3Geometry.c",
+    "change": "Synchronize original GDK display protocol state before its launch context selects the input serial and focused source. Recheck the existing generation after synchronization.",
+    "regression": "Tests/NativeUI/check-gtk-activation-focus.py",
+    "negative_control": "The active original GNUstep well remains active while its panel becomes hidden after a token with no focused source.",
+    "controls_duplicated": false,
+    "browser_rebuilt": false,
+    "evidence": [
+      ".build/native-ui/reported-issues/ux-regressions/gtk-focus-sync-130/results.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-1/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/ordinary-131-scale-2/ordinary-picker-ux.json",
+      ".build/native-ui/reported-issues/ux-regressions/native-api-110/results.json"
+    ]
+  }
 }

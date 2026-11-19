@@ -42,22 +42,45 @@ static int color_watch_needed(void){return color_session.binding.open;}
 static void color_end(void *self)
 {
   void *node=NULL;uint64_t control=0;
+  struct NXSColorBinding binding={0};
   if(color_session.controller==self) {
     node=color_session.node;control=color_session.binding.control;
-    struct NXSColorBinding binding=color_session.binding;
-    memset(&color_session,0,sizeof(color_session));native_color_binding_end(&binding);
+    binding=color_session.binding;
+    memset(&color_session,0,sizeof(color_session));
+    if(!binding.deferred)native_color_binding_end(&binding);
   }
   /* Original DidEndChooser clears the owning member and emits the original
    * change notification. Clear our session before entering page callbacks. */
   original_color_end(self);
+  if(binding.deferred)native_color_binding_end(&binding);
+  if(control)note("native color chooser completed through original Blink lifecycle");
   struct NativeForm *form=node?find_form(node):NULL;
   if(form&&form->control==control)invalidate_form(form);
   refresh_form_watch();
 }
 static void color_forget(void *node)
 {if(color_session.node==node)color_end(color_session.controller);}
+static void color_input_default(void *node,void *event)
+{
+  uint64_t control=color_session.node==node?color_session.binding.control:0;
+  unsigned before=*(const unsigned short *)((const char *)event+32);
+  char *type=control&&(before&0x160)==0x100?
+    string_text(*(void **)((char *)event+24)):NULL;
+  int activation=type&&!strcmp(type,"DOMActivate");free(type);
+  original_input_default(node,event);
+  /* Blink keeps its chooser and skips OpenPopupView on a repeated activation.
+   * Its original handler must first accept DOMActivate, including activation,
+   * disabled state and cancellation. Reveal that same native session only. */
+  unsigned flags=*(const unsigned short *)((const char *)event+32);
+  if(!activation||color_session.node!=node||color_session.binding.control!=control||
+     !color_session.binding.open||(flags&0x140)!=0x140||(flags&0x20)||!form_enabled(node))return;
+  if(native_color_panel_reveal(control))
+    note("existing native Chromium color panel revealed after original activation");
+}
 static void color_open(void *self)
 {
+  if(color_session.controller==self&&color_session.binding.open&&
+     native_color_panel_reveal(color_session.binding.control))return;
   if(color_session.controller)color_end(color_session.controller);
   void *node=((void *(*)(void *))(base+NXS_COLOR_OWNER))(self);
   struct NativeForm *form=node?bind_input_form(node):NULL;NXSColorModel model;
@@ -65,7 +88,7 @@ static void color_open(void *self)
     original_color_open(self);return;
   }
   form->enabled=1;
-  if(!form_request(form,1,0,0,0)||!native_color_binding_open(&color_session.binding,form->control,&model)){
+  if(!form_request(form,1,0,0,0)||!refresh_form_watch()||!native_color_binding_open(&color_session.binding,form->control,&model)){
     original_color_open(self);return;
   }
   color_session.controller=self;color_session.node=node;form->input_owned=1;

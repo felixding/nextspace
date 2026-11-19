@@ -1,4 +1,7 @@
 /* Exact Chromium build eeeef03b83096958e9eb6385a4a92aa8d2aa404e. */
+#define NXS_VIEWS_CANVAS_SCALE 8
+#define NXS_VIEWS_CANVAS_FIELDS 0xb03c840ul
+static const unsigned char chromium_views_canvas_fields_bytes[16]={0x09,0x00,0x00,0xf9,0x00,0x08,0x00,0xbd,0xbf,0x0e,0x01,0x38,0x1f,0x00,0x01,0x39};
 #define NXS_CHROMIUM_VIEWS_OMNIBOX_PAINT_OFFSET 0x980a034ul
 static const unsigned char chromium_views_omnibox_paint_bytes[20]={0x3f,0x23,0x03,0xd5,0xff,0x83,0x01,0xd1,0xfd,0x7b,0x02,0xa9,0x88,0x67,0x04,0xd0,0xfd,0x83,0x00,0x91};
 #define NXS_CHROMIUM_VIEWS_TEXT_PAINT_OFFSET 0xc6c1924ul
@@ -58,7 +61,8 @@ static const unsigned char chromium_views_pointer_lost_bytes[20]={0x3f,0x23,0x03
 #define NXS_CHROMIUM_VIEWS_OMNIBOX_ENABLED_OFFSET 0x980f908ul
 static int guard_views_calls(void) {
 static const unsigned char enabled[20]={0x5f,0x24,0x03,0xd5,0x3f,0xd8,0x00,0x71,0x88,0x01,0x00,0x54,0xe9,0x03,0x01,0x2a,0x28,0x00,0x80,0x52};
-return !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_ENABLED_OFFSET),enabled,20)&&
+return !memcmp((void *)(base+NXS_VIEWS_CANVAS_FIELDS),chromium_views_canvas_fields_bytes,16)&&
+!memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_ENABLED_OFFSET),enabled,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_PAINT_OFFSET),chromium_views_omnibox_paint_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_TEXT_PAINT_OFFSET),chromium_views_text_paint_bytes,20)&&
 !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_BORDER_OFFSET),chromium_views_border_bytes,20)&&
@@ -91,3 +95,5 @@ return !memcmp((void *)(base+NXS_CHROMIUM_VIEWS_OMNIBOX_ENABLED_OFFSET),enabled,
 #define NXS_VIEWS_CUT 52
 #define NXS_VIEWS_COPY 53
 #define NXS_VIEWS_PASTE 54
+#define NXS_VIEWS_UNDO 50
+#define NXS_VIEWS_REDO 51

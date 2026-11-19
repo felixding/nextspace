@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Native root scrollbars</title>
+<style>
+html,body { margin:0; background:white; color:black; font:16px sans-serif }
+#document { width:1200px; height:2200px; position:relative }
+#marker { position:absolute; left:200px; top:200px; width:16px; height:16px; background:black }
+h1,p { margin:0; padding:20px }
+</style>
+<div id="document"><h1>Native root scrollbars</h1>
+<p>This ordinary document overflows in both directions.</p><div id="marker"></div></div>
+<script>
+window.scrollEvents=[];
+addEventListener('scroll',event=>scrollEvents.push({x:scrollX,y:scrollY,trusted:event.isTrusted}));
+</script>

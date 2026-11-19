@@ -1,0 +1,12 @@
+{
+  "status": "source, exact binary boundary and five-scale Settings selection/cancellation verified",
+  "revision": "a21ce95c24ce3964416f09ae1862f53f319eb4d0",
+  "source": "https://raw.githubusercontent.com/chromium/chromium/a21ce95c24ce3964416f09ae1862f53f319eb4d0/third_party/blink/renderer/core/paint/theme_painter_default.cc",
+  "source_sha256": "1ef50eae3d648a0d488dbb1b8a7d62ea3f658a92ded8741eab6de909437c9ab7",
+  "symbol": "blink::ThemePainterDefault::PaintMenuListButton(blink::Element const&, blink::Document const&, blink::ComputedStyle const&, blink::PaintInfo const&, gfx::Rect const&)",
+  "offset": "0xe858ce4",
+  "guard": "3f2303d5ff0303d1fd7b06a928e50190fd830191",
+  "ownership": "Per-launch shared WebUI model marker only; original authored website decorations retained",
+  "provider": "Existing paint_form(NXS_POPUP), NSPopUpButton and NSMenu",
+  "verification": "Tests/Wayland/native_builtin_chromium.py --check-settings; candidate972 scales1/1.25/1.5/1.75/2; ordinary final desktop gate pending"
+}

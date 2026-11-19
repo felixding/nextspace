@@ -53,6 +53,8 @@ static void list_selected_state(void *option,int selected,int skip_popup_update)
 static int list_sync(struct NativeForm *form)
 {
   if(!list_element(form->node)||!list_style(form->node)){list_forget(form);return 0;}
+  void *layout=decode_member((char *)form->node+48);
+  if(!native_control_presentation(NXS_LISTBOX,form->control,native_layout_scale(form->node,layout)))return 0;
   struct ListSnapshot snapshot;if(!list_snapshot(form->node,&snapshot))return 0;
   int existing=form->list.created&&form->list.epoch==atomic_load(&native_host_epoch);
   form->list.control=form->control;

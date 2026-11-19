@@ -1,7 +1,6 @@
 /* Browser tab model/controller adaptation. Ordinary NSTabView owns all tab
  * presentation and hit testing. GPL-2.0-or-later. */
 #include "pinned-tabs.h"
-#include "../../Libraries/NativeUI/Bridge/Tabs.inc"
 struct ViewsTabIdentity {struct ViewsTabIdentity *next;void *tab;uint64_t identifier;};
 struct ViewsTabs {
   struct ViewsTabs *next;

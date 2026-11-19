@@ -3,6 +3,7 @@
 #include "pinned-colors.h"
 #include "../../Libraries/NativeUI/Bridge/ColorBinding.inc"
 #include "../../Libraries/NativeUI/Bridge/ColorOwners.inc"
+#include "color-callback.inc"
 static struct {void *picker;struct NXSColorBinding binding;} color_session;
 static __thread void *color_display_owner;
 static uint32_t (*original_color_open)(void *);
@@ -10,6 +11,12 @@ static void (*original_color_update)(void *);
 static uint32_t (*original_color_input_open)(void *);
 static uint32_t (*original_color_proxy_open)(void *,void *);
 static __thread void *color_input_node;
+static void color_callback_completed(uint64_t control,uint32_t token)
+{
+  int accepted=native_color_owner(control,token,67,0);
+  if(log_fd>=0)dprintf(log_fd,"%d original Gecko color model completed control=%llu acknowledged=%d\n",
+    getpid(),(unsigned long long)control,accepted);
+}
 static int color_string_model(const void *string,NXSColorModel *model)
 {
   /* Original ParseSimpleColor returns Maybe<nscolor>: the present byte is
@@ -44,10 +51,10 @@ static struct NXSResponse *sync_color_widget(struct Widget *w,struct NXSResponse
 }
 static int prepare_color_image(void *frame)
 {
-  if(!native_color_frame(frame)||fabsf(frame_scale(frame)-1)>.000001f)return 0;
+  if(!native_color_frame(frame)||!frame_scale_supported(frame))return 0;
   struct Widget *w=bind_widget(frame);if(!w)return 0;
   int rectangle[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rectangle);
-  w->width=rectangle[2]/60.;w->height=rectangle[3]/60.;
+  w->width=rectangle[2]/frame_units(frame);w->height=rectangle[3]/frame_units(frame);
   struct NXSResponse *response=widget_sync(w);w->painted=!!response;
   return response&&button_cache_update(w,response);
 }
@@ -78,6 +85,7 @@ static void color_end(void)
     ((unsigned (*)(void *))(*(uintptr_t **)callback)[2])(callback);
   }
   ((unsigned (*)(void *))(base+NXS_GECKO_COLOR_RELEASE))(picker);
+  note("native Firefox color panel completed through original callback owner");
   release_idle_widget_notifier();
 }
 static void color_native_work(int failed)
@@ -118,16 +126,41 @@ static uint32_t color_open(void *picker)
 static uint32_t color_input_open(void *node)
 {
   void *previous=color_input_node;
-  if(node_kind(node)==NXS_COLORWELL&&prepare_color_image(*(void **)((char *)node+96)))color_input_node=node;
-  uint32_t result=original_color_input_open(node);color_input_node=previous;return result;
+  if(node_kind(node)==NXS_COLORWELL) {
+    void *frame=*(void **)((char *)node+96);
+    if(native_color_frame(frame)&&frame_scale_supported(frame)) {
+      /* Original InitColorPicker checks and consumes user activation first.
+       * Do not wait for native drawing before that security boundary. */
+      color_input_node=node;
+    }
+  }
+  uint32_t result=original_color_input_open(node);
+  if(result==0x80004005u&&color_input_node==node) {
+    struct Widget *w=widget_for_node(node);
+    if(w&&native_color_frame(w->frame)&&!(widget_content_state(w)&16)&&native_color_panel_reveal(w->id)) {
+      /* InitColorPicker rejects a second session. Reveal its still-running
+       * native panel through the shared owner without starting another one. */
+      result=0;note("existing native Firefox color panel revealed");
+    }
+  }
+  if(log_fd>=0)dprintf(log_fd,"%d original Gecko color input request status=%08x\n",getpid(),result);
+  color_input_node=previous;return result;
 }
 static uint32_t color_proxy_open(void *proxy,void *callback)
 {
+  /* This original proxy boundary follows the activation check. Refresh the
+   * existing native model here, including script changes before opening or
+   * an owner not yet painted. Missing pixels are not an ownership failure. */
+  if(color_input_node)prepare_color_image(*(void **)((char *)color_input_node+96));
   struct Widget *field=color_input_node?widget_for_node(color_input_node):NULL;
   uint64_t control=field?field->id:0;
   uint32_t token=control?*(uint32_t *)((char *)proxy+16):0;
-  int offered=token&&!*(void **)((char *)proxy+72)&&native_color_owner(control,token,60,1);
-  uint32_t result=original_color_proxy_open(proxy,callback);
+  int eligible=token&&!*(void **)((char *)proxy+72);
+  struct NXSGeckoColorCallback *owner=eligible?color_callback_create(callback,control,token):NULL;
+  int offered=eligible&&native_color_owner(control,token,60,owner?2:1);
+  if(!offered&&owner)offered=native_color_owner(control,token,60,1);
+  uint32_t result=original_color_proxy_open(proxy,offered&&owner?(void *)owner:callback);
+  if(owner)color_callback_release(owner);
   if(offered&&(result&0x80000000u))native_color_owner(control,token,60,0);
   return result;
 }

@@ -1,18 +1,25 @@
-/* The existing NSButton supplies complete title pixels and preferred size.
+/* Original native cells supply complete pixels and preferred size.
  * Blink retains DOM notifications, trusted actions and CSS layout. */
 static void (*original_button_children)(void *,const void *);
 static void (*original_button_attribute)(void *,const void *);
 static void (*original_button_value)(void *,const void *,int,int,int);
 static int native_button_owned(const struct NativeForm *form) {
   void *layout=form?decode_member((const char *)form->node+48):NULL;
-  return form&&form->painted&&layout&&form->button_style==decode_member((char *)layout+32);
+  if(!form||!form->painted||!layout)return 0;
+  if(form->button_style==decode_member((char *)layout+32))return 1;
+  /* Blink can reuse the native background display item while focus or zoom
+   * replaces ComputedStyle and repaints its text descendants. Ownership is
+   * the guarded effective appearance, not the old style object's identity.
+   * kButton/kPushButton/kSquareButton share the original button painter. */
+  return form->kind==NXS_BUTTON&&(native_layout_appearance(form->node,layout,4)||
+    native_layout_appearance(form->node,layout,19)||native_layout_appearance(form->node,layout,20));
 }
-static int native_button_preferred(const void *node,const void *layout,struct SizeI *size) {
+static int native_form_preferred(const void *node,const void *layout,struct SizeI *size) {
   struct NativeForm *form=find_form(node);
-  if(!form||form->kind!=NXS_BUTTON||!native_button_owned(form)||!native_layout_unit_scale(node,layout)||form->preferred_width<1||form->preferred_height<1)return 0;
+  if(!form||(form->kind!=NXS_BUTTON&&form->kind!=NXS_DATEPICKER)||!native_button_owned(form)||form->button_style!=decode_member((const char *)layout+32)||!native_layout_supported_scale(node,layout)||form->preferred_width<1||form->preferred_height<1)return 0;
   *size=(struct SizeI){ceil(form->preferred_width),ceil(form->preferred_height)};return 1;
 }
-static void native_button_size_changed(struct NativeForm *form,const struct NXSResponse *response) {
+static void native_form_size_changed(struct NativeForm *form,const struct NXSResponse *response) {
   double width=response->parts[1].width,height=response->parts[1].height;
   if(!isfinite(width)||!isfinite(height)||width<1||height<1||width>8192||height>8192)return;
   void *layout=decode_member((char *)form->node+48),*style=layout?decode_member((char *)layout+32):NULL;

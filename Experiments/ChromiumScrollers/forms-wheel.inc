@@ -1,7 +1,7 @@
 /* Input format and lifetime binding only. NSScrollView owns wheel behavior. */
 #include "pinned-wheel.h"
 static void native_wheel_binding(struct NativeForm *form,int enabled) {
-  if(!forms_wheel_enabled||(form->kind!=NXS_TEXTAREA&&form->kind!=NXS_LISTBOX))return;
+  if(!forms_wheel_enabled||(form->kind!=NXS_TEXTAREA&&form->kind!=NXS_LISTBOX&&form->kind!=NXS_OUTLINE))return;
   void *frame=text_frame(form->node);
   void *handler=frame?decode_member((char *)frame+592):NULL;
   void *registry=handler?decode_member((char *)handler+NXS_WHEEL_REGISTRY_BYTE):NULL;
@@ -39,7 +39,7 @@ static int native_wheel_dispatch(void *dispatcher) {
      *(uintptr_t *)event==base+NXS_WHEEL_DOM_VTABLE_OFFSET+16&&(*flags&0x100)&&!(*flags&0x60))
     form=form_ancestor(node);
   uint32_t origin=0;uint64_t control=0;
-  if(form&&form->painted&&(form->kind==NXS_TEXTAREA||form->kind==NXS_LISTBOX)) {
+  if(form&&form->painted&&(form->kind==NXS_TEXTAREA||form->kind==NXS_LISTBOX||form->kind==NXS_OUTLINE)) {
     origin=radio_node_id(form->node);control=form->control;
   }
   int result=original_dom_dispatch(dispatcher);
@@ -71,7 +71,7 @@ static int native_wheel_default(void *node,void *dom_event) {
   if(!(*flags&0x100)||(*flags&0x60))return 0;
   if(!native_wheel_supported(event))return 0;
   struct NativeForm *form=find_form(node);
-  if(!form||(form->kind!=NXS_TEXTAREA&&form->kind!=NXS_LISTBOX)||!form->painted)return 0;
+  if(!form||(form->kind!=NXS_TEXTAREA&&form->kind!=NXS_LISTBOX&&form->kind!=NXS_OUTLINE)||!form->painted)return 0;
   unsigned units=*((const unsigned char *)event+NXS_WHEEL_UNITS_BYTE);
   const float *delta=(const float *)((const char *)event+(units?NXS_WHEEL_TICKS_BYTE:NXS_WHEEL_DELTA_BYTE));
   /* Undo Ozone's axis-to-wheel normalization. Precise axes retain their
@@ -80,6 +80,14 @@ static int native_wheel_default(void *node,void *dom_event) {
   if(!isfinite(dx)||!isfinite(dy))return 0;
   uint64_t control=form->control;
   struct FloatPoint point=form_point(form,event);
+  if(form->kind==NXS_OUTLINE) {
+    struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=35,
+      .process=identity(),.kind=NXS_OUTLINE,.control=control,.x=point.x,.y=point.y,
+      .minimum=dx,.maximum=dy,.modifiers=event_modifiers(event)};
+    struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
+    if(!response||response->parts[3].x!=1)return 0;
+    native_wheel_delivered=1;*flags|=0x40;schedule_form_paint(form);return 1;
+  }
   if(form->kind==NXS_LISTBOX) {
     if(!list_sync(form)||!form->list.geometry_ready)return 0;
     NXSWheelEvent wheel={.size=sizeof(wheel),.x=point.x,.y=point.y,.delta_x=dx,.delta_y=dy,.modifiers=event_modifiers(event)};

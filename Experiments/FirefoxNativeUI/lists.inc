@@ -23,11 +23,11 @@ static struct GeckoList *list_find_id(uint64_t id)
 {for(struct GeckoList *list=gecko_lists;list;list=list->next)if(list->binding.control==id)return list;return NULL;}
 static int native_list_frame(const void *frame)
 {
-  if(!lists_requested||!native_web_process()||!frame||*(const uintptr_t *)frame!=base+NXS_GECKO_LIST_FRAME_VTABLE+16)return 0;
+  if(!lists_requested||!native_form_process()||!frame||*(const uintptr_t *)frame!=base+NXS_GECKO_LIST_FRAME_VTABLE+16)return 0;
   void *node=*(void **)((const char *)frame+24);
   if(!node||*(uintptr_t *)node!=base+NXS_GECKO_POPUP_SELECT_VTABLE+16||*(void **)((char *)node+96)!=frame)return 0;
   const void *style=*(void **)((const char *)frame+32),*display=*(void **)((const char *)style+80);
-  return fabsf(frame_scale(frame)-1)<.000001f&&original_frontend_themed(frame,display,NULL);
+  return frame_scale_supported(frame)&&original_frontend_themed(frame,display,NULL);
 }
 static int list_flags(void *node,unsigned *flags)
 {
@@ -62,10 +62,10 @@ static int prepare_list_image(void *frame)
     list->next=gecko_lists;gecko_lists=list;
   }
   int existing=list->binding.created&&list->binding.epoch==atomic_load(&native_host_epoch);
+  if(!native_control_presentation(NXS_LISTBOX,list->binding.control,frame_scale(frame)))return 0;
   list->owned=0;
-  int rect[4]={0};engine_frame_rect((void *)(base+0x6daae5c),frame,rect);
-  double width=rect[2]/60.,height=rect[3]/60.;
-  if(width<1||height<1||width!=floor(width)||height!=floor(height)||width>8192||height>8192)return 0;
+  struct NXSRectD viewport;if(!native_frame_viewport(frame,&viewport))return 0;
+  double width=viewport.width,height=viewport.height;
   struct GeckoPopupModel model;if(!popup_snapshot(list->node,&model))return 0;
   unsigned flags;NXSListItem *items=list_items(&model);
   void *manager=*(void **)(base+0xa439c38);int focused=manager&&*(void **)((char *)manager+128)==list->node;
@@ -73,9 +73,8 @@ static int prepare_list_image(void *frame)
     width,height,!(*(uint64_t *)((char *)list->node+112)&16),focused);
   if(okay&&!existing) {
     struct PointI position=viewport_engine_position(frame);
-    okay=native_list_binding_scroll(&list->binding,position.x/60.,position.y/60.);
+    okay=native_list_binding_scroll(&list->binding,position.x/frame_units(frame),position.y/frame_units(frame));
   }
-  if(okay&&(list->binding.pixel_width!=lround(width)||list->binding.pixel_height!=lround(height)))okay=0;
   native_list_binding_free_items(items,items?model.packet->count:0);
   if(okay&&!list->binding.tracking) {popup_model_free(&list->model);list->model=model;memset(&model,0,sizeof(model));}
   popup_model_free(&model);list->owned=okay;
@@ -87,7 +86,6 @@ static int native_list_owned(const void *frame)
 static int draw_list_image(void *target,void *frame,const struct RectF *area)
 {
   struct GeckoList *list=list_find(frame);if(!list||!list->owned||!list->binding.pixels)return 0;
-  if(list->binding.pixel_width!=lround(area->width)||list->binding.pixel_height!=lround(area->height))return 0;
   draw_bitmap(target,area,list->binding.pixels,list->binding.pixel_width,list->binding.pixel_height);
   if(log_fd>=0)dprintf(log_fd,"%d native-list id=%llu count=%u selected=%u rect=%.0f,%.0f %dx%d\n",getpid(),
     (unsigned long long)list->binding.control,list->binding.state.count,list->binding.state.selected_count,
@@ -171,8 +169,8 @@ static int list_layout_rows(struct GeckoList *list)
       if(parent&&document) {
         struct PointI offset=((struct PointI (*)(const void *,const void *))(base+NXS_GECKO_LIST_GEOMETRY_FRAME_OFFSET))(parent,document);
         NXSRect clip=list->binding.geometry.clip;
-        struct ViewportRect rect={lround((row.x-clip.x+state.visible.x)*60)-offset.x,
-          lround((row.y-clip.y+state.visible.y)*60)-offset.y,lround(row.width*60),lround(row.height*60)};
+        struct ViewportRect rect={lround((row.x-clip.x+state.visible.x)*frame_units(owner))-offset.x,
+          lround((row.y-clip.y+state.visible.y)*frame_units(owner))-offset.y,lround(row.width*frame_units(owner)),lround(row.height*frame_units(owner))};
         ((void (*)(void *,const struct ViewportRect *,int))(base+NXS_GECKO_LIST_GEOMETRY_SET_RECT))(frame,&rect,0);
       }
     }
@@ -251,7 +249,7 @@ static int list_pointer_event(struct GeckoList *list,void *event)
   unsigned operation=message==15?2:message==14?4:3;
   if(message!=15&&list_tracking_id!=id)return 1;
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=operation,.process=identity(),
-    .kind=NXS_LISTBOX,.control=id,.x=point.x/60.,.y=point.y/60.,.modifiers=widget_modifiers(event)};
+    .kind=NXS_LISTBOX,.control=id,.x=point.x/frame_units(list->frame),.y=point.y/frame_units(list->frame),.modifiers=widget_modifiers(event)};
   unsigned clicks=message==15?*(const uint32_t *)((const char *)event+236):0;
   struct NXSResponse *response=message==15&&clicks>1?native_pointer_press(NXS_LISTBOX,id,request.x,request.y,request.modifiers,clicks):exchange_bytes(&request,sizeof(request));
   if(!response)return 0;
