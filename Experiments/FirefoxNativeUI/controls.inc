@@ -46,6 +46,7 @@ struct Widget {
 struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
+static int paint_forms_only;
 static int placeholder_enabled;
 static int colors_enabled,numbers_enabled,dates_enabled,times_enabled,proleptic_enabled;
 static int search_enabled;
@@ -461,6 +462,7 @@ static uint32_t post_event(void *self,void *context,void *event,void *frame,int 
   int trusted=*(const uint8_t *)((const char *)event+48)&1;
   if(trusted&&message==15)native_activation_clear(&native_search_activation);
   if(trusted){native_popup_pointer_post(event);native_list_pointer_post(event);}
+  if(paint_forms_only)return original_post_event(self,context,event,frame,status,override);
   if(native_wheel_post(event,frame,status))return original_post_event(self,context,event,frame,status,override);
   uint32_t number_result;
   if(date_pointer_post(self,context,event,frame,status,override,&number_result))return number_result;
@@ -623,6 +625,7 @@ static void text_post_keyboard(void *node,void *visitor) {
     }
 }
 static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *,void *)) {
+  if(paint_forms_only)return original(node,visitor);
   if(date_node(node))return date_widget_post(node,visitor,original);
   if(text_kind(node_kind(node))) {
     if(number_default_pointer(node,visitor))return 0;
@@ -741,17 +744,19 @@ static void prepare_widget_metrics(void) {
     preferred_width[kind]=ceil(width);preferred_height[kind]=ceil(height);
   }
   widgets_enabled=1;
+  const char *paint_only=getenv("NEXTSPACE_FIREFOX_PAINT_ONLY");
+  paint_forms_only=paint_only&&!strcmp(paint_only,"1");
   const char *colors=getenv("NEXTSPACE_FIREFOX_COLORS");
   colors_enabled=colors&&!strcmp(colors,"1")&&((unsigned)response->parts[1].x&NXS_SPECIAL_COLOR)&&((unsigned)response->parts[1].y&1)&&response->parts[0].y==1;
   const char *radio_groups=getenv("NEXTSPACE_FIREFOX_RADIO_GROUPS");
   widget_pointer_capabilities=response->parts[5].x==1?NXS_POINTER_CLICK_COUNT:0;
-  radio_groups_enabled=radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);
-  labels_enabled=widgets_enabled&&((unsigned)response->parts[4].y&4);
-  prepare_range_bindings(response);
+  radio_groups_enabled=!paint_forms_only&&radio_groups&&!strcmp(radio_groups,"1")&&((unsigned)response->parts[4].y&3)==3&&(widget_pointer_capabilities&NXS_POINTER_CLICK_COUNT);
+  labels_enabled=!paint_forms_only&&((unsigned)response->parts[4].y&4);
+  if(!paint_forms_only)prepare_range_bindings(response);
   const char *popups=getenv("NEXTSPACE_FIREFOX_POPUPS");popups_requested=popups&&!strcmp(popups,"1")&&response->parts[6].width&&response->parts[6].height;
-  const char *lists=getenv("NEXTSPACE_FIREFOX_LISTS");lists_requested=popups_requested&&lists&&!strcmp(lists,"1")&&((unsigned)response->parts[3].x&1)&&((unsigned)response->parts[3].y&NXS_SCROLL_GEOMETRY)&&((unsigned)response->parts[2].y&NXS_LIST_ITEM_GEOMETRY)&&((unsigned)response->parts[2].x&1);
+  const char *lists=getenv("NEXTSPACE_FIREFOX_LISTS");lists_requested=!paint_forms_only&&popups_requested&&lists&&!strcmp(lists,"1")&&((unsigned)response->parts[3].x&1)&&((unsigned)response->parts[3].y&NXS_SCROLL_GEOMETRY)&&((unsigned)response->parts[2].y&NXS_LIST_ITEM_GEOMETRY)&&((unsigned)response->parts[2].x&1);
   const char *buttons=getenv("NEXTSPACE_FIREFOX_BUTTONS");buttons_enabled=buttons&&!strcmp(buttons,"1");
-  const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
+  const char *text=getenv("NEXTSPACE_FIREFOX_TEXT");texts_enabled=!paint_forms_only&&text&&!strcmp(text,"1")&&((unsigned)response->parts[6].y&3)==3;
   placeholder_enabled=texts_enabled&&((unsigned)response->parts[6].y&NXS_TEXT_PLACEHOLDER);
   search_enabled=texts_enabled&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH);
   search_actions_enabled=search_enabled&&response->parts[5].y==1&&((unsigned)response->parts[6].y&NXS_TEXT_SEARCH_ACTION);

@@ -272,7 +272,7 @@ static void install(void) {
   if((multiline_viewport_enabled||lists_requested)&&(!guard_viewport_calls()||!prepare_detours(viewport_detours,sizeof(viewport_detours)/sizeof(*viewport_detours)))){note("Gecko viewport guard failed; unchanged");return;}
   if(wheel_enabled&&(!guard_wheel_calls()||!prepare_detours(wheel_detours,sizeof(wheel_detours)/sizeof(*wheel_detours)))){note("Gecko wheel guard failed; unchanged");return;}
   if(widgets_enabled&&!prepare_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours))){note("Gecko interactive guard failed; unchanged");return;}
-  if(widgets_enabled&&(!guard_checkbox_calls()||!prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours)))){note("Gecko checkbox activation guard failed; unchanged");return;}
+  if(widgets_enabled&&!paint_forms_only&&(!guard_checkbox_calls()||!prepare_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours)))){note("Gecko checkbox activation guard failed; unchanged");return;}
   if(radio_groups_enabled&&(!guard_radio_calls()||!prepare_detours(radio_pointer_detours,sizeof(radio_pointer_detours)/sizeof(*radio_pointer_detours)))){note("Gecko radio group guard failed; unchanged");return;}
   if(labels_enabled&&!prepare_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours))){note("Gecko label guard failed; unchanged");return;}
   if((buttons_enabled||popups_requested)&&(!guard_html_button_calls()||!prepare_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours)))){note("Gecko button guard failed; unchanged");return;}
@@ -302,7 +302,7 @@ static void install(void) {
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   activate_detours(background_detours,sizeof(background_detours)/sizeof(*background_detours));
   if(widgets_enabled){activate_detours(widget_detours,sizeof(widget_detours)/sizeof(*widget_detours));note("native Gecko checkbox/radio bindings installed");}
-  if(widgets_enabled)activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));
+  if(widgets_enabled&&!paint_forms_only)activate_detours(checkbox_activation_detours,sizeof(checkbox_activation_detours)/sizeof(*checkbox_activation_detours));
   if(radio_groups_enabled||document_scrollbars_enabled)activate_detours(radio_pointer_detours,sizeof(radio_pointer_detours)/sizeof(*radio_pointer_detours));
   if(labels_enabled)activate_detours(form_label_detours,sizeof(form_label_detours)/sizeof(*form_label_detours));
   if(buttons_enabled||popups_requested){activate_detours(button_detours,sizeof(button_detours)/sizeof(*button_detours));note(buttons_enabled?"native Gecko input buttons installed":"native Gecko block display binding installed");}

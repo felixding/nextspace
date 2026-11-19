@@ -1,8 +1,19 @@
 /* Shared native DOM ownership and root adoption; no widget drawing or key map. */
+function nxsNativeMenuOwners() {
+  const key = Symbol.for('org.nextspace.native-menu-owners');
+  if (globalThis[key]) return globalThis[key];
+  const owners = new Map();
+  new MutationObserver(() => {
+    for (const [owner, close] of owners) if (!owner.isConnected) close();
+  }).observe(document, {childList: true, subtree: true});
+  globalThis[key] = owners;
+  return owners;
+}
+
 function nxsNativeControlsState() {
   const key = Symbol.for('org.nextspace.native-controls');
   if (globalThis[key]) return globalThis[key];
-    const state = {roots: new WeakSet(), controls: new WeakMap(), nextGroup: 1, outlines: new Map(), transients: new Map()};
+    const state = {roots: new WeakSet(), controls: new WeakMap(), nextGroup: 1, outlines: new Map()};
     // Native widgets own their complete key interpretation. Suppress only
     // replaced widget handlers, preserving application/document shortcuts.
     // Retain listener identity, capture, once, abort and object-listener rules.
@@ -85,11 +96,6 @@ function nxsNativeControlsState() {
       state.root(root);
       return root;
     };
-    // Menu lifetime also applies to retained browser chrome, which does not
-    // adopt the built-in-page control styles.
-    new MutationObserver(() => {
-      for (const [owner, close] of state.transients) if (!owner.isConnected) close();
-    }).observe(document, {childList: true, subtree: true});
   globalThis[key] = state;
   return state;
 }

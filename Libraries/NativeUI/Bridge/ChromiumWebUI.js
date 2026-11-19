@@ -101,7 +101,7 @@ function nxsNativeWebUI(host, bindingKind) {
       const select = controller.select;
       if (!select) return close(...args);
       controller.select = null;
-      state.transients.delete(host);
+      nxsNativeMenuOwners().delete(host);
       select.remove();
       close(...args);
       // Retain the component's original close notification/controller path.
@@ -144,7 +144,7 @@ function nxsNativeWebUI(host, bindingKind) {
       select.setAttribute('aria-label', host.accessibilityLabel || 'Menu');
       document.body.append(select);
       controller.select = select;
-      state.transients.set(host, () => host.close());
+      nxsNativeMenuOwners().set(host, () => host.close());
       host.open = true;
       select.addEventListener('change', () => {
         const item = items[Number(select.value)];

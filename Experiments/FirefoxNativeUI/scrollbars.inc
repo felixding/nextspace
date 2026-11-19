@@ -35,7 +35,7 @@ static void document_scroller_layout_echo(void)
   /* Gecko also inlines its original side-pref branch in scroll reflow.
      Every enabled process takes that layout from the original NSScrollView. */
   atomic_store_explicit((_Atomic int *)(base+NXS_GECKO_SCROLLBAR_SIDE_CACHE),right?2:3,memory_order_relaxed);
-  if(!document_scroller_policy_installed&&getenv("NEXTSPACE_FIREFOX_WEBUI_PREFIX")) {
+  if(!document_scroller_policy_installed) {
     /* Gecko inlines its non-root direction shortcut in reflow as well. All
      * instances use the same provider policy; text direction stays untouched. */
     for(unsigned i=0;i<sizeof(gecko_scroller_policy_sites)/sizeof(*gecko_scroller_policy_sites);i++) {
@@ -78,8 +78,11 @@ static struct DocumentScroller *document_scroller_find(void *frame)
 static void *document_scrollbar_container(void *frame)
 {
   void *mediator=((void *(*)(void *))(base+NXS_GECKO_SCROLLBAR_MEDIATOR))(frame);
-  void *scroll=mediator?(char *)mediator-168:NULL;
-  return scroll&&*(uintptr_t *)scroll==base+0xa0fea80+16?scroll:NULL;
+  if(!mediator)return NULL;
+  /* Gecko's scroll-container query accepts derived frames. Cross-check the
+     actual scrollbar mediator so a different ancestor can't receive input. */
+  void *scroll=((void *(*)(void *,unsigned))(base+NXS_GECKO_TEXT_NEAREST_SCROLL_OFFSET))(frame,3);
+  return scroll&&(char *)scroll+168==mediator?scroll:NULL;
 }
 static struct NXSResponse *document_scroller_sync(struct DocumentScroller *bar,int pixels)
 {
@@ -275,10 +278,10 @@ static int prepare_document_scrollers(void)
 {
   const char *enabled=getenv("NEXTSPACE_FIREFOX_SCROLLERS");
   if(!enabled||strcmp(enabled,"1"))return 1;
-  if(getenv("NEXTSPACE_FIREFOX_WEBUI_PREFIX"))
-    for(unsigned i=0;i<sizeof(gecko_scroller_policy_sites)/sizeof(*gecko_scroller_policy_sites);i++)
-      if(*(const uint32_t *)(base+gecko_scroller_policy_sites[i].offset)!=gecko_scroller_policy_sites[i].original)return 0;
+  for(unsigned i=0;i<sizeof(gecko_scroller_policy_sites)/sizeof(*gecko_scroller_policy_sites);i++)
+    if(*(const uint32_t *)(base+gecko_scroller_policy_sites[i].offset)!=gecko_scroller_policy_sites[i].original)return 0;
   if(memcmp((void *)(base+NXS_GECKO_SCROLLBAR_MEDIATOR),gecko_scrollbar_mediator_bytes,20)||
+     memcmp((void *)(base+NXS_GECKO_TEXT_NEAREST_SCROLL_OFFSET),gecko_text_nearest_scroll_bytes,20)||
      memcmp((void *)(base+NXS_GECKO_SCROLLBAR_ORIENTATION),gecko_scrollbar_orientation_bytes,20)||
      memcmp((void *)(base+NXS_GECKO_SCROLLBAR_SIDE_CACHE_LOAD),gecko_scrollbar_side_cache_load_bytes,20)||
      !guard_viewport_calls()||

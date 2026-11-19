@@ -28,14 +28,14 @@ TOOLTIP_SHA256 = '755d90092e2c4fca6000309010c056f0a468bbb6275ed91f85e6b196d6b34b
 DEVTOOLS_ADAPTER_PATH = DEVTOOLS_ROOT + 'shared/nextspace-native-controls.js'
 
 
-def patch_pack(data, adapter):
+def patch_pack(data, adapter, *, replace_controls=True):
     if hashlib.sha256(data).hexdigest() != PACK_SHA256:
         raise ValueError('Unsupported Firefox shared-component archive')
     output = io.BytesIO()
     with zipfile.ZipFile(io.BytesIO(data)) as original, zipfile.ZipFile(output, 'w') as patched:
         for item in original.infolist():
             value = original.read(item.filename)
-            if item.filename == BASE_PATH:
+            if replace_controls and item.filename == BASE_PATH:
                 if hashlib.sha256(value).hexdigest() != BASE_SHA256:
                     raise ValueError('Shared Firefox base differs from audited source')
                 text = value.decode()
@@ -55,19 +55,20 @@ def patch_pack(data, adapter):
                 value = ('import {nxsNativeFirefoxPanelList} from "chrome://global/content/nextspace-native-controls.mjs";\n' + text).encode()
             patched.writestr(item, value)
         patched.writestr(ADAPTER_PATH, adapter + '\nexport {nxsNativeFirefox,nxsNativeFirefoxPanelList};\n')
-        patched.writestr(CLASSIC_PATH, adapter)
+        if replace_controls:
+            patched.writestr(CLASSIC_PATH, adapter)
         patched.comment = original.comment
     return output.getvalue()
 
 
-def patch_browser_pack(data, adapter):
+def patch_browser_pack(data, adapter, *, replace_controls=True):
     if hashlib.sha256(data).hexdigest() != BROWSER_PACK_SHA256:
         raise ValueError('Unsupported Firefox DevTools archive')
     output = io.BytesIO()
     with zipfile.ZipFile(io.BytesIO(data)) as original, zipfile.ZipFile(output, 'w') as patched:
         for item in original.infolist():
             value = original.read(item.filename)
-            if item.filename == RENDERER_PATH:
+            if replace_controls and item.filename == RENDERER_PATH:
                 if hashlib.sha256(value).hexdigest() != RENDERER_SHA256:
                     raise ValueError('Shared Firefox renderer differs from audited source')
                 text = value.decode()
@@ -105,7 +106,7 @@ def patch_browser_pack(data, adapter):
     return output.getvalue()
 
 
-def prepare_native_webui(executable, profile, lifetime, environment):
+def prepare_native_webui(executable, profile, lifetime, environment, *, replace_controls=True):
     executable = Path(executable).resolve()
     with executable.open('rb') as source:
         if hashlib.file_digest(source, 'sha256').hexdigest() != EXECUTABLE_SHA256:
@@ -114,18 +115,26 @@ def prepare_native_webui(executable, profile, lifetime, environment):
     here = Path(__file__).parent
     adapter = ((here / 'NativeWebControls.js').read_text() + '\n' +
                (here / 'FirefoxWebUI.js').read_text()).replace('__NXS_WEBUI_PREFIX__', prefix)
-    pack = patch_pack((executable.parent / 'omni.ja').read_bytes(), adapter)
+    if replace_controls:
+        adapter += '\nnxsNativeFirefox(document);\n'
+    pack = patch_pack((executable.parent / 'omni.ja').read_bytes(), adapter,
+                      replace_controls=replace_controls)
     devtools_adapter = (here / 'FirefoxDevTools.js').read_text()
-    browser_pack = patch_browser_pack((executable.parent / 'browser/omni.ja').read_bytes(), devtools_adapter)
-    environment['NEXTSPACE_FIREFOX_WEBUI_PREFIX'] = prefix
+    browser_pack = patch_browser_pack((executable.parent / 'browser/omni.ja').read_bytes(), devtools_adapter,
+                                      replace_controls=replace_controls)
+    if replace_controls:
+        environment['NEXTSPACE_FIREFOX_WEBUI_PREFIX'] = prefix
+    else:
+        environment.pop('NEXTSPACE_FIREFOX_WEBUI_PREFIX', None)
     root = private_application(executable, {'omni.ja': pack, 'browser/omni.ja': browser_pack}, lifetime)
     receipt = json.dumps(dict(root=str(root), executable_sha256=EXECUTABLE_SHA256,
         original_pack_sha256=PACK_SHA256, private_pack_sha256=hashlib.sha256(pack).hexdigest(),
         original_browser_pack_sha256=BROWSER_PACK_SHA256,
         private_browser_pack_sha256=hashlib.sha256(browser_pack).hexdigest(),
-        shared_base_resources=[BASE_PATH, PANEL_PATH, RENDERER_PATH, TOOLTIP_PATH],
+        shared_base_resources=[BASE_PATH, PANEL_PATH, RENDERER_PATH, TOOLTIP_PATH] if replace_controls
+                              else [PANEL_PATH, TOOLTIP_PATH],
         adapter_sha256=hashlib.sha256(adapter.encode()).hexdigest(),
-        adapter_prefix=prefix,
+        adapter_prefix=prefix if replace_controls else None,
         devtools_adapter_sha256=hashlib.sha256(devtools_adapter.encode()).hexdigest()), indent=2) + '\n'
     (root / 'native-webui.json').write_text(receipt)
     profile = Path(profile); profile.mkdir(parents=True, exist_ok=True)

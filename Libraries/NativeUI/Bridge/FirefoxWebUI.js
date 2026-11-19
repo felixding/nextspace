@@ -106,7 +106,6 @@ function nxsNativeFirefox(host) {
   host.addController(controller);
   controller.hostUpdated();
 }
-nxsNativeFirefox(document);
 
 /* PanelList model -> Firefox's existing native-menu API -> shared NSMenu.
  * Original popup geometry, hierarchy, activation and native key routing remain
@@ -115,7 +114,7 @@ function nxsNativeFirefoxPanelList(host) {
   if (!['about:', 'chrome:', 'resource:'].includes(location.protocol) || !document.createXULElement || host.nextspaceNativeMenu) return;
   host.nextspaceNativeMenu = true;
   host.style.setProperty('display', 'none', 'important');
-  const state = nxsNativeControlsState(), show = host.show, hide = host.onHide;
+  const show = host.show, hide = host.onHide;
   let active = null;
   host.show = function(...args) {
     // The foreign parent panel is replaced by the native menu presentation.
@@ -170,7 +169,7 @@ function nxsNativeFirefoxPanelList(host) {
     this.sendEvent('showing');
     const popup = document.createXULElement('menupopup');
     active = popup; populate(this, popup);
-    state.transients.set(host, () => host.hide(undefined, {force: true}));
+    nxsNativeMenuOwners().set(host, () => host.hide(undefined, {force: true}));
     document.documentElement.append(popup);
     popup.addEventListener('popupshown', event => {
       if (event.target !== popup) return;
@@ -193,7 +192,7 @@ function nxsNativeFirefoxPanelList(host) {
   };
   host.onHide = function() {
     const popup = active; active = null;
-    state.transients.delete(host);
+    nxsNativeMenuOwners().delete(host);
     if (popup) { popup.hidePopup(); popup.remove(); }
     return Reflect.apply(hide, this, []);
   };
