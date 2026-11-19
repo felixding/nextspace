@@ -316,6 +316,7 @@ static void internal_popup_show(void *self,int type)
     original_internal_popup_show(self,type);return;
   }
   struct NXSResponse *response=sync_form_focus(form,form_request(form,1,0,0,0));
+  form->popup_anchor=form->screen_anchor;
   if(response&&response->parts[6].width<=0) {
     if(popup_mouse_event) {
       form->actions_seen=response->parts[0].width;
@@ -344,16 +345,28 @@ static void internal_popup_hide(void *self)
   if(owned)popup_engine_closed(self);
   refresh_form_watch();
 }
+static struct NativeForm *open_platform_popup(void)
+{
+  if(!forms_popups_enabled||forms_available)return NULL;
+  for(struct NativeForm *form=native_forms;form;form=form->next)
+    if(form->kind==NXS_POPUP&&form->popup_open&&form->popup_engine)return form;
+  return NULL;
+}
 static void dismiss_popup_before_scroll(void)
 {
-  if(!forms_popups_enabled||forms_available)return;
-  for(struct NativeForm *form=native_forms;form;form=form->next)
-    if(form->kind==NXS_POPUP&&form->popup_open&&form->popup_engine) {
-      /* The native scrollbar consumes this press before it reaches Blink's
-       * popup dismissal path. Close through the existing menu lifecycle. */
-      internal_popup_hide(form->popup_engine);
-      return;
-    }
+  struct NativeForm *form=open_platform_popup();
+  /* The native scrollbar consumes this press before it reaches Blink's
+   * popup dismissal path. Close through the existing menu lifecycle. */
+  if(form)internal_popup_hide(form->popup_engine);
+}
+static void popup_geometry_work(void)
+{
+  struct NativeForm *form=open_platform_popup();
+  if(!form)return;
+  struct Rect screen;
+  if(!form->screen_anchor_valid||!form_screen_rectangle(form,&screen)||
+     memcmp(&form->popup_anchor,&screen,sizeof(screen)))
+    internal_popup_hide(form->popup_engine);
 }
 static struct Detour popup_detours[]={
  {NXS_POPUP_UA_SHEET_OFFSET,nxs_popup_ua_sheet_bytes,popup_ua_sheet,(void **)&original_popup_ua_sheet},

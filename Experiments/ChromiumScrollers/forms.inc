@@ -46,6 +46,7 @@ struct NativeForm {
   void *popup_selected_node;
   void *popup_engine;
   uint32_t popup_epoch;
+  struct Rect popup_anchor;
   int text_tracking,text_width,text_height;
   uint32_t text_start,text_end;
   double text_x,text_y;

@@ -130,7 +130,7 @@ static void form_native_work(void *controller) {
   pthread_mutex_unlock(&form_watch.mutex);
   /* Browser/layout work can change the anchor without a native UI action.
    * Observe that on the existing owner loop, without adding a polling timer. */
-  if(owner)date_panel_geometry_work();
+  if(owner){date_panel_geometry_work();popup_geometry_work();}
   if(!ready)return;
   component_menus_native_work(failed);
   views_native_work(failed);
