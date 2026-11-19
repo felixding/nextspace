@@ -222,6 +222,46 @@ or shortcut table in the bridge. Menu key modifiers name native Command,
 Control, Alternate and Shift roles; the existing shared event conversion reads
 the user's GNUstep physical-key preferences.
 
+`NXS_MENU_CONTEXT_POPUPS` adds `nxs_menu_popup()` and its auxiliary parent/token
+bindings. Context presentation calls the installed
+`NSMenu popUpContextMenu:withEvent:forView:` implementation with the source's
+screen anchor. The same native controls own layout, submenu tracking and key
+matching. Accepted key actions finish native tracking before the original
+application executes its command; reservation queries leave tracking intact.
+
+The shared transport marks context models with kind1 and queues presentation
+with operation69. Context models retain their source ownership independently
+of the current detached application menu. Original source pointer presses use
+the existing one-way auxiliary channel to dismiss that owner's transient menu.
+The GTK adapter projects public GMenuModel/GActionGroup data, with original
+GtkMenuItem callbacks for other GTK menus. The Chromium adapter reuses the
+original MenuModelAdapter model for both MenuRunner construction paths.
+
+Live context models use kind2 to connect the existing native submenu lifecycle
+and operation70 branch replacement to source model preparation. GTK actions and
+their source lifetimes remain retained across lazy model rebuilds. First-use
+labels come from the original model's asynchronous localization.
+
+If a context model omits accelerators, global key requests consult the current
+application's existing native menu registry. Queries leave tracking unchanged;
+accepted execution ends context tracking before invoking that original action.
+Disconnected callback registrations retire their generation, close the original
+source lifecycle and re-register without replaying an uncertain command.
+
+The existing GNUstep menu patch applies its native window constraint before
+a transient surface is shown. Cancellation closes the native transient
+presentation before releasing tracking, including while a command is hovered.
+
+Context-menu qualification also preserves the source field state during image
+checks. Blurring before capture can hide retained-paint defects after a native
+chooser. Chromium button ownership follows its guarded effective appearance
+when a style object changes; native metrics still require the current style.
+Calendar dismissal implements the native `complete:` responder action through
+the existing cancellation path. GNUstep continues to resolve physical keys.
+The shared control transport retains motion and release packets received before
+queued native tracking starts. The original native loop consumes them in order;
+explicit cancellation and destruction still retire the pending press.
+
 `nxs_menu_show()` installs and displays a detached native main menu, or hides
 and uninstalls it. An unrelated existing main menu is preserved. The key API
 works while hidden, and focused native controls consult the application menu
@@ -1129,6 +1169,23 @@ and `Bridge/ColorBinding.inc` let application adapters reuse that lifetime and
 canonical color model without copying any picker UI. Bootstrap part 1.x/1.y
 advertise specialized/color-panel support without overwriting radio dimensions.
 
+An optional `control_color_lifecycle` pointer at offset 768 (API 1/776)
+coordinates original asynchronous application callbacks with that same panel.
+`NXS_COLOR_PANEL_CLOSE_ACK` advertises support. Enable
+`NXS_COLOR_CLOSE_REQUIRE_ACK` before opening: the original native close request
+deactivates the well but keeps the panel visible until
+`NXS_COLOR_CLOSE_COMPLETE`. An application completing its model independently
+can request then complete close. No timer, input interception or picker UI is
+introduced. Legacy clients retain immediate close, and destruction still
+closes an owned panel. Another well's panel is preserved.
+
+Bridge publication state 2 opts into this lifecycle; operation 67 acknowledges
+the original session after the owning application's callback returns. Kernel
+process identity, owning connection, control and session token must all match.
+A stale callback cannot close a reopened panel. Chromium acknowledges after
+its original chooser completion; Gecko forwards its original XPCOM Update/Done
+and acknowledges after Done. The common host owns the window lifecycle.
+
 The first consumer is the opt-in exact Chromium sRGB color-input binding. See
 [its qualification](../../Experiments/ChromiumScrollers/color-qualification.json)
 for measured rendering, events, ownership and remaining limitations. Firefox,
@@ -1292,9 +1349,9 @@ activation still needed integration. Native key-state/API injection checks alone
 do not prove physical keyboard delivery. See
 [calendar/geometry qualification](calendar-geometry-qualification.json).
 
-## Browser controls experience checkpoint
+## Historical browser controls experience checkpoint
 
-The current candidate passes the real-seat calendar, color and original native
+The earlier candidate passed its then-covered calendar, color and original native
 file-panel lifetimes in both pinned browsers, including repeat presentation and
 actual compositor keyboard focus. Firefox also retains original native
 indeterminate progress animation, with complete frames compared to independent
@@ -1314,6 +1371,12 @@ Browser toolbar, address bar and tabs remain original. Detached menus, remaining
 application shortcuts and later GTK/Qt/KDE integration are separate phases.
 Development pauses here for user feedback after the manual preview is ready.
 
+Subsequent user review exposed focus and picker lifecycle gaps outside that
+checkpoint. Review readiness requires the ordinary desktop gate with both
+original browsers at 1x and 2x, including immediate reopening, keyboard opening
+and cross-application ownership. See `Tests/Lima/check-preview-desktop.py` and
+`browser-reported-issues-qualification.json` for the current result.
+
 Default browser control sizing has a separate acceptance cohort. Firefox's
 original native date cell supplies automatic preferred block-size, while Gecko
 retains CSS constraints, borders, baselines and reflow. Default number fields
@@ -1321,3 +1384,143 @@ use the existing original frame-to-screen conversion to snap editor/stepper
 viewport edges at device pixels. The default-size cohort includes independent
 whole native images and trusted model edits; explicit author sizes alone do
 not qualify this behavior.
+
+
+Root menu state reads (`index == -1`) report native geometry and lifetime without
+validating every remote application command. Explicit item-state reads refresh
+native availability. Native key dispatch uses NSMenu's existing matching and
+matched-item validation; it does not run an extra bulk menu update first.
+
+Optional `nxs_control_auxiliary_parent()` associates an existing native auxiliary
+window with its exact foreign toplevel through the backend's xdg-foreign support.
+The shared Wayland transport exports that original surface and carries its handle
+with the authenticated activation token. The compositor reports the real transient
+relationship to Workspace, which retains the owning app's detached menu during
+native calendar/color-panel interaction. The API neither creates a control nor
+implements menu, drawing or focus behavior.
+
+Remote menu models can opt into `NXS_MENU_ENABLED_SNAPSHOT` when the provider
+advertises `NXS_MENU_STATE_SNAPSHOTS`. Passive GNUstep menu drawing uses the
+owning application's supplied enabled metadata, so layout does not synchronously
+query every remote command. Native key queries, command dispatch and explicit
+item-state reads still validate with the owner. Models without this flag retain
+ordinary native validation. The optional provider field is appended to ABI 1;
+older providers and loaders preserve their existing behavior.
+
+An auxiliary panel owns real keyboard focus independently of its opener's
+logical responder metadata. Browser activation can deliver an opener blur and
+refocus after the panel opens. Neither update dismisses the native panel: its
+native key-window resignation, explicit close, disabled/retired owner or another
+native panel presentation controls dismissal. The browser adapter separately
+tracks its own original DOM owner. The native calendar regression covers delayed
+opener blur/refocus as well as actual native key resignation.
+
+Native image readback retains its last image while GNUstep reports no display
+work and the view size/presentation density stay identical. Configuration writes
+compare the original native properties before setting them: setting an unchanged
+NSControl property can itself request another display. Native invalidation still
+owns repaint, including caret, selection, animation, model changes and resizing.
+The browser bridge contains neither a second renderer nor a second control model.
+
+
+Text/color/date model synchronization also compares the actual native properties
+before calling setters. In particular, NSColorWell.setColor: invalidates its
+well and active panel even for the same value; NSDatePicker setters can
+invalidate or reset its field editing state. An unchanged model echo retains the
+native image and creates no further paint notification. Real changes still use
+the original setters and panel model update. The backing regression checks both
+idempotent echoes, retained selection and actual changed pixels for these controls.
+
+
+The same configuration rule applies to sliders, radio groups and lists. Slider
+tick/snap setters run only when that native configuration changes; native
+resnapping still follows a domain/step change. Radio/list cells retain their
+actual enabled state, and a list's overall enable transition uses NSBrowser's
+existing setter. Repeating static page-control configuration creates no display
+invalidation. Native progress animation continues on its original timer.
+
+UI-thread transport contention joins pthread_mutex_timedlock's wait queue while
+preserving the existing five-millisecond callback-service bound. Waiting only on
+the callback descriptor could miss brief mutex releases between busy renderer
+requests. This changes shared request scheduling, with no key or focus policy.
+
+Operation 9 optionally appends per-control dirty IDs. Both browser adapters use
+`Bridge/Invalidations.inc` to decode and coalesce these receipts; legacy,
+malformed or incomplete history requests a full repaint. Native image reads do
+not consume another reader's receipt. Borrowed colour owners receive only their
+own control's changes or global changes, so unrelated progress animation does
+not wake an address editor or picker owner.
+
+Firefox retries a missing constructor capability reply at its existing libxul
+bootstrap boundary before committing its feature mask. One negotiation function
+configures controls, address editors and native menu keys. A real dropped-reply
+regression verifies recovery in the actual parent process; the ordinary desktop
+gate remains the review requirement. This adds no control or shortcut policy.
+
+Colour presentation replies carry the native state and action baseline for
+that completed operation. Direct and borrowed bindings retain that reply
+instead of issuing a second status read that could undo a successful opening.
+The real-provider transaction probe verifies retention when the follow-up
+status channel is unavailable, followed by ordinary explicit closure.
+
+Firefox brackets its original remote activation messages with Gecko's existing
+suspend/flush/resume input barriers. This keeps later input from overtaking a
+pending focus update while native drawing occupies the content thread. The
+adapter restores the former queue mode and implements no focus or key behavior.
+Dropdown refreshes also use the shared dirty-control receipts, avoiding display
+list rebuilds for unrelated progress animation. The ordinary release gate
+includes repeated inactive-window keyboard opening at both display scales.
+
+The shared host queues popup and colour-panel presentation received inside a
+native validation call, using its existing deferred-action queue. It preserves
+the request sequence, revalidates ownership after the native stack returns and
+keeps the existing bounded wait. The real-provider reentrancy regression opens
+one client's panel while another client's native command callback is active.
+The callback owner retains its original immediate refusal, avoiding a wait on
+its own native stack.
+
+Colour operation59/state2 reveals an already-active native well's original
+panel. It preserves the current browser callback, close ticket and borrowed
+reference, and refuses to create a new session. Browser adapters reuse this
+shared operation when an existing picker was hidden by app deactivation.
+Chromium retains its chooser on repeated activation and bypasses the chooser's
+open method. Its input adapter therefore reveals the existing session after the
+original accepted DOMActivate handler, preserving activation and cancellation.
+
+Colour polling reads RGBA values, the action cursor and open state from one
+existing typed-model reply. Separate status and model reads could pair a newer
+colour with an older action cursor and permanently lose the browser update.
+The shared bridge regression injects an action between replies and verifies
+exactly-once delivery without adding another control or protocol operation.
+
+Firefox frontend text snapshots retain the logical viewport that produced them.
+GNUstep's actual readback dimensions remain authoritative for fractional bounds;
+the adapter does not independently round them or reuse a different viewport's
+image. Address regressions compare the complete field with the original native
+provider as well as checking the browser's original editing model.
+
+The original GNUstep cell also updates its existing field editor when a resized
+clip changes. This preserves fractional native geometry instead of retaining
+the integral frame produced by autoresizing. Shared backing regressions compare
+resized controls with fresh native controls. Acknowledged colour-panel close
+explicitly resigns the original key window, matching immediate close; the
+component host does not run NSApplication's full window lifecycle.
+
+Firefox's installation guards verify its pinned binary independently of native
+scrollbar measurement. The existing layout path obtains that measurement when
+needed; a failed bootstrap RPC must not disable the parent's controls, address
+fields and menus. The owned fault fixture reproduces the previous failure and
+checks that the original bindings remain installed after the fix.
+
+GTK activation observation invalidates the preceding grant on new input, then
+obtains a token through GTK's original launch context after event delivery.
+Newer input supersedes pending token work. The opt-in observer shares the
+existing implementation and preserves the legacy nonempty-token callback API;
+the compositor's activation expiry and serial validation remain unchanged.
+
+Chromium's Ozone adapter also uses the shared presentation-request broker.
+Real input retires the previous grant and records Ozone's original surface and
+serial. The broker requests a fresh token when an auxiliary control opens;
+newer input invalidates an in-flight reply. No focus policy, native control or
+token protocol is copied into the adapter. A delayed-renderer probe exercises
+both first presentation and reuse beyond the original token lifetime.

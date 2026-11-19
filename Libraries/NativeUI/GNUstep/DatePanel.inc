@@ -57,8 +57,23 @@ static NXSDatePanelController *active_date_panel;
 {
   NSRect anchor=[owner->view convertRect:[owner->view bounds] toView:nil];
   anchor=[[owner->view window] convertRectToScreen:anchor];
-  NSRect frame=[panel frame];frame.origin=NSMakePoint(NSMinX(anchor),NSMinY(anchor)-NSHeight(frame));
-  frame=[panel constrainFrameRect:frame toScreen:[[owner->view window] screen]];
+  /* Leave native presentation spacing for adjacent controls on the source
+   * baseline. Their bevel can extend beyond the inline date field's frame. */
+  const CGFloat gap=4;
+  NSRect frame=[panel frame];frame.origin=NSMakePoint(NSMinX(anchor),NSMinY(anchor)-NSHeight(frame)-gap);
+  NSScreen *screen=[[owner->view window] screen];
+  frame=[panel constrainFrameRect:frame toScreen:screen];
+  NSRect sourceRow=NSInsetRect(anchor,0,-gap);
+  if(NSIntersectsRect(frame,sourceRow)) {
+    /* Clamping a below-field panel upward can cover the caller's control
+     * row. Prefer the other side, using the same native screen constraint. */
+    /* Use the same expanded edge for placement and intersection. Computing
+     * it again from anchor+gap can round differently at fractional bounds,
+     * making touching rectangles appear to overlap. */
+    NSRect above=frame;above.origin.y=NSMaxY(sourceRow);
+    above=[panel constrainFrameRect:above toScreen:screen];
+    if(!NSIntersectsRect(above,sourceRow))frame=above;
+  }
   if(!NSEqualRects(frame,[panel frame]))[panel setFrame:frame display:NO];
 }
 - (void)close
@@ -70,11 +85,14 @@ static NXSDatePanelController *active_date_panel;
 - (void)windowWillClose:(NSNotification *)notification
 {if(active_date_panel==self)active_date_panel=nil;}
 - (void)windowDidResignKey:(NSNotification *)notification
-{if(![panel isKeyWindow])[self close];}
+{if(![panel isKeyWindow]){if(getenv("NEXTSPACE_TRACE_ACTIVATION"))fprintf(stderr,"Native calendar close: native key resignation\n");[self close];}}
 /* The native input manager supplies selectors from the user's bindings.
  * These are chooser actions, independent of physical keys. */
 - (void)keyDown:(NSEvent *)event {[self interpretKeyEvents:@[event]];}
 - (void)cancelOperation:(id)sender {[self close];}
+/* The installed GNUstep binding names Escape complete:. A chooser has no
+ * text completion; give that native responder action its cancellation meaning. */
+- (void)complete:(id)sender {[self cancelOperation:sender];}
 - (void)insertNewline:(id)sender {[self close];}
 - (void)insertTab:(id)sender {[panel selectNextKeyView:sender];}
 - (void)insertBacktab:(id)sender {[panel selectPreviousKeyView:sender];}
@@ -99,7 +117,7 @@ static int date_panel_open(NXSControl *control,int open)
     if(active_date_panel&&active_date_panel!=controller)[active_date_panel close];
     if(!controller){controller=[NXSDatePanelController new];controller->owner=control;control->date_panel=controller;}
     if(![controller->panel isVisible])[controller show];
-  } else [controller close];
+  } else {if(getenv("NEXTSPACE_TRACE_ACTIVATION"))fprintf(stderr,"Native calendar close: owner popup request\n");[controller close];}
   [pool drain];return 1;
 }
 static NXSPopupState date_panel_state(NXSControl *control)
@@ -122,11 +140,6 @@ static void date_panel_position(NXSControl *control)
 {
   NXSDatePanelController *controller=control->date_panel;
   if(controller&&[controller->panel isVisible])[controller position];
-}
-static void date_panel_focus(NXSControl *control,int focused)
-{
-  if(active_date_panel&&((focused&&active_date_panel->owner!=control)||(!focused&&active_date_panel->owner==control)))
-    [active_date_panel close];
 }
 static void date_panel_destroy(NXSControl *control)
 {

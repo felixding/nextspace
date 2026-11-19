@@ -53,6 +53,8 @@ void nxs_control_track(NXSControl *c,double x,double y,unsigned m)
 void nxs_control_send(NXSControl *c,int event,double x,double y,unsigned m)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(p)p->control_send(c,event,x,y,m);}
 #define HAS_INPUT(p, field) ((p) && (p)->size >= offsetof(NXSNativeUIAPI, field)+sizeof((p)->field) && (p)->field)
+int nxs_scroller_layout(NXSSize size,NXSRect *clip)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return clip&&HAS_INPUT(p,scroller_layout)?p->scroller_layout(size,clip):0;}
 unsigned nxs_control_list_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_list_items)&&HAS_INPUT(p,control_list_state)&&HAS_INPUT(p,control_list_selection)&&HAS_INPUT(p,control_list_item_rect)&&HAS_INPUT(p,control_list_scroll)?NXS_LIST_ITEMS:0;}
 int nxs_control_list_items(NXSControl *c,const NXSListItem *items,uint32_t count,unsigned flags,uint64_t key)
@@ -135,6 +137,8 @@ NXSRect nxs_control_popup_item_rect(NXSControl *c,int index)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_popup_item_rect)?p->control_popup_item_rect(c,index):(NXSRect){0};}
 int nxs_control_set_screen_origin(NXSControl *c,double x,double y)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_screen_origin)?p->control_set_screen_origin(c,x,y):0;}
+int nxs_control_set_screen_bounds(NXSControl *c,NXSRect bounds)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_set_screen_bounds)?p->control_set_screen_bounds(c,bounds):0;}
 unsigned nxs_native_ui_source_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_create)&&HAS_INPUT(p,event_source_destroy)?1:0;}
 NXSEventSource *nxs_native_ui_source_create(int descriptor)
@@ -175,7 +179,7 @@ unsigned nxs_control_command_capabilities(void)
 int nxs_control_command_filter(NXSControl *c,NXSCommandFilter filter,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_command_filter)?p->control_command_filter(c,filter,context):0;}
 unsigned nxs_native_ui_menu_capabilities(void)
-{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_create)&&HAS_INPUT(p,menu_destroy)&&HAS_INPUT(p,menu_items)&&HAS_INPUT(p,menu_show)&&HAS_INPUT(p,menu_key)&&HAS_INPUT(p,menu_state)?NXS_MENU_MODELS|(HAS_INPUT(p,menu_cancel)?NXS_MENU_CANCEL:0)|(HAS_INPUT(p,menu_lifecycle)&&HAS_INPUT(p,menu_branch_items)?NXS_MENU_LIFECYCLE:0)|(HAS_INPUT(p,menu_key_query)?NXS_MENU_KEY_QUERY:0):0;}
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_create)&&HAS_INPUT(p,menu_destroy)&&HAS_INPUT(p,menu_items)&&HAS_INPUT(p,menu_show)&&HAS_INPUT(p,menu_key)&&HAS_INPUT(p,menu_state)?NXS_MENU_MODELS|(HAS_INPUT(p,menu_cancel)?NXS_MENU_CANCEL:0)|(HAS_INPUT(p,menu_lifecycle)&&HAS_INPUT(p,menu_branch_items)?NXS_MENU_LIFECYCLE:0)|(HAS_INPUT(p,menu_key_query)?NXS_MENU_KEY_QUERY:0)|(HAS_INPUT(p,menu_model_flags)&&(p->menu_model_flags&NXS_MENU_ENABLED_SNAPSHOT)?NXS_MENU_STATE_SNAPSHOTS:0)|(HAS_INPUT(p,menu_popup)&&HAS_INPUT(p,menu_auxiliary_parent)&&HAS_INPUT(p,menu_auxiliary_activate)?NXS_MENU_CONTEXT_POPUPS:0):0;}
 NXSMenu *nxs_menu_create(const char *title,NXSMenuCommand command,NXSPump pump,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return nxs_native_ui_menu_capabilities()?p->menu_create(title,command,pump,context):NULL;}
 int nxs_menu_destroy(NXSMenu *menu)
@@ -228,9 +232,11 @@ int nxs_control_date_sync(NXSControl *c,const NXSDateModel *model)
 int nxs_control_date_get(NXSControl *c,NXSDateModel *model)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_date_get)?p->control_date_get(c,model):0;}
 unsigned nxs_control_color_panel_capabilities(void)
-{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?1:0;}
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?NXS_COLOR_PANEL|(HAS_INPUT(p,control_color_lifecycle)?NXS_COLOR_PANEL_CLOSE_ACK:0):0;}
 int nxs_control_color_open(NXSControl *c,int open)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_open)?p->control_color_open(c,open):0;}
+int nxs_control_color_lifecycle(NXSControl *c,unsigned phase)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_color_lifecycle)?p->control_color_lifecycle(c,phase):0;}
 
 unsigned nxs_native_ui_callback_source_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,event_source_callback)?1:0;}
@@ -258,3 +264,17 @@ unsigned nxs_control_auxiliary_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_auxiliary_capabilities)&&HAS_INPUT(p,control_auxiliary_activate)?p->control_auxiliary_capabilities():0;}
 int nxs_control_auxiliary_activate(NXSControl *control,const char *token)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_auxiliary_activate)?p->control_auxiliary_activate(control,token):0;}
+int nxs_control_auxiliary_parent(NXSControl *control,const char *handle)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_auxiliary_parent)?p->control_auxiliary_parent(control,handle):0;}
+
+int nxs_menu_popup(NXSMenu *menu,double x,double y)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_popup)?p->menu_popup(menu,x,y):0;}
+int nxs_menu_auxiliary_parent(NXSMenu *menu,const char *parent)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_auxiliary_parent)?p->menu_auxiliary_parent(menu,parent):0;}
+int nxs_menu_auxiliary_activate(NXSMenu *menu,const char *token)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,menu_auxiliary_activate)?p->menu_auxiliary_activate(menu,token):0;}
+
+unsigned nxs_control_outline_capabilities(void)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_outline_items)?1:0;}
+int nxs_control_outline_items(NXSControl *control,const NXSOutlineItem *items,uint32_t count)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,control_outline_items)?p->control_outline_items(control,items,count):0;}

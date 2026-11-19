@@ -23,4 +23,15 @@ for name,bad in [('duplicate-id',root(node(1,'A'),node(1,'B'))),('bad-child',roo
  try:m.reconcile(bad)
  except ValueError:check(name+'-atomic-rejection',m.root is previous)
  else:raise AssertionError(name)
+m=MenuModel()
+def original_key(identifier,source):
+ return node(identifier,'',shortcut=[['Control','Shift','W']],**{'x-nextspace-key-only':True,'x-nextspace-key-source':source})
+first=m.reconcile(root(original_key(1,'original-one'),original_key(2,'original-two')))
+second=m.reconcile(root(original_key(20,'original-two'),original_key(10,'original-one')))
+check('original-key-sources-disambiguate-identical-shortcuts',
+ [n.native for n in second.children]==[first.children[1].native,first.children[0].native])
+previous=m.root
+try:m.reconcile(root(node(1,'',**{'x-nextspace-key-source':7})))
+except ValueError:check('invalid-original-key-source-atomic-rejection',m.root is previous)
+else:raise AssertionError('invalid-original-key-source')
 print(json.dumps(dict(passed=len(rows),cases=rows)))

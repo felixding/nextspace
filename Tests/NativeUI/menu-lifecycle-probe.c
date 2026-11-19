@@ -7,7 +7,8 @@
 #include <unistd.h>
 #define ITEM(p,c,t,k,m,f) {sizeof(NXSMenuItem),p,c,t,k,m,f}
 static NXSMenuItem initial[]={ITEM(-1,100,"Edit",NULL,0,NXS_MENU_SUBMENU),
- ITEM(-1,101,"Other",NULL,0,NXS_MENU_SUBMENU),ITEM(1,300,"Unchanged",NULL,0,0)};
+ ITEM(-1,101,"Other",NULL,0,NXS_MENU_SUBMENU),ITEM(1,300,"Unchanged",NULL,0,0),
+ ITEM(-1,400,"Original registry action","l",NXS_MENU_COMMAND,NXS_MENU_KEY_ONLY)};
 static NXSMenuItem populated[]={ITEM(-1,200,"Undo","z",NXS_MENU_COMMAND,0),
  ITEM(-1,201,"Unavailable",NULL,0,NXS_MENU_DISABLED),
  ITEM(-1,202,"More",NULL,0,NXS_MENU_SUBMENU),ITEM(2,203,"Nested action",NULL,0,0)};
@@ -25,7 +26,7 @@ static void pump(void *context){input(context);}
 static int command(void *context,uint64_t command,unsigned phase)
 {
  struct State *s=context;
- assert(command==200||command==201||command==203||command==204||command==300);
+ assert(command==200||command==201||command==203||command==204||command==300||command==400);
  if(phase==NXS_COMMAND_EXECUTE){s->actions++;s->last=command;}
  return command!=201;
 }
@@ -84,7 +85,16 @@ int main(int argc,char **argv)
  if(argc>1&&!strcmp(argv[1],"--eager"))assert(nxs_menu_items(s.menu,eager,7));
  else {
   assert(nxs_menu_lifecycle(s.menu,lifecycle,&s));
-  assert(nxs_menu_items(s.menu,initial,3));
+  assert(nxs_menu_items(s.menu,initial,4));
+  NXSKeyEvent key={.size=sizeof(key),.type=NXS_KEY_DOWN,.modifiers=NXS_ALT,.text="l",.unmodified_text="l"};
+  assert(nxs_menu_key_query(s.menu,&key)&&!s.actions);
+  assert(nxs_menu_key(s.menu,&key)&&s.actions==1&&s.last==400);
+  assert(!nxs_menu_branch_items(s.menu,100,NULL,1));
+  assert(!nxs_menu_branch_items(s.menu,100,initial,4097));
+  assert(nxs_menu_branch_items(s.menu,100,populated,4));
+  assert(nxs_menu_key(s.menu,&key)&&s.actions==2&&s.last==400);
+  assert(!nxs_menu_branch_items(s.menu,100,&initial[3],1));
+  assert(nxs_menu_items(s.menu,initial,4));s.actions=0;s.last=0;
  }
  assert(nxs_menu_show(s.menu,1));
  assert(!nxs_menu_lifecycle(s.menu,NULL,NULL));

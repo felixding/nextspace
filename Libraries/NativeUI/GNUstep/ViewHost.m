@@ -8,6 +8,7 @@
 #include <GNUstepGUI/GSDisplayServer.h>
 @interface NSObject (NXSWindowActivation)
 - (BOOL)activatewindow:(int)number withToken:(NSString *)token;
+- (BOOL)setforeignparent:(NSString *)handle forwindow:(int)number;
 @end
 @interface NSGraphicsContext (NXSBackingReadback)
 - (NSDictionary *)GSReadRectAtBackingScale:(NSRect)rect;
@@ -17,12 +18,18 @@ struct NXSViewHost {
   NSWindow *window;
   NSBitmapImageRep *bitmap;
   unsigned char *pixels;
+  NSSize drawn_size;
+  double drawn_scale;
   NXSPump pump;
   void *context;
   BOOL tracking;
   unsigned modifiers;
   unsigned click_count;
   NSPoint pointer;
+  NSPoint screen_origin;
+  BOOL screen_origin_valid;
+  NXSRect screen_bounds;
+  BOOL screen_bounds_valid;
   BOOL injected_pointer;
   BOOL release_queued;
   BOOL pointer_events;
@@ -33,6 +40,7 @@ struct NXSViewHost {
   id command_target;
   NXSCommandFilter command_filter;
   void *command_context;
+  NSString *auxiliary_parent;
 };
 static NXSViewHost *active,*focused;
 /* NSImage's temporary screen context has a 1x cache window. Supply the actual
@@ -85,7 +93,20 @@ static NXSMenuLoop *menu_loop;
 void nxs_host_menu_begin(NXSMenuLoop *scope)
 {scope->previous=menu_loop;menu_loop=scope;}
 void nxs_host_menu_end(NXSMenuLoop *scope)
-{if(menu_loop==scope)menu_loop=scope->previous;}
+{
+  /* Activation can close a tracking menu while a model callback is pumping
+   * another client. Unlink that scope even when the callback is above it. */
+  NXSMenuLoop **link=&menu_loop;
+  while(*link&&*link!=scope)link=&(*link)->previous;
+  if(*link)*link=scope->previous;
+  scope->previous=NULL;
+}
+static BOOL menu_tracks_input(void)
+{
+  for(NXSMenuLoop *scope=menu_loop;scope;scope=scope->previous)
+    if(scope->tracking)return YES;
+  return NO;
+}
 /* Auxiliary native windows (menus) must read the same pointer stream as their
  * owner during embedded tracking. Only the event source is adapted; native
  * menu layout, hit testing and tracking remain untouched. */
@@ -97,19 +118,56 @@ struct NXSInputWindow {
 };
 static struct NXSInputWindow *input_windows;
 unsigned nxs_host_auxiliary_capabilities(void)
-{return [GSCurrentServer() respondsToSelector:@selector(activatewindow:withToken:)]?1:0;}
+{id server=GSCurrentServer();return ([server respondsToSelector:@selector(activatewindow:withToken:)]?1:0)|
+  ([server respondsToSelector:@selector(setforeignparent:forwindow:)]?2:0);}
+int nxs_host_window_parent(NSWindow *window,const char *handle)
+{
+  if(!window||(handle&&(!*handle||strlen(handle)>4096))||!(nxs_host_auxiliary_capabilities()&2))return 0;
+  return [(id)GSCurrentServer() setforeignparent:handle?[NSString stringWithUTF8String:handle]:nil
+    forwindow:(int)[window windowNumber]];
+}
+int nxs_host_window_activate(NSWindow *window,const char *token)
+{
+  if(!window||!token||!*token||strlen(token)>4096||!(nxs_host_auxiliary_capabilities()&1))return 0;
+  return [(id)GSCurrentServer() activatewindow:(int)[window windowNumber]
+    withToken:[NSString stringWithUTF8String:token]];
+}
+static NSWindow *auxiliary_window(NXSViewHost *host)
+{
+  NSWindow *window=nil;
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if(entry->host==host&&[entry->window isVisible]) {
+      if(window)return nil;
+      window=entry->window;
+    }
+  return window;
+}
+int nxs_host_auxiliary_parent(NXSViewHost *host,const char *handle)
+{
+  if(!host||(handle&&(!*handle||strlen(handle)>4096))||!(nxs_host_auxiliary_capabilities()&2))return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];NSWindow *window=auxiliary_window(host);
+  int result=nxs_host_window_parent(window,handle);
+  if(result) {
+    [host->auxiliary_parent release];
+    host->auxiliary_parent=handle?[[NSString alloc] initWithUTF8String:handle]:nil;
+  }
+  [pool drain];return result;
+}
 int nxs_host_auxiliary_activate(NXSViewHost *host,const char *token)
 {
   if(!host||!token||!*token||strlen(token)>4096||!nxs_host_auxiliary_capabilities())return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];int accepted=0;
-  NSWindow *window=nil;
-  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
-    if(entry->host==host&&[entry->window isVisible]) {
-      if(window){[pool drain];return 0;}
-      window=entry->window;
-    }
-  if(window)accepted=[(id)GSCurrentServer() activatewindow:(int)[window windowNumber]
-      withToken:[NSString stringWithUTF8String:token]];
+  NSWindow *window=auxiliary_window(host);
+  /* AppKit remembers panels hidden on application deactivation. This host
+     serves several foreign windows: their old panels must not reappear when
+     another owner activates a component. orderOut also clears AppKit's own
+     inactive-window bookkeeping, without replacing its panel lifecycle. */
+  if(window&&host->auxiliary_parent)
+    for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+      if(entry->host!=host&&entry->host->auxiliary_parent&&
+         ![entry->host->auxiliary_parent isEqual:host->auxiliary_parent])
+        [entry->window orderOut:nil];
+  if(window)accepted=nxs_host_window_activate(window,token);
   [pool drain];return accepted;
 }
 /* The native menu still resolves targets and validates its own items. This
@@ -196,6 +254,12 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
     *cursor=entry->next;[entry->window release];free(entry);
   }
 }
+int nxs_host_owns_input_window(NXSViewHost *host,NSWindow *window)
+{
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if(entry->window==window)return entry->host==host;
+  return 0;
+}
 /* The native control owns the tracking loop. While it waits, dispatch the embedding
  * toolkit so real pointer events and its other windows remain responsive. */
 @interface NXSApplication : NSApplication
@@ -203,11 +267,30 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 - (BOOL)dispatchNativeEvent:(NSEvent *)event toMenu:(NSMenu *)menu;
 @end
 @implementation NXSApplication
+- (void)deactivate
+{
+  [super deactivate];
+  /* This component host serves foreign owners, rather than one application.
+   * Forget AppKit's hidden auxiliary presentations when it deactivates, so a
+   * later native field or menu cannot revive another owner's old panel.
+   * A well can also show its panel before the queued protocol enter activates
+   * NSApplication. Hide that presentation on a superseding leave as well.
+   * NSWindow owns the inactive-window bookkeeping and the next explicit open. */
+  for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
+    if([entry->window hidesOnDeactivate])
+      [entry->window orderOut:nil];
+}
 /* AppKit resolves nil-target menu actions through the embedding application's
  * logical key window, without ordering a private backing window on screen. */
 - (NSWindow *)keyWindow
 {
   NSWindow *native=[super keyWindow];
+  /* This component host does not run a separate application's launch/services
+   * lifecycle. Resolve the original AppKit modal key window directly, just
+   * as embedded controls below resolve their logical key window. AppKit still
+   * owns modal ordering, key equivalents and responder dispatch. */
+  NSWindow *modal=[self modalWindow];
+  if(nxs_gnustep_file_panel_active()&&[modal isVisible]&&[modal isKeyWindow])return modal;
   for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
     if([entry->window isVisible]&&[entry->window isKeyWindow])return entry->window;
   return focused&&!nxs_gnustep_file_panel_active()?focused->window:native;
@@ -215,7 +298,12 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 - (id)targetForAction:(SEL)action to:(id)recipient from:(id)sender
 {
   id native=[super targetForAction:action to:recipient from:sender];
-  if(native&&focused&&focused->command_filter&&native==[focused->window firstResponder]) {
+  /* Editing commands can belong to either the field editor (selection and
+   * clipboard) or its native window (undo/redo). Preserve that responder
+   * lookup, then offer the semantic action to the application's transaction
+   * binding. Auxiliary windows retain their own native responder chain. */
+  if(native&&focused&&focused->command_filter&&[self keyWindow]==focused->window&&
+     (native==[focused->window firstResponder]||native==focused->window)) {
     NXSCommandTarget *proxy=focused->command_target;
     if(proxy->target!=native){[native retain];[proxy->target release];proxy->target=native;}
     return proxy;
@@ -235,15 +323,36 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
       case NSLeftMouseDragged:[responder mouseDragged:event];break;
       case NSLeftMouseUp:[responder mouseUp:event];break;
       case NSScrollWheel:[responder scrollWheel:event];break;
-      case NSKeyDown:
+      case NSKeyDown: {
+        /* Menu matching already ran for this model. Let its native responder
+         * interpret only unmatched input; the transported application-menu
+         * fallback runs after tracking closes. Consulting mainMenu here
+         * would also execute it during a context-menu reservation query. */
+        if([responder isKindOfClass:[NSMenuView class]]) {
+          [responder keyDown:event];break;
+        }
         /* Reuse the editor's native command menu, including its key equivalents
          * and validation. Do not maintain an embedding-specific shortcut table. */
-        [[self mainMenu] update];
+        /* An embedded editor with an application transaction binding owns
+         * native editing actions. An imported application menu has opaque
+         * command IDs, not this editor's real responder chain; letting it
+         * intercept editing first can defer Copy until a subsequent edit.
+         * Resolve the native editor menu in its bound responder context,
+         * then offer all unclaimed commands to the application menu. */
+        NSMenu *editor=[responder isKindOfClass:[NSView class]]?[(NSView *)responder menu]:nil;
+        BOOL bound=focused&&focused->command_filter&&[self keyWindow]==focused->window;
+        if(bound) {
+          if([editor performKeyEquivalent:event])break;
+          /* Ordinary text input and native editing modifiers belong to the
+           * native responder. Updating an opaque remote application menu here
+           * would synchronously validate another process during text input. */
+          if(!([event modifierFlags]&NSCommandKeyMask)){[responder keyDown:event];break;}
+        }
         if(![[self mainMenu] performKeyEquivalent:event]&&
-           !([responder isKindOfClass:[NSView class]]&&
-             [[(NSView *)responder menu] performKeyEquivalent:event]))
+           !(!bound&&[editor performKeyEquivalent:event]))
           [responder keyDown:event];
         break;
+      }
       case NSKeyUp:[responder keyUp:event];break;
       case NSFlagsChanged:[responder flagsChanged:event];break;
       default:break;
@@ -255,7 +364,9 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 {
   NSEvent *previous=[_current_event retain];
   [_current_event release];_current_event=[event retain];
-  @try {[menu update];return [menu performKeyEquivalent:event];}
+  /* NSMenu owns key matching and validates its match. A blanket update first
+   * queries every foreign command even when this key belongs to an editor. */
+  @try {return [menu performKeyEquivalent:event];}
   @finally {[_current_event release];_current_event=previous;}
 }
 - (NSEvent *)nextEventMatchingMask:(NSUInteger)mask untilDate:(NSDate *)limit
@@ -287,6 +398,42 @@ void nxs_host_unbind_input_windows(NXSViewHost *host)
 @interface NXSBackingWindow : NSWindow { @public NXSViewHost *control; }
 @end
 @implementation NXSBackingWindow
+- (NSAffineTransform *)screenProjection
+{
+  if(!control||!control->screen_bounds_valid)return nil;
+  NSRect local=[control->view convertRect:[control->view bounds] toView:nil];
+  if(NSWidth(local)<=0||NSHeight(local)<=0)return nil;
+  NXSRect bounds=control->screen_bounds;
+  NSRect screen=[[NSScreen mainScreen] frame];
+  NSAffineTransform *transform=[NSAffineTransform transform];
+  [transform translateXBy:NSMinX(screen)+bounds.x yBy:NSMaxY(screen)-bounds.y-bounds.height];
+  [transform scaleXBy:bounds.width/NSWidth(local) yBy:bounds.height/NSHeight(local)];
+  [transform translateXBy:-NSMinX(local) yBy:-NSMinY(local)];
+  return transform;
+}
+- (NSPoint)convertBaseToScreen:(NSPoint)point
+{
+  NSAffineTransform *transform=[self screenProjection];
+  return transform?[transform transformPoint:point]:[super convertBaseToScreen:point];
+}
+- (NSPoint)convertScreenToBase:(NSPoint)point
+{
+  NSAffineTransform *transform=[self screenProjection];
+  if(!transform)return [super convertScreenToBase:point];
+  [transform invert];return [transform transformPoint:point];
+}
+- (NSRect)convertRectToScreen:(NSRect)rect
+{
+  NSAffineTransform *transform=[self screenProjection];
+  if(!transform)return [super convertRectToScreen:rect];
+  return (NSRect){[transform transformPoint:rect.origin],[transform transformSize:rect.size]};
+}
+- (NSRect)convertRectFromScreen:(NSRect)rect
+{
+  NSAffineTransform *transform=[self screenProjection];
+  if(!transform)return [super convertRectFromScreen:rect];
+  [transform invert];return (NSRect){[transform transformPoint:rect.origin],[transform transformSize:rect.size]};
+}
 - (NSPoint)mouseLocationOutsideOfEventStream {return control->pointer;}
 /* The embedding application supplies activation; a private backing window
  * must never acquire OS focus merely to activate its native field editor. */
@@ -387,6 +534,7 @@ int nxs_host_destroy(NXSViewHost *host)
   if(focused==host&&!nxs_host_focus(host,0))return 0;
   nxs_host_unbind_input_windows(host);
   [host->command_target release];
+  [host->auxiliary_parent release];
   [host->view removeFromSuperview];
   [host->window close];[host->window release];[host->view release];
   [host->fallback release];
@@ -413,6 +561,33 @@ int nxs_host_replace_view(NXSViewHost *host,NSView *view)
   }
   [previous release];return 1;
 }
+static void document_positions(NSView *view,NSMutableArray *positions)
+{
+  if([view isKindOfClass:[NSClipView class]]) {
+    NSView *document=[(NSClipView *)view documentView];
+    if(document)[positions addObject:@{ @"clip":view,@"document":document,
+      @"visible":[NSValue valueWithRect:[(NSClipView *)view documentVisibleRect]] }];
+  }
+  for(NSView *child in [view subviews])document_positions(child,positions);
+}
+NSArray *nxs_host_document_positions(NXSViewHost *host)
+{
+  NSMutableArray *positions=[NSMutableArray array];
+  if(host&&!nxs_host_tracking(host))document_positions(host->view,positions);
+  return positions;
+}
+void nxs_host_restore_document_positions(NXSViewHost *host,NSArray *positions)
+{
+  if(!host||nxs_host_tracking(host))return;
+  for(NSDictionary *position in positions) {
+    NSClipView *clip=[position objectForKey:@"clip"];NSView *document=[position objectForKey:@"document"];
+    if([clip documentView]!=document||[clip window]!=host->window)continue;
+    [[clip enclosingScrollView] reflectScrolledClipView:clip];
+    NSRect visible=[[position objectForKey:@"visible"] rectValue];NSPoint point=visible.origin;
+    if(![document isFlipped])point.y=NSMaxY(visible)-[clip documentVisibleRect].size.height;
+    [document scrollPoint:point];
+  }
+}
 void nxs_host_resize(NXSViewHost *host,NSSize size)
 {
   if(!host)return;
@@ -421,20 +596,35 @@ void nxs_host_resize(NXSViewHost *host,NSSize size)
   NSSize backing=NSMakeSize(ceil(size.width),ceil(size.height));
   if(!NSEqualSizes([[host->window contentView] frame].size,backing))[host->window setContentSize:backing];
   if(!NSEqualSizes([host->view frame].size,size))[host->view setFrame:NSMakeRect(0,0,size.width,size.height)];
+  /* The embedding API supplies a top-left screen anchor. NSWindow resizing
+   * keeps its bottom-left origin, so restore the same anchor after the view
+   * acquires its real size (including an origin supplied before first sync). */
+  if(host->screen_origin_valid)nxs_host_set_screen_origin(host,host->screen_origin.x,host->screen_origin.y);
 }
 int nxs_host_set_screen_origin(NXSViewHost *host,double x,double y)
 {
   if(!host||!isfinite(x)||!isfinite(y)||fabs(x)>1e7||fabs(y)>1e7||nxs_host_tracking(host))return 0;
+  host->screen_origin=NSMakePoint(x,y);host->screen_origin_valid=YES;
   NSRect screen=[[NSScreen mainScreen] frame];
   [host->window setFrameOrigin:NSMakePoint(NSMinX(screen)+x,NSMaxY(screen)-y-[host->view frame].size.height)];
   return 1;
+}
+int nxs_host_set_screen_bounds(NXSViewHost *host,NXSRect bounds)
+{
+  BOOL reset=bounds.width==0&&bounds.height==0;
+  if(!host||!isfinite(bounds.width)||!isfinite(bounds.height)||
+     (!reset&&(bounds.width<=0||bounds.height<=0||bounds.width>1e7||bounds.height>1e7))||
+     !nxs_host_set_screen_origin(host,bounds.x,bounds.y))return 0;
+  /* Only global conversion changes. The same view, field editor, local input
+   * and raster backing retain their original model and native coordinates. */
+  host->screen_bounds=bounds;host->screen_bounds_valid=!reset;return 1;
 }
 NXSRect nxs_host_rect_from_view(NXSViewHost *host,NSView *view,NSRect rect)
 {
   if(!host||!view||![view window])return (NXSRect){0};
   rect=[view convertRect:rect toView:nil];
-  rect.origin=[[view window] convertBaseToScreen:rect.origin];
-  rect.origin=[host->window convertScreenToBase:rect.origin];
+  rect=[[view window] convertRectToScreen:rect];
+  rect=[host->window convertRectFromScreen:rect];
   rect=[host->view convertRect:rect fromView:nil];
   return (NXSRect){rect.origin.x,[host->view isFlipped]?rect.origin.y:[host->view bounds].size.height-NSMaxY(rect),rect.size.width,rect.size.height};
 }
@@ -495,9 +685,15 @@ int nxs_host_needs_display(NXSViewHost *host)
 NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
 {
   NXSBitmap result = {0};
-  if (!control || !isfinite(scale) || scale < 1 || scale > 8) return result;
+  if (!control || !isfinite(scale) || scale < .125 || scale > 8) return result;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
   NSSize size = [control->view frame].size;
+  if(control->bitmap&&control->pixels&&control->drawn_scale==scale&&
+     NSEqualSizes(control->drawn_size,size)&&!nxs_host_needs_display(control)) {
+    result=(NXSBitmap){[control->bitmap pixelsWide],[control->bitmap pixelsHigh],
+      [control->bitmap pixelsWide]*4,control->pixels};
+    [pool drain];return result;
+  }
   int width = (int)floor(size.width * scale + .5), height = (int)floor(size.height * scale + .5);
   if (width < 1 || height < 1 || (size_t)width * height > 8 * 1024 * 1024) { [pool drain]; return result; }
   NSBitmapImageRep *bitmap;
@@ -509,7 +705,8 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
     /* AppKit's recursive display restores the window's gstate even with an
      * explicit image context. Render/read the real native backing instead.
      * Its field editor, selection and caret remain wholly native. */
-    if(fabs(scale-[control->window backingScaleFactor])>0.000001){[pool drain];return result;}
+    double backingScale=[control->window backingScaleFactor];
+    int requestedWidth=width,requestedHeight=height;
     NSView *backing=[control->window contentView];
     [backing lockFocus];
     [[NSColor controlBackgroundColor] set];
@@ -535,9 +732,27 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
     /* Native readback defines pixel rounding, including exact half units. */
     width=[bitmap pixelsWide];height=[bitmap pixelsHigh];
     if(width<1||height<1||(size_t)width*height>8*1024*1024){[bitmap release];[pool drain];return result;}
+    if(fabs(scale-backingScale)>0.000001) {
+      /* Browser zoom can differ from the screen density. Keep the original
+       * view hierarchy/editor drawing, then let AppKit compose its native
+       * image at the requested presentation density. No control drawing,
+       * font metrics, caret or selection implementation is reproduced. */
+      NSImage *source=[[NSImage alloc] initWithSize:size];
+      [bitmap setSize:size];[source addRepresentation:bitmap];
+      NSImage *target=[[NSImage alloc] initWithSize:NSMakeSize(requestedWidth,requestedHeight)];
+      [target lockFocus];
+      [source drawInRect:NSMakeRect(0,0,requestedWidth,requestedHeight)
+        fromRect:NSZeroRect operation:NSCompositeCopy fraction:1];
+      NSBitmapImageRep *scaled=[[NSBitmapImageRep alloc]
+        initWithFocusedViewRect:NSMakeRect(0,0,requestedWidth,requestedHeight)];
+      [target unlockFocus];[target release];[source release];[bitmap release];bitmap=scaled;
+      width=[bitmap pixelsWide];height=[bitmap pixelsHigh];
+      if(width!=requestedWidth||height!=requestedHeight){[bitmap release];[pool drain];return result;}
+    }
   } else {
   NSImage *image = [[NSImage alloc] initWithSize:NSMakeSize(width, height)];
   [image lockFocus];
+  [NSGraphicsContext saveGraphicsState];
   NSAffineTransform *transform = [NSAffineTransform transform];
   [transform translateXBy:0 yBy:height]; [transform scaleXBy:scale yBy:-scale]; [transform concat];
   NSGraphicsContext *context = [NSGraphicsContext currentContext];
@@ -545,7 +760,7 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   [context GSWSetViewIsFlipped:[control->view isFlipped]];
   struct NXSDrawDensity density;
   if(!begin_draw_density(context,scale,&density)) {
-    [context unlockFocusView:control->view needsFlush:NO];[image unlockFocus];[image release];[pool drain];return result;
+    [context unlockFocusView:control->view needsFlush:NO];[NSGraphicsContext restoreGraphicsState];[image unlockFocus];[image release];[pool drain];return result;
   }
   @try {
     [[NSColor controlBackgroundColor] set]; NSRectFill(NSMakeRect(0,0,size.width,size.height));
@@ -555,15 +770,22 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
   [control->view setNeedsDisplay:NO];
   if(popup)[control->window setViewsNeedDisplay:NO];
   acknowledge_empty_panes(control->view);
-  [NSGraphicsContext saveGraphicsState];
-  [transform invert]; [transform concat];
+  /* Restore the exact image CTM. Multiplying by an inverse can leave an
+   * integral edge infinitesimally short; native readback then floors it. */
+  [NSGraphicsContext restoreGraphicsState];
   bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect(0,0,width,height)];
-  [NSGraphicsContext restoreGraphicsState]; [image unlockFocus]; [image release];
+  [image unlockFocus]; [image release];
+  }
+  /* Never expose dimensions different from the native allocation. Both the
+   * copy below and a later cached read must describe the same complete image. */
+  if(!bitmap||[bitmap pixelsWide]!=width||[bitmap pixelsHigh]!=height||[bitmap bytesPerRow]<width*4) {
+    control->drawn_scale=0;[bitmap release];[pool drain];return result;
   }
   [control->bitmap release]; control->bitmap = bitmap;
   unsigned char *pixels = realloc(control->pixels, (size_t)width * height * 4);
   if (pixels) {
     control->pixels = pixels;
+    control->drawn_size=size;control->drawn_scale=scale;
     /* AppKit readback is RGBA; the two embedding toolkits accept native ARGB32. */
     const unsigned char *source = [bitmap bitmapData];
     for (int y = 0; y < height; y++) for (int x = 0; x < width; x++) {
@@ -572,7 +794,7 @@ NXSBitmap nxs_host_draw(NXSViewHost *control, double scale)
         ((uint32_t)p[0] << 16) | ((uint32_t)p[1] << 8) | p[2];
     }
     result = (NXSBitmap){width, height, width * 4, pixels};
-  }
+  } else control->drawn_scale=0;
   [pool drain];
   return result;
 }
@@ -588,7 +810,7 @@ static void finish_pointer(NXSViewHost *host)
 }
 int nxs_host_track_clicks(NXSViewHost *control,double x,double y,unsigned modifiers,unsigned clicks)
 {
-  if (!control || active || menu_loop || !clicks || clicks>INT_MAX || !isfinite(x) || !isfinite(y)) return 0;
+  if (!control || active || menu_tracks_input() || !clicks || clicks>INT_MAX || !isfinite(x) || !isfinite(y)) return 0;
   NSAutoreleasePool *pool = [NSAutoreleasePool new];
   /* Native cells may prepare their track/knob geometry while drawing. An
    * offscreen host has no automatic display pass between resize and input;
@@ -635,7 +857,9 @@ void nxs_host_send(NXSViewHost *control, int event, double x, double y, unsigned
 int nxs_host_tracking(NXSViewHost *host){return host&&(host->tracking||host->dispatch_depth);}
 int nxs_host_action(NXSViewHost *host,void (*action)(NSView *,void *),void *context)
 {
-  if(!host||!action||active||menu_loop||nxs_host_tracking(host))return 0;
+  /* A model callback may pump an unrelated client's activation while waiting
+   * for its owner. Only real NSMenu tracking owns the pointer at that point. */
+  if(!host||!action||active||menu_tracks_input()||nxs_host_tracking(host))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   host->dispatch_depth++;active=host;
   @try {action(host->view,context);}
@@ -724,6 +948,11 @@ int nxs_host_menu_key(NSMenu *menu,const NXSKeyEvent *input)
   NSEvent *event=key_event(input,[menu window]);
   return event&&[(NXSApplication *)NSApp dispatchNativeEvent:event toMenu:menu];
 }
+int nxs_host_responder_key(NSResponder *responder,NSWindow *window,const NXSKeyEvent *input)
+{
+  NSEvent *event=key_event(input,window);if(!event)return 0;
+  [(NXSApplication *)NSApp dispatchNativeEvent:event to:responder];return 1;
+}
 int nxs_host_key(NXSViewHost *host,const NXSKeyEvent *input)
 {
   if(!host||active||menu_loop||!nxs_host_focused(host))return NXS_INPUT_UNHANDLED;
@@ -758,4 +987,11 @@ int nxs_host_wheel(NXSViewHost *host,const NXSWheelEvent *input)
   @try {[(NXSApplication *)NSApp dispatchNativeEvent:event to:target];[host->view setNeedsDisplay:YES];}
   @finally {host->dispatch_depth--;active=NULL;}
   [pool drain];return 1;
+}
+
+void nxs_host_popup_pointer(NXSViewHost *host,NSWindow *window,BOOL enabled)
+{
+  if(!host)return;
+  if(enabled){host->pointer=NSMakePoint(0,[host->view frame].size.height);nxs_host_bind_input_window(host,window);}
+  host->injected_pointer=enabled;
 }

@@ -11,6 +11,7 @@ from text_input import Client
 p=argparse.ArgumentParser(description=__doc__)
 for name in ['build','compositor','capture-probe','backend-bundle','output']:p.add_argument('--'+name,type=Path,required=True)
 p.add_argument('--previous-provider',type=Path)
+p.add_argument('--provider',type=Path,help='Select a supporting provider for the same native fixture')
 p.add_argument('--probe',type=Path,help='Use a separately built native reference probe')
 p.add_argument('--previous-group-provider',type=Path)
 p.add_argument('--previous-scroll-provider',type=Path,help='List provider predating shared scroll geometry')
@@ -19,6 +20,7 @@ p.add_argument('--previous-client',type=Path)
 p.add_argument('--previous-loader',type=Path)
 p.add_argument('--specialized',action='store_true',help='Qualify original native stepper/color/date controls')
 p.add_argument('--date-panel',action='store_true',help='Qualify original native calendar-panel composition')
+p.add_argument('--scale-units',type=int,action='append',help='Wayland scale in120ths; defaults to all supported display densities')
 p.add_argument('--date-input',action='store_true',help='Measure original native date input and empty-state behavior')
 p.add_argument('--gui-library-path',type=Path,help='Use a staged GNUstep GUI library for native component qualification')
 p.add_argument('--base-library-path',type=Path,help='Use a staged Foundation library for native component qualification')
@@ -43,6 +45,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  if a.base_library_path:env['LD_LIBRARY_PATH']=str(a.base_library_path)+':'+env['LD_LIBRARY_PATH']
  if a.gui_library_path:env['LD_LIBRARY_PATH']=str(a.gui_library_path)+':'+env['LD_LIBRARY_PATH']
  for key in ['DISPLAY','WAYLAND_DISPLAY','WAYLAND_SOCKET','LD_PRELOAD','NEXTSPACE_NATIVE_UI_PROVIDER']:env.pop(key,None)
+ if a.provider:env['NEXTSPACE_NATIVE_UI_PROVIDER']=str(a.provider.resolve())
  private_defaults(env,runtime);bundles=runtime/'empty-library/Bundles';bundles.mkdir(parents=True)
  (bundles/a.backend_bundle.name).symlink_to(a.backend_bundle.resolve(),target_is_directory=True)
  control,child=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);control.settimeout(5)
@@ -50,13 +53,21 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
  server=subprocess.Popen([str(a.compositor),'-c',str(child.fileno()),'-S',str(peer.fileno())],pass_fds=[child.fileno(),peer.fileno()],env=env,stdout=subprocess.PIPE,stderr=(a.output/'compositor.stderr').open('w'),text=True);children.append(server);child.close();peer.close();capture=None
  def command(text):
   control.send(text.encode());return json.loads(control.recv(65536))
+ def capture_window(out,name,window,scale):
+  raw=out/(name+'.raw');start=len(capture.events);capture.send('capture '+head+' '+str(raw));frame=capture.wait('frame',start)
+  image=Image.frombytes('RGBA' if frame['format']==0 else 'RGB',(frame['width'],frame['height']),raw.read_bytes(),'raw','BGRA' if frame['format']==0 else 'BGRX',frame['stride'],-1 if frame['flags']&1 else 1).convert('RGB');raw.unlink()
+  left,top=round(window['x']*scale/120),round(window['y']*scale/120)
+  inset=round(window['frame_top']*scale/120)
+  image=image.crop((left,top+inset,left+window['buffer_width'],top+window['buffer_height']))
+  image.save(out/(name+'.png'));(out/(name+'-geometry.json')).write_text(json.dumps(window,indent=2)+'\n')
+  return image
  try:
   assert select.select([server.stdout],[],[],10)[0]
   line=server.stdout.readline().strip();assert line.startswith('WAYLAND_DISPLAY='),line
   env['WAYLAND_DISPLAY']=line.split('=',1)[1];head=command('outputs')[0]['name']
   capture=Client(str(a.capture_probe),None,env,a.output,'capture',broker,b'V');children.append(capture.process)
   assert capture.events[0]['manager_visible']
-  for scale in [120,240]:
+  for scale in a.scale_units or [120,150,180,210,240]:
    assert command(f'test-scale {head} {scale} 10000')['ok'];assert command('confirm')['ok']
    out=a.output/str(scale);out.mkdir()
    with (out/'probe.stdout').open('wb') as stdout,(out/'probe.stderr').open('w') as stderr:
@@ -95,6 +106,12 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
        finally:
         if event['modifiers']&1:assert command('key 42 0')['ok']
        actor.stdin.write(b'pointer-done\n');actor.stdin.flush()
+      elif event.get('event')=='provider-window-ready':
+       window=until(lambda:next((w for w in command('windows') if w['pid']==actor.pid and w['title']==event['title'] and w['visible'] and w['buffer_width']==event['pixel_width'] and w['buffer_height']==event['pixel_height']),None),'native provider panel backing')
+       assert command(f"move {window['id']} 20 20")['ok'];window=next(w for w in command('windows') if w['id']==window['id'])
+       assert command('pointer 600 340')['ok']
+       capture_window(out,event['name']+'-native',window,scale)
+       actor.stdin.write(b'captured\n');actor.stdin.flush()
       elif event.get('event')=='reference':
        title=reference_title+event['name']
        def reference():
@@ -102,6 +119,11 @@ with tempfile.TemporaryDirectory(prefix='nxs-tabs-') as temporary:
        window=until(reference,'native reference backing at requested density')
        assert command(f"move {window['id']} 20 20")['ok'];window=reference()
        assert command('pointer 600 340')['ok']
+       if event.get('native_window_reference'):
+        expected=capture_window(out,event['name']+'-reference',window,scale)
+        actual=Image.open(out/(event['name']+'-native.png')).convert('RGB')
+        rows.append(dict(case=event['name']+'-whole-desktop-native-pixels',passed=actual.size==expected.size and actual.tobytes()==expected.tobytes(),density=scale))
+        actor.stdin.write(b'captured\n');actor.stdin.flush();continue
        raw=out/(event['name']+'-desktop.raw');start=len(capture.events);capture.send('capture '+head+' '+str(raw));frame=capture.wait('frame',start)
        desktop=Image.frombytes('RGBA' if frame['format']==0 else 'RGB',(frame['width'],frame['height']),raw.read_bytes(),'raw','BGRA' if frame['format']==0 else 'BGRX',frame['stride'],-1 if frame['flags']&1 else 1).convert('RGB');raw.unlink()
        desktop.save(out/(event['name']+'-desktop.png'))

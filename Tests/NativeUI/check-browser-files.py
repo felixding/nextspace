@@ -198,12 +198,17 @@ try:
     for event in (f"pointer {window['x']+window['width']-140} {window['y']+128}",
                   'button 272 1','button 272 0','key 42 1',
                   f"pointer {window['x']+window['width']-140} {window['y']+143}",
-                  'button 272 1','button 272 0','key 42 0',
-                  f"pointer {window['x']+window['width']-48} {window['y']+window['height']-29}",
-                  'button 272 1','button 272 0'):
+                  'button 272 1','button 272 0','key 42 0'):
         assert command(event)['ok']
         # Deliver motion before the next press, and let the original NSBrowser
         # finish each tracking loop before another gesture changes the pointer.
+        time.sleep(.1)
+    # Native panel layout can change after folder/filter navigation. Read its
+    # committed geometry again before the final physical acceptance gesture.
+    window=panel()
+    for event in (f"pointer {window['x']+window['width']-48} {window['y']+window['height']-29}",
+                  'button 272 1','button 272 0'):
+        assert command(event)['ok']
         time.sleep(.1)
     until(lambda: js('multiple.files.length')==2,'native multiple file selection')
     check('native-browser-range-selection-returns-both-original-files',

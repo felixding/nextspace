@@ -23,6 +23,7 @@ struct NXSControl {
   unsigned specialized_callback;
   unsigned date_flags;
   BOOL text_selection_pending,text_editable,text_reveal_pending,destroying,tab_syncing;
+  BOOL color_close_deferred,color_close_pending;
 };
 static void date_panel_model_changed(NXSControl *);
 double nxs_gnustep_control_backing_scale(NXSControl *control)
@@ -58,14 +59,19 @@ NXSTextViewport nxs_gnustep_control_text_viewport(NXSControl *control)
   state.visible=(NXSRect){visible.origin.x,[view isFlipped]?visible.origin.y:content.height-NSMaxY(visible),visible.size.width,visible.size.height};
   state.content=(NXSSize){content.width,content.height};[pool drain];return state;
 }
+static void scroll_document(NSScrollView *scroll,double x,double y)
+{
+  NSClipView *clip=[scroll contentView];NSView *view=[scroll documentView];
+  [scroll reflectScrolledClipView:clip];
+  NSRect visible=[clip documentVisibleRect];
+  /* NSView owns the document-to-clip transform, clamping and reflection. */
+  [view scrollPoint:NSMakePoint(x,[view isFlipped]?y:NSMaxY([view bounds])-y-visible.size.height)];
+}
 int nxs_gnustep_control_text_scroll(NXSControl *control,double x,double y)
 {
   if(!control||control->kind!=NXS_TEXTAREA||control->destroying||!isfinite(x)||!isfinite(y)||nxs_host_tracking(control->host))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  NSScrollView *scroll=(NSScrollView *)control->view;NSClipView *clip=[scroll contentView];
-  NSView *view=[scroll documentView];
-  NSPoint point=NSMakePoint(x,[view isFlipped]?y:[view bounds].size.height-y-[clip bounds].size.height);
-  [clip scrollToPoint:[clip constrainScrollPoint:point]];[scroll reflectScrolledClipView:clip];
+  scroll_document((NSScrollView *)control->view,x,y);
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
 static int scroll_geometry(NXSControl *control,NSScrollView *scroll,NXSScrollGeometry *geometry)
@@ -76,9 +82,12 @@ static int scroll_geometry(NXSControl *control,NSScrollView *scroll,NXSScrollGeo
     hasHorizontalScroller:NO hasVerticalScroller:NO borderType:[scroll borderType]];
   NSPoint minimum=[clip constrainScrollPoint:NSMakePoint(-FLT_MAX,-FLT_MAX)];
   NSPoint maximum=[clip constrainScrollPoint:NSMakePoint(FLT_MAX,FLT_MAX)];
+  NSRect first=[view convertRect:(NSRect){minimum,[clip bounds].size} fromView:clip];
+  NSRect last=[view convertRect:(NSRect){maximum,[clip bounds].size} fromView:clip];
+  minimum=first.origin;maximum=last.origin;
   if(![view isFlipped]) {
-    double bottom=[view bounds].size.height-[clip bounds].size.height;
-    double first=bottom-maximum.y;maximum.y=bottom-minimum.y;minimum.y=first;
+    minimum.y=NSMaxY([view bounds])-NSMaxY(last);
+    maximum.y=NSMaxY([view bounds])-NSMaxY(first);
   }
   *geometry=(NXSScrollGeometry){.size=sizeof(*geometry),
     .clip=nxs_host_rect_from_view(control->host,clip,[clip bounds]),
@@ -91,7 +100,7 @@ int nxs_gnustep_control_text_geometry(NXSControl *control,NXSTextGeometry *geome
   return scroll_geometry(control,(NSScrollView *)control->view,geometry);
 }
 int nxs_gnustep_control_wheel(NXSControl *control,const NXSWheelEvent *event)
-{return control&&(control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX)&&!control->destroying?nxs_host_wheel(control->host,event):0;}
+{return control&&(control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX||control->kind==NXS_OUTLINE)&&!control->destroying?nxs_host_wheel(control->host,event):0;}
 static void slider_model(NXSControl *control)
 {
   NSSlider *view=(NSSlider *)control->view;
@@ -99,8 +108,10 @@ static void slider_model(NXSControl *control)
   /* Dense domains retain the native continuous presentation. Small domains
    * use the existing native tick/snap implementation, including its keys. */
   NSInteger ticks=isfinite(intervals)&&intervals>=1&&intervals<=63?(NSInteger)llround(intervals)+1:0;
-  [view setNumberOfTickMarks:ticks];[view setAllowsTickMarkValuesOnly:ticks>1];
-  [view setDoubleValue:[view doubleValue]];
+  BOOL changed=NO;
+  if([view numberOfTickMarks]!=ticks){[view setNumberOfTickMarks:ticks];changed=YES;}
+  if([view allowsTickMarkValuesOnly]!=(ticks>1)){[view setAllowsTickMarkValuesOnly:ticks>1];changed=YES;}
+  if(changed)[view setDoubleValue:[view doubleValue]];
 }
 @interface NXSControlAction : NSObject {
  @public NXSControl *control;
@@ -263,18 +274,21 @@ static void slider_model(NXSControl *control)
 #include "Toolbar.inc"
 #include "Radio.inc"
 #include "List.inc"
+#include "Outline.inc"
 #include "Specialized.inc"
 #include "DatePanel.inc"
 
 NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPump pump,void *context)
 {
-  if(kind<NXS_BUTTON||kind>NXS_DATEPICKER)return NULL;
+  if(kind<NXS_BUTTON||kind>NXS_OUTLINE)return NULL;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   if(!nxs_host_initialize()){[pool drain];return NULL;}
   NXSControl *control=calloc(1,sizeof(*control));
   if(!control){[pool drain];return NULL;}
   NSView *view=nil;
-  if(kind==NXS_STEPPER) {
+  if(kind==NXS_OUTLINE) {
+    view=outline_create(control);
+  } else if(kind==NXS_STEPPER) {
     view=[[NSStepper alloc] initWithFrame:NSMakeRect(0,0,24,24)];
   } else if(kind==NXS_COLORWELL) {
     view=[[NSColorWell alloc] initWithFrame:NSMakeRect(0,0,120,24)];
@@ -303,6 +317,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
     view=kind==NXS_PASSWORD?[[NSSecureTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)]:
       kind==NXS_SEARCHFIELD?[[NSSearchField alloc] initWithFrame:NSMakeRect(0,0,120,24)]:
       [[NSTextField alloc] initWithFrame:NSMakeRect(0,0,120,24)];
+    [[(NSControl *)view cell] setScrollable:YES];
   } else if(kind==NXS_POPUP) {
     view=[[NSPopUpButton alloc] initWithFrame:NSMakeRect(0,0,120,24) pullsDown:NO];
     [(NSPopUpButton *)view setAutoenablesItems:NO];
@@ -324,7 +339,7 @@ NXSControl *nxs_gnustep_control_create(int kind,NXSControlChanged changed,NXSPum
   control->kind=kind;control->enabled=1;control->text_editable=YES;control->changed=changed;control->context=context;
   if(kind==NXS_COLORWELL)nxs_host_pointer_events(control->host,1);
   control->text_selection=NSMakeRange(NSNotFound,0);
-  if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR&&kind!=NXS_RADIOGROUP&&kind!=NXS_LISTBOX) {
+  if(kind!=NXS_PROGRESS&&kind!=NXS_TOOLBAR&&kind!=NXS_RADIOGROUP&&kind!=NXS_LISTBOX&&kind!=NXS_OUTLINE) {
     NXSControlAction *target=[NXSControlAction new];target->control=control;control->target=target;
     if(kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:(id)target];
     else if(kind!=NXS_TEXTAREA){[(NSControl *)view setTarget:target];[(NSControl *)view setAction:@selector(changed:)];}
@@ -352,8 +367,15 @@ int nxs_gnustep_control_destroy(NXSControl *control)
   }
   NSView *view=[control->view retain];
   date_panel_destroy(control);
+  if(control->kind==NXS_COLORWELL) {
+    struct NXSColorAction action={control,0};
+    if(!nxs_host_action(control->host,color_open,&action)) {
+      control->destroying=NO;[view release];[pool drain];return 0;
+    }
+  }
   if(!nxs_host_destroy(control->host)){control->destroying=NO;[view release];[pool drain];return 0;}
-  if(control->kind==NXS_LISTBOX)[(NSBrowser *)view setDelegate:nil];
+  if(control->kind==NXS_OUTLINE){[outline_view(control) setDelegate:nil];[outline_view(control) setDataSource:nil];}
+  else if(control->kind==NXS_LISTBOX)[(NSBrowser *)view setDelegate:nil];
   else if(control->kind==NXS_TEXTAREA)[(NSTextView *)[(NSScrollView *)view documentView] setDelegate:nil];
   else if(control->kind==NXS_TABVIEW)[(NSTabView *)view setDelegate:nil];
   else if(text_control(control))[(NSTextField *)view setDelegate:nil];
@@ -376,18 +398,37 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
     title=config->title?[NSString stringWithUTF8String:config->title]:@"";
     if(!title){[pool drain];return 0;}
   }
+  NSScrollView *textScroll=control->kind==NXS_TEXTAREA?(NSScrollView *)control->view:nil;
+  BOOL resized=!NSEqualSizes([control->view frame].size,NSMakeSize(config->width,config->height));
+  NSArray *positions=resized?nxs_host_document_positions(control->host):nil;
+  BOOL autohide=resized&&[textScroll autohidesScrollers];
+  /* Resize the native editor as one configuration transaction. Intermediate
+   * fractional clip sizes otherwise reenter GNUstep's autohide/tile loop
+   * before NSTextView has received its new minimum viewport height. */
+  if(autohide)[textScroll setAutohidesScrollers:NO];
+  BOOL enabled_changed=control->enabled!=!!config->enabled;
   nxs_host_resize(control->host,NSMakeSize(config->width,config->height));control->enabled=!!config->enabled;
   if(control->kind==NXS_TEXTAREA) {
     NSTextView *editor=text_editor(control);
-    [editor setEditable:control->enabled&&control->text_editable];[editor setSelectable:control->enabled];
-    [editor sizeToFit];
+    if(resized)[editor setMinSize:NSMakeSize(0,[[textScroll contentView] bounds].size.height)];
+    BOOL editable=control->enabled&&control->text_editable;
+    if([editor isEditable]!=editable)[editor setEditable:editable];
+    if([editor isSelectable]!=control->enabled)[editor setSelectable:control->enabled];
+    if(resized)[editor sizeToFit];
+    if(autohide)[textScroll setAutohidesScrollers:YES];
   } else if(control->kind==NXS_PROGRESS) {
     NSProgressIndicator *view=(NSProgressIndicator *)control->view;
-    [view setMinValue:config->minimum];[view setMaxValue:config->maximum];[view setDoubleValue:config->value];
-    [view setIndeterminate:!!config->indeterminate];
+    if([view minValue]!=config->minimum)[view setMinValue:config->minimum];
+    if([view maxValue]!=config->maximum)[view setMaxValue:config->maximum];
+    if([view doubleValue]!=config->value)[view setDoubleValue:config->value];
+    if([view isIndeterminate]!=!!config->indeterminate)[view setIndeterminate:!!config->indeterminate];
     if(config->indeterminate&&control->enabled)[view startAnimation:nil];
     else [view stopAnimation:nil];
+  } else if(control->kind==NXS_OUTLINE) {
+    if(resized)[outline_view(control) sizeToFit];
+    [control->view setNeedsDisplay:YES];
   } else if(control->kind==NXS_LISTBOX) {
+    if(enabled_changed)[(NSBrowser *)control->view setEnabled:control->enabled];
     list_enabled(control);
   } else if(control->kind==NXS_RADIOGROUP) {
     radio_enabled(control);
@@ -396,15 +437,20 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
   } else if(control->kind==NXS_TABVIEW) {
     [control->view setNeedsDisplay:YES];
   } else {
-    [(NSControl *)control->view setEnabled:control->enabled];
+    if([(NSControl *)control->view isEnabled]!=control->enabled)
+      [(NSControl *)control->view setEnabled:control->enabled];
     if(control->kind==NXS_STEPPER) {
       NSStepper *view=(NSStepper *)control->view;
-      [view setMinValue:config->minimum];[view setMaxValue:config->maximum];
-      [view setDoubleValue:config->value];
+      if([view minValue]!=config->minimum)[view setMinValue:config->minimum];
+      if([view maxValue]!=config->maximum)[view setMaxValue:config->maximum];
+      if([view doubleValue]!=config->value)[view setDoubleValue:config->value];
     } else if(control->kind==NXS_SLIDER) {
       NSSlider *view=(NSSlider *)control->view;
-      [view setAllowsTickMarkValuesOnly:NO];
-      [view setMinValue:config->minimum];[view setMaxValue:config->maximum];[view setDoubleValue:config->value];
+      BOOL domain_changed=[view minValue]!=config->minimum||[view maxValue]!=config->maximum;
+      if(domain_changed&&[view allowsTickMarkValuesOnly])[view setAllowsTickMarkValuesOnly:NO];
+      if([view minValue]!=config->minimum)[view setMinValue:config->minimum];
+      if([view maxValue]!=config->maximum)[view setMaxValue:config->maximum];
+      if([view doubleValue]!=config->value)[view setDoubleValue:config->value];
       slider_model(control);
     } else if(control->kind==NXS_POPUP) {
       NSPopUpButton *view=(NSPopUpButton *)control->view;
@@ -415,10 +461,13 @@ int nxs_gnustep_control_sync(NXSControl *control,const NXSControlConfig *config)
         [view selectItemAtIndex:(NSInteger)config->value];
     } else if(!text_control(control)&&control->kind!=NXS_COLORWELL&&control->kind!=NXS_DATEPICKER) {
       NSButton *view=(NSButton *)control->view;
-      [view setTitle:title];[view setAllowsMixedState:control->kind==NXS_CHECKBOX&&config->state==-1];
-      [view setState:config->state];
+      if(![[view title] isEqual:title])[view setTitle:title];
+      BOOL mixed=control->kind==NXS_CHECKBOX&&config->state==-1;
+      if([view allowsMixedState]!=mixed)[view setAllowsMixedState:mixed];
+      if([view state]!=config->state)[view setState:config->state];
     }
   }
+  nxs_host_restore_document_positions(control->host,positions);
   if(control->kind==NXS_DATEPICKER&&!control->enabled)date_panel_model_changed(control);
   [pool drain];return 1;
 }
@@ -427,7 +476,9 @@ NXSControlState nxs_gnustep_control_state(NXSControl *control)
   NXSControlState state={.size=sizeof(state)};
   if(!control)return state;
   state.enabled=control->enabled;state.tracking=nxs_host_tracking(control->host)||control->specialized_callback;
-  if(control->kind==NXS_LISTBOX) {
+  if(control->kind==NXS_OUTLINE) {
+    NXSOutlineAction *target=control->target;state.value=target->actionIndex;state.state=target->actionState;
+  } else if(control->kind==NXS_LISTBOX) {
     state.value=[list_matrix(control) selectedRow];state.state=[[list_matrix(control) selectedCells] count]>0;
   } else if(control->kind==NXS_TOOLBAR) {
     NXSToolbarAction *target=control->target;state.value=-1;
@@ -453,7 +504,7 @@ NXSSize nxs_gnustep_control_size(NXSControl *control)
   if(!control)return (NXSSize){0};
   NSSize size=control->kind==NXS_RADIOGROUP?((NXSRadioAction *)control->target)->preferred:
     control->kind==NXS_TOOLBAR?NSMakeSize([control->view frame].size.width,[control->view _heightFromLayout]):control->kind==NXS_TABVIEW?[(NSTabView *)control->view minimumSize]:
-    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX||control->kind==NXS_COLORWELL)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
+    (control->kind==NXS_PROGRESS||control->kind==NXS_TEXTAREA||control->kind==NXS_LISTBOX||control->kind==NXS_OUTLINE||control->kind==NXS_COLORWELL)?[control->view frame].size:[[(NSControl *)control->view cell] cellSize];
   return (NXSSize){size.width,size.height};
 }
 NXSBitmap nxs_gnustep_control_draw(NXSControl *control,double scale)
@@ -490,7 +541,6 @@ int nxs_gnustep_control_focus(NXSControl *control,int focused)
 {
   if(!control||(focused&&(!control->enabled||control->kind==NXS_PROGRESS)))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  date_panel_focus(control,focused);
   int accepted=nxs_host_focus(control->host,focused);
   if(accepted&&focused&&text_control(control)&&control->text_selection_pending) {
     [text_editor(control) setSelectedRange:control->text_selection];
@@ -587,7 +637,15 @@ int nxs_gnustep_control_set_screen_origin(NXSControl *control,double x,double y)
 {
   if(!control)return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
-  int result=nxs_host_set_screen_origin(control->host,x,y);
+  int result=nxs_host_set_screen_bounds(control->host,(NXSRect){x,y,0,0});
+  if(result&&control->kind==NXS_DATEPICKER)date_panel_position(control);
+  [pool drain];return result;
+}
+int nxs_gnustep_control_set_screen_bounds(NXSControl *control,NXSRect bounds)
+{
+  if(!control)return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  int result=nxs_host_set_screen_bounds(control->host,bounds);
   if(result&&control->kind==NXS_DATEPICKER)date_panel_position(control);
   [pool drain];return result;
 }
@@ -595,6 +653,8 @@ unsigned nxs_gnustep_control_auxiliary_capabilities(void)
 {return nxs_host_auxiliary_capabilities();}
 int nxs_gnustep_control_auxiliary_activate(NXSControl *control,const char *token)
 {return control&&!control->destroying?nxs_host_auxiliary_activate(control->host,token):0;}
+int nxs_gnustep_control_auxiliary_parent(NXSControl *control,const char *handle)
+{return control&&!control->destroying?nxs_host_auxiliary_parent(control->host,handle):0;}
 int nxs_gnustep_control_popup_open(NXSControl *control,int open)
 {
   if(control&&control->kind==NXS_DATEPICKER)return date_panel_open(control,open);
@@ -640,12 +700,17 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
   BOOL model_changed=![current isEqualToString:text]||
     (editor&&model->selection_start!=NXS_TEXT_NO_SELECTION&&
      !NSEqualRanges([editor selectedRange],NSMakeRange(model->selection_start,model->selection_length)));
+  NSArray *positions=![current isEqualToString:text]?nxs_host_document_positions(control->host):nil;
   if(![current isEqualToString:text]) {
     if(control->kind==NXS_TEXTAREA){[editor setString:text];[editor sizeToFit];}
     else [(NSTextField *)control->view setStringValue:text];
   }
+  BOOL editable_changed=control->text_editable!=!!model->editable;
   control->text_editable=!!model->editable;
-  if(control->kind==NXS_TEXTAREA)[editor setEditable:control->enabled&&control->text_editable];
+  if(control->kind==NXS_TEXTAREA) {
+    BOOL editable=control->enabled&&control->text_editable;
+    if([editor isEditable]!=editable)[editor setEditable:editable];
+  }
   else if([(NSTextField *)control->view isEditable]!=control->text_editable)
     [(NSTextField *)control->view setEditable:control->text_editable];
   [(NXSControlAction *)control->target bindTextEditor];
@@ -658,10 +723,12 @@ int nxs_gnustep_control_text_sync(NXSControl *control,const NXSTextModel *model)
   if(editor&&control->text_selection.location!=NSNotFound&&
      !NSEqualRanges([editor selectedRange],control->text_selection))
     [editor setSelectedRange:control->text_selection];
+  nxs_host_restore_document_positions(control->host,positions);
   if(control->text_reveal_pending&&model_changed&&nxs_host_focused(control->host))
     [editor scrollRangeToVisible:[editor selectedRange]];
   control->text_reveal_pending=NO;
-  [control->view setNeedsDisplay:YES];[pool drain];return 1;
+  if(model_changed||editable_changed)[control->view setNeedsDisplay:YES];
+  [pool drain];return 1;
 }
 size_t nxs_gnustep_control_text_get(NXSControl *control,char *buffer,size_t capacity,NXSTextState *state)
 {

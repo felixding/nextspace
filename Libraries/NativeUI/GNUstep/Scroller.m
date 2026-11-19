@@ -34,6 +34,19 @@ struct NXSScroller {
 
 double nxs_gnustep_scroller_width(void)
 {return nxs_host_initialize()?[NSScroller scrollerWidth]:0;}
+int nxs_gnustep_scroller_layout(NXSSize size,NXSRect *clip)
+{
+  if(!clip||!isfinite(size.width)||!isfinite(size.height)||size.width<1||size.height<1||
+     size.width>32768||size.height>32768||!nxs_host_initialize())return 0;
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  NSScrollView *scroll=[[NSScrollView alloc] initWithFrame:NSMakeRect(0,0,size.width,size.height)];
+  [scroll setBorderType:NSNoBorder];[scroll setAutohidesScrollers:NO];
+  [scroll setHasHorizontalScroller:YES];[scroll setHasVerticalScroller:YES];[scroll tile];
+  NSRect rect=[[scroll contentView] frame];
+  if(![scroll isFlipped])rect.origin.y=size.height-NSMaxY(rect);
+  *clip=(NXSRect){rect.origin.x,rect.origin.y,rect.size.width,rect.size.height};
+  [scroll release];[pool drain];return 1;
+}
 NXSScroller *nxs_gnustep_scroller_create(int horizontal,NXSChanged changed,NXSPump pump,void *context)
 {
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
@@ -72,8 +85,14 @@ void nxs_gnustep_scroller_sync(NXSScroller *control, double length, double lower
   control->step = step; control->page_step = page_step; control->value = value;
   double extent = fmax(0, upper - lower), range = fmax(0, extent - page);
   [control->view setEnabled:enabled && range > 0];
-  [control->view setFloatValue:range > 0 ? (value - lower) / range : 0
-              knobProportion:extent > 0 ? fmin(1, page / extent) : 1];
+  float position=range > 0 ? (value-lower)/range : 0;
+  CGFloat proportion=extent > 0 ? fmin(1,page/extent) : 1;
+  /* The paired native setter deliberately invalidates even an unchanged
+   * position. Preserve its tracking semantics, but let the existing native
+   * backing cache serve repeated paints of an unchanged embedding model. */
+  if(nxs_host_tracking(control->host)||[control->view floatValue]!=position||
+     [control->view knobProportion]!=proportion)
+    [control->view setFloatValue:position knobProportion:proportion];
   [pool drain];
 }
 

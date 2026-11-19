@@ -38,6 +38,22 @@ def main():
    connection.settimeout(10);connection.connect(a.desktop);connection.send(json.dumps(dict(command=text)).encode());return json.loads(connection.recv(65536))
  def check(name,value,**data):
   rows.append(dict(case=name,passed=bool(value),**data));a.output.write_text(json.dumps(rows,indent=2)+'\n');assert value,rows[-1]
+ def capture_stage(name):
+  root=Path(a.desktop).parent
+  (root/(name+'-windows.json')).write_text(json.dumps(desktop('windows'),indent=2)+'\n')
+  if (root/'capture.fifo').exists():
+   sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'Wayland'))
+   from desktop_input import Desktop
+   Desktop(root).capture(name)
+ def panel_window(visible=True):
+  # A native RPC reply precedes the compositor processing its Wayland commit.
+  # Observe that asynchronous mapping within the existing three-second limit.
+  deadline=time.monotonic()+3
+  while True:
+   panel=next((w for w in desktop('windows') if w['title']=='Colors' and w['visible']),None)
+   if bool(panel)==visible:return panel
+   assert time.monotonic()<deadline,('native panel mapping',visible,panel)
+   time.sleep(.02)
  parent=Client(a.endpoint,0xa1000000+(os.getpid()&0xffff));check('borrower-needs-live-registration',parent.request(61,x=123)[0].parts[3].x==0)
  check('parent-registration',parent.register())
  control,peer=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET);child=os.fork()
@@ -50,6 +66,8 @@ def main():
    elif op=='sync':result=source.sync(*command['rgb'])
    elif op=='color':result=source.color()
    elif op=='poll':result=source.request(5)[0].parts[0].height
+   elif op=='ack':result=source.request(67,x=command['token'])[0].parts[3].x==1
+   elif op=='panel':result=source.request(59,state=command['state'])[0].parts[3].x==1
    elif op=='remove':result=source.request(6)[0].width==0
    elif op=='new':source.control+=1;result=source.configure() and source.sync(0,0,1)
    elif op=='exit':source.close();peer.close();os._exit(0)
@@ -58,7 +76,8 @@ def main():
  def source(op,**data):control.send(json.dumps(dict(op=op,**data)).encode());return json.loads(control.recv(1024))
  try:
   check('missing-offer-cannot-be-borrowed',parent.request(61,x=123)[0].parts[3].x==0)
-  check('malformed-source-offer-rejected',not source('offer',state=2))
+  check('reveal-cannot-create-native-session',not source('panel',state=2))
+  check('malformed-source-offer-rejected',not source('offer',state=3))
   check('source-publishes-owned-reference',source('offer'))
   # A sibling is not an ancestor and cannot acquire its sibling's reference.
   result_read,result_write=os.pipe();ack_read,ack_write=os.pipe();sibling=os.fork()
@@ -82,11 +101,24 @@ def main():
   check('inherited-socket-cannot-impersonate-borrower',denied)
   check('borrower-cannot-write-source-model',not parent.sync(0,1,0) and source('color')==[1,0,0,1])
   check('borrower-opens-original-panel',parent.request(59,state=1)[0].parts[0].height==1 and source('poll')==1)
-  panel=next(w for w in desktop('windows') if w['title']=='Colors' and w['visible'])
+  panel=panel_window()
+  capture_stage('color-owner-before-wheel')
+  panel=panel_window()
+  # This fixture has no browser activation token. Acquire actual focus with
+  # ordinary titlebar input, then choose the original panel's wheel tab: the
+  # shared NSColorPanel remembers the mode used by earlier browser trials.
+  for text in [f"pointer {round(panel['x']+panel['width']/2)} {panel['y']+11}",'button 272 1','button 272 0']:assert desktop(text)['ok']
+  deadline=time.monotonic()+3
+  while not panel_window()['focused'] and time.monotonic()<deadline:time.sleep(.02)
+  check('fixture-panel-acquires-focus-through-titlebar',panel_window()['focused'])
+  for text in [f"pointer {round(panel['x']+panel['width']/2)} {panel['y']+84}",'button 272 1','button 272 0']:assert desktop(text)['ok']
+  capture_stage('color-owner-wheel-tab-selected')
+  panel=panel_window()
   for text in [f"pointer {panel['x']+120} {panel['y']+155}",'button 272 1','button 272 0']:assert desktop(text)['ok']
   deadline=time.monotonic()+3;selected=parent.color()
   while selected==[1,0,0,1] and time.monotonic()<deadline:time.sleep(.02);selected=parent.color()
   actions=parent.request(5)[0].parts[0].width
+  capture_stage('color-owner-after-wheel')
   check('real-native-wheel-action-through-borrowed-well',selected!=[1,0,0,1] and actions>0,color=selected)
   check('stale-source-echo-cannot-overwrite-native-action',source('sync',rgb=[1,0,0]) and parent.color()==selected)
   check('source-script-model-stays-authoritative',source('sync',rgb=[0,1,0]) and parent.color()==[0,1,0,1])
@@ -98,6 +130,34 @@ def main():
   finally:foreign.close()
   check('return-reference-closes-panel',parent.request(62)[0].parts[3].x==1 and source('poll')==0)
   check('return-keeps-original-field-alive',source('color')==[0,1,0,1])
+  def panel_visible(expected=True):return bool(panel_window(expected))
+  def close_panel():
+   panel=panel_window()
+   for text in [f"pointer {panel['x']+panel['width']-10} {panel['y']+10}",'button 272 1','button 272 0']:
+    assert desktop(text)['ok']
+   deadline=time.monotonic()+3
+   while source('poll') and time.monotonic()<deadline:time.sleep(.02)
+  check('source-publishes-deferred-reference',source('offer',state=2,token=201))
+  check('borrowed-deferred-panel-opens',parent.request(61,x=201)[0].parts[3].x==1 and parent.request(59,state=1)[0].parts[0].height==1)
+  existing_panel=panel_window()['id']
+  check('source-reveals-running-borrowed-panel',source('panel',state=2))
+  check('reveal-retains-original-native-panel',panel_window()['id']==existing_panel)
+  check('reveal-keeps-borrowed-reference',parent.color()==source('color'))
+  close_panel()
+  check('native-close-waits-for-original-model',source('poll')==0 and panel_visible())
+  check('borrower-cannot-acknowledge-source-model',parent.request(67,x=201)[0].parts[3].x==0 and panel_visible())
+  check('wrong-session-acknowledgement-rejected',not source('ack',token=200) and panel_visible())
+  check('return-reference-keeps-deferred-panel',parent.request(62)[0].parts[3].x==1 and panel_visible())
+  check('original-source-acknowledgement-closes-panel',source('ack',token=201) and not panel_visible(False))
+  check('duplicate-source-acknowledgement-is-idempotent',source('ack',token=201) and not panel_visible(False))
+  check('new-deferred-session-opens',source('offer',state=2,token=202) and parent.request(61,x=202)[0].parts[3].x==1 and parent.request(59,state=1)[0].parts[0].height==1)
+  check('old-session-cannot-close-reopened-native-panel',not source('ack',token=201) and source('poll')==1 and panel_visible())
+  check('original-model-completion-requests-and-closes',source('ack',token=202) and not panel_visible(False))
+  check('deferred-reference-return-after-completion',parent.request(62)[0].parts[3].x==1)
+  check('direct-source-publishes-deferred-session',source('offer',state=2,token=203) and source('panel',state=1) and panel_visible())
+  close_panel()
+  check('direct-source-close-waits-for-model',source('poll')==0 and panel_visible())
+  check('direct-source-model-acknowledgement-closes',source('ack',token=203) and not panel_visible(False))
   check('source-can-republish-reference',source('offer') and parent.request(61,x=123)[0].parts[3].x==1)
   parent.request(59,state=1);source('remove')
   check('source-retirement-revokes-reference',parent.color() is None and parent.request(5)[0].width==0)

@@ -91,16 +91,16 @@ int main(int argc,char **argv)
     NXSControlConfig c={.size=sizeof(c),.width=180,.height=24,.enabled=1};assert(nxs_control_sync(p.control,&c));
     model(&p,"Hello",1,2,1);assert(!p.edits&&!p.actions);
     NXSTextState state=value(&p,"Hello");assert(!state.editing&&state.editable&&state.secure==(kind==NXS_PASSWORD));
-    image(&p,directory,kind==NXS_PASSWORD?"secure-normal":"normal");
+    image(&p,directory,kind==NXS_PASSWORD?"secure-normal":kind==NXS_SEARCHFIELD?"search-normal":"normal");
     assert(nxs_control_focus(p.control,1)&&nxs_control_focused(p.control));
     state=value(&p,"Hello");assert(state.editing&&state.selection_start==1&&state.selection_length==2);
-    image(&p,directory,kind==NXS_PASSWORD?"secure-focused":"focused");
+    image(&p,directory,kind==NXS_PASSWORD?"secure-focused":kind==NXS_SEARCHFIELD?"search-focused":"focused");
     if(kind==NXS_TEXTFIELD&&getenv("NXS_NATIVE_UI_TEXT_HOLD")) {
       puts("{\"event\":\"host-live\"}");fflush(stdout);assert(getchar()=='\n');
     }
     assert(key(&p,NXS_KEY_TEXT,"X",0)==NXS_INPUT_HANDLED);state=value(&p,"HXlo");
     assert(p.edits==1&&state.selection_start==2&&!state.selection_length);
-    image(&p,directory,kind==NXS_PASSWORD?"secure-edited":"edited");
+    image(&p,directory,kind==NXS_PASSWORD?"secure-edited":kind==NXS_SEARCHFIELD?"search-edited":"edited");
     assert(key(&p,NXS_KEY_BACKSPACE,NULL,0)==NXS_INPUT_HANDLED);value(&p,"Hlo");assert(p.edits==2);
     assert(key(&p,NXS_KEY_TAB,NULL,0)==NXS_INPUT_NEXT);
     assert(key(&p,NXS_KEY_TAB,NULL,NXS_SHIFT)==NXS_INPUT_PREVIOUS);
@@ -108,6 +108,10 @@ int main(int argc,char **argv)
     model(&p,"日本語Café🙂",9,0,1);assert(nxs_control_focus(p.control,1));
     state=value(&p,"日本語Café🙂");assert(state.selection_start==9);
     key(&p,NXS_KEY_TEXT,"X",0);value(&p,"日本語Café🙂X");
+    model(&p,"Select all",3,0,1);key(&p,NXS_KEY_TEXT,"a",NXS_ALT);
+    state=value(&p,"Select all");assert(state.selection_start==0&&state.selection_length==10);
+    model(&p,"Read only",3,0,0);key(&p,NXS_KEY_TEXT,"a",NXS_ALT);
+    state=value(&p,"Read only");assert(state.selection_start==0&&state.selection_length==9);
     if(kind!=NXS_PASSWORD) {
       caret(&p);
       model(&p,"Alpha beta",5,0,1);key(&p,NXS_KEY_TEXT,"a",NXS_CONTROL);
@@ -119,6 +123,12 @@ int main(int argc,char **argv)
       model(&p,"Protected",0,9,1);key(&p,NXS_KEY_TEXT,"c",NXS_ALT);
       model(&p,"",0,0,1);key(&p,NXS_KEY_TEXT,"v",NXS_ALT);value(&p,"Copy me");
     }
+    const char *long_value="https://example.invalid/a-long-single-line-address/with-more-text-than-the-visible-native-field";
+    model(&p,long_value,strlen(long_value),0,1);
+    key(&p,NXS_KEY_TEXT,"e",NXS_CONTROL);state=value(&p,long_value);
+    assert(state.selection_start==strlen(long_value)&&!state.selection_length);
+    key(&p,NXS_KEY_TEXT,"a",NXS_CONTROL);state=value(&p,long_value);
+    assert(!state.selection_start&&!state.selection_length);
     int actions=p.actions;key(&p,NXS_KEY_ENTER,NULL,0);assert(p.actions==actions+1);
     int edits=p.edits;model(&p,"Read only",0,9,0);assert(p.edits==edits);
     key(&p,NXS_KEY_TEXT,"Y",0);value(&p,"Read only");assert(p.edits==edits);
@@ -129,5 +139,5 @@ int main(int argc,char **argv)
     assert(key(&p,NXS_KEY_TEXT,"Z",0)==NXS_INPUT_UNHANDLED);value(&p,"Read only");
     assert(nxs_control_focus(p.control,0));assert(nxs_control_destroy(p.control));
   }
-  puts("{\"native_text_controls\":3,\"selection_replace\":true,\"delete\":true,\"unicode\":true,\"read_only\":true,\"disabled\":true,\"native_navigation\":true,\"deferred_destruction\":true,\"emacs_control_a_e\":true,\"alt_copy_paste\":true,\"secure_copy_blocked\":true,\"native_return_action\":true,\"native_caret_invalidation_and_pixels\":true}");
+  puts("{\"native_text_controls\":3,\"selection_replace\":true,\"delete\":true,\"unicode\":true,\"read_only\":true,\"disabled\":true,\"native_navigation\":true,\"deferred_destruction\":true,\"emacs_control_a_e\":true,\"alt_copy_paste\":true,\"native_select_all_including_read_only\":true,\"secure_copy_blocked\":true,\"native_return_action\":true,\"native_caret_invalidation_and_pixels\":true}");
 }

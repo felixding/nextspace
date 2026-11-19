@@ -91,6 +91,7 @@ class HostConnections:
             elif operation==EPOCH and not descriptors and self.restoring:
                 # Old decisions must be older than every callback in this
                 # generation, even if an owner sends one after restoration.
+                self.forms.host_epoch=epoch
                 self.forms.edit_serial=itertools.count((epoch<<32)+1)
                 for entry in self.forms.text_filters.values():entry['serial']=epoch<<32
                 self.restoring=False

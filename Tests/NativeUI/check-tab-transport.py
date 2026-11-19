@@ -17,6 +17,7 @@ p.add_argument('--placeholder',action='store_true',help='Qualify shared native p
 p.add_argument('--list',action='store_true',help='Qualify shared native list model/input/state transport')
 p.add_argument('--probe',type=Path,help='Use a separately built C transport probe')
 p.add_argument('--radio',action='store_true',help='Use the shared group model/input and member pixel transport')
+p.add_argument('--radio-presentation',action='store_true',help='Compare retained and fresh native radio groups across live presentation changes')
 a=p.parse_args();a.output.mkdir(parents=True);rows=[];children=[]
 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
 def check(case,passed,**data):
@@ -38,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
   assert select.select([server.stdout],[],[],10)[0]
   line=server.stdout.readline().strip();assert line.startswith('WAYLAND_DISPLAY='),line
   env['WAYLAND_DISPLAY']=line.split('=',1)[1]
-  variants=([('current-120',None,120),('current-240',None,240)] if a.radio or a.list else [('current',None,120)])+([('previous',a.previous_provider,120)] if a.previous_provider else [])+([('previous-group',a.previous_group_provider,120)] if a.previous_group_provider else [])
+  variants=([('current-120',None,120),('current-240',None,240)] if a.radio or a.radio_presentation or a.list else [('current',None,120)])+([('previous',a.previous_provider,120)] if a.previous_provider else [])+([('previous-group',a.previous_group_provider,120)] if a.previous_group_provider else [])
   if a.previous_scroll_provider:
    assert a.list
    variants.append(('previous-scroll',a.previous_scroll_provider,120))
@@ -46,7 +47,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
    assert a.list
    variants.append(('previous-item-hit',a.previous_item_hit_provider,120))
   for name,provider,density in variants:
-   if a.radio or a.list or a.placeholder or a.specialized:
+   if a.radio or a.radio_presentation or a.list or a.placeholder or a.specialized:
     control.send(b'outputs');output=json.loads(control.recv(65536))[0]['name']
     control.send(f'test-scale {output} {density} 10000'.encode());assert json.loads(control.recv(65536))['ok']
     control.send(b'confirm');assert json.loads(control.recv(65536))['ok']
@@ -59,6 +60,7 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
     assert time.monotonic()<deadline,'Native host readiness';time.sleep(.02)
    with (out/'probe.stdout').open('w') as stdout,(out/'probe.stderr').open('w') as stderr:
     arguments=([str(a.build/'native-ui/native-specialized-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-specialized'] if provider else [])] if a.specialized else [str(a.build/'native-ui/native-placeholder-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-placeholder'] if provider else [])] if a.placeholder else [str(a.probe or a.build/'native-ui/native-list-transport-probe'),str(endpoint),str(out),str(density/120),str(a.reference/str(density)),*(['--expect-no-item-hit' if name=='previous-item-hit' else '--expect-no-scroll' if name=='previous-scroll' else '--expect-no-list'] if provider else [])] if a.list else [str(a.probe or a.build/'native-ui/native-radio-transport-probe'),str(endpoint),str(out),str(density/120),*(['--expect-no-radio'] if provider else [])] if a.radio else [str(a.build/'native-ui/native-tab-transport-probe'),str(endpoint),str(out),*(['--expect-no-tabs'] if provider else [])])
+    if a.radio_presentation:arguments=[str(a.probe or a.build/'native-ui/native-radio-presentation-probe'),str(endpoint)]
     actor=subprocess.Popen(arguments,env=local,stdout=stdout,stderr=stderr);children.append(actor)
     try:code=actor.wait(timeout=45)
     except subprocess.TimeoutExpired:stop(actor);raise
@@ -76,7 +78,8 @@ with tempfile.TemporaryDirectory(prefix='nxs-tab-wire-') as temporary:
      actual=Image.frombytes('RGBA',(event['width'],event['height']),(out/(event['name']+'.argb')).read_bytes(),'raw','BGRA',event['stride']);actual.save(out/(event['name']+'.png'))
      check(name+'-transport-'+event['name']+'-whole-native-desktop-pixels',actual.size==expected.size and actual.convert('RGB').tobytes()==expected.tobytes() and actual.getchannel('A').getextrema()==(255,255),reference=str(source))
    check(name+'-C-transport-probe-exit',code==0,exit=code,stderr=(out/'probe.stderr').read_text())
-   assert events[-1]['images']==(0 if provider else 12 if a.specialized else 24 if a.placeholder else 13 if a.list else 17+(4 if events[-1].get('semantic_activation') else 0) if a.radio else 10)
+   if a.radio_presentation:assert len(events)==10
+   else:assert events[-1]['images']==(0 if provider else 12 if a.specialized else 24 if a.placeholder else 13 if a.list else 17+(4 if events[-1].get('semantic_activation') else 0) if a.radio else 10)
    check(name+'-helper-survives',helper.poll() is None);stop(helper)
  finally:
   for child in reversed(children[1:]):stop(child)

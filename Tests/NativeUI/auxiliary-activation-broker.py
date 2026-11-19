@@ -3,6 +3,8 @@
 import argparse
 import json
 import os
+import socket
+import struct
 from pathlib import Path
 import subprocess
 import sys
@@ -59,6 +61,89 @@ def run(output):
         check('shutdown-releases-token-lifetimes',not broker.tokens)
         for payload in [b'',b'bad\0token',b'x'*4097]:broker.publish(source,request,os.getpid(),payload)
         check('malformed-publications-create-no-source',not broker.tokens)
+        parents=[];order=[];server.auxiliary_capabilities=3;state['destroy']=False
+        native.nxs_control_auxiliary_parent=lambda control,handle:parents.append((control,handle)) or order.append('parent') or 1
+        native.nxs_control_auxiliary_activate=lambda control,token:order.append('activate') or 1
+        request.state=2
+        broker.publish(source,request,os.getpid(),b'parented-token\0original-export')
+        broker.open(state,os.getpid())
+        check('authenticated-source-supplies-original-parent',parents==[(1,b'original-export')])
+        check('parent-is-associated-before-activation',order==['parent','activate'])
+        for payload in [b'token',b'token\0',b'token\0owner\0extra',b'token\0'+b'x'*4097]:
+            broker.publish(source,request,os.getpid(),payload)
+        check('invalid-parent-payload-cannot-create-a-source',not broker.tokens)
+        request.state=1;broker.publish(source,request,os.getpid(),b'unparented-token');broker.open(state,os.getpid())
+        check('reuse-without-parent-clears-old-association',parents[-1]==(1,None))
+        broker.publish(source,request,os.getpid(),b'superseded-token')
+        request.state=0;request.x=0
+        broker.publish(object(),request,os.getpid(),b'')
+        check('other-connection-cannot-clear-source-grant',len(broker.tokens)==1)
+        broker.publish(source,request,os.getpid(),b'')
+        check('new-input-clears-previous-source-grant',not broker.tokens)
+        prior=len(order);broker.open(state,os.getpid())
+        check('popup-waits-for-current-input-token',len(order)==prior and bool(broker.pending))
+        request.state=1;request.x=124
+        broker.publish(source,request,os.getpid(),b'current-token')
+        check('current-input-token-completes-handoff',len(order)==prior+2 and not broker.pending)
+        broker.open(state,os.getpid());request.state=0;request.x=0
+        broker.publish(source,request,os.getpid(),b'')
+        check('new-input-retires-superseded-pending-handoff',not broker.pending)
+        broker.close();order.clear();parents.clear()
+        sources=[]
+        native.nxs_native_ui_source_create=lambda fd:sources.append(fd) or fd+1
+        native.nxs_native_ui_source_destroy=lambda handle:sources.remove(handle-1)
+        request.state=3;request.control=0;request.text_size=0;request.value=0
+        provider,remote=socket.socketpair(socket.AF_UNIX,socket.SOCK_SEQPACKET)
+        provider.settimeout(1)
+        try:
+            broker.register(source,request,os.getpid(),[remote.fileno()])
+            check('presentation-provider-is-bound-to-live-source',len(broker.providers)==1 and len(sources)==1)
+            broker.open(state,os.getpid())
+            check('provider-without-real-input-cannot-request-activation',not order and not broker.providers[(source,os.getpid())]['requested'])
+            request.state=0;request.control=42
+            broker.publish(source,request,os.getpid(),b'')
+            broker.open(state,os.getpid());ticket=struct.unpack('<Q',provider.recv(8))[0]
+            check('presentation-requests-a-fresh-toolkit-token',ticket>0 and not order)
+            request.state=2;request.value=ticket
+            broker.publish(object(),request,os.getpid(),b'foreign-token\0owner')
+            check('another-connection-cannot-answer-presentation-request',not order and not broker.tokens)
+            broker.publish(source,request,os.getpid(),b'fresh-token\0owner')
+            check('fresh-request-completes-original-native-presentation',order==['parent','activate'] and not broker.pending)
+            broker.publish(source,request,os.getpid(),b'replayed-token\0owner')
+            check('presentation-reply-cannot-be-replayed',not broker.tokens and len(order)==2)
+            broker.open(state,os.getpid());old=struct.unpack('<Q',provider.recv(8))[0]
+            request.state=0;request.value=0
+            broker.publish(source,request,os.getpid(),b'')
+            request.state=2;request.value=old
+            broker.publish(source,request,os.getpid(),b'superseded-token\0owner')
+            check('new-input-rejects-inflight-old-token',not broker.tokens and not broker.pending and len(order)==2)
+            broker.open(state,os.getpid());request.value=struct.unpack('<Q',provider.recv(8))[0]
+            check('new-input-gets-a-distinct-presentation-ticket',request.value>old)
+            visible=False
+            broker.publish(source,request,os.getpid(),b'closed-token\0owner')
+            check('late-request-reply-cannot-activate-closed-window',len(order)==2 and not broker.pending)
+            visible=True
+            broker.open(state,os.getpid());ticket=struct.unpack('<Q',provider.recv(8))[0]
+            check('reopening-requests-fresh-token-instead-of-retained-grant',ticket>request.value and len(order)==2)
+            request.value=ticket
+            broker.publish(source,request,os.getpid(),b'current-token\0owner')
+            check('reopening-uses-current-presentation-reply',len(order)==4 and not broker.pending)
+            broker.disconnect(source)
+            check('provider-disconnect-closes-source-and-lifetime',not broker.providers and not sources)
+            request.state=3;request.control=0;request.value=0
+            read,write=os.pipe()
+            try:
+                broker.register(source,request,os.getpid(),[read])
+                check('non-socket-cannot-register-as-token-provider',not broker.providers and not sources)
+            finally:os.close(read);os.close(write)
+            stream,other=socket.socketpair(socket.AF_UNIX,socket.SOCK_STREAM)
+            try:
+                broker.register(source,request,os.getpid(),[other.fileno()])
+                check('stream-socket-cannot-replace-packet-contract',not broker.providers and not sources)
+            finally:stream.close();other.close()
+        finally:
+            provider.close();remote.close()
+
     finally:
         broker.close()
         if child and child.poll() is None:child.terminate();child.wait()

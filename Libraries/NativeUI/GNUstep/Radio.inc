@@ -41,12 +41,13 @@ static NSView *radio_create(NXSControl *control)
 }
 static void radio_enabled(NXSControl *control)
 {
-  NXSRadioAction *target=control->target;
+  NXSRadioAction *target=control->target;BOOL changed=NO;
   for(NSNumber *identifier in target->identifiers) {
     NSDictionary *model=[target->models objectForKey:identifier];
-    [[model objectForKey:@"cell"] setEnabled:control->enabled&&[[model objectForKey:@"enabled"] boolValue]];
+    NSCell *cell=[model objectForKey:@"cell"];BOOL enabled=control->enabled&&[[model objectForKey:@"enabled"] boolValue];
+    if([cell isEnabled]!=enabled){[cell setEnabled:enabled];changed=YES;}
   }
-  [control->view setNeedsDisplay:YES];
+  if(changed)[control->view setNeedsDisplay:YES];
 }
 static void radio_restore(NSMatrix *matrix,NSArray *saved,NSCell *selected,NSCell *key,BOOL allows_empty)
 {
@@ -76,7 +77,7 @@ int nxs_gnustep_control_radio_items(NXSControl *control,const NXSRadioItem *item
   uint32_t count,uint32_t columns,uint64_t selected,uint64_t key_cell)
 {
   if(!control||control->kind!=NXS_RADIOGROUP||control->destroying||nxs_host_tracking(control->host)||
-     count>65536||(!items&&count)||!columns||columns>65536||count%columns||
+     count>65536||(!items&&count)||!columns||columns>65536||
      (count&&columns>count))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];
   NSMutableArray *identifiers=[NSMutableArray array],*titles=[NSMutableArray array];
@@ -107,10 +108,16 @@ int nxs_gnustep_control_radio_items(NXSControl *control,const NXSRadioItem *item
     cellClass:[NSButtonCell class] numberOfRows:0 numberOfColumns:columns];
   [matrix setAllowsEmptySelection:YES];
   NSMutableDictionary *models=[NSMutableDictionary dictionary];
-  for(uint32_t row=0;row<count/columns;row++) {
+  for(uint32_t row=0;row<(count+columns-1)/columns;row++) {
     NSMutableArray *cells=[NSMutableArray array];
     for(uint32_t column=0;column<columns;column++) {
-      uint32_t index=row*columns+column;NSNumber *identifier=[identifiers objectAtIndex:index];
+      uint32_t index=row*columns+column;
+      if(index>=count) {
+        NSCell *empty=[[[NSCell alloc] initTextCell:@""] autorelease];
+        [empty setBordered:NO];[empty setEnabled:NO];
+        [cells addObject:empty];continue;
+      }
+      NSNumber *identifier=[identifiers objectAtIndex:index];
       NSButtonCell *cell=[[target->models objectForKey:identifier] objectForKey:@"cell"];
       if(!cell) {
         cell=[[[NSButtonCell alloc] initTextCell:[titles objectAtIndex:index]] autorelease];

@@ -15,7 +15,7 @@ static int native_radio_response_state(const struct NXSResponse *response,struct
 static struct NXSResponse *native_radio_model(uint64_t control,const NXSRadioItem *items,unsigned count,
   unsigned columns,uint64_t selected,uint64_t key_cell,double scale)
 {
-  if(!control||count>4096||(count&&!items)||!columns||count%columns)return NULL;
+  if(!control||count>4096||(count&&!items)||!columns||(count&&columns>count))return NULL;
   size_t body=0;
   for(unsigned i=0;i<count;i++) {
     if(items[i].size<sizeof(*items)||!items[i].identifier)return NULL;

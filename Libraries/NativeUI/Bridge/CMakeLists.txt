@@ -22,7 +22,14 @@ add_custom_command(OUTPUT "${ACTIVATION_HEADER}" "${ACTIVATION_CODE}"
   COMMAND "${WAYLAND_SCANNER}" client-header "${ACTIVATION_PROTOCOL}" "${ACTIVATION_HEADER}"
   COMMAND "${WAYLAND_SCANNER}" private-code "${ACTIVATION_PROTOCOL}" "${ACTIVATION_CODE}"
   DEPENDS "${ACTIVATION_PROTOCOL}" VERBATIM)
-add_library(nextspace-wayland-geometry SHARED WaylandGeometry.c "${APPLICATION_HEADER}" "${APPLICATION_CODE}" "${ACTIVATION_HEADER}" "${ACTIVATION_CODE}")
+set(FOREIGN_PROTOCOL "${CMAKE_CURRENT_SOURCE_DIR}/../../gnustep/back/Source/wayland/protocols/xdg-foreign-unstable-v2.xml")
+set(FOREIGN_HEADER "${CMAKE_CURRENT_BINARY_DIR}/xdg-foreign-v2-client-protocol.h")
+set(FOREIGN_CODE "${CMAKE_CURRENT_BINARY_DIR}/xdg-foreign-v2-protocol.c")
+add_custom_command(OUTPUT "${FOREIGN_HEADER}" "${FOREIGN_CODE}"
+  COMMAND "${WAYLAND_SCANNER}" client-header "${FOREIGN_PROTOCOL}" "${FOREIGN_HEADER}"
+  COMMAND "${WAYLAND_SCANNER}" private-code "${FOREIGN_PROTOCOL}" "${FOREIGN_CODE}"
+  DEPENDS "${FOREIGN_PROTOCOL}" VERBATIM)
+add_library(nextspace-wayland-geometry SHARED WaylandGeometry.c "${APPLICATION_HEADER}" "${APPLICATION_CODE}" "${ACTIVATION_HEADER}" "${ACTIVATION_CODE}" "${FOREIGN_HEADER}" "${FOREIGN_CODE}")
 target_include_directories(nextspace-wayland-geometry PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
 target_link_libraries(nextspace-wayland-geometry PRIVATE PkgConfig::WAYLAND_GEOMETRY)
 set_target_properties(nextspace-wayland-geometry PROPERTIES VERSION 0.1 SOVERSION 1)
@@ -36,4 +43,7 @@ if(NXS_BUILD_GTK3_GEOMETRY)
   set_target_properties(nextspace-gtk3-geometry PROPERTIES VERSION 0.1 SOVERSION 1 BUILD_RPATH "$ORIGIN" INSTALL_RPATH "$ORIGIN")
   install(TARGETS nextspace-gtk3-geometry LIBRARY DESTINATION lib/nextspace-scrollbars)
   install(FILES Gtk3Geometry.h DESTINATION include/NextSpaceNativeUI)
+  add_executable(native-gtk-activation-focus-probe ../../../Tests/NativeUI/gtk-activation-focus-probe.c)
+  target_link_libraries(native-gtk-activation-focus-probe PRIVATE nextspace-wayland-geometry PkgConfig::GTK3_GEOMETRY PkgConfig::WAYLAND_GEOMETRY ${CMAKE_DL_LIBS})
+  target_compile_options(native-gtk-activation-focus-probe PRIVATE -UNDEBUG)
 endif()

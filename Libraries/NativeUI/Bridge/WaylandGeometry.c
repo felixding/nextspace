@@ -2,6 +2,7 @@
 #include "WaylandGeometry.h"
 #include "nextspace-application-v1-client-protocol.h"
 #include "xdg-activation-v1-client-protocol.h"
+#include "xdg-foreign-v2-client-protocol.h"
 #include <stdlib.h>
 #include <string.h>
 #include <wayland-client.h>
@@ -17,6 +18,8 @@ struct NXSGeometrySurface {
   void *context;
   int received;
   struct NXSActivationRequest *tokens;
+  struct zxdg_exported_v2 *exported;
+  char *parent_handle;
 };
 struct NXSGeometryDisplay {
   NXSWaylandClientAPI api;
@@ -24,11 +27,13 @@ struct NXSGeometryDisplay {
   struct wl_registry *registry;
   struct nextspace_application_v1 *manager;
   struct xdg_activation_v1 *activation;
+  struct zxdg_exporter_v2 *exporter;
   struct wl_seat *seat;
   uint32_t seat_name,seat_count;
   NXSGeometrySurface *surfaces;
 };
 #include "WaylandActivation.inc"
+#include "WaylandParent.inc"
 /* Same scanner-defined requests, dispatched through the owning client's C
  * API. These helpers contain no knowledge of toolkit objects or geometry. */
 static void destroy_resource(NXSGeometryDisplay *display, void *resource, uint32_t opcode)
@@ -55,6 +60,7 @@ static void geometry_closed(void *data, struct nextspace_surface_geometry_v1 *ob
 {
   NXSGeometrySurface *surface = data;
   activation_cancel(surface, 1);
+  parent_cancel(surface, 1);
   surface->observer = NULL; surface->surface = NULL;
   surface->value.mapped = 0; surface->received = 1;
   destroy_resource(surface->display, observer, NEXTSPACE_SURFACE_GEOMETRY_V1_DESTROY);
@@ -67,6 +73,7 @@ static void attach(NXSGeometrySurface *surface)
 {
   NXSGeometryDisplay *display = surface->display;
   if (!display->manager || !surface->surface || surface->observer) return;
+  parent_attach(surface);
   struct wl_proxy *manager = (struct wl_proxy *)display->manager;
   surface->observer = (void *)display->api.marshal_flags(manager,
       NEXTSPACE_APPLICATION_V1_GET_SURFACE_GEOMETRY, &nextspace_surface_geometry_v1_interface,
@@ -85,6 +92,7 @@ static void global(void *data, struct wl_registry *registry, uint32_t name,
 {
   NXSGeometryDisplay *display = data;
   if (activation_global(display, registry, name, interface, version)) return;
+  if (parent_global(display, registry, name, interface, version)) return;
   if (display->manager || version < 10 || strcmp(interface, "nextspace_application_v1")) return;
   display->manager = (void *)display->api.marshal_flags((struct wl_proxy *)registry,
       WL_REGISTRY_BIND, &nextspace_application_v1_interface, 10, 0,
@@ -133,11 +141,13 @@ void nxs_wayland_geometry_disconnect(NXSGeometryDisplay *display, int proxies_va
     NXSGeometrySurface *surface = display->surfaces;
     display->surfaces = surface->next;
     activation_cancel(surface, proxies_valid);
+    parent_cancel(surface, proxies_valid);
     if (proxies_valid && surface->observer) destroy_observer(surface);
     free(surface);
   }
   if (proxies_valid) {
     if (display->activation) activation_destroy(display, display->activation, XDG_ACTIVATION_V1_DESTROY);
+    if (display->exporter) activation_destroy(display, display->exporter, ZXDG_EXPORTER_V2_DESTROY);
     if (display->seat) display->api.destroy((struct wl_proxy *)display->seat);
     if (display->manager) destroy_resource(display, display->manager, NEXTSPACE_APPLICATION_V1_DESTROY);
     display->api.destroy((struct wl_proxy *)display->registry);
@@ -160,6 +170,7 @@ void nxs_wayland_geometry_rebind(NXSGeometrySurface *surface, struct wl_surface 
 {
   if (!surface || surface->surface == wayland) return;
   activation_cancel(surface, 1);
+  parent_cancel(surface, 1);
   if (surface->observer) destroy_observer(surface);
   surface->observer = NULL; surface->surface = wayland; surface->received = 0;
   surface->value = (NXSWaylandSurfaceGeometry){0};
@@ -169,6 +180,7 @@ void nxs_wayland_geometry_unobserve(NXSGeometrySurface *surface)
 {
   if (!surface) return;
   activation_cancel(surface, 1);
+  parent_cancel(surface, 1);
   NXSGeometrySurface **link = &surface->display->surfaces;
   while (*link && *link != surface) link = &(*link)->next;
   if (*link) *link = surface->next;

@@ -9,15 +9,17 @@ static int native_color_sync(uint64_t control,const NXSColorModel *model)
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
   return response&&response->parts[3].x==1;
 }
-static int native_color_get(uint64_t control,NXSColorModel *model)
+static struct NXSResponse *native_color_get_reply(uint64_t control,NXSColorModel *model)
 {
-  if(!model||model->size<sizeof(*model))return 0;
+  if(!model||model->size<sizeof(*model))return NULL;
   struct NXSControlRequest request={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=56,
     .process=identity(),.kind=NXS_COLORWELL,.control=control};
   struct NXSResponse *response=exchange_bytes(&request,sizeof(request));
-  if(!response||response->parts[3].x!=1||response->size!=sizeof(*response)+sizeof(*model))return 0;
-  memcpy(model,response+1,sizeof(*model));return model->size==sizeof(*model);
+  if(!response||response->parts[3].x!=1||response->size!=sizeof(*response)+sizeof(*model))return NULL;
+  memcpy(model,response+1,sizeof(*model));return model->size==sizeof(*model)?response:NULL;
 }
+static int native_color_get(uint64_t control,NXSColorModel *model)
+{return native_color_get_reply(control,model)!=NULL;}
 static int native_date_sync(uint64_t control,const NXSDateModel *model)
 {
   if(!model||model->size<sizeof(*model))return 0;

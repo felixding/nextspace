@@ -9,6 +9,7 @@ struct NXSRadioBinding {
   double scale;
   int created,focused,tracking,pointer_pending,pointer_ready;
 };
+#include "RadioLayout.inc"
 static void native_radio_binding_free_items(NXSRadioItem *items,unsigned count)
 {for(unsigned i=0;i<count;i++)free((void *)items[i].title);free(items);}
 static int native_radio_binding_contains(const struct NXSRadioBinding *binding,uint64_t identifier)
@@ -25,13 +26,18 @@ static int native_radio_binding_sync(struct NXSRadioBinding *binding,const NXSRa
 {
   uint32_t epoch=atomic_load(&native_host_epoch);
   if(!binding->created||binding->epoch!=epoch) {
-    struct NXSResponse *r=native_radio_request(binding->control,1,1,1,1);
+    struct NXSResponse *r=native_radio_request(binding->control,1,fmax(1,scale),fmax(1,scale),1);
     if(!r||r->width<1||r->height<1||((unsigned)r->parts[1].y&3)!=3)return 0;
     binding->epoch=atomic_load(&native_host_epoch);binding->created=1;binding->focused=0;
     native_radio_binding_free_items(binding->items,binding->count);binding->items=NULL;binding->count=0;
     binding->state=(struct NXSRadioWireState){0};binding->dom_focus=0;
     binding->pointer_state=(struct NXSRadioWireState){0};
     binding->tracking=binding->pointer_pending=binding->pointer_ready=0;binding->pointer_actions=0;
+  } else if(scale!=binding->scale) {
+    /* The model carries its raster density, but member geometry also uses
+       the existing presentation binding. Refresh both on a live scale change. */
+    struct NXSResponse *r=native_radio_request(binding->control,1,fmax(1,scale),fmax(1,scale),1);
+    if(!r||r->width<1||r->height<1||((unsigned)r->parts[1].y&3)!=3)return 0;
   }
   int same=native_radio_binding_same(binding,items,count,columns);
   uint64_t key=focused!=binding->dom_focus&&focused?focused:binding->state.key_cell;

@@ -8,7 +8,7 @@ struct Probe {NXSControl *control;int enabled,queries,executed,rejected;};
 static int command(void *context,const char *selector,unsigned phase)
 {
   struct Probe *p=context;
-  if(strcmp(selector,"paste:"))return -1;
+  if(strcmp(selector,"paste:")&&strcmp(selector,"undo:")&&strcmp(selector,"redo:"))return -1;
   assert(phase<=NXS_COMMAND_EXECUTE);
   assert(!nxs_control_destroy(p->control));
   assert(!nxs_control_command_filter(p->control,NULL,NULL));
@@ -54,10 +54,16 @@ int main(int argc,char **argv)
     key(p.control,"c",NXS_ALT);
     NSString *copied=[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType];
     assert(kind==NXS_PASSWORD?!copied:[copied isEqual:@"el"]);
+    /* Original NSWindow owns these responder actions. The external editor
+     * owns its history, so the shared command binding must cover that target
+     * as well as the first responder's clipboard actions. */
+    p.enabled=1;p.executed=0;
+    key(p.control,"z",NXS_ALT);assert(p.executed==1);value(p.control,"Hello");
+    key(p.control,"Z",NXS_ALT|NXS_SHIFT);assert(p.executed==2);value(p.control,"Hello");
     assert(nxs_control_command_filter(p.control,NULL,NULL));
     model.selection_start=5;model.selection_length=0;assert(nxs_control_text_sync(p.control,&model));
     key(p.control,"X",0);value(p.control,"HelloX");assert(nxs_control_destroy(p.control));
   }
-  [pool drain];puts("{\"native_controls\":2,\"empty_clipboard_command\":true,\"application_validation\":true,\"native_copy_fallback\":true,\"secure_copy_protected\":true,\"no_second_edit\":true,\"reentrant_mutation_deferred\":true,\"filter_removal\":true}");
+  [pool drain];puts("{\"native_controls\":2,\"empty_clipboard_command\":true,\"application_validation\":true,\"native_window_undo_redo_binding\":true,\"native_copy_fallback\":true,\"secure_copy_protected\":true,\"no_second_edit\":true,\"reentrant_mutation_deferred\":true,\"filter_removal\":true}");
   return 0;
 }

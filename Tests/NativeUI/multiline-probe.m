@@ -53,6 +53,18 @@ static void save(const char *directory,const char *name,NXSBitmap bitmap)
 }
 static const char *long_text="First line\nSecond line\nThird line\nFourth line\nFifth line\nSixth line\nSeventh line\nEighth line\nNinth line\nTenth line\n";
 static const char *wrapped="An ordinary native multiline editor wraps this sentence using its own text layout and scroll view.";
+static void scroll_diagnostic(NSView *view)
+{
+  if([view isKindOfClass:[NSClipView class]]) {
+    NSClipView *clip=(NSClipView *)view;NSView *document=[clip documentView];
+    fprintf(stderr,"native-coordinate-state: clipFrame=%s clipBounds=%s documentFrame=%s documentBounds=%s visible=%s documentZeroInClip=%s\n",
+      [NSStringFromRect([clip frame]) UTF8String],[NSStringFromRect([clip bounds]) UTF8String],
+      [NSStringFromRect([document frame]) UTF8String],[NSStringFromRect([document bounds]) UTF8String],
+      [NSStringFromRect([clip documentVisibleRect]) UTF8String],
+      [NSStringFromPoint([clip convertPoint:NSZeroPoint fromView:document]) UTF8String]);
+  }
+  for(NSView *child in [view subviews])scroll_diagnostic(child);
+}
 static void reference(const char *directory)
 {
   [NSApplication sharedApplication];
@@ -89,6 +101,35 @@ static void reference(const char *directory)
   }
   [window setReleasedWhenClosed:NO];[window close];[window release];[text release];[scroll release];
 }
+static void fractional_scroll(struct Probe *p,NXSControlConfig *c)
+{
+  NXSSize fractional[13]={{307.2,107.2},{301.3,101.7},{299.75,105.25}};
+  for(unsigned i=0;i<10;i++)fractional[i+3]=(NXSSize){300+i*.7,100+i*.1};
+  for(unsigned i=0;i<sizeof(fractional)/sizeof(*fractional);i++) {
+    NXSTextViewport previous=nxs_control_text_viewport(p->control);
+    c->width=fractional[i].width;c->height=fractional[i].height;
+    assert(nxs_control_sync(p->control,c));model(p,long_text,0,0,1);
+    assert(nxs_control_draw(p->control,1.25).pixels);
+    NXSTextGeometry limits={.size=sizeof(limits)};
+    NXSTextViewport initial=nxs_control_text_viewport(p->control);
+    assert(nxs_control_text_geometry(p->control,&limits));
+    fprintf(stderr,"fractional-limits: width=%.17g height=%.17g min=%.17g,%.17g max=%.17g,%.17g content=%.17g visible=%.17g\n",c->width,c->height,limits.minimum.x,limits.minimum.y,limits.maximum.x,limits.maximum.y,initial.content.height,initial.visible.height);
+    assert(fabs(limits.minimum.x)<1e-8&&fabs(limits.minimum.y)<1e-8);
+    assert(fabs(limits.maximum.y-fmax(0,initial.content.height-initial.visible.height))<1e-8);
+    double expected=fmin(limits.maximum.y,fmax(limits.minimum.y,previous.visible.y));
+    fprintf(stderr,"fractional-resize: previous=%.17g expected=%.17g actual=%.17g\n",previous.visible.y,expected,initial.visible.y);
+    assert(fabs(initial.visible.y-expected)<1e-8);
+    for(unsigned repeat=0;repeat<16;repeat++) {
+      double requested=(double[]){0,.125,.4,1.75}[repeat%4];
+      assert(nxs_control_text_scroll(p->control,0,requested));
+      NXSTextViewport current=nxs_control_text_viewport(p->control);
+      fprintf(stderr,"fractional-scroll: width=%.17g height=%.17g repeat=%u requested=%.17g origin=%.17g,%.17g\n",c->width,c->height,repeat,requested,current.visible.x,current.visible.y);
+      if(fabs(current.visible.x)>=1e-8||fabs(current.visible.y-requested)>=1e-8)
+        for(NSWindow *window in [NSApp windows])scroll_diagnostic([window contentView]);
+      assert(fabs(current.visible.x)<1e-8&&fabs(current.visible.y-requested)<1e-8);
+    }
+  }
+}
 int main(int argc,char **argv)
 {
   assert(argc>=2);NSAutoreleasePool *pool=[NSAutoreleasePool new];
@@ -110,6 +151,10 @@ int main(int argc,char **argv)
   }
   struct Probe p={.allow=1};p.control=nxs_control_create(NXS_TEXTAREA,changed,pump,&p);assert(p.control);
   NXSControlConfig c={.size=sizeof(c),.width=180,.height=96,.enabled=1};assert(nxs_control_sync(p.control,&c));
+  if(!strcmp(argv[1],"--fractional-scroll")) {
+    fractional_scroll(&p,&c);assert(nxs_control_destroy(p.control));[pool drain];
+    puts("{\"complete\":true,\"sizes\":13,\"scrolls\":208}");return 0;
+  }
   const char *values[]={"Alpha\nBeta",long_text,wrapped};const char *names[]={"short","scrolling","wrapped"};
   for(unsigned i=0;i<3;i++) {
     if(i==2){c.width=100;assert(nxs_control_sync(p.control,&c));}
@@ -142,6 +187,9 @@ int main(int argc,char **argv)
   assert(nxs_control_focus(p.control,0));
   model(&p,"Alpha\nBeta",8,0,1);assert(!value(&p,"Alpha\nBeta").editing);
   assert(nxs_control_focus(p.control,1)&&nxs_control_focused(p.control));
+  key(&p,NXS_KEY_TEXT,"a",NXS_ALT);selected=value(&p,"Alpha\nBeta");
+  assert(selected.selection_start==0&&selected.selection_length==10);
+  model(&p,"Alpha\nBeta",8,0,1);
   key(&p,NXS_KEY_TEXT,"a",NXS_CONTROL);assert(value(&p,"Alpha\nBeta").selection_start==6);
   key(&p,NXS_KEY_TEXT,"e",NXS_CONTROL);assert(value(&p,"Alpha\nBeta").selection_start==10);
   assert(nxs_control_text_filter(p.control,proposal,&p));p.selector="insertNewline:";
@@ -169,6 +217,7 @@ int main(int argc,char **argv)
   NXSKeyEvent readonly={.size=sizeof(readonly),.type=NXS_KEY_DOWN,.text="Y",.unmodified_text="Y"};
   assert(nxs_control_key(p.control,&readonly)==NXS_INPUT_UNHANDLED);
   value(&p,"Read only\nSecond line");assert(p.changes==before);
+  fractional_scroll(&p,&c);
   c.enabled=0;assert(nxs_control_sync(p.control,&c));assert(!nxs_control_focus(p.control,1));
   NXSKeyEvent e={.size=sizeof(e),.type=NXS_KEY_DOWN,.text="Z"};assert(nxs_control_key(p.control,&e)==NXS_INPUT_UNHANDLED);
   assert(nxs_control_focus(p.control,0)&&nxs_control_destroy(p.control));

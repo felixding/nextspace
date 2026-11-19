@@ -11,6 +11,10 @@ struct NXSRequest {
   int32_t horizontal, reserved;
   double length, total, page, value;
 };
+/* Optional scrollbar operation 8 sets paint units per native point in length;
+ * response part 0.height acknowledges it. Operation 9 measures the original
+ * native scroll-view content rectangle for length x total, in part 0.
+ * Existing envelopes and scale-1 clients remain compatible. */
 struct NXSRectD { double x,y,width,height; };
 struct NXSResponse {
   uint32_t magic, size;
@@ -43,9 +47,17 @@ struct NXSActionReceipt {uint64_t serial;uint32_t event;int32_t state;double val
  * event capabilities. Bootstrap part 4.height advertises event capabilities.
  * Payloads above 64 KiB arrive in a sealed memfd via SCM_RIGHTS; size still
  * describes the header plus pixels. Small payloads remain inline. */
+/* Operation 9 may append an invalidation receipt: uint32 magic=0x4e584449,
+ * uint32 count, then count {uint64 control; uint32 kind,reserved=0} records.
+ * value supplies the last observed process generation. Count UINT32_MAX
+ * requires a full repaint; no payload is the legacy full-repaint response.
+ * Receipts survive image reads and coalesce by control, independent of timers. */
 /* Owned operation 0 reads generic native state without a bitmap. Operation 14
  * changes popup visibility; date controls additionally require DATE_PANEL.
  * Response part 6 is the visible native popup's owner-relative logical frame. */
+/* Color operation 59 uses state 0/1 to close/open, and optional state 2 to
+ * reveal an already-active native well's panel while retaining its callback
+ * owner and close acknowledgement. State 2 never creates a picker session. */
 struct NXSControlRequest {
   uint32_t magic, operation, process, kind;
   uint64_t control;
@@ -54,6 +66,31 @@ struct NXSControlRequest {
   int32_t enabled, state, indeterminate;
   uint32_t modifiers;
 };
+/* Activation operation 64/state0 invalidates the preceding source grant on
+ * new real input. It carries no token or parent payload and sends no reply. */
+/* Optional operation 65 configures the ordinary control with an explicit
+ * number of application paint units per native logical point. UTF-8 title
+ * bytes follow this extended header. The host converts geometry and input at
+ * this boundary; original native controls still own fonts, layout and drawing.
+ * Existing operation 1 and the public provider ABI remain unchanged. */
+struct NXSControlPresentationRequest {
+  struct NXSControlRequest control;
+  double scale;
+};
+/* Operation 66 queries the result of an already-sent key request. value is
+ * that request's uint32 sequence. The same owning connection may read its
+ * last result without executing the key again; part 3.height acknowledges
+ * the exact receipt and part 3.x returns the original NXSInputResult.
+ * With x=2,4,14,22,59 it queries that pointer or popup/color operation instead.
+ * Its original native state/action baseline is retained in a bounded receipt
+ * history for the same connection, process, control and control lifetime. */
+/* Operation 68 cancels an uncertain press only if value still names its
+ * original request sequence. It releases outside through native tracking;
+ * a later gesture on the same control is never cancelled by an old request. */
+/* Operation 67 acknowledges the original application model's completion of
+ * an opt-in deferred color session. x carries its nonzero uint32 publication
+ * token. Only the source's registered process/connection/control may complete
+ * that exact session; later native owners and sessions are preserved. */
 /* Optional input extension, advertised by bootstrap part 4.width.
  * Operations 7 focus, 8 key. UTF-8 text then unmodified text follow this
  * header. Response part 3: input result, focused, supported capabilities.
@@ -178,6 +215,11 @@ struct NXSMenuWireItem {
   uint64_t command;
   uint32_t modifiers,title_size,key_size,reserved;
 };
+/* Context branch preparation reuses the native submenu lifecycle. Operation70
+ * uses the model header with kind1, then a uint64 branch ID before its ordinary
+ * payload. It is accepted only within that branch's authenticated WILL_OPEN
+ * callback. Callback phases2/3 mean WILL_OPEN/DID_CLOSE; phases0/1 retain their
+ * existing validation/action meaning. No native pointer crosses the channel. */
 #define NXS_NATIVE_MENU_COMMAND_MAGIC 0x4e584d43u
 #define NXS_NATIVE_MENU_ACK_MAGIC 0x4e584d41u
 struct NXSNativeMenuCommand {
@@ -299,6 +341,11 @@ struct NXSListWireItem {
   uint64_t identifier;
   uint32_t enabled,selected,title_size,reserved;
 };
+/* Outline operation71 reuses the owned list-model envelope, flags/key_cell=0.
+ * Each item is NXSOutlineWireItem followed by title_size UTF8 bytes. The
+ * public provider validates the forest; existing operation63 retains ordered
+ * select/expand/collapse actions. Native points/density use the shared path. */
+struct NXSOutlineWireItem {uint64_t identifier,parent;uint32_t flags,title_size;};
 struct NXSControlListItemRequest {
   uint32_t magic,operation,process,kind;
   uint64_t control;
@@ -364,6 +411,19 @@ struct NXSControlDateRequest {
  * Operation 64 publishes a standard xdg-activation token from an original
  * toolkit input connection, followed by text_size UTF8 bytes without NUL.
  * kind=0, control=opaque source surface identity, state=1, x=input serial (0 when the original toolkit owns it internally);
+ * state=2 appends NUL and the same owned surface's xdg-foreign parent handle.
+ * Each string is nonempty UTF8, at most 4096 bytes, without embedded NUL.
+ * state=3 registers one private SEQPACKET descriptor for presentation-time
+ * token requests; control and all model/payload fields are zero. After actual
+ * input (state=0), the host sends a uint64 request ticket on that descriptor.
+ * The toolkit mints through its original API and echoes the ticket in value
+ * on its ordinary state=1/2 publication. Tickets are nonzero uint32, exactly
+ * representable as double; newer input retires an in-flight ticket. Neither
+ * a stale reply nor another connection can satisfy that request.
+ * state=4 reports a real pointer press delivered to that original source
+ * connection. It dismisses only that owner's transient context menu, hosted
+ * on another connection; control is the source identity and other fields are
+ * zero. Keys and the native host's own input are not source pointer presses.
  * other model fields are zero. Publication is one-way: it inserts no reply on
  * a connection shared with synchronous native requests. Kernel credentials/
  * pidfd bind the source to the sending process. Only one unambiguous live
@@ -373,3 +433,17 @@ struct NXSControlDateRequest {
  * validates token provenance/expiry. No helper focus policy is introduced. */
 
 #endif
+
+/* Menu model25/kind1 declares a transient context model; kind0 is an
+ * application menu. Operation69 queues its native presentation at top-left
+ * logical screen x/y. The immediate reply acknowledges queueing. Existing
+ * native command channel command0/execute acknowledges completed tracking,
+ * including cancellation before presentation; it is never an item action. */
+
+/* Menu model25/kind3 is the same shared transient NSMenu model with parent
+ * association only. Its source renderer retains keyboard focus and forwards
+ * native key events. Menu state part0.y includes queued presentation and final
+ * close acknowledgement, matching control starting/tracking semantics. The
+ * helper invalidates the owner again after consuming its close callback reply.
+ * Source pointer dismissal and activation grouping follow owned OS ancestry;
+ * model/callback ownership remains tied to the original sender and endpoint. */

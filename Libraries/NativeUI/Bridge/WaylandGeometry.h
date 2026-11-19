@@ -46,6 +46,9 @@ void nxs_wayland_geometry_unobserve(NXSGeometrySurface *);
 /* Zero means no compositor snapshot yet. An unmapped snapshot cannot anchor a
  * visible control. Notifications may destroy the observation or connection. */
 int nxs_wayland_geometry_read(NXSGeometrySurface *, NXSWaylandSurfaceGeometry *);
+/* Borrowed xdg-foreign v2 handle for this exact owned toplevel, or NULL until
+ * exported. Rebinding/destruction revokes it. No parent or window is created. */
+const char *nxs_wayland_geometry_parent(NXSGeometrySurface *);
 /* Standard xdg-activation transport on the same owning connection/queue.
  * The source must be mapped and serial must come from original user input.
  * A NULL seat uses the connection's sole advertised seat; multiple seats

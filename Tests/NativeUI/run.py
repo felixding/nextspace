@@ -22,8 +22,11 @@ parser.add_argument('--output', type=Path, required=True)
 parser.add_argument('--compositor', default='/usr/NextSpace/bin/nextspace-compositor')
 parser.add_argument('--backend')
 parser.add_argument('--pasteboard-server',type=Path,default=Path('/Library/bin/gpbs-wayland'))
+parser.add_argument('--provider',type=Path,help='Select the exact current provider under qualification')
 parser.add_argument('--baseline', type=Path, help='Directory containing the previous legacy shared library')
 parser.add_argument('--previous-provider', type=Path, help='Pre-extension NativeUI provider to test ABI compatibility')
+parser.add_argument('--previous-snapshot-provider', type=Path, help='Provider before fractional snapshot correction; must fail the current cache invariant')
+parser.add_argument('--previous-input-transport',type=Path,help='Transport before exact pointer/presentation receipts; must fail the ownership regressions')
 parser.add_argument('--previous-client', type=Path, help='Pre-extension native-controls-probe to run unchanged')
 parser.add_argument('--previous-loader', type=Path, help='Previous loader directory for the unchanged client/provider-swap check')
 parser.add_argument('--previous-event-provider', type=Path, help='Provider predating optional event dispatch')
@@ -52,6 +55,10 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                        NEXTSPACE_SESSION_ID='native-ui-'+uuid.uuid4().hex)
     for name in ('DISPLAY', 'WAYLAND_DISPLAY', 'WAYLAND_SOCKET', 'LD_PRELOAD', 'NEXTSPACE_NATIVE_UI_PROVIDER'):
         environment.pop(name, None)
+    if args.provider:
+        import hashlib
+        selected=args.provider.resolve();environment['NEXTSPACE_NATIVE_UI_PROVIDER']=str(selected)
+        (args.output/'provider-selection.json').write_text(json.dumps(dict(path=str(selected),sha256=hashlib.sha256(selected.read_bytes()).hexdigest()))+'\n')
     parent, child = socket.socketpair(socket.AF_UNIX, socket.SOCK_SEQPACKET)
     parent.settimeout(5)
     with (args.output / 'compositor.log').open('w') as errors:
@@ -72,7 +79,7 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         def bounded_probe(arguments, client_env, label, timeout=10):
             # Wait for this probe's exit, independently of pipe descriptors a
             # native service could inherit. Preserve output in regular files.
-            with tempfile.TemporaryFile(mode='w+') as out, tempfile.TemporaryFile(mode='w+') as err:
+            with (args.output/(label+'.stdout')).open('w+') as out, (args.output/(label+'.stderr')).open('w+') as err:
                 child = subprocess.Popen(arguments, env=client_env, stdout=out, stderr=err, text=True)
                 try:
                     child.wait(timeout=timeout)
@@ -161,12 +168,46 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         assert legacy.returncode == 0, (legacy.returncode, legacy.stderr)
         native_tracking = json.loads(legacy.stdout)
         checks = dict(controls=records, legacy_tracking=native_tracking, no_mapped_backing_window=True)
+        code,stdout,stderr=bounded_probe([sys.executable,str(Path(__file__).with_name('queued-pointer-transport.py')),
+            '--library',str(args.build/'native-ui/libnextspace-native-ui.so.1')]+backend,environment,'queued-pointer',timeout=15)
+        assert code==0,('queued-pointer',stdout,stderr)
+        checks['queued_pointer']=json.loads(stdout)
         input_output = held_probe(args.build / 'native-ui/native-input-probe', [str(args.output)],
                                   'NXS_NATIVE_UI_INPUT_HOLD', 'input')
         checks['native_input'] = json.loads(input_output)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-auxiliary-probe')]+backend,
+            environment,'menu-auxiliary',timeout=20)
+        (args.output/'menu-auxiliary.stderr').write_text(stderr)
+        assert code==0,(code,stderr)
+        checks['native_menu_auxiliary']=json.loads(stdout.strip())
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-color-lifetime-probe')]+backend,
+            environment,'color-lifetime',timeout=15)
+        (args.output/'color-lifetime.stderr').write_text(stderr)
+        assert code==0,(code,stderr);checks['native_color_lifetime']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-gecko-color-callback-probe')],
+            environment,'gecko-color-callback',timeout=10)
+        assert code==0,(code,stderr);checks['gecko_color_callback_lifetime']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-color-snapshot-probe')],
+            environment,'color-snapshot',timeout=10)
+        assert code==0,(code,stderr);checks['native_color_snapshot']=json.loads(stdout.splitlines()[-1])
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-invalidation-probe')],
+            environment,'invalidation-receipts',timeout=10)
+        assert code==0,(code,stderr);checks['native_invalidation_receipts']=json.loads(stdout)
+        if args.previous_snapshot_provider:
+            code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-backing-probe')]+backend,
+                dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_snapshot_provider.resolve())),
+                'backing-before')
+            assert code!=0 and 'fractional native snapshot changed' in stderr,(code,stderr)
+            (args.output/'backing-before.stderr').write_text(stderr)
+            checks['fractional_snapshot_negative_control']=dict(previous_provider=str(args.previous_snapshot_provider),
+                failed_cache_invariant=True)
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-backing-probe')]+backend,
             environment,'backing',timeout=15)
         assert code==0,(code,stderr);checks['native_backing']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-screen-projection-probe')]+backend,
+            environment,'screen-projection',timeout=15)
+        (args.output/'screen-projection.stderr').write_text(stderr)
+        assert code==0,(code,stderr);checks['native_screen_projection']=json.loads(stdout)
         code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-mouse-probe')]+backend,
             environment,'mouse',timeout=15)
         assert code==0,(code,stderr);checks['native_mouse']=json.loads(stdout)
@@ -227,6 +268,21 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
             environment,'menu',timeout=20)
         (args.output/'menu.stdout').write_text(stdout);(args.output/'menu.stderr').write_text(stderr)
         assert code==0,(code,stderr);checks['native_menu']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-probe'),'--context-deactivation']+backend,
+            environment,'context-deactivation',timeout=20)
+        (args.output/'context-deactivation.stderr').write_text(stderr)
+        assert code==0,(code,stderr)
+        checks['native_menu'].update(json.loads(stdout))
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-probe'),'--initial-window-policy']+backend,
+            environment,'initial-menu-window-policy',timeout=20)
+        (args.output/'initial-menu-window-policy.stderr').write_text(stderr)
+        assert code==0,(code,stderr)
+        checks['native_menu'].update(json.loads(stdout))
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-probe'),'--context-key-isolation']+backend,
+            environment,'context-key-isolation',timeout=20)
+        (args.output/'context-key-isolation.stderr').write_text(stderr)
+        assert code==0,(code,stderr)
+        checks['native_menu'].update(json.loads(stdout))
         if args.previous_menu_provider:
             code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-menu-probe'),'--expect-no-menu']+backend,
                 dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_menu_provider.resolve())),
@@ -242,6 +298,11 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         (args.output/'command-thread.stdout').write_text(stdout)
         (args.output/'command-thread.stderr').write_text(stderr)
         assert code==0,(code,stderr);checks['native_command_thread']=json.loads(stdout)
+        code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-process-identity-probe')],
+            environment,'process-identity',timeout=10)
+        (args.output/'process-identity.stdout').write_text(stdout)
+        (args.output/'process-identity.stderr').write_text(stderr)
+        assert code==0,(code,stderr);checks['native_process_identity']=json.loads(stdout)
         if args.previous_command_filter_provider:
             code,stdout,stderr=bounded_probe([str(args.build/'native-ui/native-command-probe'),'--expect-no-command-filter']+backend,
                 dict(environment,NEXTSPACE_NATIVE_UI_PROVIDER=str(args.previous_command_filter_provider.resolve())),
@@ -357,6 +418,11 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
         assert 'nxs_native_ui_provider' in exports and 'nxs_gnustep_' not in exports
         checks['provider_internals_not_exported'] = True
         if args.transport:
+            for name in ('host-generation','auxiliary-activation-broker'):
+                probe=subprocess.run([sys.executable,str(Path(__file__).with_name(name+'.py')),
+                    '--output',str(args.output/(name+'.json'))],env=environment,text=True,capture_output=True,timeout=10)
+                assert probe.returncode==0,(name,probe.stdout,probe.stderr)
+                checks[name.replace('-','_')]=json.loads(probe.stdout)
             scripts=Path(__file__).resolve().parents[2]/'Experiments/ChromiumScrollers'
             endpoint=Path(runtime)/'native-controls.sock'
             with (args.output/'helper.jsonl').open('w') as out,(args.output/'helper.stderr').open('w') as err:
@@ -390,6 +456,12 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                 (args.output/'transport-text-filter.stderr').write_text(filter_probe.stderr)
                 assert filter_probe.returncode==0,(filter_probe.returncode,filter_probe.stderr)
                 checks['transport_text_filter']=json.loads(filter_probe.stdout)
+                color_probe=subprocess.run([str(args.build/'native-ui/native-color-open-transaction-probe'),str(endpoint)],
+                    env=environment,text=True,capture_output=True,timeout=20)
+                (args.output/'transport-color-open.stdout').write_text(color_probe.stdout)
+                (args.output/'transport-color-open.stderr').write_text(color_probe.stderr)
+                assert color_probe.returncode==0,(color_probe.returncode,color_probe.stderr)
+                checks['transport_color_open_transaction']=json.loads(color_probe.stdout.splitlines()[-1])
                 if args.multiline:
                     multiline_probe=subprocess.run([str(args.build/'native-ui/native-text-transport-probe'),str(endpoint),str(helper.pid),'--multiline'],
                         env=environment,text=True,capture_output=True,timeout=20)
@@ -397,6 +469,21 @@ with tempfile.TemporaryDirectory(prefix='nextspace-native-ui-') as runtime:
                     (args.output/'transport-multiline.stderr').write_text(multiline_probe.stderr)
                     assert multiline_probe.returncode==0,(multiline_probe.returncode,multiline_probe.stderr)
                     checks['transport_multiline']=json.loads(multiline_probe.stdout)
+                probe=subprocess.run([sys.executable,str(Path(__file__).with_name('presentation-reentrancy.py')),
+                    '--endpoint',str(endpoint),'--output',str(args.output/'presentation-reentrancy.json')],
+                    env=environment,text=True,capture_output=True,timeout=20)
+                assert probe.returncode==0,('presentation-reentrancy',probe.stdout,probe.stderr)
+                checks['presentation_reentrancy']=json.loads(probe.stdout)
+                receipt_output=args.output/'input-receipts'
+                receipt_command=[sys.executable,str(sources/'check-input-receipts.py'),
+                    '--build',str(args.build),'--library',str((args.build/'libnextspace-native-scroller.so.1').resolve()),
+                    '--output',str(receipt_output)]
+                if args.previous_input_transport:receipt_command+=['--previous-transport',str(args.previous_input_transport)]
+                probe=subprocess.run(receipt_command,env=environment,text=True,capture_output=True,timeout=120)
+                (args.output/'input-receipts.stdout').write_text(probe.stdout)
+                (args.output/'input-receipts.stderr').write_text(probe.stderr)
+                assert probe.returncode==0,(probe.stdout,probe.stderr)
+                checks['native_input_receipts']=json.loads((receipt_output/'results.json').read_text())
             finally:
                 if sys.exc_info()[0] is not None and helper.poll() is None:
                     with (args.output/'helper-timeout.txt').open('w') as trace:

@@ -43,8 +43,20 @@ typedef struct { uint32_t size;int32_t result;uint32_t count,selected_filter; } 
 enum NXSControlKind {
   NXS_BUTTON = 1, NXS_CHECKBOX, NXS_RADIO, NXS_SLIDER, NXS_PROGRESS, NXS_POPUP,
   NXS_TEXTFIELD, NXS_PASSWORD, NXS_TEXTAREA, NXS_TABVIEW, NXS_TOOLBAR, NXS_RADIOGROUP,
-  NXS_LISTBOX, NXS_SEARCHFIELD, NXS_STEPPER, NXS_COLORWELL, NXS_DATEPICKER
+  NXS_LISTBOX, NXS_SEARCHFIELD, NXS_STEPPER, NXS_COLORWELL, NXS_DATEPICKER,
+  NXS_OUTLINE
 };
+/* Application hierarchy only. NSOutlineView owns disclosure, selection,
+ * keyboard navigation, layout, scrolling and drawing. Parents precede children.
+ * Native actions expose the model index in value and select/expand/collapse
+ * in state (0/1/-1), through the existing ordered action receipt channel. */
+enum NXSOutlineFlag { NXS_OUTLINE_ENABLED=1, NXS_OUTLINE_SELECTED=2,
+  NXS_OUTLINE_EXPANDABLE=4, NXS_OUTLINE_EXPANDED=8 };
+typedef struct {
+  uint32_t size,flags;
+  uint64_t identifier,parent;
+  const char *title;
+} NXSOutlineItem;
 enum NXSSpecializedCapability { NXS_SPECIAL_STEPPER=1, NXS_SPECIAL_COLOR=2, NXS_SPECIAL_DATE=4,
   NXS_SPECIAL_DATE_NULLABLE=8, NXS_SPECIAL_TIME_OF_DAY=16, NXS_SPECIAL_MONTH_START=32,
   NXS_SPECIAL_DATE_PROLEPTIC=64, NXS_SPECIAL_WEEK_START=128, NXS_SPECIAL_DATE_PANEL=256 };
@@ -231,14 +243,22 @@ typedef int (*NXSCommandFilter)(void *context,const char *selector,unsigned phas
 
 enum NXSMenuFlag {
   NXS_MENU_SEPARATOR=1, NXS_MENU_DISABLED=2, NXS_MENU_CHECKED=4,
-  NXS_MENU_MIXED=8, NXS_MENU_SUBMENU=16
+  NXS_MENU_MIXED=8, NXS_MENU_SUBMENU=16,
+  /* An application's command registry can contain actions absent from its
+   * visible menu. Bind their key equivalents through the same native menu;
+   * no displayed item or second key-matching implementation is required.
+   * Root bindings also work with lifecycle menus and survive branch updates. */
+  NXS_MENU_KEY_ONLY=32,
+  /* Transported models supply enabled state for passive display. Commands,
+   * key queries and explicit item-state reads still validate with the owner. */
+  NXS_MENU_ENABLED_SNAPSHOT=64
 };
 /* Menu key equivalents name native modifier roles, independently of the
  * physical event modifiers. The UI library applies the user's key preferences. */
 enum NXSMenuModifier {
   NXS_MENU_COMMAND=1, NXS_MENU_SHIFT=2, NXS_MENU_CONTROL=4, NXS_MENU_ALTERNATE=8
 };
-enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2, NXS_MENU_LIFECYCLE=4, NXS_MENU_KEY_QUERY=8 };
+enum NXSMenuCapability { NXS_MENU_MODELS=1, NXS_MENU_CANCEL=2, NXS_MENU_LIFECYCLE=4, NXS_MENU_KEY_QUERY=8, NXS_MENU_STATE_SNAPSHOTS=16, NXS_MENU_CONTEXT_POPUPS=32 };
 enum NXSMenuLifecyclePhase { NXS_MENU_WILL_OPEN, NXS_MENU_DID_CLOSE };
 typedef struct {
   uint32_t size;
@@ -361,8 +381,21 @@ typedef struct {
   unsigned (*control_auxiliary_capabilities)(void);
   int (*control_auxiliary_activate)(NXSControl *,const char *);
   unsigned (*file_panel_parent_capabilities)(void);
+  int (*scroller_layout)(NXSSize,NXSRect *);
+  int (*control_auxiliary_parent)(NXSControl *,const char *);
+  uint32_t menu_model_flags; /* Optional supported NXSMenuFlag extensions. */
+  int (*control_color_lifecycle)(NXSControl *,unsigned);
+  int (*menu_popup)(NXSMenu *,double,double);
+  int (*menu_auxiliary_parent)(NXSMenu *,const char *);
+  int (*menu_auxiliary_activate)(NXSMenu *,const char *);
+  int (*control_set_screen_bounds)(NXSControl *,NXSRect);
+  int (*control_outline_items)(NXSControl *,const NXSOutlineItem *,uint32_t);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
+/* Optional original NSScrollView content rectangle with both scrollers.
+ * Consumers derive placement from this rectangle, rather than copying the
+ * UI library's left/right or inset policy. Coordinates are top-left points. */
+int nxs_scroller_layout(NXSSize,NXSRect *);
 
 /* Optional standard activation-token handoff for a visible native auxiliary
  * window owned by this control. Bit 1 reports backend support. This does not
@@ -370,6 +403,10 @@ typedef struct {
  * No window is created, shown or selected by this call. */
 unsigned nxs_control_auxiliary_capabilities(void);
 int nxs_control_auxiliary_activate(NXSControl *,const char *token);
+/* Optional xdg-foreign association for the control's existing visible native
+ * auxiliary window. NULL clears it. Bit 2 of auxiliary capabilities reports
+ * backend support; the compositor authenticates the exported parent. */
+int nxs_control_auxiliary_parent(NXSControl *,const char *handle);
 
 /* Loader API. The GNUstep provider is the default. An alternate provider may
  * implement nxs_native_ui_provider(version) and be selected by
@@ -378,9 +415,19 @@ const NXSNativeUIAPI *nxs_native_ui_api(void);
 const char *nxs_native_ui_error(void);
 unsigned nxs_control_specialized_capabilities(void);
 unsigned nxs_control_color_panel_capabilities(void);
+enum NXSColorPanelCapability {NXS_COLOR_PANEL=1,NXS_COLOR_PANEL_CLOSE_ACK=2};
+enum NXSColorClosePhase {
+  NXS_COLOR_CLOSE_IMMEDIATE=0,NXS_COLOR_CLOSE_REQUIRE_ACK=1,
+  NXS_COLOR_CLOSE_COMPLETE=2,NXS_COLOR_CLOSE_REQUEST=3
+};
 /* Explicit native color-panel lifecycle. Closing only hides the panel when
  * this well owns it; another well's original native ownership is preserved. */
 int nxs_control_color_open(NXSControl *,int open);
+/* Enable REQUIRE_ACK before opening for asynchronous model completion.
+ * A requested close deactivates the
+ * original well, but its panel stays visible until CLOSE_COMPLETE. Completion
+ * only closes this well's pending panel; a later native owner is preserved. */
+int nxs_control_color_lifecycle(NXSControl *,unsigned phase);
 /* File panels are UI-thread objects. Only one may exist at a time. Configure
  * before run; run calls the original native modal method and returns 0/1/2
  * for accepted/cancelled/failed. Cancellation is allowed from a callback source
@@ -433,6 +480,8 @@ unsigned nxs_control_scroll_capabilities(void);
  * Unsupported controls/providers and invalid input leave the output intact.
  * This read-only query does not change selection, focus or actions. */
 int nxs_control_item_at_point(NXSControl *,double x,double y,uint64_t *identifier);
+unsigned nxs_control_outline_capabilities(void);
+int nxs_control_outline_items(NXSControl *,const NXSOutlineItem *,uint32_t);
 NXSRect nxs_control_search_part(NXSControl *,int part);
 unsigned nxs_control_item_hit_capabilities(void);
 NXSControl *nxs_control_create(int kind, NXSControlChanged changed, NXSPump pump, void *context);
@@ -504,7 +553,8 @@ int nxs_control_popup_title(NXSControl *, const char *title);
 unsigned nxs_control_radio_capabilities(void);
 /* One native matrix owns the group's actual radio cells. IDs are unique and
  * nonzero; selected/key_cell name members or zero. Rows follow application
- * order in a complete grid (count must divide evenly by positive columns).
+ * order with positive columns. An incomplete last row has disabled native cells
+ * in its empty positions; those positions have no application identifiers.
  * Model replacement emits no action, retains cells by identity, and sizes the
  * group to its native preferred size. control_sync may then resize the group.
  * A zero key_cell leaves the new matrix's native selection-derived focus.
@@ -537,6 +587,10 @@ NXSRect nxs_control_popup_item_rect(NXSControl *, int index);
 /* Request the control's top-left relative to the native main screen's top-left,
  * in logical units. The backend/compositor determines actual window placement. */
 int nxs_control_set_screen_origin(NXSControl *, double x, double y);
+/* Project the hosted view's complete bounds into a foreign application's
+ * top-left screen rectangle. Native drawing and local input stay unchanged;
+ * original window conversions position native menus and auxiliary panels. */
+int nxs_control_set_screen_bounds(NXSControl *,NXSRect);
 /* Optional native-loop integration for an embedding application's readable
  * descriptors. The source wakes dispatch_events; the caller still reads the
  * descriptor and retains ownership of it. Create/destroy on the UI thread. */
@@ -592,6 +646,11 @@ NXSMenu *nxs_menu_create(const char *title,NXSMenuCommand,NXSPump,void *context)
 int nxs_menu_destroy(NXSMenu *);
 int nxs_menu_items(NXSMenu *,const NXSMenuItem *,uint32_t count);
 int nxs_menu_show(NXSMenu *,int visible);
+/* Transient context menu at a top-left logical screen point. Native NSMenu
+ * owns placement and tracking; the call returns when native tracking ends. */
+int nxs_menu_popup(NXSMenu *,double x,double y);
+int nxs_menu_auxiliary_parent(NXSMenu *,const char *);
+int nxs_menu_auxiliary_activate(NXSMenu *,const char *);
 int nxs_menu_key(NXSMenu *,const NXSKeyEvent *);
 /* Native key matching/validation without highlighting or command execution.
  * Like NSMenu itself, a matching disabled command still consumes its key. */

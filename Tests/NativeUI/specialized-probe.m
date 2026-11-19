@@ -95,7 +95,7 @@ int main(int argc,char **argv)
     NXSColorModel invalid=colors[i];invalid.red=NAN;check("invalid-color-rejected",!nxs_control_color_sync(color.control,&invalid));
     char name[32];snprintf(name,sizeof(name),"color-%u",i);compare(&color,well,name);
   }
-  check("native-color-panel-capability",nxs_control_color_panel_capabilities()==1);
+  check("native-color-panel-capability",nxs_control_color_panel_capabilities()&NXS_COLOR_PANEL);
   check("disabled-native-color-panel-rejected",!nxs_control_color_open(color.control,1));
   configure(&color,120,24,1);
   check("explicit-open-uses-original-color-panel",nxs_control_color_open(color.control,1)&&[(NSColorWell *)color.native isActive]&&[[NSColorPanel sharedColorPanel] isVisible]);

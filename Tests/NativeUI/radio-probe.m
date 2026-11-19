@@ -210,7 +210,7 @@ int main(int argc,char **argv)
   check(&p,"duplicate-identities-rejected",!nxs_control_radio_items(p.control,invalid,4,1,identifier(0),0));
   memcpy(invalid,p.items,sizeof(invalid));invalid[1].title="\xff";
   check(&p,"invalid-utf8-rejected",!nxs_control_radio_items(p.control,invalid,4,1,identifier(0),0));
-  check(&p,"invalid-members-and-grid-rejected",!nxs_control_radio_items(p.control,p.items,4,3,0,0)&&
+  check(&p,"invalid-members-and-grid-rejected",!nxs_control_radio_items(p.control,p.items,4,5,0,0)&&
     !nxs_control_radio_items(p.control,p.items,4,1,UINT64_MAX,0)&&!nxs_control_radio_items(p.control,p.items,4,1,0,UINT64_MAX));
   NXSRadioState after=nxs_control_radio_state(p.control);
   check(&p,"invalid-models-are-atomic",!memcmp(&before,&after,sizeof(before))&&matrix==p.native);
@@ -265,6 +265,20 @@ int main(int argc,char **argv)
     state(&p,"disabled-semantic-click-retains-native-state",identifier(3),identifier(3),3);compare(&p,"semantic-disabled",NO);
     check(&p,"semantic-control-destroy",nxs_control_destroy(p.control));
   }
+  p.callbacks=0;p.enabled=1;p.control=nxs_control_create(NXS_RADIOGROUP,changed,pump,&p);assert(p.control);
+  for(unsigned i=0;i<4;i++)p.items[i]=(NXSRadioItem){sizeof(NXSRadioItem),identifier(i),titles[i],i!=1};
+  assert(nxs_control_radio_items(p.control,p.items,3,2,identifier(0),identifier(0)));p.native=observed;
+  NXSRadioState partial=nxs_control_radio_state(p.control);
+  NSCell *vacant=[p.native cellAtRow:1 column:1];
+  check(&p,"partial-row-keeps-three-application-members",partial.count==3&&partial.rows==2&&partial.columns==2&&
+    !nxs_control_radio_item_rect(p.control,identifier(3)).width);
+  check(&p,"partial-row-native-empty-slot-cannot-take-focus",[vacant class]==[NSCell class]&&
+    ![vacant isEnabled]&&![vacant acceptsFirstResponder]);
+  assert(nxs_control_focus(p.control,1));key(&p,NXS_KEY_DOWN_ARROW,NULL,0);
+  check(&p,"partial-row-native-navigation-selects-real-member",nxs_control_radio_state(p.control).selected==identifier(2));
+  key(&p,NXS_KEY_RIGHT,NULL,0);
+  check(&p,"partial-row-native-navigation-skips-empty-slot",nxs_control_radio_state(p.control).selected==identifier(2));
+  check(&p,"partial-row-control-destroy",nxs_control_destroy(p.control));
   printf("{\"passed\":%u,\"images\":%u,\"api_bytes\":%zu,\"semantic_activation\":%s}\n",p.checks,p.images,sizeof(NXSNativeUIAPI),nxs_control_activation_capabilities()?"true":"false");
   [pool drain];return 0;
 }

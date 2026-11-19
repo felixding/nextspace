@@ -1,9 +1,12 @@
 /* GNUstep binding declarations, private to this provider. GPL-2.0-or-later. */
 #include "../NativeUI.h"
+int nxs_gnustep_control_outline_items(NXSControl *,const NXSOutlineItem *,uint32_t);
 unsigned nxs_gnustep_control_auxiliary_capabilities(void);
 int nxs_gnustep_control_auxiliary_activate(NXSControl *,const char *);
+int nxs_gnustep_control_auxiliary_parent(NXSControl *,const char *);
 unsigned nxs_gnustep_control_specialized_capabilities(void);
 int nxs_gnustep_control_color_open(NXSControl *,int);
+int nxs_gnustep_control_color_lifecycle(NXSControl *,unsigned);
 int nxs_gnustep_control_color_sync(NXSControl *,const NXSColorModel *);
 int nxs_gnustep_control_color_get(NXSControl *,NXSColorModel *);
 int nxs_gnustep_control_date_sync(NXSControl *,const NXSDateModel *);
@@ -21,6 +24,7 @@ int nxs_gnustep_control_text_placeholder(NXSControl *,const char *);
 NXSScroller *nxs_gnustep_scroller_create(int,NXSChanged,NXSPump,void *);
 void nxs_gnustep_scroller_destroy(NXSScroller *);
 double nxs_gnustep_scroller_width(void);
+int nxs_gnustep_scroller_layout(NXSSize,NXSRect *);
 void nxs_gnustep_scroller_sync(NXSScroller *,double,double,double,double,double,double,double,int);
 NXSBitmap nxs_gnustep_scroller_draw(NXSScroller *,double);
 NXSRect nxs_gnustep_scroller_part(NXSScroller *,int);
@@ -53,6 +57,7 @@ int nxs_gnustep_control_radio_cell_size(NXSControl *,double,double);
 NXSPopupState nxs_gnustep_control_popup_state(NXSControl *);
 NXSRect nxs_gnustep_control_popup_item_rect(NXSControl *,int);
 int nxs_gnustep_control_set_screen_origin(NXSControl *,double,double);
+int nxs_gnustep_control_set_screen_bounds(NXSControl *,NXSRect);
 NXSEventSource *nxs_gnustep_source_create(int);
 int nxs_gnustep_source_destroy(NXSEventSource *);
 int nxs_gnustep_control_popup_open(NXSControl *,int);
@@ -94,3 +99,7 @@ NXSFilePanelState nxs_gnustep_file_panel_state(NXSFilePanel *);
 size_t nxs_gnustep_file_panel_result(NXSFilePanel *,uint32_t,char *,size_t);
 int nxs_gnustep_file_panel_choice(NXSFilePanel *,uint32_t);
 int nxs_gnustep_file_panel_destroy(NXSFilePanel *);
+
+int nxs_gnustep_menu_popup(NXSMenu *,double,double);
+int nxs_gnustep_menu_auxiliary_parent(NXSMenu *,const char *);
+int nxs_gnustep_menu_auxiliary_activate(NXSMenu *,const char *);

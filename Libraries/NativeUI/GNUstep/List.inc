@@ -47,10 +47,12 @@ static NSView *list_create(NXSControl *control)
 static void list_enabled(NXSControl *control)
 {
   NSBrowser *browser=(NSBrowser *)control->view;NXSListAction *target=control->target;
-  [browser setEnabled:control->enabled];NSMatrix *matrix=list_matrix(control);[matrix setEnabled:control->enabled];
-  for(NSUInteger i=0;i<[target->models count];i++)
-    [[matrix cellAtRow:i column:0] setEnabled:control->enabled&&[[[target->models objectAtIndex:i] objectForKey:@"enabled"] boolValue]];
-  [browser setNeedsDisplay:YES];
+  NSMatrix *matrix=list_matrix(control);BOOL changed=NO;
+  for(NSUInteger i=0;i<[target->models count];i++) {
+    NSCell *cell=[matrix cellAtRow:i column:0];BOOL enabled=control->enabled&&[[[target->models objectAtIndex:i] objectForKey:@"enabled"] boolValue];
+    if([cell isEnabled]!=enabled){[cell setEnabled:enabled];changed=YES;}
+  }
+  if(changed)[browser setNeedsDisplay:YES];
 }
 int nxs_gnustep_control_list_items(NXSControl *control,const NXSListItem *items,uint32_t count,unsigned flags,uint64_t key)
 {
@@ -111,12 +113,21 @@ int nxs_gnustep_control_list_scroll(NXSControl *control,double x,double y)
 {
   if(!control||control->kind!=NXS_LISTBOX||control->destroying||!isfinite(x)||!isfinite(y)||nxs_host_tracking(control->host))return 0;
   NSAutoreleasePool *pool=[NSAutoreleasePool new];NSMatrix *matrix=list_matrix(control);NSClipView *clip=(NSClipView *)[matrix superview];
-  [clip scrollToPoint:[clip constrainScrollPoint:NSMakePoint(x,y)]];[(NSScrollView *)[clip superview] reflectScrolledClipView:clip];
+  scroll_document((NSScrollView *)[clip superview],x,y);
   [control->view setNeedsDisplay:YES];[pool drain];return 1;
 }
 int nxs_gnustep_control_item_at_point(NXSControl *control,double x,double y,uint64_t *identifier)
 {
-  if(!control||control->destroying||control->kind!=NXS_LISTBOX||!identifier||!isfinite(x)||!isfinite(y))return 0;
+  if(!control||control->destroying||(control->kind!=NXS_LISTBOX&&control->kind!=NXS_OUTLINE)||!identifier||!isfinite(x)||!isfinite(y))return 0;
+  if(control->kind==NXS_OUTLINE) {
+    NSAutoreleasePool *pool=[NSAutoreleasePool new];NSOutlineView *view=(NSOutlineView *)[(NSScrollView *)control->view documentView];
+    NSView *hit=nxs_host_hit_view(control->host,x,y);uint64_t result=0;
+    if(hit==view) {
+      NSInteger row=[view rowAtPoint:nxs_host_point_to_view(control->host,view,x,y)];
+      if(row>=0)result=[[view itemAtRow:row] unsignedLongLongValue];
+    }
+    *identifier=result;[pool drain];return 1;
+  }
   NSAutoreleasePool *pool=[NSAutoreleasePool new];NSMatrix *matrix=list_matrix(control);NSInteger row,column;
   NSView *hit=nxs_host_hit_view(control->host,x,y);uint64_t result=0;
   if(hit==matrix&&[matrix getRow:&row column:&column forPoint:nxs_host_point_to_view(control->host,matrix,x,y)])

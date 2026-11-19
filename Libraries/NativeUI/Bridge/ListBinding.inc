@@ -60,7 +60,7 @@ static int native_list_binding_sync(struct NXSListBinding *binding,const NXSList
   uint32_t epoch=atomic_load(&native_host_epoch);
   if(!binding->created||binding->epoch!=epoch) {
     struct NXSResponse *response=native_list_request(binding->control,1,width,height,!!enabled);
-    if(!response||response->width<1||response->height<1||response->parts[5].y<1)return 0;
+    if(!response||response->width<1||response->height<1||!native_presentation_scale_supported(response->parts[5].y))return 0;
     binding->epoch=atomic_load(&native_host_epoch);binding->created=1;
     binding->focused=binding->tracking=0;binding->scale=response->parts[5].y;
     binding->width=width;binding->height=height;binding->enabled=!!enabled;
