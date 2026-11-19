@@ -134,6 +134,7 @@ static void stop_native(void *bar,struct Point point,unsigned modifiers,int appl
 }
 static void mouse_down(void *bar,const void *event) {
   int use=native_bar(bar)&&current_controller&&*(const int *)((const char *)event+120)==0;
+  if(use)dismiss_popup_before_scroll();
   suppress_blink_action=use;original_down(bar,event);suppress_blink_action=0;
   if(!use||*(const unsigned char *)((const char *)bar+203)||!*(const int *)((const char *)bar+52))return;
   struct Point point=local_point(bar,event);

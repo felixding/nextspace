@@ -344,6 +344,17 @@ static void internal_popup_hide(void *self)
   if(owned)popup_engine_closed(self);
   refresh_form_watch();
 }
+static void dismiss_popup_before_scroll(void)
+{
+  if(!forms_popups_enabled||forms_available)return;
+  for(struct NativeForm *form=native_forms;form;form=form->next)
+    if(form->kind==NXS_POPUP&&form->popup_open&&form->popup_engine) {
+      /* The native scrollbar consumes this press before it reaches Blink's
+       * popup dismissal path. Close through the existing menu lifecycle. */
+      internal_popup_hide(form->popup_engine);
+      return;
+    }
+}
 static struct Detour popup_detours[]={
  {NXS_POPUP_UA_SHEET_OFFSET,nxs_popup_ua_sheet_bytes,popup_ua_sheet,(void **)&original_popup_ua_sheet},
  {NXS_POPUP_OPTION_CHANGED_OFFSET,nxs_popup_option_changed_bytes,popup_option_changed,(void **)&original_popup_option_changed},
@@ -351,10 +362,10 @@ static struct Detour popup_detours[]={
  {NXS_POPUP_GROUP_ATTRIBUTE_OFFSET,nxs_popup_group_attribute_bytes,popup_group_attribute,(void **)&original_popup_group_attribute},
  {NXS_POPUP_INLINE_SIZE_OFFSET,nxs_popup_inline_size_bytes,popup_inline_size,(void **)&original_popup_inline_size},
  {NXS_POPUP_PAINT_OFFSET,nxs_popup_paint_bytes,paint_popup,(void **)&original_popup_paint},
- {NXS_POPUP_DECORATION_OFFSET,nxs_popup_decoration_bytes,paint_popup_decoration,(void **)&original_popup_decoration},
- {NXS_SELECT_DEFAULT_OFFSET,nxs_select_default_bytes,select_default,(void **)&original_select_default}
+ {NXS_POPUP_DECORATION_OFFSET,nxs_popup_decoration_bytes,paint_popup_decoration,(void **)&original_popup_decoration}
 };
 static struct Detour popup_lifecycle_detours[]={
  {NXS_INTERNAL_POPUP_SHOW_OFFSET,nxs_internal_popup_show_bytes,internal_popup_show,(void **)&original_internal_popup_show},
- {NXS_INTERNAL_POPUP_HIDE_OFFSET,nxs_internal_popup_hide_bytes,internal_popup_hide,(void **)&original_internal_popup_hide}
+ {NXS_INTERNAL_POPUP_HIDE_OFFSET,nxs_internal_popup_hide_bytes,internal_popup_hide,(void **)&original_internal_popup_hide},
+ {NXS_SELECT_DEFAULT_OFFSET,nxs_select_default_bytes,select_default,(void **)&original_select_default}
 };

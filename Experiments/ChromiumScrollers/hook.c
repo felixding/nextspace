@@ -227,6 +227,7 @@ static void configure(uintptr_t offset) {
   writable((char *)table-1,65*8+1,PROT_READ);note("native theme vtable installed");
 }
 static void form_native_work(void *controller);
+static void dismiss_popup_before_scroll(void);
 static int views_enabled,views_trace_enabled;
 static int tabs_enabled,tabs_trace_enabled;
 static int tabs_watch_needed(void);

@@ -34,6 +34,7 @@ struct NXSViewHost {
   BOOL release_queued;
   BOOL pointer_events;
   NSResponder *pointer_target;
+  NSWindow *tracking_popup_window;
   unsigned dispatch_depth;
   int key_result;
   NSResponder *fallback;
@@ -380,6 +381,12 @@ int nxs_host_owns_input_window(NXSViewHost *host,NSWindow *window)
     if ([limit compare:slice] == NSOrderedAscending) slice = limit;
     NSEvent *event = [super nextEventMatchingMask:mask untilDate:slice inMode:mode dequeue:dequeue];
     if (event) return event;
+    /* Wayland can unmap the menu during its initial mouse-down. The release
+     * then goes to the window underneath. Unwind AppKit's original tracking
+     * loop without activating a row in the dismissed menu. */
+    if ((mask&NSLeftMouseUpMask) && active && active->tracking_popup_window &&
+        ![active->tracking_popup_window isVisible])
+      nxs_host_send(active,NXS_RELEASE,-10000,-10000,0);
   } while ((active||menu_loop) && [limit timeIntervalSinceNow] > 0);
   return nil;
 }
@@ -647,8 +654,10 @@ double nxs_host_dispatch_events(double maximum_wait)
     for(struct NXSInputWindow *entry=input_windows;entry;entry=entry->next)
       if(entry->window==[event window]){owner=entry->host;break;}
     if(owner){owner->dispatch_depth++;owner->injected_pointer=NO;owner->release_queued=NO;active=owner;}
+    if(owner&&[event type]==NSLeftMouseDown&&[owner->view isKindOfClass:[NSPopUpButton class]])
+      owner->tracking_popup_window=[event window];
     @try {[NSApp sendEvent:event];}
-    @finally {if(owner){owner->dispatch_depth--;active=NULL;}}
+    @finally {if(owner){owner->tracking_popup_window=nil;owner->dispatch_depth--;active=NULL;}}
     dispatched++;
   }
   /* GNUstep services due timers and reports their own next deadline here.

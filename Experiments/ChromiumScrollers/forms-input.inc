@@ -93,7 +93,8 @@ static struct NXSResponse *form_input_request(struct NativeForm *form,int operat
 }
 static struct NXSResponse *sync_form_focus(struct NativeForm *form,struct NXSResponse *response) {
   if(form->kind==NXS_WEBUI_MENU||form->kind==NXS_LISTBOX||(form->kind==NXS_RADIO&&forms_radio_groups_enabled))return response;
-  if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_FOCUS)||!response)return response;
+  if((!forms_input_enabled&&(form->kind!=NXS_POPUP||!form->popup_open))||
+     !(forms_input_capabilities&NXS_INPUT_FOCUS)||!response)return response;
   int focus=form_focused(form->node);
   if(!!response->parts[3].y==focus)return response;
   form_input_request(form,7,focus,0,0,NULL,NULL,0,0);
@@ -146,17 +147,19 @@ static char *keyboard_text(const void *web,int offset,const char *fallback) {
   return count?encode_text(units,count,0):strdup(fallback);
 }
 static int default_form_key(void *node,void *event) {
-  if(!forms_input_enabled||!(forms_input_capabilities&NXS_INPUT_KEYBOARD))return 0;
-  struct NativeForm *text_form=find_form(node);
-  if(text_form&&text_form->kind==NXS_COLORWELL)return 0;
-  if(text_form&&text_form->kind==NXS_DATEPICKER)return date_default_key(node,event);
-  if(text_form&&text_kind(text_form->kind))return default_text_key(node,event);
+  if(!(forms_input_capabilities&NXS_INPUT_KEYBOARD))return 0;
+  struct NativeForm *form=find_form(node);
+  /* A stock select still opens through Blink. Keys for its open native
+   * menu use the same AppKit responder as the fully native form mode. */
+  if(!forms_input_enabled&&(!form||form->kind!=NXS_POPUP||!form->popup_open))return 0;
+  if(form&&form->kind==NXS_COLORWELL)return 0;
+  if(form&&form->kind==NXS_DATEPICKER)return date_default_key(node,event);
+  if(form&&text_kind(form->kind))return default_text_key(node,event);
   unsigned short *flags=(unsigned short *)((char *)event+32);
   if(!(*flags&0x100)||(*flags&0x60))return 0;
   uintptr_t atom=*(const uintptr_t *)((char *)event+24);
   int down=same_atom(atom,0x123a55d8),up=same_atom(atom,0x123a55e8),press=same_atom(atom,0x123a55e0);
   if(!down&&!up&&!press)return 0;
-  struct NativeForm *form=find_form(node);
   if(form_key_node==node&&form_key_event==event&&(!form||form->control!=form_key_control)) {
     *flags|=0x40;return 1;
   }
