@@ -283,11 +283,31 @@ static int app_menu_ensure_watch(void) {
 static void menu_trace_hex(const char *text) {
   for(const unsigned char *p=(const void *)text;*p;p++)dprintf(log_fd,"%02x",*p);
 }
+static int app_menu_project_detached(struct AppMenuBinding *menu) {
+  if(!menu_keys_enabled)return app_menu_project(menu,menu->model,-1,0);
+  int file=menu_entry_add(menu,-1,NULL,0,0,0,NXS_MENU_SUBMENU,strdup("File"),NULL);
+  if(file<0||!app_menu_project(menu,menu->model,-1,0))return 0;
+  /* BuildFileMenu on macOS groups these commands from chrome_command_ids.h.
+   * Keep each available Linux model entry's title, enabled state and action. */
+  for(unsigned i=file+1;i<menu->count;i++) {
+    if(menu->items[i].flags&(NXS_MENU_SUBMENU|NXS_MENU_SEPARATOR))continue;
+    switch(menu->entries[i].command_id) {
+      case 34000: /* IDC_NEW_WINDOW */
+      case 34001: /* IDC_NEW_INCOGNITO_WINDOW */
+      case 34014: /* IDC_NEW_TAB */
+      case 35003: /* IDC_PRINT */
+      case 35004: /* IDC_SAVE_PAGE */
+        menu->items[i].parent=file;
+        break;
+    }
+  }
+  return 1;
+}
 static int app_menu_bind(struct AppMenuBinding *menu) {
   if(!menu||!pthread_equal(menu->owner,pthread_self())||*(uintptr_t *)menu->model!=base+0x11b63b38+16)return 0;
   if(menu->bound){native_menu_request(menu->control,29,0);menu->bound=0;}
   app_menu_clear_model(menu);
-  if(!app_menu_project(menu,menu->model,-1,0)||
+  if(!app_menu_project_detached(menu)||
      (menu_keys_enabled&&!app_menu_registry(menu))||!native_form_events_ready()||
      !native_menu_filter_register(app_menu_command)||!app_menu_ensure_watch())return 0;
   menu->bound=1;
