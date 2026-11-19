@@ -144,6 +144,12 @@ static void shellWindowAppmenu(void *data, struct nextspace_shell_v1 *shell,
 }
 static void shellPointerFocus(void *data, struct nextspace_shell_v1 *shell, uint32_t identifier)
 { [(WSShellConnection *)data recordPointerWindow:identifier]; }
+static void shellWindowParent(void *data, struct nextspace_shell_v1 *shell,
+    uint32_t identifier, uint32_t parent)
+{
+  [(WSShellConnection *)data recordWindowInfo:[NSDictionary dictionaryWithObject:shellNumber(parent)
+    forKey:@"parent_id"] identifier:shellNumber(identifier)];
+}
 static void shellOutputsReset(void *data, struct nextspace_shell_v1 *shell, uint32_t revision)
 { [(WSShellConnection *)data resetOutputs:revision]; }
 static void shellOutput(void *data, struct nextspace_shell_v1 *shell, uint32_t identifier,
@@ -254,7 +260,8 @@ static const struct nextspace_shell_v1_listener shellListener = {
   .input_settings = shellInputs, .input_result = shellInputResult, .background = shellBackground,
   .desktops = shellDesktops, .window_desktop = shellWindowDesktop, .interactive_move = shellInteractiveMove,
   .output_work_area = shellWorkArea, .output_gamma = shellOutputGamma,
-  .output_gamma_result = shellGammaResult, .window_appmenu = shellWindowAppmenu
+  .output_gamma_result = shellGammaResult, .window_appmenu = shellWindowAppmenu,
+  .window_parent = shellWindowParent
 };
 static void registryGlobal(void *data, struct wl_registry *registry, uint32_t name,
     const char *interface, uint32_t version)
@@ -449,6 +456,19 @@ static BOOL shellRoundtrip(struct wl_display *display)
   for (NSDictionary *window in [self windows]) {
     uint32_t flags = [[window objectForKey:@"flags"] unsignedIntValue];
     if (!(flags & 1) || (flags & (2 | 8 | 32))) continue;
+    /* Follow the compositor's actual transient relationship, including
+     * cross-client xdg-foreign parents. Never infer ownership from an app
+     * name, a shared helper PID, or whichever app happened to be active. */
+    NSMutableSet *seen = [NSMutableSet set];
+    for (unsigned depth = 0; window && depth < 64; depth++) {
+      NSNumber *identifier = [window objectForKey:@"id"];
+      if ([seen containsObject:identifier]) return nil;
+      [seen addObject:identifier];
+      if ([[window objectForKey:@"appmenu_service"] length] &&
+          [[window objectForKey:@"appmenu_path"] length]) break;
+      window = [self windowForID:[window objectForKey:@"parent_id"]];
+    }
+    if (!window) return nil;
     NSString *service = [window objectForKey:@"appmenu_service"];
     NSString *path = [window objectForKey:@"appmenu_path"];
     if ([[window objectForKey:@"pid"] intValue] <= 1 || ![service length] || ![path length]) return nil;
@@ -465,7 +485,7 @@ static BOOL shellRoundtrip(struct wl_display *display)
 {
   if (_shell || version < 7) return;
   _global = name;
-  _shell = wl_registry_bind(registry, name, &nextspace_shell_v1_interface, MIN(version, 19));
+  _shell = wl_registry_bind(registry, name, &nextspace_shell_v1_interface, MIN(version, 20));
   nextspace_shell_v1_add_listener(_shell, &shellListener, self);
 }
 - (void)removeGlobal:(uint32_t)name

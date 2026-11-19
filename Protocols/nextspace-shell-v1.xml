@@ -19,7 +19,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
     THE SOFTWARE.
   </copyright>
-  <interface name="nextspace_shell_v1" version="19">
+  <interface name="nextspace_shell_v1" version="20">
     <description summary="session-authorized desktop window control">
       Only the Wayland connection supplied by the session supervisor can see or
       bind this global. An application ID, PID or same-user public connection
@@ -373,6 +373,15 @@
       </description>
       <arg name="id" type="uint"/><arg name="service_name" type="string"/>
       <arg name="object_path" type="string"/>
+    </event>
+    <event name="window_parent" since="20">
+      <description summary="compositor-authenticated transient owner">
+        Sent with each window event, before done. Zero clears the association.
+        This is the existing xdg-toplevel parent, including authenticated
+        xdg-foreign relationships. A shell may follow it to select the owning
+        application's menu while an auxiliary window has keyboard focus.
+      </description>
+      <arg name="id" type="uint"/><arg name="parent_id" type="uint"/>
     </event>
   </interface>
   <interface name="nextspace_output_configuration_v1" version="1">

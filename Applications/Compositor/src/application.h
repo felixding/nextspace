@@ -183,6 +183,10 @@ static void destroy_application_object(struct wl_client *client, struct wl_resou
 static void constrain_position(struct nextspace_toplevel *view, int *x, int *y)
 {
   if (*x < -1000000 || *x > 1000000 || *y < -1000000 || *y > 1000000) { *x = 0; *y = 0; }
+  /* Native menus position and edge-scroll themselves. Requiring a visible
+     titlebar here would undo NSMenu's scrolling or move it to another output. */
+  if (view->application_window && view->style == 0 &&
+      (view->level == 3 || view->level == 20 || view->level == 101)) return;
   struct wlr_box geometry;
   view_geometry(view, &geometry);
   struct wlr_box title = {*x, *y, geometry.width > 32 ? geometry.width : 32, 22};

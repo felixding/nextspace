@@ -108,6 +108,16 @@ def run(compositor, probe, shell_probe, artifacts):
                         except OSError:
                             return False
                     until(captured, "rendered title, bevels and buttons at backing density")
+                    shadow_x = w['x'] + w['frame_width'] + 2
+                    shadow_y = w['y'] + w['frame_height'] // 2
+                    background = command(f"sample-color {shadow_x + 30} {shadow_y}")
+                    shadow = command(f"sample-color {shadow_x} {shadow_y}")
+                    assert background['ok'] and shadow['ok'], (background, shadow)
+                    channels = lambda value: [(value >> shift) & 255 for shift in (16,8,0)]
+                    assert all(a < b for a,b in zip(channels(shadow['argb']),channels(background['argb']))), (scale,shadow,background)
+                    assert command(f"hit {shadow_x} {shadow_y}")['id'] != wid, 'shadow intercepted pointer input'
+                    edge = command(f"sample-color {w['x']+w['frame_width']//2} {w['y']+w['frame_height']-.5}")
+                    assert edge['ok'] and edge['argb'] & 0xffffff == 0, ('missing bottom border',scale,edge)
                     # Client coordinates exclude the compositor's frame.
                     count = len(events())
                     command(f"pointer {w['x'] + 21} {w['y'] + 52}")

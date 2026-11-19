@@ -33,6 +33,8 @@ static bool shell_send_window(struct nextspace_toplevel *view, bool force)
   const char *title = view_title(view);
   if (!title) title = "";
   pid_t pid = view_pid(view);
+  struct nextspace_toplevel *parent = policy_parent(view);
+  uint32_t parent_id = parent ? parent->id : 0;
   struct wlr_box geometry;
   view_geometry(view, &geometry);
   uint32_t flags = (server->seat->keyboard_state.focused_surface == view_surface(view) ?
@@ -49,6 +51,7 @@ static bool shell_send_window(struct nextspace_toplevel *view, bool force)
   if (!force && view->shell_state.valid && view->shell_state.flags == flags &&
       view->shell_state.pid == pid && view->shell_state.client_id == view->client_id &&
       view->shell_state.style == view->style && view->shell_state.title_height == view->title_height &&
+      view->shell_state.parent_id == parent_id &&
       view->shell_state.level == view->level && view->shell_state.desktop == view->desktop &&
       view->shell_state.sticky == view->sticky && view->shell_state.box.x == geometry.x &&
       view->shell_state.box.y == geometry.y && view->shell_state.box.width == geometry.width &&
@@ -59,6 +62,7 @@ static bool shell_send_window(struct nextspace_toplevel *view, bool force)
   view->shell_state.app_id = app_copy; view->shell_state.title = title_copy;
   view->shell_state.box = geometry; view->shell_state.flags = flags; view->shell_state.pid = pid;
   view->shell_state.client_id = view->client_id; view->shell_state.style = view->style;
+  view->shell_state.parent_id = parent_id;
   view->shell_state.title_height = view->title_height; view->shell_state.level = view->level;
   view->shell_state.desktop = view->desktop; view->shell_state.sticky = view->sticky;
   view->shell_state.valid = app_copy && title_copy;
@@ -74,6 +78,8 @@ static bool shell_send_window(struct nextspace_toplevel *view, bool force)
     nextspace_shell_v1_send_window_appmenu(server->shell_resource, view->id,
       menu && menu->service ? menu->service : "", menu && menu->path ? menu->path : "");
   }
+  if (wl_resource_get_version(server->shell_resource) >= 20)
+    nextspace_shell_v1_send_window_parent(server->shell_resource, view->id, parent_id);
   return true;
 }
 
@@ -110,6 +116,11 @@ static void shell_metadata_changed(struct wl_listener *listener, void *data)
 static void shell_app_id_changed(struct wl_listener *listener, void *data)
 {
   struct nextspace_toplevel *view = wl_container_of(listener, view, set_app_id);
+  shell_window_changed(view);
+}
+static void shell_parent_changed(struct wl_listener *listener, void *data)
+{
+  struct nextspace_toplevel *view = wl_container_of(listener, view, set_parent);
   shell_window_changed(view);
 }
 
@@ -428,7 +439,7 @@ static bool shell_init(struct nextspace_server *server, int fd)
 {
   server->shell_broker_fd = fd;
   server->shell_global = wl_global_create(server->wl_display, &nextspace_shell_v1_interface,
-    19, server, bind_shell);
+    20, server, bind_shell);
   if (!server->shell_global) return false;
   if (fd < 0) return true;
   int type; socklen_t size = sizeof(type);

@@ -31,7 +31,7 @@ struct globals {
   struct zwp_primary_selection_device_manager_v1 *primary_manager;
   bool focus_mode;
   bool policy_mode;
-  bool activation_mode, activation_fallback_mode;
+  bool activation_mode, activation_fallback_mode, activation_order_mode, activation_closed_popup_mode;
   struct xdg_activation_v1 *activation;
   uint32_t activation_serial;
   struct wl_surface *activation_source;
@@ -266,7 +266,8 @@ static void activation_enter(void *data, struct wl_keyboard *keyboard, uint32_t 
 static void activation_leave(void *data, struct wl_keyboard *keyboard, uint32_t serial, struct wl_surface *surface)
 { ((struct globals *)data)->activation_source = NULL; }
 static void activation_key(void *data, struct wl_keyboard *keyboard, uint32_t serial,
-    uint32_t time, uint32_t key, uint32_t state) {}
+    uint32_t time, uint32_t key, uint32_t state)
+{ if (state == WL_KEYBOARD_KEY_STATE_PRESSED) ((struct globals *)data)->activation_serial = serial; }
 static void activation_modifiers(void *data, struct wl_keyboard *keyboard, uint32_t serial,
     uint32_t depressed, uint32_t latched, uint32_t locked, uint32_t group) {}
 static const struct wl_keyboard_listener activation_keyboard = {
@@ -343,6 +344,116 @@ static void activation_release_token(struct globals *globals, struct xdg_activat
 {
   xdg_activation_token_v1_destroy(token);
   free(globals->activation_token); globals->activation_token = NULL;
+}
+static void activation_popup_configure(void *data, struct xdg_popup *popup,
+    int32_t x, int32_t y, int32_t width, int32_t height) {}
+static void activation_popup_done(void *data, struct xdg_popup *popup) {}
+static const struct xdg_popup_listener activation_popup_listener = {
+  .configure = activation_popup_configure, .popup_done = activation_popup_done
+};
+static int test_activation_closed_popup(struct wl_display *display, struct globals *globals)
+{
+  alarm(20);
+  struct wl_keyboard *keyboard = wl_seat_get_keyboard(globals->seat);
+  wl_keyboard_add_listener(keyboard, &activation_keyboard, globals);
+  struct test_window parent = {0}, popup = {0};
+  if (!create_window(globals, &parent, "ActivationPopupParent")) return 1;
+  wl_surface_commit(parent.surface);
+  while (!parent.activated || globals->activation_source != parent.surface)
+    if (wl_display_dispatch(display) < 0) return 1;
+  if (!create_surface(globals, &popup)) return 1;
+  popup.xdg = xdg_wm_base_get_xdg_surface(globals->shell, popup.surface);
+  xdg_surface_add_listener(popup.xdg, &surface_listener, &popup);
+  struct xdg_positioner *positioner = xdg_wm_base_create_positioner(globals->shell);
+  xdg_positioner_set_size(positioner, 64, 64);
+  xdg_positioner_set_anchor_rect(positioner, 0, 0, 1, 1);
+  xdg_positioner_set_anchor(positioner, XDG_POSITIONER_ANCHOR_TOP_LEFT);
+  xdg_positioner_set_gravity(positioner, XDG_POSITIONER_GRAVITY_BOTTOM_RIGHT);
+  struct xdg_popup *role = xdg_surface_get_popup(popup.xdg, parent.xdg, positioner);
+  xdg_popup_add_listener(role, &activation_popup_listener, NULL);
+  xdg_positioner_destroy(positioner);
+  wl_surface_commit(popup.surface);
+  if (!activation_roundtrips(display)) return 1;
+  puts("activation-popup-input-ready"); fflush(stdout);
+  if (getchar() == EOF || !activation_roundtrips(display)) return 1;
+  struct xdg_activation_token_v1 *token = activation_token(display, globals, popup.surface, 3);
+  if (!token) return 1;
+  /* Keep wl_surface and xdg_surface alive, exactly as a closing native menu
+     does while another process still holds its activation token. */
+  xdg_popup_destroy(role);
+  xdg_activation_v1_activate(globals->activation, globals->activation_token, parent.surface);
+  if (!activation_roundtrips(display) || !parent.activated) return 1;
+  activation_release_token(globals, token);
+  xdg_surface_destroy(popup.xdg); wl_surface_destroy(popup.surface);
+  wl_buffer_destroy(popup.buffer); munmap(popup.pixels, 64 * 64 * 4);
+  destroy_window(&parent); wl_keyboard_destroy(keyboard);
+  if (!activation_roundtrips(display)) return 1;
+  alarm(0);
+  puts("Activation from a closed popup preserves the desktop: PASS"); return 0;
+}
+static int test_activation_order(struct wl_display *display, struct globals *globals)
+{
+  if (!globals->activation || !globals->seat) return 1;
+  alarm(30);
+  struct wl_keyboard *keyboard = wl_seat_get_keyboard(globals->seat);
+  wl_keyboard_add_listener(keyboard, &activation_keyboard, globals);
+  struct test_window parent = {0}, child = {0}, other = {0};
+  if (!create_window(globals, &parent, "ActivationParent")) return 1;
+  wl_surface_commit(parent.surface);
+  while (!parent.activated || globals->activation_source != parent.surface)
+    if (wl_display_dispatch(display) < 0) return 1;
+  puts("activation-order-map-input-ready"); fflush(stdout);
+  if (getchar() == EOF || !activation_roundtrips(display)) return 1;
+  char *names[4];
+  for (int i = 0; i < 4; i++) {
+    struct xdg_activation_token_v1 *token = activation_token(display, globals, parent.surface, 3);
+    if (!token) return 1;
+    names[i] = strdup(globals->activation_token); activation_release_token(globals, token);
+  }
+  if (!create_window(globals, &child, "ActivationChild")) return 1;
+  wl_surface_commit(child.surface);
+  while (!child.activated) if (wl_display_dispatch(display) < 0) return 1;
+  /* Mapping already selected the native child. Its own activation token may
+   * still be in another process's queue when the opener repeats activation. */
+  xdg_activation_v1_activate(globals->activation, names[3], parent.surface);
+  if (!activation_roundtrips(display) || !child.activated) {
+    fprintf(stderr, "A delayed source activation stole focus before the foreign parent arrived.\n"); return 1;
+  }
+  /* A foreign parent can arrive from another process after map focus. */
+  xdg_toplevel_set_parent(child.top, parent.top);
+  if (!activation_roundtrips(display)) return 1;
+  xdg_activation_v1_activate(globals->activation, names[0], child.surface);
+  if (!activation_roundtrips(display) || !child.activated) return 1;
+  xdg_activation_v1_activate(globals->activation, names[1], parent.surface);
+  if (!activation_roundtrips(display) || !child.activated) {
+    fprintf(stderr, "A delayed parent activation stole its child's focus.\n"); return 1;
+  }
+  struct xdg_activation_token_v1 *entered = activation_token(display, globals, child.surface, 3);
+  if (!entered) return 1;
+  xdg_activation_v1_activate(globals->activation, globals->activation_token, parent.surface);
+  if (!activation_roundtrips(display) || !child.activated) {
+    fprintf(stderr, "A focus-enter serial was mistaken for a new user gesture.\n"); return 1;
+  }
+  activation_release_token(globals, entered);
+  if (!create_window(globals, &other, "ActivationOther")) return 1;
+  wl_surface_commit(other.surface);
+  while (!other.activated || globals->activation_source != other.surface)
+    if (wl_display_dispatch(display) < 0) return 1;
+  puts("activation-order-input-ready"); fflush(stdout);
+  if (getchar() == EOF || !activation_roundtrips(display)) return 1;
+  xdg_activation_v1_activate(globals->activation, names[2], parent.surface);
+  if (!activation_roundtrips(display) || !other.activated) {
+    fprintf(stderr, "An old activation overrode newer user input.\n"); return 1;
+  }
+  struct xdg_activation_token_v1 *fresh = activation_token(display, globals, other.surface, 3);
+  if (!fresh) return 1;
+  xdg_activation_v1_activate(globals->activation, globals->activation_token, parent.surface);
+  if (!activation_roundtrips(display) || !parent.activated) return 1;
+  activation_release_token(globals, fresh);
+  for (int i = 0; i < 4; i++) free(names[i]);
+  destroy_window(&other); destroy_window(&child); destroy_window(&parent);
+  wl_keyboard_destroy(keyboard); wl_display_roundtrip(display); alarm(0);
+  puts("Activation preserves child focus, newer input and fresh activation: PASS"); return 0;
 }
 static int test_activation_fallback(struct wl_display *display, struct globals *globals)
 {
@@ -710,7 +821,9 @@ int main(int argc, char **argv)
     .clipboard_mode = invalid_drag || empty_drag || (argc >= 3 && strncmp(argv[1], "--clipboard-", 12) == 0),
     .primary_mode = argc >= 3 && strncmp(argv[1], "--primary-", 10) == 0,
     .invalid_primary = argc >= 3 && strcmp(argv[1], "--primary-invalid") == 0,
-    .activation_mode = argc == 2 && (strcmp(argv[1], "--activation") == 0 || strcmp(argv[1], "--activation-fallback") == 0),
+    .activation_mode = argc == 2 && (strcmp(argv[1], "--activation") == 0 || strcmp(argv[1], "--activation-fallback") == 0 || strcmp(argv[1], "--activation-order") == 0 || strcmp(argv[1], "--activation-closed-popup") == 0),
+    .activation_closed_popup_mode = argc == 2 && strcmp(argv[1], "--activation-closed-popup") == 0,
+    .activation_order_mode = argc == 2 && strcmp(argv[1], "--activation-order") == 0,
     .activation_fallback_mode = argc == 2 && strcmp(argv[1], "--activation-fallback") == 0,
     .focus_mode = argc == 2 && (strcmp(argv[1], "--no-focus") == 0 || strcmp(argv[1], "--color-source") == 0),
     .policy_mode = argc == 4 && strcmp(argv[1], "--window") == 0};
@@ -732,7 +845,9 @@ int main(int argc, char **argv)
     wl_display_disconnect(display); return rejected ? 0 : 1;
   }
   if (globals.activation_mode) {
-    int status = globals.activation_fallback_mode ? test_activation_fallback(display, &globals) : test_activation(display, &globals);
+    int status = globals.activation_closed_popup_mode ? test_activation_closed_popup(display, &globals) :
+      globals.activation_order_mode ? test_activation_order(display, &globals) :
+      globals.activation_fallback_mode ? test_activation_fallback(display, &globals) : test_activation(display, &globals);
     wl_display_disconnect(display); return status;
   }
   if (empty_drag) {

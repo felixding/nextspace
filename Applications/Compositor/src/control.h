@@ -408,22 +408,28 @@ static int control_ready(int fd, uint32_t mask, void *data)
     process_cursor_motion(server, now.tv_sec * 1000 + now.tv_nsec / 1000000);
     wlr_seat_pointer_notify_frame(server->seat);
     fputs("{\"ok\":true}", f);
-  } else if (strncmp(command, "button ", 7) == 0) {
-    unsigned state;
-    bool click = sscanf(command, "button %u %c", &id, &extra) == 1;
+  } else if (strncmp(command, "button ", 7) == 0 || strncmp(command, "clicks ", 7) == 0) {
+    unsigned state = 0, count = 1;
+    bool sequence = sscanf(command, "clicks %u %u %c", &id, &count, &extra) == 2 && count >= 1 && count <= 3;
+    bool click = sequence || sscanf(command, "button %u %c", &id, &extra) == 1;
     bool ok = (click || (sscanf(command, "button %u %u %c", &id, &state, &extra) == 2 && state <= 1)) && id <= 767;
+    uint32_t timestamp = 0;
     if (ok) {
       struct timespec now;
       clock_gettime(CLOCK_MONOTONIC, &now);
-      for (unsigned i = 0; i < (click ? 2u : 1u); i++) {
+      timestamp = now.tv_sec * 1000 + now.tv_nsec / 1000000;
+      /* One requested gesture keeps its input timestamps together even if a
+         rendered frame delays the next control request. AppKit still derives
+         click counts using its original timing and movement policy. */
+      for (unsigned i = 0; i < (click ? 2u * count : 1u); i++) {
         struct wlr_pointer_button_event event = {
-          .button = id, .state = click ? (i ? WL_POINTER_BUTTON_STATE_RELEASED : WL_POINTER_BUTTON_STATE_PRESSED) : state,
-          .time_msec = now.tv_sec * 1000 + now.tv_nsec / 1000000 + i};
+          .button = id, .state = click ? ((i & 1) ? WL_POINTER_BUTTON_STATE_RELEASED : WL_POINTER_BUTTON_STATE_PRESSED) : state,
+          .time_msec = timestamp + i};
         server_cursor_button(&server->cursor_button, &event);
       }
       wlr_seat_pointer_notify_frame(server->seat);
     }
-    fprintf(f, "{\"ok\":%s}", ok ? "true" : "false");
+    fprintf(f, "{\"ok\":%s,\"event_time_msec\":%u}", ok ? "true" : "false", timestamp);
   } else if (sscanf(command, "scroll %d %c", &y, &extra) == 1 ||
       sscanf(command, "scroll-v120 %d %c", &y, &extra) == 1) {
     bool high_resolution = strncmp(command, "scroll-v120 ", 12) == 0;

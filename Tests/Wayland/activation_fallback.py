@@ -14,10 +14,30 @@ with tempfile.TemporaryDirectory(prefix='nxs-activation-') as runtime:
   assert select.select([comp.stdout],[],[],10)[0]
   line=comp.stdout.readline();assert line.startswith('WAYLAND_DISPLAY='),line
   env['WAYLAND_DISPLAY']=line.strip().split('=',1)[1]
-  for mode in ['--no-focus','--activation','--activation-fallback']:
-   actor=subprocess.Popen([str(a.build/'registry-probe'),mode],env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);children.append(actor)
+  for mode in ['--no-focus','--activation','--activation-fallback','--activation-order','--activation-closed-popup']:
+   actor=subprocess.Popen([str(a.build/'registry-probe'),mode],env=env,stdin=subprocess.PIPE if mode in ('--activation-order','--activation-closed-popup') else None,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True);children.append(actor)
+   initial=''
+   if mode=='--activation-order':
+    for expected in ['activation-order-map-input-ready','activation-order-input-ready']:
+     assert select.select([actor.stdout],[],[],15)[0], 'Activation ordering probe startup'
+     line=actor.stdout.readline();initial+=line
+     if line.strip()!=expected:break
+     for state in (1,0):
+      parent.send(('key 30 '+str(state)).encode());assert json.loads(parent.recv(65536))['ok']
+     actor.stdin.write('\n');actor.stdin.flush()
+   if mode=='--activation-closed-popup':
+    assert select.select([actor.stdout],[],[],15)[0], 'Closed popup activation startup'
+    line=actor.stdout.readline();initial+=line
+    assert line.strip()=='activation-popup-input-ready',line
+    parent.send(b'popups');popups=json.loads(parent.recv(65536));assert len(popups)==1,popups
+    popup=popups[0]
+    parent.send(('pointer %d %d'%(popup['x']+8,popup['y']+8)).encode());assert json.loads(parent.recv(65536))['ok']
+    for state in (1,0):
+     parent.send(('key 30 '+str(state)).encode());assert json.loads(parent.recv(65536))['ok']
+    actor.stdin.write('\n');actor.stdin.flush()
    try:stdout,stderr=actor.communicate(timeout=20)
    except subprocess.TimeoutExpired:actor.kill();stdout,stderr=actor.communicate();raise
+   stdout=initial+stdout
    (a.output/(mode[2:]+'.stdout')).write_text(stdout);(a.output/(mode[2:]+'.stderr')).write_text(stderr)
    row=dict(case=mode[2:],passed=actor.returncode==0,pid=actor.pid,exit=actor.returncode,stdout=stdout)
    rows.append(row);(a.output/'results.json').write_text(json.dumps(rows,indent=2)+'\n');assert row['passed'],row

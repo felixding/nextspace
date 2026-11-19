@@ -170,6 +170,7 @@ struct nextspace_server {
   struct title_font *title_font;
   uint32_t title_justification, title_revision;
   struct wl_listener request_activate;
+  uint32_t input_serial, activation_serial, activation_input_serial, focus_input_serial;
 	struct wl_listener new_xdg_toplevel;
 	struct wl_listener new_xdg_popup;
 	struct wl_list toplevels;
@@ -264,13 +265,13 @@ struct nextspace_toplevel {
   bool minimized;
   bool shell_hidden, client_hidden;
   struct wl_listener request_minimize;
-  struct wl_listener set_title, set_app_id;
+  struct wl_listener set_title, set_app_id, set_parent;
   struct {
     char *app_id, *title;
     struct wlr_box box;
     pid_t pid;
     uint32_t flags;
-    uint32_t client_id, style, title_height;
+    uint32_t client_id, style, title_height, parent_id;
     int level;
     unsigned desktop;
     bool sticky;
@@ -388,6 +389,9 @@ static struct nextspace_toplevel *view_for_surface(struct nextspace_server *serv
   surface = wlr_surface_get_root_surface(surface);
   struct wlr_xdg_surface *xdg = wlr_xdg_surface_try_from_wlr_surface(surface);
   while (xdg && xdg->role == WLR_XDG_SURFACE_ROLE_POPUP) {
+    /* An activation token can outlive its xdg_popup while the wl_surface
+       remains alive. wlroots clears popup before the surface loses its role. */
+    if (!xdg->popup || !xdg->popup->parent) return NULL;
     surface = xdg->popup->parent;
     xdg = wlr_xdg_surface_try_from_wlr_surface(surface);
   }
@@ -425,12 +429,25 @@ static void view_move(struct nextspace_toplevel *view, int x, int y) {
 static void view_resize(struct nextspace_toplevel *view, int width, int height) {
   if (decoration_visible(view)) {
     int horizontal = ns_frame_horizontal(view->frame), vertical = ns_frame_vertical(view->frame);
-    width = width > horizontal ? width - horizontal : 1;
-    height = height > vertical ? height - vertical : 1;
+    /* Zero lets the client choose that axis, including a pre-map restore. */
+    if (width) width = width > horizontal ? width - horizontal : 1;
+    if (height) height = height > vertical ? height - vertical : 1;
   }
   wlr_xdg_toplevel_set_size(view->xdg_toplevel, width, height);
 }
 static void view_activate(struct nextspace_toplevel *view, bool active) {
+  struct wlr_xdg_toplevel *xdg = view->xdg_toplevel;
+  if (view->mapped && !view->maximized && !view->fullscreen &&
+      !xdg->scheduled.width && !xdg->scheduled.height && !xdg->current.resizing &&
+      !(view->server->grabbed_toplevel == view &&
+        view->server->cursor_mode == NEXTSPACE_CURSOR_RESIZE)) {
+    /* A zero hint allows GTK to choose its saved default size. Activation is
+       not a resize: preserve the client's actual committed window geometry. */
+    struct wlr_box geometry;
+    wlr_xdg_surface_get_geometry(xdg->base, &geometry);
+    if (geometry.width > 0 && geometry.height > 0)
+      wlr_xdg_toplevel_set_size(xdg, geometry.width, geometry.height);
+  }
   wlr_xdg_toplevel_set_activated(view->xdg_toplevel, active);
   decoration_update(view);
 }
@@ -470,9 +487,29 @@ static void request_activate(struct wl_listener *listener, void *data)
      token creation. Tokens without that input provenance cannot steal focus. */
   if (event->token->seat != server->seat || !event->token->surface) return;
   struct nextspace_toplevel *view = view_for_surface(server, event->surface);
+  wlr_log(getenv("NEXTSPACE_TRACE_ACTIVATION") ? WLR_INFO : WLR_DEBUG,
+    "Activation received token=%u target=%u mapped=%d accepts=%d fallback=%d",
+    event->token->serial, view ? view->id : 0, view ? view->mapped : 0,
+    view && view->application_window ? view->application_window->accepts_focus : -1,
+    view && view->application_window ? view->application_window->activation_fallback : -1);
   if (!view || !view->mapped || (view->application_window &&
       !view->application_window->accepts_focus && !view->application_window->activation_fallback)) return;
-  wlr_log(WLR_DEBUG, "Activation request for window %u", view->id);
+  /* Several toolkit tokens may originate from one gesture. A delayed token
+     must not override newer input, or pull focus back from an auxiliary child
+     that has already been activated by that same gesture. */
+  struct nextspace_toplevel *focused = view_for_surface(server, server->seat->keyboard_state.focused_surface);
+  wlr_log(getenv("NEXTSPACE_TRACE_ACTIVATION") ? WLR_INFO : WLR_DEBUG,
+    "Activation target=%u token=%u input=%u focus-input=%u focused=%u",
+    view->id, event->token->serial, server->input_serial, server->focus_input_serial,
+    focused ? focused->id : 0);
+  if (server->input_serial && (int32_t)(event->token->serial-server->input_serial) < 0) return;
+  struct nextspace_toplevel *source = view_for_surface(server, event->token->surface);
+  if (focused && focused != view && server->input_serial == server->focus_input_serial &&
+      (policy_descendant(focused, view) || (source && source != focused))) return;
+  server->activation_serial = event->token->serial;
+  server->activation_input_serial = server->input_serial;
+  wlr_log(getenv("NEXTSPACE_TRACE_ACTIVATION") ? WLR_INFO : WLR_DEBUG,
+    "Activation request for window %u", view->id);
   if (!view->sticky) desktop_switch(server, view->desktop);
   if (view->application_window && view->application_window->activation_fallback)
     policy_set_presented(view, true);
@@ -526,6 +563,10 @@ static void focus_toplevel_internal(struct nextspace_toplevel *toplevel,
 		}
 	}
 	struct wlr_surface *prev_surface = seat->keyboard_state.focused_surface;
+  /* Mapping a child can focus it before its separate process supplies an
+     activation token. Preserve that focus against its opener's late token
+     from the same gesture, just as for explicit token-based activation. */
+  server->focus_input_serial = server->input_serial;
 	if (prev_surface == surface) {
 		/* Don't re-focus an already focused surface. */
     policy_focus_layers(server, toplevel);
@@ -538,7 +579,8 @@ static void focus_toplevel_internal(struct nextspace_toplevel *toplevel,
   struct nextspace_toplevel *other;
   wl_list_for_each(other, &server->toplevels, link)
     if (other != toplevel) policy_dismiss_popups(other);
-	wlr_log(WLR_DEBUG, "Keyboard focus -> window %u", toplevel->id);
+  wlr_log(getenv("NEXTSPACE_TRACE_ACTIVATION") ? WLR_INFO : WLR_DEBUG,
+    "Keyboard focus -> window %u activation=%d", toplevel->id, activation);
 	if (prev_surface) {
 		/*
 		 * Deactivate the previously focused surface. This lets the client know
@@ -548,7 +590,9 @@ static void focus_toplevel_internal(struct nextspace_toplevel *toplevel,
 		struct wlr_xdg_toplevel *prev_toplevel =
 			wlr_xdg_toplevel_try_from_wlr_surface(prev_surface);
 		if (prev_toplevel != NULL) {
-			wlr_xdg_toplevel_set_activated(prev_toplevel, false);
+      struct nextspace_toplevel *previous = view_for_surface(server, prev_surface);
+      if (previous) view_activate(previous, false);
+			else wlr_xdg_toplevel_set_activated(prev_toplevel, false);
 		}
 	}
 	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
@@ -649,6 +693,8 @@ static void keyboard_handle_key(
 	struct wlr_keyboard_key_event *event = data;
 	struct wlr_seat *seat = server->seat;
 	/* Translate libinput keycode -> xkbcommon. */
+  if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+    server->input_serial = wl_display_next_serial(server->wl_display);
 	uint32_t keycode = event->keycode + 8;
 	const xkb_keysym_t *syms;
 	int nsyms = xkb_state_key_get_syms(
@@ -716,6 +762,8 @@ static void keyboard_handle_key(
 		wlr_seat_set_keyboard(seat, keyboard->wlr_keyboard);
 		wlr_seat_keyboard_notify_key(seat, event->time_msec,
 			event->keycode, event->state);
+    if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED)
+      server->input_serial = wl_display_get_serial(server->wl_display);
     if (event->state == WL_KEYBOARD_KEY_STATE_PRESSED && !wlr_seat_keyboard_has_grab(seat)) {
       struct nextspace_toplevel *view = view_for_surface(server, seat->keyboard_state.focused_surface);
       for (int i = 0; view && i < nsyms; i++) {
@@ -1147,6 +1195,8 @@ static void server_cursor_button(struct wl_listener *listener, void *data) {
 	struct nextspace_server *server =
 		wl_container_of(listener, server, cursor_button);
 	struct wlr_pointer_button_event *event = data;
+  if (event->state == WL_POINTER_BUTTON_STATE_PRESSED)
+    server->input_serial = wl_display_next_serial(server->wl_display);
   if (color_pick_button(server, event)) return;
   if (server->locked) { session_lock_pointer_button(server, event); return; }
 	double sx, sy;
@@ -1171,6 +1221,7 @@ static void server_cursor_button(struct wl_listener *listener, void *data) {
   if (event->state == WL_POINTER_BUTTON_STATE_RELEASED) server->decoration_buttons &= ~frame_button;
   uint32_t serial = wlr_seat_pointer_notify_button(server->seat,
     event->time_msec, event->button, event->state);
+  if (event->state == WL_POINTER_BUTTON_STATE_PRESSED && serial) server->input_serial = serial;
   if (event->button == 0x110 && event->state == WL_POINTER_BUTTON_STATE_RELEASED) {
     server->color_pick_gesture.serial = serial;
     server->color_pick_gesture.view = surface && toplevel ? toplevel->id : 0;
@@ -1439,6 +1490,19 @@ static void xdg_toplevel_commit(struct wl_listener *listener, void *data) {
   if (toplevel->shaded) policy_update_clip(toplevel);
   policy_center_fullscreen(toplevel);
 
+  struct wlr_xdg_surface *xdg = toplevel->xdg_toplevel->base;
+  if (toplevel->mapped && !toplevel->maximized && !toplevel->fullscreen &&
+      !toplevel->xdg_toplevel->current.resizing &&
+      !(toplevel->server->grabbed_toplevel == toplevel &&
+        toplevel->server->cursor_mode == NEXTSPACE_CURSOR_RESIZE) &&
+      !xdg->configure_idle && xdg->current.configure_serial == xdg->scheduled_serial) {
+    /* The latest size request has been committed. A normal client may choose
+       a different size afterwards; activation must not replay the old hint.
+       Leave newer in-flight requests and managed size states untouched. */
+    toplevel->xdg_toplevel->scheduled.width = 0;
+    toplevel->xdg_toplevel->scheduled.height = 0;
+  }
+
 	application_position(toplevel);
 	if (toplevel->xdg_toplevel->base->initial_commit) {
 		if (toplevel->decoration && toplevel->decoration->protocol)
@@ -1460,6 +1524,7 @@ static void xdg_toplevel_destroy(struct wl_listener *listener, void *data) {
 	application_detach(toplevel);
 	wl_list_remove(&toplevel->set_title.link);
 	wl_list_remove(&toplevel->set_app_id.link);
+  wl_list_remove(&toplevel->set_parent.link);
 	wl_list_remove(&toplevel->map.link);
 	wl_list_remove(&toplevel->unmap.link);
 	wl_list_remove(&toplevel->commit.link);
@@ -1612,6 +1677,8 @@ static void server_new_xdg_toplevel(struct wl_listener *listener, void *data) {
   wl_signal_add(&xdg_toplevel->events.set_title, &toplevel->set_title);
   toplevel->set_app_id.notify = shell_app_id_changed;
   wl_signal_add(&xdg_toplevel->events.set_app_id, &toplevel->set_app_id);
+  toplevel->set_parent.notify = shell_parent_changed;
+  wl_signal_add(&xdg_toplevel->events.set_parent, &toplevel->set_parent);
   toplevel->request_minimize.notify = policy_request_minimize;
   wl_signal_add(&xdg_toplevel->events.request_minimize, &toplevel->request_minimize);
 
@@ -1710,8 +1777,22 @@ static int terminate_signal(int signal_number, void *data) {
 	return 0;
 }
 
+/* Optional activation diagnostics include wlroots rejection reasons, without
+ * logging bearer tokens or enabling unrelated protocol/render debug traffic. */
+static void activation_trace_log(enum wlr_log_importance importance, const char *format, va_list args) {
+  bool expired = strstr(format, "Activation token") && strstr(format, "has expired");
+  if (importance > WLR_INFO && !expired && !strstr(format, "Rejecting token commit request") &&
+      !strstr(format, "Rejecting activate request")) return;
+  struct timespec now; clock_gettime(CLOCK_MONOTONIC, &now);
+  fprintf(stderr, "%lld.%03ld ", (long long)now.tv_sec, now.tv_nsec / 1000000);
+  if (expired) fputs("Activation token expired (value omitted)", stderr);
+  else vfprintf(stderr, format, args);
+  fputc('\n', stderr);
+}
+
 int main(int argc, char *argv[]) {
-	wlr_log_init(WLR_INFO, NULL);
+	wlr_log_init(getenv("NEXTSPACE_TRACE_ACTIVATION") ? WLR_DEBUG : WLR_INFO,
+    getenv("NEXTSPACE_TRACE_ACTIVATION") ? activation_trace_log : NULL);
 	int control_fd = -1, shell_broker_fd = -1, c;
 	unsetenv("DISPLAY"); unsetenv("XAUTHORITY");
 	bool fractional = true, viewporter = true, application = true;

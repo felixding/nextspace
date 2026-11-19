@@ -680,16 +680,23 @@ static NSString *commandForPID(pid_t pid)
 {
   BOOL found = NO;
   NSDictionary *candidate = nil;
+  NSDictionary *minimizedCandidate = nil;
   for (NSDictionary *window in [_connection windows]) {
     if (!([[window objectForKey:@"style"] unsignedIntValue] & (NSIconWindowMask | NSMiniWindowMask)) &&
         [self window:window belongsToDockApplication:name]) {
       found = YES;
       [_connection setWindow:[window objectForKey:@"id"] presented:YES];
-      if (!candidate && ([[window objectForKey:@"flags"] unsignedIntValue] & 4) &&
-          !([[window objectForKey:@"flags"] unsignedIntValue] & 8)) candidate = window;
+      unsigned int flags = [[window objectForKey:@"flags"] unsignedIntValue];
+      if (flags & 4) {
+        if (!(flags & 8) && !candidate) candidate = window;
+        else if ((flags & 8) && !minimizedCandidate) minimizedCandidate = window;
+      }
     }
   }
   if (found) {
+    /* Activation already restores through the compositor. Prefer an open
+       window, but retain a target when every application window is minimized. */
+    if (!candidate) candidate = minimizedCandidate;
     if (candidate) {
       [_connection activateWindow:[candidate objectForKey:@"id"]];
       if ([[candidate objectForKey:@"flags"] unsignedIntValue] & 16)

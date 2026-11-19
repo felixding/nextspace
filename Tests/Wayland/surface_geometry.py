@@ -56,6 +56,21 @@ def run(compositor,probe,artifacts):
                         send('metrics 3 31 4 12');until(lambda:window()['frame_top']==31,'custom native extents');verified('custom-extents-origin')
                     send('fullscreen');until(lambda:window()['fullscreen'],'fullscreen');verified('fullscreen-origin')
                     send('unfullscreen');until(lambda:not window()['fullscreen'],'restored fullscreen');verified('restored-fullscreen-origin')
+                    send('client-size 341 259');offset[:]=[0,0]
+                    until(lambda:(window()['surface_width'],window()['surface_height'])==(341,259),'client chooses normal size')
+                    with application(label+'-focus-peer','--geometry') as (peer,peer_send,peer_events,peer_window,peer_snapshot):
+                        until(lambda:peer_window() and peer_window()['focused'],'peer takes keyboard focus')
+                        check(label+'-client-size-survives-focus-loss',(window()['surface_width'],window()['surface_height'])==(341,259))
+                        command(f"focus {window()['id']}")
+                        until(lambda:window()['focused'],'original window regains focus')
+                        # Wait for the configure to reach the client and its
+                        # resulting buffer to reach the server before checking.
+                        send('sync');send('sync')
+                        until(lambda:len([e for e in events() if e['event']=='sync'])>=2,'focus configure barrier')
+                        check(label+'-client-size-survives-focus-return',(window()['surface_width'],window()['surface_height'])==(341,259))
+                        hint=next(e for e in reversed(events()) if e['event']=='size-hint')
+                        check(label+'-focus-configure-keeps-committed-size',(hint['width'],hint['height'])==(341,259))
+                    verified('client-size-origin-after-focus')
                     send('unwatch 0');send('sync');until(lambda:any(e['event']=='sync' for e in events()),'observer deletion barrier')
                     count=sum(e['event']=='surface-geometry' and e['observer']==0 for e in events())
                     command(f"move {window()['id']} 180 130");until(lambda:window()['x']==180,'move with one observer');verified('remaining-observer')

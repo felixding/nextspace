@@ -70,7 +70,7 @@ static void configured(void *data, struct xdg_surface *surface, uint32_t serial)
     probe->width * 4, WL_SHM_FORMAT_ARGB8888);
   wl_buffer_add_listener(buffer->object, &buffer_listener, buffer);
   wl_shm_pool_destroy(pool); close(fd);
-  xdg_surface_ack_configure(surface, serial);
+  if (serial) xdg_surface_ack_configure(surface, serial);
   wl_surface_attach(probe->surface, buffer->object, 0, 0);
   wl_surface_damage(probe->surface, 0, 0, probe->width, probe->height);
   wl_surface_commit(probe->surface);
@@ -84,6 +84,8 @@ static void size_configured(void *data, struct xdg_toplevel *top, int32_t width,
     int32_t height, struct wl_array *states)
 {
   struct probe *probe = data;
+  printf("{\"event\":\"size-hint\",\"width\":%d,\"height\":%d}\n", width, height);
+  fflush(stdout);
   if (width > 0) probe->width = width;
   if (height > 0) probe->height = height;
   probe->fullscreen = false;
@@ -323,6 +325,10 @@ int main(int argc, char **argv)
       else if (!strncmp(line, "destroy", 7) && probe.decoration) {
         zxdg_toplevel_decoration_v1_destroy(probe.decoration); probe.decoration = NULL; probe.mode = 1;
         wl_surface_commit(probe.surface);
+      } else if (sscanf(line, "client-size %d %d", &gw, &gh) == 2 && gw > 0 && gh > 0) {
+        probe.width = gw; probe.height = gh;
+        xdg_surface_set_window_geometry(probe.xdg, 0, 0, gw, gh);
+        configured(&probe, probe.xdg, 0);
       } else if (!strncmp(line, "maximize", 8)) xdg_toplevel_set_maximized(probe.top);
       else if (!strncmp(line, "restore", 7)) xdg_toplevel_unset_maximized(probe.top);
       else if (!strncmp(line, "fullscreen", 10)) xdg_toplevel_set_fullscreen(probe.top, NULL);

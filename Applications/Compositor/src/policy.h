@@ -24,6 +24,7 @@ static struct wlr_scene_tree *policy_layer(struct nextspace_server *server, int 
 
 static struct nextspace_toplevel *policy_parent(struct nextspace_toplevel *view)
 {
+  if (!view || !view->xdg_toplevel) return NULL;
   struct wlr_xdg_toplevel *parent = view->xdg_toplevel->parent;
   struct wlr_scene_tree *tree = parent ? parent->base->data : NULL;
   return tree ? tree->node.data : NULL;

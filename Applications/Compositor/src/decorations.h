@@ -21,8 +21,10 @@ struct nextspace_decoration {
   struct wlr_xdg_toplevel_decoration_v1 *protocol;
   struct wl_listener request, destroy, outputs_update, buffer_destroy;
   struct wlr_scene_buffer *content, *title;
+  struct wlr_scene_buffer *shadow[9];
+  int shadow_scale;
   struct wlr_scene_tree *tree;
-  struct wlr_scene_rect *left, *right, *bottom, *grooves[2], *selection[3];
+  struct wlr_scene_rect *left, *right, *bottom, *bottom_edge, *grooves[2], *selection[3];
   struct wl_event_source *idle;
   char *text;
   int width, height, scale;
@@ -55,6 +57,8 @@ static const struct wlr_buffer_impl decoration_buffer_impl = {
   .begin_data_ptr_access = decoration_buffer_access,
   .end_data_ptr_access = decoration_buffer_end,
 };
+
+#include "window-shadow.h"
 
 static void decoration_fill(cairo_t *cr, double gray, int x, int y, int width, int height)
 {
@@ -252,7 +256,11 @@ static void decoration_update(struct nextspace_toplevel *view)
   wlr_scene_node_set_position(&frame->right->node, width - insets.right, insets.top);
   wlr_scene_rect_set_size(frame->bottom, width - insets.left - insets.right, insets.bottom);
   wlr_scene_node_set_position(&frame->bottom->node, insets.left, height - insets.bottom);
+  wlr_scene_rect_set_size(frame->bottom_edge, width, 1);
+  wlr_scene_node_set_position(&frame->bottom_edge->node, 0, height - 1);
+  wlr_scene_node_set_enabled(&frame->bottom_edge->node, insets.bottom > 0 && !view->shaded);
   int visible_height = view->shaded ? insets.top : height;
+  window_shadow_update(frame, width, visible_height, scale);
   for (int n = 0; n < 3; n++) {
     wlr_scene_node_set_enabled(&frame->selection[n]->node, view->selected);
     wlr_scene_rect_set_size(frame->selection[n], n == 2 ? width : 1, n == 2 ? 1 : visible_height);
@@ -302,11 +310,17 @@ static struct nextspace_decoration *decoration_get(struct nextspace_toplevel *vi
   view->decoration = frame;
   frame->view = view;
   frame->tree = wlr_scene_tree_create(view->scene_tree);
+  wlr_scene_node_lower_to_bottom(&frame->tree->node);
+  for (int n = 0; n < 9; n++) {
+    frame->shadow[n] = wlr_scene_buffer_create(frame->tree, NULL);
+    frame->shadow[n]->point_accepts_input = window_shadow_accepts_input;
+  }
   frame->title = wlr_scene_buffer_create(frame->tree, NULL);
   const float black[] = {0, 0, 0, 1}, gray[] = {.67, .67, .67, 1};
   frame->left = wlr_scene_rect_create(frame->tree, 1, 1, black);
   frame->right = wlr_scene_rect_create(frame->tree, 1, 1, black);
   frame->bottom = wlr_scene_rect_create(frame->tree, 1, 9, gray);
+  frame->bottom_edge = wlr_scene_rect_create(frame->tree, 1, 1, black);
   for (int n = 0; n < 2; n++) frame->grooves[n] = wlr_scene_rect_create(frame->tree, 1, 9, black);
   const float white[] = {1, 1, 1, 1};
   for (int n = 0; n < 3; n++) frame->selection[n] = wlr_scene_rect_create(frame->tree, 1, 1, white);
