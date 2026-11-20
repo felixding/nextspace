@@ -18,8 +18,11 @@ def build(repo, work, output, version):
     work.mkdir(parents=True)
     output.mkdir(parents=True,exist_ok=True)
     files=source_files(repo,('Libraries/ForeignScrollers','Libraries/NativeUI','Tests/ForeignScrollers','Tests/NativeUI',
-        'Experiments/ChromiumScrollers','Experiments/DBusMenus'),
-        ['LICENSE','Packaging/Debian/build-foreign-scrollbars.py','Packaging/Debian/common.py'])
+        'Experiments/ChromiumScrollers','Experiments/DBusMenus',
+        'Libraries/gnustep/back/Source/wayland/protocols'),
+        ['LICENSE', 'Protocols/appmenu.xml', 'Tests/GNUstep-GUI/DragProbe.m',
+         'Tests/GNUstep-GUI/PasteboardProbe.m',
+         'Packaging/Debian/build-foreign-scrollbars.py','Packaging/Debian/common.py'])
     expected={name:source_digest(path) for name,path in sorted(files.items())}
     snapshot=work/'source'
     snapshot_sources(files,snapshot,expected)
@@ -27,7 +30,10 @@ def build(repo, work, output, version):
     stage=work/'stage'
     commands=[['cmake','-S',str(snapshot/'Libraries/ForeignScrollers'),'-B',str(work/'build'),
                '-DCMAKE_OBJC_COMPILER=clang','-DCMAKE_BUILD_TYPE=Release'],
-              ['cmake','--build',str(work/'build'),'-j',os.environ.get('JOBS','2')],
+              ['cmake','--build',str(work/'build'),'-j',os.environ.get('JOBS','2'),
+               '--target', 'nextspace-native-ui-gnustep', 'nextspace-gtk3-geometry',
+               'nextspace-gtk-bootstrap', 'nextspace-gtk3-scrollbars',
+               'nextspace-gtk4-scrollbars', 'nextspace-qt-scrollbars'],
               ['cmake','--install',str(work/'build')]]
     with (work/'build.log').open('w') as log:
         for command in commands:
@@ -35,12 +41,14 @@ def build(repo, work, output, version):
     architecture=subprocess.check_output(['dpkg','--print-architecture'],text=True).strip()
     debian=work/'debian';debian.mkdir()
     maintainer='NEXTSPACE local build <root@localhost>'
-    (debian/'control').write_text(f'Source: {PACKAGE}\nMaintainer: {maintainer}\n\nPackage: {PACKAGE}\nArchitecture: any\nDescription: NEXTSPACE native scrollbar adapters\n')
+    (debian/'control').write_text(f'Source: {PACKAGE}\nMaintainer: {maintainer}\n\nPackage: {PACKAGE}\nArchitecture: any\nDescription: NEXTSPACE native toolkit adapters\n')
     overrides=debian/'shlibs.local'
     overrides.write_text('libgnustep-gui 0 nextspace-runtime\nlibgnustep-base 1.31 nextspace-runtime\n'
         'libobjc 4.6 nextspace-runtime\n'+f'libnextspace-native-scroller 1 {PACKAGE} (= {version})\n'
         f'libnextspace-native-ui 1 {PACKAGE} (= {version})\n'
-        f'libnextspace-native-ui-gnustep 1 {PACKAGE} (= {version})\n')
+        f'libnextspace-native-ui-gnustep 1 {PACKAGE} (= {version})\n'
+        f'libnextspace-wayland-geometry 1 {PACKAGE} (= {version})\n'
+        f'libnextspace-gtk3-geometry 1 {PACKAGE} (= {version})\n')
     libraries=stage/'usr/NextSpace/lib/nextspace-scrollbars'
     elfs=[path for path in stage.rglob('*') if path.is_file() and not path.is_symlink()
           and path.read_bytes()[:4]==b'\x7fELF']
@@ -60,8 +68,9 @@ def build(repo, work, output, version):
     name=f'{PACKAGE}_{version}_{architecture}'
     package=output/(name+'.deb')
     result=write_binary(stage,package,dict(Package=PACKAGE,Version=version,Architecture=architecture,
-        Section='gui',Priority='optional',Maintainer=maintainer,Depends=depends),
-        'Use existing NEXTSPACE controls through GTK3, GTK4 and Qt6 scrollbar adapters.\n'
+        Section='gui',Priority='optional',Maintainer=maintainer,Depends=depends,
+        Recommends='plasma-integration, qt6-xdgdesktopportal-platformtheme'),
+        'Use the shared NEXTSPACE controls, menus and editing bindings in GTK and Qt Widgets.\n'
         'Also supplies the optional session-owned native UI transport host.\n'
         'Applications keep their binaries, text direction, content and scroll models.')
     assert all(source_digest(snapshot/name)==value for name,value in expected.items()),'Changed source snapshot'

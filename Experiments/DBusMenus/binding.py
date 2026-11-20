@@ -10,6 +10,7 @@ from menu_model import MenuModel, flattened, replace_children
 from menu_events import application_event as deliver_event
 
 from types import SimpleNamespace
+import re
 
 
 class MenuBinding:
@@ -74,6 +75,11 @@ class MenuBinding:
         retry_source = 0
         fetch_sequence = refreshed_sequence = 0
 
+        def display_title(node):
+            label = node.properties.get('label', '')
+            if a.path.startswith(('/org/nextspace/GtkMenu/', '/MenuBar/')):
+                return re.sub(r'__|_', lambda match: '_' if match[0] == '__' else '', label)
+            return label
 
         def projected(root):
             result, indices = [], {}
@@ -97,7 +103,7 @@ class MenuBinding:
                 if not flags&1 and native.nxs_native_ui_menu_capabilities()&MENU_STATE_SNAPSHOTS:
                     flags |= MENU_ENABLED_SNAPSHOT
                 key,modifiers = shortcut(values.get('shortcut'))
-                result.append((parent,0 if flags&1 else node.native,values.get('label','').encode(),key,modifiers,flags))
+                result.append((parent,0 if flags&1 else node.native,display_title(node).encode(),key,modifiers,flags))
             return result
 
 
@@ -110,7 +116,7 @@ class MenuBinding:
             states = []
             for index,(_,node) in enumerate(projected(native_root)):
                 state = native.nxs_menu_state(menu,index)
-                states.append(dict(index=index,command=node.native,remote=node.remote,title=node.properties.get('label',''),
+                states.append(dict(index=index,command=node.native,remote=node.remote,title=display_title(node),
                     visible=state.visible,tracking=state.tracking,highlighted=state.highlighted,
                     frame=[state.item_frame.x,state.item_frame.y,state.item_frame.width,state.item_frame.height]))
             temporary = a.output/'native-items.next'

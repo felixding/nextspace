@@ -24,7 +24,9 @@ before AppKit or D-Bus starts. The launcher supplies
 `sys.argv` does not select Foundation's backend.
 
 On the private bus, `com.canonical.AppMenu.Registrar` advertises the real Wayland
-menu consumer. `GetMenus` returns an empty X11 registry; X11 registration methods
+menu consumer. `GetMenus` returns an empty X11 registry. The compatibility
+acknowledgment for Qt 6.8's legacy menubar call preserves its exported D-Bus
+object. Menu selection still uses the Wayland surface owner. X11 registry queries
 return an explicit unsupported error. Wayland addresses come from Workspace's
 active surface and the existing authenticated D-Bus exporter binding. The
 availability object uses an owned GLib context and worker so queries remain

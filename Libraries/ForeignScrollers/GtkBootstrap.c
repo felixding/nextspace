@@ -25,11 +25,13 @@ static unsigned gtk_major(void)
   if(!major) major=symbol("libgtk-3.so.0","gtk_get_major_version");
   return major ? major() : 0;
 }
+static void *gtk_module;
+
 static void install(void)
 {
   static int installed;
   unsigned major=gtk_major();
-  const char *disabled = getenv("NEXTSPACE_SCROLLBARS");
+  const char *disabled = getenv("NEXTSPACE_TOOLKIT_UI");
   if (installed || (major != 3 && major != 4) || (disabled && strcmp(disabled, "off") == 0)) return;
   Dl_info info;
   if (!dladdr((void *)install, &info)) return;
@@ -40,7 +42,7 @@ static void install(void)
   if (snprintf(path + length, sizeof(path) - length, "/libnextspace-gtk%u-scrollbars.so",major) >= (int)(sizeof(path) - length)) return;
   void *module = dlopen(path, RTLD_NOW | RTLD_LOCAL);
   void (*initialize)(void) = module ? dlsym(module,major==4?"nextspace_gtk4_scrollbars_init":"nextspace_gtk3_scrollbars_init") : NULL;
-  if (initialize) { installed = 1; initialize(); }
+  if (initialize) { gtk_module = module; installed = 1; initialize(); }
 }
 static int install_idle(void *unused) { install();return 0; }
 
@@ -85,4 +87,42 @@ int g_application_run(void *application, int argc, char **argv)
   install();
   int (*next)(void *, int, char **) = symbol("libgio-2.0.so.0", "g_application_run");
   return next(application, argc, argv);
+}
+
+/* Hook only GTK 3's public menu entry points. Browsers keep their own adapters. */
+static void *menu_function(const char *native, const char *original)
+{
+  const char *policy = getenv("NEXTSPACE_NATIVE_CONTEXT_MENUS");
+  if (gtk_module && gtk_major() == 3 && (!policy || strcmp(policy, "off"))) {
+    void *entry = dlsym(gtk_module, native);
+    if (entry) return entry;
+  }
+  return symbol("libgtk-3.so.0", original);
+}
+
+void *gtk_menu_new_from_model(void *model)
+{
+  void *(*call)(void *) = menu_function("nextspace_gtk3_menu_new_from_model", "gtk_menu_new_from_model");
+  return call ? call(model) : NULL;
+}
+
+void gtk_menu_popup_at_rect(void *menu, void *window, const void *rectangle,
+                            int rect_anchor, int menu_anchor, const void *event)
+{
+  void (*call)(void *, void *, const void *, int, int, const void *) =
+      menu_function("nextspace_gtk3_menu_popup_at_rect", "gtk_menu_popup_at_rect");
+  if (call) call(menu, window, rectangle, rect_anchor, menu_anchor, event);
+}
+
+void gtk_menu_popdown(void *menu)
+{
+  void (*call)(void *) = menu_function("nextspace_gtk3_menu_popdown", "gtk_menu_popdown");
+  if (call) call(menu);
+}
+
+void gtk_menu_popup_at_pointer(void *menu, const void *event)
+{
+  void (*call)(void *, const void *) =
+      menu_function("nextspace_gtk3_menu_popup_at_pointer", "gtk_menu_popup_at_pointer");
+  if (call) call(menu, event);
 }

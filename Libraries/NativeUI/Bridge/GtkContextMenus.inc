@@ -1,3 +1,6 @@
+#ifndef NXS_GTK_CONTEXT_SYMBOL
+#define NXS_GTK_CONTEXT_SYMBOL(name) dlsym(RTLD_NEXT, name)
+#endif
 /* GTK3 menu model/action adapter. NSMenu owns all presentation and tracking.
  * Include after Transport.inc/Menu.inc; the embedding supplies the existing
  * lifetime/notification setup through NXS_GTK_CONTEXT_PREPARE. */
@@ -84,7 +87,7 @@ GTK_CONTEXT_FUNCTION(void,g_usleep,(unsigned long));
 static int gtk_context_load(void)
 {
   if(nxs_g_idle_add)return 1;
-#define GTK_CONTEXT_LOAD(name) do {nxs_##name=dlsym(RTLD_NEXT,#name);if(!nxs_##name){note("GTK context missing " #name);return 0;}} while(0)
+#define GTK_CONTEXT_LOAD(name) do {nxs_##name=NXS_GTK_CONTEXT_SYMBOL(#name);if(!nxs_##name){note("GTK context missing " #name);return 0;}} while(0)
   GTK_CONTEXT_LOAD(gtk_widget_get_toplevel);GTK_CONTEXT_LOAD(gtk_widget_get_window);
   GTK_CONTEXT_LOAD(gtk_widget_realize);GTK_CONTEXT_LOAD(gtk_widget_set_mapped);
   GTK_CONTEXT_LOAD(gtk_widget_get_mapped);GTK_CONTEXT_LOAD(gtk_widget_unmap);
@@ -141,7 +144,7 @@ static void gtk_context_source_free(void *data,void *widget)
 void *gtk_menu_new_from_model(void *model)
 {
   static void *(*original)(void *);
-  if(!original)original=dlsym(RTLD_NEXT,"gtk_menu_new_from_model");
+  if(!original)original=NXS_GTK_CONTEXT_SYMBOL("gtk_menu_new_from_model");
   void *widget=original?original(model):NULL;
   if(widget&&model&&gtk_context_load()) {
     struct GtkContextSource *source=calloc(1,sizeof(*source));
@@ -379,7 +382,7 @@ static int gtk_context_watch_owner(void)
 static void gtk_context_present(void *widget,void *window,const void *rectangle,int rect_anchor,int menu_anchor,const void *event)
 {
   static void (*original)(void *,void *,const void *,int,int,const void *);
-  if(!original)original=dlsym(RTLD_NEXT,"gtk_menu_popup_at_rect");
+  if(!original)original=NXS_GTK_CONTEXT_SYMBOL("gtk_menu_popup_at_rect");
   const int *rect=rectangle;
   struct GtkContextMenu *m=NULL;NXSGtk3SurfaceGeometry geometry={0};
   int loaded=gtk_context_load();
@@ -465,7 +468,7 @@ void gtk_menu_popup_at_rect(void *widget,void *window,const void *rectangle,int 
 {
   if(!widget||!window||!rectangle||!gtk_context_load()) {
     static void (*original)(void *,void *,const void *,int,int,const void *);
-    if(!original)original=dlsym(RTLD_NEXT,"gtk_menu_popup_at_rect");
+    if(!original)original=NXS_GTK_CONTEXT_SYMBOL("gtk_menu_popup_at_rect");
     if(original)original(widget,window,rectangle,rect_anchor,menu_anchor,event);return;
   }
   struct GtkContextOpen *r=calloc(1,sizeof(*r));
@@ -488,6 +491,6 @@ void gtk_menu_popdown(void *widget)
   for(struct GtkContextOpen *r=gtk_context_opening;r;r=r->next)if(r->widget==widget){r->cancelled=1;if(!r->idle)r->idle=nxs_g_idle_add(gtk_context_present_idle,r);return;}
   struct GtkContextMenu *m=gtk_context_find(0,widget);
   if(m&&!m->closing){native_menu_request(m->control,30,0);return;}
-  static void (*original)(void *);if(!original)original=dlsym(RTLD_NEXT,"gtk_menu_popdown");
+  static void (*original)(void *);if(!original)original=NXS_GTK_CONTEXT_SYMBOL("gtk_menu_popdown");
   if(original)original(widget);
 }

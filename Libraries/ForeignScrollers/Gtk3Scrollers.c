@@ -4,6 +4,10 @@
 #include <gtk/gtk.h>
 #include <math.h>
 #include <string.h>
+void nextspace_gtk3_attach_control(GtkWidget *);
+void nextspace_gtk3_attach_menu(GtkWidget *);
+void nextspace_gtk3_attach_editing(GtkWidget *);
+void nextspace_gtk3_observe_context_parent(void *);
 typedef struct {
   GtkWidget *widget;
   NXSScroller *native;
@@ -108,8 +112,22 @@ static void placement(GtkWidget *widget) {
 }
 static void settings_changed(GObject *object,GParamSpec *property,gpointer data) {placement(GTK_WIDGET(object));}
 static void direction_changed(GtkWidget *widget,GtkTextDirection previous,gpointer data) {placement(widget);}
+static gboolean observe_context(gpointer data)
+{
+  GtkWidget *widget=data;
+  if (gtk_widget_get_mapped(widget))
+    nextspace_gtk3_observe_context_parent(gtk_widget_get_window(widget));
+  return G_SOURCE_REMOVE;
+}
 static gboolean mapped(GSignalInvocationHint *hint,guint count,const GValue *values,gpointer unused) {
   GtkWidget *widget=g_value_get_object(values);
+  nextspace_gtk3_attach_control(widget);
+  nextspace_gtk3_attach_menu(widget);
+  nextspace_gtk3_attach_editing(widget);
+  if (GTK_IS_WINDOW(widget) && gtk_window_get_window_type(GTK_WINDOW(widget)) == GTK_WINDOW_TOPLEVEL)
+    g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, observe_context, g_object_ref(widget), g_object_unref);
+  if(g_strcmp0(g_getenv("NEXTSPACE_SCROLLBARS"),"off")==0) return TRUE;
+  if(g_object_get_data(G_OBJECT(widget),"nextspace-original-control")) return TRUE;
   if(GTK_IS_SCROLLED_WINDOW(widget)) {
     placement(widget);
     if(!g_object_get_data(G_OBJECT(widget),"nextspace-scroller-placement")) {
@@ -143,7 +161,7 @@ static gboolean mapped(GSignalInvocationHint *hint,guint count,const GValue *val
 }
 void nextspace_gtk3_scrollbars_init(void) {
   static gboolean initialized;
-  if(initialized||g_strcmp0(g_getenv("NEXTSPACE_SCROLLBARS"),"off")==0) return;
+  if(initialized) return;
   initialized=TRUE;GtkWidgetClass *klass=g_type_class_ref(GTK_TYPE_SCROLLBAR);
   original_draw=klass->draw;klass->draw=draw;
   g_signal_add_emission_hook(g_signal_lookup("map",GTK_TYPE_WIDGET),0,mapped,NULL,NULL);

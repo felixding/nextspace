@@ -18,8 +18,7 @@ tracking a private, unshown backing window supplies NSCell's focus contract.
 The native tracking loop dispatches the host toolkit on the same thread.
 
 GTK3 and GTK4 adapters install through the shared session environment, including
-GtkBuilder-created widgets. Qt6 loads a generic plugin; its style wrapper is
-limited to scrollbar metrics and drawing. Other application styling is retained.
+GtkBuilder-created widgets. Qt6 loads a generic plugin. Its scrollbar wrapper supplies native metrics and drawing.
 Placement changes do not change the application's text or layout direction.
 
 Qt's standard scroll areas have no independent public scrollbar-side setting,
@@ -31,7 +30,8 @@ native scrollbar. No application is patched or recompiled.
 ## Build and check
 
 On Debian 13 ARM64 with the installed native NEXTSPACE SDK, Clang, CMake,
-`libgtk-3-dev`, `libgtk-4-dev`, `qt6-base-dev` and `qt6-wayland`:
+`libgtk-3-dev`, `libgtk-4-dev`, `libdbusmenu-gtk3-dev`, `libwayland-dev`,
+`qt6-base-dev` and `qt6-wayland`:
 
 ```sh
 cmake -S Libraries/ForeignScrollers -B .build/foreign-scrollbars \
@@ -71,13 +71,11 @@ are overwritten.
 The install also supplies the [shared native UI host](../NativeUI/Host/README.md)
 and its transport modules. The current user launcher automatically starts this
 foreground host through the session supervisor when present; set
-`NEXTSPACE_NATIVE_UI=off` to disable it independently of toolkit scrollbars.
+`NEXTSPACE_NATIVE_UI=off` to disable the session host independently of the local scrollbar adapter.
 Python 3, PyGObject and GLib/Gio introspection are runtime dependencies. Native
 widgets remain in the separate provider library. Browser adapters still require
 their individual build checks and launch configuration; installing this package
-does not by itself make browser controls native. The host install is verified in
-a toolkit-disabled staging prefix; the full GTK/Qt Debian package has not been
-rebuilt for this addition.
+does not by itself make browser controls native. The Debian package builds the shared host and its toolkit adapters together.
 
 ## Coverage boundary
 
@@ -86,3 +84,40 @@ scrollbars painted internally by Chromium/Blink, Qt Quick, games or other custom
 renderers: they do not expose a GTK/Qt scrollbar widget to host `NSScroller`.
 That remains an open integration gap, not a claim of native scrollbar support.
 Qt5 and sandboxed application runtimes are not qualified by this package.
+
+## Toolkit bridge
+
+The GTK3 and Qt Widgets adapters use the shared NativeUI provider to draw
+ordinary labeled push buttons, checkboxes and radio buttons. The original
+toolkit owns the widget, accessibility, actions and focus order. The same
+provider resolves editing keys for GTK entries and text views and for Qt line,
+plain-text and rich-text editors. The adapter applies supported commands to the
+original editor. Unsupported commands follow the toolkit's ordinary path.
+
+On the NEXTSPACE Wayland desktop, GTK3 exports its GtkMenuBar through
+libdbusmenu. KDE's platform theme exports Qt menu bars. The same session host
+binds both exports to the active compositor surface and presents the menus
+through GNUstep. The Qt XDG desktop portal theme wraps the KDE theme when both
+are installed. File dialogs using the standard portal receive the existing
+GNUstep chooser and the original Wayland parent. GTK3 menus opened through the
+public pointer-popup entry point can use the shared native context menu host.
+
+The local packaged preview exercised Konsole and Kate through the KDE binding
+and Mousepad and Thunar through the GTK3 binding. Konsole Save Output As and
+Kate Open used the native file panel. Thunar's native context menu ran the
+original Rename action and accepted Escape. Mousepad uses its internal GTK
+editor menu and encoding-aware file chooser. Qt context menus, additional
+control types and the fractional-density release gate remain open.
+
+Applications can set `nextspace-original-control` on a GTK widget or
+`nextspaceOriginalControl` on a Qt widget before it is mapped or polished. A
+custom button that uses the toolkit's standard painting path can opt into a
+provider kind with `nextspace-control-kind` or `nextspaceControlKind`. Kate's
+KTextEditor minimap retains its custom scrollbar. Konsole's launcher selects
+left placement for its terminal scrollbar.
+
+Set `NEXTSPACE_TOOLKIT_UI=off` before starting the session to disable the
+toolkit adapters. `NEXTSPACE_NATIVE_CONTROLS`, `NEXTSPACE_NATIVE_EDITING`,
+`NEXTSPACE_NATIVE_MENUS`, `NEXTSPACE_NATIVE_CONTEXT_MENUS` and
+`NEXTSPACE_SCROLLBARS` accept `off` for their respective adapter paths.
+`KDE_NO_GLOBAL_MENU` controls the stock KDE menu export.

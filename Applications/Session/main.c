@@ -216,12 +216,16 @@ static bool environment(void)
   if ((!session_class || !*session_class) && setenv("XDG_SESSION_CLASS", "user", 1) < 0) return false;
   const char *cursor_theme = getenv("XCURSOR_THEME");
   if ((!cursor_theme || !*cursor_theme) && setenv("XCURSOR_THEME", "NextSpace", 1) < 0) return false;
+  const char *desktop = getenv("XDG_CURRENT_DESKTOP");
+  const char *theme = getenv("QT_QPA_PLATFORMTHEME");
+  bool kde_portal = desktop && theme && strcmp(desktop, "NEXTSPACE:KDE") == 0 &&
+    strcmp(theme, "xdgdesktopportal") == 0;
   if (setenv("NEXTSPACE_SESSION_ID", identifier, 1) < 0 ||
       setenv("NEXTSPACE_GS_BACKEND", "wayland", 1) < 0 ||
       setenv("XDG_SESSION_TYPE", "wayland", 1) < 0 ||
       setenv("XDG_SESSION_DESKTOP", "NextSpace", 1) < 0 ||
       setenv("DESKTOP_SESSION", "nextspace-wayland", 1) < 0 ||
-      setenv("XDG_CURRENT_DESKTOP", "NEXTSPACE", 1) < 0) return false;
+      setenv("XDG_CURRENT_DESKTOP", kde_portal ? "NEXTSPACE:KDE" : "NEXTSPACE", 1) < 0) return false;
   printf("NEXTSPACE_SESSION_ID=%s\n", identifier); fflush(stdout);
   return true;
 }

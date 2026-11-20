@@ -1,5 +1,8 @@
 /* Embed the existing NSScroller in Qt scrollbar widgets. GPL-2.0-or-later. */
 #include "NativeScroller.h"
+#include "QtControls.h"
+#include "QtEditing.h"
+#include "KdeOverrides.h"
 #include <QAbstractScrollArea>
 #include <QAbstractEventDispatcher>
 #include <QApplication>
@@ -139,6 +142,7 @@ public:
 };
 
 class Adapter : public QObject {
+  NativeEditing editing;
   bool pending = false;
   bool arranging=false;
   QList<QPointer<QAbstractScrollArea>> areas;
@@ -160,7 +164,8 @@ class Adapter : public QObject {
   static void placeLeft(QAbstractScrollArea *area) {
     auto *bar = area->verticalScrollBar();
     QWidget *container = bar->parentWidget();
-    if (!container || container == area || !bar->isVisible() || area->layoutDirection() == Qt::RightToLeft) return;
+    if (!container || container == area || bar->property("nextspaceOriginalControl").toBool() ||
+        kdeRetainsOriginalControl(bar) || !bar->isVisible() || area->layoutDirection() == Qt::RightToLeft) return;
     if (container->x() >= area->width()/2) {
       int reserved = qMax(0, container->width() - bar->style()->pixelMetric(QStyle::PM_ScrollView_ScrollBarOverlap, nullptr, bar));
       int left = area->contentsRect().left();
@@ -188,6 +193,12 @@ class Adapter : public QObject {
   bool eventFilter(QObject *object, QEvent *event) override {
     auto *widget = qobject_cast<QWidget *>(object);
     if (!widget) return false;
+    if (qgetenv("NEXTSPACE_NATIVE_EDITING") != "off" && editing.filter(widget, event))
+      return true;
+    if (event->type() == QEvent::Polish)
+      if (auto *button = qobject_cast<QAbstractButton *>(widget))
+        NativeButtonStyle::attach(button);
+    if (qgetenv("NEXTSPACE_SCROLLBARS") == "off") return false;
     if(event->type()==QEvent::Paint) {
       for(auto *parent=widget;parent;parent=parent->parentWidget()) {
         if(auto *area=qobject_cast<QAbstractScrollArea *>(parent)) {arrange(area);break;}
@@ -195,7 +206,8 @@ class Adapter : public QObject {
     }
     if (event->type() == QEvent::Polish) {
       if (auto *bar = qobject_cast<QScrollBar *>(widget)) {
-        if (!bar->property("nextspace-native-scroller").toBool()) {
+        if (!bar->property("nextspace-native-scroller").toBool() &&
+            !bar->property("nextspaceOriginalControl").toBool() && !kdeRetainsOriginalControl(bar)) {
           bar->setProperty("nextspace-native-scroller", true);
           auto *control = new NativeBar(bar, this);
           if (control->native) { auto *style = new NativeStyle(control); style->setParent(bar); bar->setStyle(style); }
@@ -218,6 +230,10 @@ public:
    * to the application would give it a second teardown owner. */
   explicit Adapter(QObject *owner) : QObject(nullptr) {
     owner->installEventFilter(this);
+    if (auto *app = qobject_cast<QApplication *>(owner))
+      connect(app, &QApplication::focusChanged, this, [this](QWidget *, QWidget *current) {
+        editing.focusChanged(current);
+      });
     connect(QAbstractEventDispatcher::instance(),&QAbstractEventDispatcher::aboutToBlock,this,[this] {
       for(int i=observed.size()-1;i>=0;i--) {
         if(observed[i]) arrange(observed[i]);else observed.removeAt(i);

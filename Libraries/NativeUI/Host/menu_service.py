@@ -1,5 +1,6 @@
 """D-Bus availability for the real session-owned Wayland menu consumer."""
 from gi.repository import Gio,GLib
+import re
 import threading
 
 NAME='com.canonical.AppMenu.Registrar'
@@ -47,8 +48,19 @@ class WaylandMenuService:
             self.context.pop_thread_default()
 
     def call(self,connection,sender,path,interface,method,parameters,invocation):
-        if method=='GetMenus':invocation.return_value(GLib.Variant('(a(uso))',([],)))
-        else:invocation.return_dbus_error('org.nextspace.NativeUI.WaylandOnly',
+        if method == 'GetMenus':
+            invocation.return_value(GLib.Variant('(a(uso))', ([],)))
+            return
+        # Qt 6.8 unregisters its D-Bus object if the legacy registration
+        # fails, even when KDE advertises the same object on Wayland.
+        # Acknowledge that call without creating an X11 registry entry.
+        # Workspace still accepts only a verified Wayland surface owner.
+        if method == 'UnregisterWindow' or (
+            method == 'RegisterWindow' and re.fullmatch(r'/MenuBar/[0-9]+', parameters.unpack()[1])
+        ):
+            invocation.return_value(None)
+            return
+        invocation.return_dbus_error('org.nextspace.NativeUI.WaylandOnly',
             'Native Wayland menus use surface addresses and the private Workspace role; X11 window registration is unavailable')
 
     def close(self):
