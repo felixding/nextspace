@@ -377,6 +377,7 @@ __attribute__((constructor)) static void initialize(void) {
     edit_keys_enabled=0;
     note("native edit key guard failed; original bindings retained");
   }
+  browser_editor_keys=edit_keys_enabled&&prepare_blink_browser_editor();
   int wayland_geometry_enabled=prepare_wayland_geometry();
   const uint32_t patch[]={0xd503245f,0x52800000|((uint32_t)native_scroller_on_left<<5),0xd65f03c0};
   for(int i=0;i<3;i++){void *target=(void *)(base+offsets[i]);writable(target,12,PROT_READ|PROT_WRITE|PROT_EXEC);memcpy(target,patch,12);__builtin___clear_cache(target,target+12);writable(target,12,PROT_READ|PROT_EXEC);}
@@ -400,4 +401,8 @@ __attribute__((constructor)) static void initialize(void) {
   if(menus_enabled){activate_detours(app_menu_detours,sizeof(app_menu_detours)/sizeof(*app_menu_detours));activate_detours(context_menu_detours,sizeof(context_menu_detours)/sizeof(*context_menu_detours));note("experimental native application menu binding enabled");}
   if(menu_keys_enabled){activate_detours(browser_menu_detours,sizeof(browser_menu_detours)/sizeof(*browser_menu_detours));note("experimental native global menu keys enabled");}
   if(edit_keys_enabled){activate_detours(&linux_edit_key_detour,1);note("native LinuxUi edit bindings enabled");}
+  if(browser_editor_keys) {
+    activate_detours(blink_browser_editor_detours,forms_input_enabled?1:2);
+    note("native Blink editor actions enabled");
+  }
 }

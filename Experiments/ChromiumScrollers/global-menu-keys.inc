@@ -41,6 +41,7 @@ static void (*original_browser_destroying)(void *,void *);
 static void (*original_browser_active)(void *,void *,int);
 static int (*original_browser_pre_key)(void *,const void *);
 static int (*original_browser_key)(void *,const void *);
+static int browser_edit_key_preflight(void *,const void *);
 static struct MenuBrowser *menu_browser_find(void *view,uint64_t identity) {
   for(struct MenuBrowser *b=menu_browsers;b;b=b->next)
     if((view?b->view==view:b->identity==identity)&&pthread_equal(b->owner,pthread_self()))return b;
@@ -55,6 +56,8 @@ static int app_menu_registry(struct AppMenuBinding *menu) {
   void *end=(char *)browser->view+NXS_BROWSER_ACCELERATOR_TABLE_END;
   void *node=*(void **)((char *)browser->view+NXS_BROWSER_ACCELERATOR_TABLE_BEGIN);
   unsigned count=0,imported=0,missing=0;
+  unsigned visible=menu->count;
+  int close_tab_added=0,restore_tab_added=0;
   while(node!=end) {
     if(!node||++count>4096){note("command registry node bound rejected");return 0;}
     const unsigned char *accelerator=(unsigned char *)node+NXS_BROWSER_ACCELERATOR_KEY;
@@ -62,8 +65,17 @@ static int app_menu_registry(struct AppMenuBinding *menu) {
     /* Native menus match key-down equivalents. Original key-up registrations
      * and non-command input continue through their original event paths. */
     if(*(const int *)(accelerator+4)==0&&(*(const int *)(accelerator+8)&(4|16))) {
-      char label[64];snprintf(label,sizeof(label),"Command %d",command);
-      int at=menu_entry_add(menu,-1,menu->model,0,2,command,NXS_MENU_KEY_ONLY,strdup(label),accelerator);
+      /* A History row can advertise Restore Tab's accelerator even when its
+       * old history snapshot is empty. The live command owns that chord. */
+      int restore_tab=command==34028 /* IDC_RESTORE_TAB */ && !restore_tab_added;
+      int close_tab=command==34015 /* IDC_CLOSE_TAB */ && !close_tab_added;
+      int show=restore_tab||close_tab;
+      char label[64];
+      if(restore_tab)snprintf(label,sizeof(label),"Reopen Closed Tab");
+      else if(close_tab)snprintf(label,sizeof(label),"Close Tab");
+      else snprintf(label,sizeof(label),"Command %d",command);
+      int at=menu_entry_add(menu,show?0:-1,menu->model,0,2,command,
+        show?0:NXS_MENU_KEY_ONLY,strdup(label),accelerator);
       if(at<0)return 0;
       if(!*menu->items[at].key_equivalent) {
         if(log_fd>=0)dprintf(log_fd,"%d command-registry-key-unavailable code=%u flags=%u command=%d\n",getpid(),
@@ -72,6 +84,15 @@ static int app_menu_registry(struct AppMenuBinding *menu) {
       } else {
         menu->entries[at].browser_view=browser->view;
         memcpy(menu->entries[at].accelerator,accelerator,32);imported++;
+        if(show) {
+          restore_tab_added|=restore_tab;close_tab_added|=close_tab;
+          for(unsigned i=0;i<visible;i++) {
+            NXSMenuItem *item=&menu->items[i],*primary=&menu->items[at];
+            if(item->modifiers!=primary->modifiers||strcmp(item->key_equivalent,primary->key_equivalent))continue;
+            char *empty=strdup("");if(!empty)return 0;
+            free((void *)item->key_equivalent);item->key_equivalent=empty;
+          }
+        }
       }
     }
     if(*(void **)((char *)node+8)) {
@@ -228,6 +249,7 @@ static int browser_menu_pre_key(void *view,const void *event) {
     menu_browser_key(menu_browser_find(view,0),native,1);
     return 0; /* HANDLED. */
   }
+  if(native&&browser_edit_key_preflight(view,native))return 3; /* NOT_HANDLED_IS_SHORTCUT. */
   if(native&&menu_browser_key(menu_browser_find(view,0),native,0))return 3; /* NOT_HANDLED_IS_SHORTCUT, USE_AURA. */
   menu_key_preflight++;
   int result=original_browser_pre_key(view,event);

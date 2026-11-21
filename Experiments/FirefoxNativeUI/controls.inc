@@ -47,6 +47,8 @@ struct PointI {int x,y;};
 struct RelativeTo {void *frame;int viewport;};
 static int widgets_enabled,buttons_enabled,sliders_enabled,texts_enabled,widget_notifier=-1;
 static int paint_forms_only;
+static int browser_editor_keys;
+static int gecko_browser_editor_key(void *,void *);
 static int edit_keys_requested;
 static int placeholder_enabled;
 static int colors_enabled,numbers_enabled,dates_enabled,times_enabled,proleptic_enabled;
@@ -673,6 +675,7 @@ static uint32_t widget_post(void *node,void *visitor,uint32_t (*original)(void *
   return 0;
 }
 static uint32_t input_post(void *node,void *visitor) {
+  if(gecko_browser_editor_key(node,visitor))return original_input_post(node,visitor);
   return widget_post(node,visitor,original_input_post);
 }
 static void release_idle_widget_notifier(void) {

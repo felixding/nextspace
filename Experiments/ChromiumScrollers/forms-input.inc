@@ -238,7 +238,7 @@ static int default_form_key(void *node,void *event) {
 static void button_default(void *node,void *event)
 {if(!default_form_key(node,event))original_button_default(node,event);}
 static void input_default(void *node,void *event)
-{if(!slider_mouse_default(node,event)&&!default_form_key(node,event))color_input_default(node,event);}
+{if(!browser_text_default(node,event,0)&&!slider_mouse_default(node,event)&&!default_form_key(node,event))color_input_default(node,event);}
 static struct Detour form_input_detours[]={
  {NXS_ELEMENT_FOCUS_OFFSET,nxs_element_focus_bytes,element_focus,(void **)&original_element_focus},
  {NXS_BUTTON_DEFAULT_OFFSET,nxs_button_default_bytes,button_default,(void **)&original_button_default},

@@ -28,7 +28,7 @@ static void *text_control_state(void *node)
 #include "password-visibility.inc"
 static uint32_t (*original_textarea_post)(void *,void *);
 static uint32_t textarea_post(void *node,void *visitor)
-{if(multiline_enabled)text_post_keyboard(node,visitor);return original_textarea_post(node,visitor);}
+{if(!gecko_browser_editor_key(node,visitor)&&multiline_enabled)text_post_keyboard(node,visitor);return original_textarea_post(node,visitor);}
 static void clear_text_error(struct GeckoError *error)
 {((void (*)(void *))(base+NXS_GECKO_TEXT_CLEAR_ERROR_OFFSET))(error);}
 static int native_text_frame(const void *frame) {
@@ -37,22 +37,22 @@ static int native_text_frame(const void *frame) {
   const void *style=*(void *const *)((const char *)frame+32),*display=*(void *const *)((const char *)style+80);
   return ((int (*)(const void *,const void *,void *))(base+NXS_GECKO_TEXT_IS_THEMED_OFFSET))(frame,display,NULL);
 }
-static int text_model(void *node,struct TextModel *model) {
+static int text_model_as(void *node,int kind,struct TextModel *model) {
   static const uint16_t empty;
   struct GeckoString value={.data=&empty,.flags=1};
   if(number_node(node)) {
     void *state=text_control_state(node);if(!state)return 0;
     ((void (*)(const void *,void *,int))(base+NXS_GECKO_NUMBER_VALUE))(state,&value,1);
-  } else if(node_kind(node)==NXS_TEXTAREA)
+  } else if(kind==NXS_TEXTAREA)
     ((void (*)(void *,void *))(base+NXS_GECKO_MULTILINE_VALUE_OFFSET))(node,&value);
   else ((void (*)(void *,void *,unsigned))(base+NXS_GECKO_TEXT_VALUE_OFFSET))(node,&value,0);
   model->value=utf8_text(value.data,value.length);
   ((void (*)(void *))(base+0x3826f2c))(&value);
   if(!model->value)return 0;
   struct GeckoError error={0};
-  if(node_kind(node)==NXS_TEXTAREA||number_node(node)) {
+  if(kind==NXS_TEXTAREA||number_node(node)) {
     ((void (*)(void *,uint32_t *,uint32_t *,void *))(base+NXS_GECKO_MULTILINE_SELECTION_OFFSET))
-      (text_control_state(node),&model->start,&model->end,&error);
+      (*(void **)((char *)node+(kind==NXS_TEXTAREA?304:352)),&model->start,&model->end,&error);
   } else {
     model->start=((uint32_t (*)(void *,void *))(base+NXS_GECKO_TEXT_SELECTION_START_OFFSET))(node,&error);
     model->end=((uint32_t (*)(void *,void *))(base+NXS_GECKO_TEXT_SELECTION_END_OFFSET))(node,&error);
@@ -62,14 +62,18 @@ static int text_model(void *node,struct TextModel *model) {
   model->editable=!(*(const uint64_t *)((const char *)node+112)&0x800010u);
   if(!okay){free(model->value);model->value=NULL;}return okay;
 }
-static int text_selection(void *node,uint64_t start,uint64_t length) {
-  if(!text_kind(node_kind(node))||start>UINT32_MAX||length>UINT32_MAX-start)return 0;
-  void *state=text_control_state(node);if(!state)return 0;
+static int text_model(void *node,struct TextModel *model)
+{return text_model_as(node,node_kind(node),model);}
+static int text_selection_as(void *node,int kind,uint64_t start,uint64_t length) {
+  if(!text_kind(kind)||start>UINT32_MAX||length>UINT32_MAX-start)return 0;
+  void *state=*(void **)((char *)node+(kind==NXS_TEXTAREA?304:352));if(!state)return 0;
   struct GeckoError error={0};
   ((void (*)(void *,uint32_t,uint32_t,unsigned,void *,unsigned))(base+NXS_GECKO_TEXT_SELECTION_SET_OFFSET))
     (state,start,start+length,0,&error,1);
   int okay=!(error.result&0x80000000u);clear_text_error(&error);return okay;
 }
+static int text_selection(void *node,uint64_t start,uint64_t length)
+{return text_selection_as(node,node_kind(node),start,length);}
 static struct NXSResponse *native_text_state(struct Widget *w) {
   struct NXSControlRequest get={.magic=NXS_CHROMIUM_CONTROL_MAGIC,.operation=18,.process=identity(),.kind=w->kind,.control=w->id};
   struct NXSResponse *response=exchange_bytes(&get,sizeof(get));

@@ -304,6 +304,7 @@ static void install(void) {
     edit_keys_requested=0;
     note("Gecko edit command guard failed; original bindings retained");
   }
+  browser_editor_keys=edit_keys_requested&&paint_forms_only&&prepare_gecko_browser_editor();
   if(gtk_surface_geometry){activate_detours(geometry_detours,1);activate_popup_geometry();note("experimental shared GTK surface geometry binding installed");note("original Gecko popup parent coordinate conversion enabled");}
   activate_detours(detours,sizeof(detours)/sizeof(*detours));
   activate_detours(background_detours,sizeof(background_detours)/sizeof(*background_detours));
@@ -330,6 +331,10 @@ static void install(void) {
     note("native Gecko original key registry and global menu binding installed");
   }
   if(edit_keys_requested){activate_detours(&gecko_edit_key_detour,1);note("native Gecko edit bindings enabled");}
+  if(browser_editor_keys) {
+    activate_detours(&gecko_browser_editor_detour,1);
+    note("native Gecko editor actions enabled");
+  }
   if(widgets_enabled){activate_detours(focus_order_detours,2);note("native Gecko focus/input ordering installed");}
   installed=1;
   if(document_scrollbars_enabled)activate_detours(document_scroller_detours,sizeof(document_scroller_detours)/sizeof(*document_scroller_detours));

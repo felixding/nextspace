@@ -17,7 +17,10 @@ def prepare_browser_platform(family, executable, profile, lifetime, environment)
     features = FEATURES[family]
     prepare_native_frame(family, profile, environment)
     for feature in features:
-        environment[f'NEXTSPACE_{family.upper()}_{feature}'] = '1'
+        if feature in ('MENU_KEYS', 'EDIT_KEYS') and environment.get('NEXTSPACE_SHORTCUTS', 'native') != 'native':
+            environment.pop(f'NEXTSPACE_{family.upper()}_{feature}', None)
+        else:
+            environment[f'NEXTSPACE_{family.upper()}_{feature}'] = '1'
 
     if family == 'firefox':
         environment['MOZ_ENABLE_WAYLAND'] = '1'

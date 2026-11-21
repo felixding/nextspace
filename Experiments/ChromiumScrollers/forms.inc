@@ -81,6 +81,8 @@ static int forms_animation_enabled;
 static int forms_sliders_enabled;
 static int forms_popups_enabled,forms_lists_enabled;
 static int forms_text_enabled;
+static int browser_editor_keys;
+static int browser_text_default(void *,void *,int);
 static int forms_color_enabled,forms_numbers_enabled;
 static int forms_dates_enabled,forms_times_enabled,forms_months_enabled,forms_proleptic_enabled,forms_weeks_enabled,forms_date_panel_enabled;
 static int forms_placeholder_enabled;

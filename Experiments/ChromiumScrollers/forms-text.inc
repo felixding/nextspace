@@ -94,13 +94,12 @@ static int native_text_input_owned(const struct NativeForm *form) {
 }
 static void (*original_textarea_default)(void *,void *);
 static void textarea_default(void *node,void *event)
-{if(!native_wheel_default(node,event)&&(!forms_multiline_enabled||!default_text_key(node,event)))original_textarea_default(node,event);}
+{if(!browser_text_default(node,event,1)&&!native_wheel_default(node,event)&&(!forms_multiline_enabled||!default_text_key(node,event)))original_textarea_default(node,event);}
 static void *text_frame(void *node) {
   void *document=node_document(node),*window=document?decode_member((char *)document+264):NULL;
   return window?decode_member((char *)window+32):NULL;
 }
-static int text_model(void *node,struct BlinkTextModel *model) {
-  int kind=node?input_form_kind(node):0;if(!text_kind(kind))return 0;
+static int text_model_as(void *node,int kind,struct BlinkTextModel *model) {
   uintptr_t getter=kind==NXS_TEXTAREA?NXS_TEXTAREA_VALUE_OFFSET:NXS_CHROMIUM_TEXT_VALUE_OFFSET;
   if(number_type(node))getter=NXS_NUMBER_INNER_VALUE;
   void *value=((void *(*)(const void *))(base+getter))(node);
@@ -112,6 +111,10 @@ static int text_model(void *node,struct BlinkTextModel *model) {
   model->editable=!((int (*)(const void *))(base+NXS_CHROMIUM_TEXT_READONLY_OFFSET))(node);
   if(model->start>model->end){free(model->value);model->value=NULL;return 0;}
   return 1;
+}
+static int text_model(void *node,struct BlinkTextModel *model) {
+  int kind=node?input_form_kind(node):0;
+  return text_kind(kind)&&text_model_as(node,kind,model);
 }
 static void text_selection(void *node,uint64_t start,uint64_t length) {
   if(start>UINT32_MAX||length>UINT32_MAX-start)return;
