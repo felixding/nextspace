@@ -15,6 +15,8 @@ static bool filter_global(const struct wl_client *client, const struct wl_global
 {
   struct nextspace_server *server = data;
   if (global == server->shell_global) return client == server->shell_client;
+  if (server->shortcut_manager && global == server->shortcut_manager->global)
+    return client == server->shortcut_client;
   if (server->screencopy_manager && global == server->screencopy_manager->global)
     return client == server->capture_client && !server->locked;
   if (server->lock_manager && global == server->lock_manager->global) return client == server->lock_client;

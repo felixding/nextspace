@@ -111,17 +111,20 @@ static void shell_metadata_changed(struct wl_listener *listener, void *data)
   struct nextspace_toplevel *view = wl_container_of(listener, view, set_title);
   decoration_update(view);
   shell_window_changed(view);
+  if (view == view->server->shortcut_view) shortcut_context_update(view->server);
 }
 
 static void shell_app_id_changed(struct wl_listener *listener, void *data)
 {
   struct nextspace_toplevel *view = wl_container_of(listener, view, set_app_id);
   shell_window_changed(view);
+  shortcut_context_update(view->server);
 }
 static void shell_parent_changed(struct wl_listener *listener, void *data)
 {
   struct nextspace_toplevel *view = wl_container_of(listener, view, set_parent);
   shell_window_changed(view);
+  if (view == view->server->shortcut_view) shortcut_context_update(view->server);
 }
 
 static void shell_pointer_changed(struct nextspace_server *server, struct nextspace_toplevel *view)
@@ -376,6 +379,7 @@ static int shell_broker_ready(int fd, uint32_t mask, void *data)
     if (server->input_method_client) wl_client_destroy(server->input_method_client);
     if (server->lock_client) wl_client_destroy(server->lock_client);
     capture_revoke(server);
+    if (server->shortcut_client) wl_client_destroy(server->shortcut_client);
     wl_event_source_remove(server->shell_broker_source);
     server->shell_broker_source = NULL;
     close(server->shell_broker_fd); server->shell_broker_fd = -1;
@@ -399,7 +403,8 @@ static int shell_broker_ready(int fd, uint32_t mask, void *data)
   }
   int type = 0; socklen_t size = sizeof(type);
   struct sockaddr_un address; socklen_t length = sizeof(address);
-  bool valid = count == 1 && (byte == 'C' || byte == 'I' || byte == 'L' || byte == 'V') && received == 1 &&
+  bool valid = count == 1 && (byte == 'C' || byte == 'I' || byte == 'L' || byte == 'V' ||
+      (byte == 'T' && server->shortcut_manager)) && received == 1 &&
     !(message.msg_flags & (MSG_TRUNC | MSG_CTRUNC)) &&
     getsockopt(connection, SOL_SOCKET, SO_TYPE, &type, &size) == 0 && type == SOCK_STREAM &&
     getpeername(connection, (struct sockaddr *)&address, &length) == 0 && address.sun_family == AF_UNIX;
@@ -407,6 +412,14 @@ static int shell_broker_ready(int fd, uint32_t mask, void *data)
   if (byte == 'V' && server->locked) { close(connection); return 0; }
   struct wl_client *replacement = wl_client_create(server->wl_display, connection);
   if (!replacement) { close(connection); return 0; }
+  if (byte == 'T') {
+    if (server->shortcut_client) wl_client_destroy(server->shortcut_client);
+    server->shortcut_client = replacement;
+    server->shortcut_client_destroy.notify = shortcut_client_destroy;
+    wl_client_add_destroy_listener(replacement, &server->shortcut_client_destroy);
+    shortcut_context_update(server);
+    return 0;
+  }
   if (byte == 'V') {
     capture_revoke(server);
     server->capture_client = replacement;

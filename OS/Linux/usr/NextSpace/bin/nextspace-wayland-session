@@ -15,4 +15,7 @@ fi
 if [ "${NEXTSPACE_NATIVE_UI:-on}" != off ] && [ -x "$bindir/nextspace-native-ui-host" ]; then
   set -- --native-ui-host "$bindir/nextspace-native-ui-host" "$@"
 fi
+if [ "${NEXTSPACE_TOSHY:-off}" = on ] && [ -x "$bindir/nextspace-toshy" ]; then
+  set -- --shortcut-mapper "$bindir/nextspace-toshy" "$@"
+fi
 exec "$bindir/nextspace-session" --private-bus --session-hook "$bindir/nextspace-session-hook" "$@"

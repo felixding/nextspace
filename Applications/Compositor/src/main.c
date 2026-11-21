@@ -20,6 +20,7 @@
 #include <wlr/types/wlr_server_decoration.h>
 #include <wlr/types/wlr_session_lock_v1.h>
 #include <wlr/types/wlr_screencopy_v1.h>
+#include <wlr/types/wlr_foreign_toplevel_management_v1.h>
 #include "nextspace-geometry.h"
 #include "nextspace-application-v1-server-protocol.h"
 #include "nextspace-shell-v1-server-protocol.h"
@@ -111,6 +112,11 @@ struct nextspace_server {
   struct wl_client *shell_client;
   struct wl_resource *shell_resource;
   struct wl_listener shell_client_destroy;
+  struct wl_client *shortcut_client;
+  struct wl_listener shortcut_client_destroy, shortcut_focus;
+  struct wlr_foreign_toplevel_manager_v1 *shortcut_manager;
+  struct wlr_foreign_toplevel_handle_v1 *shortcut_handle;
+  struct nextspace_toplevel *shortcut_view;
   struct wlr_keyboard control_keyboard;
   struct wl_listener layout_change;
   struct wlr_compositor *compositor;
@@ -407,6 +413,7 @@ static const char *view_app_id(struct nextspace_toplevel *view) {
   const char *name = view->xdg_toplevel->app_id;
   return name ? name : "";
 }
+#include "shortcut-context.h"
 static pid_t view_pid(struct nextspace_toplevel *view) {
   pid_t pid = 0;
   wl_client_get_credentials(wl_resource_get_client(view_surface(view)->resource), &pid, NULL, NULL);
@@ -643,6 +650,22 @@ static void keyboard_handle_modifiers(
 		&keyboard->wlr_keyboard->modifiers);
 }
 
+static bool text_input_owns_navigation(struct nextspace_server *server, xkb_keysym_t sym) {
+  struct nextspace_text_input *text = server->active_text_input;
+  if (!text || !text->input->current_enabled ||
+      text->input->focused_surface != server->seat->keyboard_state.focused_surface)
+    return false;
+  switch (sym) {
+    case XKB_KEY_Left: case XKB_KEY_Right: case XKB_KEY_Up: case XKB_KEY_Down:
+    case XKB_KEY_Home: case XKB_KEY_End: case XKB_KEY_Page_Up: case XKB_KEY_Page_Down:
+    case XKB_KEY_KP_Left: case XKB_KEY_KP_Right: case XKB_KEY_KP_Up: case XKB_KEY_KP_Down:
+    case XKB_KEY_KP_Home: case XKB_KEY_KP_End: case XKB_KEY_KP_Page_Up: case XKB_KEY_KP_Page_Down:
+      return true;
+    default:
+      return false;
+  }
+}
+
 static bool handle_keybinding(struct nextspace_server *server, xkb_keysym_t sym, uint32_t modifiers) {
   modifiers &= WLR_MODIFIER_CTRL | WLR_MODIFIER_ALT | WLR_MODIFIER_SHIFT | WLR_MODIFIER_LOGO;
   if (sym == XKB_KEY_l && modifiers == (WLR_MODIFIER_CTRL | WLR_MODIFIER_ALT) && server->shell_broker_fd >= 0) {
@@ -659,6 +682,9 @@ static bool handle_keybinding(struct nextspace_server *server, xkb_keysym_t sym,
   }
   if (action == NEXTSPACE_SHELL_V1_SHORTCUT_ACTION_NEXT_DESKTOP ||
       action == NEXTSPACE_SHELL_V1_SHORTCUT_ACTION_PREVIOUS_DESKTOP) {
+    /* Let the current Wayland text input interpret navigation keys. The same
+     * configured shortcut can switch desktops when the editor loses focus. */
+    if (text_input_owns_navigation(server, sym)) return false;
     int next = (int)server->desktop + (action == NEXTSPACE_SHELL_V1_SHORTCUT_ACTION_NEXT_DESKTOP ? 1 : -1);
     if (next >= 0) desktop_switch(server, next);
     return true;
@@ -1988,6 +2014,11 @@ int main(int argc, char *argv[]) {
   if (!input_settings_init(&server) || !shell_init(&server, shell_broker_fd)) return 1;
   if (!text_input_init(&server)) return 1;
   if (!session_lock_init(&server)) return 1;
+  if (shell_broker_fd >= 0) {
+    server.shortcut_manager = wlr_foreign_toplevel_manager_v1_create(server.wl_display);
+    server.shortcut_focus.notify = shortcut_focus_changed;
+    wl_signal_add(&server.seat->keyboard_state.events.focus_change, &server.shortcut_focus);
+  }
   wl_display_set_global_filter(server.wl_display, filter_global, &server);
   clipboard_init(&server);
 	if (control_fd >= 0) {

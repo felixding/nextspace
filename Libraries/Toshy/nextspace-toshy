@@ -1,0 +1,196 @@
+#!/usr/bin/python3 -B
+"""Supervise the pinned keymapper and its private Wayland context connection."""
+import json
+import os
+from pathlib import Path
+import signal
+import struct
+import subprocess
+import sys
+import tempfile
+
+INSTALL = Path(__file__).resolve().parent
+sys.path.append(str(INSTALL / 'python'))
+
+import dbus
+import dbus.mainloop.glib
+import dbus.service
+from gi.repository import GLib
+
+from configuration import COMMAND_MODIFIERS, prepare, user_config
+
+
+def command_symbols(xkb):
+    def symbol(key, fallback):
+        default = subprocess.run(['defaults', 'read', 'NSGlobalDomain', key],
+                                 capture_output=True, text=True, check=False)
+        fields = default.stdout.split()
+        name = fields[-1] if default.returncode == 0 and fields else fallback
+        return xkb.keysym_from_name(name)
+
+    return {symbol('GSFirstCommandKey', 'Alt_L'), symbol('GSSecondCommandKey', 'Alt_R')} - {0}
+
+
+def run(upstream, config_dir):
+    mapper = upstream / 'vendors/xwaykeyz-main/src'
+    context_dir = upstream / 'wlroots-dbus-service'
+    sys.path[:0] = [str(mapper), str(upstream), str(context_dir)]
+    import toshy_wlroots_dbus_service as service
+    from evdev import ecodes
+    from pywayland.protocol.wayland import WlKeyboard, WlSeat
+    from xkbcommon import xkb
+
+    symbols = command_symbols(xkb)
+    xkb_context = xkb.Context()
+    command_keys = config_dir / 'command-keys'
+
+    def publish_keys(keys):
+        pending = command_keys.with_suffix('.new')
+        pending.write_text(' '.join(keys))
+        pending.replace(command_keys)
+
+    class FocusedWindow(service.WaylandClient):
+        seat = None
+        keyboard = None
+
+        def handle_registry_global(self, registry, name, interface, version):
+            if interface == 'zwlr_foreign_toplevel_manager_v1':
+                self.toplevel_manager = registry.bind(name, service.ZwlrForeignToplevelManagerV1, min(version, 3))
+                self.toplevel_manager.dispatcher['toplevel'] = self.handle_toplevel_event
+            elif interface == 'wl_seat' and self.seat is None:
+                self.seat = registry.bind(name, WlSeat, min(version, 4))
+                self.seat.dispatcher['capabilities'] = self.handle_capabilities
+
+        def handle_capabilities(self, seat, capabilities):
+            if capabilities & WlSeat.capability.keyboard.value:
+                if self.keyboard is None:
+                    self.keyboard = seat.get_keyboard()
+                    self.keyboard.dispatcher['keymap'] = self.handle_keymap
+            elif self.keyboard is not None:
+                self.keyboard.release()
+                self.keyboard = None
+                publish_keys(())
+
+        def handle_keymap(self, keyboard, format, fd, size):
+            keys = ()
+            try:
+                if format == WlKeyboard.keymap_format.xkb_v1.value:
+                    source = os.pread(fd, size, 0).rstrip(b'\0').decode()
+                    keymap = xkb_context.keymap_new_from_string(source)
+                    keys = [name for name, code in COMMAND_MODIFIERS.items()
+                            if symbols.intersection(keymap.key_get_syms_by_level(
+                                ecodes.ecodes[code] + 8, 0, 0))]
+            except (OSError, ValueError, xkb.XKBError) as error:
+                print(f'Could not read the session keyboard map: {error}', file=sys.stderr)
+            finally:
+                os.close(fd)
+            publish_keys(keys)
+
+        def handle_window_closed(self, handle):
+            super().handle_window_closed(handle)
+            self.clear_focus(handle)
+            handle.destroy()
+
+        def handle_state_change(self, handle, states):
+            activated = service.ZwlrForeignToplevelHandleV1.state.activated.value
+            if isinstance(states, bytes) and (activated,) in struct.iter_unpack('=I', states):
+                super().handle_state_change(handle, states)
+            else:
+                self.clear_focus(handle)
+
+        def clear_focus(self, handle):
+            if handle == self.active_handle:
+                self.active_handle = None
+                self.active_app_class = self.active_wdw_title = ''
+
+    loop = GLib.MainLoop()
+    context = FocusedWindow()
+    context.active_app_class = context.active_wdw_title = ''
+    context.connect()
+    if not context.toplevel_manager or context.display.roundtrip() < 0:
+        raise RuntimeError('The session did not grant a Wayland shortcut context')
+
+    class ContextObject(dbus.service.Object):
+        @dbus.service.method(service.TOSHY_WLR_DBUS_SVC_IFACE, out_signature='a{sv}')
+        def GetActiveWindow(self):
+            # A query immediately after a focus change must see the updated seat.
+            try:
+                ready = context.display.roundtrip() >= 0
+            except (ValueError, RuntimeError, OSError):
+                ready = False
+            if not ready:
+                loop.quit()
+                return {'app_id': '', 'title': ''}
+            return {'app_id': context.active_app_class, 'title': context.active_wdw_title}
+
+    def dispatch(fd, condition):
+        if condition & (GLib.IO_HUP | GLib.IO_ERR):
+            loop.quit()
+            return GLib.SOURCE_REMOVE
+        try:
+            context.display.read()
+            context.display.dispatch(block=False)
+            context.display.flush()
+        except (ValueError, RuntimeError, OSError):
+            loop.quit()
+            return GLib.SOURCE_REMOVE
+        return GLib.SOURCE_CONTINUE
+
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    bus = dbus.SessionBus()
+    name = dbus.service.BusName(service.TOSHY_WLR_DBUS_SVC_IFACE, bus=bus, do_not_queue=True)
+    endpoint = ContextObject(name, service.TOSHY_WLR_DBUS_SVC_PATH)
+    GLib.io_add_watch(context.wl_fd, GLib.PRIORITY_DEFAULT, GLib.IO_IN | GLib.IO_HUP | GLib.IO_ERR, dispatch)
+
+    profiles = os.environ.get('NEXTSPACE_TOSHY_PROFILES')
+    config = prepare(upstream, config_dir, user_config(), Path(profiles) if profiles else None)
+    modules = upstream.parent / 'python'
+    paths = list(map(str, (mapper, upstream, modules, upstream.parent)))
+    if os.environ.get('PYTHONPATH'):
+        paths.append(os.environ['PYTHONPATH'])
+    environment = dict(os.environ, PYTHONPATH=os.pathsep.join(paths))
+    environment.pop('WAYLAND_SOCKET', None)
+    # The launcher and mapper load from a verified runtime, so keep bytecode out of it.
+    arguments = [sys.executable, '-B', '-c', 'from xwaykeyz.cli import main; main()',
+                 '--config', str(config), '--watch']
+    devices = os.environ.get('NEXTSPACE_TOSHY_DEVICES')
+    if devices:
+        arguments.extend(['--devices', *json.loads(devices)])
+    process = subprocess.Popen(arguments, env=environment)
+
+    def check_mapper():
+        if process.poll() is None and bus.get_is_connected():
+            return GLib.SOURCE_CONTINUE
+        loop.quit()
+        return GLib.SOURCE_REMOVE
+
+    def stop():
+        loop.quit()
+        return GLib.SOURCE_REMOVE
+
+    for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+        GLib.unix_signal_add(GLib.PRIORITY_DEFAULT, sig, stop)
+    GLib.timeout_add(250, check_mapper)
+    try:
+        loop.run()
+    finally:
+        endpoint.remove_from_connection()
+        if process.poll() is None:
+            process.terminate()
+            try:
+                process.wait(timeout=3)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait()
+        context.display.disconnect()
+    return process.returncode
+
+
+if __name__ == '__main__':
+    if os.geteuid() == 0 or 'WAYLAND_SOCKET' not in os.environ:
+        sys.exit('Toshy requires the authenticated NEXTSPACE session supervisor')
+    if not os.access('/dev/uinput', os.R_OK | os.W_OK):
+        sys.exit('The session user has no access to /dev/uinput')
+    upstream = INSTALL / 'upstream'
+    with tempfile.TemporaryDirectory(prefix='nextspace-toshy-', dir=os.environ['XDG_RUNTIME_DIR']) as private:
+        sys.exit(run(upstream, Path(private)))

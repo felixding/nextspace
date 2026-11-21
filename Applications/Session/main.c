@@ -61,7 +61,8 @@ static pid_t launch_fds(char *const arguments[], int descriptor, int extra, int 
   if (extra >= 0 && (extra = fcntl(extra, F_DUPFD_CLOEXEC, 5)) < 0) _exit(126);
   if (descriptor >= 0) install_fd(descriptor, 3);
   if (extra >= 0) install_fd(extra, 4);
-  if ((role == 'I' || role == 'L' || role == 'V') && setenv("WAYLAND_SOCKET", "3", 1) < 0) _exit(126);
+  if ((role == 'I' || role == 'L' || role == 'V' || role == 'T') &&
+      setenv("WAYLAND_SOCKET", "3", 1) < 0) _exit(126);
   if (close_range(extra >= 0 ? 5 : descriptor >= 0 ? 4 : 3, UINT_MAX, 0) < 0) _exit(126);
   sigset_t empty;
   sigemptyset(&empty);
@@ -444,6 +445,7 @@ int main(int argc, char **argv)
     .connections={.listener=-1, .role=-1, .epoll=-1}};
   struct session_service method = {.name = "Input method", .role = 'I', .pid = -1};
   struct session_service capture = {.name = "Capture backend", .role = 'V', .persistent = true, .pid = -1};
+  struct session_service shortcuts = {.name = "Shortcut mapper", .role = 'T', .pid = -1};
   bool want_private_bus = false;
   static const struct option options[] = {
     {"compositor", required_argument, NULL, 'c'},
@@ -454,10 +456,11 @@ int main(int argc, char **argv)
     {"private-bus", no_argument, NULL, 'd'},
     {"session-hook", required_argument, NULL, 'u'},
     {"native-ui-host", required_argument, NULL, 'n'},
+    {"shortcut-mapper", required_argument, NULL, 't'},
     {"help", no_argument, NULL, 'h'}, {NULL, 0, NULL, 0}
   };
   int option;
-  while ((option = getopt_long(argc, argv, "+c:i:v:l:u:p:n:dh", options, NULL)) != -1) {
+  while ((option = getopt_long(argc, argv, "+c:i:v:l:u:p:n:t:dh", options, NULL)) != -1) {
     if (option == 'c') compositor = optarg;
     else if (option == 'i') method.command = optarg;
     else if (option == 'v') capture.command = optarg;
@@ -466,14 +469,18 @@ int main(int argc, char **argv)
     else if (option == 'd') want_private_bus = true;
     else if (option == 'u') hook_command = optarg;
     else if (option == 'n') native.command = optarg;
+    else if (option == 't') shortcuts.command = optarg;
     else {
-      fprintf(stderr, "Usage: %s [--compositor PATH] [--input-method EXECUTABLE] [--capture-backend EXECUTABLE] [--locker EXECUTABLE] [--greeter-profile EXECUTABLE] [--session-hook EXECUTABLE] [--native-ui-host EXECUTABLE] [--private-bus] -- WORKSPACE [ARGUMENTS...]\n", argv[0]);
+      fprintf(stderr, "Usage: %s [--compositor PATH] [--input-method EXECUTABLE] [--capture-backend EXECUTABLE] [--locker EXECUTABLE] [--greeter-profile EXECUTABLE] [--session-hook EXECUTABLE] [--native-ui-host EXECUTABLE] [--shortcut-mapper EXECUTABLE] [--private-bus] -- WORKSPACE [ARGUMENTS...]\n", argv[0]);
       return option == 'h' ? 0 : 1;
     }
   }
   if (optind == argc || !environment()) return 1;
   if (native.command && (!want_private_bus || strcmp(getenv("XDG_SESSION_CLASS"), "user"))) {
     fprintf(stderr, "[session] Native UI hosting requires a private authenticated user bus.\n"); return 1;
+  }
+  if (shortcuts.command && (!want_private_bus || strcmp(getenv("XDG_SESSION_CLASS"), "user"))) {
+    fprintf(stderr, "[session] Shortcut mapping requires a private authenticated user bus.\n"); return 1;
   }
   if (hook_command && strcmp(getenv("XDG_SESSION_CLASS"), "user") != 0) {
     fprintf(stderr, "[session] Hooks require an authenticated user session.\n"); return 1;
@@ -582,6 +589,7 @@ int main(int argc, char **argv)
     if (wayland && activation_ready && profile_ready) {
       service_start(&method, broker[0], false);
       service_start(&capture, broker[0], lock_requested || lock_confirmed);
+      service_start(&shortcuts, broker[0], lock_requested || lock_confirmed);
     }
     if (lock_requested && locker_command && locker < 0 && lock_failures < 3 &&
         wayland && activation_ready && milliseconds() >= lock_restart) {
@@ -616,6 +624,7 @@ int main(int argc, char **argv)
     if (wayland && activation_ready && profile_ready) {
       service_timeout(&method, false, &timeout);
       service_timeout(&capture, lock_requested || lock_confirmed, &timeout);
+      service_timeout(&shortcuts, lock_requested || lock_confirmed, &timeout);
     }
     int64_t lock_wake = locker >= 0 ? lock_deadline :
       lock_requested && locker_command && lock_failures < 3 ? lock_restart : 0;
@@ -693,6 +702,7 @@ int main(int argc, char **argv)
       }
       else if (child == method.pid) service_exited(&method, false);
       else if (child == capture.pid) service_exited(&capture, lock_requested || lock_confirmed);
+      else if (child == shortcuts.pid) service_exited(&shortcuts, lock_requested || lock_confirmed);
       else if (child == native.pid) {
         fprintf(stderr, "[session] Native UI host exited with %d.\n", WIFEXITED(status) ? WEXITSTATUS(status) : 128+WTERMSIG(status));
         native_ui_exited(&native);
