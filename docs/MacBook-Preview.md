@@ -71,6 +71,8 @@ not change these user-facing paths or commands.
 
 ## Before offering a review
 
+GNUstep uses Alt (Option on a Mac keyboard) as the Command modifier.
+
 The agent completes regression testing; the user reviews the experience. For
 each candidate, first use the real preview window through its ordinary launcher.
 Observe each result while selecting, editing, scrolling, resizing, zooming,
@@ -79,6 +81,9 @@ while its panel is open, including near screen edges. Use the display density
 that reproduced the report; nearby scale values are not equivalent. Record
 visible defects before running scripted checks. Passing fixtures cannot replace
 this desktop review.
+
+For keyboard changes, verify Alt input through Lima in Konsole, Firefox and
+Chromium. The Linux desktop suite starts at the guest input layer.
 
 Minimize each browser and restore it through its actual application icon, then
 repeat the control interactions. Also check that activating an application with
@@ -90,6 +95,10 @@ with `--browser-platform`. It starts fresh ordinary desktop sessions at 100%,
 left scrollbar arrows, dropdown lifetime and alignment, the detached menu,
 and editing and clipboard shortcuts. The suite verifies the live runtime and
 clean teardown at each density. Preserve the receipts and inspect the captures.
+
+Run the same gate with `--toolkit-shortcuts` for Konsole, Kate and Mousepad.
+It launches an installed Konsole from Workspace and checks tabs, focused search,
+clipboard transfer, and terminal Control+C through the desktop seat.
 
 Use the normal desktop review above to check browser-owned calendars, Chromium's
 color picker, Firefox's GNUstep color panel, native file panels, and original

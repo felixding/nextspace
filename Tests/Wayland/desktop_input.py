@@ -1,6 +1,7 @@
 """Real desktop seat input and compositor capture, without client focus assistance."""
 import json
 from pathlib import Path
+import plistlib
 import socket
 import time
 from PIL import Image
@@ -36,6 +37,24 @@ class Desktop:
         for state in (1, 0):
             assert self.command('key %d %d' % (code, state))['ok']
             time.sleep(.08)
+
+    def command_modifier(self):
+        defaults = self.root / 'runtime/defaults/NSGlobalDomain.plist'
+        settings = plistlib.loads(defaults.read_bytes()) if defaults.is_file() else {}
+        key = settings.get('GSFirstCommandKey', 'Alt_L')
+        return {'Alt_L': 56, 'Alt_R': 100, 'Control_L': 29, 'Control_R': 97,
+                'Super_L': 125, 'Super_R': 126, 'Meta_L': 125, 'Meta_R': 126}[key]
+
+    def chord(self, code, *modifiers):
+        pressed = []
+        try:
+            for key in modifiers:
+                assert self.command(f'key {key} 1')['ok']
+                pressed.append(key)
+            self.key(code)
+        finally:
+            for key in reversed(pressed):
+                assert self.command(f'key {key} 0')['ok']
 
     def capture(self, name):
         output = self.command('outputs')[0]

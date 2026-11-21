@@ -1,10 +1,11 @@
 # Toshy keyboard shortcuts in NEXTSPACE
 
 Implement a shared shortcut experience for GTK, KDE and browsers. Ordinary
-commands should feel native by default. Use the physical Command key configured
-in GNUstep for Copy, Paste, Find, New Tab (`Command+T`), Close (`Command+W`) and
-Reopen Closed Tab (`Command+Shift+T`) where the app supports them. Preserve the
-app's normal close behavior, including confirmations and last-tab handling.
+commands should feel native by default. Use GNUstep's configured Command
+modifier, which defaults to Alt (Option on a Mac keyboard), for Copy, Paste,
+Find, New Tab (`Alt+T`), Close (`Alt+W`) and Reopen Closed Tab
+(`Alt+Shift+T`) where the app supports them. Preserve the app's normal close
+behavior, including confirmations and last-tab handling.
 
 ## Reuse upstream
 
@@ -41,9 +42,52 @@ app's normal close behavior, including confirmations and last-tab handling.
 Start in the [GTK and Qt adapters](../Libraries/ForeignScrollers/README.md), the
 [shared menu transport](../Libraries/NativeUI/Bridge/Menu.inc), and the
 [browser keyboard paths](Browser-Platform-Integration.md). The local toolkit
-preview qualified detached menus in Konsole, Kate, Mousepad and Thunar. The
-Konsole editing check covered its Find field. Terminal-pane shortcuts and
-Toshy coexistence still need qualification.
+preview qualified detached menus in Konsole, Kate, Mousepad and Thunar.
+The desktop shortcut gate covers Konsole's terminal and Find field and
+the editors in Kate and Mousepad.
+
+## Session settings
+
+The GTK and Qt adapters derive Command aliases from each action's registered
+primary Control shortcut. The aliases preserve the key and Shift and leave
+the original shortcut available. Use Toshy for chords that differ from the
+app's registered shortcut.
+Command and Alternate Swap in Keyboard Preferences updates the active Wayland
+keymap. Both the app shortcuts and Toshy's Command rules follow it immediately.
+In focused text editors, GNUstep's Control+A and Control+E move the cursor to
+the beginning and end of the line. Command+A selects all text.
+If you edit GNUstep's modifier defaults directly, restart GTK and Qt apps to
+refresh their shortcut bindings. Qt actions may set `nextspaceOriginalShortcut`
+to keep their own binding. Launch an app with `NEXTSPACE_SHORTCUTS=original`
+to use its original shortcut handling or `NEXTSPACE_SHORTCUTS=native` to
+select the bridge.
+
+The optional Debian mapper runs as the authenticated session user with
+`NEXTSPACE_TOSHY=on` and the normal evdev and uinput access for that user.
+It uses Toshy's wlroots D-Bus provider through a private compositor
+connection. The active application ID clears when keyboard focus is lost.
+Without local rules the mapper leaves the native app chords alone.
+
+The graphical review launcher selects upstream Toshy's terminal profile for
+Konsole. It uses the profile's same-key modifier aliases so Konsole's registered
+actions handle the result. The launcher makes the VM keyboard and uinput
+available inside the preview's mount namespace. The original device nodes keep
+their existing ownership and permissions throughout the session.
+
+Add app-specific rules to
+`${XDG_CONFIG_HOME:-$HOME/.config}/nextspace/toshy/shortcuts.py`.
+Use `NEXTSPACE_SHORTCUTS=original` if Toshy is taking over shortcuts the
+native bridge would also handle. `Command` in a source chord follows the
+current modifier. Specify `Command` in the target as well to use the same
+physical modifier. Other modifiers use xwaykeyz syntax.
+
+```python
+compatibility_keymap("org.kde.konsole", {"Command-t": "Shift-Command-t"})
+```
+
+Use the actual Wayland app ID. Relaunch the session after editing rules.
+The config is regenerated from the pinned upstream template on startup.
+Local rules are loaded from their existing file.
 
 ## Acceptance
 

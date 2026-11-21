@@ -22,7 +22,9 @@ parser.add_argument('--preview',type=Path,default=repo/'.build/native-ui/macbook
 parser.add_argument('--output',type=Path,required=True)
 scales=(1,1.25,1.5,1.75,2)
 parser.add_argument('--scale',type=float,choices=scales,action='append')
-parser.add_argument('--browser-platform',action='store_true')
+mode=parser.add_mutually_exclusive_group()
+mode.add_argument('--browser-platform',action='store_true')
+mode.add_argument('--toolkit-shortcuts',action='store_true')
 args=parser.parse_args()
 assert sys.platform.startswith('linux') and os.geteuid()!=0,'Run as the desktop user inside the Linux VM'
 args.output.mkdir(parents=True,exist_ok=True)
@@ -72,9 +74,17 @@ for index,scale in enumerate(args.scale or scales):
             # Fail new payload-verification wiring before the long interaction
             # sequence. Recheck afterward against the actual panel owner too.
             payload=[sys.executable,str(repo/'Tests/Lima/check-preview-payload.py'),str(root)]
-            if args.browser_platform:
+            if args.browser_platform or args.toolkit_shortcuts:
                 payload.append('--browser-platform')
             subprocess.run(payload,env=env,check=True,timeout=120)
+            if args.toolkit_shortcuts:
+                subprocess.run([sys.executable,str(repo/'Tests/Wayland/native_toolkit_shortcuts.py'),str(root)],
+                    env=env,check=True,timeout=240)
+                checks=json.loads((root/'ordinary-toolkit-shortcuts.json').read_text())
+                assert checks['complete'] and all(row['passed'] for row in checks['checks'])
+                run.update(complete=True,checks=len(checks['checks']))
+                save()
+                continue
             if args.browser_platform:
                 subprocess.run([sys.executable,str(repo/'Tests/Wayland/native_browser_scrollbars.py'),str(root)],
                     env=env,check=True,timeout=120)

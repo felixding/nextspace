@@ -14,6 +14,7 @@ parser.add_argument('--probe', type=Path, default=Path('/var/tmp/nextspace-nativ
 parser.add_argument('--browser', choices=('chromium', 'firefox'), action='append')
 args = parser.parse_args()
 desktop = Desktop(args.root)
+command_modifier = desktop.command_modifier()
 rows = []
 activation_attempts = []
 report = args.root/('ordinary-shortcut-ux-'+ '-'.join(args.browser)+'.json'
@@ -42,9 +43,8 @@ def check(case, passed, **details):
     assert passed, rows[-1]
 
 
-def chord(code, modifier=56):
-    for key, state in ((modifier, 1), (code, 1), (code, 0), (modifier, 0)):
-        assert desktop.command(f'key {key} {state}')['ok']
+def chord(code, modifier=command_modifier):
+    desktop.chord(code, modifier)
 
 
 hosts = {w['pid'] for w in desktop.command('windows') if w['level']==20
@@ -173,7 +173,7 @@ try:
             focus = select_address()
             if focus:address_tag=(focus['process'],focus['control'])
             # Use the native end-of-line action for setup, independent of
-            # selection timing. The subsequent Alt+L/copy must still prove
+            # selection timing. The subsequent Command+L/copy must still prove
             # that the complete, distinct URL was selected by that shortcut.
             chord(18, 29)
             for code,state in ((42,1),(4,1),(4,0),(42,0)):

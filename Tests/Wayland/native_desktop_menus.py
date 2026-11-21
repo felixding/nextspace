@@ -49,7 +49,7 @@ try:
             points=[(icon['x']+x,icon['y']+icon['height']/2) for x in (icon['width']-4,4,icon['width']/2)]
             x,y=next((x,y) for x,y in points if not any(
                 w['x']<=x<w['x']+w['width'] and w['y']<=y<w['y']+w['height'] for w in menus()))
-            desktop.click(x,y);desktop.click(x,y)
+            desktop.double_click(x,y)
         menu=until(menus,lambda m:len(m)==1 and m[0]['title']==menu_title,family+' current menu')[0]
         app_id='chromium-browser' if family=='chromium' else 'firefox-esr'
         main=next(w for w in desktop.command('windows') if w['visible'] and w['app_id']==app_id

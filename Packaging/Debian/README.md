@@ -70,3 +70,24 @@ The component alone does not provide the backend, applications or
 Earlier `packages.sh` X11-reference results are historical evidence and are
 outside the current delivery scope. Installing these packages does not enable
 or replace the host display manager.
+
+## Toshy shortcut compatibility
+
+```sh
+python3 Packaging/Debian/build-toshy.py \
+  --build-dir .build/debian-toshy --output .build/debian-packages \
+  --cache .build/source-cache --version '26.11.0~nextspace1'
+```
+
+The recipe pins Toshy `Toshy_v26.11.0` at
+`c76b5ec702e188a793c542e940d4e066d838c654`. The source archive SHA-256 is
+`6a87d489ad8b19d3b21faa1e68e94139b8d9c8f95fa722cad292d45dd675d441`.
+Its stable bundled xwaykeyz comes from
+`3895ab4c5f29f6415cdfc66b4ad53b76db2fb090`. The same checks apply when the
+archive is supplied in the cache for an offline build. Refresh the tag,
+revision, checksum and bundled revision together in the recipe and here.
+Rebuild and rerun the shortcut acceptance checks before publishing.
+
+The optional package uses the current session supervisor and compositor. See
+[Toshy keyboard shortcuts](../../docs/Toshy-Keyboard-Shortcuts.md) for the
+session setting and per-app overrides.

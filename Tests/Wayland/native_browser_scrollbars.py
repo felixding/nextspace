@@ -1,5 +1,6 @@
 """Real-seat verification of native browser scrollbar and dropdown interactions."""
 import argparse
+import ctypes
 import json
 from pathlib import Path
 import time
@@ -22,27 +23,44 @@ parser.add_argument('root', type=Path)
 args = parser.parse_args()
 desktop = Desktop(args.root)
 command = desktop.command
+command_modifier = desktop.command_modifier()
 scale = command('outputs')[0]['scale'] / 120
 checks = []
 
+def firefox_closed_fixture():
+    recovery = args.root/'runtime/firefox-profile/sessionstore-backups/recovery.jsonlz4'
+    if not recovery.is_file():
+        return False
+    packed = recovery.read_bytes()
+    if packed[:8] != b'mozLz40\0':
+        return False
+    size = int.from_bytes(packed[8:12], 'little')
+    assert 0 < size < 8 * 1024 * 1024
+    output = ctypes.create_string_buffer(size)
+    lz4 = ctypes.CDLL('liblz4.so.1')
+    count = lz4.LZ4_decompress_safe(packed[12:], output, len(packed)-12, size)
+    assert count == size
+    state = json.loads(output.raw)
+    return any(entry['url'].endswith('native_browser_scrollbars.html#restored')
+               for win in state['windows'] for tab in win.get('_closedTabs', [])
+               for entry in tab['state']['entries'])
+
 def window(app):
     return next(w for w in command('windows') if w['app_id']==app and w['level']==0)
-def model(app):
-    title = window(app)['title']
+def model(app, title=None):
+    if title is None:
+        title = window(app)['title']
     row = json.JSONDecoder().raw_decode(title.split('|',1)[1])[0]
     fields = ('density', 'height', 'gutter', 'page', 'ended', 'notes', 'choices',
-              'dropdown', 'open', 'editor', 'notesFocused', 'pastedURL')
+              'dropdown', 'open', 'editor', 'notesFocused', 'pastedURL', 'cancelledTab', 'restored', 'pageFocused')
     state = dict(zip(fields, row, strict=True))
     for field in ('notes','choices'):
         state[field]=dict(zip(('x','y','width','height','gutter','value'),state[field]))
     return state
 
-def chord(modifier, key):
-    assert command(f'key {modifier} 1')['ok']
-    try:
-        desktop.key(key)
-    finally:
-        assert command(f'key {modifier} 0')['ok']
+def chord(key, *, shift=False):
+    modifiers = (command_modifier, 42) if shift else (command_modifier,)
+    desktop.chord(key, *modifiers)
 
 front = window('firefox-esr')
 x,y = front['x']+front['width']//2,front['y']+10
@@ -116,21 +134,61 @@ for app in ('chromium-browser','firefox-esr'):
     editor_point = x0+(notes['x']+notes['width']/2)*ratio, y0+(notes['y']+24)*ratio
     desktop.click(*editor_point)
     wait_result(lambda:model(app)['notesFocused'],bool)
-    chord(56, 30)  # Alt+A selects all in the original editor.
+    chord(30)  # Command+A selects all in the original editor.
     wait_result(lambda:model(app)['editor'],lambda pos:pos[0]==0 and pos[1]==pos[2]>0)
-    chord(56, 38)  # Alt+L transfers focus to the browser's original address bar.
+    chord(38)  # Command+L transfers focus to the original address bar.
     wait_result(lambda:model(app)['notesFocused'],lambda focused:not focused)
     previous = command('selection-state')['serial']
-    chord(56, 46)
+    chord(46)
     wait_result(lambda:command('selection-state'),
                 lambda state:state['serial']!=previous and state['owned'] and not state['pending'])
     desktop.key(1)
     desktop.click(*editor_point)
     wait_result(lambda:model(app)['notesFocused'],bool)
-    chord(56, 30)
-    chord(56, 47)
+    chord(30)
+    chord(47)
     wait_result(lambda:model(app)['pastedURL'],bool)
+    if app == 'firefox-esr':
+        before_zoom = model(app)['density']
+        chord(13)  # Command+= uses the alternate Zoom In key from Firefox.
+        wait_result(lambda:model(app)['density'], lambda density:density > before_zoom)
+        chord(12)  # Command+- uses Firefox's Zoom Out key.
+        wait_result(lambda:model(app)['density'], lambda density:density == before_zoom)
+        checks.append(dict(browser=app, named_zoom_shortcuts=True))
     checks.append(dict(browser=app, original_editor_select_all=True, original_address_clipboard=True))
+
+    def fixture_state():
+        title = window(app)['title']
+        return model(app, title) if 'NEXTSPACE controls|' in title else None
+
+    desktop.click(x0+win['surface_width']//2, y0+140)
+    chord(20)
+    wait_result(fixture_state, lambda state:state and state['cancelledTab'])
+    chord(20)
+    new_tab_title = 'New Tab - Chromium' if app=='chromium-browser' else 'Mozilla Firefox'
+    wait_result(lambda:window(app)['title'], lambda title:title==new_tab_title)
+    chord(17)
+    wait_result(fixture_state, lambda state:state and state['cancelledTab'] and not state['restored'])
+    # Use a real page for tab history. Browsers can discard empty new tabs.
+    desktop.click(x0+win['surface_width']-104*ratio, y0+32*ratio)
+    try:
+        wait_result(fixture_state, lambda state:state and state['restored'], seconds=30)
+    except AssertionError as failure:
+        raise AssertionError((app, 'History fixture did not finish loading', window(app)['title'])) from failure
+    chord(17)
+    # The window can publish the selected tab's title before handing keyboard
+    # focus back to its document. Wait for the original page to receive focus.
+    wait_result(fixture_state, lambda state:state and state['cancelledTab'] and state['pageFocused'])
+    if app=='firefox-esr':
+        # SessionStore can receive the final content history after the tab
+        # closes. Verify the test tab is restorable before pressing the key.
+        wait_result(firefox_closed_fixture, bool, seconds=35)
+    wait_result(lambda:window(app), lambda current:current['id']==win['id'] and current['focused'])
+    chord(20, shift=True)
+    wait_result(fixture_state, lambda state:state and state['restored'])
+    chord(17)
+    wait_result(fixture_state, lambda state:state and not state['restored'])
+    checks.append(dict(browser=app, page_cancelled_tab=True, new_tab=True, close=True, reopen=True))
 
 report = dict(complete=True, scale=scale, checks=checks)
 (args.root/'ordinary-browser-scrollbars.json').write_text(json.dumps(report, indent=2)+'\n')
