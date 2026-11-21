@@ -117,6 +117,8 @@ void nxs_edit_bindings_reset(NXSEditBindings *bindings)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();if(bindings&&HAS_INPUT(p,edit_bindings_reset))p->edit_bindings_reset(bindings);}
 int nxs_edit_bindings_resolve(NXSEditBindings *bindings,const NXSKeyEvent *event,NXSEditCommand receive,void *context)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return bindings&&HAS_INPUT(p,edit_bindings_resolve)?p->edit_bindings_resolve(bindings,event,receive,context):NXS_EDIT_UNBOUND;}
+unsigned nxs_physical_modifier(unsigned modifier)
+{const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,physical_modifier)?p->physical_modifier(modifier):0;}
 unsigned nxs_native_ui_event_capabilities(void)
 {const NXSNativeUIAPI *p=nxs_native_ui_api();return HAS_INPUT(p,dispatch_events)&&HAS_INPUT(p,control_needs_display)?NXS_EVENTS:0;}
 double nxs_native_ui_dispatch_events(double maximum_wait)

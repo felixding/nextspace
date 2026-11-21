@@ -461,19 +461,38 @@ int nxs_host_owns_input_window(NXSViewHost *host,NSWindow *window)
 - (void)selectKeyViewPrecedingView:(NSView *)view {control->key_result=NXS_INPUT_PREVIOUS;}
 @end
 
+static unsigned physical_modifier(unsigned modifier)
+{
+  NSString *key, *fallback;
+  switch (modifier) {
+    case NXS_MENU_COMMAND: key=@"GSFirstCommandKey"; fallback=@"Alt_L"; break;
+    case NXS_MENU_CONTROL: key=@"GSFirstControlKey"; fallback=@"Control_L"; break;
+    case NXS_MENU_ALTERNATE: key=@"GSFirstAlternateKey"; fallback=@"Super_L"; break;
+    case NXS_MENU_SHIFT: return NXS_SHIFT;
+    default: return 0;
+  }
+  NSString *name=[[NSUserDefaults standardUserDefaults] stringForKey:key] ?: fallback;
+  return [name hasPrefix:@"Control_"] ? NXS_CONTROL : [name hasPrefix:@"Alt_"] ? NXS_ALT :
+    ([name hasPrefix:@"Super_"] || [name hasPrefix:@"Meta_"]) ? NXS_SUPER : 0;
+}
+
+unsigned nxs_host_physical_modifier(unsigned modifier)
+{
+  NSAutoreleasePool *pool=[NSAutoreleasePool new];
+  unsigned family=physical_modifier(modifier);
+  [pool drain];
+  return family;
+}
+
 static NSUInteger flags(unsigned modifiers)
 {
   NSUInteger result=(modifiers & NXS_SHIFT) ? NSShiftKeyMask : 0;
-  NSUserDefaults *defaults=[NSUserDefaults standardUserDefaults];
-  NSArray *keys=@[@"Control",@"Command",@"Alternate"];
-  NSArray *fallback=@[@"Control_L",@"Alt_L",@"Super_L"];
-  NSUInteger native[]={NSControlKeyMask,NSCommandKeyMask,NSAlternateKeyMask};
-  for(NSUInteger i=0;i<3;i++) {
-    NSString *name=[defaults stringForKey:[NSString stringWithFormat:@"GSFirst%@Key",keys[i]]] ?: fallback[i];
-    unsigned family=[name hasPrefix:@"Control_"] ? NXS_CONTROL : [name hasPrefix:@"Alt_"] ? NXS_ALT :
-      ([name hasPrefix:@"Super_"] || [name hasPrefix:@"Meta_"]) ? NXS_SUPER : 0;
-    if(modifiers & family) result |= native[i];
-  }
+  unsigned control=physical_modifier(NXS_MENU_CONTROL);
+  unsigned command=physical_modifier(NXS_MENU_COMMAND) & ~control;
+  unsigned alternate=physical_modifier(NXS_MENU_ALTERNATE) & ~(control | command);
+  if(modifiers & control) result |= NSControlKeyMask;
+  if(modifiers & command) result |= NSCommandKeyMask;
+  if(modifiers & alternate) result |= NSAlternateKeyMask;
   return result;
 }
 

@@ -38,6 +38,7 @@ NXSEditBindings *nxs_host_edit_bindings_create(void);
 void nxs_host_edit_bindings_destroy(NXSEditBindings *);
 void nxs_host_edit_bindings_reset(NXSEditBindings *);
 int nxs_host_edit_bindings_resolve(NXSEditBindings *,const NXSKeyEvent *,NXSEditCommand,void *);
+unsigned nxs_host_physical_modifier(unsigned);
 int nxs_host_command_filter(NXSViewHost *,NXSCommandFilter,void *);
 int nxs_host_command(NXSViewHost *,SEL,unsigned);
 double nxs_host_dispatch_events(double maximum_wait);

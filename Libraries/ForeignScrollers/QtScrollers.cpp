@@ -2,6 +2,7 @@
 #include "NativeScroller.h"
 #include "QtControls.h"
 #include "QtEditing.h"
+#include "QtShortcuts.h"
 #include "KdeOverrides.h"
 #include <QAbstractScrollArea>
 #include <QAbstractEventDispatcher>
@@ -143,6 +144,7 @@ public:
 
 class Adapter : public QObject {
   NativeEditing editing;
+  NativeShortcuts shortcuts;
   bool pending = false;
   bool arranging=false;
   QList<QPointer<QAbstractScrollArea>> areas;
@@ -194,6 +196,8 @@ class Adapter : public QObject {
     auto *widget = qobject_cast<QWidget *>(object);
     if (!widget) return false;
     if (qgetenv("NEXTSPACE_NATIVE_EDITING") != "off" && editing.filter(widget, event))
+      return true;
+    if (shortcuts.filter(widget, event))
       return true;
     if (event->type() == QEvent::Polish)
       if (auto *button = qobject_cast<QAbstractButton *>(widget))

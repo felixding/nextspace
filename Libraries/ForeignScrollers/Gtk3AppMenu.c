@@ -4,6 +4,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkwayland.h>
 #include <libdbusmenu-gtk/parser.h>
+#include <libdbusmenu-gtk/menuitem.h>
 #include <libdbusmenu-glib/server.h>
 #include "appmenu-client-protocol.h"
 
@@ -24,6 +25,33 @@ static GDBusConnection *bus;
 static gboolean registrar;
 static gboolean requested;
 static unsigned next_menu;
+
+static void update_shortcut(GtkWidget *widget, GParamSpec *property, DbusmenuMenuitem *item)
+{
+  g_autofree char *accelerator = NULL;
+  g_object_get(widget, "accel", &accelerator, NULL);
+  if (accelerator && *accelerator)
+    dbusmenu_menuitem_property_set_shortcut_string(item, accelerator);
+  else
+    dbusmenu_menuitem_property_remove(item, DBUSMENU_MENUITEM_PROP_SHORTCUT);
+}
+
+static void export_shortcuts(GtkWidget *widget, gpointer unused)
+{
+  if (GTK_IS_MENU_ITEM(widget)) {
+    GParamSpec *accel = g_object_class_find_property(G_OBJECT_GET_CLASS(widget), "accel");
+    DbusmenuMenuitem *item = dbusmenu_gtk_parse_get_cached_item(widget);
+    if (item && accel && G_PARAM_SPEC_VALUE_TYPE(accel) == G_TYPE_STRING) {
+      update_shortcut(widget, accel, item);
+      g_signal_connect_object(widget, "notify::accel", G_CALLBACK(update_shortcut), item, 0);
+    }
+    GtkWidget *submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget));
+    if (submenu)
+      export_shortcuts(submenu, NULL);
+  } else if (GTK_IS_MENU_SHELL(widget)) {
+    gtk_container_foreach(GTK_CONTAINER(widget), export_shortcuts, NULL);
+  }
+}
 
 static void restore(AppMenu *menu)
 {
@@ -53,6 +81,7 @@ static void publish(AppMenu *menu)
     DbusmenuMenuitem *root = dbusmenu_gtk_parse_menu_structure(menu->bar);
     if (!root)
       return;
+    export_shortcuts(menu->bar, NULL);
     menu->server = dbusmenu_server_new(menu->path);
     dbusmenu_server_set_root(menu->server, root);
     g_object_unref(root);

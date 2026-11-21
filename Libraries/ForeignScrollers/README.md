@@ -90,9 +90,11 @@ Qt5 and sandboxed application runtimes are not qualified by this package.
 The GTK3 and Qt Widgets adapters use the shared NativeUI provider to draw
 ordinary labeled push buttons, checkboxes and radio buttons. The original
 toolkit owns the widget, accessibility, actions and focus order. The same
-provider resolves editing keys for GTK entries and text views and for Qt line,
-plain-text and rich-text editors. The adapter applies supported commands to the
-original editor. Unsupported commands follow the toolkit's ordinary path.
+provider resolves editing keys for GTK3 and GTK4 entries and text views and
+for Qt editors. Movement and selection follow GNUstep's bindings, including
+compound commands. Unsupported commands follow the toolkit's ordinary path.
+On Wayland, a focused text input receives navigation keys before desktop
+switching. The configured workspace shortcuts are available outside text input.
 
 On the NEXTSPACE Wayland desktop, GTK3 exports its GtkMenuBar through
 libdbusmenu. KDE's platform theme exports Qt menu bars. The same session host

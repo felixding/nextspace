@@ -399,6 +399,7 @@ typedef struct {
   void (*edit_bindings_destroy)(NXSEditBindings *);
   void (*edit_bindings_reset)(NXSEditBindings *);
   int (*edit_bindings_resolve)(NXSEditBindings *,const NXSKeyEvent *,NXSEditCommand,void *);
+  unsigned (*physical_modifier)(unsigned);
 } NXSNativeUIAPI;
 #define NXS_NATIVE_UI_CORE_SIZE offsetof(NXSNativeUIAPI, control_focus)
 /* Optional original NSScrollView content rectangle with both scrollers.
@@ -548,6 +549,9 @@ NXSEditBindings *nxs_edit_bindings_create(void);
 void nxs_edit_bindings_destroy(NXSEditBindings *);
 void nxs_edit_bindings_reset(NXSEditBindings *);
 int nxs_edit_bindings_resolve(NXSEditBindings *,const NXSKeyEvent *,NXSEditCommand,void *);
+/* Translate a native menu modifier to the toolkit's physical modifier family.
+ * Returns zero when the provider has no corresponding modifier. */
+unsigned nxs_physical_modifier(unsigned native_modifier);
 unsigned nxs_native_ui_event_capabilities(void);
 /* Service native events on the owning UI thread. maximum_wait is in seconds;
  * zero is nonblocking. Return seconds until the next native deadline, or -1

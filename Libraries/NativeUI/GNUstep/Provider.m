@@ -93,7 +93,8 @@ __attribute__((visibility("default"))) const NXSNativeUIAPI *nxs_native_ui_provi
     .edit_bindings_create=nxs_host_edit_bindings_create,
     .edit_bindings_destroy=nxs_host_edit_bindings_destroy,
     .edit_bindings_reset=nxs_host_edit_bindings_reset,
-    .edit_bindings_resolve=nxs_host_edit_bindings_resolve
+    .edit_bindings_resolve=nxs_host_edit_bindings_resolve,
+    .physical_modifier=nxs_host_physical_modifier
   };
   return version==NXS_NATIVE_UI_ABI?&api:0;
 }

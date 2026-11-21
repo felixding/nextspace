@@ -1,5 +1,7 @@
 """Application D-Bus model binding to existing native controls, reusable by hosts."""
 import ctypes as C
+from dataclasses import replace
+from functools import lru_cache
 import json
 from pathlib import Path
 import time
@@ -11,6 +13,30 @@ from menu_events import application_event as deliver_event
 
 from types import SimpleNamespace
 import re
+
+SUBMENU_ACTION = 1 << 63
+
+try:
+    _xkb = C.CDLL('libxkbcommon.so.0')
+except OSError:
+    _xkb = None
+if _xkb is not None:
+    _xkb.xkb_keysym_from_name.argtypes = [C.c_char_p, C.c_int]
+    _xkb.xkb_keysym_from_name.restype = C.c_uint32
+    _xkb.xkb_keysym_to_utf32.argtypes = [C.c_uint32]
+    _xkb.xkb_keysym_to_utf32.restype = C.c_uint32
+
+
+@lru_cache(maxsize=256)
+def shortcut_character(key):
+    if len(key) == 1:
+        return key
+    if _xkb is None or not key.isascii():
+        return ''
+    # D-Bus menus can export a printable equivalent by its keysym name.
+    symbol = _xkb.xkb_keysym_from_name(key.encode('ascii'), 0)
+    character = chr(_xkb.xkb_keysym_to_utf32(symbol))
+    return character if character.isprintable() else ''
 
 
 class MenuBinding:
@@ -42,6 +68,18 @@ class MenuBinding:
             raise ValueError(f'Menu service PID {actual_pid} does not match window owner {a.owner}')
 
         native = load_native()
+        physical_modifier = getattr(native, 'nxs_physical_modifier', None)
+        toolkit_menu = a.path.startswith(('/org/nextspace/GtkMenu/', '/MenuBar/'))
+        physical_names = {'Control': 4, 'Alt': 2, 'Meta': 8, 'Super': 8}
+        toolkit_modifiers = {}
+        if toolkit_menu and physical_modifier:
+            physical_modifier.argtypes = [C.c_uint]
+            physical_modifier.restype = C.c_uint
+            # Match the GNUstep backend's role precedence.
+            for modifier in (8, 1, 4):
+                family = physical_modifier(modifier)
+                if family:
+                    toolkit_modifiers[family] = modifier
         Command = C.CFUNCTYPE(C.c_int, C.c_void_p, C.c_uint64, C.c_uint)
         Pump = C.CFUNCTYPE(None, C.c_void_p)
         native.nxs_menu_create.argtypes = [C.c_char_p, Command, Pump, C.c_void_p]
@@ -83,13 +121,27 @@ class MenuBinding:
 
         def projected(root):
             result, indices = [], {}
+            if submenu_action(root):
+                result.append((-1, action_item(root)))
             for index,(parent,node) in enumerate(flattened(root)):
                 if parent>=0 and parent not in indices:continue
                 if node.properties.get('x-nextspace-key-only') and not shortcut(node.properties.get('shortcut'))[0]:continue
                 indices[index] = len(result)
                 result.append((indices[parent] if parent>=0 else -1,node))
+                if submenu_action(node):
+                    result.append((indices[index],action_item(node)))
             return result
 
+        def submenu_action(node):
+            # Qt can export an action with both an accelerator and a submenu.
+            # Preserve that action inside the native menu's disclosure branch.
+            return (a.path.startswith('/MenuBar/') and node
+                    and node.properties.get('children-display') == 'submenu'
+                    and shortcut(node.properties.get('shortcut'))[0])
+
+        def action_item(node):
+            properties = {key:value for key,value in node.properties.items() if key != 'children-display'}
+            return replace(node, native=node.native | SUBMENU_ACTION, properties=properties, children=())
 
         def projection(root):
             result = []
@@ -102,7 +154,7 @@ class MenuBinding:
                 flags |= 32 if values.get('x-nextspace-key-only') else 0
                 if not flags&1 and native.nxs_native_ui_menu_capabilities()&MENU_STATE_SNAPSHOTS:
                     flags |= MENU_ENABLED_SNAPSHOT
-                key,modifiers = shortcut(values.get('shortcut'))
+                key,modifiers = (b'',0) if submenu_action(node) else shortcut(values.get('shortcut'))
                 result.append((parent,0 if flags&1 else node.native,display_title(node).encode(),key,modifiers,flags))
             return result
 
@@ -129,11 +181,16 @@ class MenuBinding:
             if not value or len(value)!=1 or not value[0]:
                 return b'',0
             sequence = value[0]
-            key = sequence[-1]
-            if len(key)!=1:
+            key = shortcut_character(sequence[-1])
+            if not key:
                 return b'',0
             modifiers = 0
             for modifier in sequence[:-1]:
+                if toolkit_modifiers and modifier in physical_names:
+                    role = toolkit_modifiers.get(physical_names[modifier])
+                    if not role:return b'',0
+                    modifiers |= role
+                    continue
                 if modifier in ('Control','Super','Meta'):modifiers |= 1
                 elif modifier=='Shift':modifiers |= 2
                 elif modifier=='Alt':modifiers |= 8
@@ -174,6 +231,10 @@ class MenuBinding:
 
         def command(unused,identifier,phase):
             nonlocal dirty
+            if identifier & SUBMENU_ACTION:
+                identifier &= ~SUBMENU_ACTION
+                if not submenu_action(model.nodes.get(identifier)):
+                    return 0
             if deferred and phase==1:
                 node = model.nodes.get(identifier)
                 if not alive or node is None or not node.properties.get('enabled',True) or not node.properties.get('visible',True):return 0

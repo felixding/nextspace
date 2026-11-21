@@ -194,9 +194,14 @@ static void placement(GtkScrolledWindow *window)
 static void settings_changed(GObject *object, GParamSpec *property, gpointer data) { placement(GTK_SCROLLED_WINDOW(object)); }
 static void direction_changed(GtkWidget *widget, GtkTextDirection previous, gpointer data) { placement(GTK_SCROLLED_WINDOW(widget)); }
 
+void nextspace_gtk_attach_editing(GtkWidget *);
+
 static gboolean mapped(GSignalInvocationHint *hint, guint count, const GValue *values, gpointer unused)
 {
   GtkWidget *widget = g_value_get_object(values);
+  nextspace_gtk_attach_editing(widget);
+  if (g_strcmp0(g_getenv("NEXTSPACE_SCROLLBARS"), "off") == 0)
+    return TRUE;
   GdkDisplay *display=gtk_widget_get_display(widget);
   if(!g_object_get_data(G_OBJECT(display),"nextspace-scroller-css")) {
     GtkCssProvider *css=gtk_css_provider_new();
@@ -250,12 +255,14 @@ static void visit(GtkWidget *widget)
 void nextspace_gtk4_scrollbars_init(void)
 {
   static gboolean initialized;
-  if (initialized || g_strcmp0(g_getenv("NEXTSPACE_SCROLLBARS"), "off") == 0) return;
+  if (initialized) return;
   initialized = TRUE;
-  GtkWidgetClass *klass = g_type_class_ref(GTK_TYPE_SCROLLBAR);
-  original_snapshot = klass->snapshot; klass->snapshot = snapshot;
-  GtkWidgetClass *scrolled=g_type_class_ref(GTK_TYPE_SCROLLED_WINDOW);
-  original_allocate=scrolled->size_allocate;scrolled->size_allocate=allocate;
+  if (g_strcmp0(g_getenv("NEXTSPACE_SCROLLBARS"), "off") != 0) {
+    GtkWidgetClass *klass = g_type_class_ref(GTK_TYPE_SCROLLBAR);
+    original_snapshot = klass->snapshot; klass->snapshot = snapshot;
+    GtkWidgetClass *scrolled=g_type_class_ref(GTK_TYPE_SCROLLED_WINDOW);
+    original_allocate=scrolled->size_allocate;scrolled->size_allocate=allocate;
+  }
   g_signal_add_emission_hook(g_signal_lookup("map", GTK_TYPE_WIDGET), 0, mapped, NULL, NULL);
   /* Late-loaded language bindings may have mapped their initial widgets. */
   GListModel *windows=gtk_window_get_toplevels();

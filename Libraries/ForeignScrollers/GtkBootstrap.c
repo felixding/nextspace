@@ -89,6 +89,20 @@ int g_application_run(void *application, int argc, char **argv)
   return next(application, argc, argv);
 }
 
+typedef void (*SetAccels)(void *, const char *, const char *const *);
+void gtk_application_set_accels_for_action(void *app, const char *action, const char *const *accels)
+{
+  unsigned major=gtk_major();
+  SetAccels original=symbol(major==4 ? "libgtk-4.so.1" : "libgtk-3.so.0",
+                            "gtk_application_set_accels_for_action");
+  if (!original) return;
+  install();
+  void (*bind)(void *, const char *, const char *const *, SetAccels) =
+      gtk_module ? dlsym(gtk_module, "nextspace_gtk_set_accels") : NULL;
+  if (bind) bind(app, action, accels, original);
+  else original(app, action, accels);
+}
+
 /* Hook only GTK 3's public menu entry points. Browsers keep their own adapters. */
 static void *menu_function(const char *native, const char *original)
 {

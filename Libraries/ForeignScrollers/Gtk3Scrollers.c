@@ -6,7 +6,7 @@
 #include <string.h>
 void nextspace_gtk3_attach_control(GtkWidget *);
 void nextspace_gtk3_attach_menu(GtkWidget *);
-void nextspace_gtk3_attach_editing(GtkWidget *);
+void nextspace_gtk_attach_editing(GtkWidget *);
 void nextspace_gtk3_observe_context_parent(void *);
 typedef struct {
   GtkWidget *widget;
@@ -123,7 +123,7 @@ static gboolean mapped(GSignalInvocationHint *hint,guint count,const GValue *val
   GtkWidget *widget=g_value_get_object(values);
   nextspace_gtk3_attach_control(widget);
   nextspace_gtk3_attach_menu(widget);
-  nextspace_gtk3_attach_editing(widget);
+  nextspace_gtk_attach_editing(widget);
   if (GTK_IS_WINDOW(widget) && gtk_window_get_window_type(GTK_WINDOW(widget)) == GTK_WINDOW_TOPLEVEL)
     g_idle_add_full(G_PRIORITY_DEFAULT_IDLE, observe_context, g_object_ref(widget), g_object_unref);
   if(g_strcmp0(g_getenv("NEXTSPACE_SCROLLBARS"),"off")==0) return TRUE;
